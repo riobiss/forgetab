@@ -4,7 +4,7 @@
   z-index: 1000;
 
   height: 72px;
-  padding: 0 32px; /* ⬅️ remove padding vertical */
+  padding: 0 32px;
 
   display: flex;
   align-items: center;
@@ -16,7 +16,6 @@
     0 2px 12px rgba(0, 0, 0, 0.8),
     inset 0 -1px 0 rgba(255, 80, 0, 0.15);
 }
-
 
 .header h1 {
   font-size: 1.8rem;
@@ -31,6 +30,7 @@
   display: flex;
   gap: 24px;
   list-style: none;
+  align-items: center;
 }
 
 .header nav a {
@@ -46,4 +46,55 @@
 .header nav a:hover {
   color: #ff7a18;
   text-shadow: 0 0 6px rgba(255, 90, 0, 0.6);
+}
+
+.userMenu {
+  position: relative;
+}
+
+.userButton {
+  border: 1px solid rgba(255, 90, 0, 0.35);
+  border-radius: 10px;
+  padding: 0.45rem 0.7rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: #d6d0c4;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.userButton:hover {
+  color: #ff7a18;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 140px;
+  border: 1px solid rgba(255, 90, 0, 0.35);
+  border-radius: 10px;
+  background: #1a130d;
+  padding: 0.35rem;
+  display: grid;
+  gap: 0.25rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+.dropdown a,
+.dropdown button {
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #d6d0c4;
+  text-align: left;
+  text-decoration: none;
+  font-size: 0.88rem;
+  padding: 0.45rem 0.55rem;
+  cursor: pointer;
+}
+
+.dropdown a:hover,
+.dropdown button:hover {
+  background: rgba(255, 122, 24, 0.12);
+  color: #ff7a18;
 }

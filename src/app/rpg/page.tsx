@@ -3,6 +3,9 @@ import Image from "next/image"
 import styles from "./page.module.css"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
+import { cookies } from "next/headers"
+import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import OwnedRpgActions from "./components/OwnedRpgActions"
 
 type CreatedRpg = {
   id: string
@@ -14,18 +17,34 @@ type CreatedRpg = {
 
 export default async function ViewRpg() {
   let createdRpgs: CreatedRpg[] = []
+  let userId: string | null = null
 
   try {
-    createdRpgs = await prisma.rpg.findMany({
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        visibility: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: "desc" },
-    })
+    const cookieStore = await cookies()
+    const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value
+
+    if (token) {
+      const payload = await verifyAuthToken(token)
+      userId = payload.userId
+    }
+  } catch {
+    userId = null
+  }
+
+  try {
+    if (userId) {
+      createdRpgs = await prisma.rpg.findMany({
+        where: { ownerId: userId },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          visibility: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+      })
+    }
   } catch {
     createdRpgs = []
   }
@@ -39,29 +58,34 @@ export default async function ViewRpg() {
         </Link>
       </div>
 
-      {createdRpgs.length > 0 ? (
+      {userId ? (
         <section className={styles.createdSection}>
-          <h3 className={styles.sectionTitle}>Criados por usuarios</h3>
+          <h3 className={styles.sectionTitle}>Seus RPGs</h3>
 
-          <div className={styles.createdGrid}>
-            {createdRpgs.map((item) => (
-              <article key={item.id} className={styles.createdCard}>
-                <h4>{item.title}</h4>
-                <p>{item.description}</p>
-                <small>
-                  {item.visibility === "public" ? "Publico" : "Privado"} |{" "}
-                  {new Date(item.createdAt).toLocaleDateString("pt-BR")}
-                </small>
+          {createdRpgs.length > 0 ? (
+            <div className={styles.createdGrid}>
+              {createdRpgs.map((item) => (
+                <article key={item.id} className={styles.createdCard}>
+                  <h4>{item.title}</h4>
+                  <p>{item.description}</p>
+                  <small>
+                    {item.visibility === "public" ? "Publico" : "Privado"} |{" "}
+                    {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+                  </small>
 
-                <div className={styles.createdActions}>
-                  <Link href={`/rpg/${item.id}`}>Abrir</Link>
-                  <Link href={`/rpg/${item.id}/edit`}>Editar RPG</Link>
-                </div>
-              </article>
-            ))}
-          </div>
+                  <OwnedRpgActions rpgId={item.id} />
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.authMessage}>Voce ainda nao criou RPGs.</p>
+          )}
         </section>
-      ) : null}
+      ) : (
+        <p className={styles.authMessage}>
+          Faca login para ver os RPGs que voce criou.
+        </p>
+      )}
 
       <main className={styles.containerMain}>
         {rpg.map((item) => (

@@ -5,6 +5,8 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../../generated/prisma/client"
+import { cookies } from "next/headers"
+import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 
 type Params = {
   params: Promise<{
@@ -18,6 +20,22 @@ type DbCharacterRow = {
   name: string
   attributes: Prisma.JsonValue
   createdAt: Date
+}
+
+async function getUserIdFromCookie() {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value
+
+    if (!token) {
+      return null
+    }
+
+    const payload = await verifyAuthToken(token)
+    return payload.userId
+  } catch {
+    return null
+  }
 }
 
 const skillLabels: Record<string, string> = {
@@ -61,6 +79,26 @@ export default async function CharactersPage({ params }: Params) {
     let dbCharacter: DbCharacterRow[] = []
 
     try {
+      const dbRpg = await prisma.rpg.findUnique({
+        where: { id: rpgId },
+        select: {
+          id: true,
+          ownerId: true,
+          visibility: true,
+        },
+      })
+
+      if (!dbRpg) {
+        notFound()
+      }
+
+      const userId = await getUserIdFromCookie()
+      const isOwner = userId === dbRpg.ownerId
+
+      if (dbRpg.visibility === "private" && !isOwner) {
+        notFound()
+      }
+
       dbCharacter = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
         SELECT id, name, attributes, created_at AS "createdAt"
         FROM rpg_characters

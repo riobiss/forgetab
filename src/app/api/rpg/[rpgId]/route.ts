@@ -111,7 +111,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       )
     }
 
-    return NextResponse.json({ message: "RPG atualizado com sucesso." }, { status: 200 })
+    return NextResponse.json(
+      { message: "RPG atualizado com sucesso." },
+      { status: 200 },
+    )
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2021") {
@@ -136,6 +139,60 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     return NextResponse.json(
       { message: "Erro interno ao atualizar RPG." },
+      { status: 500 },
+    )
+  }
+}
+
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  try {
+    const userId = await getUserIdFromToken(request)
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Usuario nao autenticado." },
+        { status: 401 },
+      )
+    }
+
+    const { rpgId } = await context.params
+
+    const deleted = await prisma.rpg.deleteMany({
+      where: { id: rpgId, ownerId: userId },
+    })
+
+    if (deleted.count === 0) {
+      return NextResponse.json(
+        { message: "RPG nao encontrado." },
+        { status: 404 },
+      )
+    }
+
+    return NextResponse.json({ message: "RPG deletado com sucesso." }, { status: 200 })
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2021") {
+        return NextResponse.json(
+          { message: "Tabela de RPG nao existe no banco. Rode a migration." },
+          { status: 500 },
+        )
+      }
+    }
+
+    if (error instanceof Error) {
+      if (
+        error.message.includes('relation "rpgs" does not exist') ||
+        error.message.includes("Could not find the table")
+      ) {
+        return NextResponse.json(
+          { message: "Tabela de RPG nao existe no banco. Rode a migration." },
+          { status: 500 },
+        )
+      }
+    }
+
+    return NextResponse.json(
+      { message: "Erro interno ao deletar RPG." },
       { status: 500 },
     )
   }

@@ -5,6 +5,9 @@ import styles from "./page.module.css"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../generated/prisma/client"
+import { cookies } from "next/headers"
+import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { notFound } from "next/navigation"
 
 type Params = {
   params: Promise<{
@@ -18,29 +21,59 @@ type DbCharacterRow = {
   attributes: Prisma.JsonValue
 }
 
+async function getUserIdFromCookie() {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value
+
+    if (!token) {
+      return null
+    }
+
+    const payload = await verifyAuthToken(token)
+    return payload.userId
+  } catch {
+    return null
+  }
+}
+
 export default async function CharactersPage({ params }: Params) {
   const { rpgId } = await params
 
-  let dbRpg: { id: string } | null = null
+  let dbRpg:
+    | { id: string; ownerId: string; visibility: "private" | "public" }
+    | null = null
   let dbCharacters: DbCharacterRow[] = []
+  let privateBlocked = false
 
   try {
     dbRpg = await prisma.rpg.findUnique({
       where: { id: rpgId },
-      select: { id: true },
+      select: { id: true, ownerId: true, visibility: true },
     })
 
-    dbCharacters = dbRpg
-      ? await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
+    if (dbRpg) {
+      const userId = await getUserIdFromCookie()
+      const isOwner = userId === dbRpg.ownerId
+
+      if (dbRpg.visibility === "private" && !isOwner) {
+        privateBlocked = true
+      } else {
+        dbCharacters = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
           SELECT id, name, attributes
           FROM rpg_characters
           WHERE rpg_id = ${rpgId}
           ORDER BY created_at DESC
         `)
-      : []
+      }
+    }
   } catch {
     dbRpg = null
     dbCharacters = []
+  }
+
+  if (privateBlocked) {
+    notFound()
   }
 
   const staticRpg = rpgs.find((r) => r.id === Number(rpgId))
@@ -52,12 +85,15 @@ export default async function CharactersPage({ params }: Params) {
     return <div>RPG nao encontrado</div>
   }
 
+  const userId = await getUserIdFromCookie()
+  const canCreateCharacter = Boolean(dbRpg && userId === dbRpg.ownerId)
+
   return (
     <main className={styles.container}>
       <div className={styles.topbar}>
         <h1 className={styles.title}>Personagens</h1>
 
-        {dbRpg ? (
+        {canCreateCharacter ? (
           <Link href={`/rpg/${rpgId}/characters/novo`} className={styles.createButton}>
             Criar personagem
           </Link>

@@ -38,6 +38,7 @@ export default function EditRpgPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [canEdit, setCanEdit] = useState(false)
 
   const [selectedAttributeKeys, setSelectedAttributeKeys] = useState<string[]>([])
   const [attributesLoading, setAttributesLoading] = useState(false)
@@ -60,15 +61,18 @@ export default function EditRpgPage() {
         const payload = (await response.json()) as RpgPayload & { message?: string }
 
         if (!response.ok) {
-          setError(payload.message ?? "Nao foi possivel carregar o RPG.")
+          setError(payload.message ?? "Voce nao pode editar este RPG.")
+          setCanEdit(false)
           return
         }
 
         setTitle(payload.rpg.title)
         setDescription(payload.rpg.description)
         setVisibility(payload.rpg.visibility)
+        setCanEdit(true)
       } catch {
         setError("Erro de conexao ao carregar RPG.")
+        setCanEdit(false)
       } finally {
         setLoading(false)
       }
@@ -173,6 +177,20 @@ export default function EditRpgPage() {
       <main className={styles.page}>
         <section className={styles.card}>
           <p>Carregando RPG...</p>
+        </section>
+      </main>
+    )
+  }
+
+  if (!canEdit) {
+    return (
+      <main className={styles.page}>
+        <section className={styles.card}>
+          <h1>Edicao bloqueada</h1>
+          <p className={styles.error}>{error || "Voce nao pode editar este RPG."}</p>
+          <div className={styles.actions}>
+            <Link href="/rpg">Voltar para RPGs</Link>
+          </div>
         </section>
       </main>
     )
