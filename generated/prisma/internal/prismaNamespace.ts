@@ -385,7 +385,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
-  Rpg: 'Rpg'
+  Rpg: 'Rpg',
+  BaseItem: 'BaseItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -401,7 +402,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "rpg"
+    modelProps: "user" | "rpg" | "baseItem"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -553,6 +554,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BaseItem: {
+      payload: Prisma.$BaseItemPayload<ExtArgs>
+      fields: Prisma.BaseItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BaseItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BaseItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseItemPayload>
+        }
+        findFirst: {
+          args: Prisma.BaseItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BaseItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseItemPayload>
+        }
+        findMany: {
+          args: Prisma.BaseItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseItemPayload>[]
+        }
+        create: {
+          args: Prisma.BaseItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseItemPayload>
+        }
+        createMany: {
+          args: Prisma.BaseItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BaseItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseItemPayload>[]
+        }
+        delete: {
+          args: Prisma.BaseItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseItemPayload>
+        }
+        update: {
+          args: Prisma.BaseItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.BaseItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BaseItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BaseItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.BaseItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseItemPayload>
+        }
+        aggregate: {
+          args: Prisma.BaseItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBaseItem>
+        }
+        groupBy: {
+          args: Prisma.BaseItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BaseItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BaseItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BaseItemCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -613,6 +688,19 @@ export const RpgScalarFieldEnum = {
 } as const
 
 export type RpgScalarFieldEnum = (typeof RpgScalarFieldEnum)[keyof typeof RpgScalarFieldEnum]
+
+
+export const BaseItemScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  name: 'name',
+  type: 'type',
+  rarity: 'rarity',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BaseItemScalarFieldEnum = (typeof BaseItemScalarFieldEnum)[keyof typeof BaseItemScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -676,6 +764,34 @@ export type EnumRpgVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'RpgVisibility[]'
  */
 export type ListEnumRpgVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RpgVisibility[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BaseItemType'
+ */
+export type EnumBaseItemTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BaseItemType'>
+    
+
+
+/**
+ * Reference to a field of type 'BaseItemType[]'
+ */
+export type ListEnumBaseItemTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BaseItemType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BaseItemRarity'
+ */
+export type EnumBaseItemRarityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BaseItemRarity'>
+    
+
+
+/**
+ * Reference to a field of type 'BaseItemRarity[]'
+ */
+export type ListEnumBaseItemRarityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BaseItemRarity[]'>
     
 
 
@@ -789,6 +905,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   rpg?: Prisma.RpgOmit
+  baseItem?: Prisma.BaseItemOmit
 }
 
 /* Types for Logging */

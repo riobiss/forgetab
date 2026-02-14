@@ -191,6 +191,7 @@ export type RpgWhereInput = {
   visibility?: Prisma.EnumRpgVisibilityFilter<"Rpg"> | $Enums.RpgVisibility
   createdAt?: Prisma.DateTimeFilter<"Rpg"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  baseItems?: Prisma.BaseItemListRelationFilter
 }
 
 export type RpgOrderByWithRelationInput = {
@@ -201,6 +202,7 @@ export type RpgOrderByWithRelationInput = {
   visibility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   owner?: Prisma.UserOrderByWithRelationInput
+  baseItems?: Prisma.BaseItemOrderByRelationAggregateInput
 }
 
 export type RpgWhereUniqueInput = Prisma.AtLeast<{
@@ -214,6 +216,7 @@ export type RpgWhereUniqueInput = Prisma.AtLeast<{
   visibility?: Prisma.EnumRpgVisibilityFilter<"Rpg"> | $Enums.RpgVisibility
   createdAt?: Prisma.DateTimeFilter<"Rpg"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  baseItems?: Prisma.BaseItemListRelationFilter
 }, "id">
 
 export type RpgOrderByWithAggregationInput = {
@@ -247,6 +250,7 @@ export type RpgCreateInput = {
   visibility?: $Enums.RpgVisibility
   createdAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutRpgsInput
+  baseItems?: Prisma.BaseItemCreateNestedManyWithoutRpgInput
 }
 
 export type RpgUncheckedCreateInput = {
@@ -256,6 +260,7 @@ export type RpgUncheckedCreateInput = {
   description: string
   visibility?: $Enums.RpgVisibility
   createdAt?: Date | string
+  baseItems?: Prisma.BaseItemUncheckedCreateNestedManyWithoutRpgInput
 }
 
 export type RpgUpdateInput = {
@@ -265,6 +270,7 @@ export type RpgUpdateInput = {
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutRpgsNestedInput
+  baseItems?: Prisma.BaseItemUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgUncheckedUpdateInput = {
@@ -274,6 +280,7 @@ export type RpgUncheckedUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  baseItems?: Prisma.BaseItemUncheckedUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgCreateManyInput = {
@@ -339,6 +346,11 @@ export type RpgMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
+export type RpgScalarRelationFilter = {
+  is?: Prisma.RpgWhereInput
+  isNot?: Prisma.RpgWhereInput
+}
+
 export type RpgCreateNestedManyWithoutOwnerInput = {
   create?: Prisma.XOR<Prisma.RpgCreateWithoutOwnerInput, Prisma.RpgUncheckedCreateWithoutOwnerInput> | Prisma.RpgCreateWithoutOwnerInput[] | Prisma.RpgUncheckedCreateWithoutOwnerInput[]
   connectOrCreate?: Prisma.RpgCreateOrConnectWithoutOwnerInput | Prisma.RpgCreateOrConnectWithoutOwnerInput[]
@@ -385,12 +397,27 @@ export type EnumRpgVisibilityFieldUpdateOperationsInput = {
   set?: $Enums.RpgVisibility
 }
 
+export type RpgCreateNestedOneWithoutBaseItemsInput = {
+  create?: Prisma.XOR<Prisma.RpgCreateWithoutBaseItemsInput, Prisma.RpgUncheckedCreateWithoutBaseItemsInput>
+  connectOrCreate?: Prisma.RpgCreateOrConnectWithoutBaseItemsInput
+  connect?: Prisma.RpgWhereUniqueInput
+}
+
+export type RpgUpdateOneRequiredWithoutBaseItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.RpgCreateWithoutBaseItemsInput, Prisma.RpgUncheckedCreateWithoutBaseItemsInput>
+  connectOrCreate?: Prisma.RpgCreateOrConnectWithoutBaseItemsInput
+  upsert?: Prisma.RpgUpsertWithoutBaseItemsInput
+  connect?: Prisma.RpgWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RpgUpdateToOneWithWhereWithoutBaseItemsInput, Prisma.RpgUpdateWithoutBaseItemsInput>, Prisma.RpgUncheckedUpdateWithoutBaseItemsInput>
+}
+
 export type RpgCreateWithoutOwnerInput = {
   id?: string
   title: string
   description: string
   visibility?: $Enums.RpgVisibility
   createdAt?: Date | string
+  baseItems?: Prisma.BaseItemCreateNestedManyWithoutRpgInput
 }
 
 export type RpgUncheckedCreateWithoutOwnerInput = {
@@ -399,6 +426,7 @@ export type RpgUncheckedCreateWithoutOwnerInput = {
   description: string
   visibility?: $Enums.RpgVisibility
   createdAt?: Date | string
+  baseItems?: Prisma.BaseItemUncheckedCreateNestedManyWithoutRpgInput
 }
 
 export type RpgCreateOrConnectWithoutOwnerInput = {
@@ -439,6 +467,58 @@ export type RpgScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Rpg"> | Date | string
 }
 
+export type RpgCreateWithoutBaseItemsInput = {
+  id?: string
+  title: string
+  description: string
+  visibility?: $Enums.RpgVisibility
+  createdAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutRpgsInput
+}
+
+export type RpgUncheckedCreateWithoutBaseItemsInput = {
+  id?: string
+  ownerId: string
+  title: string
+  description: string
+  visibility?: $Enums.RpgVisibility
+  createdAt?: Date | string
+}
+
+export type RpgCreateOrConnectWithoutBaseItemsInput = {
+  where: Prisma.RpgWhereUniqueInput
+  create: Prisma.XOR<Prisma.RpgCreateWithoutBaseItemsInput, Prisma.RpgUncheckedCreateWithoutBaseItemsInput>
+}
+
+export type RpgUpsertWithoutBaseItemsInput = {
+  update: Prisma.XOR<Prisma.RpgUpdateWithoutBaseItemsInput, Prisma.RpgUncheckedUpdateWithoutBaseItemsInput>
+  create: Prisma.XOR<Prisma.RpgCreateWithoutBaseItemsInput, Prisma.RpgUncheckedCreateWithoutBaseItemsInput>
+  where?: Prisma.RpgWhereInput
+}
+
+export type RpgUpdateToOneWithWhereWithoutBaseItemsInput = {
+  where?: Prisma.RpgWhereInput
+  data: Prisma.XOR<Prisma.RpgUpdateWithoutBaseItemsInput, Prisma.RpgUncheckedUpdateWithoutBaseItemsInput>
+}
+
+export type RpgUpdateWithoutBaseItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutRpgsNestedInput
+}
+
+export type RpgUncheckedUpdateWithoutBaseItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type RpgCreateManyOwnerInput = {
   id?: string
   title: string
@@ -453,6 +533,7 @@ export type RpgUpdateWithoutOwnerInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  baseItems?: Prisma.BaseItemUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgUncheckedUpdateWithoutOwnerInput = {
@@ -461,6 +542,7 @@ export type RpgUncheckedUpdateWithoutOwnerInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  baseItems?: Prisma.BaseItemUncheckedUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgUncheckedUpdateManyWithoutOwnerInput = {
@@ -472,6 +554,35 @@ export type RpgUncheckedUpdateManyWithoutOwnerInput = {
 }
 
 
+/**
+ * Count Type RpgCountOutputType
+ */
+
+export type RpgCountOutputType = {
+  baseItems: number
+}
+
+export type RpgCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  baseItems?: boolean | RpgCountOutputTypeCountBaseItemsArgs
+}
+
+/**
+ * RpgCountOutputType without action
+ */
+export type RpgCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RpgCountOutputType
+   */
+  select?: Prisma.RpgCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * RpgCountOutputType without action
+ */
+export type RpgCountOutputTypeCountBaseItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BaseItemWhereInput
+}
+
 
 export type RpgSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -481,6 +592,8 @@ export type RpgSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   visibility?: boolean
   createdAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  baseItems?: boolean | Prisma.Rpg$baseItemsArgs<ExtArgs>
+  _count?: boolean | Prisma.RpgCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rpg"]>
 
 export type RpgSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -515,6 +628,8 @@ export type RpgSelectScalar = {
 export type RpgOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerId" | "title" | "description" | "visibility" | "createdAt", ExtArgs["result"]["rpg"]>
 export type RpgInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  baseItems?: boolean | Prisma.Rpg$baseItemsArgs<ExtArgs>
+  _count?: boolean | Prisma.RpgCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RpgIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -527,6 +642,7 @@ export type $RpgPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   name: "Rpg"
   objects: {
     owner: Prisma.$UserPayload<ExtArgs>
+    baseItems: Prisma.$BaseItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -930,6 +1046,7 @@ readonly fields: RpgFieldRefs;
 export interface Prisma__RpgClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  baseItems<T extends Prisma.Rpg$baseItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Rpg$baseItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BaseItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1358,6 +1475,30 @@ export type RpgDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Limit how many Rpgs to delete.
    */
   limit?: number
+}
+
+/**
+ * Rpg.baseItems
+ */
+export type Rpg$baseItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BaseItem
+   */
+  select?: Prisma.BaseItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BaseItem
+   */
+  omit?: Prisma.BaseItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BaseItemInclude<ExtArgs> | null
+  where?: Prisma.BaseItemWhereInput
+  orderBy?: Prisma.BaseItemOrderByWithRelationInput | Prisma.BaseItemOrderByWithRelationInput[]
+  cursor?: Prisma.BaseItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BaseItemScalarFieldEnum | Prisma.BaseItemScalarFieldEnum[]
 }
 
 /**

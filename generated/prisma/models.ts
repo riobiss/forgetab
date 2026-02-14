@@ -10,4 +10,5 @@
  */
 export type * from './models/User'
 export type * from './models/Rpg'
+export type * from './models/BaseItem'
 export type * from './commonInputTypes'

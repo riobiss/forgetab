@@ -89,6 +89,40 @@ export type EnumRpgVisibilityWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumRpgVisibilityFilter<$PrismaModel>
 }
 
+export type EnumBaseItemTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.BaseItemType | Prisma.EnumBaseItemTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BaseItemType[] | Prisma.ListEnumBaseItemTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BaseItemType[] | Prisma.ListEnumBaseItemTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBaseItemTypeFilter<$PrismaModel> | $Enums.BaseItemType
+}
+
+export type EnumBaseItemRarityFilter<$PrismaModel = never> = {
+  equals?: $Enums.BaseItemRarity | Prisma.EnumBaseItemRarityFieldRefInput<$PrismaModel>
+  in?: $Enums.BaseItemRarity[] | Prisma.ListEnumBaseItemRarityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BaseItemRarity[] | Prisma.ListEnumBaseItemRarityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBaseItemRarityFilter<$PrismaModel> | $Enums.BaseItemRarity
+}
+
+export type EnumBaseItemTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BaseItemType | Prisma.EnumBaseItemTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BaseItemType[] | Prisma.ListEnumBaseItemTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BaseItemType[] | Prisma.ListEnumBaseItemTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBaseItemTypeWithAggregatesFilter<$PrismaModel> | $Enums.BaseItemType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBaseItemTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBaseItemTypeFilter<$PrismaModel>
+}
+
+export type EnumBaseItemRarityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BaseItemRarity | Prisma.EnumBaseItemRarityFieldRefInput<$PrismaModel>
+  in?: $Enums.BaseItemRarity[] | Prisma.ListEnumBaseItemRarityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BaseItemRarity[] | Prisma.ListEnumBaseItemRarityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBaseItemRarityWithAggregatesFilter<$PrismaModel> | $Enums.BaseItemRarity
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBaseItemRarityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBaseItemRarityFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -171,6 +205,40 @@ export type NestedEnumRpgVisibilityWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumRpgVisibilityFilter<$PrismaModel>
   _max?: Prisma.NestedEnumRpgVisibilityFilter<$PrismaModel>
+}
+
+export type NestedEnumBaseItemTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.BaseItemType | Prisma.EnumBaseItemTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BaseItemType[] | Prisma.ListEnumBaseItemTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BaseItemType[] | Prisma.ListEnumBaseItemTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBaseItemTypeFilter<$PrismaModel> | $Enums.BaseItemType
+}
+
+export type NestedEnumBaseItemRarityFilter<$PrismaModel = never> = {
+  equals?: $Enums.BaseItemRarity | Prisma.EnumBaseItemRarityFieldRefInput<$PrismaModel>
+  in?: $Enums.BaseItemRarity[] | Prisma.ListEnumBaseItemRarityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BaseItemRarity[] | Prisma.ListEnumBaseItemRarityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBaseItemRarityFilter<$PrismaModel> | $Enums.BaseItemRarity
+}
+
+export type NestedEnumBaseItemTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BaseItemType | Prisma.EnumBaseItemTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BaseItemType[] | Prisma.ListEnumBaseItemTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BaseItemType[] | Prisma.ListEnumBaseItemTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBaseItemTypeWithAggregatesFilter<$PrismaModel> | $Enums.BaseItemType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBaseItemTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBaseItemTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumBaseItemRarityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BaseItemRarity | Prisma.EnumBaseItemRarityFieldRefInput<$PrismaModel>
+  in?: $Enums.BaseItemRarity[] | Prisma.ListEnumBaseItemRarityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BaseItemRarity[] | Prisma.ListEnumBaseItemRarityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBaseItemRarityWithAggregatesFilter<$PrismaModel> | $Enums.BaseItemRarity
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBaseItemRarityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBaseItemRarityFilter<$PrismaModel>
 }
 
 

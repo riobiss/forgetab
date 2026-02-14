@@ -49,3 +49,8 @@ export type User = Prisma.UserModel
  * 
  */
 export type Rpg = Prisma.RpgModel
+/**
+ * Model BaseItem
+ * 
+ */
+export type BaseItem = Prisma.BaseItemModel

@@ -52,7 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  Rpg: 'Rpg'
+  Rpg: 'Rpg',
+  BaseItem: 'BaseItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -92,6 +93,19 @@ export const RpgScalarFieldEnum = {
 } as const
 
 export type RpgScalarFieldEnum = (typeof RpgScalarFieldEnum)[keyof typeof RpgScalarFieldEnum]
+
+
+export const BaseItemScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  name: 'name',
+  type: 'type',
+  rarity: 'rarity',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BaseItemScalarFieldEnum = (typeof BaseItemScalarFieldEnum)[keyof typeof BaseItemScalarFieldEnum]
 
 
 export const SortOrder = {

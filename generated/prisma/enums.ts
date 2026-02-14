@@ -15,3 +15,26 @@ export const RpgVisibility = {
 } as const
 
 export type RpgVisibility = (typeof RpgVisibility)[keyof typeof RpgVisibility]
+
+
+export const BaseItemType = {
+  weapon: 'weapon',
+  armor: 'armor',
+  consumable: 'consumable',
+  accessory: 'accessory',
+  material: 'material',
+  quest: 'quest'
+} as const
+
+export type BaseItemType = (typeof BaseItemType)[keyof typeof BaseItemType]
+
+
+export const BaseItemRarity = {
+  common: 'common',
+  uncommon: 'uncommon',
+  rare: 'rare',
+  epic: 'epic',
+  legendary: 'legendary'
+} as const
+
+export type BaseItemRarity = (typeof BaseItemRarity)[keyof typeof BaseItemRarity]
