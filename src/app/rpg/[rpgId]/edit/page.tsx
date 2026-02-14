@@ -1,9 +1,10 @@
 "use client"
 
-import { FormEvent, useEffect, useState } from "react"
+import { FormEvent, useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import styles from "./page.module.css"
+import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
 
 type Visibility = "private" | "public"
 
@@ -14,6 +15,15 @@ type RpgPayload = {
     description: string
     visibility: Visibility
   }
+}
+
+type AttributeTemplatePayload = {
+  attributes?: Array<{
+    key: string
+    label: string
+    position: number
+  }>
+  message?: string
 }
 
 export default function EditRpgPage() {
@@ -28,6 +38,17 @@ export default function EditRpgPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [showAdvanced, setShowAdvanced] = useState(false)
+
+  const [selectedAttributeKeys, setSelectedAttributeKeys] = useState<string[]>([])
+  const [attributesLoading, setAttributesLoading] = useState(false)
+  const [attributesSaving, setAttributesSaving] = useState(false)
+  const [attributesError, setAttributesError] = useState("")
+  const [attributesSuccess, setAttributesSuccess] = useState("")
+
+  const selectedCount = useMemo(
+    () => selectedAttributeKeys.length,
+    [selectedAttributeKeys],
+  )
 
   useEffect(() => {
     async function loadRpg() {
@@ -53,8 +74,31 @@ export default function EditRpgPage() {
       }
     }
 
+    async function loadAttributeTemplate() {
+      try {
+        setAttributesLoading(true)
+        setAttributesError("")
+
+        const response = await fetch(`/api/rpg/${rpgId}/attributes`)
+        const payload = (await response.json()) as AttributeTemplatePayload
+
+        if (!response.ok) {
+          setAttributesError(payload.message ?? "Nao foi possivel carregar atributos.")
+          return
+        }
+
+        const keys = (payload.attributes ?? []).map((item) => item.key)
+        setSelectedAttributeKeys(keys)
+      } catch {
+        setAttributesError("Erro de conexao ao carregar atributos.")
+      } finally {
+        setAttributesLoading(false)
+      }
+    }
+
     if (rpgId) {
       void loadRpg()
+      void loadAttributeTemplate()
     }
   }, [rpgId])
 
@@ -84,6 +128,44 @@ export default function EditRpgPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  async function handleSaveAttributes() {
+    setAttributesSaving(true)
+    setAttributesError("")
+    setAttributesSuccess("")
+
+    try {
+      const response = await fetch(`/api/rpg/${rpgId}/attributes`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attributes: selectedAttributeKeys }),
+      })
+
+      const payload = (await response.json()) as { message?: string }
+
+      if (!response.ok) {
+        setAttributesError(payload.message ?? "Nao foi possivel salvar os atributos.")
+        return
+      }
+
+      setAttributesSuccess("Padrao de atributos salvo com sucesso.")
+    } catch {
+      setAttributesError("Erro de conexao ao salvar atributos.")
+    } finally {
+      setAttributesSaving(false)
+    }
+  }
+
+  function toggleAttribute(key: string) {
+    setAttributesSuccess("")
+    setSelectedAttributeKeys((prev) => {
+      if (prev.includes(key)) {
+        return prev.filter((item) => item !== key)
+      }
+
+      return [...prev, key]
+    })
   }
 
   if (loading) {
@@ -119,6 +201,48 @@ export default function EditRpgPage() {
               <Link href={`/rpg/${rpgId}/characters`}>Sessao de Personagens</Link>
               <Link href={`/rpg/${rpgId}/classes`}>Sessao de Classes</Link>
               <Link href={`/rpg/${rpgId}/items`}>Sessao de Itens</Link>
+            </div>
+
+            <div className={styles.attributeTemplateSection}>
+              <h3>Padrao de Atributos do RPG</h3>
+              <p>
+                Todo personagem novo deste RPG deve preencher estes atributos.
+              </p>
+
+              {attributesLoading ? <p>Carregando atributos...</p> : null}
+
+              {!attributesLoading ? (
+                <div className={styles.attributeGrid}>
+                  {ATTRIBUTE_CATALOG.map((item) => {
+                    const checked = selectedAttributeKeys.includes(item.key)
+
+                    return (
+                      <label key={item.key} className={styles.attributeOption}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleAttribute(item.key)}
+                        />
+                        <span>{item.label}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              ) : null}
+
+              <div className={styles.attributeActions}>
+                <span>{selectedCount} atributo(s) selecionado(s)</span>
+                <button
+                  type="button"
+                  onClick={handleSaveAttributes}
+                  disabled={attributesSaving || attributesLoading}
+                >
+                  {attributesSaving ? "Salvando..." : "Salvar padrao"}
+                </button>
+              </div>
+
+              {attributesError ? <p className={styles.error}>{attributesError}</p> : null}
+              {attributesSuccess ? <p className={styles.success}>{attributesSuccess}</p> : null}
             </div>
           </section>
         ) : null}

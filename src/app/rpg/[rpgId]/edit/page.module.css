@@ -6,7 +6,7 @@
 }
 
 .card {
-  width: min(640px, 100%);
+  width: min(760px, 100%);
   background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
   border: 1px solid var(--border-soft);
   border-radius: 14px;
@@ -71,6 +71,66 @@
   font-weight: 700;
 }
 
+.attributeTemplateSection {
+  margin-top: 1rem;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 1rem;
+}
+
+.attributeTemplateSection h3 {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.attributeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+}
+
+.attributeOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.attributeOption input {
+  width: 16px;
+  height: 16px;
+}
+
+.attributeOption span {
+  color: var(--text-main);
+  font-size: 0.88rem;
+}
+
+.attributeActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.8rem;
+  gap: 1rem;
+}
+
+.attributeActions span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.attributeActions button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.55rem 0.8rem;
+  background: var(--accent-main);
+  color: var(--bg-main);
+  cursor: pointer;
+  font-weight: 700;
+}
+
 .form {
   display: grid;
   gap: 1rem;
@@ -98,6 +158,11 @@
   margin: 0;
 }
 
+.success {
+  color: #34d399;
+  margin: 0;
+}
+
 .actions {
   display: flex;
   align-items: center;
@@ -122,4 +187,12 @@
 .actions a {
   color: var(--text-muted);
   text-decoration: none;
+}
+
+@media (max-width: 720px) {
+  .attributeActions,
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

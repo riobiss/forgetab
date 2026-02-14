@@ -3,6 +3,8 @@ import { PlayerCharacter } from "@/types/PlayerCharacter"
 import Image from "next/image"
 import styles from "./page.module.css"
 import Link from "next/link"
+import { prisma } from "@/lib/prisma"
+import { Prisma } from "../../../../../generated/prisma/client"
 
 type Params = {
   params: Promise<{
@@ -10,35 +12,110 @@ type Params = {
   }>
 }
 
+type DbCharacterRow = {
+  id: string
+  name: string
+  attributes: Prisma.JsonValue
+}
+
 export default async function CharactersPage({ params }: Params) {
   const { rpgId } = await params
-  const rpg = rpgs.find((r) => r.id === Number(rpgId))
-  if (!rpg) return <div>RPG não encontrado</div>
 
-  const characters = rpg.charactersData as PlayerCharacter[]
+  let dbRpg: { id: string } | null = null
+  let dbCharacters: DbCharacterRow[] = []
+
+  try {
+    dbRpg = await prisma.rpg.findUnique({
+      where: { id: rpgId },
+      select: { id: true },
+    })
+
+    dbCharacters = dbRpg
+      ? await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
+          SELECT id, name, attributes
+          FROM rpg_characters
+          WHERE rpg_id = ${rpgId}
+          ORDER BY created_at DESC
+        `)
+      : []
+  } catch {
+    dbRpg = null
+    dbCharacters = []
+  }
+
+  const staticRpg = rpgs.find((r) => r.id === Number(rpgId))
+  const staticCharacters = staticRpg
+    ? (staticRpg.charactersData as PlayerCharacter[])
+    : []
+
+  if (!dbRpg && !staticRpg) {
+    return <div>RPG nao encontrado</div>
+  }
 
   return (
     <main className={styles.container}>
-      <h1 className={styles.title}>Personagens</h1>
-      <section className={styles.grid}>
-        {characters.map((c) => (
-          <article key={c.id} className={styles.card}>
-            <Link href={`/rpg/${rpg.id}/characters/${c.id}`}>
-              <Image
-                src={c.image}
-                alt={`Imagem do personagem ${c.identity.name}`}
-                fill
-                className={styles.image}
-                priority
-                sizes="(max-width: 1099px) 50vw, 33vw"
-              />
-              <div className={styles.overlay}>
-                <h2 className={styles.name}>{c.identity.name}</h2>
-              </div>
-            </Link>
-          </article>
-        ))}
-      </section>
+      <div className={styles.topbar}>
+        <h1 className={styles.title}>Personagens</h1>
+
+        {dbRpg ? (
+          <Link href={`/rpg/${rpgId}/characters/novo`} className={styles.createButton}>
+            Criar personagem
+          </Link>
+        ) : null}
+      </div>
+
+      {dbCharacters.length > 0 ? (
+        <section className={styles.dbSection}>
+          <h2>Personagens criados no seu RPG</h2>
+          <div className={styles.dbGrid}>
+            {dbCharacters.map((character) => (
+              <article key={character.id} className={styles.dbCard}>
+                <h3>{character.name}</h3>
+                <p>
+                  {
+                    Object.keys(
+                      (character.attributes as Record<string, unknown>) ?? {},
+                    ).length
+                  }{" "}
+                  atributos configurados
+                </p>
+                <Link href={`/rpg/${rpgId}/characters/${character.id}`}>
+                  Ver ficha
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {staticCharacters.length > 0 ? (
+        <section>
+          <h2 className={styles.sectionTitle}>Personagens do conteudo base</h2>
+          <div className={styles.grid}>
+            {staticCharacters.map((c) => (
+              <article key={c.id} className={styles.card}>
+                <Link href={`/rpg/${staticRpg?.id}/characters/${c.id}`}>
+                  <Image
+                    src={c.image}
+                    alt={`Imagem do personagem ${c.identity.name}`}
+                    fill
+                    className={styles.image}
+                    priority
+                    sizes="(max-width: 1099px) 50vw, 33vw"
+                  />
+                  <div className={styles.overlay}>
+                    <h2 className={styles.name}>{c.identity.name}</h2>
+                  </div>
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {dbCharacters.length === 0 && staticCharacters.length === 0 ? (
+        <p className={styles.emptyState}>Nenhum personagem encontrado.</p>
+      ) : null}
     </main>
   )
 }

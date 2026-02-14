@@ -47,14 +47,16 @@ enum BaseItemRarity {
 }
 
 model Rpg {
-  id          String        @id @default(cuid())
-  ownerId     String        @map("owner_id")
-  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  title       String
-  description String
-  visibility  RpgVisibility @default(private)
-  createdAt   DateTime      @default(now()) @map("created_at")
-  baseItems   BaseItem[]
+  id                 String                 @id @default(cuid())
+  ownerId            String                 @map("owner_id")
+  owner              User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title              String
+  description        String
+  visibility         RpgVisibility          @default(private)
+  createdAt          DateTime               @default(now()) @map("created_at")
+  baseItems          BaseItem[]
+  attributeTemplates RpgAttributeTemplate[]
+  characters         RpgCharacter[]
 
   @@index([ownerId])
   @@map("rpgs")
@@ -72,4 +74,32 @@ model BaseItem {
 
   @@index([rpgId])
   @@map("baseitems")
+}
+
+model RpgAttributeTemplate {
+  id        String   @id @default(cuid())
+  rpgId     String   @map("rpg_id")
+  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key       String
+  label     String
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@unique([rpgId, key])
+  @@index([rpgId])
+  @@map("rpg_attribute_templates")
+}
+
+model RpgCharacter {
+  id        String   @id @default(cuid())
+  rpgId     String   @map("rpg_id")
+  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  name      String
+  attributes Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@index([rpgId])
+  @@map("rpg_characters")
 }

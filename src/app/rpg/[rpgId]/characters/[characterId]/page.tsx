@@ -3,18 +3,29 @@ import styles from "./page.module.css"
 import players from "@/data/rpg/world-of-clans/entities/player"
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import { prisma } from "@/lib/prisma"
+import { Prisma } from "../../../../../../generated/prisma/client"
 
 type Params = {
   params: Promise<{
+    rpgId: string
     characterId: string
   }>
 }
+
+type DbCharacterRow = {
+  id: string
+  name: string
+  attributes: Prisma.JsonValue
+  createdAt: Date
+}
+
 const skillLabels: Record<string, string> = {
   archery: "Arcos e Flecha",
   crossbow: "Besta",
-  tolerance: "Tolerância",
-  smallBlades: "Lâminas Pequenas",
-  largeBlades: "Lâminas Grandes",
+  tolerance: "Tolerancia",
+  smallBlades: "Laminas Pequenas",
+  largeBlades: "Laminas Grandes",
   fencing: "Esgrima",
   staffs: "Cajados",
   warArt: "Arte da Guerra",
@@ -30,24 +41,78 @@ const skillLabels: Record<string, string> = {
   persuade: "Convencer",
   observe: "Observar",
   seduce: "Seduzir",
-  history: "História",
+  history: "Historia",
   acrobatics: "Acrobacia",
   arcanism: "Arcanismo",
   alchemy: "Alquimia",
-  spellcasting: "Lançar Feitiço",
-  magicResistance: "Resistir à Magia",
-  religion: "Religião",
+  spellcasting: "Lancar Feitico",
+  magicResistance: "Resistir a Magia",
+  religion: "Religiao",
   nature: "Natureza",
   medicine: "Medicina",
   gambling: "Jogos de Aposta",
 }
 
 export default async function CharactersPage({ params }: Params) {
-  const { characterId } = await params
+  const { rpgId, characterId } = await params
   const character = players.find((p) => p.id === characterId)
+
   if (!character) {
-    notFound()
+    let dbCharacter: DbCharacterRow[] = []
+
+    try {
+      dbCharacter = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
+        SELECT id, name, attributes, created_at AS "createdAt"
+        FROM rpg_characters
+        WHERE id = ${characterId}
+          AND rpg_id = ${rpgId}
+        LIMIT 1
+      `)
+    } catch {
+      dbCharacter = []
+    }
+
+    if (dbCharacter.length === 0) {
+      notFound()
+    }
+
+    const row = dbCharacter[0]
+    const attributes = row.attributes as Record<string, number>
+
+    return (
+      <div className={styles.page}>
+        <section className={styles.card}>
+          <h3>{row.name}</h3>
+
+          <div className={styles.grid}>
+            <div>
+              <h4>Ficha Basica</h4>
+              <p>ID: {row.id}</p>
+              <p>Criado em: {new Date(row.createdAt).toLocaleDateString("pt-BR")}</p>
+            </div>
+
+            <div>
+              <h4>Atributos do Padrao</h4>
+              <ul className={styles.list}>
+                {Object.entries(attributes).map(([key, value]) => (
+                  <li key={key}>
+                    {key}: {value}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className={styles.actionLinks}>
+            <Link className={styles.actionLink} href={`/rpg/${rpgId}/characters`}>
+              Voltar para personagens
+            </Link>
+          </div>
+        </section>
+      </div>
+    )
   }
+
   return (
     <div className={styles.page}>
       <section key={character.id} className={styles.card}>
@@ -62,7 +127,7 @@ export default async function CharactersPage({ params }: Params) {
           />
           <div className={styles.identityInfo}>
             {character.identity.nickname && (
-              <p className={styles.nickname}>“{character.identity.nickname}”</p>
+              <p className={styles.nickname}>"{character.identity.nickname}"</p>
             )}
 
             <div className={styles.actionLinks}>
@@ -92,13 +157,10 @@ export default async function CharactersPage({ params }: Params) {
               </Link>
             </div>
 
-            <p className={styles.kingdom}>
-              Reino: {character.identity.kingdom}
-            </p>
+            <p className={styles.kingdom}>Reino: {character.identity.kingdom}</p>
           </div>
         </div>
 
-        {/* Estado */}
         <div className={styles.grid}>
           <div>
             <h4>Status</h4>
@@ -109,12 +171,10 @@ export default async function CharactersPage({ params }: Params) {
               Mana: {character.state.currentMana}/{character.health.mana}
             </p>
             <p>
-              Sanidade: {character.state.currentSanity}/
-              {character.health.sanity}
+              Sanidade: {character.state.currentSanity}/{character.health.sanity}
             </p>
             <p>
-              Exaustão: {character.state.currentExhaustion}/
-              {character.health.exhaustion}
+              Exaustao: {character.state.currentExhaustion}/{character.health.exhaustion}
             </p>
           </div>
 
@@ -123,34 +183,32 @@ export default async function CharactersPage({ params }: Params) {
             <p>Base: {character.defense.base}</p>
             <p>Armadura: {character.defense.armor}</p>
             <p>Escudo: {character.defense.shield}</p>
-            <p>Evasão: {character.defense.evasion}</p>
+            <p>Evasao: {character.defense.evasion}</p>
           </div>
 
           <div>
-            <h4>Progressão</h4>
-            <p>Nível: {character.progression.level}</p>
+            <h4>Progressao</h4>
+            <p>Nivel: {character.progression.level}</p>
             <p>XP: {character.progression.xp}</p>
-            <p>Próximo nível: {character.progression.xpToNextLevel}</p>
+            <p>Proximo nivel: {character.progression.xpToNextLevel}</p>
           </div>
         </div>
 
-        {/* Atributos */}
         <div className={styles.containerSkillAttributes}>
           <div>
             <h4>Atributos</h4>
             <ul className={styles.list}>
               <li>Agilidade: {character.attributes.agility.total}</li>
-              <li>Força: {character.attributes.strength.total}</li>
+              <li>Forca: {character.attributes.strength.total}</li>
               <li>Destreza: {character.attributes.dexterity.total}</li>
               <li>Instinto: {character.attributes.instinct.total}</li>
               <li>Carisma: {character.attributes.charisma.total}</li>
               <li>Conhecimento: {character.attributes.knowledge.total}</li>
-              <li>Constituição: {character.attributes.constitution.total}</li>
+              <li>Constituicao: {character.attributes.constitution.total}</li>
             </ul>
           </div>
-          {/* Skills */}
           <div>
-            <h4>Perícias</h4>
+            <h4>Pericias</h4>
             <ul className={styles.list}>
               {Object.entries(character.skills)
                 .filter(([, value]) => value > 0)
@@ -163,10 +221,9 @@ export default async function CharactersPage({ params }: Params) {
           </div>
         </div>
 
-        {/* Dados pessoais */}
         <div className={styles.grid}>
           <div>
-            <h4>Físico</h4>
+            <h4>Fisico</h4>
             <p>Idade: {character.physical.age}</p>
             <p>Altura: {character.physical.heightCm}cm</p>
             <p>Peso: {character.physical.weightKg}kg</p>
@@ -179,11 +236,11 @@ export default async function CharactersPage({ params }: Params) {
           <div>
             <h4>Pessoal</h4>
             <p>Reino: {character.identity.kingdom}</p>
-            <p>Religião: {character.personal.religion}</p>
-            <p>Língua: {character.personal.language}</p>
+            <p>Religiao: {character.personal.religion}</p>
+            <p>Lingua: {character.personal.language}</p>
             <p>Defeitos: {character.personal.defects}</p>
             <p>
-              Raça:{" "}
+              Raca:{" "}
               <Link
                 className={styles.identityLink}
                 href={`/rpg/${character.meta.version}/races/${character.identity.race}`}
@@ -201,7 +258,7 @@ export default async function CharactersPage({ params }: Params) {
               </Link>
             </p>
             {character.identity.classReinforcement && (
-              <p>Reforço de Classe: {character.identity.classReinforcement}</p>
+              <p>Reforco de Classe: {character.identity.classReinforcement}</p>
             )}
           </div>
 
@@ -211,7 +268,6 @@ export default async function CharactersPage({ params }: Params) {
           </div>
         </div>
 
-        {/* Equipamentos / Meta */}
         <div className={styles.grid}>
           <div>
             <h4>Equipamentos</h4>
@@ -222,9 +278,9 @@ export default async function CharactersPage({ params }: Params) {
 
           <div>
             <h4>Meta</h4>
-            <p>NPC: {character.meta.isNPC ? "Sim" : "Não"}</p>
-            <p>Editável: {character.meta.isEditable ? "Sim" : "Não"}</p>
-            <p>Versão: {character.meta.version}</p>
+            <p>NPC: {character.meta.isNPC ? "Sim" : "Nao"}</p>
+            <p>Editavel: {character.meta.isEditable ? "Sim" : "Nao"}</p>
+            <p>Versao: {character.meta.version}</p>
           </div>
         </div>
       </section>

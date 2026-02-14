@@ -6,12 +6,73 @@
   color: var(--text-main);
 }
 
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
 .title {
   font-size: 2.3rem;
   color: var(--text-title);
-  margin-bottom: 2rem;
+  margin: 0;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--border-soft);
+}
+
+.createButton {
+  text-decoration: none;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  background: var(--accent-main);
+  color: var(--bg-main);
+  font-weight: 700;
+}
+
+.sectionTitle {
+  color: var(--text-main);
+  margin: 1.2rem 0 0.8rem;
+}
+
+.dbSection {
+  margin-bottom: 1rem;
+}
+
+.dbSection h2 {
+  margin: 0 0 0.75rem;
+  color: var(--text-main);
+}
+
+.dbGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+.dbCard {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.9rem;
+  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
+}
+
+.dbCard h3 {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.dbCard p {
+  margin: 0.4rem 0 0.7rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.dbCard a {
+  text-decoration: none;
+  color: var(--accent-main);
+  font-weight: 700;
 }
 
 .grid {
@@ -43,6 +104,7 @@
   filter: brightness(0.85);
   object-position: 50% 10%;
 }
+
 .card a {
   position: relative;
   display: block;
@@ -63,19 +125,27 @@
     rgba(11, 11, 11, 0)
   );
   letter-spacing: 1px;
-  h2 {
-    display: inline;
-  }
 }
+
+.overlay h2 {
+  display: inline;
+}
+
 .card:hover h2 {
   color: var(--accent-main);
 }
+
+.emptyState {
+  color: var(--text-muted);
+}
+
 @media (min-width: 650px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 2.5rem;
   }
 }
+
 @media (min-width: 1100px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
