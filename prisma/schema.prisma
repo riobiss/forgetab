@@ -14,12 +14,13 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
+  id           String      @id @default(cuid())
   name         String
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  createdAt    DateTime @default(now()) @map("created_at")
+  email        String      @unique
+  passwordHash String      @map("password_hash")
+  createdAt    DateTime    @default(now()) @map("created_at")
   rpgs         Rpg[]
+  rpgMembers   RpgMember[]
 
   @@map("users")
 }
@@ -46,6 +47,12 @@ enum BaseItemRarity {
   legendary
 }
 
+enum RpgMemberStatus {
+  pending
+  accepted
+  rejected
+}
+
 model Rpg {
   id                 String                 @id @default(cuid())
   ownerId            String                 @map("owner_id")
@@ -57,6 +64,7 @@ model Rpg {
   baseItems          BaseItem[]
   attributeTemplates RpgAttributeTemplate[]
   characters         RpgCharacter[]
+  members            RpgMember[]
 
   @@index([ownerId])
   @@map("rpgs")
@@ -92,14 +100,32 @@ model RpgAttributeTemplate {
 }
 
 model RpgCharacter {
-  id        String   @id @default(cuid())
-  rpgId     String   @map("rpg_id")
-  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
-  name      String
+  id         String   @id @default(cuid())
+  rpgId      String   @map("rpg_id")
+  rpg        Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  name       String
   attributes Json
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @map("updated_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @map("updated_at")
 
   @@index([rpgId])
   @@map("rpg_characters")
+}
+
+model RpgMember {
+  id         String          @id @default(cuid())
+  rpgId      String          @map("rpg_id")
+  userId     String          @map("user_id")
+  status     RpgMemberStatus @default(pending)
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @default(now()) @map("updated_at")
+  requestedAt DateTime       @default(now()) @map("requested_at")
+  respondedAt DateTime?      @map("responded_at")
+  rpg        Rpg             @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([rpgId, userId])
+  @@index([rpgId])
+  @@index([userId])
+  @@map("rpg_members")
 }

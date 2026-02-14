@@ -21,6 +21,10 @@ type DbCharacterRow = {
   attributes: Prisma.JsonValue
 }
 
+type MemberStatusRow = {
+  status: "pending" | "accepted" | "rejected"
+}
+
 async function getUserIdFromCookie() {
   try {
     const cookieStore = await cookies()
@@ -46,6 +50,8 @@ export default async function CharactersPage({ params }: Params) {
   let dbCharacters: DbCharacterRow[] = []
   let privateBlocked = false
 
+  const userId = await getUserIdFromCookie()
+
   try {
     dbRpg = await prisma.rpg.findUnique({
       where: { id: rpgId },
@@ -53,10 +59,22 @@ export default async function CharactersPage({ params }: Params) {
     })
 
     if (dbRpg) {
-      const userId = await getUserIdFromCookie()
       const isOwner = userId === dbRpg.ownerId
+      let isAcceptedMember = false
 
-      if (dbRpg.visibility === "private" && !isOwner) {
+      if (userId && !isOwner) {
+        const membership = await prisma.$queryRaw<MemberStatusRow[]>(Prisma.sql`
+          SELECT status
+          FROM rpg_members
+          WHERE rpg_id = ${rpgId}
+            AND user_id = ${userId}
+          LIMIT 1
+        `)
+
+        isAcceptedMember = membership[0]?.status === "accepted"
+      }
+
+      if (dbRpg.visibility === "private" && !isOwner && !isAcceptedMember) {
         privateBlocked = true
       } else {
         dbCharacters = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
@@ -85,7 +103,6 @@ export default async function CharactersPage({ params }: Params) {
     return <div>RPG nao encontrado</div>
   }
 
-  const userId = await getUserIdFromCookie()
   const canCreateCharacter = Boolean(dbRpg && userId === dbRpg.ownerId)
 
   return (

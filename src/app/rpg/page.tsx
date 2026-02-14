@@ -17,6 +17,7 @@ type CreatedRpg = {
 
 export default async function ViewRpg() {
   let createdRpgs: CreatedRpg[] = []
+  let publicRpgs: CreatedRpg[] = []
   let userId: string | null = null
 
   try {
@@ -45,8 +46,23 @@ export default async function ViewRpg() {
         orderBy: { createdAt: "desc" },
       })
     }
+
+    publicRpgs = await prisma.rpg.findMany({
+      where: userId
+        ? { visibility: "public", ownerId: { not: userId } }
+        : { visibility: "public" },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        visibility: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    })
   } catch {
     createdRpgs = []
+    publicRpgs = []
   }
 
   return (
@@ -86,6 +102,26 @@ export default async function ViewRpg() {
           Faca login para ver os RPGs que voce criou.
         </p>
       )}
+
+      {publicRpgs.length > 0 ? (
+        <section className={styles.createdSection}>
+          <h3 className={styles.sectionTitle}>RPGs Publicos</h3>
+          <div className={styles.createdGrid}>
+            {publicRpgs.map((item) => (
+              <article key={item.id} className={styles.createdCard}>
+                <h4>{item.title}</h4>
+                <p>{item.description}</p>
+                <small>
+                  Publico | {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+                </small>
+                <div className={styles.createdActions}>
+                  <Link href={`/rpg/${item.id}`}>Abrir</Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <main className={styles.containerMain}>
         {rpg.map((item) => (
