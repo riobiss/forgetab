@@ -64,6 +64,29 @@
 .createdCard small {
   color: var(--text-muted);
 }
+
+.createdActions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.createdActions a {
+  text-decoration: none;
+  border: 1px solid var(--border-soft);
+  border-radius: 9px;
+  padding: 0.45rem 0.7rem;
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.createdActions a:last-child {
+  background: var(--accent-main);
+  color: var(--bg-main);
+  border-color: transparent;
+}
+
 .containerMain {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -128,6 +151,7 @@
 .containerRpg:hover .rpgTitle {
   color: var(--accent-main);
 }
+
 .rpgDescription {
   font-size: 0.85rem;
   line-height: 1.4;

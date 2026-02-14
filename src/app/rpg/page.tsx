@@ -52,6 +52,11 @@ export default async function ViewRpg() {
                   {item.visibility === "public" ? "Publico" : "Privado"} |{" "}
                   {new Date(item.createdAt).toLocaleDateString("pt-BR")}
                 </small>
+
+                <div className={styles.createdActions}>
+                  <Link href={`/rpg/${item.id}`}>Abrir</Link>
+                  <Link href={`/rpg/${item.id}/editar`}>Editar RPG</Link>
+                </div>
               </article>
             ))}
           </div>
