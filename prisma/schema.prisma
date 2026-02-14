@@ -29,6 +29,23 @@ enum RpgVisibility {
   public
 }
 
+enum BaseItemType {
+  weapon
+  armor
+  consumable
+  accessory
+  material
+  quest
+}
+
+enum BaseItemRarity {
+  common
+  uncommon
+  rare
+  epic
+  legendary
+}
+
 model Rpg {
   id          String        @id @default(cuid())
   ownerId     String        @map("owner_id")
@@ -37,7 +54,22 @@ model Rpg {
   description String
   visibility  RpgVisibility @default(private)
   createdAt   DateTime      @default(now()) @map("created_at")
+  baseItems   BaseItem[]
 
   @@index([ownerId])
   @@map("rpgs")
+}
+
+model BaseItem {
+  id        String         @id @default(cuid())
+  rpgId     String         @map("rpg_id")
+  rpg       Rpg            @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  name      String
+  type      BaseItemType
+  rarity    BaseItemRarity @default(common)
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @default(now()) @map("updated_at")
+
+  @@index([rpgId])
+  @@map("baseitems")
 }
