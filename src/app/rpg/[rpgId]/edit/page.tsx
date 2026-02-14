@@ -19,6 +19,7 @@ type RpgPayload = {
 export default function EditRpgPage() {
   const params = useParams<{ rpgId: string }>()
   const router = useRouter()
+  const rpgId = params.rpgId
 
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -26,6 +27,7 @@ export default function EditRpgPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   useEffect(() => {
     async function loadRpg() {
@@ -33,7 +35,7 @@ export default function EditRpgPage() {
         setLoading(true)
         setError("")
 
-        const response = await fetch(`/api/rpg/${params.rpgId}`)
+        const response = await fetch(`/api/rpg/${rpgId}`)
         const payload = (await response.json()) as RpgPayload & { message?: string }
 
         if (!response.ok) {
@@ -51,10 +53,10 @@ export default function EditRpgPage() {
       }
     }
 
-    if (params.rpgId) {
+    if (rpgId) {
       void loadRpg()
     }
-  }, [params.rpgId])
+  }, [rpgId])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -62,7 +64,7 @@ export default function EditRpgPage() {
     setError("")
 
     try {
-      const response = await fetch(`/api/rpg/${params.rpgId}`, {
+      const response = await fetch(`/api/rpg/${rpgId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, description, visibility }),
@@ -99,6 +101,27 @@ export default function EditRpgPage() {
       <section className={styles.card}>
         <h1>Editar RPG</h1>
         <p>Atualize as informacoes iniciais da campanha.</p>
+
+        <button
+          type="button"
+          className={styles.advancedToggle}
+          onClick={() => setShowAdvanced((prev) => !prev)}
+        >
+          {showAdvanced ? "Ocultar opcoes avancadas" : "Opcoes avancadas"}
+        </button>
+
+        {showAdvanced ? (
+          <section className={styles.advancedSection}>
+            <h2>Sessoes do RPG</h2>
+            <p>Crie e organize secoes principais da campanha.</p>
+
+            <div className={styles.advancedGrid}>
+              <Link href={`/rpg/${rpgId}/characters`}>Sessao de Personagens</Link>
+              <Link href={`/rpg/${rpgId}/classes`}>Sessao de Classes</Link>
+              <Link href={`/rpg/${rpgId}/items`}>Sessao de Itens</Link>
+            </div>
+          </section>
+        ) : null}
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <label className={styles.field}>

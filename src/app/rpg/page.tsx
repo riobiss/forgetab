@@ -55,7 +55,7 @@ export default async function ViewRpg() {
 
                 <div className={styles.createdActions}>
                   <Link href={`/rpg/${item.id}`}>Abrir</Link>
-                  <Link href={`/rpg/${item.id}/editar`}>Editar RPG</Link>
+                  <Link href={`/rpg/${item.id}/edit`}>Editar RPG</Link>
                 </div>
               </article>
             ))}

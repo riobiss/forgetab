@@ -1,0 +1,123 @@
+.page {
+  min-height: calc(100vh - 80px);
+  padding: 1.6rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--accent-main);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+.title {
+  margin: 0.4rem 0 0.3rem;
+  color: var(--text-title);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  max-width: 60ch;
+}
+
+.backLink {
+  text-decoration: none;
+  color: var(--text-main);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.5rem 0.8rem;
+  font-weight: 600;
+}
+
+.section {
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 1rem;
+  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
+}
+
+.sectionTitle {
+  margin: 0 0 0.8rem;
+  color: var(--text-title);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+.card {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.9rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.cardHeader h3 {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.cardHeader span {
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.card p {
+  margin: 0.5rem 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.card small {
+  color: var(--text-main);
+}
+
+.comum {
+  border-color: #64748b;
+}
+
+.incomum {
+  border-color: #10b981;
+}
+
+.raro {
+  border-color: #3b82f6;
+}
+
+.legendary {
+  border-color: #f59e0b;
+}
+
+.epic {
+  border-color: #db2777;
+}
+
+.secret {
+  border-color: #ef4444;
+}
+
+@media (max-width: 720px) {
+  .header {
+    flex-direction: column;
+  }
+}

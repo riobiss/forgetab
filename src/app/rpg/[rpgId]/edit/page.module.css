@@ -24,6 +24,53 @@
   color: var(--text-muted);
 }
 
+.advancedToggle {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  background: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.advancedSection {
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.advancedSection h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-title);
+}
+
+.advancedSection p {
+  margin: 0.35rem 0 0.9rem;
+  color: var(--text-muted);
+}
+
+.advancedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.6rem;
+}
+
+.advancedGrid a {
+  text-decoration: none;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  color: var(--text-main);
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
 .form {
   display: grid;
   gap: 1rem;
