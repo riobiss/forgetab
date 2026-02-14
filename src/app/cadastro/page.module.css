@@ -1,0 +1,87 @@
+.page {
+  min-height: calc(100vh - 72px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(255, 122, 24, 0.22), transparent 40%),
+    linear-gradient(180deg, #111111, #090909);
+}
+
+.card {
+  width: 100%;
+  max-width: 460px;
+  background: rgba(20, 20, 20, 0.92);
+  border: 1px solid var(--border-hot);
+  border-radius: 14px;
+  box-shadow: var(--shadow-main);
+  padding: 28px;
+}
+
+.card h1 {
+  font-size: 30px;
+  margin-bottom: 8px;
+  color: var(--text-title);
+}
+
+.card p {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field span {
+  color: var(--text-main);
+}
+
+.field input {
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #101010;
+  color: var(--text-main);
+}
+
+.field input:focus {
+  outline: 1px solid var(--accent-main);
+  border-color: var(--accent-main);
+}
+
+.form button {
+  margin-top: 10px;
+  border: none;
+  border-radius: 9px;
+  padding: 11px 14px;
+  font-weight: 700;
+  background: var(--accent-main);
+  color: #0f0f0f;
+  cursor: pointer;
+}
+
+.form button:disabled {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+.error {
+  color: #ff8a8a;
+  margin: 0;
+}
+
+.switchAuth {
+  margin-top: 16px;
+  color: var(--text-main);
+}
+
+.switchAuth a {
+  color: var(--accent-main);
+}
