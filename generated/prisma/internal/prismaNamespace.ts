@@ -384,7 +384,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
-  User: 'User'
+  User: 'User',
+  Rpg: 'Rpg'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -400,7 +401,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user"
+    modelProps: "user" | "rpg"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -478,6 +479,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Rpg: {
+      payload: Prisma.$RpgPayload<ExtArgs>
+      fields: Prisma.RpgFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RpgFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RpgFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgPayload>
+        }
+        findFirst: {
+          args: Prisma.RpgFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RpgFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgPayload>
+        }
+        findMany: {
+          args: Prisma.RpgFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgPayload>[]
+        }
+        create: {
+          args: Prisma.RpgCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgPayload>
+        }
+        createMany: {
+          args: Prisma.RpgCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RpgCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgPayload>[]
+        }
+        delete: {
+          args: Prisma.RpgDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgPayload>
+        }
+        update: {
+          args: Prisma.RpgUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgPayload>
+        }
+        deleteMany: {
+          args: Prisma.RpgDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RpgUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RpgUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgPayload>[]
+        }
+        upsert: {
+          args: Prisma.RpgUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgPayload>
+        }
+        aggregate: {
+          args: Prisma.RpgAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRpg>
+        }
+        groupBy: {
+          args: Prisma.RpgGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RpgCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -528,6 +603,18 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const RpgScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  title: 'title',
+  description: 'description',
+  visibility: 'visibility',
+  createdAt: 'createdAt'
+} as const
+
+export type RpgScalarFieldEnum = (typeof RpgScalarFieldEnum)[keyof typeof RpgScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -575,6 +662,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'RpgVisibility'
+ */
+export type EnumRpgVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RpgVisibility'>
+    
+
+
+/**
+ * Reference to a field of type 'RpgVisibility[]'
+ */
+export type ListEnumRpgVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RpgVisibility[]'>
     
 
 
@@ -687,6 +788,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  rpg?: Prisma.RpgOmit
 }
 
 /* Types for Logging */

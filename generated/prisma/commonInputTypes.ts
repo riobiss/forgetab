@@ -72,6 +72,23 @@ export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeFilter<$PrismaModel>
 }
 
+export type EnumRpgVisibilityFilter<$PrismaModel = never> = {
+  equals?: $Enums.RpgVisibility | Prisma.EnumRpgVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.RpgVisibility[] | Prisma.ListEnumRpgVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RpgVisibility[] | Prisma.ListEnumRpgVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRpgVisibilityFilter<$PrismaModel> | $Enums.RpgVisibility
+}
+
+export type EnumRpgVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RpgVisibility | Prisma.EnumRpgVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.RpgVisibility[] | Prisma.ListEnumRpgVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RpgVisibility[] | Prisma.ListEnumRpgVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRpgVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.RpgVisibility
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRpgVisibilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRpgVisibilityFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -137,6 +154,23 @@ export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeFilter<$PrismaModel>
+}
+
+export type NestedEnumRpgVisibilityFilter<$PrismaModel = never> = {
+  equals?: $Enums.RpgVisibility | Prisma.EnumRpgVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.RpgVisibility[] | Prisma.ListEnumRpgVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RpgVisibility[] | Prisma.ListEnumRpgVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRpgVisibilityFilter<$PrismaModel> | $Enums.RpgVisibility
+}
+
+export type NestedEnumRpgVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RpgVisibility | Prisma.EnumRpgVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.RpgVisibility[] | Prisma.ListEnumRpgVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RpgVisibility[] | Prisma.ListEnumRpgVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRpgVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.RpgVisibility
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRpgVisibilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRpgVisibilityFilter<$PrismaModel>
 }
 
 

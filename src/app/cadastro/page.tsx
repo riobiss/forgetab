@@ -62,7 +62,7 @@ function RegisterContent() {
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Seu nome"
-              minLength={2}
+              minLength={3}
               required
             />
           </label>
@@ -84,8 +84,8 @@ function RegisterContent() {
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="Minimo de 6 caracteres"
-              minLength={6}
+              placeholder="Minimo de 8 caracteres"
+              minLength={8}
               required
             />
           </label>
@@ -99,7 +99,9 @@ function RegisterContent() {
 
         <p className={styles.switchAuth}>
           Ja possui conta?{" "}
-          <Link href={`/login?next=${encodeURIComponent(nextPath)}`}>Entrar</Link>
+          <Link href={`/login?next=${encodeURIComponent(nextPath)}`}>
+            Entrar
+          </Link>
         </p>
       </section>
     </main>

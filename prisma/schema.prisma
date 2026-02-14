@@ -19,6 +19,25 @@ model User {
   email        String   @unique
   passwordHash String   @map("password_hash")
   createdAt    DateTime @default(now()) @map("created_at")
+  rpgs         Rpg[]
 
   @@map("users")
+}
+
+enum RpgVisibility {
+  private
+  public
+}
+
+model Rpg {
+  id          String        @id @default(cuid())
+  ownerId     String        @map("owner_id")
+  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  visibility  RpgVisibility @default(private)
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  @@index([ownerId])
+  @@map("rpgs")
 }

@@ -4,13 +4,65 @@
   margin: 0 auto;
 }
 
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
 .title {
   font-family: serif;
   font-size: 2.2rem;
   letter-spacing: 0.15em;
-  text-align: center;
   color: var(--text-title);
-  margin-bottom: 3rem;
+  margin: 0;
+}
+
+.createButton {
+  text-decoration: none;
+  background: var(--accent-main);
+  color: var(--bg-main);
+  font-weight: 700;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+}
+
+.createdSection {
+  margin-bottom: 2.5rem;
+}
+
+.sectionTitle {
+  color: var(--text-main);
+  margin-bottom: 1rem;
+}
+
+.createdGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.createdCard {
+  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.createdCard h4 {
+  margin: 0 0 0.5rem;
+  color: var(--text-main);
+}
+
+.createdCard p {
+  margin: 0 0 0.6rem;
+  color: var(--text-muted);
+}
+
+.createdCard small {
+  color: var(--text-muted);
 }
 .containerMain {
   display: grid;
@@ -82,4 +134,19 @@
   color: var(--text-muted);
   text-align: center;
   margin-top: 0.5rem;
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .title {
+    text-align: center;
+  }
+
+  .createButton {
+    text-align: center;
+  }
 }
