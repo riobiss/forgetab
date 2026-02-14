@@ -1,18 +1,9 @@
-import { randomUUID } from "crypto"
 import { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { createRpgSchema } from "@/lib/validators/rpg"
-
-type CreatedRpgRow = {
-  id: string
-  owner_id: string
-  title: string
-  description: string
-  visibility: "private" | "public"
-  created_at: Date
-}
+import { Prisma } from "../../../../generated/prisma/client"
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,28 +34,57 @@ export async function POST(request: NextRequest) {
     }
 
     const { title, description, visibility } = parsed.data
-    const rpgId = randomUUID()
-    const rows = await prisma.$queryRaw<CreatedRpgRow[]>`
-      INSERT INTO "rpgs" ("id", "owner_id", "title", "description", "visibility")
-      VALUES (${rpgId}, ${authPayload.userId}, ${title}, ${description}, ${visibility}::"RpgVisibility")
-      RETURNING "id", "owner_id", "title", "description", "visibility", "created_at"
-    `
+    const created = await prisma.rpg.create({
+      data: {
+        ownerId: authPayload.userId,
+        title,
+        description,
+        visibility,
+      },
+    })
 
-    const created = rows[0]
     return NextResponse.json(
       {
         rpg: {
           id: created.id,
-          ownerId: created.owner_id,
+          ownerId: created.ownerId,
           title: created.title,
           description: created.description,
           visibility: created.visibility,
-          createdAt: created.created_at,
+          createdAt: created.createdAt,
         },
       },
       { status: 201 },
     )
-  } catch {
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2021") {
+        return NextResponse.json(
+          { message: "Tabela de RPG nao existe no banco. Rode a migration." },
+          { status: 500 },
+        )
+      }
+
+      if (error.code === "P2003") {
+        return NextResponse.json(
+          { message: "Usuario do token nao existe no banco atual." },
+          { status: 409 },
+        )
+      }
+    }
+
+    if (error instanceof Error) {
+      if (
+        error.message.includes('relation "rpgs" does not exist') ||
+        error.message.includes("Could not find the table")
+      ) {
+        return NextResponse.json(
+          { message: "Tabela de RPG nao existe no banco. Rode a migration." },
+          { status: 500 },
+        )
+      }
+    }
+
     return NextResponse.json(
       { message: "Erro interno ao criar RPG." },
       { status: 500 },

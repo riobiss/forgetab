@@ -9,18 +9,23 @@ type CreatedRpg = {
   title: string
   description: string
   visibility: "private" | "public"
-  created_at: Date
+  createdAt: Date
 }
 
 export default async function ViewRpg() {
   let createdRpgs: CreatedRpg[] = []
 
   try {
-    createdRpgs = await prisma.$queryRaw<CreatedRpg[]>`
-      SELECT "id", "title", "description", "visibility", "created_at"
-      FROM "rpgs"
-      ORDER BY "created_at" DESC
-    `
+    createdRpgs = await prisma.rpg.findMany({
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        visibility: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    })
   } catch {
     createdRpgs = []
   }
@@ -45,7 +50,7 @@ export default async function ViewRpg() {
                 <p>{item.description}</p>
                 <small>
                   {item.visibility === "public" ? "Publico" : "Privado"} |{" "}
-                  {new Date(item.created_at).toLocaleDateString("pt-BR")}
+                  {new Date(item.createdAt).toLocaleDateString("pt-BR")}
                 </small>
               </article>
             ))}
