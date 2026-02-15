@@ -1,0 +1,29 @@
+.advancedToggle {
+  order: 20;
+  border: 1px solid var(--border-hot);
+  border-radius: 12px;
+  padding: 0.62rem 0.95rem;
+  background: color-mix(in srgb, var(--accent-main) 12%, transparent);
+  color: var(--text-title);
+  cursor: pointer;
+  font-weight: 700;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.advancedSection {
+  order: 21;
+  border: 1px solid var(--border-hot);
+  border-radius: 14px;
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--accent-main) 4%, transparent);
+  display: grid;
+  gap: 0.6rem;
+}
+
+.advancedSection h2 {
+  margin: 0;
+  color: var(--text-title);
+}

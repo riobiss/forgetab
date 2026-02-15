@@ -1,0 +1,69 @@
+.section {
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 0.65rem;
+  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.section h3 {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.headerActions button {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.48rem 0.75rem;
+  background: color-mix(in srgb, var(--bg-surface) 86%, transparent);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.1;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.actions input {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  background: color-mix(in srgb, var(--bg-main) 88%, var(--bg-surface));
+  color: var(--text-main);
+  min-width: 190px;
+}
+
+.actions button {
+  border: 1px solid var(--border-hot);
+  border-radius: 10px;
+  padding: 0.56rem 0.8rem;
+  background: color-mix(in srgb, var(--accent-main) 18%, transparent);
+  color: var(--text-title);
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.iconOnlyButton {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  padding: 0 !important;
+  justify-content: center;
+  gap: 0;
+}

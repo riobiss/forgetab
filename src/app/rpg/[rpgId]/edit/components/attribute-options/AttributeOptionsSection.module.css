@@ -1,0 +1,74 @@
+.section {
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 0.65rem;
+  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.section h3 {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.headerActions button {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.48rem 0.75rem;
+  background: color-mix(in srgb, var(--bg-surface) 86%, transparent);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.1;
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease,
+    transform 120ms ease;
+}
+
+.headerActions button:hover {
+  border-color: var(--border-hot);
+  background: color-mix(in srgb, var(--accent-main) 12%, transparent);
+  color: var(--text-title);
+}
+
+.headerActions button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent-main) 55%, white);
+  outline-offset: 2px;
+}
+
+.headerActions button:active {
+  transform: translateY(1px);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.55rem;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  background: var(--bg-main);
+}
+
+.option input {
+  width: 16px;
+  height: 16px;
+}
+
+.option span {
+  font-size: 0.87rem;
+  color: var(--text-main);
+}
