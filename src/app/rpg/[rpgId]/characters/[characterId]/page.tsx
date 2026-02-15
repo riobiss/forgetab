@@ -269,6 +269,15 @@ export default async function CharactersPage({ params }: Params) {
             label: key,
             value,
           }))
+    const identityItemsWithRaceClass = [
+      ...identityItems,
+      ...(row.raceKey
+        ? [{ key: "race-key", label: "Raca", value: row.raceKey }]
+        : []),
+      ...(row.classKey
+        ? [{ key: "class-key", label: "Classe", value: row.classKey }]
+        : []),
+    ]
     const characteristicsItems =
       characteristicsTemplateFields.length > 0
         ? characteristicsTemplateFields.map((field) => ({
@@ -382,18 +391,10 @@ export default async function CharactersPage({ params }: Params) {
           </div>
 
           <div className={styles.grid}>
-            {row.raceKey || row.classKey ? (
-              <div>
-                <h4>Raca e Classe</h4>
-                {row.raceKey ? <p>Raca: {row.raceKey}</p> : null}
-                {row.classKey ? <p>Classe: {row.classKey}</p> : null}
-              </div>
-            ) : null}
-
-            {identityItems.length > 0 ? (
+            {identityItemsWithRaceClass.length > 0 ? (
               <div>
                 <h4>Identidade</h4>
-                {identityItems.map((item) => (
+                {identityItemsWithRaceClass.map((item) => (
                   <p key={item.key}>
                     {item.label}: {item.value.trim() || "-"}
                   </p>
