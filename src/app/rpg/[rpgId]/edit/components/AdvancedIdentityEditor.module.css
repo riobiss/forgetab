@@ -1,0 +1,107 @@
+.panel {
+  width: min(980px, 100%);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  padding: 1.2rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bg-surface) 94%, black),
+    color-mix(in srgb, var(--bg-main) 92%, black)
+  );
+  box-shadow: var(--shadow-main);
+  display: grid;
+  gap: 0.9rem;
+}
+
+.panel h1 {
+  margin: 0;
+  font-size: 1.45rem;
+  color: var(--text-title);
+}
+
+.section {
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 0.85rem;
+  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
+  display: grid;
+  gap: 0.7rem;
+}
+
+.section h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.55rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field span {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.field input {
+  width: 100%;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.62rem 0.72rem;
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.actions button {
+  border: 1px solid var(--border-hot);
+  border-radius: 10px;
+  padding: 0.56rem 0.8rem;
+  background: color-mix(in srgb, var(--accent-main) 18%, transparent);
+  color: var(--text-title);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondaryButton {
+  border-color: var(--border-soft) !important;
+  background: var(--bg-hover) !important;
+  color: var(--text-main) !important;
+}
+
+.actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  margin: 0;
+  color: var(--accent-main);
+  font-weight: 600;
+}
+
+.success {
+  margin: 0;
+  color: var(--text-title);
+  font-weight: 600;
+}
+
+@media (max-width: 740px) {
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

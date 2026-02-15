@@ -1,12 +1,11 @@
 "use client"
 
-import { FormEvent, useEffect, useMemo, useState } from "react"
+import { FormEvent, useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import styles from "./page.module.css"
 import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
 import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
-import IdentityTemplateForm from "./components/IdentityTemplateForm"
 
 type Visibility = "private" | "public"
 
@@ -24,13 +23,6 @@ type IdentityTemplate = {
   key: string
   label: string
   position: number
-  attributeBonuses: Record<string, number>
-  skillBonuses: Record<string, number>
-}
-
-type IdentityTemplateDraft = {
-  key: string
-  label: string
   attributeBonuses: Record<string, number>
   skillBonuses: Record<string, number>
 }
@@ -55,21 +47,12 @@ export default function EditRpgPage() {
   const [skillTemplates, setSkillTemplates] = useState<Array<{ key: string; label: string }>>([])
   const [newSkillLabel, setNewSkillLabel] = useState("")
 
-  const [raceDrafts, setRaceDrafts] = useState<IdentityTemplateDraft[]>([])
-  const [classDrafts, setClassDrafts] = useState<IdentityTemplateDraft[]>([])
+  const [raceDrafts, setRaceDrafts] = useState<IdentityTemplate[]>([])
+  const [classDrafts, setClassDrafts] = useState<IdentityTemplate[]>([])
   const [identityError, setIdentityError] = useState("")
   const [identitySuccess, setIdentitySuccess] = useState("")
   const [showRaceList, setShowRaceList] = useState(false)
   const [showClassList, setShowClassList] = useState(false)
-  const [activeRaceKey, setActiveRaceKey] = useState<string | null>(null)
-  const [activeClassKey, setActiveClassKey] = useState<string | null>(null)
-  const [creatingRace, setCreatingRace] = useState(false)
-  const [creatingClass, setCreatingClass] = useState(false)
-
-  const attributeLabelByKey = useMemo<Map<string, string>>(
-    () => new Map(ATTRIBUTE_CATALOG.map((item) => [item.key, item.label])),
-    [],
-  )
 
   useEffect(() => {
     async function loadAll() {
@@ -136,38 +119,6 @@ export default function EditRpgPage() {
     if (rpgId) void loadAll()
   }, [rpgId])
 
-  useEffect(() => {
-    const skillKeys = skillTemplates.map((item) => item.key)
-
-    setRaceDrafts((prev) =>
-      prev.map((item) => ({
-        ...item,
-        attributeBonuses: selectedAttributeKeys.reduce<Record<string, number>>((acc, key) => {
-          acc[key] = Number(item.attributeBonuses[key] ?? 0)
-          return acc
-        }, {}),
-        skillBonuses: skillKeys.reduce<Record<string, number>>((acc, key) => {
-          acc[key] = Number(item.skillBonuses[key] ?? 0)
-          return acc
-        }, {}),
-      })),
-    )
-
-    setClassDrafts((prev) =>
-      prev.map((item) => ({
-        ...item,
-        attributeBonuses: selectedAttributeKeys.reduce<Record<string, number>>((acc, key) => {
-          acc[key] = Number(item.attributeBonuses[key] ?? 0)
-          return acc
-        }, {}),
-        skillBonuses: skillKeys.reduce<Record<string, number>>((acc, key) => {
-          acc[key] = Number(item.skillBonuses[key] ?? 0)
-          return acc
-        }, {}),
-      })),
-    )
-  }, [selectedAttributeKeys, skillTemplates])
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSaving(true)
@@ -193,165 +144,6 @@ export default function EditRpgPage() {
     } finally {
       setSaving(false)
     }
-  }
-
-  async function saveIdentityTemplates(
-    type: "race" | "class",
-    draftsOverride?: IdentityTemplateDraft[],
-  ) {
-    setIdentityError("")
-    setIdentitySuccess("")
-
-    const drafts = draftsOverride ?? (type === "race" ? raceDrafts : classDrafts)
-    const payload: Array<{
-      label: string
-      attributeBonuses: Record<string, number>
-      skillBonuses: Record<string, number>
-    }> = []
-
-    for (const draft of drafts) {
-      const label = draft.label.trim()
-      if (label.length < 2) {
-        setIdentityError(`Toda ${type === "race" ? "raca" : "classe"} precisa de nome com 2+ caracteres.`)
-        return
-      }
-
-      const parsedAttributes = selectedAttributeKeys.reduce<Record<string, number>>(
-        (acc, key) => {
-          acc[key] = Math.floor(Number(draft.attributeBonuses[key] ?? 0))
-          return acc
-        },
-        {},
-      )
-
-      const hasInvalidAttribute = Object.values(parsedAttributes).some((value) => !Number.isFinite(value))
-      if (hasInvalidAttribute) {
-        setIdentityError("Valor invalido em bonus de atributos.")
-        return
-      }
-
-      const parsedSkills = skillTemplates.reduce<Record<string, number>>((acc, item) => {
-        acc[item.key] = Math.floor(Number(draft.skillBonuses[item.key] ?? 0))
-        return acc
-      }, {})
-      const hasInvalidSkill = Object.values(parsedSkills).some((value) => !Number.isFinite(value))
-      if (hasInvalidSkill) {
-        setIdentityError("Valor invalido em bonus de pericias.")
-        return
-      }
-
-      payload.push({
-        label,
-        attributeBonuses: parsedAttributes,
-        skillBonuses: parsedSkills,
-      })
-    }
-
-    const endpoint = type === "race" ? "races" : "classes"
-    const body = type === "race" ? { races: payload } : { classes: payload }
-
-    try {
-      const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      })
-      const result = (await response.json()) as { message?: string }
-      if (!response.ok) {
-        setIdentityError(result.message ?? "Nao foi possivel salvar.")
-        return false
-      }
-      setIdentitySuccess(`${type === "race" ? "Racas" : "Classes"} salvas com sucesso.`)
-      return true
-    } catch {
-      setIdentityError("Erro de conexao ao salvar.")
-      return false
-    }
-  }
-
-  async function reloadIdentityTemplates(type: "race" | "class") {
-    const endpoint = type === "race" ? "races" : "classes"
-    const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`)
-    const payload = (await response.json()) as {
-      races?: IdentityTemplate[]
-      classes?: IdentityTemplate[]
-      message?: string
-    }
-
-    if (!response.ok) {
-      throw new Error(payload.message ?? "Nao foi possivel recarregar dados.")
-    }
-
-    if (type === "race") {
-      setRaceDrafts(
-        (payload.races ?? []).map((item) => ({
-          key: item.key,
-          label: item.label,
-          attributeBonuses: item.attributeBonuses ?? {},
-          skillBonuses: item.skillBonuses ?? {},
-        })),
-      )
-      return
-    }
-
-    setClassDrafts(
-      (payload.classes ?? []).map((item) => ({
-        key: item.key,
-        label: item.label,
-        attributeBonuses: item.attributeBonuses ?? {},
-        skillBonuses: item.skillBonuses ?? {},
-      })),
-    )
-  }
-
-  function createEmptyDraft(): IdentityTemplateDraft {
-    return {
-      key: `draft-${crypto.randomUUID()}`,
-      label: "",
-      attributeBonuses: selectedAttributeKeys.reduce<Record<string, number>>((acc, key) => {
-        acc[key] = 0
-        return acc
-      }, {}),
-      skillBonuses: skillTemplates.reduce<Record<string, number>>((acc, item) => {
-        acc[item.key] = 0
-        return acc
-      }, {}),
-    }
-  }
-
-  async function handleSaveEditedDraft(
-    type: "race" | "class",
-    key: string,
-    draft: IdentityTemplateDraft,
-  ) {
-    const current = type === "race" ? raceDrafts : classDrafts
-    const next = current.map((item) => (item.key === key ? draft : item))
-    const ok = await saveIdentityTemplates(type, next)
-    if (!ok) return
-
-    await reloadIdentityTemplates(type)
-    if (type === "race") {
-      setActiveRaceKey(null)
-      return
-    }
-    setActiveClassKey(null)
-  }
-
-  async function handleSaveCreatedDraft(
-    type: "race" | "class",
-    draft: IdentityTemplateDraft,
-  ) {
-    const current = type === "race" ? raceDrafts : classDrafts
-    const next = [...current, draft]
-    const ok = await saveIdentityTemplates(type, next)
-    if (!ok) return
-
-    await reloadIdentityTemplates(type)
-    if (type === "race") {
-      setCreatingRace(false)
-      return
-    }
-    setCreatingClass(false)
   }
 
   async function saveAttributeTemplate() {
@@ -597,10 +389,9 @@ export default function EditRpgPage() {
                     <button
                       type="button"
                       className={styles.secondaryButton}
-                      onClick={() => {
-                        setCreatingRace(true)
-                        setActiveRaceKey(null)
-                      }}
+                      onClick={() =>
+                        router.push(`/rpg/${rpgId}/edit/advanced/race/new`)
+                      }
                     >
                       Criar nova raca
                     </button>
@@ -613,59 +404,16 @@ export default function EditRpgPage() {
                         <li key={draft.key} className={styles.identityNameListItem}>
                           <span>{draft.label.trim() || "Sem nome"}</span>
                           <div className={styles.identityItemActions}>
-                            <button
-                              type="button"
+                            <Link
                               className={styles.secondaryButton}
-                              onClick={() => {
-                                setActiveRaceKey(draft.key)
-                                setCreatingRace(false)
-                              }}
+                              href={`/rpg/${rpgId}/edit/advanced/race/${draft.key}`}
                             >
                               Avancado
-                            </button>
+                            </Link>
                           </div>
                         </li>
                       ))}
                     </ul>
-                  ) : null}
-
-                  {creatingRace ? (
-                    <>
-                      <p>Preencha os campos da nova raca e salve para voltar.</p>
-                      <IdentityTemplateForm
-                        mode="create"
-                        type="race"
-                        initialDraft={createEmptyDraft()}
-                        selectedAttributeKeys={selectedAttributeKeys}
-                        skillTemplates={skillTemplates}
-                        attributeLabelByKey={attributeLabelByKey}
-                        onCancel={() => setCreatingRace(false)}
-                        onSave={(draft) => handleSaveCreatedDraft("race", draft)}
-                      />
-                    </>
-                  ) : null}
-
-                  {activeRaceKey ? (
-                    <>
-                      <p>Editando somente a raca selecionada.</p>
-                      {raceDrafts
-                        .filter((draft) => draft.key === activeRaceKey)
-                        .map((draft) => (
-                          <IdentityTemplateForm
-                            key={draft.key}
-                            mode="edit"
-                            type="race"
-                            initialDraft={draft}
-                            selectedAttributeKeys={selectedAttributeKeys}
-                            skillTemplates={skillTemplates}
-                            attributeLabelByKey={attributeLabelByKey}
-                            onCancel={() => setActiveRaceKey(null)}
-                            onSave={(nextDraft) =>
-                              handleSaveEditedDraft("race", draft.key, nextDraft)
-                            }
-                          />
-                        ))}
-                    </>
                   ) : null}
                 </div>
 
@@ -681,10 +429,9 @@ export default function EditRpgPage() {
                     <button
                       type="button"
                       className={styles.secondaryButton}
-                      onClick={() => {
-                        setCreatingClass(true)
-                        setActiveClassKey(null)
-                      }}
+                      onClick={() =>
+                        router.push(`/rpg/${rpgId}/edit/advanced/class/new`)
+                      }
                     >
                       Criar nova classe
                     </button>
@@ -697,59 +444,16 @@ export default function EditRpgPage() {
                         <li key={draft.key} className={styles.identityNameListItem}>
                           <span>{draft.label.trim() || "Sem nome"}</span>
                           <div className={styles.identityItemActions}>
-                            <button
-                              type="button"
+                            <Link
                               className={styles.secondaryButton}
-                              onClick={() => {
-                                setActiveClassKey(draft.key)
-                                setCreatingClass(false)
-                              }}
+                              href={`/rpg/${rpgId}/edit/advanced/class/${draft.key}`}
                             >
                               Avancado
-                            </button>
+                            </Link>
                           </div>
                         </li>
                       ))}
                     </ul>
-                  ) : null}
-
-                  {creatingClass ? (
-                    <>
-                      <p>Preencha os campos da nova classe e salve para voltar.</p>
-                      <IdentityTemplateForm
-                        mode="create"
-                        type="class"
-                        initialDraft={createEmptyDraft()}
-                        selectedAttributeKeys={selectedAttributeKeys}
-                        skillTemplates={skillTemplates}
-                        attributeLabelByKey={attributeLabelByKey}
-                        onCancel={() => setCreatingClass(false)}
-                        onSave={(draft) => handleSaveCreatedDraft("class", draft)}
-                      />
-                    </>
-                  ) : null}
-
-                  {activeClassKey ? (
-                    <>
-                      <p>Editando somente a classe selecionada.</p>
-                      {classDrafts
-                        .filter((draft) => draft.key === activeClassKey)
-                        .map((draft) => (
-                          <IdentityTemplateForm
-                            key={draft.key}
-                            mode="edit"
-                            type="class"
-                            initialDraft={draft}
-                            selectedAttributeKeys={selectedAttributeKeys}
-                            skillTemplates={skillTemplates}
-                            attributeLabelByKey={attributeLabelByKey}
-                            onCancel={() => setActiveClassKey(null)}
-                            onSave={(nextDraft) =>
-                              handleSaveEditedDraft("class", draft.key, nextDraft)
-                            }
-                          />
-                        ))}
-                    </>
                   ) : null}
                 </div>
               </>

@@ -1,0 +1,24 @@
+.page {
+  min-height: calc(100vh - 80px);
+  display: grid;
+  place-items: start center;
+  padding: 1.5rem 1rem 2rem;
+  background:
+    radial-gradient(circle at 8% 12%, color-mix(in srgb, var(--accent-main) 18%, transparent), transparent 28%),
+    radial-gradient(circle at 88% 86%, color-mix(in srgb, var(--accent-main) 10%, transparent), transparent 24%),
+    var(--bg-main);
+}
+
+.status {
+  color: var(--text-main);
+  margin: 0;
+}
+
+.backButton {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.56rem 0.8rem;
+  background: var(--bg-hover);
+  color: var(--text-main);
+  cursor: pointer;
+}
