@@ -162,6 +162,26 @@
   color: var(--text-main);
 }
 
+.playersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.playerOption {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.playerOption input {
+  margin: 0;
+}
+
 .formActions {
   display: flex;
   align-items: center;

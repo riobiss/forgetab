@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { FormEvent, useEffect, useMemo, useState } from "react"
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import styles from "./page.module.css"
 import {
@@ -32,11 +32,28 @@ type ApiItemPayload = {
   message?: string
 }
 
+type CharacterSummary = {
+  id: string
+  name: string
+  characterType: "player" | "npc" | "monster"
+}
+
+type ApiCharactersPayload = {
+  characters?: CharacterSummary[]
+  message?: string
+}
+
+type ApiGivePayload = {
+  message?: string
+  affectedPlayers?: number
+}
+
 export default function ItemsPage() {
   const params = useParams<{ rpgId: string }>()
   const rpgId = params.rpgId
 
   const [items, setItems] = useState<BaseItem[]>([])
+  const [players, setPlayers] = useState<CharacterSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingError, setLoadingError] = useState("")
 
@@ -51,6 +68,12 @@ export default function ItemsPage() {
   const [selectedCategory, setSelectedCategory] = useState<ItemType | "all">("all")
   const [showCategories, setShowCategories] = useState(false)
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null)
+  const [selectedGiveItemId, setSelectedGiveItemId] = useState("")
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([])
+  const [giveQuantity, setGiveQuantity] = useState(1)
+  const [giving, setGiving] = useState(false)
+  const [giveError, setGiveError] = useState("")
+  const [giveSuccess, setGiveSuccess] = useState("")
 
   const isEditing = useMemo(() => Boolean(editingItemId), [editingItemId])
   const visibleItems = useMemo(() => {
@@ -76,7 +99,7 @@ export default function ItemsPage() {
     })
   }, [items, search, selectedCategory])
 
-  async function loadItems() {
+  const loadItems = useCallback(async () => {
     try {
       setLoading(true)
       setLoadingError("")
@@ -97,13 +120,45 @@ export default function ItemsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [rpgId])
+
+  const loadPlayers = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/rpg/${rpgId}/characters`)
+      const payload = (await response.json()) as ApiCharactersPayload
+
+      if (!response.ok) {
+        setLoadingError(payload.message ?? "Nao foi possivel carregar os players.")
+        setPlayers([])
+        return
+      }
+
+      const allCharacters = payload.characters ?? []
+      setPlayers(allCharacters.filter((character) => character.characterType === "player"))
+    } catch {
+      setLoadingError("Erro de conexao ao carregar players.")
+      setPlayers([])
+    }
+  }, [rpgId])
 
   useEffect(() => {
     if (rpgId) {
       void loadItems()
+      void loadPlayers()
     }
-  }, [rpgId])
+  }, [loadItems, loadPlayers, rpgId])
+
+  useEffect(() => {
+    if (items.length === 0) {
+      setSelectedGiveItemId("")
+      return
+    }
+
+    const hasSelected = items.some((item) => item.id === selectedGiveItemId)
+    if (!hasSelected) {
+      setSelectedGiveItemId(items[0].id)
+    }
+  }, [items, selectedGiveItemId])
 
   function resetForm() {
     setEditingItemId(null)
@@ -212,6 +267,50 @@ export default function ItemsPage() {
     }
   }
 
+  function togglePlayer(playerId: string) {
+    setSelectedPlayerIds((prev) => {
+      if (prev.includes(playerId)) {
+        return prev.filter((id) => id !== playerId)
+      }
+
+      return [...prev, playerId]
+    })
+  }
+
+  async function handleGiveItem(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setGiving(true)
+    setGiveError("")
+    setGiveSuccess("")
+
+    try {
+      const response = await fetch(`/api/rpg/${rpgId}/items/give`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          baseItemId: selectedGiveItemId,
+          quantity: giveQuantity,
+          characterIds: selectedPlayerIds,
+        }),
+      })
+
+      const payload = (await response.json()) as ApiGivePayload
+
+      if (!response.ok) {
+        setGiveError(payload.message ?? "Nao foi possivel dar o item para os players.")
+        return
+      }
+
+      setGiveSuccess(payload.message ?? "Item enviado com sucesso.")
+      setSelectedPlayerIds([])
+      setGiveQuantity(1)
+    } catch {
+      setGiveError("Erro de conexao ao dar item para os players.")
+    } finally {
+      setGiving(false)
+    }
+  }
+
   return (
     <main className={styles.page}>
       <div className={styles.header}>
@@ -247,6 +346,80 @@ export default function ItemsPage() {
             </button>
           </div>
         </div>
+
+        <form className={styles.formCard} onSubmit={handleGiveItem}>
+          <h3>Dar item para player(s)</h3>
+
+          <label className={styles.field}>
+            <span>Item selecionado</span>
+            <select
+              value={selectedGiveItemId}
+              onChange={(event) => setSelectedGiveItemId(event.target.value)}
+              disabled={items.length === 0 || giving}
+              required
+            >
+              {items.length === 0 ? (
+                <option value="">Nenhum item cadastrado</option>
+              ) : (
+                items.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} ({item.type} - {item.rarity})
+                  </option>
+                ))
+              )}
+            </select>
+          </label>
+
+          <label className={styles.field}>
+            <span>Quantidade</span>
+            <input
+              type="number"
+              min={1}
+              value={giveQuantity}
+              onChange={(event) => setGiveQuantity(Number(event.target.value))}
+              required
+            />
+          </label>
+
+          <div className={styles.field}>
+            <span>Players para receber</span>
+            {players.length === 0 ? (
+              <p className={styles.feedback}>Nenhum player encontrado neste RPG.</p>
+            ) : (
+              <div className={styles.playersGrid}>
+                {players.map((player) => (
+                  <label key={player.id} className={styles.playerOption}>
+                    <input
+                      type="checkbox"
+                      checked={selectedPlayerIds.includes(player.id)}
+                      onChange={() => togglePlayer(player.id)}
+                      disabled={giving}
+                    />
+                    <span>{player.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {giveError ? <p className={styles.error}>{giveError}</p> : null}
+          {giveSuccess ? <p className={styles.feedback}>{giveSuccess}</p> : null}
+
+          <div className={styles.formActions}>
+            <button
+              className={styles.primaryButton}
+              type="submit"
+              disabled={
+                giving ||
+                items.length === 0 ||
+                players.length === 0 ||
+                selectedPlayerIds.length === 0
+              }
+            >
+              {giving ? "Enviando..." : "Dar item para players selecionados"}
+            </button>
+          </div>
+        </form>
 
         <div className={styles.filters}>
           <label className={styles.searchField}>
@@ -376,6 +549,13 @@ export default function ItemsPage() {
                 <p className={styles.rarityLine}>Raridade: {item.rarity}</p>
 
                 <div className={styles.cardActions}>
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    onClick={() => setSelectedGiveItemId(item.id)}
+                  >
+                    {selectedGiveItemId === item.id ? "Item selecionado" : "Selecionar p/ dar"}
+                  </button>
                   <button
                     type="button"
                     className={styles.ghostButton}
