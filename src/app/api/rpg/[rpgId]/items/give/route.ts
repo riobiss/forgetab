@@ -77,7 +77,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (selectedCharacterIds.length === 0) {
       return NextResponse.json(
-        { message: "Selecione pelo menos um player para receber o item." },
+        { message: "Selecione pelo menos um personagem para receber o item." },
         { status: 400 },
       )
     }
@@ -98,7 +98,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
       SELECT id
       FROM rpg_characters
       WHERE rpg_id = ${rpgId}
-        AND character_type = 'player'::"RpgCharacterType"
         AND id IN (${Prisma.join(selectedCharacterIds)})
     `)
 
@@ -109,7 +108,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (invalidCharacters.length > 0) {
       return NextResponse.json(
-        { message: "Um ou mais personagens selecionados nao sao players validos." },
+        { message: "Um ou mais personagens selecionados nao sao validos neste RPG." },
         { status: 400 },
       )
     }
@@ -141,7 +140,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     return NextResponse.json(
       {
-        message: `Item enviado para ${selectedCharacterIds.length} player(s).`,
+        message: `Item enviado para ${selectedCharacterIds.length} personagem(ns).`,
         affectedPlayers: selectedCharacterIds.length,
       },
       { status: 201 },
