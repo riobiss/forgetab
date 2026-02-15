@@ -51,6 +51,9 @@ export default function EditRpgPage() {
   const [classDrafts, setClassDrafts] = useState<IdentityTemplate[]>([])
   const [identityError, setIdentityError] = useState("")
   const [identitySuccess, setIdentitySuccess] = useState("")
+  const [showAttributeList, setShowAttributeList] = useState(false)
+  const [showStatusList, setShowStatusList] = useState(false)
+  const [showSkillList, setShowSkillList] = useState(false)
   const [showRaceList, setShowRaceList] = useState(false)
   const [showClassList, setShowClassList] = useState(false)
 
@@ -222,24 +225,31 @@ export default function EditRpgPage() {
 
             <div className={styles.attributeTemplateSection}>
               <h3>Atributos</h3>
-              <div className={styles.attributeGrid}>
-                {ATTRIBUTE_CATALOG.map((item) => (
-                  <label key={item.key} className={styles.attributeOption}>
-                    <input
-                      type="checkbox"
-                      checked={selectedAttributeKeys.includes(item.key)}
-                      onChange={() =>
-                        setSelectedAttributeKeys((prev) =>
-                          prev.includes(item.key)
-                            ? prev.filter((value) => value !== item.key)
-                            : [...prev, item.key],
-                        )
-                      }
-                    />
-                    <span>{item.label}</span>
-                  </label>
-                ))}
+              <div className={styles.identityHeaderActions}>
+                <button type="button" onClick={() => setShowAttributeList((prev) => !prev)}>
+                  {showAttributeList ? "Ocultar atributos" : "Mostrar atributos"}
+                </button>
               </div>
+              {showAttributeList ? (
+                <div className={styles.attributeGrid}>
+                  {ATTRIBUTE_CATALOG.map((item) => (
+                    <label key={item.key} className={styles.attributeOption}>
+                      <input
+                        type="checkbox"
+                        checked={selectedAttributeKeys.includes(item.key)}
+                        onChange={() =>
+                          setSelectedAttributeKeys((prev) =>
+                            prev.includes(item.key)
+                              ? prev.filter((value) => value !== item.key)
+                              : [...prev, item.key],
+                          )
+                        }
+                      />
+                      <span>{item.label}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : null}
               <div className={styles.actions}>
                 <button
                   type="button"
@@ -262,24 +272,31 @@ export default function EditRpgPage() {
 
             <div className={styles.attributeTemplateSection}>
               <h3>Status</h3>
-              <div className={styles.attributeGrid}>
-                {STATUS_CATALOG.map((item) => (
-                  <label key={item.key} className={styles.attributeOption}>
-                    <input
-                      type="checkbox"
-                      checked={selectedStatusKeys.includes(item.key)}
-                      onChange={() =>
-                        setSelectedStatusKeys((prev) =>
-                          prev.includes(item.key)
-                            ? prev.filter((value) => value !== item.key)
-                            : [...prev, item.key],
-                        )
-                      }
-                    />
-                    <span>{item.label}</span>
-                  </label>
-                ))}
+              <div className={styles.identityHeaderActions}>
+                <button type="button" onClick={() => setShowStatusList((prev) => !prev)}>
+                  {showStatusList ? "Ocultar status" : "Mostrar status"}
+                </button>
               </div>
+              {showStatusList ? (
+                <div className={styles.attributeGrid}>
+                  {STATUS_CATALOG.map((item) => (
+                    <label key={item.key} className={styles.attributeOption}>
+                      <input
+                        type="checkbox"
+                        checked={selectedStatusKeys.includes(item.key)}
+                        onChange={() =>
+                          setSelectedStatusKeys((prev) =>
+                            prev.includes(item.key)
+                              ? prev.filter((value) => value !== item.key)
+                              : [...prev, item.key],
+                          )
+                        }
+                      />
+                      <span>{item.label}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : null}
               <div className={styles.actions}>
                 <button
                   type="button"
@@ -302,49 +319,60 @@ export default function EditRpgPage() {
 
             <div className={styles.attributeTemplateSection}>
               <h3>Pericias</h3>
-              <div className={styles.actions}>
-                <input
-                  type="text"
-                  value={newSkillLabel}
-                  onChange={(event) => setNewSkillLabel(event.target.value)}
-                  placeholder="Ex.: medicina"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const label = newSkillLabel.trim()
-                    if (label.length < 2) return
-                    const key = label
-                      .normalize("NFD")
-                      .replace(/[\u0300-\u036f]/g, "")
-                      .toLowerCase()
-                      .replace(/[^a-z0-9]+/g, "-")
-                      .replace(/^-+|-+$/g, "")
-                    if (!key) return
-                    setSkillTemplates((prev) =>
-                      prev.some((item) => item.key === key || item.label === label)
-                        ? prev
-                        : [...prev, { key, label }],
-                    )
-                    setNewSkillLabel("")
-                  }}
-                >
-                  Adicionar pericia
+              <div className={styles.identityHeaderActions}>
+                <button type="button" onClick={() => setShowSkillList((prev) => !prev)}>
+                  {showSkillList ? "Ocultar pericias" : "Mostrar pericias"}
                 </button>
               </div>
-              {skillTemplates.map((item) => (
-                <div key={item.key} className={styles.actions}>
-                  <span>{item.label}</span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSkillTemplates((prev) => prev.filter((current) => current.key !== item.key))
-                    }
-                  >
-                    Remover
-                  </button>
-                </div>
-              ))}
+              {showSkillList ? (
+                <>
+                  <div className={styles.actions}>
+                    <input
+                      type="text"
+                      value={newSkillLabel}
+                      onChange={(event) => setNewSkillLabel(event.target.value)}
+                      placeholder="Ex.: medicina"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const label = newSkillLabel.trim()
+                        if (label.length < 2) return
+                        const key = label
+                          .normalize("NFD")
+                          .replace(/[\u0300-\u036f]/g, "")
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/^-+|-+$/g, "")
+                        if (!key) return
+                        setSkillTemplates((prev) =>
+                          prev.some((item) => item.key === key || item.label === label)
+                            ? prev
+                            : [...prev, { key, label }],
+                        )
+                        setNewSkillLabel("")
+                      }}
+                    >
+                      Adicionar pericia
+                    </button>
+                  </div>
+                  {skillTemplates.map((item) => (
+                    <div key={item.key} className={styles.actions}>
+                      <span>{item.label}</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSkillTemplates((prev) =>
+                            prev.filter((current) => current.key !== item.key),
+                          )
+                        }
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  ))}
+                </>
+              ) : null}
               <div className={styles.actions}>
                 <button
                   type="button"

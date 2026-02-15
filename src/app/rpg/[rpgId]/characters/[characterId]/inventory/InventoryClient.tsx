@@ -151,7 +151,7 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
       coreStats.push({ label: "Duracao", value: item.itemDuration })
     }
     if (item.itemDurability !== null) {
-      coreStats.push({ label: "Durabilidade", value: `${item.itemDurability} dur` })
+      coreStats.push({ label: "Durabilidade", value: `${item.itemDurability}` })
     }
     if (abilities.length > 0) {
       abilities.forEach((ability) => abilityEntries.push(ability))

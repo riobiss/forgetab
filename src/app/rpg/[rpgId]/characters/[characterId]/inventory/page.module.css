@@ -53,6 +53,70 @@
   color: var(--text-title);
 }
 
+.filters {
+  margin-bottom: 1rem;
+}
+
+.sectionTopbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.6rem;
+}
+
+.ghostButton {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.45rem 0.78rem;
+  background: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.categoryButton {
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  background: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.categoryButtonActive {
+  border-color: rgba(255, 138, 31, 0.55);
+  background: rgba(255, 138, 31, 0.14);
+  color: #ffdcb5;
+}
+
+.searchField {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.searchField span {
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.searchField input {
+  width: 100%;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 0.65rem 0.8rem;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-main);
+}
+
 .formCard {
   border: 1px solid var(--border-soft);
   border-radius: 10px;
