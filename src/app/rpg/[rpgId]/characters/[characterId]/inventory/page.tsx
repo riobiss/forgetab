@@ -30,7 +30,7 @@ export default async function InventoryPage({ params }: Params) {
   if (staticCharacter) {
     const resolvedInventory = staticCharacter.inventory
       .map((entry) => items.find((item) => item.id === entry))
-      .filter(Boolean)
+      .filter((item): item is (typeof items)[number] => Boolean(item))
     const inventoryItemsExist = resolvedInventory.length > 0
 
     return (
