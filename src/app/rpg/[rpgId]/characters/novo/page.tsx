@@ -42,6 +42,12 @@ type CharactersPayload = {
   message?: string
 }
 
+const CHARACTER_TYPE_LABEL: Record<CharacterSummary["characterType"], string> = {
+  player: "Player",
+  npc: "NPC",
+  monster: "Monstro",
+}
+
 export default function NewCharacterPage() {
   const params = useParams<{ rpgId: string }>()
   const router = useRouter()
@@ -55,6 +61,9 @@ export default function NewCharacterPage() {
   const [values, setValues] = useState<Record<string, number>>({})
   const [statusValues, setStatusValues] = useState<Record<string, number>>({})
   const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null)
+  const [characterType, setCharacterType] = useState<CharacterSummary["characterType"]>(
+    "player",
+  )
   const [characterVisibility, setCharacterVisibility] = useState<"private" | "public">(
     "public",
   )
@@ -123,6 +132,7 @@ export default function NewCharacterPage() {
         setValues(nextAttributes)
         setStatusValues(nextStatuses)
         setName(editTarget?.name ?? "")
+        setCharacterType(editTarget?.characterType ?? "player")
         setCharacterVisibility(editTarget?.visibility ?? "public")
         setEditingCharacterId(editTarget?.id ?? null)
       } catch {
@@ -155,7 +165,7 @@ export default function NewCharacterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
-          ...(isEditing ? {} : { characterType: "player" }),
+          ...(isEditing ? {} : { characterType }),
           ...(isEditing ? { visibility: characterVisibility } : {}),
           statuses: statusValues,
           attributes: values,
@@ -214,67 +224,118 @@ export default function NewCharacterPage() {
   return (
     <main className={styles.page}>
       <section className={styles.card}>
-        <h1>{editingCharacterId ? "Editar Personagem" : "Novo Personagem"}</h1>
-        <p>Preencha os atributos definidos no modo avancado do RPG.</p>
+        <header className={styles.header}>
+          <div>
+            <h1>{editingCharacterId ? "Editar Personagem" : "Criar Personagem"}</h1>
+            <p>Preencha os campos da ficha com os valores definidos no RPG.</p>
+          </div>
+          <div className={styles.badges}>
+            <span>{statuses.length} status</span>
+            <span>{attributes.length} atributos</span>
+          </div>
+        </header>
 
         <form className={styles.form} onSubmit={handleSubmit}>
-          <label className={styles.field}>
-            <span>Nome</span>
-            <input
-              type="text"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              minLength={2}
-              required
-            />
-          </label>
+          <section className={styles.section}>
+            <h2>Identificacao</h2>
+            <div className={styles.identityGrid}>
+              <label className={styles.field}>
+                <span>Nome</span>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  minLength={2}
+                  required
+                />
+              </label>
 
-          <label className={styles.field}>
-            <span>Tipo</span>
-            <input type="text" value="Player" readOnly />
-          </label>
+              <label className={styles.field}>
+                <span>Tipo</span>
+                {editingCharacterId ? (
+                  <input type="text" value={CHARACTER_TYPE_LABEL[characterType]} readOnly />
+                ) : (
+                  <select
+                    value={characterType}
+                    onChange={(event) =>
+                      setCharacterType(
+                        event.target.value as CharacterSummary["characterType"],
+                      )
+                    }
+                  >
+                    <option value="player">Player</option>
+                    <option value="npc">NPC</option>
+                    <option value="monster">Monstro</option>
+                  </select>
+                )}
+              </label>
 
-          {editingCharacterId ? (
-            <label className={styles.field}>
-              <span>Visibilidade do personagem</span>
-              <button
-                type="button"
-                className={styles.visibilityToggle}
-                onClick={() =>
-                  setCharacterVisibility((prev) =>
-                    prev === "public" ? "private" : "public",
-                  )
-                }
-              >
-                {characterVisibility === "public" ? "Publico" : "Privado"}
-              </button>
-            </label>
-          ) : null}
+              {editingCharacterId ? (
+                <div className={styles.field}>
+                  <span>Visibilidade</span>
+                  <div className={styles.visibilityOptions}>
+                    <button
+                      type="button"
+                      className={
+                        characterVisibility === "public"
+                          ? `${styles.visibilityOption} ${styles.visibilityOptionActive}`
+                          : styles.visibilityOption
+                      }
+                      onClick={() => setCharacterVisibility("public")}
+                    >
+                      Publico
+                    </button>
+                    <button
+                      type="button"
+                      className={
+                        characterVisibility === "private"
+                          ? `${styles.visibilityOption} ${styles.visibilityOptionActive}`
+                          : styles.visibilityOption
+                      }
+                      onClick={() => setCharacterVisibility("private")}
+                    >
+                      Privado
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </section>
 
-          {statuses.map((status) => (
-            <label className={styles.field} key={status.key}>
-              <span>{status.label}</span>
-              <input
-                type="number"
-                min={0}
-                value={statusValues[status.key] ?? 0}
-                onChange={(event) => updateStatus(status.key, event.target.value)}
-                required
-              />
-            </label>
-          ))}
+          <section className={styles.section}>
+            <h2>Status</h2>
+            <div className={styles.valuesGrid}>
+              {statuses.map((status) => (
+                <label className={styles.field} key={status.key}>
+                  <span>{status.label}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={statusValues[status.key] ?? 0}
+                    onChange={(event) => updateStatus(status.key, event.target.value)}
+                    required
+                  />
+                </label>
+              ))}
+            </div>
+          </section>
 
-          {attributes.map((attribute) => (
-            <label className={styles.field} key={attribute.key}>
-              <span>{attribute.label}</span>
-              <input
-                type="number"
-                value={values[attribute.key] ?? 0}
-                onChange={(event) => updateAttribute(attribute.key, event.target.value)}
-                required
-              />
-            </label>
-          ))}
+          <section className={styles.section}>
+            <h2>Atributos</h2>
+            <div className={styles.valuesGrid}>
+              {attributes.map((attribute) => (
+                <label className={styles.field} key={attribute.key}>
+                  <span>{attribute.label}</span>
+                  <input
+                    type="number"
+                    value={values[attribute.key] ?? 0}
+                    onChange={(event) => updateAttribute(attribute.key, event.target.value)}
+                    required
+                  />
+                </label>
+              ))}
+            </div>
+          </section>
 
           {error ? <p className={styles.error}>{error}</p> : null}
 
