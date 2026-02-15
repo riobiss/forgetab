@@ -27,6 +27,17 @@ type StatusTemplatePayload = {
   message?: string
 }
 
+type SkillTemplate = {
+  key: string
+  label: string
+  position: number
+}
+
+type SkillTemplatePayload = {
+  skills?: SkillTemplate[]
+  message?: string
+}
+
 type CharacterSummary = {
   id: string
   name: string
@@ -35,10 +46,12 @@ type CharacterSummary = {
   createdByUserId?: string | null
   statuses?: Record<string, number>
   attributes?: Record<string, number>
+  skills?: Record<string, number>
 }
 
 type CharactersPayload = {
   characters?: CharacterSummary[]
+  isOwner?: boolean
   message?: string
 }
 
@@ -58,8 +71,10 @@ export default function NewCharacterPage() {
   const [name, setName] = useState("")
   const [attributes, setAttributes] = useState<AttributeTemplate[]>([])
   const [statuses, setStatuses] = useState<StatusTemplate[]>([])
+  const [skills, setSkills] = useState<SkillTemplate[]>([])
   const [values, setValues] = useState<Record<string, number>>({})
   const [statusValues, setStatusValues] = useState<Record<string, number>>({})
+  const [skillValues, setSkillValues] = useState<Record<string, number>>({})
   const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null)
   const [characterType, setCharacterType] = useState<CharacterSummary["characterType"]>(
     "player",
@@ -70,6 +85,7 @@ export default function NewCharacterPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
+  const [isOwner, setIsOwner] = useState(false)
 
   useEffect(() => {
     async function loadTemplate() {
@@ -77,14 +93,16 @@ export default function NewCharacterPage() {
         setLoading(true)
         setError("")
 
-        const [attributesResponse, statusesResponse, charactersResponse] = await Promise.all([
+        const [attributesResponse, statusesResponse, skillsResponse, charactersResponse] = await Promise.all([
           fetch(`/api/rpg/${rpgId}/attributes`),
           fetch(`/api/rpg/${rpgId}/statuses`),
+          fetch(`/api/rpg/${rpgId}/skills`),
           fetch(`/api/rpg/${rpgId}/characters`),
         ])
 
         const attributesPayload = (await attributesResponse.json()) as TemplatePayload
         const statusesPayload = (await statusesResponse.json()) as StatusTemplatePayload
+        const skillsPayload = (await skillsResponse.json()) as SkillTemplatePayload
         const charactersPayload = (await charactersResponse.json()) as CharactersPayload
 
         if (!attributesResponse.ok) {
@@ -99,6 +117,11 @@ export default function NewCharacterPage() {
           return
         }
 
+        if (!skillsResponse.ok) {
+          setError(skillsPayload.message ?? "Nao foi possivel carregar o padrao de pericias.")
+          return
+        }
+
         if (!charactersResponse.ok) {
           setError(charactersPayload.message ?? "Nao foi possivel carregar os personagens.")
           return
@@ -106,6 +129,7 @@ export default function NewCharacterPage() {
 
         const attributeTemplate = attributesPayload.attributes ?? []
         const statusTemplate = statusesPayload.statuses ?? []
+        const skillTemplate = skillsPayload.skills ?? []
         const allCharacters = charactersPayload.characters ?? []
         const editTarget = characterId
           ? allCharacters.find((character) => character.id === characterId)
@@ -118,6 +142,8 @@ export default function NewCharacterPage() {
 
         setAttributes(attributeTemplate)
         setStatuses(statusTemplate)
+        setSkills(skillTemplate)
+        setIsOwner(Boolean(charactersPayload.isOwner))
 
         const nextAttributes = attributeTemplate.reduce<Record<string, number>>((acc, item) => {
           acc[item.key] = Number((editTarget?.attributes ?? {})[item.key] ?? 0)
@@ -128,9 +154,14 @@ export default function NewCharacterPage() {
           acc[item.key] = Number((editTarget?.statuses ?? {})[item.key] ?? 0)
           return acc
         }, {})
+        const nextSkills = skillTemplate.reduce<Record<string, number>>((acc, item) => {
+          acc[item.key] = Number((editTarget?.skills ?? {})[item.key] ?? 0)
+          return acc
+        }, {})
 
         setValues(nextAttributes)
         setStatusValues(nextStatuses)
+        setSkillValues(nextSkills)
         setName(editTarget?.name ?? "")
         setCharacterType(editTarget?.characterType ?? "player")
         setCharacterVisibility(editTarget?.visibility ?? "public")
@@ -169,6 +200,7 @@ export default function NewCharacterPage() {
           ...(isEditing ? { visibility: characterVisibility } : {}),
           statuses: statusValues,
           attributes: values,
+          ...(isOwner ? { skills: skillValues } : {}),
         }),
       })
 
@@ -211,6 +243,13 @@ export default function NewCharacterPage() {
     }))
   }
 
+  function updateSkill(key: string, value: string) {
+    setSkillValues((prev) => ({
+      ...prev,
+      [key]: Number(value),
+    }))
+  }
+
   if (loading) {
     return (
       <main className={styles.page}>
@@ -232,6 +271,7 @@ export default function NewCharacterPage() {
           <div className={styles.badges}>
             <span>{statuses.length} status</span>
             <span>{attributes.length} atributos</span>
+            <span>{skills.length} pericias</span>
           </div>
         </header>
 
@@ -336,6 +376,30 @@ export default function NewCharacterPage() {
               ))}
             </div>
           </section>
+
+          {skills.length > 0 ? (
+            <section className={styles.section}>
+              <h2>Pericias</h2>
+              {!isOwner ? (
+                <p>Somente o owner do RPG pode editar as pericias dos personagens.</p>
+              ) : null}
+              <div className={styles.valuesGrid}>
+                {skills.map((skill) => (
+                  <label className={styles.field} key={skill.key}>
+                    <span>{skill.label}</span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={skillValues[skill.key] ?? 0}
+                      onChange={(event) => updateSkill(skill.key, event.target.value)}
+                      disabled={!isOwner}
+                      required
+                    />
+                  </label>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           {error ? <p className={styles.error}>{error}</p> : null}
 

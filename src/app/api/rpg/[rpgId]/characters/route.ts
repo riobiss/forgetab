@@ -31,6 +31,7 @@ type CharacterRow = {
   sanity: number
   statuses: Prisma.JsonValue
   attributes: Prisma.JsonValue
+  skills: Prisma.JsonValue
   createdAt: Date
   updatedAt: Date
 }
@@ -42,6 +43,12 @@ type AttributeTemplateRow = {
 }
 
 type StatusTemplateRow = {
+  key: string
+  label: string
+  position: number
+}
+
+type SkillTemplateRow = {
   key: string
   label: string
   position: number
@@ -160,6 +167,41 @@ function validateStatusesPayload(
   return { ok: true as const, value: record as Record<string, number> }
 }
 
+function validateSkillsPayload(
+  incoming: unknown,
+  template: SkillTemplateRow[],
+) {
+  if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
+    return { ok: false as const, message: "Pericias invalidas." }
+  }
+
+  const record = incoming as Record<string, unknown>
+  const allowedKeys = template.map((item) => item.key)
+
+  for (const key of allowedKeys) {
+    if (!(key in record)) {
+      return { ok: false as const, message: `Pericia obrigatoria ausente: ${key}.` }
+    }
+
+    const value = record[key]
+    if (typeof value !== "number" || Number.isNaN(value) || value < 0) {
+      return { ok: false as const, message: `Valor invalido para pericia ${key}.` }
+    }
+  }
+
+  const extraKey = Object.keys(record).find((key) => !allowedKeys.includes(key))
+  if (extraKey) {
+    return { ok: false as const, message: `Pericia fora do padrao: ${extraKey}.` }
+  }
+
+  const normalized = allowedKeys.reduce<Record<string, number>>((acc, key) => {
+    acc[key] = Math.floor(Number(record[key]))
+    return acc
+  }, {})
+
+  return { ok: true as const, value: normalized }
+}
+
 function isValidCharacterType(value: unknown): value is CharacterRow["characterType"] {
   return value === "player" || value === "npc" || value === "monster"
 }
@@ -220,6 +262,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         sanity,
         statuses,
         attributes,
+        skills,
         created_at AS "createdAt",
         updated_at AS "updatedAt"
       FROM rpg_characters
@@ -234,11 +277,17 @@ export async function GET(request: NextRequest, context: RouteContext) {
       ORDER BY created_at DESC
     `)
 
-    return NextResponse.json({ characters }, { status: 200 })
+    return NextResponse.json({ characters, isOwner: access.isOwner }, { status: 200 })
   } catch (error) {
     if (error instanceof Error && error.message.includes('relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Tabela de personagens nao existe no banco. Rode a migration." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "skills" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
         { status: 500 },
       )
     }
@@ -268,6 +317,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       characterType?: CharacterRow["characterType"]
       statuses?: Record<string, number>
       attributes?: Record<string, number>
+      skills?: Record<string, number>
     }
 
     const name = body.name?.trim() ?? ""
@@ -289,6 +339,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json(
         { message: "Somente personagens do tipo player podem ser criados por jogadores." },
         { status: 400 },
+      )
+    }
+
+    if (!access.isOwner && body.skills !== undefined) {
+      return NextResponse.json(
+        { message: "Somente o owner do RPG pode definir pericias." },
+        { status: 403 },
       )
     }
 
@@ -393,11 +450,36 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: sanity.message }, { status: 400 })
     }
 
+    let dbSkillTemplate: SkillTemplateRow[] = []
+    try {
+      dbSkillTemplate = await prisma.$queryRaw<SkillTemplateRow[]>(Prisma.sql`
+        SELECT key, label, position
+        FROM rpg_skill_templates
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `)
+    } catch (error) {
+      if (!(error instanceof Error && error.message.includes('relation "rpg_skill_templates" does not exist'))) {
+        throw error
+      }
+    }
+    const skillTemplate = dbSkillTemplate
+
+    const defaultSkills = skillTemplate.reduce<Record<string, number>>((acc, item) => {
+      acc[item.key] = 0
+      return acc
+    }, {})
+    const incomingSkills = access.isOwner ? body.skills ?? defaultSkills : defaultSkills
+    const parsedSkills = validateSkillsPayload(incomingSkills, skillTemplate)
+    if (!parsedSkills.ok) {
+      return NextResponse.json({ message: parsedSkills.message }, { status: 400 })
+    }
+
     const createdByUserId = access.isOwner ? null : userId
 
     const created = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
       INSERT INTO rpg_characters (
-        id, rpg_id, name, character_type, visibility, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes
+        id, rpg_id, name, character_type, visibility, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes, skills
       )
       VALUES (
         ${crypto.randomUUID()},
@@ -412,7 +494,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
         ${stamina.value},
         ${sanity.value},
         ${JSON.stringify(parsedStatuses.value)}::jsonb,
-        ${JSON.stringify(parsedAttributes.value)}::jsonb
+        ${JSON.stringify(parsedAttributes.value)}::jsonb,
+        ${JSON.stringify(parsedSkills.value)}::jsonb
       )
       RETURNING
         id,
@@ -428,6 +511,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         sanity,
         statuses,
         attributes,
+        skills,
         created_at AS "createdAt",
         updated_at AS "updatedAt"
     `)
@@ -459,6 +543,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
       )
     }
     if (error instanceof Error && error.message.includes('column "visibility" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "skills" of relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
         { status: 500 },

@@ -29,11 +29,17 @@ type DbCharacterRow = {
   sanity: number
   statuses: Prisma.JsonValue
   attributes: Prisma.JsonValue
+  skills: Prisma.JsonValue
   createdAt: Date
 }
 
 type MemberStatusRow = {
   status: "pending" | "accepted" | "rejected"
+}
+
+type SkillTemplateLabelRow = {
+  key: string
+  label: string
 }
 
 async function getUserIdFromCookie() {
@@ -84,13 +90,13 @@ const skillLabels: Record<string, string> = {
   medicine: "Medicina",
   gambling: "Jogos de Aposta",
 }
-
 export default async function CharactersPage({ params }: Params) {
   const { rpgId, characterId } = await params
   const character = players.find((p) => p.id === characterId)
 
   if (!character) {
     let dbCharacter: DbCharacterRow[] = []
+    let skillLabelByKey = new Map<string, string>()
     let userId: string | null = null
     let isOwner = false
 
@@ -142,14 +148,23 @@ export default async function CharactersPage({ params }: Params) {
           sanity,
           statuses,
           attributes,
+          skills,
           created_at AS "createdAt"
         FROM rpg_characters
         WHERE id = ${characterId}
           AND rpg_id = ${rpgId}
         LIMIT 1
       `)
+
+      const skillLabels = await prisma.$queryRaw<SkillTemplateLabelRow[]>(Prisma.sql`
+        SELECT key, label
+        FROM rpg_skill_templates
+        WHERE rpg_id = ${rpgId}
+      `)
+      skillLabelByKey = new Map(skillLabels.map((item) => [item.key, item.label]))
     } catch {
       dbCharacter = []
+      skillLabelByKey = new Map()
     }
 
     if (dbCharacter.length === 0) {
@@ -168,6 +183,7 @@ export default async function CharactersPage({ params }: Params) {
 
     const attributes = row.attributes as Record<string, number>
     const statuses = row.statuses as Record<string, number>
+    const skills = row.skills as Record<string, number>
 
     return (
       <div className={styles.page}>
@@ -206,6 +222,17 @@ export default async function CharactersPage({ params }: Params) {
                 {Object.entries(attributes).map(([key, value]) => (
                   <li key={key}>
                     {key}: {value}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4>Pericias do Padrao</h4>
+              <ul className={styles.list}>
+                {Object.entries(skills).map(([key, value]) => (
+                  <li key={key}>
+                    {skillLabelByKey.get(key) ?? key}: {value}
                   </li>
                 ))}
               </ul>
