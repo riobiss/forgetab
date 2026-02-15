@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import styles from "../page.module.css"
+import { formatDateInBrasilia } from "@/lib/date"
 
 type PendingRequest = {
   id: string
@@ -142,7 +143,7 @@ export default function MembershipNotifications({
                     <strong>{request.userName}</strong>
                     <small>{request.userEmail}</small>
                     <small>
-                      Solicitou em {new Date(request.requestedAt).toLocaleDateString("pt-BR")}
+                      Solicitou em {formatDateInBrasilia(request.requestedAt)}
                     </small>
                   </div>
                   <div className={styles.noticeActions}>

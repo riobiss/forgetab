@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import styles from "./page.module.css"
+import { formatDateInBrasilia } from "@/lib/date"
 
 export default async function PerfilPage() {
   const cookieStore = await cookies()
@@ -53,7 +54,7 @@ export default async function PerfilPage() {
             <span>Criado em</span>
             <strong>
               {user?.createdAt
-                ? new Date(user.createdAt).toLocaleDateString("pt-BR")
+                ? formatDateInBrasilia(user.createdAt)
                 : "-"}
             </strong>
           </div>

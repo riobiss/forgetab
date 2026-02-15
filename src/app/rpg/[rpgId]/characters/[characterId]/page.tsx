@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../../generated/prisma/client"
 import { cookies } from "next/headers"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { formatDateInBrasilia } from "@/lib/date"
 
 type Params = {
   params: Promise<{
@@ -170,7 +171,7 @@ export default async function CharactersPage({ params }: Params) {
                     ? "NPC"
                     : "Monstro"}
               </p>
-              <p>Criado em: {new Date(row.createdAt).toLocaleDateString("pt-BR")}</p>
+              <p>Criado em: {formatDateInBrasilia(row.createdAt)}</p>
             </div>
 
             <div>

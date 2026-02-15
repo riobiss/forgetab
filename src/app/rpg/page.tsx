@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma"
 import { cookies } from "next/headers"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import OwnedRpgActions from "./components/OwnedRpgActions"
+import { formatDateInBrasilia } from "@/lib/date"
 
 type CreatedRpg = {
   id: string
@@ -86,7 +87,7 @@ export default async function ViewRpg() {
                   <p>{item.description}</p>
                   <small>
                     {item.visibility === "public" ? "Publico" : "Privado"} |{" "}
-                    {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+                    {formatDateInBrasilia(item.createdAt)}
                   </small>
 
                   <OwnedRpgActions rpgId={item.id} />
@@ -112,7 +113,7 @@ export default async function ViewRpg() {
                 <h4>{item.title}</h4>
                 <p>{item.description}</p>
                 <small>
-                  Publico | {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+                  Publico | {formatDateInBrasilia(item.createdAt)}
                 </small>
                 <div className={styles.createdActions}>
                   <Link href={`/rpg/${item.id}`}>Abrir</Link>
