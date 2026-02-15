@@ -9,4 +9,9 @@ export type InventoryCardItem = {
   description?: string
   secondaryLine?: string
   ability?: string
+  metaLines?: string[]
+  coreStats?: Array<{
+    label: string
+    value: string
+  }>
 }

@@ -40,7 +40,7 @@ export default async function InventoryPage({ params }: Params) {
       rarityClass: staticRarityClassMap[item.rarity] ?? "common",
       quantity: item.quantity,
       description: item.description,
-      ability: item.ability,
+      ability: item.ability ?? undefined,
     }))
 
     return (

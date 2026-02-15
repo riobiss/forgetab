@@ -25,8 +25,18 @@ type InventoryRow = {
   createdAt: Date
   updatedAt: Date
   itemName: string
+  itemDescription: string | null
   itemType: string
   itemRarity: string
+  itemDamage: string | null
+  itemAbility: string | null
+  itemAbilityName: string | null
+  itemEffect: string | null
+  itemEffectName: string | null
+  itemAbilities: Prisma.JsonValue
+  itemEffects: Prisma.JsonValue
+  itemWeight: number | null
+  itemDurability: number | null
 }
 
 async function getUserIdFromToken(request: NextRequest) {
@@ -133,8 +143,18 @@ export async function GET(request: NextRequest, context: RouteContext) {
         i.created_at AS "createdAt",
         i.updated_at AS "updatedAt",
         b.name AS "itemName",
+        b.description AS "itemDescription",
         b.type AS "itemType",
-        b.rarity AS "itemRarity"
+        b.rarity AS "itemRarity",
+        b.damage AS "itemDamage",
+        b.ability AS "itemAbility",
+        b.ability_name AS "itemAbilityName",
+        b.effect AS "itemEffect",
+        b.effect_name AS "itemEffectName",
+        b.abilities AS "itemAbilities",
+        b.effects AS "itemEffects",
+        b.weight AS "itemWeight",
+        b.durability AS "itemDurability"
       FROM rpg_character_inventory_items i
       INNER JOIN baseitems b ON b.id = i.base_item_id
       WHERE i.rpg_id = ${rpgId}
@@ -153,6 +173,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
     ) {
       return NextResponse.json(
         { message: "Tabela de inventario nao existe no banco. Rode a migration." },
+        { status: 500 },
+      )
+    }
+
+    if (error instanceof Error && error.message.includes('column "description" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
         { status: 500 },
       )
     }
