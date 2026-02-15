@@ -63,6 +63,7 @@ type ClassesPayload = {
 type CharacterSummary = {
   id: string
   name: string
+  image?: string | null
   raceKey?: string | null
   classKey?: string | null
   characterType: "player" | "npc" | "monster"
@@ -79,6 +80,11 @@ type CharactersPayload = {
   message?: string
 }
 
+type UploadImagePayload = {
+  message?: string
+  url?: string
+}
+
 const CHARACTER_TYPE_LABEL: Record<CharacterSummary["characterType"], string> = {
   player: "Player",
   npc: "NPC",
@@ -93,6 +99,7 @@ export default function NewCharacterPage() {
   const characterId = searchParams.get("characterId")
 
   const [name, setName] = useState("")
+  const [image, setImage] = useState("")
   const [attributes, setAttributes] = useState<AttributeTemplate[]>([])
   const [statuses, setStatuses] = useState<StatusTemplate[]>([])
   const [skills, setSkills] = useState<SkillTemplate[]>([])
@@ -113,6 +120,8 @@ export default function NewCharacterPage() {
   )
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadError, setUploadError] = useState("")
   const [error, setError] = useState("")
   const [isOwner, setIsOwner] = useState(false)
 
@@ -215,6 +224,7 @@ export default function NewCharacterPage() {
         setStatusValues(nextStatuses)
         setSkillValues(nextSkills)
         setName(editTarget?.name ?? "")
+        setImage(editTarget?.image ?? "")
         setRaceKey(editTarget?.raceKey ?? "")
         setClassKey(editTarget?.classKey ?? "")
         setCharacterType(editTarget?.characterType ?? "player")
@@ -250,6 +260,7 @@ export default function NewCharacterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
+          image,
           ...(isEditing
             ? {}
             : useClassRaceBonuses
@@ -312,6 +323,34 @@ export default function NewCharacterPage() {
     }))
   }
 
+  async function handleImageUpload(file: File) {
+    setUploadingImage(true)
+    setUploadError("")
+    setError("")
+
+    try {
+      const payload = new FormData()
+      payload.append("file", file)
+
+      const response = await fetch("/api/uploads/character-image", {
+        method: "POST",
+        body: payload,
+      })
+
+      const body = (await response.json()) as UploadImagePayload
+      if (!response.ok || !body.url) {
+        setUploadError(body.message ?? "Nao foi possivel enviar imagem.")
+        return
+      }
+
+      setImage(body.url)
+    } catch {
+      setUploadError("Erro de conexao ao enviar imagem.")
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
   if (loading) {
     return (
       <main className={styles.page}>
@@ -351,6 +390,33 @@ export default function NewCharacterPage() {
                   required
                 />
               </label>
+
+              <label className={styles.field}>
+                <span>Imagem (URL)</span>
+                <input
+                  type="url"
+                  value={image}
+                  onChange={(event) => setImage(event.target.value)}
+                  readOnly
+                  placeholder="https://ik.imagekit.io/.../personagem.jpg"
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span>Arquivo da imagem</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0]
+                    if (file) {
+                      void handleImageUpload(file)
+                    }
+                  }}
+                />
+              </label>
+              {uploadingImage ? <p>Enviando imagem...</p> : null}
+              {uploadError ? <p className={styles.error}>{uploadError}</p> : null}
 
               {useClassRaceBonuses ? (
                 <>
