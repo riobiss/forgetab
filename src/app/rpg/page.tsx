@@ -2,11 +2,10 @@ import rpg from "@/data/rpgs"
 import Image from "next/image"
 import styles from "./page.module.css"
 import Link from "next/link"
-import { FolderOpen, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { cookies } from "next/headers"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
-import OwnedRpgActions from "./components/OwnedRpgActions"
 import { formatDateInBrasilia } from "@/lib/date"
 
 type CreatedRpg = {
@@ -84,16 +83,18 @@ export default async function ViewRpg() {
           {createdRpgs.length > 0 ? (
             <div className={styles.createdGrid}>
               {createdRpgs.map((item) => (
-                <article key={item.id} className={styles.createdCard}>
+                <Link
+                  key={item.id}
+                  href={`/rpg/${item.id}`}
+                  className={styles.createdCard}
+                >
                   <h4>{item.title}</h4>
                   <p>{item.description}</p>
                   <small>
                     {item.visibility === "public" ? "Publico" : "Privado"} |{" "}
                     {formatDateInBrasilia(item.createdAt)}
                   </small>
-
-                  <OwnedRpgActions rpgId={item.id} />
-                </article>
+                </Link>
               ))}
             </div>
           ) : (
@@ -111,19 +112,17 @@ export default async function ViewRpg() {
           <h3 className={styles.sectionTitle}>RPGs Publicos</h3>
           <div className={styles.createdGrid}>
             {publicRpgs.map((item) => (
-              <article key={item.id} className={styles.createdCard}>
+              <Link
+                key={item.id}
+                href={`/rpg/${item.id}`}
+                className={styles.createdCard}
+              >
                 <h4>{item.title}</h4>
                 <p>{item.description}</p>
                 <small>
                   Publico | {formatDateInBrasilia(item.createdAt)}
                 </small>
-                <div className={styles.createdActions}>
-                  <Link href={`/rpg/${item.id}`}>
-                    <FolderOpen size={14} />
-                    <span>Abrir</span>
-                  </Link>
-                </div>
-              </article>
+              </Link>
             ))}
           </div>
         </section>
