@@ -13,19 +13,12 @@ type PendingRequest = {
   requestedAt: string
 }
 
-type AcceptedMember = {
-  id: string
-  userName: string
-  userEmail: string
-}
-
 type Props = {
   rpgId: string
   isOwner: boolean
   isAuthenticated: boolean
   membershipStatus: "pending" | "accepted" | "rejected" | null
   pendingRequests: PendingRequest[]
-  acceptedMembers: AcceptedMember[]
   compact?: boolean
 }
 
@@ -35,13 +28,11 @@ export default function MembershipNotifications({
   isAuthenticated,
   membershipStatus,
   pendingRequests,
-  acceptedMembers,
   compact = false,
 }: Props) {
   const router = useRouter()
   const [loadingRequest, setLoadingRequest] = useState(false)
   const [processingId, setProcessingId] = useState<string | null>(null)
-  const [expellingId, setExpellingId] = useState<string | null>(null)
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
   const [isOpen, setIsOpen] = useState(false)
@@ -102,38 +93,6 @@ export default function MembershipNotifications({
     }
   }
 
-  async function expelMember(memberId: string) {
-    const confirmed = window.confirm("Deseja realmente expulsar este membro?")
-
-    if (!confirmed) {
-      return
-    }
-
-    setExpellingId(memberId)
-    setMessage("")
-    setError("")
-
-    try {
-      const response = await fetch(`/api/rpg/${rpgId}/members/${memberId}`, {
-        method: "DELETE",
-      })
-
-      const payload = (await response.json()) as { message?: string }
-
-      if (!response.ok) {
-        setError(payload.message ?? "Nao foi possivel expulsar membro.")
-        return
-      }
-
-      setMessage(payload.message ?? "Membro expulso.")
-      router.refresh()
-    } catch {
-      setError("Erro de conexao ao expulsar membro.")
-    } finally {
-      setExpellingId(null)
-    }
-  }
-
   return (
     <section
       className={`${styles.notificationWrapper} ${compact ? styles.notificationWrapperCompact : ""}`}
@@ -169,9 +128,9 @@ export default function MembershipNotifications({
         >
           {isOwner ? (
             <>
-              <h3>Notificacoes de Membros</h3>
+              <h3>Notificacoes do GM</h3>
               {pendingRequests.length === 0 ? (
-                <p>Nenhuma solicitacao pendente.</p>
+                <p>Nenhum pedido pendente.</p>
               ) : (
                 <div className={styles.noticeList}>
                   {pendingRequests.map((request) => (
@@ -197,32 +156,6 @@ export default function MembershipNotifications({
                           disabled={processingId === request.id}
                         >
                           Recusar
-                        </button>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              )}
-
-              <h3 className={styles.membersTitle}>Membros atuais</h3>
-              {acceptedMembers.length === 0 ? (
-                <p>Nenhum membro aceito ate o momento.</p>
-              ) : (
-                <div className={styles.noticeList}>
-                  {acceptedMembers.map((member) => (
-                    <article key={member.id} className={styles.noticeCard}>
-                      <div>
-                        <strong>{member.userName}</strong>
-                        <small>{member.userEmail}</small>
-                      </div>
-                      <div className={styles.noticeActions}>
-                        <button
-                          type="button"
-                          className={styles.expelButton}
-                          onClick={() => expelMember(member.id)}
-                          disabled={expellingId === member.id}
-                        >
-                          {expellingId === member.id ? "Expulsando..." : "Expulsar"}
                         </button>
                       </div>
                     </article>

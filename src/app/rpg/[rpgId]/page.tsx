@@ -7,6 +7,7 @@ import { Settings } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../generated/prisma/client"
 import MembershipNotifications from "./components/MembershipNotifications"
+import MembersList from "./components/MembersList"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 
@@ -197,9 +198,11 @@ export default async function ViewInRpg({ params }: Params) {
             ...item,
             requestedAt: item.requestedAt.toISOString(),
           }))}
-          acceptedMembers={acceptedMembers}
           compact
         />
+        {isOwner ? (
+          <MembersList rpgId={dbRpg.id} members={acceptedMembers} compact />
+        ) : null}
         {isOwner ? (
           <Link
             href={`/rpg/${dbRpg.id}/edit`}
