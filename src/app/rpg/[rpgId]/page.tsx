@@ -26,6 +26,12 @@ type PendingRequestRow = {
   requestedAt: Date
 }
 
+type AcceptedMemberRow = {
+  id: string
+  userName: string
+  userEmail: string
+}
+
 export const generateMetadata = () => {
   return {
     title: "rpg",
@@ -152,6 +158,8 @@ export default async function ViewInRpg({ params }: Params) {
   }
 
   let pendingRequests: PendingRequestRow[] = []
+  let acceptedMembers: AcceptedMemberRow[] = []
+
   if (isOwner) {
     pendingRequests = await prisma.$queryRaw<PendingRequestRow[]>(Prisma.sql`
       SELECT
@@ -164,6 +172,18 @@ export default async function ViewInRpg({ params }: Params) {
       WHERE m.rpg_id = ${rpgId}
         AND m.status = 'pending'::"public"."RpgMemberStatus"
       ORDER BY m.requested_at ASC
+    `)
+
+    acceptedMembers = await prisma.$queryRaw<AcceptedMemberRow[]>(Prisma.sql`
+      SELECT
+        m.id,
+        u.name AS "userName",
+        u.email AS "userEmail"
+      FROM rpg_members m
+      INNER JOIN users u ON u.id = m.user_id
+      WHERE m.rpg_id = ${rpgId}
+        AND m.status = 'accepted'::"public"."RpgMemberStatus"
+      ORDER BY u.name ASC
     `)
   }
 
@@ -178,6 +198,7 @@ export default async function ViewInRpg({ params }: Params) {
           ...item,
           requestedAt: item.requestedAt.toISOString(),
         }))}
+        acceptedMembers={acceptedMembers}
       />
 
       <h2 className={styles.title}>{dbRpg.title}</h2>

@@ -25,6 +25,27 @@ async function getUserIdFromToken(request: NextRequest) {
   }
 }
 
+async function canManageMembers(rpgId: string, userId: string) {
+  const rpg = await prisma.rpg.findUnique({
+    where: { id: rpgId },
+    select: { ownerId: true },
+  })
+
+  if (!rpg) {
+    return { ok: false as const, message: "RPG nao encontrado.", status: 404 }
+  }
+
+  if (rpg.ownerId !== userId) {
+    return {
+      ok: false as const,
+      message: "Somente o mestre pode gerenciar membros.",
+      status: 403,
+    }
+  }
+
+  return { ok: true as const, ownerId: rpg.ownerId }
+}
+
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
     const userId = await getUserIdFromToken(request)
@@ -38,20 +59,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     const { rpgId, memberId } = await context.params
 
-    const rpg = await prisma.rpg.findUnique({
-      where: { id: rpgId },
-      select: { ownerId: true },
-    })
-
-    if (!rpg) {
-      return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
-    }
-
-    if (rpg.ownerId !== userId) {
-      return NextResponse.json(
-        { message: "Somente o mestre pode aprovar solicitacoes." },
-        { status: 403 },
-      )
+    const permission = await canManageMembers(rpgId, userId)
+    if (!permission.ok) {
+      return NextResponse.json({ message: permission.message }, { status: permission.status })
     }
 
     const body = (await request.json()) as { action?: "accept" | "reject" }
@@ -103,6 +113,56 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     return NextResponse.json(
       { message: "Erro interno ao processar solicitacao." },
+      { status: 500 },
+    )
+  }
+}
+
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  try {
+    const userId = await getUserIdFromToken(request)
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Usuario nao autenticado." },
+        { status: 401 },
+      )
+    }
+
+    const { rpgId, memberId } = await context.params
+
+    const permission = await canManageMembers(rpgId, userId)
+    if (!permission.ok) {
+      return NextResponse.json({ message: permission.message }, { status: permission.status })
+    }
+
+    const deleted = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+      DELETE FROM rpg_members
+      WHERE id = ${memberId}
+        AND rpg_id = ${rpgId}
+        AND status = 'accepted'::"public"."RpgMemberStatus"
+        AND user_id <> ${permission.ownerId}
+      RETURNING id
+    `)
+
+    if (deleted.length === 0) {
+      return NextResponse.json(
+        { message: "Membro nao encontrado para expulsao." },
+        { status: 404 },
+      )
+    }
+
+    return NextResponse.json({ message: "Membro expulso com sucesso." }, { status: 200 })
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('relation "rpg_members" does not exist')) {
+      return NextResponse.json(
+        { message: "Tabela de membros nao existe no banco. Rode a migration." },
+        { status: 500 },
+      )
+    }
+
+    return NextResponse.json(
+      { message: "Erro interno ao expulsar membro." },
       { status: 500 },
     )
   }
