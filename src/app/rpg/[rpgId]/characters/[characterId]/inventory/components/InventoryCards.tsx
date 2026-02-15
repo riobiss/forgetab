@@ -33,6 +33,7 @@ export default function InventoryCards({
                 <h3 className={styles.cardTitle}>{item.title}</h3>
                 <span className={styles.inlineQuantity}>X.{item.quantity}</span>
               </div>
+              <span className={styles.rarityBadge}>{item.rarityLabel}</span>
             </div>
 
             {item.description ? (
@@ -87,48 +88,44 @@ export default function InventoryCards({
           <div className={styles.cardFooter}>
             {item.secondaryLine ? (
               <span className={styles.quantity}>Tipo: {item.secondaryLine}</span>
-            ) : (
-              <span />
-            )}
-            <span className={styles.rarityBadge}>{item.rarityLabel}</span>
-          </div>
-
-          {onRemoveItem ? (
-            <div className={styles.removeRow}>
-              {confirmingItemId === item.id ? (
-                <>
+            ) : null}
+            {onRemoveItem ? (
+              <div className={styles.removeRow}>
+                {confirmingItemId === item.id ? (
+                  <>
+                    <button
+                      type="button"
+                      className={styles.confirmButton}
+                      disabled={removingItemId === item.id || item.quantity < 1}
+                      onClick={() => {
+                        void onRemoveItem(item.id, 1)
+                        setConfirmingItemId(null)
+                      }}
+                    >
+                      {removingItemId === item.id ? "Retirando..." : "Confirmar"}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.cancelButton}
+                      disabled={removingItemId === item.id}
+                      onClick={() => setConfirmingItemId(null)}
+                    >
+                      Cancelar
+                    </button>
+                  </>
+                ) : (
                   <button
                     type="button"
-                    className={styles.confirmButton}
+                    className={styles.removeButton}
                     disabled={removingItemId === item.id || item.quantity < 1}
-                    onClick={() => {
-                      void onRemoveItem(item.id, 1)
-                      setConfirmingItemId(null)
-                    }}
+                    onClick={() => setConfirmingItemId(item.id)}
                   >
-                    {removingItemId === item.id ? "Retirando..." : "Confirmar"}
+                    Retirar
                   </button>
-                  <button
-                    type="button"
-                    className={styles.cancelButton}
-                    disabled={removingItemId === item.id}
-                    onClick={() => setConfirmingItemId(null)}
-                  >
-                    Cancelar
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  className={styles.removeButton}
-                  disabled={removingItemId === item.id || item.quantity < 1}
-                  onClick={() => setConfirmingItemId(item.id)}
-                >
-                  Retirar
-                </button>
-              )}
-            </div>
-          ) : null}
+                )}
+              </div>
+            ) : null}
+          </div>
         </div>
       ))}
     </div>

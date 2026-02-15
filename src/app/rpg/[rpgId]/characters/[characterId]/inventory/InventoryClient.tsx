@@ -23,6 +23,7 @@ type InventoryItem = {
   itemAbilities: unknown
   itemEffects: unknown
   itemWeight: number | null
+  itemDuration: string | null
   itemDurability: number | null
 }
 
@@ -99,8 +100,11 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
     if (item.itemWeight !== null) {
       coreStats.push({ label: "Peso", value: `${item.itemWeight} kg` })
     }
+    if (item.itemDuration) {
+      coreStats.push({ label: "Duracao", value: item.itemDuration })
+    }
     if (item.itemDurability !== null) {
-      coreStats.push({ label: "Durabilidade", value: String(item.itemDurability) })
+      coreStats.push({ label: "Durabilidade", value: `${item.itemDurability} dur` })
     }
     if (abilities.length > 0) {
       abilities.forEach((ability) => abilityEntries.push(ability))

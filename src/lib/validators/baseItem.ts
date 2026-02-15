@@ -73,6 +73,12 @@ export const createBaseItemSchema = z.object({
   abilities: z.array(namedDescriptionSchema).max(20).nullable().optional(),
   effects: z.array(namedDescriptionSchema).max(20).nullable().optional(),
   weight: z.number().min(0, "Peso deve ser maior ou igual a 0.").nullable().optional(),
+  duration: z
+    .string()
+    .trim()
+    .max(120, "Duracao deve ter no maximo 120 caracteres.")
+    .nullable()
+    .optional(),
   durability: z
     .number()
     .int()

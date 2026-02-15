@@ -22,6 +22,7 @@ type BaseItem = {
   abilities: unknown
   effects: unknown
   weight: number | null
+  duration: string | null
   durability: number | null
   createdAt: string
   updatedAt: string
@@ -367,6 +368,9 @@ export default function ItemsPage() {
                 ) : null}
                 {item.durability !== null ? (
                   <p className={styles.metaLine}>Durabilidade: {item.durability}</p>
+                ) : null}
+                {item.duration !== null ? (
+                  <p className={styles.metaLine}>Duracao: {item.duration}</p>
                 ) : null}
                 {abilities.length > 0
                   ? abilities.map((ability, index) => (

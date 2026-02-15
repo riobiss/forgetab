@@ -36,6 +36,7 @@ type InventoryRow = {
   itemAbilities: Prisma.JsonValue
   itemEffects: Prisma.JsonValue
   itemWeight: number | null
+  itemDuration: string | null
   itemDurability: number | null
 }
 
@@ -154,6 +155,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         b.abilities AS "itemAbilities",
         b.effects AS "itemEffects",
         b.weight AS "itemWeight",
+        b.duration AS "itemDuration",
         b.durability AS "itemDurability"
       FROM rpg_character_inventory_items i
       INNER JOIN baseitems b ON b.id = i.base_item_id
@@ -178,6 +180,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     if (error instanceof Error && error.message.includes('column "description" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "duration" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
         { status: 500 },

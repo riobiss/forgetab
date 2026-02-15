@@ -31,6 +31,7 @@ type BaseItem = {
   abilities: unknown
   effects: unknown
   weight: number | null
+  duration: string | null
   durability: number | null
 }
 
@@ -115,6 +116,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
   const [rarity, setRarity] = useState<ItemRarity>("common")
   const [damage, setDamage] = useState("")
   const [weight, setWeight] = useState("")
+  const [duration, setDuration] = useState("")
   const [durability, setDurability] = useState("")
   const [abilities, setAbilities] = useState<NamedDescription[]>([
     { name: "", description: "" },
@@ -147,6 +149,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
         setRarity(payload.item.rarity)
         setDamage(payload.item.damage ?? "")
         setWeight(payload.item.weight !== null ? String(payload.item.weight) : "")
+        setDuration(payload.item.duration ?? "")
         setDurability(payload.item.durability !== null ? String(payload.item.durability) : "")
 
         const parsedAbilities = parseNamedDescriptionList(payload.item.abilities)
@@ -215,6 +218,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
       abilities: normalizedAbilities,
       effects: normalizedEffects,
       weight: toOptionalNumber(weight, Number.parseFloat),
+      duration: toOptionalText(duration),
       durability: toOptionalNumber(durability, (raw) => Number.parseInt(raw, 10)),
     }
 
@@ -346,6 +350,16 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
                 value={durability}
                 onChange={(event) => setDurability(event.target.value)}
                 placeholder="Opcional"
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span>Duracao</span>
+              <input
+                type="text"
+                value={duration}
+                onChange={(event) => setDuration(event.target.value)}
+                placeholder="Ex: 1 turno, 2 rodadas"
               />
             </label>
           </div>

@@ -31,6 +31,7 @@ type BaseItemRow = {
   abilities: Prisma.JsonValue
   effects: Prisma.JsonValue
   weight: number | null
+  duration: string | null
   durability: number | null
   createdAt: Date
   updatedAt: Date
@@ -108,6 +109,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         abilities,
         effects,
         weight,
+        duration,
         durability,
         created_at AS "createdAt",
         updated_at AS "updatedAt"
@@ -139,6 +141,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
       }
 
       if (error.message.includes('column "description" does not exist')) {
+        return NextResponse.json(
+          { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+          { status: 500 },
+        )
+      }
+      if (error.message.includes('column "duration" does not exist')) {
         return NextResponse.json(
           { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
           { status: 500 },
@@ -184,6 +192,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const damage = normalizeOptionalText(parsed.data.damage)
     const description = normalizeOptionalText(parsed.data.description)
     const weight = parsed.data.weight ?? null
+    const duration = normalizeOptionalText(parsed.data.duration)
     const durability = parsed.data.durability ?? null
     const abilities = normalizeNamedEntries(parsed.data.abilities)
     const effects = normalizeNamedEntries(parsed.data.effects)
@@ -207,6 +216,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         abilities = ${JSON.stringify(abilities)}::jsonb,
         effects = ${JSON.stringify(effects)}::jsonb,
         weight = ${weight},
+        duration = ${duration},
         durability = ${durability},
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${itemId}
@@ -226,6 +236,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         abilities,
         effects,
         weight,
+        duration,
         durability,
         created_at AS "createdAt",
         updated_at AS "updatedAt"
@@ -253,6 +264,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       }
 
       if (error.message.includes('column "description" does not exist')) {
+        return NextResponse.json(
+          { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+          { status: 500 },
+        )
+      }
+      if (error.message.includes('column "duration" does not exist')) {
         return NextResponse.json(
           { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
           { status: 500 },
