@@ -41,6 +41,33 @@ async function canAccessRpg(rpgId: string, userId: string) {
   return Boolean(rpg)
 }
 
+async function canReadRpgStatuses(rpgId: string, userId: string) {
+  const rpg = await prisma.rpg.findUnique({
+    where: { id: rpgId },
+    select: { id: true, ownerId: true, visibility: true },
+  })
+
+  if (!rpg) {
+    return false
+  }
+
+  if (rpg.visibility === "public" || rpg.ownerId === userId) {
+    return true
+  }
+
+  const membership = await prisma.rpgMember.findUnique({
+    where: {
+      rpgId_userId: {
+        rpgId,
+        userId,
+      },
+    },
+    select: { status: true },
+  })
+
+  return membership?.status === "accepted"
+}
+
 function getAllowedKeys() {
   return new Set(STATUS_CATALOG.map((item) => item.key))
 }
@@ -71,7 +98,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     const { rpgId } = await context.params
-    const hasAccess = await canAccessRpg(rpgId, userId)
+    const hasAccess = await canReadRpgStatuses(rpgId, userId)
     if (!hasAccess) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }

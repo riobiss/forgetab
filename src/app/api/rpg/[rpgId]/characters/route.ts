@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../../../generated/prisma/client"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import {
+  ATTRIBUTE_CATALOG,
+  DEFAULT_ATTRIBUTE_KEYS,
+} from "@/lib/rpg/attributeCatalog"
+import {
+  DEFAULT_STATUS_KEYS,
+  STATUS_CATALOG,
+} from "@/lib/rpg/statusCatalog"
 
 type RouteContext = {
   params: Promise<{
@@ -14,6 +22,7 @@ type CharacterRow = {
   rpgId: string
   name: string
   characterType: "player" | "npc" | "monster"
+  createdByUserId: string | null
   life: number
   defense: number
   mana: number
@@ -37,6 +46,10 @@ type StatusTemplateRow = {
   position: number
 }
 
+type CharacterCreationRequestRow = {
+  status: "pending" | "accepted" | "rejected"
+}
+
 async function getUserIdFromToken(request: NextRequest) {
   const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
   if (!token) return null
@@ -49,13 +62,41 @@ async function getUserIdFromToken(request: NextRequest) {
   }
 }
 
-async function canAccessRpg(rpgId: string, userId: string) {
-  const rpg = await prisma.rpg.findFirst({
-    where: { id: rpgId, ownerId: userId },
-    select: { id: true },
+type RpgAccess = {
+  exists: boolean
+  canAccess: boolean
+  isOwner: boolean
+}
+
+async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
+  const rpg = await prisma.rpg.findUnique({
+    where: { id: rpgId },
+    select: { id: true, ownerId: true },
   })
 
-  return Boolean(rpg)
+  if (!rpg) {
+    return { exists: false, canAccess: false, isOwner: false }
+  }
+
+  if (rpg.ownerId === userId) {
+    return { exists: true, canAccess: true, isOwner: true }
+  }
+
+  const membership = await prisma.rpgMember.findUnique({
+    where: {
+      rpgId_userId: {
+        rpgId,
+        userId,
+      },
+    },
+    select: { status: true },
+  })
+
+  return {
+    exists: true,
+    canAccess: membership?.status === "accepted",
+    isOwner: false,
+  }
 }
 
 function validateAttributesPayload(
@@ -130,6 +171,26 @@ function validateStat(name: string, value: unknown) {
   return { ok: true as const, value: Math.floor(value) }
 }
 
+function getDefaultAttributeTemplate(): AttributeTemplateRow[] {
+  return ATTRIBUTE_CATALOG.filter((item) =>
+    DEFAULT_ATTRIBUTE_KEYS.includes(item.key),
+  ).map((item, index) => ({
+    key: item.key,
+    label: item.label,
+    position: index,
+  }))
+}
+
+function getDefaultStatusTemplate(): StatusTemplateRow[] {
+  return STATUS_CATALOG.filter((item) => DEFAULT_STATUS_KEYS.includes(item.key)).map(
+    (item, index) => ({
+      key: item.key,
+      label: item.label,
+      position: index,
+    }),
+  )
+}
+
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const userId = await getUserIdFromToken(request)
@@ -138,8 +199,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     const { rpgId } = await context.params
-    const hasAccess = await canAccessRpg(rpgId, userId)
-    if (!hasAccess) {
+    const access = await getRpgAccess(rpgId, userId)
+    if (!access.exists || !access.canAccess) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
@@ -149,6 +210,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         rpg_id AS "rpgId",
         name,
         character_type AS "characterType",
+        created_by_user_id AS "createdByUserId",
         life,
         defense,
         mana,
@@ -187,8 +249,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     const { rpgId } = await context.params
-    const hasAccess = await canAccessRpg(rpgId, userId)
-    if (!hasAccess) {
+    const access = await getRpgAccess(rpgId, userId)
+    if (!access.exists || !access.canAccess) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
@@ -214,38 +276,87 @@ export async function POST(request: NextRequest, context: RouteContext) {
       )
     }
 
-    const template = await prisma.$queryRaw<AttributeTemplateRow[]>(Prisma.sql`
-      SELECT key, label, position
-      FROM rpg_attribute_templates
-      WHERE rpg_id = ${rpgId}
-      ORDER BY position ASC
-    `)
-
-    if (template.length === 0) {
+    if (!access.isOwner && body.characterType !== "player") {
       return NextResponse.json(
-        { message: "Defina o padrao de atributos no modo avancado antes de criar personagens." },
+        { message: "Somente personagens do tipo player podem ser criados por jogadores." },
         { status: 400 },
       )
     }
+
+    if (!access.isOwner) {
+      const creationRequest = await prisma.$queryRaw<CharacterCreationRequestRow[]>(Prisma.sql`
+        SELECT status
+        FROM rpg_character_creation_requests
+        WHERE rpg_id = ${rpgId}
+          AND user_id = ${userId}
+        LIMIT 1
+      `)
+
+      if (creationRequest[0]?.status !== "accepted") {
+        return NextResponse.json(
+          {
+            message:
+              "Voce precisa da permissao do mestre para criar personagem. Envie uma solicitacao.",
+          },
+          { status: 403 },
+        )
+      }
+    }
+
+    if (!access.isOwner) {
+      const existingPlayer = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+        SELECT id
+        FROM rpg_characters
+        WHERE rpg_id = ${rpgId}
+          AND character_type = 'player'::"RpgCharacterType"
+          AND created_by_user_id = ${userId}
+        LIMIT 1
+      `)
+
+      if (existingPlayer.length > 0) {
+        return NextResponse.json(
+          { message: "Voce ja possui um personagem player neste RPG." },
+          { status: 409 },
+        )
+      }
+    }
+
+    let dbAttributeTemplate: AttributeTemplateRow[] = []
+    try {
+      dbAttributeTemplate = await prisma.$queryRaw<AttributeTemplateRow[]>(Prisma.sql`
+        SELECT key, label, position
+        FROM rpg_attribute_templates
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `)
+    } catch (error) {
+      if (!(error instanceof Error && error.message.includes('relation "rpg_attribute_templates" does not exist'))) {
+        throw error
+      }
+    }
+    const template =
+      dbAttributeTemplate.length > 0 ? dbAttributeTemplate : getDefaultAttributeTemplate()
 
     const parsedAttributes = validateAttributesPayload(body.attributes, template)
     if (!parsedAttributes.ok) {
       return NextResponse.json({ message: parsedAttributes.message }, { status: 400 })
     }
 
-    const statusTemplate = await prisma.$queryRaw<StatusTemplateRow[]>(Prisma.sql`
-      SELECT key, label, position
-      FROM rpg_status_templates
-      WHERE rpg_id = ${rpgId}
-      ORDER BY position ASC
-    `)
-
-    if (statusTemplate.length === 0) {
-      return NextResponse.json(
-        { message: "Defina o padrao de status no modo avancado antes de criar personagens." },
-        { status: 400 },
-      )
+    let dbStatusTemplate: StatusTemplateRow[] = []
+    try {
+      dbStatusTemplate = await prisma.$queryRaw<StatusTemplateRow[]>(Prisma.sql`
+        SELECT key, label, position
+        FROM rpg_status_templates
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `)
+    } catch (error) {
+      if (!(error instanceof Error && error.message.includes('relation "rpg_status_templates" does not exist'))) {
+        throw error
+      }
     }
+    const statusTemplate =
+      dbStatusTemplate.length > 0 ? dbStatusTemplate : getDefaultStatusTemplate()
 
     const parsedStatuses = validateStatusesPayload(body.statuses, statusTemplate)
     if (!parsedStatuses.ok) {
@@ -273,15 +384,18 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: sanity.message }, { status: 400 })
     }
 
+    const createdByUserId = access.isOwner ? null : userId
+
     const created = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
       INSERT INTO rpg_characters (
-        id, rpg_id, name, character_type, life, defense, mana, stamina, sanity, statuses, attributes
+        id, rpg_id, name, character_type, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes
       )
       VALUES (
         ${crypto.randomUUID()},
         ${rpgId},
         ${name},
         ${body.characterType}::"RpgCharacterType",
+        ${createdByUserId},
         ${life.value},
         ${defense.value},
         ${mana.value},
@@ -295,6 +409,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         rpg_id AS "rpgId",
         name,
         character_type AS "characterType",
+        created_by_user_id AS "createdByUserId",
         life,
         defense,
         mana,
@@ -311,6 +426,24 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (error instanceof Error && error.message.includes('relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Tabela de personagens nao existe no banco. Rode a migration." },
+        { status: 500 },
+      )
+    }
+    if (
+      error instanceof Error &&
+      error.message.includes('relation "rpg_character_creation_requests" does not exist')
+    ) {
+      return NextResponse.json(
+        {
+          message:
+            "Tabela de solicitacoes de criacao de personagem nao existe no banco. Rode a migration.",
+        },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "created_by_user_id" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
         { status: 500 },
       )
     }
