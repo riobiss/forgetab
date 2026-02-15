@@ -1,80 +1,68 @@
 .page {
   min-height: calc(100vh - 80px);
   display: grid;
-  place-items: center;
-  padding: 2rem 1rem;
+  place-items: start center;
+  padding: 1.5rem 1rem 2rem;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(234, 179, 8, 0.08), transparent 28%),
+    radial-gradient(circle at 88% 86%, rgba(248, 113, 113, 0.08), transparent 24%),
+    var(--bg-main);
 }
 
 .card {
-  width: min(760px, 100%);
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
+  width: min(980px, 100%);
   border: 1px solid var(--border-soft);
-  border-radius: 14px;
-  padding: 1.5rem;
+  border-radius: 18px;
+  padding: 1.2rem;
+  background: linear-gradient(180deg, rgba(28, 28, 30, 0.94), rgba(16, 16, 18, 0.96));
   box-shadow: var(--shadow-main);
+  display: grid;
+  gap: 0.9rem;
 }
 
 .card h1 {
   margin: 0;
+  font-size: 1.45rem;
   color: var(--text-title);
 }
 
 .card p {
-  margin: 0.5rem 0 1.5rem;
+  margin: 0.3rem 0 0;
   color: var(--text-muted);
 }
 
 .advancedToggle {
-  border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  padding: 0.65rem 0.9rem;
-  background: transparent;
-  color: var(--text-main);
+  border: 1px solid rgba(250, 204, 21, 0.5);
+  border-radius: 12px;
+  padding: 0.62rem 0.95rem;
+  background: rgba(250, 204, 21, 0.12);
+  color: #fde68a;
   cursor: pointer;
   font-weight: 700;
-  margin-bottom: 1rem;
+  justify-self: start;
 }
 
 .advancedSection {
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  border: 1px solid rgba(250, 204, 21, 0.26);
+  border-radius: 14px;
   padding: 1rem;
-  margin-bottom: 1rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(250, 204, 21, 0.04);
+  display: grid;
+  gap: 0.9rem;
 }
 
 .advancedSection h2 {
   margin: 0;
-  font-size: 1rem;
-  color: var(--text-title);
-}
-
-.advancedSection p {
-  margin: 0.35rem 0 0.9rem;
-  color: var(--text-muted);
-}
-
-.advancedGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 0.6rem;
-}
-
-.advancedGrid a {
-  text-decoration: none;
-  border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  padding: 0.6rem 0.7rem;
-  color: var(--text-main);
-  text-align: center;
-  font-size: 0.85rem;
-  font-weight: 700;
+  color: #fde68a;
 }
 
 .attributeTemplateSection {
-  margin-top: 1rem;
-  border-top: 1px solid var(--border-soft);
-  padding-top: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 0.85rem;
+  background: rgba(255, 255, 255, 0.02);
+  display: grid;
+  gap: 0.7rem;
 }
 
 .attributeTemplateSection h3 {
@@ -84,18 +72,18 @@
 
 .attributeGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.55rem;
 }
 
 .attributeOption {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.55rem;
   border: 1px solid var(--border-soft);
   border-radius: 10px;
-  padding: 0.5rem 0.65rem;
-  background: rgba(255, 255, 255, 0.01);
+  padding: 0.5rem 0.6rem;
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .attributeOption input {
@@ -104,42 +92,38 @@
 }
 
 .attributeOption span {
+  font-size: 0.87rem;
   color: var(--text-main);
-  font-size: 0.88rem;
 }
 
-.attributeActions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0.8rem;
-  gap: 1rem;
+.identityCard {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.7rem;
+  background: rgba(0, 0, 0, 0.23);
 }
 
-.attributeActions span {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-}
-
-.attributeActions button {
-  border: none;
-  border-radius: 10px;
-  padding: 0.55rem 0.8rem;
-  background: var(--accent-main);
-  color: var(--bg-main);
-  cursor: pointer;
-  font-weight: 700;
+.bonusGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
 }
 
 .form {
   display: grid;
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
 .field {
   display: grid;
-  gap: 0.4rem;
-  color: var(--text-main);
+  gap: 0.35rem;
+}
+
+.field span {
+  font-size: 0.82rem;
+  color: var(--text-muted);
 }
 
 .field input,
@@ -148,40 +132,31 @@
   width: 100%;
   border: 1px solid var(--border-soft);
   border-radius: 10px;
-  padding: 0.75rem 0.9rem;
-  background: rgba(0, 0, 0, 0.2);
+  padding: 0.62rem 0.72rem;
+  background: rgba(0, 0, 0, 0.35);
   color: var(--text-main);
-}
-
-.error {
-  color: #ff6b6b;
-  margin: 0;
-}
-
-.success {
-  color: #34d399;
-  margin: 0;
 }
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
+  gap: 0.55rem;
 }
 
 .actions button {
-  border: none;
+  border: 1px solid rgba(250, 204, 21, 0.5);
   border-radius: 10px;
-  padding: 0.7rem 1rem;
-  background: var(--accent-main);
-  color: var(--bg-main);
-  cursor: pointer;
+  padding: 0.56rem 0.8rem;
+  background: rgba(250, 204, 21, 0.18);
+  color: #fef3c7;
   font-weight: 700;
+  cursor: pointer;
 }
 
 .actions button:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
-  opacity: 0.7;
 }
 
 .actions a {
@@ -189,8 +164,23 @@
   text-decoration: none;
 }
 
-@media (max-width: 720px) {
-  .attributeActions,
+.error {
+  margin: 0;
+  color: #f87171;
+  font-weight: 600;
+}
+
+.success {
+  margin: 0;
+  color: #4ade80;
+  font-weight: 600;
+}
+
+@media (max-width: 740px) {
+  .card {
+    padding: 1rem;
+  }
+
   .actions {
     flex-direction: column;
     align-items: stretch;
