@@ -386,7 +386,11 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Rpg: 'Rpg',
-  BaseItem: 'BaseItem'
+  BaseItem: 'BaseItem',
+  RpgAttributeTemplate: 'RpgAttributeTemplate',
+  RpgCharacter: 'RpgCharacter',
+  RpgStatusTemplate: 'RpgStatusTemplate',
+  RpgMember: 'RpgMember'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -402,7 +406,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "rpg" | "baseItem"
+    modelProps: "user" | "rpg" | "baseItem" | "rpgAttributeTemplate" | "rpgCharacter" | "rpgStatusTemplate" | "rpgMember"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -628,6 +632,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    RpgAttributeTemplate: {
+      payload: Prisma.$RpgAttributeTemplatePayload<ExtArgs>
+      fields: Prisma.RpgAttributeTemplateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RpgAttributeTemplateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgAttributeTemplatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RpgAttributeTemplateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgAttributeTemplatePayload>
+        }
+        findFirst: {
+          args: Prisma.RpgAttributeTemplateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgAttributeTemplatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RpgAttributeTemplateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgAttributeTemplatePayload>
+        }
+        findMany: {
+          args: Prisma.RpgAttributeTemplateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgAttributeTemplatePayload>[]
+        }
+        create: {
+          args: Prisma.RpgAttributeTemplateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgAttributeTemplatePayload>
+        }
+        createMany: {
+          args: Prisma.RpgAttributeTemplateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RpgAttributeTemplateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgAttributeTemplatePayload>[]
+        }
+        delete: {
+          args: Prisma.RpgAttributeTemplateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgAttributeTemplatePayload>
+        }
+        update: {
+          args: Prisma.RpgAttributeTemplateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgAttributeTemplatePayload>
+        }
+        deleteMany: {
+          args: Prisma.RpgAttributeTemplateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RpgAttributeTemplateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RpgAttributeTemplateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgAttributeTemplatePayload>[]
+        }
+        upsert: {
+          args: Prisma.RpgAttributeTemplateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgAttributeTemplatePayload>
+        }
+        aggregate: {
+          args: Prisma.RpgAttributeTemplateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRpgAttributeTemplate>
+        }
+        groupBy: {
+          args: Prisma.RpgAttributeTemplateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgAttributeTemplateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RpgAttributeTemplateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgAttributeTemplateCountAggregateOutputType> | number
+        }
+      }
+    }
+    RpgCharacter: {
+      payload: Prisma.$RpgCharacterPayload<ExtArgs>
+      fields: Prisma.RpgCharacterFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RpgCharacterFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgCharacterPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RpgCharacterFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgCharacterPayload>
+        }
+        findFirst: {
+          args: Prisma.RpgCharacterFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgCharacterPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RpgCharacterFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgCharacterPayload>
+        }
+        findMany: {
+          args: Prisma.RpgCharacterFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgCharacterPayload>[]
+        }
+        create: {
+          args: Prisma.RpgCharacterCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgCharacterPayload>
+        }
+        createMany: {
+          args: Prisma.RpgCharacterCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RpgCharacterCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgCharacterPayload>[]
+        }
+        delete: {
+          args: Prisma.RpgCharacterDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgCharacterPayload>
+        }
+        update: {
+          args: Prisma.RpgCharacterUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgCharacterPayload>
+        }
+        deleteMany: {
+          args: Prisma.RpgCharacterDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RpgCharacterUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RpgCharacterUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgCharacterPayload>[]
+        }
+        upsert: {
+          args: Prisma.RpgCharacterUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgCharacterPayload>
+        }
+        aggregate: {
+          args: Prisma.RpgCharacterAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRpgCharacter>
+        }
+        groupBy: {
+          args: Prisma.RpgCharacterGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgCharacterGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RpgCharacterCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgCharacterCountAggregateOutputType> | number
+        }
+      }
+    }
+    RpgStatusTemplate: {
+      payload: Prisma.$RpgStatusTemplatePayload<ExtArgs>
+      fields: Prisma.RpgStatusTemplateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RpgStatusTemplateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgStatusTemplatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RpgStatusTemplateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgStatusTemplatePayload>
+        }
+        findFirst: {
+          args: Prisma.RpgStatusTemplateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgStatusTemplatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RpgStatusTemplateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgStatusTemplatePayload>
+        }
+        findMany: {
+          args: Prisma.RpgStatusTemplateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgStatusTemplatePayload>[]
+        }
+        create: {
+          args: Prisma.RpgStatusTemplateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgStatusTemplatePayload>
+        }
+        createMany: {
+          args: Prisma.RpgStatusTemplateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RpgStatusTemplateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgStatusTemplatePayload>[]
+        }
+        delete: {
+          args: Prisma.RpgStatusTemplateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgStatusTemplatePayload>
+        }
+        update: {
+          args: Prisma.RpgStatusTemplateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgStatusTemplatePayload>
+        }
+        deleteMany: {
+          args: Prisma.RpgStatusTemplateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RpgStatusTemplateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RpgStatusTemplateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgStatusTemplatePayload>[]
+        }
+        upsert: {
+          args: Prisma.RpgStatusTemplateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgStatusTemplatePayload>
+        }
+        aggregate: {
+          args: Prisma.RpgStatusTemplateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRpgStatusTemplate>
+        }
+        groupBy: {
+          args: Prisma.RpgStatusTemplateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgStatusTemplateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RpgStatusTemplateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgStatusTemplateCountAggregateOutputType> | number
+        }
+      }
+    }
+    RpgMember: {
+      payload: Prisma.$RpgMemberPayload<ExtArgs>
+      fields: Prisma.RpgMemberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RpgMemberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgMemberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RpgMemberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgMemberPayload>
+        }
+        findFirst: {
+          args: Prisma.RpgMemberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgMemberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RpgMemberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgMemberPayload>
+        }
+        findMany: {
+          args: Prisma.RpgMemberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgMemberPayload>[]
+        }
+        create: {
+          args: Prisma.RpgMemberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgMemberPayload>
+        }
+        createMany: {
+          args: Prisma.RpgMemberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RpgMemberCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgMemberPayload>[]
+        }
+        delete: {
+          args: Prisma.RpgMemberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgMemberPayload>
+        }
+        update: {
+          args: Prisma.RpgMemberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgMemberPayload>
+        }
+        deleteMany: {
+          args: Prisma.RpgMemberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RpgMemberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RpgMemberUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgMemberPayload>[]
+        }
+        upsert: {
+          args: Prisma.RpgMemberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgMemberPayload>
+        }
+        aggregate: {
+          args: Prisma.RpgMemberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRpgMember>
+        }
+        groupBy: {
+          args: Prisma.RpgMemberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgMemberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RpgMemberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgMemberCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -703,6 +1003,65 @@ export const BaseItemScalarFieldEnum = {
 export type BaseItemScalarFieldEnum = (typeof BaseItemScalarFieldEnum)[keyof typeof BaseItemScalarFieldEnum]
 
 
+export const RpgAttributeTemplateScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  key: 'key',
+  label: 'label',
+  position: 'position',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgAttributeTemplateScalarFieldEnum = (typeof RpgAttributeTemplateScalarFieldEnum)[keyof typeof RpgAttributeTemplateScalarFieldEnum]
+
+
+export const RpgCharacterScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  name: 'name',
+  characterType: 'characterType',
+  life: 'life',
+  defense: 'defense',
+  mana: 'mana',
+  stamina: 'stamina',
+  sanity: 'sanity',
+  statuses: 'statuses',
+  attributes: 'attributes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgCharacterScalarFieldEnum = (typeof RpgCharacterScalarFieldEnum)[keyof typeof RpgCharacterScalarFieldEnum]
+
+
+export const RpgStatusTemplateScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  key: 'key',
+  label: 'label',
+  position: 'position',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgStatusTemplateScalarFieldEnum = (typeof RpgStatusTemplateScalarFieldEnum)[keyof typeof RpgStatusTemplateScalarFieldEnum]
+
+
+export const RpgMemberScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  userId: 'userId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  requestedAt: 'requestedAt',
+  respondedAt: 'respondedAt'
+} as const
+
+export type RpgMemberScalarFieldEnum = (typeof RpgMemberScalarFieldEnum)[keyof typeof RpgMemberScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -711,12 +1070,36 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -806,6 +1189,62 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'RpgCharacterType'
+ */
+export type EnumRpgCharacterTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RpgCharacterType'>
+    
+
+
+/**
+ * Reference to a field of type 'RpgCharacterType[]'
+ */
+export type ListEnumRpgCharacterTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RpgCharacterType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'RpgMemberStatus'
+ */
+export type EnumRpgMemberStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RpgMemberStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'RpgMemberStatus[]'
+ */
+export type ListEnumRpgMemberStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RpgMemberStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -906,6 +1345,10 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   rpg?: Prisma.RpgOmit
   baseItem?: Prisma.BaseItemOmit
+  rpgAttributeTemplate?: Prisma.RpgAttributeTemplateOmit
+  rpgCharacter?: Prisma.RpgCharacterOmit
+  rpgStatusTemplate?: Prisma.RpgStatusTemplateOmit
+  rpgMember?: Prisma.RpgMemberOmit
 }
 
 /* Types for Logging */

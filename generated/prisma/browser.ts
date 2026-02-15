@@ -32,3 +32,23 @@ export type Rpg = Prisma.RpgModel
  * 
  */
 export type BaseItem = Prisma.BaseItemModel
+/**
+ * Model RpgAttributeTemplate
+ * 
+ */
+export type RpgAttributeTemplate = Prisma.RpgAttributeTemplateModel
+/**
+ * Model RpgCharacter
+ * 
+ */
+export type RpgCharacter = Prisma.RpgCharacterModel
+/**
+ * Model RpgStatusTemplate
+ * 
+ */
+export type RpgStatusTemplate = Prisma.RpgStatusTemplateModel
+/**
+ * Model RpgMember
+ * 
+ */
+export type RpgMember = Prisma.RpgMemberModel

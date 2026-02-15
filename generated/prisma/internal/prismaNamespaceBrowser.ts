@@ -53,7 +53,11 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Rpg: 'Rpg',
-  BaseItem: 'BaseItem'
+  BaseItem: 'BaseItem',
+  RpgAttributeTemplate: 'RpgAttributeTemplate',
+  RpgCharacter: 'RpgCharacter',
+  RpgStatusTemplate: 'RpgStatusTemplate',
+  RpgMember: 'RpgMember'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -108,6 +112,65 @@ export const BaseItemScalarFieldEnum = {
 export type BaseItemScalarFieldEnum = (typeof BaseItemScalarFieldEnum)[keyof typeof BaseItemScalarFieldEnum]
 
 
+export const RpgAttributeTemplateScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  key: 'key',
+  label: 'label',
+  position: 'position',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgAttributeTemplateScalarFieldEnum = (typeof RpgAttributeTemplateScalarFieldEnum)[keyof typeof RpgAttributeTemplateScalarFieldEnum]
+
+
+export const RpgCharacterScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  name: 'name',
+  characterType: 'characterType',
+  life: 'life',
+  defense: 'defense',
+  mana: 'mana',
+  stamina: 'stamina',
+  sanity: 'sanity',
+  statuses: 'statuses',
+  attributes: 'attributes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgCharacterScalarFieldEnum = (typeof RpgCharacterScalarFieldEnum)[keyof typeof RpgCharacterScalarFieldEnum]
+
+
+export const RpgStatusTemplateScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  key: 'key',
+  label: 'label',
+  position: 'position',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgStatusTemplateScalarFieldEnum = (typeof RpgStatusTemplateScalarFieldEnum)[keyof typeof RpgStatusTemplateScalarFieldEnum]
+
+
+export const RpgMemberScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  userId: 'userId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  requestedAt: 'requestedAt',
+  respondedAt: 'respondedAt'
+} as const
+
+export type RpgMemberScalarFieldEnum = (typeof RpgMemberScalarFieldEnum)[keyof typeof RpgMemberScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -116,10 +179,34 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

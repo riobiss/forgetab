@@ -11,4 +11,8 @@
 export type * from './models/User'
 export type * from './models/Rpg'
 export type * from './models/BaseItem'
+export type * from './models/RpgAttributeTemplate'
+export type * from './models/RpgCharacter'
+export type * from './models/RpgStatusTemplate'
+export type * from './models/RpgMember'
 export type * from './commonInputTypes'

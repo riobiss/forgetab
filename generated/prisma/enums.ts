@@ -38,3 +38,21 @@ export const BaseItemRarity = {
 } as const
 
 export type BaseItemRarity = (typeof BaseItemRarity)[keyof typeof BaseItemRarity]
+
+
+export const RpgMemberStatus = {
+  pending: 'pending',
+  accepted: 'accepted',
+  rejected: 'rejected'
+} as const
+
+export type RpgMemberStatus = (typeof RpgMemberStatus)[keyof typeof RpgMemberStatus]
+
+
+export const RpgCharacterType = {
+  player: 'player',
+  npc: 'npc',
+  monster: 'monster'
+} as const
+
+export type RpgCharacterType = (typeof RpgCharacterType)[keyof typeof RpgCharacterType]
