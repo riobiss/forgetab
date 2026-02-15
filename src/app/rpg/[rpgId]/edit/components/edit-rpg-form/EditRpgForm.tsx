@@ -1,0 +1,100 @@
+"use client"
+
+import { FormEvent } from "react"
+import Link from "next/link"
+import { LoaderCircle, Save, X } from "lucide-react"
+import styles from "../../page.module.css"
+import type { Visibility } from "../../hooks/useEditRpgState"
+
+type Props = {
+  title: string
+  onTitleChange: (value: string) => void
+  description: string
+  onDescriptionChange: (value: string) => void
+  visibility: Visibility
+  onVisibilityChange: (value: Visibility) => void
+  error: string
+  success: string
+  saving: boolean
+  onSaveAll: () => Promise<void>
+}
+
+export default function EditRpgForm({
+  title,
+  onTitleChange,
+  description,
+  onDescriptionChange,
+  visibility,
+  onVisibilityChange,
+  error,
+  success,
+  saving,
+  onSaveAll,
+}: Props) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    await onSaveAll()
+  }
+
+  return (
+    <>
+      <form id="edit-rpg-form" className={styles.form} onSubmit={(event) => void handleSubmit(event)}>
+        <label className={styles.field}>
+          <span>Titulo</span>
+          <input
+            type="text"
+            value={title}
+            onChange={(event) => onTitleChange(event.target.value)}
+            minLength={3}
+            required
+          />
+        </label>
+
+        <label className={styles.field}>
+          <span>Descricao</span>
+          <textarea
+            value={description}
+            onChange={(event) => onDescriptionChange(event.target.value)}
+            minLength={10}
+            rows={5}
+            required
+          />
+        </label>
+
+        <label className={styles.field}>
+          <span>Visibilidade</span>
+          <select
+            value={visibility}
+            onChange={(event) => onVisibilityChange(event.target.value as Visibility)}
+          >
+            <option value="private">Privado</option>
+            <option value="public">Publico</option>
+          </select>
+        </label>
+
+        {error ? <p className={styles.error}>{error}</p> : null}
+        {success ? <p className={styles.success}>{success}</p> : null}
+      </form>
+
+      <div className={`${styles.actions} ${styles.footerActions}`}>
+        <button type="submit" form="edit-rpg-form" disabled={saving}>
+          {saving ? (
+            <>
+              <LoaderCircle size={16} className={styles.spin} />
+              <span>Salvando...</span>
+            </>
+          ) : (
+            <>
+              <Save size={16} />
+              <span>Salvar tudo</span>
+            </>
+          )}
+        </button>
+        <Link href="/rpg">
+          <X size={16} />
+          <span>Cancelar</span>
+        </Link>
+      </div>
+    </>
+  )
+}
