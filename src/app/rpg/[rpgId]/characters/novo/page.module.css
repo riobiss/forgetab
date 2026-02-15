@@ -150,6 +150,12 @@
   cursor: pointer;
 }
 
+.dangerButton {
+  border: 1px solid color-mix(in srgb, #9b1c1c 55%, var(--border-soft)) !important;
+  background: color-mix(in srgb, #9b1c1c 35%, var(--bg-main)) !important;
+  color: #ffe7e7 !important;
+}
+
 .actions button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
@@ -158,6 +164,21 @@
 .actions a {
   color: var(--text-muted);
   text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.deleteNotice {
+  border: 1px solid color-mix(in srgb, #9b1c1c 55%, var(--border-soft));
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: color-mix(in srgb, #9b1c1c 12%, var(--bg-main));
+  display: grid;
+  gap: 0.55rem;
+}
+
+.deleteNotice p {
+  margin: 0;
+  color: #ffd6d6;
   font-size: 0.9rem;
 }
 

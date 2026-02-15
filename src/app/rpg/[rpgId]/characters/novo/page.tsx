@@ -120,6 +120,8 @@ export default function NewCharacterPage() {
   )
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadError, setUploadError] = useState("")
   const [error, setError] = useState("")
@@ -331,6 +333,9 @@ export default function NewCharacterPage() {
     try {
       const payload = new FormData()
       payload.append("file", file)
+      if (image.trim()) {
+        payload.append("oldUrl", image.trim())
+      }
 
       const response = await fetch("/api/uploads/character-image", {
         method: "POST",
@@ -348,6 +353,33 @@ export default function NewCharacterPage() {
       setUploadError("Erro de conexao ao enviar imagem.")
     } finally {
       setUploadingImage(false)
+    }
+  }
+
+  async function handleDeleteCharacter() {
+    if (!editingCharacterId) return
+
+    setDeleting(true)
+    setError("")
+
+    try {
+      const response = await fetch(`/api/rpg/${rpgId}/characters/${editingCharacterId}`, {
+        method: "DELETE",
+      })
+      const payload = (await response.json()) as { message?: string }
+
+      if (!response.ok) {
+        setError(payload.message ?? "Nao foi possivel deletar personagem.")
+        return
+      }
+
+      router.push(`/rpg/${rpgId}/characters`)
+      router.refresh()
+    } catch {
+      setError("Erro de conexao ao deletar personagem.")
+    } finally {
+      setDeleting(false)
+      setShowDeleteConfirm(false)
     }
   }
 
@@ -609,7 +641,41 @@ export default function NewCharacterPage() {
                   : "Criar personagem"}
             </button>
             <Link href={`/rpg/${rpgId}/characters`}>Cancelar</Link>
+            {editingCharacterId ? (
+              <button
+                type="button"
+                className={styles.dangerButton}
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={saving || deleting}
+              >
+                Deletar personagem
+              </button>
+            ) : null}
           </div>
+
+          {editingCharacterId && showDeleteConfirm ? (
+            <div className={styles.deleteNotice}>
+              <p>Tem certeza que deseja deletar este personagem?</p>
+              <div className={styles.actions}>
+                <button
+                  type="button"
+                  className={styles.dangerButton}
+                  onClick={() => void handleDeleteCharacter()}
+                  disabled={deleting}
+                >
+                  {deleting ? "Deletando..." : "Confirmar exclusao"}
+                </button>
+                <button
+                  type="button"
+                  className={styles.secondaryButton}
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={deleting}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          ) : null}
         </form>
       </section>
     </main>
