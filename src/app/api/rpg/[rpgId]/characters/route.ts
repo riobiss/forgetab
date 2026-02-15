@@ -22,6 +22,7 @@ type CharacterRow = {
   id: string
   rpgId: string
   name: string
+  image: string | null
   raceKey: string | null
   classKey: string | null
   characterType: "player" | "npc" | "monster"
@@ -254,6 +255,15 @@ function validateStat(name: string, value: unknown) {
   return { ok: true as const, value: Math.floor(value) }
 }
 
+function normalizeOptionalText(value: unknown) {
+  if (typeof value !== "string") {
+    return null
+  }
+
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
 function getDefaultAttributeTemplate(): AttributeTemplateRow[] {
   return ATTRIBUTE_CATALOG.filter((item) =>
     DEFAULT_ATTRIBUTE_KEYS.includes(item.key),
@@ -310,6 +320,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           id,
           rpg_id AS "rpgId",
           name,
+          image,
           race_key AS "raceKey",
           class_key AS "classKey",
           character_type AS "characterType",
@@ -347,6 +358,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
             id,
             rpg_id AS "rpgId",
             name,
+            null::text AS "image",
             null::text AS "raceKey",
             null::text AS "classKey",
             character_type AS "characterType",
@@ -395,6 +407,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
         { status: 500 },
       )
     }
+    if (error instanceof Error && error.message.includes('column "image" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
 
     return NextResponse.json(
       { message: "Erro interno ao listar personagens." },
@@ -418,6 +436,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     const body = (await request.json()) as {
       name?: string
+      image?: string
       characterType?: CharacterRow["characterType"]
       statuses?: Record<string, number>
       attributes?: Record<string, number>
@@ -427,6 +446,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     const name = body.name?.trim() ?? ""
+    const image = normalizeOptionalText(body.image)
     if (name.length < 2) {
       return NextResponse.json(
         { message: "Nome deve ter pelo menos 2 caracteres." },
@@ -653,12 +673,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     const created = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
       INSERT INTO rpg_characters (
-        id, rpg_id, name, race_key, class_key, character_type, visibility, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes, skills
+        id, rpg_id, name, image, race_key, class_key, character_type, visibility, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes, skills
       )
       VALUES (
         ${crypto.randomUUID()},
         ${rpgId},
         ${name},
+        ${image},
         ${selectedRaceKey},
         ${selectedClassKey},
         ${body.characterType}::"RpgCharacterType",
@@ -677,6 +698,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         id,
         rpg_id AS "rpgId",
         name,
+        image,
         race_key AS "raceKey",
         class_key AS "classKey",
         character_type AS "characterType",
@@ -727,6 +749,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
       )
     }
     if (error instanceof Error && error.message.includes('column "skills" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "image" of relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
         { status: 500 },

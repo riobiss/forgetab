@@ -6,8 +6,6 @@ import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../generated/prisma/client"
 import { notFound } from "next/navigation"
-import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
-import CharacterDeleteButton from "./components/CharacterDeleteButton"
 import CharacterCreationPermission from "./components/CharacterCreationPermission"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
@@ -24,23 +22,10 @@ type Params = {
 type DbCharacterRow = {
   id: string
   name: string
-  raceKey: string | null
-  classKey: string | null
+  image: string | null
   characterType: "player" | "npc" | "monster"
-  visibility: "private" | "public"
   createdByUserId: string | null
-  life: number
-  defense: number
-  mana: number
-  stamina: number
-  sanity: number
-  statuses: Prisma.JsonValue
-  attributes: Prisma.JsonValue
 }
-
-const statusLabelByKey: Map<string, string> = new Map(
-  STATUS_CATALOG.map((item) => [item.key, item.label]),
-)
 
 export default async function CharactersPage({ params, searchParams }: Params) {
   const { rpgId } = await params
@@ -86,18 +71,9 @@ export default async function CharactersPage({ params, searchParams }: Params) {
           SELECT
             id,
             name,
-            race_key AS "raceKey",
-            class_key AS "classKey",
+            image,
             character_type AS "characterType",
-            visibility,
-            created_by_user_id AS "createdByUserId",
-            life,
-            defense,
-            mana,
-            stamina,
-            sanity,
-            statuses,
-            attributes
+            created_by_user_id AS "createdByUserId"
           FROM rpg_characters
           WHERE rpg_id = ${rpgId}
             ${
@@ -200,53 +176,22 @@ export default async function CharactersPage({ params, searchParams }: Params) {
       {dbCharacters.length > 0 ? (
         <section className={styles.dbSection}>
           <h2>Personagens criados no seu RPG</h2>
-          <div className={styles.dbGrid}>
+          <div className={styles.grid}>
             {dbCharacters.map((character) => (
-              <article key={character.id} className={styles.dbCard}>
-                <h3>{character.name}</h3>
-                <p className={styles.typeBadge}>
-                  Tipo:{" "}
-                  {character.characterType === "player"
-                    ? "Player"
-                    : character.characterType === "npc"
-                      ? "NPC"
-                      : "Monstro"}
-                </p>
-                <p className={styles.typeBadge}>
-                  Visibilidade: {character.visibility === "private" ? "Privado" : "Publico"}
-                </p>
-                {character.raceKey ? (
-                  <p className={styles.typeBadge}>Raca: {character.raceKey}</p>
-                ) : null}
-                {character.classKey ? (
-                  <p className={styles.typeBadge}>Classe: {character.classKey}</p>
-                ) : null}
-                <div className={styles.statsGrid}>
-                  {Object.entries((character.statuses as Record<string, number>) ?? {}).map(
-                    ([key, value]) => (
-                      <p key={key}>
-                        {statusLabelByKey.get(key) ?? key}: {value}
-                      </p>
-                    ),
-                  )}
-                </div>
-                <p>
-                  {Object.keys((character.attributes as Record<string, unknown>) ?? {}).length}{" "}
-                  atributos configurados
-                </p>
-                <div className={styles.cardActions}>
-                  <Link href={`/rpg/${rpgId}/characters/${character.id}`}>Ver ficha</Link>
-                  {userId &&
-                  (dbRpg?.ownerId === userId || character.createdByUserId === userId) ? (
-                    <Link href={`/rpg/${rpgId}/characters/novo?characterId=${character.id}`}>
-                      Editar
-                    </Link>
-                  ) : null}
-                  {userId &&
-                  (dbRpg?.ownerId === userId || character.createdByUserId === userId) ? (
-                    <CharacterDeleteButton rpgId={rpgId} characterId={character.id} />
-                  ) : null}
-                </div>
+              <article key={character.id} className={styles.card}>
+                <Link href={`/rpg/${rpgId}/characters/${character.id}`}>
+                  <Image
+                    src={character.image ?? "/images/bg-characters.jpg"}
+                    alt={`Imagem do personagem ${character.name}`}
+                    fill
+                    className={styles.image}
+                    priority
+                    sizes="(max-width: 1099px) 50vw, 33vw"
+                  />
+                  <div className={styles.overlay}>
+                    <h2 className={styles.name}>{character.name}</h2>
+                  </div>
+                </Link>
               </article>
             ))}
           </div>

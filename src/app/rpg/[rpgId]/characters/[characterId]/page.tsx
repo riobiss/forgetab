@@ -8,6 +8,8 @@ import { Prisma } from "../../../../../../generated/prisma/client"
 import { formatDateInBrasilia } from "@/lib/date"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
+import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
+import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 
 type Params = {
   params: Promise<{
@@ -19,6 +21,7 @@ type Params = {
 type DbCharacterRow = {
   id: string
   name: string
+  image: string | null
   raceKey: string | null
   classKey: string | null
   characterType: "player" | "npc" | "monster"
@@ -72,6 +75,14 @@ const skillLabels: Record<string, string> = {
   medicine: "Medicina",
   gambling: "Jogos de Aposta",
 }
+
+const attributeLabelByKey: Record<string, string> = Object.fromEntries(
+  ATTRIBUTE_CATALOG.map((item) => [item.key, item.label]),
+)
+const statusLabelByKey: Record<string, string> = Object.fromEntries(
+  STATUS_CATALOG.map((item) => [item.key, item.label]),
+)
+
 export default async function CharactersPage({ params }: Params) {
   const { rpgId, characterId } = await params
   const character = players.find((p) => p.id === characterId)
@@ -112,6 +123,7 @@ export default async function CharactersPage({ params }: Params) {
         SELECT
           id,
           name,
+          image,
           race_key AS "raceKey",
           class_key AS "classKey",
           character_type AS "characterType",
@@ -148,6 +160,7 @@ export default async function CharactersPage({ params }: Params) {
     }
 
     const row = dbCharacter[0]
+    const canEditCharacter = Boolean(userId && (isOwner || row.createdByUserId === userId))
 
     if (
       row.visibility === "private" &&
@@ -164,7 +177,26 @@ export default async function CharactersPage({ params }: Params) {
     return (
       <div className={styles.page}>
         <section className={styles.card}>
-          <h3>{row.name}</h3>
+          <div className={styles.titleBar}>
+            <h3>{row.name}</h3>
+            {canEditCharacter ? (
+              <Link
+                className={styles.editInlineButton}
+                href={`/rpg/${rpgId}/characters/novo?characterId=${row.id}`}
+              >
+                Editar
+              </Link>
+            ) : null}
+          </div>
+          <div className={styles.header}>
+            <Image
+              src={row.image ?? "/images/bg-characters.jpg"}
+              alt={row.name}
+              width={150}
+              height={192}
+              priority
+            />
+          </div>
 
           <div className={styles.grid}>
             <div>
@@ -194,7 +226,7 @@ export default async function CharactersPage({ params }: Params) {
               <ul className={styles.list}>
                 {Object.entries(statuses).map(([key, value]) => (
                   <li key={key}>
-                    {key}: {value}
+                    {statusLabelByKey[key] ?? key}: {value}
                   </li>
                 ))}
               </ul>
@@ -205,7 +237,7 @@ export default async function CharactersPage({ params }: Params) {
               <ul className={styles.list}>
                 {Object.entries(attributes).map(([key, value]) => (
                   <li key={key}>
-                    {key}: {value}
+                    {attributeLabelByKey[key] ?? key}: {value}
                   </li>
                 ))}
               </ul>
@@ -216,7 +248,7 @@ export default async function CharactersPage({ params }: Params) {
               <ul className={styles.list}>
                 {Object.entries(skills).map(([key, value]) => (
                   <li key={key}>
-                    {skillLabelByKey.get(key) ?? key}: {value}
+                    {skillLabelByKey.get(key) ?? skillLabels[key] ?? key}: {value}
                   </li>
                 ))}
               </ul>
@@ -242,7 +274,15 @@ export default async function CharactersPage({ params }: Params) {
   return (
     <div className={styles.page}>
       <section key={character.id} className={styles.card}>
-        <h3>{character.identity.name}</h3>
+        <div className={styles.titleBar}>
+          <h3>{character.identity.name}</h3>
+          <Link
+            className={styles.editInlineButton}
+            href={`/rpg/${character.meta.version}/characters/novo?characterId=${character.id}`}
+          >
+            Editar
+          </Link>
+        </div>
         <div className={styles.header}>
           <Image
             src={character.image}

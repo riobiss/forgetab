@@ -151,6 +151,15 @@ function validateStat(name: string, value: unknown) {
   return { ok: true as const, value: Math.floor(value) }
 }
 
+function normalizeOptionalText(value: unknown) {
+  if (typeof value !== "string") {
+    return null
+  }
+
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
 function isValidVisibility(value: unknown): value is "private" | "public" {
   return value === "private" || value === "public"
 }
@@ -242,6 +251,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     const body = (await request.json()) as {
       name?: string
+      image?: string
       statuses?: Record<string, number>
       attributes?: Record<string, number>
       skills?: Record<string, number>
@@ -258,6 +268,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     const name = body.name?.trim() ?? ""
+    const hasImageInBody = Object.prototype.hasOwnProperty.call(body, "image")
+    const image = normalizeOptionalText(body.image)
     if (name.length < 2) {
       return NextResponse.json(
         { message: "Nome deve ter pelo menos 2 caracteres." },
@@ -394,6 +406,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       UPDATE rpg_characters
       SET
         name = ${name},
+        image = CASE WHEN ${hasImageInBody} THEN ${image} ELSE image END,
         visibility = COALESCE(${visibility}::"RpgVisibility", visibility),
         life = ${life.value},
         defense = ${defense.value},
@@ -428,6 +441,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       )
     }
     if (error instanceof Error && error.message.includes('column "skills" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "image" of relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
         { status: 500 },

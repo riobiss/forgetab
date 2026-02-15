@@ -75,6 +75,21 @@ export type RpgCharacterInventoryItem = Prisma.RpgCharacterInventoryItemModel
  */
 export type RpgStatusTemplate = Prisma.RpgStatusTemplateModel
 /**
+ * Model RpgSkillTemplate
+ * 
+ */
+export type RpgSkillTemplate = Prisma.RpgSkillTemplateModel
+/**
+ * Model RpgRaceTemplate
+ * 
+ */
+export type RpgRaceTemplate = Prisma.RpgRaceTemplateModel
+/**
+ * Model RpgClassTemplate
+ * 
+ */
+export type RpgClassTemplate = Prisma.RpgClassTemplateModel
+/**
  * Model RpgMember
  * 
  */

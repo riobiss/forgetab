@@ -140,6 +140,7 @@ model RpgCharacter {
   createdByUserId String?        @map("created_by_user_id")
   createdByUser User?            @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
   name          String
+  image         String?
   raceKey       String?          @map("race_key")
   classKey      String?          @map("class_key")
   characterType RpgCharacterType @default(player) @map("character_type")
