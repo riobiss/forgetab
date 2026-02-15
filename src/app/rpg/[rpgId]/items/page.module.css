@@ -44,6 +44,9 @@
   border-radius: 10px;
   padding: 0.5rem 0.8rem;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .section {
@@ -125,6 +128,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.4rem;
 }
 
 .primaryButton:disabled {
@@ -144,6 +148,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.4rem;
 }
 
 .dangerButton {
@@ -154,6 +159,10 @@
   color: #ffb3b3;
   cursor: pointer;
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
 }
 
 .dangerButton:disabled {
@@ -277,6 +286,16 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
+}
+
+.iconSpin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 720px) {

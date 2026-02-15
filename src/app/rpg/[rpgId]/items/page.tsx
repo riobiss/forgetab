@@ -3,8 +3,21 @@
 import Link from "next/link"
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
+import {
+  ArrowLeft,
+  Check,
+  Funnel,
+  FunnelX,
+  Gift,
+  LoaderCircle,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react"
 import styles from "./page.module.css"
 import { baseItemTypeValues } from "@/lib/validators/baseItem"
+import { IconButton } from "@/components/button"
 
 type ItemType = (typeof baseItemTypeValues)[number]
 
@@ -269,10 +282,12 @@ export default function ItemsPage() {
         </div>
         <div className={styles.headerActions}>
           <Link href={`/rpg/${rpgId}/items/new`} className={styles.primaryButton}>
-            Criar item
+            <Plus size={16} />
+            <span>Criar item</span>
           </Link>
           <Link href={`/rpg/${rpgId}/edit`} className={styles.backLink}>
-            Voltar para edicao
+            <ArrowLeft size={16} />
+            <span>Voltar para edicao</span>
           </Link>
         </div>
       </div>
@@ -285,7 +300,17 @@ export default function ItemsPage() {
             className={styles.ghostButton}
             onClick={() => setShowCategories((prev) => !prev)}
           >
-            {showCategories ? "Ocultar categorias" : "Mostrar categorias"}
+            {showCategories ? (
+              <>
+                <FunnelX size={16} />
+                <span>Ocultar categorias</span>
+              </>
+            ) : (
+              <>
+                <Funnel size={16} />
+                <span>Mostrar categorias</span>
+              </>
+            )}
           </button>
         </div>
 
@@ -407,22 +432,27 @@ export default function ItemsPage() {
                     className={styles.primaryButton}
                     onClick={() => openGiveModal(item.id)}
                   >
-                    Entregar
+                    <Gift size={16} />
+                    <span>Entregar</span>
                   </button>
                   <Link
                     href={`/rpg/${rpgId}/items/${item.id}/edit`}
                     className={styles.ghostButton}
                   >
-                    Editar
+                    <Pencil size={16} />
+                    <span>Editar</span>
                   </Link>
-                  <button
+                  <IconButton
                     type="button"
                     className={styles.dangerButton}
                     onClick={() => handleDelete(item.id)}
                     disabled={deletingItemId === item.id}
+                    icon={<Trash2 size={16} />}
+                    loading={deletingItemId === item.id}
+                    loadingIcon={<LoaderCircle size={16} className={styles.iconSpin} />}
                   >
                     {deletingItemId === item.id ? "Deletando..." : "Deletar"}
-                  </button>
+                  </IconButton>
                 </div>
                     </>
                   )
@@ -479,20 +509,24 @@ export default function ItemsPage() {
             {giveSuccess ? <p className={styles.feedback}>{giveSuccess}</p> : null}
 
             <div className={styles.formActions}>
-              <button
+              <IconButton
                 className={styles.primaryButton}
                 type="submit"
                 disabled={giving || !selectedCharacterId || characters.length === 0}
+                icon={<Check size={16} />}
+                loading={giving}
+                loadingIcon={<LoaderCircle size={16} className={styles.iconSpin} />}
               >
                 {giving ? "Entregando..." : "Confirmar entrega"}
-              </button>
-              <button
+              </IconButton>
+              <IconButton
                 type="button"
                 className={styles.ghostButton}
                 onClick={closeGiveModal}
+                icon={<X size={16} />}
               >
                 Cancelar
-              </button>
+              </IconButton>
             </div>
           </form>
         </div>

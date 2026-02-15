@@ -39,3 +39,21 @@
   cursor: not-allowed;
   box-shadow: none;
 }
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.iconLeft,
+.iconRight {
+  display: inline-flex;
+  align-items: center;
+}
+
+.iconLabel {
+  display: inline-flex;
+  align-items: center;
+}

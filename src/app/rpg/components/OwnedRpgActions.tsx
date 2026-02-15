@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { FolderOpen, LoaderCircle, Pencil, Trash2 } from "lucide-react"
+import { IconButton } from "@/components/button"
 import styles from "../page.module.css"
 
 type Props = {
@@ -41,16 +43,25 @@ export default function OwnedRpgActions({ rpgId }: Props) {
 
   return (
     <div className={styles.createdActions}>
-      <Link href={`/rpg/${rpgId}`}>Abrir</Link>
-      <Link href={`/rpg/${rpgId}/edit`}>Editar RPG</Link>
-      <button
+      <Link href={`/rpg/${rpgId}`}>
+        <FolderOpen size={14} />
+        <span>Abrir</span>
+      </Link>
+      <Link href={`/rpg/${rpgId}/edit`}>
+        <Pencil size={14} />
+        <span>Editar RPG</span>
+      </Link>
+      <IconButton
         type="button"
         className={styles.deleteButton}
         onClick={handleDelete}
         disabled={deleting}
+        icon={<Trash2 size={14} />}
+        loading={deleting}
+        loadingIcon={<LoaderCircle size={14} className={styles.spin} />}
       >
         {deleting ? "Deletando..." : "Deletar"}
-      </button>
+      </IconButton>
     </div>
   )
 }
