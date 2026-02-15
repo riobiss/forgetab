@@ -83,6 +83,7 @@ model Rpg {
   raceTemplates      RpgRaceTemplate[]
   classTemplates     RpgClassTemplate[]
   characterIdentityTemplates RpgCharacterIdentityTemplate[]
+  characterCharacteristicTemplates RpgCharacterCharacteristicTemplate[]
   characters         RpgCharacter[]
   inventoryItems     RpgCharacterInventoryItem[]
   members            RpgMember[]
@@ -155,6 +156,7 @@ model RpgCharacter {
   attributes    Json
   skills        Json
   identity      Json?            @map("identity")
+  characteristics Json?          @map("characteristics")
   createdAt     DateTime         @default(now()) @map("created_at")
   updatedAt     DateTime         @default(now()) @map("updated_at")
   inventoryItems RpgCharacterInventoryItem[]
@@ -181,6 +183,22 @@ model RpgCharacterIdentityTemplate {
   @@unique([rpgId, key])
   @@index([rpgId])
   @@map("rpg_character_identity_templates")
+}
+
+model RpgCharacterCharacteristicTemplate {
+  id        String   @id @default(cuid())
+  rpgId     String   @map("rpg_id")
+  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key       String
+  label     String
+  required  Boolean  @default(true)
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@unique([rpgId, key])
+  @@index([rpgId])
+  @@map("rpg_character_characteristic_templates")
 }
 
 model RpgCharacterInventoryItem {

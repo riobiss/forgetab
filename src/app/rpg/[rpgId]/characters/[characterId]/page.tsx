@@ -36,6 +36,7 @@ type DbCharacterRow = {
   attributes: Prisma.JsonValue
   skills: Prisma.JsonValue
   identity: Prisma.JsonValue
+  characteristics: Prisma.JsonValue
   createdAt: Date
 }
 
@@ -47,6 +48,13 @@ type SkillTemplateLabelRow = {
 type CharacterIdentityTemplateLabelRow = {
   key: string
   label: string
+  position?: number
+}
+
+type CharacterCharacteristicTemplateLabelRow = {
+  key: string
+  label: string
+  position?: number
 }
 
 const skillLabels: Record<string, string> = {
@@ -117,7 +125,8 @@ export default async function CharactersPage({ params }: Params) {
   if (!character) {
     let dbCharacter: DbCharacterRow[] = []
     let skillLabelByKey = new Map<string, string>()
-    let identityLabelByKey = new Map<string, string>()
+    let identityTemplateFields: CharacterIdentityTemplateLabelRow[] = []
+    let characteristicsTemplateFields: CharacterCharacteristicTemplateLabelRow[] = []
     let userId: string | null = null
     let isOwner = false
 
@@ -166,6 +175,7 @@ export default async function CharactersPage({ params }: Params) {
           attributes,
           skills,
           COALESCE(identity, '{}'::jsonb) AS identity,
+          COALESCE(characteristics, '{}'::jsonb) AS characteristics,
           created_at AS "createdAt"
         FROM rpg_characters
         WHERE id = ${characterId}
@@ -181,16 +191,25 @@ export default async function CharactersPage({ params }: Params) {
       skillLabelByKey = new Map(skillLabels.map((item) => [item.key, item.label]))
 
       const identityLabels = await prisma.$queryRaw<CharacterIdentityTemplateLabelRow[]>(Prisma.sql`
-        SELECT key, label
+        SELECT key, label, position
         FROM rpg_character_identity_templates
         WHERE rpg_id = ${rpgId}
         ORDER BY position ASC
       `)
-      identityLabelByKey = new Map(identityLabels.map((item) => [item.key, item.label]))
+      identityTemplateFields = identityLabels
+
+      const characteristicsLabels = await prisma.$queryRaw<CharacterCharacteristicTemplateLabelRow[]>(Prisma.sql`
+        SELECT key, label, position
+        FROM rpg_character_characteristic_templates
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `)
+      characteristicsTemplateFields = characteristicsLabels
     } catch {
       dbCharacter = []
       skillLabelByKey = new Map()
-      identityLabelByKey = new Map()
+      identityTemplateFields = []
+      characteristicsTemplateFields = []
     }
 
     if (dbCharacter.length === 0) {
@@ -212,7 +231,32 @@ export default async function CharactersPage({ params }: Params) {
     const statuses = row.statuses as Record<string, number>
     const skills = row.skills as Record<string, number>
     const identity = row.identity as Record<string, string>
+    const characteristics = row.characteristics as Record<string, string>
     const displayName = getIdentityDisplayName(identity)
+    const identityItems =
+      identityTemplateFields.length > 0
+        ? identityTemplateFields.map((field) => ({
+            key: field.key,
+            label: field.label,
+            value: identity[field.key] ?? "",
+          }))
+        : Object.entries(identity).map(([key, value]) => ({
+            key,
+            label: key,
+            value,
+          }))
+    const characteristicsItems =
+      characteristicsTemplateFields.length > 0
+        ? characteristicsTemplateFields.map((field) => ({
+            key: field.key,
+            label: field.label,
+            value: characteristics[field.key] ?? "",
+          }))
+        : Object.entries(characteristics).map(([key, value]) => ({
+            key,
+            label: key,
+            value,
+          }))
 
     return (
       <div className={styles.page}>
@@ -307,13 +351,26 @@ export default async function CharactersPage({ params }: Params) {
               </ul>
             </div>
 
-            {Object.keys(identity).length > 0 ? (
+            {identityItems.length > 0 ? (
               <div>
                 <h4>Identidade</h4>
                 <ul className={styles.list}>
-                  {Object.entries(identity).map(([key, value]) => (
-                    <li key={key}>
-                      {identityLabelByKey.get(key) ?? key}: {value || "-"}
+                  {identityItems.map((item) => (
+                    <li key={item.key}>
+                      {item.label}: {item.value.trim() || "-"}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {characteristicsItems.length > 0 ? (
+              <div>
+                <h4>Caracteristicas</h4>
+                <ul className={styles.list}>
+                  {characteristicsItems.map((item) => (
+                    <li key={item.key}>
+                      {item.label}: {item.value.trim() || "-"}
                     </li>
                   ))}
                 </ul>

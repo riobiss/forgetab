@@ -72,6 +72,11 @@ type CharacterIdentityPayload = {
   message?: string
 }
 
+type CharacterCharacteristicsPayload = {
+  fields?: CharacterIdentityTemplate[]
+  message?: string
+}
+
 type CharacterSummary = {
   id: string
   name: string
@@ -85,6 +90,7 @@ type CharacterSummary = {
   attributes?: Record<string, number>
   skills?: Record<string, number>
   identity?: Record<string, string>
+  characteristics?: Record<string, string>
 }
 
 type CharactersPayload = {
@@ -135,6 +141,8 @@ export default function NewCharacterPage() {
   const [classTemplates, setClassTemplates] = useState<IdentityTemplate[]>([])
   const [identityTemplates, setIdentityTemplates] = useState<CharacterIdentityTemplate[]>([])
   const [identityValues, setIdentityValues] = useState<Record<string, string>>({})
+  const [characteristicsTemplates, setCharacteristicsTemplates] = useState<CharacterIdentityTemplate[]>([])
+  const [characteristicsValues, setCharacteristicsValues] = useState<Record<string, string>>({})
   const [raceKey, setRaceKey] = useState("")
   const [classKey, setClassKey] = useState("")
   const [characterType, setCharacterType] = useState<CharacterSummary["characterType"]>(
@@ -162,7 +170,7 @@ export default function NewCharacterPage() {
         setLoading(true)
         setError("")
 
-        const [attributesResponse, statusesResponse, skillsResponse, charactersResponse, rpgResponse, racesResponse, classesResponse, identityResponse] = await Promise.all([
+        const [attributesResponse, statusesResponse, skillsResponse, charactersResponse, rpgResponse, racesResponse, classesResponse, identityResponse, characteristicsResponse] = await Promise.all([
           fetch(`/api/rpg/${rpgId}/attributes`),
           fetch(`/api/rpg/${rpgId}/statuses`),
           fetch(`/api/rpg/${rpgId}/skills`),
@@ -171,6 +179,7 @@ export default function NewCharacterPage() {
           fetch(`/api/rpg/${rpgId}/races`),
           fetch(`/api/rpg/${rpgId}/classes`),
           fetch(`/api/rpg/${rpgId}/character-identity`),
+          fetch(`/api/rpg/${rpgId}/character-characteristics`),
         ])
 
         const attributesPayload = (await attributesResponse.json()) as TemplatePayload
@@ -181,6 +190,7 @@ export default function NewCharacterPage() {
         const racesPayload = (await racesResponse.json()) as RacesPayload
         const classesPayload = (await classesResponse.json()) as ClassesPayload
         const identityPayload = (await identityResponse.json()) as CharacterIdentityPayload
+        const characteristicsPayload = (await characteristicsResponse.json()) as CharacterCharacteristicsPayload
 
         if (!attributesResponse.ok) {
           setError(
@@ -219,6 +229,12 @@ export default function NewCharacterPage() {
           setError(identityPayload.message ?? "Nao foi possivel carregar campos de identidade.")
           return
         }
+        if (!characteristicsResponse.ok) {
+          setError(
+            characteristicsPayload.message ?? "Nao foi possivel carregar campos de caracteristicas.",
+          )
+          return
+        }
 
         const attributeTemplate = attributesPayload.attributes ?? []
         const statusTemplate = statusesPayload.statuses ?? []
@@ -226,6 +242,7 @@ export default function NewCharacterPage() {
         const races = racesPayload.races ?? []
         const classes = classesPayload.classes ?? []
         const identityFields = identityPayload.fields ?? []
+        const characteristicsFields = characteristicsPayload.fields ?? []
         const allCharacters = charactersPayload.characters ?? []
         const editTarget = characterId
           ? allCharacters.find((character) => character.id === characterId)
@@ -242,6 +259,7 @@ export default function NewCharacterPage() {
         setRaceTemplates(races)
         setClassTemplates(classes)
         setIdentityTemplates(identityFields)
+        setCharacteristicsTemplates(characteristicsFields)
         setUseClassRaceBonuses(Boolean(rpgPayload.rpg?.useClassRaceBonuses))
         setIsOwner(Boolean(charactersPayload.isOwner))
 
@@ -268,11 +286,17 @@ export default function NewCharacterPage() {
                 : ""
           return acc
         }, {})
+        const nextCharacteristics = characteristicsFields.reduce<Record<string, string>>((acc, item) => {
+          const value = editTarget?.characteristics?.[item.key]
+          acc[item.key] = typeof value === "string" ? value : ""
+          return acc
+        }, {})
 
         setValues(nextAttributes)
         setStatusValues(nextStatuses)
         setSkillValues(nextSkills)
         setIdentityValues(nextIdentity)
+        setCharacteristicsValues(nextCharacteristics)
         setName(editTarget?.name ?? "")
         setImage(editTarget?.image ?? "")
         setRaceKey(editTarget?.raceKey ?? "")
@@ -327,6 +351,7 @@ export default function NewCharacterPage() {
           statuses: statusValues,
           attributes: values,
           identity: identityValues,
+          characteristics: characteristicsValues,
           ...(isOwner ? { skills: skillValues } : {}),
         }),
       })
@@ -379,6 +404,13 @@ export default function NewCharacterPage() {
 
   function updateIdentityField(key: string, value: string) {
     setIdentityValues((prev) => ({
+      ...prev,
+      [key]: value,
+    }))
+  }
+
+  function updateCharacteristicsField(key: string, value: string) {
+    setCharacteristicsValues((prev) => ({
       ...prev,
       [key]: value,
     }))
@@ -622,7 +654,7 @@ export default function NewCharacterPage() {
               ) : null}
 
               {identityTemplates.map((field) => (
-                <label className={styles.field} key={field.key}>
+                <label className={styles.field} key={`identity-${field.key}`}>
                   <span>{field.label}</span>
                   <input
                     type="text"
@@ -632,8 +664,28 @@ export default function NewCharacterPage() {
                   />
                 </label>
               ))}
+
             </div>
           </section>
+
+          {characteristicsTemplates.length > 0 ? (
+            <section className={styles.section}>
+              <h2>Caracteristicas</h2>
+              <div className={styles.identityGrid}>
+                {characteristicsTemplates.map((field) => (
+                  <label className={styles.field} key={`characteristics-${field.key}`}>
+                    <span>{field.label}</span>
+                    <input
+                      type="text"
+                      value={characteristicsValues[field.key] ?? ""}
+                      onChange={(event) => updateCharacteristicsField(field.key, event.target.value)}
+                      required={field.required}
+                    />
+                  </label>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <section className={styles.section}>
             <div className={styles.sectionHeader}>

@@ -80,6 +80,11 @@ export default function EditRpgPage() {
     CharacterIdentityTemplate[]
   >([])
   const [newIdentityLabel, setNewIdentityLabel] = useState("")
+  const [showCharacterCharacteristicsList, setShowCharacterCharacteristicsList] = useState(false)
+  const [characterCharacteristicTemplates, setCharacterCharacteristicTemplates] = useState<
+    CharacterIdentityTemplate[]
+  >([])
+  const [newCharacteristicLabel, setNewCharacteristicLabel] = useState("")
 
   useEffect(() => {
     async function loadAll() {
@@ -87,7 +92,7 @@ export default function EditRpgPage() {
         setLoading(true)
         setError("")
 
-        const [rpgRes, attrRes, statusRes, skillRes, raceRes, classRes, characterIdentityRes] = await Promise.all([
+        const [rpgRes, attrRes, statusRes, skillRes, raceRes, classRes, characterIdentityRes, characterCharacteristicsRes] = await Promise.all([
           fetch(`/api/rpg/${rpgId}`),
           fetch(`/api/rpg/${rpgId}/attributes`),
           fetch(`/api/rpg/${rpgId}/statuses`),
@@ -95,6 +100,7 @@ export default function EditRpgPage() {
           fetch(`/api/rpg/${rpgId}/races`),
           fetch(`/api/rpg/${rpgId}/classes`),
           fetch(`/api/rpg/${rpgId}/character-identity`),
+          fetch(`/api/rpg/${rpgId}/character-characteristics`),
         ])
 
         const rpgPayload = (await rpgRes.json()) as RpgPayload & { message?: string }
@@ -115,9 +121,20 @@ export default function EditRpgPage() {
           message?: string
           fields?: CharacterIdentityTemplate[]
         }
+        const characterCharacteristicsPayload = (await characterCharacteristicsRes.json()) as {
+          message?: string
+          fields?: CharacterIdentityTemplate[]
+        }
 
         if (!characterIdentityRes.ok) {
           setError(characterIdentityPayload.message ?? "Nao foi possivel carregar identidade.")
+          setCanEdit(false)
+          return
+        }
+        if (!characterCharacteristicsRes.ok) {
+          setError(
+            characterCharacteristicsPayload.message ?? "Nao foi possivel carregar caracteristicas.",
+          )
           setCanEdit(false)
           return
         }
@@ -148,6 +165,7 @@ export default function EditRpgPage() {
           })),
         )
         setCharacterIdentityTemplates(characterIdentityPayload.fields ?? [])
+        setCharacterCharacteristicTemplates(characterCharacteristicsPayload.fields ?? [])
         setCanEdit(true)
       } catch {
         setError("Erro de conexao ao carregar RPG.")
@@ -228,6 +246,20 @@ export default function EditRpgPage() {
       }),
     })
     if (!response.ok) throw new Error("Falha ao salvar campos de identidade.")
+  }
+
+  async function saveCharacterCharacteristicsTemplate() {
+    const response = await fetch(`/api/rpg/${rpgId}/character-characteristics`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fields: characterCharacteristicTemplates.map((item) => ({
+          label: item.label,
+          required: item.required,
+        })),
+      }),
+    })
+    if (!response.ok) throw new Error("Falha ao salvar campos de caracteristicas.")
   }
 
   if (loading) {
@@ -562,6 +594,119 @@ export default function EditRpgPage() {
                 >
                   <Save size={16} />
                   <span>Salvar identidade</span>
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.attributeTemplateSection}>
+              <h3>Caracteristicas do Player</h3>
+              <p>Defina os campos de caracteristicas que o Player precisa preencher.</p>
+              <div className={styles.identityHeaderActions}>
+                <button
+                  type="button"
+                  onClick={() => setShowCharacterCharacteristicsList((prev) => !prev)}
+                >
+                  {showCharacterCharacteristicsList ? "Ocultar campos" : "Mostrar campos"}
+                </button>
+              </div>
+              {showCharacterCharacteristicsList ? (
+                <>
+                  <div className={styles.actions}>
+                    <input
+                      type="text"
+                      value={newCharacteristicLabel}
+                      onChange={(event) => setNewCharacteristicLabel(event.target.value)}
+                      placeholder="Ex.: Cicatriz no rosto"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const label = newCharacteristicLabel.trim()
+                        if (label.length < 2) return
+                        setCharacterCharacteristicTemplates((prev) => [
+                          ...prev,
+                          {
+                            key: `draft-${crypto.randomUUID()}`,
+                            label,
+                            required: true,
+                            position: prev.length,
+                          },
+                        ])
+                        setNewCharacteristicLabel("")
+                      }}
+                    >
+                      <Plus size={16} />
+                      <span>Adicionar campo</span>
+                    </button>
+                  </div>
+                  {characterCharacteristicTemplates.length === 0 ? (
+                    <p>Nenhum campo configurado.</p>
+                  ) : null}
+                  {characterCharacteristicTemplates.map((field, index) => (
+                    <div key={field.key} className={styles.actions}>
+                      <input
+                        type="text"
+                        value={field.label}
+                        onChange={(event) =>
+                          setCharacterCharacteristicTemplates((prev) =>
+                            prev.map((item, currentIndex) =>
+                              currentIndex === index
+                                ? { ...item, label: event.target.value }
+                                : item,
+                            ),
+                          )
+                        }
+                      />
+                      <label className={styles.attributeOption}>
+                        <input
+                          type="checkbox"
+                          checked={field.required}
+                          onChange={(event) =>
+                            setCharacterCharacteristicTemplates((prev) =>
+                              prev.map((item, currentIndex) =>
+                                currentIndex === index
+                                  ? { ...item, required: event.target.checked }
+                                  : item,
+                              ),
+                            )
+                          }
+                        />
+                        <span>Obrigatorio</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCharacterCharacteristicTemplates((prev) =>
+                            prev.filter((_, currentIndex) => currentIndex !== index),
+                          )
+                        }
+                      >
+                        <Trash2 size={16} />
+                        <span>Remover</span>
+                      </button>
+                    </div>
+                  ))}
+                </>
+              ) : null}
+              <div className={styles.actions}>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await saveCharacterCharacteristicsTemplate()
+                      setIdentitySuccess("Campos de caracteristicas salvos.")
+                      setIdentityError("")
+                    } catch (error) {
+                      setIdentityError(
+                        error instanceof Error
+                          ? error.message
+                          : "Erro ao salvar campos de caracteristicas.",
+                      )
+                    }
+                  }}
+                >
+                  <Save size={16} />
+                  <span>Salvar caracteristicas</span>
                 </button>
               </div>
             </div>
