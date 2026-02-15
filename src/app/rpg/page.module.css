@@ -27,6 +27,9 @@
   font-weight: 700;
   padding: 0.7rem 1rem;
   border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .createdSection {
@@ -85,6 +88,9 @@
   color: var(--text-main);
   font-size: 0.82rem;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .createdActions a:nth-child(2) {
@@ -102,11 +108,24 @@
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .deleteButton:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .containerMain {

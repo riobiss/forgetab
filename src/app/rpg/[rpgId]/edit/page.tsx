@@ -3,6 +3,18 @@
 import { FormEvent, useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
+import {
+  ArrowLeft,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  LoaderCircle,
+  Plus,
+  Save,
+  Settings2,
+  Trash2,
+  X,
+} from "lucide-react"
 import styles from "./page.module.css"
 import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
 import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
@@ -197,7 +209,10 @@ export default function EditRpgPage() {
           <h1>Edicao bloqueada</h1>
           <p className={styles.error}>{error || "Voce nao pode editar este RPG."}</p>
           <div className={styles.actions}>
-            <Link href="/rpg">Voltar para RPGs</Link>
+            <Link href="/rpg">
+              <ArrowLeft size={16} />
+              <span>Voltar para RPGs</span>
+            </Link>
           </div>
         </section>
       </main>
@@ -215,7 +230,9 @@ export default function EditRpgPage() {
           className={styles.advancedToggle}
           onClick={() => setShowAdvanced((prev) => !prev)}
         >
-          {showAdvanced ? "Ocultar opcoes avancadas" : "Opcoes avancadas"}
+          <Settings2 size={16} />
+          <span>{showAdvanced ? "Ocultar opcoes avancadas" : "Opcoes avancadas"}</span>
+          {showAdvanced ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
 
         {showAdvanced ? (
@@ -265,7 +282,8 @@ export default function EditRpgPage() {
                     }
                   }}
                 >
-                  Salvar atributos
+                  <Save size={16} />
+                  <span>Salvar atributos</span>
                 </button>
               </div>
             </div>
@@ -312,7 +330,8 @@ export default function EditRpgPage() {
                     }
                   }}
                 >
-                  Salvar status
+                  <Save size={16} />
+                  <span>Salvar status</span>
                 </button>
               </div>
             </div>
@@ -353,7 +372,8 @@ export default function EditRpgPage() {
                         setNewSkillLabel("")
                       }}
                     >
-                      Adicionar pericia
+                      <Plus size={16} />
+                      <span>Adicionar pericia</span>
                     </button>
                   </div>
                   {skillTemplates.map((item) => (
@@ -367,7 +387,8 @@ export default function EditRpgPage() {
                           )
                         }
                       >
-                        Remover
+                        <Trash2 size={16} />
+                        <span>Remover</span>
                       </button>
                     </div>
                   ))}
@@ -388,7 +409,8 @@ export default function EditRpgPage() {
                     }
                   }}
                 >
-                  Salvar pericias
+                  <Save size={16} />
+                  <span>Salvar pericias</span>
                 </button>
               </div>
             </div>
@@ -423,7 +445,8 @@ export default function EditRpgPage() {
                         router.push(`/rpg/${rpgId}/edit/advanced/race/new`)
                       }
                     >
-                      Criar nova raca
+                      <Plus size={16} />
+                      <span>Criar nova raca</span>
                     </button>
                   </div>
 
@@ -463,7 +486,8 @@ export default function EditRpgPage() {
                         router.push(`/rpg/${rpgId}/edit/advanced/class/new`)
                       }
                     >
-                      Criar nova classe
+                      <Plus size={16} />
+                      <span>Criar nova classe</span>
                     </button>
                   </div>
 
@@ -532,9 +556,22 @@ export default function EditRpgPage() {
 
           <div className={styles.actions}>
             <button type="submit" disabled={saving}>
-              {saving ? "Salvando..." : "Salvar alteracoes"}
+              {saving ? (
+                <>
+                  <LoaderCircle size={16} className={styles.spin} />
+                  <span>Salvando...</span>
+                </>
+              ) : (
+                <>
+                  <Check size={16} />
+                  <span>Salvar alteracoes</span>
+                </>
+              )}
             </button>
-            <Link href="/rpg">Cancelar</Link>
+            <Link href="/rpg">
+              <X size={16} />
+              <span>Cancelar</span>
+            </Link>
           </div>
         </form>
       </section>

@@ -2,6 +2,7 @@ import rpg from "@/data/rpgs"
 import Image from "next/image"
 import styles from "./page.module.css"
 import Link from "next/link"
+import { FolderOpen, Plus } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { cookies } from "next/headers"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
@@ -71,7 +72,8 @@ export default async function ViewRpg() {
       <div className={styles.topbar}>
         <h2 className={styles.title}>RPGs</h2>
         <Link href="/rpg/novo" className={styles.createButton}>
-          Criar RPG
+          <Plus size={16} />
+          <span>Criar RPG</span>
         </Link>
       </div>
 
@@ -116,7 +118,10 @@ export default async function ViewRpg() {
                   Publico | {formatDateInBrasilia(item.createdAt)}
                 </small>
                 <div className={styles.createdActions}>
-                  <Link href={`/rpg/${item.id}`}>Abrir</Link>
+                  <Link href={`/rpg/${item.id}`}>
+                    <FolderOpen size={14} />
+                    <span>Abrir</span>
+                  </Link>
                 </div>
               </article>
             ))}

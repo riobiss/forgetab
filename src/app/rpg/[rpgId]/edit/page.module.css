@@ -44,6 +44,9 @@
   cursor: pointer;
   font-weight: 700;
   justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
 }
 
 .advancedSection {
@@ -197,6 +200,9 @@
   color: var(--text-title);
   font-weight: 700;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .secondaryButton {
@@ -206,6 +212,9 @@
   border-radius: 10px;
   padding: 0.56rem 0.8rem;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .actions button:disabled {
@@ -216,6 +225,19 @@
 .actions a {
   color: var(--text-muted);
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error {
