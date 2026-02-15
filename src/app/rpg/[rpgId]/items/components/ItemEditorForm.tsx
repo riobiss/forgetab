@@ -20,6 +20,7 @@ type NamedDescription = {
 type BaseItem = {
   id: string
   name: string
+  description: string | null
   type: ItemType
   rarity: ItemRarity
   damage: string | null
@@ -109,6 +110,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
   const [saving, setSaving] = useState(false)
 
   const [name, setName] = useState("")
+  const [description, setDescription] = useState("")
   const [type, setType] = useState<ItemType>("weapon")
   const [rarity, setRarity] = useState<ItemRarity>("common")
   const [damage, setDamage] = useState("")
@@ -140,6 +142,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
         }
 
         setName(payload.item.name)
+        setDescription(payload.item.description ?? "")
         setType(payload.item.type)
         setRarity(payload.item.rarity)
         setDamage(payload.item.damage ?? "")
@@ -201,6 +204,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
 
     const payload = {
       name,
+      description: toOptionalText(description),
       type,
       rarity,
       damage: toOptionalText(damage),
@@ -270,6 +274,16 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
                 onChange={(event) => setName(event.target.value)}
                 minLength={2}
                 required
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span>Descricao</span>
+              <textarea
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                rows={3}
+                placeholder="Descricao opcional do item"
               />
             </label>
 

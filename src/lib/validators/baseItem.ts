@@ -32,6 +32,12 @@ const namedDescriptionSchema = z.object({
 
 export const createBaseItemSchema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres."),
+  description: z
+    .string()
+    .trim()
+    .max(2000, "Descricao deve ter no maximo 2000 caracteres.")
+    .nullable()
+    .optional(),
   type: z.enum(baseItemTypeValues, { message: "Tipo de item invalido." }),
   rarity: z.enum(baseItemRarityValues, { message: "Raridade invalida." }),
   damage: z
