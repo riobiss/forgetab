@@ -178,10 +178,16 @@ export default async function CharactersPage({ params }: Params) {
                     ? "NPC"
                     : "Monstro"}
               </p>
-              {row.raceKey ? <p>Raca: {row.raceKey}</p> : null}
-              {row.classKey ? <p>Classe: {row.classKey}</p> : null}
               <p>Criado em: {formatDateInBrasilia(row.createdAt)}</p>
             </div>
+
+            {row.raceKey || row.classKey ? (
+              <div>
+                <h4>Raca e Classe</h4>
+                {row.raceKey ? <p>Raca: {row.raceKey}</p> : null}
+                {row.classKey ? <p>Classe: {row.classKey}</p> : null}
+              </div>
+            ) : null}
 
             <div>
               <h4>Status</h4>

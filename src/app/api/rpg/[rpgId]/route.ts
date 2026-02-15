@@ -69,7 +69,31 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
     const rpg = rows[0]
 
-    if (!rpg || rpg.ownerId !== userId) {
+    if (!rpg) {
+      return NextResponse.json(
+        { message: "RPG nao encontrado." },
+        { status: 404 },
+      )
+    }
+
+    const isOwner = rpg.ownerId === userId
+    let isAcceptedMember = false
+
+    if (!isOwner) {
+      const membership = await prisma.rpgMember.findUnique({
+        where: {
+          rpgId_userId: {
+            rpgId,
+            userId,
+          },
+        },
+        select: { status: true },
+      })
+
+      isAcceptedMember = membership?.status === "accepted"
+    }
+
+    if (!isOwner && rpg.visibility === "private" && !isAcceptedMember) {
       return NextResponse.json(
         { message: "RPG nao encontrado." },
         { status: 404 },
