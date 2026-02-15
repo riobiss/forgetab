@@ -1,9 +1,10 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import styles from "./page.module.css"
 import InventoryCards from "./components/InventoryCards"
 import { InventoryCardItem, InventoryRarity } from "./types"
+import { baseItemTypeValues } from "@/lib/validators/baseItem"
 
 type InventoryItem = {
   id: string
@@ -56,6 +57,10 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [removingItemId, setRemovingItemId] = useState<string | null>(null)
+  const [search, setSearch] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<
+    (typeof baseItemTypeValues)[number] | "all"
+  >("all")
 
   function parseNamedDescriptionList(value: unknown) {
     if (!Array.isArray(value)) {
@@ -86,7 +91,49 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
   }
 
   const hasInventory = inventory.length > 0
-  const cardItems: InventoryCardItem[] = inventory.map((item) => {
+  const filteredInventory = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase()
+    return inventory.filter((item) => {
+      const itemTypeNormalized = item.itemType.toLowerCase()
+      const matchesCategory =
+        selectedCategory === "all" ? true : itemTypeNormalized === selectedCategory
+      if (!matchesCategory) {
+        return false
+      }
+
+      if (!normalizedSearch) {
+        return true
+      }
+
+      const abilities = parseNamedDescriptionList(item.itemAbilities)
+      const effects = parseNamedDescriptionList(item.itemEffects)
+
+      return (
+        item.itemName.toLowerCase().includes(normalizedSearch) ||
+        item.itemType.toLowerCase().includes(normalizedSearch) ||
+        item.itemRarity.toLowerCase().includes(normalizedSearch) ||
+        (item.itemDescription ?? "").toLowerCase().includes(normalizedSearch) ||
+        (item.itemDamage ?? "").toLowerCase().includes(normalizedSearch) ||
+        (item.itemDuration ?? "").toLowerCase().includes(normalizedSearch) ||
+        (item.itemAbility ?? "").toLowerCase().includes(normalizedSearch) ||
+        (item.itemAbilityName ?? "").toLowerCase().includes(normalizedSearch) ||
+        (item.itemEffect ?? "").toLowerCase().includes(normalizedSearch) ||
+        (item.itemEffectName ?? "").toLowerCase().includes(normalizedSearch) ||
+        abilities.some(
+          (ability) =>
+            ability.name.toLowerCase().includes(normalizedSearch) ||
+            ability.description.toLowerCase().includes(normalizedSearch),
+        ) ||
+        effects.some(
+          (effect) =>
+            effect.name.toLowerCase().includes(normalizedSearch) ||
+            effect.description.toLowerCase().includes(normalizedSearch),
+        )
+      )
+    })
+  }, [inventory, search, selectedCategory])
+
+  const cardItems: InventoryCardItem[] = filteredInventory.map((item) => {
     const abilities = parseNamedDescriptionList(item.itemAbilities)
     const effects = parseNamedDescriptionList(item.itemEffects)
     const metaLines: string[] = []
@@ -210,6 +257,45 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
   return (
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>Itens do Personagem</h2>
+      <div className={styles.filters}>
+        <label className={styles.searchField}>
+          <span>Buscar item</span>
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Nome, tipo, raridade, habilidade ou efeito"
+          />
+        </label>
+
+        <div className={styles.categories}>
+          <button
+            type="button"
+            className={
+              selectedCategory === "all"
+                ? `${styles.categoryButton} ${styles.categoryButtonActive}`
+                : styles.categoryButton
+            }
+            onClick={() => setSelectedCategory("all")}
+          >
+            Todas
+          </button>
+          {baseItemTypeValues.map((category) => (
+            <button
+              key={category}
+              type="button"
+              className={
+                selectedCategory === category
+                  ? `${styles.categoryButton} ${styles.categoryButtonActive}`
+                  : styles.categoryButton
+              }
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {loading ? <p className={styles.emptyState}>Carregando inventario...</p> : null}
       {error ? <p className={styles.error}>{error}</p> : null}
@@ -217,8 +303,11 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
       {!loading && !error && !hasInventory ? (
         <p className={styles.emptyState}>Nenhum item no inventario.</p>
       ) : null}
+      {!loading && !error && hasInventory && cardItems.length === 0 ? (
+        <p className={styles.emptyState}>Nenhum item encontrado nos filtros atuais.</p>
+      ) : null}
 
-      {!loading && !error && hasInventory ? (
+      {!loading && !error && hasInventory && cardItems.length > 0 ? (
         <InventoryCards
           items={cardItems}
           emptyMessage="Nenhum item no inventario."
