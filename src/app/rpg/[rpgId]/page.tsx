@@ -28,6 +28,10 @@ type AcceptedMemberRow = {
   userEmail: string
 }
 
+type CountRow = {
+  total: bigint | number
+}
+
 export const generateMetadata = () => {
   return {
     title: "rpg",
@@ -131,6 +135,8 @@ export default async function ViewInRpg({ params }: Params) {
 
   let pendingRequests: PendingRequestRow[] = []
   let acceptedMembers: AcceptedMemberRow[] = []
+  let hasRaces = false
+  let hasClasses = false
 
   if (isOwner) {
     pendingRequests = await prisma.$queryRaw<PendingRequestRow[]>(Prisma.sql`
@@ -157,6 +163,25 @@ export default async function ViewInRpg({ params }: Params) {
         AND m.status = 'accepted'::"public"."RpgMemberStatus"
       ORDER BY u.name ASC
     `)
+  }
+
+  try {
+    const raceCount = await prisma.$queryRaw<CountRow[]>(Prisma.sql`
+      SELECT COUNT(*) AS total
+      FROM rpg_race_templates
+      WHERE rpg_id = ${rpgId}
+    `)
+    const classCount = await prisma.$queryRaw<CountRow[]>(Prisma.sql`
+      SELECT COUNT(*) AS total
+      FROM rpg_class_templates
+      WHERE rpg_id = ${rpgId}
+    `)
+
+    hasRaces = Number(raceCount[0]?.total ?? 0) > 0
+    hasClasses = Number(classCount[0]?.total ?? 0) > 0
+  } catch {
+    hasRaces = false
+    hasClasses = false
   }
 
   return (
@@ -188,6 +213,30 @@ export default async function ViewInRpg({ params }: Params) {
           />
           <span>Personagens</span>
         </Link>
+
+        {hasRaces ? (
+          <Link href={`/rpg/${dbRpg.id}/races`} className={styles.card}>
+            <Image
+              src="/images/bg-races.jpg"
+              alt="Racas"
+              fill
+              className={styles.cardImage}
+            />
+            <span>Racas</span>
+          </Link>
+        ) : null}
+
+        {hasClasses ? (
+          <div className={styles.card}>
+            <Image
+              src="/images/bg-classes.webp"
+              alt="Classes"
+              fill
+              className={styles.cardImage}
+            />
+            <span>Classes</span>
+          </div>
+        ) : null}
 
         {isOwner ? (
           <>
