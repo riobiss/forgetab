@@ -2,6 +2,7 @@
 
 import styles from "./AdvancedIdentityEditor.module.css"
 import { createDefaultRaceLore, type RaceLore } from "@/lib/rpg/raceLore"
+import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
 
 type IdentityType = "race" | "class"
 
@@ -422,38 +423,32 @@ export default function AdvancedIdentityEditor({
 
       <section className={styles.section}>
         <h2>Bonus de atributos</h2>
-        <div className={styles.grid}>
-          {selectedAttributeKeys.map((key) => (
-            <label className={styles.field} key={`${draft.key}-att-${key}`}>
-              <span>{attributeLabelByKey.get(key) ?? key}</span>
-              <input
-                type="number"
-                value={draft.attributeBonuses[key] ?? 0}
-                onChange={(event) =>
-                  updateBonus("attributeBonuses", key, event.target.value)
-                }
-              />
-            </label>
-          ))}
-        </div>
+        <NumericTemplateGrid
+          items={selectedAttributeKeys.map((key) => ({
+            key,
+            label: attributeLabelByKey.get(key) ?? key,
+          }))}
+          values={draft.attributeBonuses}
+          onChange={(key, value) => updateBonus("attributeBonuses", key, value)}
+          gridClassName={styles.grid}
+          fieldClassName={styles.field}
+          keyPrefix={`${draft.key}-att`}
+        />
       </section>
 
       <section className={styles.section}>
         <h2>Bonus de pericias</h2>
-        <div className={styles.grid}>
-          {skillTemplates.map((skill) => (
-            <label className={styles.field} key={`${draft.key}-skill-${skill.key}`}>
-              <span>{skill.label}</span>
-              <input
-                type="number"
-                value={draft.skillBonuses[skill.key] ?? 0}
-                onChange={(event) =>
-                  updateBonus("skillBonuses", skill.key, event.target.value)
-                }
-              />
-            </label>
-          ))}
-        </div>
+        <NumericTemplateGrid
+          items={skillTemplates.map((skill) => ({
+            key: skill.key,
+            label: skill.label,
+          }))}
+          values={draft.skillBonuses}
+          onChange={(key, value) => updateBonus("skillBonuses", key, value)}
+          gridClassName={styles.grid}
+          fieldClassName={styles.field}
+          keyPrefix={`${draft.key}-skill`}
+        />
       </section>
 
       {error ? <p className={styles.error}>{error}</p> : null}

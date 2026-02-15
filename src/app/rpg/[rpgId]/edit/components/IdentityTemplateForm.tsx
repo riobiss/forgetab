@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import styles from "../page.module.css"
+import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
 
 type IdentityTemplateDraft = {
   key: string
@@ -85,35 +86,29 @@ export default function IdentityTemplateForm({
         />
       </label>
 
-      <div className={styles.bonusGrid}>
-        {selectedAttributeKeys.map((key) => (
-          <label className={styles.field} key={`${draft.key}-att-${key}`}>
-            <span>{attributeLabelByKey.get(key) ?? key}</span>
-            <input
-              type="number"
-              value={draft.attributeBonuses[key] ?? 0}
-              onChange={(event) =>
-                updateBonus("attributeBonuses", key, event.target.value)
-              }
-            />
-          </label>
-        ))}
-      </div>
+      <NumericTemplateGrid
+        items={selectedAttributeKeys.map((key) => ({
+          key,
+          label: attributeLabelByKey.get(key) ?? key,
+        }))}
+        values={draft.attributeBonuses}
+        onChange={(key, value) => updateBonus("attributeBonuses", key, value)}
+        gridClassName={styles.bonusGrid}
+        fieldClassName={styles.field}
+        keyPrefix={`${draft.key}-att`}
+      />
 
-      <div className={styles.bonusGrid}>
-        {skillTemplates.map((skill) => (
-          <label className={styles.field} key={`${draft.key}-skill-${skill.key}`}>
-            <span>{skill.label}</span>
-            <input
-              type="number"
-              value={draft.skillBonuses[skill.key] ?? 0}
-              onChange={(event) =>
-                updateBonus("skillBonuses", skill.key, event.target.value)
-              }
-            />
-          </label>
-        ))}
-      </div>
+      <NumericTemplateGrid
+        items={skillTemplates.map((skill) => ({
+          key: skill.key,
+          label: skill.label,
+        }))}
+        values={draft.skillBonuses}
+        onChange={(key, value) => updateBonus("skillBonuses", key, value)}
+        gridClassName={styles.bonusGrid}
+        fieldClassName={styles.field}
+        keyPrefix={`${draft.key}-skill`}
+      />
 
       <div className={styles.actions}>
         <button type="button" onClick={() => void handleSave()} disabled={saving}>

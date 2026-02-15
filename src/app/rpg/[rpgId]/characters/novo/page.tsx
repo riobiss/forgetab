@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import styles from "./page.module.css"
+import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
 
 type AttributeTemplate = {
   key: string
@@ -699,20 +700,19 @@ export default function NewCharacterPage() {
               </button>
             </div>
             {showStatusSection ? (
-              <div className={styles.valuesGrid}>
-                {statuses.map((status) => (
-                  <label className={styles.field} key={status.key}>
-                    <span>{status.label}</span>
-                    <input
-                      type="number"
-                      min={0}
-                      value={statusValues[status.key] ?? 0}
-                      onChange={(event) => updateStatus(status.key, event.target.value)}
-                      required
-                    />
-                  </label>
-                ))}
-              </div>
+              <NumericTemplateGrid
+                items={statuses.map((status) => ({
+                  key: status.key,
+                  label: status.label,
+                }))}
+                values={statusValues}
+                onChange={updateStatus}
+                gridClassName={styles.valuesGrid}
+                fieldClassName={styles.field}
+                keyPrefix="character-status"
+                min={0}
+                required
+              />
             ) : null}
           </section>
 
@@ -728,19 +728,18 @@ export default function NewCharacterPage() {
               </button>
             </div>
             {showAttributeSection ? (
-              <div className={styles.valuesGrid}>
-                {attributes.map((attribute) => (
-                  <label className={styles.field} key={attribute.key}>
-                    <span>{attribute.label}</span>
-                    <input
-                      type="number"
-                      value={values[attribute.key] ?? 0}
-                      onChange={(event) => updateAttribute(attribute.key, event.target.value)}
-                      required
-                    />
-                  </label>
-                ))}
-              </div>
+              <NumericTemplateGrid
+                items={attributes.map((attribute) => ({
+                  key: attribute.key,
+                  label: attribute.label,
+                }))}
+                values={values}
+                onChange={updateAttribute}
+                gridClassName={styles.valuesGrid}
+                fieldClassName={styles.field}
+                keyPrefix="character-attribute"
+                required
+              />
             ) : null}
           </section>
 
@@ -761,21 +760,20 @@ export default function NewCharacterPage() {
                   {!isOwner ? (
                     <p>Somente o owner do RPG pode editar as pericias dos personagens.</p>
                   ) : null}
-                  <div className={styles.valuesGrid}>
-                    {skills.map((skill) => (
-                      <label className={styles.field} key={skill.key}>
-                        <span>{skill.label}</span>
-                        <input
-                          type="number"
-                          min={0}
-                          value={skillValues[skill.key] ?? 0}
-                          onChange={(event) => updateSkill(skill.key, event.target.value)}
-                          disabled={!isOwner}
-                          required
-                        />
-                      </label>
-                    ))}
-                  </div>
+                  <NumericTemplateGrid
+                    items={skills.map((skill) => ({
+                      key: skill.key,
+                      label: skill.label,
+                    }))}
+                    values={skillValues}
+                    onChange={updateSkill}
+                    gridClassName={styles.valuesGrid}
+                    fieldClassName={styles.field}
+                    keyPrefix="character-skill"
+                    min={0}
+                    disabled={!isOwner}
+                    required
+                  />
                 </>
               ) : null}
             </section>
