@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import styles from "./page.module.css"
 import Image from "next/image"
 import Link from "next/link"
+import { Settings } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../generated/prisma/client"
 import MembershipNotifications from "./components/MembershipNotifications"
@@ -186,19 +187,33 @@ export default async function ViewInRpg({ params }: Params) {
 
   return (
     <div className={styles.container}>
-      <MembershipNotifications
-        rpgId={dbRpg.id}
-        isOwner={isOwner}
-        isAuthenticated={isAuthenticated}
-        membershipStatus={membershipStatus}
-        pendingRequests={pendingRequests.map((item) => ({
-          ...item,
-          requestedAt: item.requestedAt.toISOString(),
-        }))}
-        acceptedMembers={acceptedMembers}
-      />
-
-      <h2 className={styles.title}>{dbRpg.title}</h2>
+      <div className={styles.topActions}>
+        <MembershipNotifications
+          rpgId={dbRpg.id}
+          isOwner={isOwner}
+          isAuthenticated={isAuthenticated}
+          membershipStatus={membershipStatus}
+          pendingRequests={pendingRequests.map((item) => ({
+            ...item,
+            requestedAt: item.requestedAt.toISOString(),
+          }))}
+          acceptedMembers={acceptedMembers}
+          compact
+        />
+        {isOwner ? (
+          <Link
+            href={`/rpg/${dbRpg.id}/edit`}
+            className={styles.settingsButton}
+            aria-label="Configurar RPG"
+            title="Configurar RPG"
+          >
+            <Settings size={18} />
+          </Link>
+        ) : null}
+      </div>
+      <div className={styles.titleRow}>
+        <h2 className={styles.title}>{dbRpg.title}</h2>
+      </div>
       <p className={styles.description}>{dbRpg.description}</p>
 
       <h3 className={styles.sectionTitle}>Sessoes</h3>
@@ -248,16 +263,6 @@ export default async function ViewInRpg({ params }: Params) {
                 className={styles.cardImage}
               />
               <span>Itens</span>
-            </Link>
-
-            <Link href={`/rpg/${dbRpg.id}/edit`} className={styles.card}>
-              <Image
-                src="/images/bg-classes.webp"
-                alt="Editar RPG"
-                fill
-                className={styles.cardImage}
-              />
-              <span>Editar RPG</span>
             </Link>
           </>
         ) : null}

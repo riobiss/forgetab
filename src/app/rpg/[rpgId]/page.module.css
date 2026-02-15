@@ -4,12 +4,122 @@
   padding: 2.5rem 1.5rem 4rem;
 }
 
+.topActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.85rem;
+}
+
+.notificationWrapper {
+  margin-bottom: 1.25rem;
+}
+
+.notificationWrapperCompact {
+  margin-bottom: 0;
+  position: relative;
+}
+
+.notificationTrigger {
+  width: 100%;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
+  color: var(--text-main);
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.notificationTrigger:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-main);
+}
+
+.notificationTrigger:focus-visible,
+.settingsButton:focus-visible {
+  outline: 2px solid var(--accent-main);
+  outline-offset: 2px;
+}
+
+.notificationTriggerCompact {
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 0;
+  border-radius: 999px;
+  justify-content: center;
+  position: relative;
+  gap: 0;
+}
+
+.notificationTriggerCompact .notificationTriggerLeft {
+  gap: 0;
+}
+
+.notificationTriggerCompact .notificationTriggerRight {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  gap: 0;
+  pointer-events: none;
+}
+
+.notificationTriggerLeft,
+.notificationTriggerRight {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.notificationBadge {
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: rgba(127, 29, 29, 0.9);
+  color: #fecaca;
+  font-size: 0.72rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.notificationTriggerCompact .notificationBadge {
+  min-width: 1.1rem;
+  height: 1.1rem;
+  font-size: 0.65rem;
+  padding: 0 0.25rem;
+}
+
+.notificationChevronOpen {
+  transform: rotate(180deg);
+}
+
 .memberNotice {
   border: 1px solid var(--border-soft);
   border-radius: 12px;
   background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
   padding: 1rem;
-  margin-bottom: 1.5rem;
+  margin-top: 0.7rem;
+}
+
+.memberNoticePopover {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: min(680px, calc(100vw - 3rem));
+  z-index: 20;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-main);
 }
 
 .memberNotice h3 {
@@ -44,15 +154,22 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
+.noticeCard > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
 .noticeCard strong {
   color: var(--text-main);
   display: block;
+  overflow-wrap: anywhere;
 }
 
 .noticeCard small {
   color: var(--text-muted);
   display: block;
   font-size: 0.78rem;
+  overflow-wrap: anywhere;
 }
 
 .noticeActions {
@@ -69,6 +186,7 @@
   color: var(--text-main);
   cursor: pointer;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .noticeActions button:first-child {
@@ -104,6 +222,11 @@
   margin-top: 0.5rem;
 }
 
+.joinActions p {
+  margin: 0;
+  flex: 1;
+}
+
 .noticeError {
   color: #ff6b6b !important;
 }
@@ -118,6 +241,35 @@
   letter-spacing: 0.18em;
   color: var(--text-title);
   margin-bottom: 1.2rem;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.titleRow .title {
+  margin-bottom: 0;
+}
+
+.settingsButton {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  color: var(--text-main);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.03);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.settingsButton:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-main);
 }
 
 .description {
@@ -193,6 +345,15 @@
 }
 
 @media (max-width: 720px) {
+  .topActions {
+    margin-bottom: 1rem;
+  }
+
+  .memberNoticePopover {
+    width: min(640px, calc(100vw - 2rem));
+    max-height: 65vh;
+  }
+
   .noticeCard,
   .joinActions,
   .noticeActions {
