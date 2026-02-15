@@ -246,6 +246,15 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       attributes?: Record<string, number>
       skills?: Record<string, number>
       visibility?: "private" | "public"
+      raceKey?: string
+      classKey?: string
+    }
+
+    if (body.raceKey !== undefined || body.classKey !== undefined) {
+      return NextResponse.json(
+        { message: "Raca e classe so podem ser definidas na criacao do personagem." },
+        { status: 400 },
+      )
     }
 
     const name = body.name?.trim() ?? ""

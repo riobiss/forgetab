@@ -10,6 +10,7 @@ import {
   DEFAULT_STATUS_KEYS,
   STATUS_CATALOG,
 } from "@/lib/rpg/statusCatalog"
+import { addBonusToBase } from "@/lib/rpg/classRaceBonuses"
 
 type RouteContext = {
   params: Promise<{
@@ -21,6 +22,8 @@ type CharacterRow = {
   id: string
   rpgId: string
   name: string
+  raceKey: string | null
+  classKey: string | null
   characterType: "player" | "npc" | "monster"
   visibility: "private" | "public"
   createdByUserId: string | null
@@ -54,6 +57,12 @@ type SkillTemplateRow = {
   position: number
 }
 
+type IdentityTemplateRow = {
+  key: string
+  attributeBonuses: Prisma.JsonValue
+  skillBonuses: Prisma.JsonValue
+}
+
 type CharacterCreationRequestRow = {
   status: "pending" | "accepted" | "rejected"
 }
@@ -74,20 +83,50 @@ type RpgAccess = {
   exists: boolean
   canAccess: boolean
   isOwner: boolean
+  useClassRaceBonuses: boolean
 }
 
 async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
-  const rpg = await prisma.rpg.findUnique({
-    where: { id: rpgId },
-    select: { id: true, ownerId: true },
-  })
+  let rows: Array<{ ownerId: string; useClassRaceBonuses: boolean }> = []
+  try {
+    rows = await prisma.$queryRaw<Array<{ ownerId: string; useClassRaceBonuses: boolean }>>(
+      Prisma.sql`
+        SELECT owner_id AS "ownerId", COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses"
+        FROM rpgs
+        WHERE id = ${rpgId}
+        LIMIT 1
+      `,
+    )
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.includes('column "use_class_race_bonuses" does not exist')
+    ) {
+      rows = await prisma.$queryRaw<Array<{ ownerId: string; useClassRaceBonuses: boolean }>>(
+        Prisma.sql`
+          SELECT owner_id AS "ownerId", false AS "useClassRaceBonuses"
+          FROM rpgs
+          WHERE id = ${rpgId}
+          LIMIT 1
+        `,
+      )
+    } else {
+      throw error
+    }
+  }
+  const rpg = rows[0]
 
   if (!rpg) {
-    return { exists: false, canAccess: false, isOwner: false }
+    return { exists: false, canAccess: false, isOwner: false, useClassRaceBonuses: false }
   }
 
   if (rpg.ownerId === userId) {
-    return { exists: true, canAccess: true, isOwner: true }
+    return {
+      exists: true,
+      canAccess: true,
+      isOwner: true,
+      useClassRaceBonuses: rpg.useClassRaceBonuses,
+    }
   }
 
   const membership = await prisma.rpgMember.findUnique({
@@ -104,6 +143,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
     exists: true,
     canAccess: membership?.status === "accepted",
     isOwner: false,
+    useClassRaceBonuses: rpg.useClassRaceBonuses,
   }
 }
 
@@ -234,6 +274,22 @@ function getDefaultStatusTemplate(): StatusTemplateRow[] {
   )
 }
 
+function parseJsonBonusRecord(value: Prisma.JsonValue) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {}
+  }
+
+  return Object.entries(value as Record<string, unknown>).reduce<Record<string, number>>(
+    (acc, [key, current]) => {
+      if (typeof current === "number" && Number.isFinite(current)) {
+        acc[key] = Math.floor(current)
+      }
+      return acc
+    },
+    {},
+  )
+}
+
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const userId = await getUserIdFromToken(request)
@@ -247,37 +303,85 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
-    const characters = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
-      SELECT
-        id,
-        rpg_id AS "rpgId",
-        name,
-        character_type AS "characterType",
-        visibility,
-        created_by_user_id AS "createdByUserId",
-        life,
-        defense,
-        mana,
-        stamina,
-        sanity,
-        statuses,
-        attributes,
-        skills,
-        created_at AS "createdAt",
-        updated_at AS "updatedAt"
-      FROM rpg_characters
-      WHERE rpg_id = ${rpgId}
-        ${
-          access.isOwner
-            ? Prisma.empty
-            : userId
-              ? Prisma.sql`AND (visibility = 'public'::"RpgVisibility" OR created_by_user_id = ${userId})`
-              : Prisma.sql`AND visibility = 'public'::"RpgVisibility"`
-        }
-      ORDER BY created_at DESC
-    `)
+    let characters: CharacterRow[] = []
+    try {
+      characters = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
+        SELECT
+          id,
+          rpg_id AS "rpgId",
+          name,
+          race_key AS "raceKey",
+          class_key AS "classKey",
+          character_type AS "characterType",
+          visibility,
+          created_by_user_id AS "createdByUserId",
+          life,
+          defense,
+          mana,
+          stamina,
+          sanity,
+          statuses,
+          attributes,
+          skills,
+          created_at AS "createdAt",
+          updated_at AS "updatedAt"
+        FROM rpg_characters
+        WHERE rpg_id = ${rpgId}
+          ${
+            access.isOwner
+              ? Prisma.empty
+              : userId
+                ? Prisma.sql`AND (visibility = 'public'::"RpgVisibility" OR created_by_user_id = ${userId})`
+                : Prisma.sql`AND visibility = 'public'::"RpgVisibility"`
+          }
+        ORDER BY created_at DESC
+      `)
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        (error.message.includes('column "race_key" does not exist') ||
+          error.message.includes('column "class_key" does not exist'))
+      ) {
+        characters = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
+          SELECT
+            id,
+            rpg_id AS "rpgId",
+            name,
+            null::text AS "raceKey",
+            null::text AS "classKey",
+            character_type AS "characterType",
+            visibility,
+            created_by_user_id AS "createdByUserId",
+            life,
+            defense,
+            mana,
+            stamina,
+            sanity,
+            statuses,
+            attributes,
+            skills,
+            created_at AS "createdAt",
+            updated_at AS "updatedAt"
+          FROM rpg_characters
+          WHERE rpg_id = ${rpgId}
+            ${
+              access.isOwner
+                ? Prisma.empty
+                : userId
+                  ? Prisma.sql`AND (visibility = 'public'::"RpgVisibility" OR created_by_user_id = ${userId})`
+                  : Prisma.sql`AND visibility = 'public'::"RpgVisibility"`
+            }
+          ORDER BY created_at DESC
+        `)
+      } else {
+        throw error
+      }
+    }
 
-    return NextResponse.json({ characters, isOwner: access.isOwner }, { status: 200 })
+    return NextResponse.json(
+      { characters, isOwner: access.isOwner, useClassRaceBonuses: access.useClassRaceBonuses },
+      { status: 200 },
+    )
   } catch (error) {
     if (error instanceof Error && error.message.includes('relation "rpg_characters" does not exist')) {
       return NextResponse.json(
@@ -318,6 +422,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
       statuses?: Record<string, number>
       attributes?: Record<string, number>
       skills?: Record<string, number>
+      raceKey?: string
+      classKey?: string
     }
 
     const name = body.name?.trim() ?? ""
@@ -475,16 +581,86 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: parsedSkills.message }, { status: 400 })
     }
 
+    let selectedRaceKey: string | null = null
+    let selectedClassKey: string | null = null
+    let raceAttributeBonuses: Record<string, number> = {}
+    let classAttributeBonuses: Record<string, number> = {}
+    let raceSkillBonuses: Record<string, number> = {}
+    let classSkillBonuses: Record<string, number> = {}
+
+    if (access.useClassRaceBonuses) {
+      selectedRaceKey = body.raceKey?.trim() || null
+      selectedClassKey = body.classKey?.trim() || null
+
+      let raceTemplates: IdentityTemplateRow[] = []
+      let classTemplates: IdentityTemplateRow[] = []
+      try {
+        raceTemplates = await prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
+          SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
+          FROM rpg_race_templates
+          WHERE rpg_id = ${rpgId}
+        `)
+        classTemplates = await prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
+          SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
+          FROM rpg_class_templates
+          WHERE rpg_id = ${rpgId}
+        `)
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          (error.message.includes('relation "rpg_race_templates" does not exist') ||
+            error.message.includes('relation "rpg_class_templates" does not exist'))
+        ) {
+          return NextResponse.json(
+            { message: "Estrutura de racas/classes nao existe no banco. Rode a migration." },
+            { status: 500 },
+          )
+        }
+        throw error
+      }
+
+      if (selectedRaceKey) {
+        const race = raceTemplates.find((item) => item.key === selectedRaceKey)
+        if (!race) {
+          return NextResponse.json({ message: "Raca invalida para este RPG." }, { status: 400 })
+        }
+        raceAttributeBonuses = parseJsonBonusRecord(race.attributeBonuses)
+        raceSkillBonuses = parseJsonBonusRecord(race.skillBonuses)
+      }
+
+      if (selectedClassKey) {
+        const cls = classTemplates.find((item) => item.key === selectedClassKey)
+        if (!cls) {
+          return NextResponse.json({ message: "Classe invalida para este RPG." }, { status: 400 })
+        }
+        classAttributeBonuses = parseJsonBonusRecord(cls.attributeBonuses)
+        classSkillBonuses = parseJsonBonusRecord(cls.skillBonuses)
+      }
+    }
+
+    const finalAttributes = addBonusToBase(
+      parsedAttributes.value as Record<string, number>,
+      raceAttributeBonuses,
+      classAttributeBonuses,
+    )
+    const finalSkills = addBonusToBase(
+      parsedSkills.value,
+      raceSkillBonuses,
+      classSkillBonuses,
+    )
+
     const createdByUserId = access.isOwner ? null : userId
 
     const created = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
       INSERT INTO rpg_characters (
-        id, rpg_id, name, character_type, visibility, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes, skills
+        id, rpg_id, name, race_key, class_key, character_type, visibility, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes, skills
       )
       VALUES (
         ${crypto.randomUUID()},
         ${rpgId},
         ${name},
+        ${selectedRaceKey},
+        ${selectedClassKey},
         ${body.characterType}::"RpgCharacterType",
         'public'::"RpgVisibility",
         ${createdByUserId},
@@ -494,13 +670,15 @@ export async function POST(request: NextRequest, context: RouteContext) {
         ${stamina.value},
         ${sanity.value},
         ${JSON.stringify(parsedStatuses.value)}::jsonb,
-        ${JSON.stringify(parsedAttributes.value)}::jsonb,
-        ${JSON.stringify(parsedSkills.value)}::jsonb
+        ${JSON.stringify(finalAttributes)}::jsonb,
+        ${JSON.stringify(finalSkills)}::jsonb
       )
       RETURNING
         id,
         rpg_id AS "rpgId",
         name,
+        race_key AS "raceKey",
+        class_key AS "classKey",
         character_type AS "characterType",
         visibility,
         created_by_user_id AS "createdByUserId",
@@ -549,6 +727,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
       )
     }
     if (error instanceof Error && error.message.includes('column "skills" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (
+      error instanceof Error &&
+      (error.message.includes('column "race_key" of relation "rpg_characters" does not exist') ||
+        error.message.includes('column "class_key" of relation "rpg_characters" does not exist'))
+    ) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
         { status: 500 },
