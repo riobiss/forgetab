@@ -98,6 +98,15 @@ model BaseItem {
   name      String
   type      BaseItemType
   rarity    BaseItemRarity @default(common)
+  damage    String?
+  ability   String?
+  abilityName String?      @map("ability_name")
+  effect    String?
+  effectName String?       @map("effect_name")
+  abilities Json?
+  effects   Json?
+  weight    Float?
+  durability Int?
   createdAt DateTime       @default(now()) @map("created_at")
   updatedAt DateTime       @default(now()) @map("updated_at")
   inventories RpgCharacterInventoryItem[]
