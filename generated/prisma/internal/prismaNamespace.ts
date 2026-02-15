@@ -1019,6 +1019,7 @@ export type RpgAttributeTemplateScalarFieldEnum = (typeof RpgAttributeTemplateSc
 export const RpgCharacterScalarFieldEnum = {
   id: 'id',
   rpgId: 'rpgId',
+  createdByUserId: 'createdByUserId',
   name: 'name',
   characterType: 'characterType',
   life: 'life',

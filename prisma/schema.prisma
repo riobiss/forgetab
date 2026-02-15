@@ -21,6 +21,8 @@ model User {
   createdAt    DateTime    @default(now()) @map("created_at")
   rpgs         Rpg[]
   rpgMembers   RpgMember[]
+  characters   RpgCharacter[]
+  characterCreationRequests RpgCharacterCreationRequest[]
 
   @@map("users")
 }
@@ -53,6 +55,12 @@ enum RpgMemberStatus {
   rejected
 }
 
+enum CharacterCreationRequestStatus {
+  pending
+  accepted
+  rejected
+}
+
 enum RpgCharacterType {
   player
   npc
@@ -72,6 +80,7 @@ model Rpg {
   statusTemplates    RpgStatusTemplate[]
   characters         RpgCharacter[]
   members            RpgMember[]
+  characterCreationRequests RpgCharacterCreationRequest[]
 
   @@index([ownerId])
   @@map("rpgs")
@@ -110,6 +119,8 @@ model RpgCharacter {
   id            String           @id @default(cuid())
   rpgId         String           @map("rpg_id")
   rpg           Rpg              @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  createdByUserId String?        @map("created_by_user_id")
+  createdByUser User?            @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
   name          String
   characterType RpgCharacterType @default(player) @map("character_type")
   life          Int              @default(0)
@@ -123,6 +134,8 @@ model RpgCharacter {
   updatedAt     DateTime         @default(now()) @map("updated_at")
 
   @@index([rpgId])
+  @@index([createdByUserId])
+  @@index([rpgId, createdByUserId])
   @@map("rpg_characters")
 }
 
@@ -157,4 +170,22 @@ model RpgMember {
   @@index([rpgId])
   @@index([userId])
   @@map("rpg_members")
+}
+
+model RpgCharacterCreationRequest {
+  id          String                         @id @default(cuid())
+  rpgId       String                         @map("rpg_id")
+  userId      String                         @map("user_id")
+  status      CharacterCreationRequestStatus @default(pending)
+  createdAt   DateTime                       @default(now()) @map("created_at")
+  updatedAt   DateTime                       @default(now()) @map("updated_at")
+  requestedAt DateTime                       @default(now()) @map("requested_at")
+  respondedAt DateTime?                      @map("responded_at")
+  rpg         Rpg                            @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  user        User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([rpgId, userId])
+  @@index([rpgId])
+  @@index([userId])
+  @@map("rpg_character_creation_requests")
 }

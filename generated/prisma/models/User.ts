@@ -184,6 +184,7 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   rpgs?: Prisma.RpgListRelationFilter
   rpgMembers?: Prisma.RpgMemberListRelationFilter
+  characters?: Prisma.RpgCharacterListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -194,6 +195,7 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   rpgs?: Prisma.RpgOrderByRelationAggregateInput
   rpgMembers?: Prisma.RpgMemberOrderByRelationAggregateInput
+  characters?: Prisma.RpgCharacterOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -207,6 +209,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   rpgs?: Prisma.RpgListRelationFilter
   rpgMembers?: Prisma.RpgMemberListRelationFilter
+  characters?: Prisma.RpgCharacterListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -239,6 +242,7 @@ export type UserCreateInput = {
   createdAt?: Date | string
   rpgs?: Prisma.RpgCreateNestedManyWithoutOwnerInput
   rpgMembers?: Prisma.RpgMemberCreateNestedManyWithoutUserInput
+  characters?: Prisma.RpgCharacterCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -249,6 +253,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   rpgs?: Prisma.RpgUncheckedCreateNestedManyWithoutOwnerInput
   rpgMembers?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUpdateInput = {
@@ -259,6 +264,7 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rpgs?: Prisma.RpgUpdateManyWithoutOwnerNestedInput
   rpgMembers?: Prisma.RpgMemberUpdateManyWithoutUserNestedInput
+  characters?: Prisma.RpgCharacterUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -269,6 +275,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rpgs?: Prisma.RpgUncheckedUpdateManyWithoutOwnerNestedInput
   rpgMembers?: Prisma.RpgMemberUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -324,6 +331,11 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -344,6 +356,22 @@ export type UserUpdateOneRequiredWithoutRpgsNestedInput = {
   upsert?: Prisma.UserUpsertWithoutRpgsInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRpgsInput, Prisma.UserUpdateWithoutRpgsInput>, Prisma.UserUncheckedUpdateWithoutRpgsInput>
+}
+
+export type UserCreateNestedOneWithoutCharactersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCharactersInput, Prisma.UserUncheckedCreateWithoutCharactersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCharactersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCharactersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCharactersInput, Prisma.UserUncheckedCreateWithoutCharactersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCharactersInput
+  upsert?: Prisma.UserUpsertWithoutCharactersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCharactersInput, Prisma.UserUpdateWithoutCharactersInput>, Prisma.UserUncheckedUpdateWithoutCharactersInput>
 }
 
 export type UserCreateNestedOneWithoutRpgMembersInput = {
@@ -367,6 +395,7 @@ export type UserCreateWithoutRpgsInput = {
   passwordHash: string
   createdAt?: Date | string
   rpgMembers?: Prisma.RpgMemberCreateNestedManyWithoutUserInput
+  characters?: Prisma.RpgCharacterCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateWithoutRpgsInput = {
@@ -376,6 +405,7 @@ export type UserUncheckedCreateWithoutRpgsInput = {
   passwordHash: string
   createdAt?: Date | string
   rpgMembers?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserCreateOrConnectWithoutRpgsInput = {
@@ -401,6 +431,7 @@ export type UserUpdateWithoutRpgsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rpgMembers?: Prisma.RpgMemberUpdateManyWithoutUserNestedInput
+  characters?: Prisma.RpgCharacterUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRpgsInput = {
@@ -409,6 +440,63 @@ export type UserUncheckedUpdateWithoutRpgsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rpgMembers?: Prisma.RpgMemberUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserCreateWithoutCharactersInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  rpgs?: Prisma.RpgCreateNestedManyWithoutOwnerInput
+  rpgMembers?: Prisma.RpgMemberCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCharactersInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  rpgs?: Prisma.RpgUncheckedCreateNestedManyWithoutOwnerInput
+  rpgMembers?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCharactersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCharactersInput, Prisma.UserUncheckedCreateWithoutCharactersInput>
+}
+
+export type UserUpsertWithoutCharactersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCharactersInput, Prisma.UserUncheckedUpdateWithoutCharactersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCharactersInput, Prisma.UserUncheckedCreateWithoutCharactersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCharactersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCharactersInput, Prisma.UserUncheckedUpdateWithoutCharactersInput>
+}
+
+export type UserUpdateWithoutCharactersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rpgs?: Prisma.RpgUpdateManyWithoutOwnerNestedInput
+  rpgMembers?: Prisma.RpgMemberUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCharactersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rpgs?: Prisma.RpgUncheckedUpdateManyWithoutOwnerNestedInput
   rpgMembers?: Prisma.RpgMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -419,6 +507,7 @@ export type UserCreateWithoutRpgMembersInput = {
   passwordHash: string
   createdAt?: Date | string
   rpgs?: Prisma.RpgCreateNestedManyWithoutOwnerInput
+  characters?: Prisma.RpgCharacterCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateWithoutRpgMembersInput = {
@@ -428,6 +517,7 @@ export type UserUncheckedCreateWithoutRpgMembersInput = {
   passwordHash: string
   createdAt?: Date | string
   rpgs?: Prisma.RpgUncheckedCreateNestedManyWithoutOwnerInput
+  characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserCreateOrConnectWithoutRpgMembersInput = {
@@ -453,6 +543,7 @@ export type UserUpdateWithoutRpgMembersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rpgs?: Prisma.RpgUpdateManyWithoutOwnerNestedInput
+  characters?: Prisma.RpgCharacterUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRpgMembersInput = {
@@ -462,6 +553,7 @@ export type UserUncheckedUpdateWithoutRpgMembersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rpgs?: Prisma.RpgUncheckedUpdateManyWithoutOwnerNestedInput
+  characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 
@@ -472,11 +564,13 @@ export type UserUncheckedUpdateWithoutRpgMembersInput = {
 export type UserCountOutputType = {
   rpgs: number
   rpgMembers: number
+  characters: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rpgs?: boolean | UserCountOutputTypeCountRpgsArgs
   rpgMembers?: boolean | UserCountOutputTypeCountRpgMembersArgs
+  characters?: boolean | UserCountOutputTypeCountCharactersArgs
 }
 
 /**
@@ -503,6 +597,13 @@ export type UserCountOutputTypeCountRpgMembersArgs<ExtArgs extends runtime.Types
   where?: Prisma.RpgMemberWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCharactersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RpgCharacterWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -512,6 +613,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   rpgs?: boolean | Prisma.User$rpgsArgs<ExtArgs>
   rpgMembers?: boolean | Prisma.User$rpgMembersArgs<ExtArgs>
+  characters?: boolean | Prisma.User$charactersArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -543,6 +645,7 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rpgs?: boolean | Prisma.User$rpgsArgs<ExtArgs>
   rpgMembers?: boolean | Prisma.User$rpgMembersArgs<ExtArgs>
+  characters?: boolean | Prisma.User$charactersArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -553,6 +656,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     rpgs: Prisma.$RpgPayload<ExtArgs>[]
     rpgMembers: Prisma.$RpgMemberPayload<ExtArgs>[]
+    characters: Prisma.$RpgCharacterPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -956,6 +1060,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   rpgs<T extends Prisma.User$rpgsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$rpgsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   rpgMembers<T extends Prisma.User$rpgMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$rpgMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  characters<T extends Prisma.User$charactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$charactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgCharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1423,6 +1528,30 @@ export type User$rpgMembersArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.RpgMemberScalarFieldEnum | Prisma.RpgMemberScalarFieldEnum[]
+}
+
+/**
+ * User.characters
+ */
+export type User$charactersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RpgCharacter
+   */
+  select?: Prisma.RpgCharacterSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RpgCharacter
+   */
+  omit?: Prisma.RpgCharacterOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RpgCharacterInclude<ExtArgs> | null
+  where?: Prisma.RpgCharacterWhereInput
+  orderBy?: Prisma.RpgCharacterOrderByWithRelationInput | Prisma.RpgCharacterOrderByWithRelationInput[]
+  cursor?: Prisma.RpgCharacterWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RpgCharacterScalarFieldEnum | Prisma.RpgCharacterScalarFieldEnum[]
 }
 
 /**
