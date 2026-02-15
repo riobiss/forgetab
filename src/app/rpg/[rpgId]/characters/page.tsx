@@ -242,6 +242,12 @@ export default async function CharactersPage({ params, searchParams }: Params) {
                   <Link href={`/rpg/${rpgId}/characters/${character.id}`}>Ver ficha</Link>
                   {userId &&
                   (dbRpg?.ownerId === userId || character.createdByUserId === userId) ? (
+                    <Link href={`/rpg/${rpgId}/characters/${character.id}/inventory`}>
+                      Inventario
+                    </Link>
+                  ) : null}
+                  {userId &&
+                  (dbRpg?.ownerId === userId || character.createdByUserId === userId) ? (
                     <Link href={`/rpg/${rpgId}/characters/novo?characterId=${character.id}`}>
                       Editar
                     </Link>

@@ -95,6 +95,7 @@ model BaseItem {
   rarity    BaseItemRarity @default(common)
   createdAt DateTime       @default(now()) @map("created_at")
   updatedAt DateTime       @default(now()) @map("updated_at")
+  inventories RpgCharacterInventoryItem[]
 
   @@index([rpgId])
   @@map("baseitems")
@@ -132,11 +133,31 @@ model RpgCharacter {
   attributes    Json
   createdAt     DateTime         @default(now()) @map("created_at")
   updatedAt     DateTime         @default(now()) @map("updated_at")
+  inventoryItems RpgCharacterInventoryItem[]
 
   @@index([rpgId])
   @@index([createdByUserId])
   @@index([rpgId, createdByUserId])
   @@map("rpg_characters")
+}
+
+model RpgCharacterInventoryItem {
+  id          String       @id @default(cuid())
+  rpgId       String       @map("rpg_id")
+  characterId String       @map("character_id")
+  baseItemId  String       @map("base_item_id")
+  quantity    Int          @default(1)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @default(now()) @map("updated_at")
+  rpg         Rpg          @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  character   RpgCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  baseItem    BaseItem     @relation(fields: [baseItemId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, baseItemId])
+  @@index([rpgId])
+  @@index([characterId])
+  @@index([baseItemId])
+  @@map("rpg_character_inventory_items")
 }
 
 model RpgStatusTemplate {

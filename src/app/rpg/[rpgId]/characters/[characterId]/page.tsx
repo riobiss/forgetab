@@ -197,6 +197,12 @@ export default async function CharactersPage({ params }: Params) {
           </div>
 
           <div className={styles.actionLinks}>
+            <Link
+              className={styles.actionLink}
+              href={`/rpg/${rpgId}/characters/${characterId}/inventory`}
+            >
+              Inventario
+            </Link>
             <Link className={styles.actionLink} href={`/rpg/${rpgId}/characters`}>
               Voltar para personagens
             </Link>
@@ -220,7 +226,9 @@ export default async function CharactersPage({ params }: Params) {
           />
           <div className={styles.identityInfo}>
             {character.identity.nickname && (
-              <p className={styles.nickname}>"{character.identity.nickname}"</p>
+              <p className={styles.nickname}>
+                &quot;{character.identity.nickname}&quot;
+              </p>
             )}
 
             <div className={styles.actionLinks}>
