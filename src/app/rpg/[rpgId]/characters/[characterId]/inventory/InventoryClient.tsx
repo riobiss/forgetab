@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react"
 import styles from "./page.module.css"
+import InventoryCards from "./components/InventoryCards"
+import { InventoryCardItem, InventoryRarity } from "./types"
 
 type InventoryItem = {
   id: string
@@ -11,7 +13,7 @@ type InventoryItem = {
   quantity: number
   itemName: string
   itemType: string
-  itemRarity: "common" | "uncommon" | "rare" | "epic" | "legendary"
+  itemRarity: InventoryRarity
 }
 
 type InventoryPayload = {
@@ -38,6 +40,14 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
   const [error, setError] = useState("")
 
   const hasInventory = inventory.length > 0
+  const cardItems: InventoryCardItem[] = inventory.map((item) => ({
+    id: item.id,
+    title: item.itemName,
+    rarityLabel: rarityLabel[item.itemRarity],
+    rarityClass: item.itemRarity,
+    quantity: item.quantity,
+    secondaryLine: `Tipo: ${item.itemType}`,
+  }))
 
   const loadInventory = useCallback(async () => {
     try {
@@ -72,31 +82,19 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>Itens do Personagem</h2>
 
-        {loading ? <p className={styles.emptyState}>Carregando inventario...</p> : null}
-        {error ? <p className={styles.error}>{error}</p> : null}
+      {loading ? <p className={styles.emptyState}>Carregando inventario...</p> : null}
+      {error ? <p className={styles.error}>{error}</p> : null}
 
-        {!loading && !error && !hasInventory ? (
-          <p className={styles.emptyState}>Nenhum item no inventario.</p>
-        ) : null}
+      {!loading && !error && !hasInventory ? (
+        <p className={styles.emptyState}>Nenhum item no inventario.</p>
+      ) : null}
 
-        {!loading && !error && hasInventory ? (
-          <div className={styles.cardGrid}>
-            {inventory.map((item) => (
-              <div
-                key={item.id}
-                className={`${styles.card} ${styles[item.itemRarity]}`}
-              >
-                <div className={styles.cardHeader}>
-                  <h3 className={styles.cardTitle}>{item.itemName}</h3>
-                  <span>{rarityLabel[item.itemRarity]}</span>
-                </div>
-
-                <p className={styles.cardBodyItalic}>Tipo: {item.itemType}</p>
-                <span>Quantidade: {item.quantity}</span>
-              </div>
-            ))}
-          </div>
-        ) : null}
+      {!loading && !error && hasInventory ? (
+        <InventoryCards
+          items={cardItems}
+          emptyMessage="Nenhum item no inventario."
+        />
+      ) : null}
     </div>
   )
 }
