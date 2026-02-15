@@ -8,6 +8,7 @@ import {
 } from "@/lib/rpg/attributeCatalog"
 import slugify from "@/utils/slugify"
 import { normalizeClassRaceTemplates } from "@/lib/rpg/classRaceBonuses"
+import { normalizeRaceLore } from "@/lib/rpg/raceLore"
 
 type RouteContext = {
   params: Promise<{
@@ -22,6 +23,7 @@ type RaceTemplateRow = {
   position: number
   attributeBonuses: Prisma.JsonValue
   skillBonuses: Prisma.JsonValue
+  lore?: Prisma.JsonValue
 }
 
 async function getUserIdFromToken(request: NextRequest) {
@@ -161,12 +163,26 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
-    const rows = await prisma.$queryRaw<RaceTemplateRow[]>(Prisma.sql`
-      SELECT id, key, label, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
-      FROM rpg_race_templates
-      WHERE rpg_id = ${rpgId}
-      ORDER BY position ASC
-    `)
+    let rows: RaceTemplateRow[] = []
+    try {
+      rows = await prisma.$queryRaw<RaceTemplateRow[]>(Prisma.sql`
+        SELECT id, key, label, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses", lore
+        FROM rpg_race_templates
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `)
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.includes('column "lore" does not exist')) {
+        throw error
+      }
+
+      rows = await prisma.$queryRaw<RaceTemplateRow[]>(Prisma.sql`
+        SELECT id, key, label, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
+        FROM rpg_race_templates
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `)
+    }
 
     const races = rows.map((item) => ({
       id: item.id,
@@ -175,11 +191,16 @@ export async function GET(request: NextRequest, context: RouteContext) {
       position: item.position,
       attributeBonuses: parseJsonRecord(item.attributeBonuses),
       skillBonuses: parseJsonRecord(item.skillBonuses),
+      lore: normalizeRaceLore(item.lore, item.label),
     }))
 
     return NextResponse.json({ races }, { status: 200 })
   } catch (error) {
-    if (error instanceof Error && error.message.includes('relation "rpg_race_templates" does not exist')) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('relation "rpg_race_templates" does not exist') ||
+        error.message.includes('column "lore" of relation "rpg_race_templates" does not exist'))
+    ) {
       return NextResponse.json(
         { message: "Tabela de racas nao existe no banco. Rode a migration." },
         { status: 500 },
@@ -206,8 +227,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     const allowedAttributeKeys = await getAllowedAttributeKeys(rpgId)
     const allowedSkillKeys = await getAllowedSkillKeys(rpgId)
     const body = (await request.json()) as { races?: unknown }
+    const incomingRaces = Array.isArray(body.races) ? body.races : []
     const parsed = normalizeClassRaceTemplates(
-      body.races ?? [],
+      incomingRaces,
       allowedAttributeKeys,
       allowedSkillKeys,
     )
@@ -222,20 +244,28 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
     if (parsed.values.length > 0) {
       const used = new Set<string>()
-      const values = parsed.values.map((item, index) =>
-        Prisma.sql`(
+      const values = parsed.values.map((item, index) => {
+        const source = incomingRaces[index]
+        const sourceLore =
+          source && typeof source === "object" && !Array.isArray(source)
+            ? (source as { lore?: unknown }).lore
+            : undefined
+        const lore = normalizeRaceLore(sourceLore, item.label)
+
+        return Prisma.sql`(
           ${crypto.randomUUID()},
           ${rpgId},
           ${createUniqueKey(item.label, used)},
           ${item.label},
           ${JSON.stringify(item.attributeBonuses)}::jsonb,
           ${JSON.stringify(item.skillBonuses)}::jsonb,
+          ${JSON.stringify(lore)}::jsonb,
           ${index}
-        )`,
-      )
+        )`
+      })
 
       await prisma.$executeRaw(Prisma.sql`
-        INSERT INTO rpg_race_templates (id, rpg_id, key, label, attribute_bonuses, skill_bonuses, position)
+        INSERT INTO rpg_race_templates (id, rpg_id, key, label, attribute_bonuses, skill_bonuses, lore, position)
         VALUES ${Prisma.join(values)}
       `)
     }

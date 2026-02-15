@@ -97,7 +97,9 @@ export default async function RacesPage({ params }: Params) {
       <section className={styles.grid}>
         {dbRaces.map((race) => (
           <article key={race.id} className={styles.card}>
-            <h2>{race.label}</h2>
+            <Link className={styles.dbRaceLink} href={`/rpg/${rpgId}/races/${race.key}`}>
+              <h2>{race.label}</h2>
+            </Link>
             {isOwner ? (
               <div className={styles.cardActions}>
                 <Link
