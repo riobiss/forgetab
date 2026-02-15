@@ -62,6 +62,107 @@ async function getUserIdFromToken(request: NextRequest) {
   }
 }
 
+function getImageKitConfig() {
+  const privateKey = process.env.IMAGEKIT_PRIVATE_KEY
+  const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT
+
+  if (!privateKey || !urlEndpoint) {
+    return { ok: false as const }
+  }
+
+  return { ok: true as const, privateKey, urlEndpoint }
+}
+
+function parseHost(value: string) {
+  try {
+    return new URL(value).host.toLowerCase()
+  } catch {
+    return null
+  }
+}
+
+function normalizeUrlPath(value: string) {
+  try {
+    return new URL(value).pathname
+  } catch {
+    return null
+  }
+}
+
+function extractFileNameFromUrl(value: string) {
+  const path = normalizeUrlPath(value)
+  if (!path) return null
+
+  const parts = path.split("/").filter(Boolean)
+  if (parts.length === 0) return null
+
+  return parts[parts.length - 1]
+}
+
+async function deleteImageKitFileByUrl(
+  privateKey: string,
+  urlEndpoint: string,
+  rawUrl: string | null,
+) {
+  if (!rawUrl) return
+
+  const imageUrl = rawUrl.trim()
+  if (!imageUrl) return
+
+  const endpointHost = parseHost(urlEndpoint)
+  const imageUrlHost = parseHost(imageUrl)
+  if (!endpointHost || !imageUrlHost || endpointHost !== imageUrlHost) {
+    return
+  }
+
+  const fileName = extractFileNameFromUrl(imageUrl)
+  if (!fileName) return
+
+  const auth = Buffer.from(`${privateKey}:`, "utf8").toString("base64")
+  const escapedFileName = fileName.replace(/"/g, '\\"')
+  const searchQuery = encodeURIComponent(`name = "${escapedFileName}"`)
+  const listResponse = await fetch(
+    `https://api.imagekit.io/v1/files?limit=100&searchQuery=${searchQuery}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${auth}`,
+      },
+    },
+  )
+
+  if (!listResponse.ok) {
+    throw new Error("Falha ao listar imagem no ImageKit.")
+  }
+
+  const listPayload = (await listResponse.json()) as Array<{
+    fileId?: string
+    url?: string
+  }>
+
+  const normalizedImagePath = normalizeUrlPath(imageUrl)
+  const target = listPayload.find((item) => {
+    if (!item.fileId || !item.url) return false
+    if (item.url === imageUrl) return true
+
+    const itemPath = normalizeUrlPath(item.url)
+    return Boolean(normalizedImagePath && itemPath && itemPath === normalizedImagePath)
+  })
+
+  if (!target?.fileId) return
+
+  const deleteResponse = await fetch(`https://api.imagekit.io/v1/files/${target.fileId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Basic ${auth}`,
+    },
+  })
+
+  if (!deleteResponse.ok && deleteResponse.status !== 404) {
+    throw new Error("Falha ao remover imagem no ImageKit.")
+  }
+}
+
 function validateAttributesPayload(
   incoming: unknown,
   template: AttributeTemplateRow[],
@@ -719,6 +820,27 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     }
 
     const isOwner = permission.isOwner
+    let imageUrl: string | null = null
+
+    try {
+      const currentCharacter = await prisma.$queryRaw<Array<{ image: string | null }>>(Prisma.sql`
+        SELECT image
+        FROM rpg_characters
+        WHERE id = ${characterId}
+          AND rpg_id = ${rpgId}
+        LIMIT 1
+      `)
+      imageUrl = currentCharacter[0]?.image ?? null
+    } catch (error) {
+      if (
+        !(
+          error instanceof Error &&
+          error.message.includes('column "image" does not exist')
+        )
+      ) {
+        throw error
+      }
+    }
 
     const deleted = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
       DELETE FROM rpg_characters
@@ -734,6 +856,19 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     if (deleted.length === 0) {
       return NextResponse.json({ message: "Personagem nao encontrado." }, { status: 404 })
+    }
+
+    const imageKitConfig = getImageKitConfig()
+    if (imageKitConfig.ok) {
+      try {
+        await deleteImageKitFileByUrl(
+          imageKitConfig.privateKey,
+          imageKitConfig.urlEndpoint,
+          imageUrl,
+        )
+      } catch {
+        // Nao bloqueia a exclusao do personagem caso a limpeza da imagem falhe.
+      }
     }
 
     return NextResponse.json({ message: "Personagem deletado com sucesso." }, { status: 200 })
