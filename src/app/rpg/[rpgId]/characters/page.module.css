@@ -63,6 +63,83 @@
   margin-bottom: 1rem;
 }
 
+.permissionCard {
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.permissionCard h3 {
+  margin: 0 0 0.65rem;
+}
+
+.permissionInfo {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.requestList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.requestItem {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.7rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.requestItem p {
+  margin: 0.15rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.requestActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.requestActions button,
+.primaryActionButton {
+  border: none;
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--accent-main);
+  color: var(--bg-main);
+}
+
+.requestActions button:disabled,
+.primaryActionButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.requestActions .rejectButton {
+  background: #ef4444;
+  color: #fff;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-block;
+  margin-top: 0.65rem;
+  text-decoration: none;
+  font-weight: 700;
+  color: var(--accent-main);
+}
+
 .dbSection h2 {
   margin: 0 0 0.75rem;
   color: var(--text-main);
@@ -122,6 +199,28 @@
   text-decoration: none;
   color: var(--accent-main);
   font-weight: 700;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.deleteButton {
+  border: 1px solid #ef4444;
+  background: transparent;
+  color: #ef4444;
+  border-radius: 8px;
+  padding: 0.35rem 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.deleteButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .dbCard .statsGrid p {

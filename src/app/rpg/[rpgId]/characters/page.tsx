@@ -9,6 +9,8 @@ import { cookies } from "next/headers"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { notFound } from "next/navigation"
 import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
+import CharacterDeleteButton from "./components/CharacterDeleteButton"
+import CharacterCreationPermission from "./components/CharacterCreationPermission"
 
 type Params = {
   params: Promise<{
@@ -23,6 +25,7 @@ type DbCharacterRow = {
   id: string
   name: string
   characterType: "player" | "npc" | "monster"
+  createdByUserId: string | null
   life: number
   defense: number
   mana: number
@@ -69,6 +72,10 @@ export default async function CharactersPage({ params, searchParams }: Params) {
     | null = null
   let dbCharacters: DbCharacterRow[] = []
   let privateBlocked = false
+  let canCreateCharacter = false
+  let isOwner = false
+  let isAcceptedMember = false
+  let ownCharacterId: string | null = null
 
   const userId = await getUserIdFromCookie()
 
@@ -79,8 +86,7 @@ export default async function CharactersPage({ params, searchParams }: Params) {
     })
 
     if (dbRpg) {
-      const isOwner = userId === dbRpg.ownerId
-      let isAcceptedMember = false
+      isOwner = userId === dbRpg.ownerId
 
       if (userId && !isOwner) {
         const membership = await prisma.$queryRaw<MemberStatusRow[]>(Prisma.sql`
@@ -97,8 +103,21 @@ export default async function CharactersPage({ params, searchParams }: Params) {
       if (dbRpg.visibility === "private" && !isOwner && !isAcceptedMember) {
         privateBlocked = true
       } else {
+        canCreateCharacter = Boolean(userId && (isOwner || isAcceptedMember))
+
         dbCharacters = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
-          SELECT id, name, character_type AS "characterType", life, defense, mana, stamina, sanity, statuses, attributes
+          SELECT
+            id,
+            name,
+            character_type AS "characterType",
+            created_by_user_id AS "createdByUserId",
+            life,
+            defense,
+            mana,
+            stamina,
+            sanity,
+            statuses,
+            attributes
           FROM rpg_characters
           WHERE rpg_id = ${rpgId}
             ${
@@ -108,11 +127,24 @@ export default async function CharactersPage({ params, searchParams }: Params) {
             }
           ORDER BY created_at DESC
         `)
+
+        if (userId) {
+          const ownCharacter = dbCharacters.find(
+            (character) =>
+              character.characterType === "player" &&
+              character.createdByUserId === userId,
+          )
+          ownCharacterId = ownCharacter?.id ?? null
+        }
       }
     }
   } catch {
     dbRpg = null
     dbCharacters = []
+    canCreateCharacter = false
+    isOwner = false
+    isAcceptedMember = false
+    ownCharacterId = null
   }
 
   if (privateBlocked) {
@@ -130,14 +162,12 @@ export default async function CharactersPage({ params, searchParams }: Params) {
     return <div>RPG nao encontrado</div>
   }
 
-  const canCreateCharacter = Boolean(dbRpg && userId === dbRpg.ownerId)
-
   return (
     <main className={styles.container}>
       <div className={styles.topbar}>
         <h1 className={styles.title}>Personagens</h1>
 
-        {canCreateCharacter ? (
+        {canCreateCharacter && isOwner ? (
           <Link href={`/rpg/${rpgId}/characters/novo`} className={styles.createButton}>
             Criar personagem
           </Link>
@@ -171,6 +201,15 @@ export default async function CharactersPage({ params, searchParams }: Params) {
         </Link>
       </div>
 
+      {canCreateCharacter ? (
+        <CharacterCreationPermission
+          rpgId={rpgId}
+          isOwner={isOwner}
+          isAcceptedMember={isAcceptedMember}
+          ownCharacterId={ownCharacterId}
+        />
+      ) : null}
+
       {dbCharacters.length > 0 ? (
         <section className={styles.dbSection}>
           <h2>Personagens criados no seu RPG</h2>
@@ -199,9 +238,19 @@ export default async function CharactersPage({ params, searchParams }: Params) {
                   {Object.keys((character.attributes as Record<string, unknown>) ?? {}).length}{" "}
                   atributos configurados
                 </p>
-                <Link href={`/rpg/${rpgId}/characters/${character.id}`}>
-                  Ver ficha
-                </Link>
+                <div className={styles.cardActions}>
+                  <Link href={`/rpg/${rpgId}/characters/${character.id}`}>Ver ficha</Link>
+                  {userId &&
+                  (dbRpg?.ownerId === userId || character.createdByUserId === userId) ? (
+                    <Link href={`/rpg/${rpgId}/characters/novo?characterId=${character.id}`}>
+                      Editar
+                    </Link>
+                  ) : null}
+                  {userId &&
+                  (dbRpg?.ownerId === userId || character.createdByUserId === userId) ? (
+                    <CharacterDeleteButton rpgId={rpgId} characterId={character.id} />
+                  ) : null}
+                </div>
               </article>
             ))}
           </div>
