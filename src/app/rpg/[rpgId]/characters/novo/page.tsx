@@ -38,9 +38,33 @@ type SkillTemplatePayload = {
   message?: string
 }
 
+type RpgConfigPayload = {
+  rpg?: {
+    useClassRaceBonuses?: boolean
+  }
+  message?: string
+}
+
+type IdentityTemplate = {
+  key: string
+  label: string
+}
+
+type RacesPayload = {
+  races?: IdentityTemplate[]
+  message?: string
+}
+
+type ClassesPayload = {
+  classes?: IdentityTemplate[]
+  message?: string
+}
+
 type CharacterSummary = {
   id: string
   name: string
+  raceKey?: string | null
+  classKey?: string | null
   characterType: "player" | "npc" | "monster"
   visibility: "private" | "public"
   createdByUserId?: string | null
@@ -76,6 +100,11 @@ export default function NewCharacterPage() {
   const [statusValues, setStatusValues] = useState<Record<string, number>>({})
   const [skillValues, setSkillValues] = useState<Record<string, number>>({})
   const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null)
+  const [useClassRaceBonuses, setUseClassRaceBonuses] = useState(false)
+  const [raceTemplates, setRaceTemplates] = useState<IdentityTemplate[]>([])
+  const [classTemplates, setClassTemplates] = useState<IdentityTemplate[]>([])
+  const [raceKey, setRaceKey] = useState("")
+  const [classKey, setClassKey] = useState("")
   const [characterType, setCharacterType] = useState<CharacterSummary["characterType"]>(
     "player",
   )
@@ -93,17 +122,23 @@ export default function NewCharacterPage() {
         setLoading(true)
         setError("")
 
-        const [attributesResponse, statusesResponse, skillsResponse, charactersResponse] = await Promise.all([
+        const [attributesResponse, statusesResponse, skillsResponse, charactersResponse, rpgResponse, racesResponse, classesResponse] = await Promise.all([
           fetch(`/api/rpg/${rpgId}/attributes`),
           fetch(`/api/rpg/${rpgId}/statuses`),
           fetch(`/api/rpg/${rpgId}/skills`),
           fetch(`/api/rpg/${rpgId}/characters`),
+          fetch(`/api/rpg/${rpgId}`),
+          fetch(`/api/rpg/${rpgId}/races`),
+          fetch(`/api/rpg/${rpgId}/classes`),
         ])
 
         const attributesPayload = (await attributesResponse.json()) as TemplatePayload
         const statusesPayload = (await statusesResponse.json()) as StatusTemplatePayload
         const skillsPayload = (await skillsResponse.json()) as SkillTemplatePayload
         const charactersPayload = (await charactersResponse.json()) as CharactersPayload
+        const rpgPayload = (await rpgResponse.json()) as RpgConfigPayload
+        const racesPayload = (await racesResponse.json()) as RacesPayload
+        const classesPayload = (await classesResponse.json()) as ClassesPayload
 
         if (!attributesResponse.ok) {
           setError(
@@ -126,10 +161,24 @@ export default function NewCharacterPage() {
           setError(charactersPayload.message ?? "Nao foi possivel carregar os personagens.")
           return
         }
+        if (!rpgResponse.ok) {
+          setError(rpgPayload.message ?? "Nao foi possivel carregar configuracoes do RPG.")
+          return
+        }
+        if (!racesResponse.ok) {
+          setError(racesPayload.message ?? "Nao foi possivel carregar racas.")
+          return
+        }
+        if (!classesResponse.ok) {
+          setError(classesPayload.message ?? "Nao foi possivel carregar classes.")
+          return
+        }
 
         const attributeTemplate = attributesPayload.attributes ?? []
         const statusTemplate = statusesPayload.statuses ?? []
         const skillTemplate = skillsPayload.skills ?? []
+        const races = racesPayload.races ?? []
+        const classes = classesPayload.classes ?? []
         const allCharacters = charactersPayload.characters ?? []
         const editTarget = characterId
           ? allCharacters.find((character) => character.id === characterId)
@@ -143,6 +192,9 @@ export default function NewCharacterPage() {
         setAttributes(attributeTemplate)
         setStatuses(statusTemplate)
         setSkills(skillTemplate)
+        setRaceTemplates(races)
+        setClassTemplates(classes)
+        setUseClassRaceBonuses(Boolean(rpgPayload.rpg?.useClassRaceBonuses))
         setIsOwner(Boolean(charactersPayload.isOwner))
 
         const nextAttributes = attributeTemplate.reduce<Record<string, number>>((acc, item) => {
@@ -163,6 +215,8 @@ export default function NewCharacterPage() {
         setStatusValues(nextStatuses)
         setSkillValues(nextSkills)
         setName(editTarget?.name ?? "")
+        setRaceKey(editTarget?.raceKey ?? "")
+        setClassKey(editTarget?.classKey ?? "")
         setCharacterType(editTarget?.characterType ?? "player")
         setCharacterVisibility(editTarget?.visibility ?? "public")
         setEditingCharacterId(editTarget?.id ?? null)
@@ -196,6 +250,14 @@ export default function NewCharacterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
+          ...(isEditing
+            ? {}
+            : useClassRaceBonuses
+              ? {
+                  ...(raceKey ? { raceKey } : {}),
+                  ...(classKey ? { classKey } : {}),
+                }
+              : {}),
           ...(isEditing ? {} : { characterType }),
           ...(isEditing ? { visibility: characterVisibility } : {}),
           statuses: statusValues,
@@ -289,6 +351,66 @@ export default function NewCharacterPage() {
                   required
                 />
               </label>
+
+              {useClassRaceBonuses ? (
+                <>
+                  {raceTemplates.length > 0 ? (
+                    <label className={styles.field}>
+                      <span>Raca</span>
+                      {editingCharacterId ? (
+                        <input
+                          type="text"
+                          value={
+                            raceTemplates.find((item) => item.key === raceKey)?.label ??
+                            "Sem raca"
+                          }
+                          readOnly
+                        />
+                      ) : (
+                        <select
+                          value={raceKey}
+                          onChange={(event) => setRaceKey(event.target.value)}
+                        >
+                          <option value="">Sem raca</option>
+                          {raceTemplates.map((item) => (
+                            <option key={item.key} value={item.key}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </label>
+                  ) : null}
+
+                  {classTemplates.length > 0 ? (
+                    <label className={styles.field}>
+                      <span>Classe</span>
+                      {editingCharacterId ? (
+                        <input
+                          type="text"
+                          value={
+                            classTemplates.find((item) => item.key === classKey)?.label ??
+                            "Sem classe"
+                          }
+                          readOnly
+                        />
+                      ) : (
+                        <select
+                          value={classKey}
+                          onChange={(event) => setClassKey(event.target.value)}
+                        >
+                          <option value="">Sem classe</option>
+                          {classTemplates.map((item) => (
+                            <option key={item.key} value={item.key}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </label>
+                  ) : null}
+                </>
+              ) : null}
 
               <label className={styles.field}>
                 <span>Tipo</span>
@@ -406,7 +528,11 @@ export default function NewCharacterPage() {
           <div className={styles.actions}>
             <button
               type="submit"
-              disabled={saving || attributes.length === 0 || statuses.length === 0}
+              disabled={
+                saving ||
+                attributes.length === 0 ||
+                statuses.length === 0
+              }
             >
               {saving
                 ? editingCharacterId

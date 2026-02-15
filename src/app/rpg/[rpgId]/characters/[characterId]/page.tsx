@@ -19,6 +19,8 @@ type Params = {
 type DbCharacterRow = {
   id: string
   name: string
+  raceKey: string | null
+  classKey: string | null
   characterType: "player" | "npc" | "monster"
   visibility: "private" | "public"
   createdByUserId: string | null
@@ -138,6 +140,8 @@ export default async function CharactersPage({ params }: Params) {
         SELECT
           id,
           name,
+          race_key AS "raceKey",
+          class_key AS "classKey",
           character_type AS "characterType",
           visibility,
           created_by_user_id AS "createdByUserId",
@@ -202,6 +206,8 @@ export default async function CharactersPage({ params }: Params) {
                     ? "NPC"
                     : "Monstro"}
               </p>
+              {row.raceKey ? <p>Raca: {row.raceKey}</p> : null}
+              {row.classKey ? <p>Classe: {row.classKey}</p> : null}
               <p>Criado em: {formatDateInBrasilia(row.createdAt)}</p>
             </div>
 
