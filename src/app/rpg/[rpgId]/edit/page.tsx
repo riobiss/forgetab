@@ -36,6 +36,15 @@ type StatusTemplatePayload = {
   message?: string
 }
 
+type SkillTemplatePayload = {
+  skills?: Array<{
+    key: string
+    label: string
+    position: number
+  }>
+  message?: string
+}
+
 export default function EditRpgPage() {
   const params = useParams<{ rpgId: string }>()
   const router = useRouter()
@@ -60,6 +69,14 @@ export default function EditRpgPage() {
   const [statusesSaving, setStatusesSaving] = useState(false)
   const [statusesError, setStatusesError] = useState("")
   const [statusesSuccess, setStatusesSuccess] = useState("")
+  const [skillTemplates, setSkillTemplates] = useState<
+    Array<{ key: string; label: string; position: number }>
+  >([])
+  const [newSkillLabel, setNewSkillLabel] = useState("")
+  const [skillsLoading, setSkillsLoading] = useState(false)
+  const [skillsSaving, setSkillsSaving] = useState(false)
+  const [skillsError, setSkillsError] = useState("")
+  const [skillsSuccess, setSkillsSuccess] = useState("")
 
   const selectedCount = useMemo(
     () => selectedAttributeKeys.length,
@@ -68,6 +85,10 @@ export default function EditRpgPage() {
   const selectedStatusCount = useMemo(
     () => selectedStatusKeys.length,
     [selectedStatusKeys],
+  )
+  const selectedSkillCount = useMemo(
+    () => skillTemplates.length,
+    [skillTemplates],
   )
 
   useEffect(() => {
@@ -141,10 +162,37 @@ export default function EditRpgPage() {
       }
     }
 
+    async function loadSkillTemplate() {
+      try {
+        setSkillsLoading(true)
+        setSkillsError("")
+
+        const response = await fetch(`/api/rpg/${rpgId}/skills`)
+        const payload = (await response.json()) as SkillTemplatePayload
+
+        if (!response.ok) {
+          setSkillsError(payload.message ?? "Nao foi possivel carregar pericias.")
+          return
+        }
+
+        const normalized = (payload.skills ?? []).map((item, index) => ({
+          key: item.key,
+          label: item.label,
+          position: Number.isFinite(item.position) ? item.position : index,
+        }))
+        setSkillTemplates(normalized)
+      } catch {
+        setSkillsError("Erro de conexao ao carregar pericias.")
+      } finally {
+        setSkillsLoading(false)
+      }
+    }
+
     if (rpgId) {
       void loadRpg()
       void loadAttributeTemplate()
       void loadStatusTemplate()
+      void loadSkillTemplate()
     }
   }, [rpgId])
 
@@ -250,6 +298,97 @@ export default function EditRpgPage() {
 
       return [...prev, key]
     })
+  }
+
+  async function handleSaveSkills() {
+    setSkillsSaving(true)
+    setSkillsError("")
+    setSkillsSuccess("")
+
+    try {
+      const normalizedLabels = skillTemplates
+        .map((item) => item.label.trim())
+        .filter((label) => label.length > 0)
+      const invalidLabel = normalizedLabels.find((label) => label.length < 2)
+      if (invalidLabel) {
+        setSkillsError("Toda pericia precisa ter pelo menos 2 caracteres.")
+        return
+      }
+
+      const uniqueSet = new Set(
+        normalizedLabels.map((label) => label.toLocaleLowerCase("pt-BR")),
+      )
+      if (uniqueSet.size !== normalizedLabels.length) {
+        setSkillsError("Nao repita o mesmo nome de pericia.")
+        return
+      }
+
+      const response = await fetch(`/api/rpg/${rpgId}/skills`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skills: normalizedLabels }),
+      })
+
+      const payload = (await response.json()) as { message?: string }
+
+      if (!response.ok) {
+        setSkillsError(payload.message ?? "Nao foi possivel salvar as pericias.")
+        return
+      }
+
+      setSkillsSuccess("Padrao de pericias salvo com sucesso.")
+    } catch {
+      setSkillsError("Erro de conexao ao salvar pericias.")
+    } finally {
+      setSkillsSaving(false)
+    }
+  }
+
+  function addSkill() {
+    const label = newSkillLabel.trim()
+
+    if (label.length < 2) {
+      setSkillsError("Digite um nome de pericia com pelo menos 2 caracteres.")
+      return
+    }
+
+    const alreadyExists = skillTemplates.some(
+      (item) => item.label.toLocaleLowerCase("pt-BR") === label.toLocaleLowerCase("pt-BR"),
+    )
+    if (alreadyExists) {
+      setSkillsError("Essa pericia ja foi adicionada.")
+      return
+    }
+
+    setSkillsSuccess("")
+    setSkillsError("")
+    setSkillTemplates((prev) => [
+      ...prev,
+      {
+        key: `draft-${crypto.randomUUID()}`,
+        label,
+        position: prev.length,
+      },
+    ])
+    setNewSkillLabel("")
+  }
+
+  function updateSkillLabel(index: number, label: string) {
+    setSkillsSuccess("")
+    setSkillTemplates((prev) =>
+      prev.map((item, currentIndex) =>
+        currentIndex === index ? { ...item, label } : item,
+      ),
+    )
+  }
+
+  function removeSkill(index: number) {
+    setSkillsSuccess("")
+    setSkillTemplates((prev) =>
+      prev
+        .filter((_, currentIndex) => currentIndex !== index)
+        .map((item, currentIndex) => ({ ...item, position: currentIndex })),
+    )
   }
 
   if (loading) {
@@ -383,6 +522,59 @@ export default function EditRpgPage() {
 
               {statusesError ? <p className={styles.error}>{statusesError}</p> : null}
               {statusesSuccess ? <p className={styles.success}>{statusesSuccess}</p> : null}
+            </div>
+
+            <div className={styles.attributeTemplateSection}>
+              <h3>Padrao de Pericias do RPG</h3>
+              <p>
+                Defina quais pericias farao parte da ficha (ex.: Medicina).
+              </p>
+
+              {skillsLoading ? <p>Carregando pericias...</p> : null}
+
+              {!skillsLoading ? (
+                <div className={styles.form}>
+                  <div className={styles.actions}>
+                    <input
+                      type="text"
+                      value={newSkillLabel}
+                      onChange={(event) => setNewSkillLabel(event.target.value)}
+                      placeholder="Ex.: Medicina"
+                    />
+                    <button type="button" onClick={addSkill}>
+                      Adicionar pericia
+                    </button>
+                  </div>
+
+                  {skillTemplates.map((item, index) => (
+                    <div key={item.key} className={styles.actions}>
+                      <input
+                        type="text"
+                        value={item.label}
+                        onChange={(event) => updateSkillLabel(index, event.target.value)}
+                        placeholder="Nome da pericia"
+                      />
+                      <button type="button" onClick={() => removeSkill(index)}>
+                        Remover
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              <div className={styles.attributeActions}>
+                <span>{selectedSkillCount} pericia(s) selecionada(s)</span>
+                <button
+                  type="button"
+                  onClick={handleSaveSkills}
+                  disabled={skillsSaving || skillsLoading}
+                >
+                  {skillsSaving ? "Salvando..." : "Salvar padrao"}
+                </button>
+              </div>
+
+              {skillsError ? <p className={styles.error}>{skillsError}</p> : null}
+              {skillsSuccess ? <p className={styles.success}>{skillsSuccess}</p> : null}
             </div>
           </section>
         ) : null}
