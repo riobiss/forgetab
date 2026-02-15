@@ -179,23 +179,36 @@ export default async function CharactersPage({ params }: Params) {
         <section className={styles.card}>
           <div className={styles.titleBar}>
             <h3>{row.name}</h3>
-            {canEditCharacter ? (
-              <Link
-                className={styles.editInlineButton}
-                href={`/rpg/${rpgId}/characters/novo?characterId=${row.id}`}
-              >
-                Editar
+            <div className={styles.titleActions}>
+              <Link className={styles.editInlineButton} href={`/rpg/${rpgId}/characters`}>
+                Voltar
               </Link>
-            ) : null}
+              {canEditCharacter ? (
+                <Link
+                  className={styles.editInlineButton}
+                  href={`/rpg/${rpgId}/characters/novo?characterId=${row.id}`}
+                >
+                  Editar
+                </Link>
+              ) : null}
+            </div>
           </div>
           <div className={styles.header}>
-            <Image
-              src={row.image ?? "/images/bg-characters.jpg"}
-              alt={row.name}
-              width={150}
-              height={192}
-              priority
-            />
+            <div className={styles.imageColumn}>
+              <Image
+                src={row.image ?? "/images/bg-characters.jpg"}
+                alt={row.name}
+                width={150}
+                height={192}
+                priority
+              />
+              <Link
+                className={`${styles.actionLink} ${styles.imageActionLink}`}
+                href={`/rpg/${rpgId}/characters/${characterId}/inventory`}
+              >
+                Inventario
+              </Link>
+            </div>
           </div>
 
           <div className={styles.grid}>
@@ -256,12 +269,6 @@ export default async function CharactersPage({ params }: Params) {
           </div>
 
           <div className={styles.actionLinks}>
-            <Link
-              className={styles.actionLink}
-              href={`/rpg/${rpgId}/characters/${characterId}/inventory`}
-            >
-              Inventario
-            </Link>
             <Link className={styles.actionLink} href={`/rpg/${rpgId}/characters`}>
               Voltar para personagens
             </Link>
@@ -276,21 +283,37 @@ export default async function CharactersPage({ params }: Params) {
       <section key={character.id} className={styles.card}>
         <div className={styles.titleBar}>
           <h3>{character.identity.name}</h3>
-          <Link
-            className={styles.editInlineButton}
-            href={`/rpg/${character.meta.version}/characters/novo?characterId=${character.id}`}
-          >
-            Editar
-          </Link>
+          <div className={styles.titleActions}>
+            <Link
+              className={styles.editInlineButton}
+              href={`/rpg/${character.meta.version}/characters`}
+            >
+              Voltar
+            </Link>
+            <Link
+              className={styles.editInlineButton}
+              href={`/rpg/${character.meta.version}/characters/novo?characterId=${character.id}`}
+            >
+              Editar
+            </Link>
+          </div>
         </div>
         <div className={styles.header}>
-          <Image
-            src={character.image}
-            alt={character.identity.name}
-            width={150}
-            height={192}
-            priority
-          />
+          <div className={styles.imageColumn}>
+            <Image
+              src={character.image}
+              alt={character.identity.name}
+              width={150}
+              height={192}
+              priority
+            />
+            <Link
+              className={`${styles.actionLink} ${styles.imageActionLink}`}
+              href={`/rpg/${character.meta.version}/characters/${character.id}/inventory`}
+            >
+              Inventario
+            </Link>
+          </div>
           <div className={styles.identityInfo}>
             {character.identity.nickname && (
               <p className={styles.nickname}>
@@ -316,12 +339,6 @@ export default async function CharactersPage({ params }: Params) {
                 href={`/rpg/${character.meta.version}/characters/${character.id}/magics`}
               >
                 Armas
-              </Link>
-              <Link
-                className={styles.actionLink}
-                href={`/rpg/${character.meta.version}/characters/${character.id}/inventory`}
-              >
-                Inventario
               </Link>
             </div>
 

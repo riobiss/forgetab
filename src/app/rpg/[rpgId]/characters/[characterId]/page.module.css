@@ -37,6 +37,13 @@
   min-width: 0;
 }
 
+.titleActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .editInlineButton {
   display: inline-flex;
   align-items: center;
@@ -74,6 +81,16 @@
 .header p {
   margin: 4px 0;
   color: var(--text-muted);
+}
+
+.imageColumn {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+
+.imageActionLink {
+  width: 150px;
 }
 
 .identityInfo {
@@ -220,6 +237,10 @@
     grid-template-columns: 1fr;
     justify-items: center;
     text-align: center;
+  }
+
+  .imageColumn {
+    justify-items: center;
   }
 
   .identityInfo {
