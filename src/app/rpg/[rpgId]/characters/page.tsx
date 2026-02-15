@@ -24,6 +24,8 @@ type Params = {
 type DbCharacterRow = {
   id: string
   name: string
+  raceKey: string | null
+  classKey: string | null
   characterType: "player" | "npc" | "monster"
   visibility: "private" | "public"
   createdByUserId: string | null
@@ -56,7 +58,9 @@ async function getUserIdFromCookie() {
   }
 }
 
-const statusLabelByKey = new Map(STATUS_CATALOG.map((item) => [item.key, item.label]))
+const statusLabelByKey: Map<string, string> = new Map(
+  STATUS_CATALOG.map((item) => [item.key, item.label]),
+)
 
 export default async function CharactersPage({ params, searchParams }: Params) {
   const { rpgId } = await params
@@ -110,6 +114,8 @@ export default async function CharactersPage({ params, searchParams }: Params) {
           SELECT
             id,
             name,
+            race_key AS "raceKey",
+            class_key AS "classKey",
             character_type AS "characterType",
             visibility,
             created_by_user_id AS "createdByUserId",
@@ -237,6 +243,12 @@ export default async function CharactersPage({ params, searchParams }: Params) {
                 <p className={styles.typeBadge}>
                   Visibilidade: {character.visibility === "private" ? "Privado" : "Publico"}
                 </p>
+                {character.raceKey ? (
+                  <p className={styles.typeBadge}>Raca: {character.raceKey}</p>
+                ) : null}
+                {character.classKey ? (
+                  <p className={styles.typeBadge}>Classe: {character.classKey}</p>
+                ) : null}
                 <div className={styles.statsGrid}>
                   {Object.entries((character.statuses as Record<string, number>) ?? {}).map(
                     ([key, value]) => (
