@@ -116,6 +116,9 @@
 
 .card {
   position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.9rem;
   transition:
     transform 0.2s ease,
     border-color 0.2s ease;
@@ -136,8 +139,9 @@
 .cardHeader {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 0.35rem;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: 0;
 }
 
 .cardTitle {
@@ -146,13 +150,84 @@
   color: var(--text-title);
 }
 
+.cardTop {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.rarityBadge {
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.78rem;
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.22);
+  white-space: nowrap;
+}
+
 .cardBodyItalic {
   font-style: italic;
-  color: #ccc;
+  color: #d4d4d4;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.cardInfo {
+  display: grid;
+  gap: 0.4rem;
+  padding-top: 0.25rem;
+}
+
+.cardDetailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  padding-top: 1rem;
+  margin-top: 0.2rem;
+  margin-bottom: 0.4rem;
+}
+
+.detailItem {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.detailLabelOrange {
+  display: block;
+  color: var(--accent-main);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.detailValue {
+  color: var(--text-title);
   font-size: 0.95rem;
-  line-height: 1.6;
-  margin: 1rem 0;
-  min-height: 30px;
+  font-weight: 600;
+}
+
+.minorInfo {
+  margin: 0;
+  color: #cfcfcf;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quantity {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-main);
 }
 
 .common {
@@ -247,4 +322,5 @@
   .backLink {
     text-align: center;
   }
+
 }
