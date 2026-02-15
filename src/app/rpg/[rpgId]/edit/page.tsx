@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import styles from "./page.module.css"
 import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
+import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 
 type Visibility = "private" | "public"
 
@@ -19,6 +20,15 @@ type RpgPayload = {
 
 type AttributeTemplatePayload = {
   attributes?: Array<{
+    key: string
+    label: string
+    position: number
+  }>
+  message?: string
+}
+
+type StatusTemplatePayload = {
+  statuses?: Array<{
     key: string
     label: string
     position: number
@@ -45,10 +55,19 @@ export default function EditRpgPage() {
   const [attributesSaving, setAttributesSaving] = useState(false)
   const [attributesError, setAttributesError] = useState("")
   const [attributesSuccess, setAttributesSuccess] = useState("")
+  const [selectedStatusKeys, setSelectedStatusKeys] = useState<string[]>([])
+  const [statusesLoading, setStatusesLoading] = useState(false)
+  const [statusesSaving, setStatusesSaving] = useState(false)
+  const [statusesError, setStatusesError] = useState("")
+  const [statusesSuccess, setStatusesSuccess] = useState("")
 
   const selectedCount = useMemo(
     () => selectedAttributeKeys.length,
     [selectedAttributeKeys],
+  )
+  const selectedStatusCount = useMemo(
+    () => selectedStatusKeys.length,
+    [selectedStatusKeys],
   )
 
   useEffect(() => {
@@ -100,9 +119,32 @@ export default function EditRpgPage() {
       }
     }
 
+    async function loadStatusTemplate() {
+      try {
+        setStatusesLoading(true)
+        setStatusesError("")
+
+        const response = await fetch(`/api/rpg/${rpgId}/statuses`)
+        const payload = (await response.json()) as StatusTemplatePayload
+
+        if (!response.ok) {
+          setStatusesError(payload.message ?? "Nao foi possivel carregar status.")
+          return
+        }
+
+        const keys = (payload.statuses ?? []).map((item) => item.key)
+        setSelectedStatusKeys(keys)
+      } catch {
+        setStatusesError("Erro de conexao ao carregar status.")
+      } finally {
+        setStatusesLoading(false)
+      }
+    }
+
     if (rpgId) {
       void loadRpg()
       void loadAttributeTemplate()
+      void loadStatusTemplate()
     }
   }, [rpgId])
 
@@ -164,6 +206,44 @@ export default function EditRpgPage() {
   function toggleAttribute(key: string) {
     setAttributesSuccess("")
     setSelectedAttributeKeys((prev) => {
+      if (prev.includes(key)) {
+        return prev.filter((item) => item !== key)
+      }
+
+      return [...prev, key]
+    })
+  }
+
+  async function handleSaveStatuses() {
+    setStatusesSaving(true)
+    setStatusesError("")
+    setStatusesSuccess("")
+
+    try {
+      const response = await fetch(`/api/rpg/${rpgId}/statuses`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ statuses: selectedStatusKeys }),
+      })
+
+      const payload = (await response.json()) as { message?: string }
+
+      if (!response.ok) {
+        setStatusesError(payload.message ?? "Nao foi possivel salvar os status.")
+        return
+      }
+
+      setStatusesSuccess("Padrao de status salvo com sucesso.")
+    } catch {
+      setStatusesError("Erro de conexao ao salvar status.")
+    } finally {
+      setStatusesSaving(false)
+    }
+  }
+
+  function toggleStatus(key: string) {
+    setStatusesSuccess("")
+    setSelectedStatusKeys((prev) => {
       if (prev.includes(key)) {
         return prev.filter((item) => item !== key)
       }
@@ -261,6 +341,48 @@ export default function EditRpgPage() {
 
               {attributesError ? <p className={styles.error}>{attributesError}</p> : null}
               {attributesSuccess ? <p className={styles.success}>{attributesSuccess}</p> : null}
+            </div>
+
+            <div className={styles.attributeTemplateSection}>
+              <h3>Padrao de Status do RPG</h3>
+              <p>
+                Escolha quais status cada personagem deve preencher ao criar ficha.
+              </p>
+
+              {statusesLoading ? <p>Carregando status...</p> : null}
+
+              {!statusesLoading ? (
+                <div className={styles.attributeGrid}>
+                  {STATUS_CATALOG.map((item) => {
+                    const checked = selectedStatusKeys.includes(item.key)
+
+                    return (
+                      <label key={item.key} className={styles.attributeOption}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleStatus(item.key)}
+                        />
+                        <span>{item.label}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              ) : null}
+
+              <div className={styles.attributeActions}>
+                <span>{selectedStatusCount} status selecionado(s)</span>
+                <button
+                  type="button"
+                  onClick={handleSaveStatuses}
+                  disabled={statusesSaving || statusesLoading}
+                >
+                  {statusesSaving ? "Salvando..." : "Salvar padrao"}
+                </button>
+              </div>
+
+              {statusesError ? <p className={styles.error}>{statusesError}</p> : null}
+              {statusesSuccess ? <p className={styles.success}>{statusesSuccess}</p> : null}
             </div>
           </section>
         ) : null}

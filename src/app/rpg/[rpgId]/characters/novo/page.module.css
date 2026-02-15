@@ -38,7 +38,8 @@
   color: var(--text-main);
 }
 
-.field input {
+.field input,
+.field select {
   border: 1px solid var(--border-soft);
   border-radius: 10px;
   padding: 0.7rem 0.85rem;

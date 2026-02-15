@@ -18,6 +18,13 @@ type Params = {
 type DbCharacterRow = {
   id: string
   name: string
+  characterType: "player" | "npc" | "monster"
+  life: number
+  defense: number
+  mana: number
+  stamina: number
+  sanity: number
+  statuses: Prisma.JsonValue
   attributes: Prisma.JsonValue
   createdAt: Date
 }
@@ -117,7 +124,18 @@ export default async function CharactersPage({ params }: Params) {
       }
 
       dbCharacter = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
-        SELECT id, name, attributes, created_at AS "createdAt"
+        SELECT
+          id,
+          name,
+          character_type AS "characterType",
+          life,
+          defense,
+          mana,
+          stamina,
+          sanity,
+          statuses,
+          attributes,
+          created_at AS "createdAt"
         FROM rpg_characters
         WHERE id = ${characterId}
           AND rpg_id = ${rpgId}
@@ -133,6 +151,7 @@ export default async function CharactersPage({ params }: Params) {
 
     const row = dbCharacter[0]
     const attributes = row.attributes as Record<string, number>
+    const statuses = row.statuses as Record<string, number>
 
     return (
       <div className={styles.page}>
@@ -143,7 +162,26 @@ export default async function CharactersPage({ params }: Params) {
             <div>
               <h4>Ficha Basica</h4>
               <p>ID: {row.id}</p>
+              <p>
+                Tipo:{" "}
+                {row.characterType === "player"
+                  ? "Player"
+                  : row.characterType === "npc"
+                    ? "NPC"
+                    : "Monstro"}
+              </p>
               <p>Criado em: {new Date(row.createdAt).toLocaleDateString("pt-BR")}</p>
+            </div>
+
+            <div>
+              <h4>Status</h4>
+              <ul className={styles.list}>
+                {Object.entries(statuses).map(([key, value]) => (
+                  <li key={key}>
+                    {key}: {value}
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <div>

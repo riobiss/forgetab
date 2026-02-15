@@ -8,16 +8,27 @@ import { Prisma } from "../../../../../generated/prisma/client"
 import { cookies } from "next/headers"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { notFound } from "next/navigation"
+import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 
 type Params = {
   params: Promise<{
     rpgId: string
+  }>
+  searchParams: Promise<{
+    type?: string
   }>
 }
 
 type DbCharacterRow = {
   id: string
   name: string
+  characterType: "player" | "npc" | "monster"
+  life: number
+  defense: number
+  mana: number
+  stamina: number
+  sanity: number
+  statuses: Prisma.JsonValue
   attributes: Prisma.JsonValue
 }
 
@@ -41,8 +52,17 @@ async function getUserIdFromCookie() {
   }
 }
 
-export default async function CharactersPage({ params }: Params) {
+const statusLabelByKey = new Map(STATUS_CATALOG.map((item) => [item.key, item.label]))
+
+export default async function CharactersPage({ params, searchParams }: Params) {
   const { rpgId } = await params
+  const resolvedSearchParams = await searchParams
+  const filterType =
+    resolvedSearchParams?.type === "player" ||
+    resolvedSearchParams?.type === "npc" ||
+    resolvedSearchParams?.type === "monster"
+      ? resolvedSearchParams.type
+      : "all"
 
   let dbRpg:
     | { id: string; ownerId: string; visibility: "private" | "public" }
@@ -78,9 +98,14 @@ export default async function CharactersPage({ params }: Params) {
         privateBlocked = true
       } else {
         dbCharacters = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
-          SELECT id, name, attributes
+          SELECT id, name, character_type AS "characterType", life, defense, mana, stamina, sanity, statuses, attributes
           FROM rpg_characters
           WHERE rpg_id = ${rpgId}
+            ${
+              filterType !== "all"
+                ? Prisma.sql`AND character_type = ${filterType}::"RpgCharacterType"`
+                : Prisma.empty
+            }
           ORDER BY created_at DESC
         `)
       }
@@ -95,9 +120,11 @@ export default async function CharactersPage({ params }: Params) {
   }
 
   const staticRpg = rpgs.find((r) => r.id === Number(rpgId))
-  const staticCharacters = staticRpg
+  const staticCharactersRaw = staticRpg
     ? (staticRpg.charactersData as PlayerCharacter[])
     : []
+  const staticCharacters =
+    filterType === "all" || filterType === "player" ? staticCharactersRaw : []
 
   if (!dbRpg && !staticRpg) {
     return <div>RPG nao encontrado</div>
@@ -117,6 +144,33 @@ export default async function CharactersPage({ params }: Params) {
         ) : null}
       </div>
 
+      <div className={styles.filters}>
+        <Link
+          href={`/rpg/${rpgId}/characters`}
+          className={`${styles.filterButton} ${filterType === "all" ? styles.filterActive : ""}`}
+        >
+          Todos
+        </Link>
+        <Link
+          href={`/rpg/${rpgId}/characters?type=player`}
+          className={`${styles.filterButton} ${filterType === "player" ? styles.filterActive : ""}`}
+        >
+          Player
+        </Link>
+        <Link
+          href={`/rpg/${rpgId}/characters?type=npc`}
+          className={`${styles.filterButton} ${filterType === "npc" ? styles.filterActive : ""}`}
+        >
+          NPC
+        </Link>
+        <Link
+          href={`/rpg/${rpgId}/characters?type=monster`}
+          className={`${styles.filterButton} ${filterType === "monster" ? styles.filterActive : ""}`}
+        >
+          Monstro
+        </Link>
+      </div>
+
       {dbCharacters.length > 0 ? (
         <section className={styles.dbSection}>
           <h2>Personagens criados no seu RPG</h2>
@@ -124,12 +178,25 @@ export default async function CharactersPage({ params }: Params) {
             {dbCharacters.map((character) => (
               <article key={character.id} className={styles.dbCard}>
                 <h3>{character.name}</h3>
+                <p className={styles.typeBadge}>
+                  Tipo:{" "}
+                  {character.characterType === "player"
+                    ? "Player"
+                    : character.characterType === "npc"
+                      ? "NPC"
+                      : "Monstro"}
+                </p>
+                <div className={styles.statsGrid}>
+                  {Object.entries((character.statuses as Record<string, number>) ?? {}).map(
+                    ([key, value]) => (
+                      <p key={key}>
+                        {statusLabelByKey.get(key) ?? key}: {value}
+                      </p>
+                    ),
+                  )}
+                </div>
                 <p>
-                  {
-                    Object.keys(
-                      (character.attributes as Record<string, unknown>) ?? {},
-                    ).length
-                  }{" "}
+                  {Object.keys((character.attributes as Record<string, unknown>) ?? {}).length}{" "}
                   atributos configurados
                 </p>
                 <Link href={`/rpg/${rpgId}/characters/${character.id}`}>

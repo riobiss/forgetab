@@ -36,6 +36,29 @@
   margin: 1.2rem 0 0.8rem;
 }
 
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.filterButton {
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--border-soft);
+  color: var(--text-main);
+  background: var(--bg-surface);
+  font-size: 0.9rem;
+}
+
+.filterActive {
+  border-color: var(--accent-main);
+  color: var(--accent-main);
+  box-shadow: var(--shadow-accent);
+}
+
 .dbSection {
   margin-bottom: 1rem;
 }
@@ -53,14 +76,40 @@
 
 .dbCard {
   border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  padding: 0.9rem;
+  border-radius: 12px;
+  padding: 1rem;
   background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
+  box-shadow: var(--shadow-main);
+  display: grid;
+  gap: 0.65rem;
 }
 
 .dbCard h3 {
   margin: 0;
   color: var(--text-main);
+}
+
+.typeBadge {
+  margin: 0;
+  color: var(--accent-main);
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.6rem;
+}
+
+.statsGrid p {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 0.85rem;
 }
 
 .dbCard p {
@@ -73,6 +122,10 @@
   text-decoration: none;
   color: var(--accent-main);
   font-weight: 700;
+}
+
+.dbCard .statsGrid p {
+  margin: 0;
 }
 
 .grid {
