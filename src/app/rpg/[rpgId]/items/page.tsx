@@ -4,31 +4,31 @@ import Link from "next/link"
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import styles from "./page.module.css"
-import {
-  baseItemRarityValues,
-  baseItemTypeValues,
-} from "@/lib/validators/baseItem"
+import { baseItemTypeValues } from "@/lib/validators/baseItem"
 
 type ItemType = (typeof baseItemTypeValues)[number]
-type ItemRarity = (typeof baseItemRarityValues)[number]
 
 type BaseItem = {
   id: string
   rpgId: string
   name: string
   type: ItemType
-  rarity: ItemRarity
+  rarity: string
+  damage: string | null
+  ability: string | null
+  abilityName: string | null
+  effect: string | null
+  effectName: string | null
+  abilities: unknown
+  effects: unknown
+  weight: number | null
+  durability: number | null
   createdAt: string
   updatedAt: string
 }
 
 type ApiListPayload = {
   items?: BaseItem[]
-  message?: string
-}
-
-type ApiItemPayload = {
-  item?: BaseItem
   message?: string
 }
 
@@ -45,7 +45,6 @@ type ApiCharactersPayload = {
 
 type ApiGivePayload = {
   message?: string
-  affectedPlayers?: number
 }
 
 export default function ItemsPage() {
@@ -53,29 +52,20 @@ export default function ItemsPage() {
   const rpgId = params.rpgId
 
   const [items, setItems] = useState<BaseItem[]>([])
-  const [players, setPlayers] = useState<CharacterSummary[]>([])
+  const [characters, setCharacters] = useState<CharacterSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingError, setLoadingError] = useState("")
-
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingItemId, setEditingItemId] = useState<string | null>(null)
-  const [name, setName] = useState("")
-  const [type, setType] = useState<ItemType>("weapon")
-  const [rarity, setRarity] = useState<ItemRarity>("common")
-  const [submitError, setSubmitError] = useState("")
-  const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<ItemType | "all">("all")
   const [showCategories, setShowCategories] = useState(false)
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null)
-  const [selectedGiveItemId, setSelectedGiveItemId] = useState("")
-  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([])
+  const [giveModalItemId, setGiveModalItemId] = useState<string | null>(null)
+  const [selectedCharacterId, setSelectedCharacterId] = useState("")
   const [giveQuantity, setGiveQuantity] = useState(1)
   const [giving, setGiving] = useState(false)
   const [giveError, setGiveError] = useState("")
   const [giveSuccess, setGiveSuccess] = useState("")
 
-  const isEditing = useMemo(() => Boolean(editingItemId), [editingItemId])
   const visibleItems = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
 
@@ -94,10 +84,45 @@ export default function ItemsPage() {
       return (
         item.name.toLowerCase().includes(normalizedSearch) ||
         item.type.toLowerCase().includes(normalizedSearch) ||
-        item.rarity.toLowerCase().includes(normalizedSearch)
+        item.rarity.toLowerCase().includes(normalizedSearch) ||
+        (item.ability ?? "").toLowerCase().includes(normalizedSearch) ||
+        (item.abilityName ?? "").toLowerCase().includes(normalizedSearch)
       )
     })
   }, [items, search, selectedCategory])
+
+  const selectedGiveItem = useMemo(
+    () => items.find((item) => item.id === giveModalItemId) ?? null,
+    [items, giveModalItemId],
+  )
+
+  function parseNamedDescriptionList(value: unknown) {
+    if (!Array.isArray(value)) {
+      return []
+    }
+
+    return value
+      .map((entry) => {
+        if (!entry || typeof entry !== "object") {
+          return null
+        }
+
+        const maybeName = (entry as { name?: unknown }).name
+        const maybeDescription = (entry as { description?: unknown }).description
+        if (typeof maybeName !== "string" || typeof maybeDescription !== "string") {
+          return null
+        }
+
+        const name = maybeName.trim()
+        const description = maybeDescription.trim()
+        if (!name || !description) {
+          return null
+        }
+
+        return { name, description }
+      })
+      .filter((entry): entry is { name: string; description: string } => entry !== null)
+  }
 
   const loadItems = useCallback(async () => {
     try {
@@ -122,124 +147,48 @@ export default function ItemsPage() {
     }
   }, [rpgId])
 
-  const loadPlayers = useCallback(async () => {
+  const loadCharacters = useCallback(async () => {
     try {
       const response = await fetch(`/api/rpg/${rpgId}/characters`)
       const payload = (await response.json()) as ApiCharactersPayload
 
       if (!response.ok) {
-        setLoadingError(payload.message ?? "Nao foi possivel carregar os players.")
-        setPlayers([])
+        setLoadingError(payload.message ?? "Nao foi possivel carregar personagens.")
+        setCharacters([])
         return
       }
 
-      const allCharacters = payload.characters ?? []
-      setPlayers(allCharacters.filter((character) => character.characterType === "player"))
+      setCharacters(payload.characters ?? [])
     } catch {
-      setLoadingError("Erro de conexao ao carregar players.")
-      setPlayers([])
+      setLoadingError("Erro de conexao ao carregar personagens.")
+      setCharacters([])
     }
   }, [rpgId])
 
   useEffect(() => {
     if (rpgId) {
       void loadItems()
-      void loadPlayers()
+      void loadCharacters()
     }
-  }, [loadItems, loadPlayers, rpgId])
+  }, [loadCharacters, loadItems, rpgId])
 
-  useEffect(() => {
-    if (items.length === 0) {
-      setSelectedGiveItemId("")
-      return
-    }
-
-    const hasSelected = items.some((item) => item.id === selectedGiveItemId)
-    if (!hasSelected) {
-      setSelectedGiveItemId(items[0].id)
-    }
-  }, [items, selectedGiveItemId])
-
-  function resetForm() {
-    setEditingItemId(null)
-    setName("")
-    setType("weapon")
-    setRarity("common")
-    setSubmitError("")
+  function openGiveModal(itemId: string) {
+    setGiveModalItemId(itemId)
+    setSelectedCharacterId(characters[0]?.id ?? "")
+    setGiveQuantity(1)
+    setGiveError("")
+    setGiveSuccess("")
   }
 
-  function openCreateForm() {
-    resetForm()
-    setIsFormOpen(true)
-  }
-
-  function openEditForm(item: BaseItem) {
-    setEditingItemId(item.id)
-    setName(item.name)
-    setType(item.type)
-    setRarity(item.rarity)
-    setSubmitError("")
-    setIsFormOpen(true)
-  }
-
-  function closeForm() {
-    setIsFormOpen(false)
-    resetForm()
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setSaving(true)
-    setSubmitError("")
-
-    try {
-      const endpoint = isEditing
-        ? `/api/rpg/${rpgId}/items/${editingItemId}`
-        : `/api/rpg/${rpgId}/items`
-
-      const method = isEditing ? "PATCH" : "POST"
-
-      const response = await fetch(endpoint, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          type,
-          rarity,
-        }),
-      })
-
-      const payload = (await response.json()) as ApiItemPayload
-
-      if (!response.ok) {
-        setSubmitError(payload.message ?? "Nao foi possivel salvar o item.")
-        return
-      }
-
-      if (!payload.item) {
-        setSubmitError("Resposta invalida da API.")
-        return
-      }
-
-      if (isEditing) {
-        setItems((prev) =>
-          prev.map((item) => (item.id === payload.item?.id ? payload.item : item)),
-        )
-      } else {
-        setItems((prev) => [payload.item as BaseItem, ...prev])
-      }
-
-      closeForm()
-    } catch {
-      setSubmitError("Erro de conexao ao salvar item.")
-    } finally {
-      setSaving(false)
-    }
+  function closeGiveModal() {
+    setGiveModalItemId(null)
+    setGiveError("")
+    setGiveSuccess("")
+    setGiveQuantity(1)
   }
 
   async function handleDelete(itemId: string) {
     const confirmed = window.confirm("Tem certeza que deseja deletar este item?")
-
     if (!confirmed) {
       return
     }
@@ -267,45 +216,40 @@ export default function ItemsPage() {
     }
   }
 
-  function togglePlayer(playerId: string) {
-    setSelectedPlayerIds((prev) => {
-      if (prev.includes(playerId)) {
-        return prev.filter((id) => id !== playerId)
-      }
-
-      return [...prev, playerId]
-    })
-  }
-
   async function handleGiveItem(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setGiving(true)
     setGiveError("")
     setGiveSuccess("")
 
+    if (!selectedGiveItem || !selectedCharacterId) {
+      setGiveError("Selecione um personagem para receber o item.")
+      setGiving(false)
+      return
+    }
+
     try {
       const response = await fetch(`/api/rpg/${rpgId}/items/give`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          baseItemId: selectedGiveItemId,
+          baseItemId: selectedGiveItem.id,
           quantity: giveQuantity,
-          characterIds: selectedPlayerIds,
+          characterIds: [selectedCharacterId],
         }),
       })
 
       const payload = (await response.json()) as ApiGivePayload
 
       if (!response.ok) {
-        setGiveError(payload.message ?? "Nao foi possivel dar o item para os players.")
+        setGiveError(payload.message ?? "Nao foi possivel entregar o item.")
         return
       }
 
-      setGiveSuccess(payload.message ?? "Item enviado com sucesso.")
-      setSelectedPlayerIds([])
-      setGiveQuantity(1)
+      setGiveSuccess(payload.message ?? "Item entregue com sucesso.")
+      setTimeout(() => closeGiveModal(), 700)
     } catch {
-      setGiveError("Erro de conexao ao dar item para os players.")
+      setGiveError("Erro de conexao ao entregar item.")
     } finally {
       setGiving(false)
     }
@@ -318,108 +262,30 @@ export default function ItemsPage() {
           <p className={styles.kicker}>Sessao avancada</p>
           <h1 className={styles.title}>Itens do RPG</h1>
           <p className={styles.subtitle}>
-            Crie e edite baseitems com nome, tipo e raridade.
+            Gerencie itens e entregue para personagens com quantidade.
           </p>
         </div>
-        <Link href={`/rpg/${rpgId}/edit`} className={styles.backLink}>
-          Voltar para edicao
-        </Link>
+        <div className={styles.headerActions}>
+          <Link href={`/rpg/${rpgId}/items/new`} className={styles.primaryButton}>
+            Criar item
+          </Link>
+          <Link href={`/rpg/${rpgId}/edit`} className={styles.backLink}>
+            Voltar para edicao
+          </Link>
+        </div>
       </div>
 
       <section className={styles.section}>
         <div className={styles.sectionTopbar}>
-          <h2 className={styles.sectionTitle}>Baseitems</h2>
-          <div className={styles.topbarActions}>
-            <button
-              type="button"
-              className={styles.ghostButton}
-              onClick={() => setShowCategories((prev) => !prev)}
-            >
-              {showCategories ? "Ocultar categorias" : "Mostrar categorias"}
-            </button>
-            <button
-              type="button"
-              className={styles.primaryButton}
-              onClick={openCreateForm}
-            >
-              Criar item
-            </button>
-          </div>
+          <h2 className={styles.sectionTitle}>Listagem de itens</h2>
+          <button
+            type="button"
+            className={styles.ghostButton}
+            onClick={() => setShowCategories((prev) => !prev)}
+          >
+            {showCategories ? "Ocultar categorias" : "Mostrar categorias"}
+          </button>
         </div>
-
-        <form className={styles.formCard} onSubmit={handleGiveItem}>
-          <h3>Dar item para player(s)</h3>
-
-          <label className={styles.field}>
-            <span>Item selecionado</span>
-            <select
-              value={selectedGiveItemId}
-              onChange={(event) => setSelectedGiveItemId(event.target.value)}
-              disabled={items.length === 0 || giving}
-              required
-            >
-              {items.length === 0 ? (
-                <option value="">Nenhum item cadastrado</option>
-              ) : (
-                items.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name} ({item.type} - {item.rarity})
-                  </option>
-                ))
-              )}
-            </select>
-          </label>
-
-          <label className={styles.field}>
-            <span>Quantidade</span>
-            <input
-              type="number"
-              min={1}
-              value={giveQuantity}
-              onChange={(event) => setGiveQuantity(Number(event.target.value))}
-              required
-            />
-          </label>
-
-          <div className={styles.field}>
-            <span>Players para receber</span>
-            {players.length === 0 ? (
-              <p className={styles.feedback}>Nenhum player encontrado neste RPG.</p>
-            ) : (
-              <div className={styles.playersGrid}>
-                {players.map((player) => (
-                  <label key={player.id} className={styles.playerOption}>
-                    <input
-                      type="checkbox"
-                      checked={selectedPlayerIds.includes(player.id)}
-                      onChange={() => togglePlayer(player.id)}
-                      disabled={giving}
-                    />
-                    <span>{player.name}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {giveError ? <p className={styles.error}>{giveError}</p> : null}
-          {giveSuccess ? <p className={styles.feedback}>{giveSuccess}</p> : null}
-
-          <div className={styles.formActions}>
-            <button
-              className={styles.primaryButton}
-              type="submit"
-              disabled={
-                giving ||
-                items.length === 0 ||
-                players.length === 0 ||
-                selectedPlayerIds.length === 0
-              }
-            >
-              {giving ? "Enviando..." : "Dar item para players selecionados"}
-            </button>
-          </div>
-        </form>
 
         <div className={styles.filters}>
           <label className={styles.searchField}>
@@ -428,7 +294,7 @@ export default function ItemsPage() {
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Nome, tipo ou raridade"
+              placeholder="Nome, tipo, raridade ou habilidade"
             />
           </label>
 
@@ -463,73 +329,11 @@ export default function ItemsPage() {
           ) : null}
         </div>
 
-        {isFormOpen ? (
-          <form className={styles.formCard} onSubmit={handleSubmit}>
-            <h3>{isEditing ? "Editar item" : "Novo item"}</h3>
-
-            <label className={styles.field}>
-              <span>Nome</span>
-              <input
-                type="text"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                minLength={2}
-                required
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>Tipo</span>
-              <select
-                value={type}
-                onChange={(event) => setType(event.target.value as ItemType)}
-              >
-                {baseItemTypeValues.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className={styles.field}>
-              <span>Raridade</span>
-              <select
-                value={rarity}
-                onChange={(event) => setRarity(event.target.value as ItemRarity)}
-              >
-                {baseItemRarityValues.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {submitError ? <p className={styles.error}>{submitError}</p> : null}
-
-            <div className={styles.formActions}>
-              <button className={styles.primaryButton} type="submit" disabled={saving}>
-                {saving ? "Salvando..." : isEditing ? "Salvar item" : "Criar item"}
-              </button>
-              <button
-                type="button"
-                className={styles.ghostButton}
-                onClick={closeForm}
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
-        ) : null}
-
         {loading ? <p className={styles.feedback}>Carregando itens...</p> : null}
         {loadingError ? <p className={styles.error}>{loadingError}</p> : null}
-
         {!loading && !loadingError && items.length === 0 ? (
           <p className={styles.feedback}>Nenhum item cadastrado para este RPG.</p>
         ) : null}
-
         {!loading &&
         !loadingError &&
         items.length > 0 &&
@@ -541,28 +345,68 @@ export default function ItemsPage() {
           <div className={styles.grid}>
             {visibleItems.map((item) => (
               <article key={item.id} className={styles.card}>
+                {(() => {
+                  const abilities = parseNamedDescriptionList(item.abilities)
+                  const effects = parseNamedDescriptionList(item.effects)
+                  const hasLegacyAbility = item.ability || item.abilityName
+                  const hasLegacyEffect = item.effect || item.effectName
+
+                  return (
+                    <>
                 <div className={styles.cardHeader}>
                   <h3>{item.name}</h3>
                   <span>{item.type}</span>
                 </div>
 
                 <p className={styles.rarityLine}>Raridade: {item.rarity}</p>
+                {item.damage !== null ? (
+                  <p className={styles.metaLine}>Dano: {item.damage}</p>
+                ) : null}
+                {item.weight !== null ? (
+                  <p className={styles.metaLine}>Peso: {item.weight}</p>
+                ) : null}
+                {item.durability !== null ? (
+                  <p className={styles.metaLine}>Durabilidade: {item.durability}</p>
+                ) : null}
+                {abilities.length > 0
+                  ? abilities.map((ability, index) => (
+                      <p key={`${item.id}-ability-${index}`} className={styles.metaLine}>
+                        Habilidade ({ability.name}): {ability.description}
+                      </p>
+                    ))
+                  : null}
+                {effects.length > 0
+                  ? effects.map((effect, index) => (
+                      <p key={`${item.id}-effect-${index}`} className={styles.metaLine}>
+                        Efeito ({effect.name}): {effect.description}
+                      </p>
+                    ))
+                  : null}
+                {abilities.length === 0 && hasLegacyAbility ? (
+                  <p className={styles.metaLine}>
+                    Habilidade ({item.abilityName ?? "sem nome"}): {item.ability ?? "-"}
+                  </p>
+                ) : null}
+                {effects.length === 0 && hasLegacyEffect ? (
+                  <p className={styles.metaLine}>
+                    Efeito ({item.effectName ?? "sem nome"}): {item.effect ?? "-"}
+                  </p>
+                ) : null}
 
                 <div className={styles.cardActions}>
                   <button
                     type="button"
                     className={styles.primaryButton}
-                    onClick={() => setSelectedGiveItemId(item.id)}
+                    onClick={() => openGiveModal(item.id)}
                   >
-                    {selectedGiveItemId === item.id ? "Item selecionado" : "Selecionar p/ dar"}
+                    Entregar
                   </button>
-                  <button
-                    type="button"
+                  <Link
+                    href={`/rpg/${rpgId}/items/${item.id}/edit`}
                     className={styles.ghostButton}
-                    onClick={() => openEditForm(item)}
                   >
                     Editar
-                  </button>
+                  </Link>
                   <button
                     type="button"
                     className={styles.dangerButton}
@@ -572,11 +416,79 @@ export default function ItemsPage() {
                     {deletingItemId === item.id ? "Deletando..." : "Deletar"}
                   </button>
                 </div>
+                    </>
+                  )
+                })()}
               </article>
             ))}
           </div>
         ) : null}
       </section>
+
+      {selectedGiveItem ? (
+        <div className={styles.modalOverlay} onClick={closeGiveModal}>
+          <form
+            className={styles.modal}
+            onClick={(event) => event.stopPropagation()}
+            onSubmit={handleGiveItem}
+          >
+            <h3>Entregar item</h3>
+            <p className={styles.modalDescription}>
+              Item: <strong>{selectedGiveItem.name}</strong>
+            </p>
+
+            <label className={styles.field}>
+              <span>Personagem</span>
+              <select
+                value={selectedCharacterId}
+                onChange={(event) => setSelectedCharacterId(event.target.value)}
+                required
+              >
+                {characters.length === 0 ? (
+                  <option value="">Nenhum personagem encontrado</option>
+                ) : (
+                  characters.map((character) => (
+                    <option key={character.id} value={character.id}>
+                      {character.name} ({character.characterType})
+                    </option>
+                  ))
+                )}
+              </select>
+            </label>
+
+            <label className={styles.field}>
+              <span>Quantidade</span>
+              <input
+                type="number"
+                min={1}
+                value={giveQuantity}
+                onChange={(event) => setGiveQuantity(Number(event.target.value))}
+                required
+              />
+            </label>
+
+            {giveError ? <p className={styles.error}>{giveError}</p> : null}
+            {giveSuccess ? <p className={styles.feedback}>{giveSuccess}</p> : null}
+
+            <div className={styles.formActions}>
+              <button
+                className={styles.primaryButton}
+                type="submit"
+                disabled={giving || !selectedCharacterId || characters.length === 0}
+              >
+                {giving ? "Entregando..." : "Confirmar entrega"}
+              </button>
+              <button
+                type="button"
+                className={styles.ghostButton}
+                onClick={closeGiveModal}
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
     </main>
   )
 }
