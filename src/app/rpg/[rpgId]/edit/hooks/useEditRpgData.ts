@@ -11,6 +11,7 @@ type RpgPayload = {
     description: string
     visibility: Visibility
     useClassRaceBonuses?: boolean
+    useInventoryWeightLimit?: boolean
   }
 }
 
@@ -21,6 +22,7 @@ type UseEditRpgDataParams = {
   description: string
   visibility: Visibility
   useClassRaceBonuses: boolean
+  useInventoryWeightLimit: boolean
   selectedAttributeKeys: string[]
   selectedStatusKeys: string[]
   statusLabelByKey: Record<string, string>
@@ -31,6 +33,7 @@ type UseEditRpgDataParams = {
   setDescription: (value: string) => void
   setVisibility: (value: Visibility) => void
   setUseClassRaceBonuses: (value: boolean) => void
+  setUseInventoryWeightLimit: (value: boolean) => void
   setSelectedAttributeKeys: (value: string[]) => void
   setSelectedStatusKeys: (value: string[]) => void
   setStatusLabelByKey: (value: Record<string, string>) => void
@@ -48,6 +51,7 @@ export function useEditRpgData({
   description,
   visibility,
   useClassRaceBonuses,
+  useInventoryWeightLimit,
   selectedAttributeKeys,
   selectedStatusKeys,
   statusLabelByKey,
@@ -58,6 +62,7 @@ export function useEditRpgData({
   setDescription,
   setVisibility,
   setUseClassRaceBonuses,
+  setUseInventoryWeightLimit,
   setSelectedAttributeKeys,
   setSelectedStatusKeys,
   setStatusLabelByKey,
@@ -141,6 +146,7 @@ export function useEditRpgData({
         setDescription(rpgPayload.rpg.description)
         setVisibility(rpgPayload.rpg.visibility)
         setUseClassRaceBonuses(Boolean(rpgPayload.rpg.useClassRaceBonuses))
+        setUseInventoryWeightLimit(Boolean(rpgPayload.rpg.useInventoryWeightLimit))
         setSelectedAttributeKeys((attrPayload.attributes ?? []).map((item) => item.key))
 
         const loadedStatuses = statusPayload.statuses ?? []
@@ -191,6 +197,7 @@ export function useEditRpgData({
     setDescription,
     setVisibility,
     setUseClassRaceBonuses,
+    setUseInventoryWeightLimit,
     setSelectedAttributeKeys,
     setSelectedStatusKeys,
     setStatusLabelByKey,
@@ -205,7 +212,13 @@ export function useEditRpgData({
     const response = await fetch(`/api/rpg/${rpgId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description, visibility, useClassRaceBonuses }),
+      body: JSON.stringify({
+        title,
+        description,
+        visibility,
+        useClassRaceBonuses,
+        useInventoryWeightLimit,
+      }),
     })
     const payload = (await response.json()) as { message?: string }
     if (!response.ok) throw new Error(payload.message ?? "Nao foi possivel atualizar o RPG.")

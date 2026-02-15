@@ -27,6 +27,7 @@ type CharacterRow = {
   classKey: string | null
   characterType: "player" | "npc" | "monster"
   visibility: "private" | "public"
+  maxCarryWeight: number | null
   createdByUserId: string | null
   life: number
   defense: number
@@ -101,14 +102,28 @@ type RpgAccess = {
   canAccess: boolean
   isOwner: boolean
   useClassRaceBonuses: boolean
+  useInventoryWeightLimit: boolean
 }
 
 async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
-  let rows: Array<{ ownerId: string; useClassRaceBonuses: boolean }> = []
+  let rows: Array<{
+    ownerId: string
+    useClassRaceBonuses: boolean
+    useInventoryWeightLimit: boolean
+  }> = []
   try {
-    rows = await prisma.$queryRaw<Array<{ ownerId: string; useClassRaceBonuses: boolean }>>(
+    rows = await prisma.$queryRaw<
+      Array<{
+        ownerId: string
+        useClassRaceBonuses: boolean
+        useInventoryWeightLimit: boolean
+      }>
+    >(
       Prisma.sql`
-        SELECT owner_id AS "ownerId", COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses"
+        SELECT
+          owner_id AS "ownerId",
+          COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
+          COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit"
         FROM rpgs
         WHERE id = ${rpgId}
         LIMIT 1
@@ -117,11 +132,21 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
   } catch (error) {
     if (
       error instanceof Error &&
-      error.message.includes('column "use_class_race_bonuses" does not exist')
+      (error.message.includes('column "use_class_race_bonuses" does not exist') ||
+        error.message.includes('column "use_inventory_weight_limit" does not exist'))
     ) {
-      rows = await prisma.$queryRaw<Array<{ ownerId: string; useClassRaceBonuses: boolean }>>(
+      rows = await prisma.$queryRaw<
+        Array<{
+          ownerId: string
+          useClassRaceBonuses: boolean
+          useInventoryWeightLimit: boolean
+        }>
+      >(
         Prisma.sql`
-          SELECT owner_id AS "ownerId", false AS "useClassRaceBonuses"
+          SELECT
+            owner_id AS "ownerId",
+            false AS "useClassRaceBonuses",
+            false AS "useInventoryWeightLimit"
           FROM rpgs
           WHERE id = ${rpgId}
           LIMIT 1
@@ -134,7 +159,13 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
   const rpg = rows[0]
 
   if (!rpg) {
-    return { exists: false, canAccess: false, isOwner: false, useClassRaceBonuses: false }
+    return {
+      exists: false,
+      canAccess: false,
+      isOwner: false,
+      useClassRaceBonuses: false,
+      useInventoryWeightLimit: false,
+    }
   }
 
   if (rpg.ownerId === userId) {
@@ -143,6 +174,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
       canAccess: true,
       isOwner: true,
       useClassRaceBonuses: rpg.useClassRaceBonuses,
+      useInventoryWeightLimit: rpg.useInventoryWeightLimit,
     }
   }
 
@@ -161,6 +193,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
     canAccess: membership?.status === "accepted",
     isOwner: false,
     useClassRaceBonuses: rpg.useClassRaceBonuses,
+    useInventoryWeightLimit: rpg.useInventoryWeightLimit,
   }
 }
 
@@ -351,6 +384,18 @@ function validateStat(name: string, value: unknown) {
   return { ok: true as const, value: Math.floor(value) }
 }
 
+function validateMaxCarryWeight(value: unknown) {
+  if (value === null || value === undefined) {
+    return { ok: true as const, value: null as number | null }
+  }
+
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    return { ok: false as const, message: "Peso maximo invalido." }
+  }
+
+  return { ok: true as const, value }
+}
+
 function normalizeOptionalText(value: unknown) {
   if (typeof value !== "string") {
     return null
@@ -421,6 +466,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           class_key AS "classKey",
           character_type AS "characterType",
           visibility,
+          max_carry_weight AS "maxCarryWeight",
           created_by_user_id AS "createdByUserId",
           life,
           defense,
@@ -450,6 +496,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         error instanceof Error &&
         (error.message.includes('column "race_key" does not exist') ||
           error.message.includes('column "class_key" does not exist') ||
+          error.message.includes('column "max_carry_weight" does not exist') ||
           error.message.includes('column "identity" does not exist') ||
           error.message.includes('column "characteristics" does not exist'))
       ) {
@@ -463,6 +510,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
             null::text AS "classKey",
             character_type AS "characterType",
             visibility,
+            null::double precision AS "maxCarryWeight",
             created_by_user_id AS "createdByUserId",
             life,
             defense,
@@ -493,7 +541,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     return NextResponse.json(
-      { characters, isOwner: access.isOwner, useClassRaceBonuses: access.useClassRaceBonuses },
+      {
+        characters,
+        isOwner: access.isOwner,
+        useClassRaceBonuses: access.useClassRaceBonuses,
+        useInventoryWeightLimit: access.useInventoryWeightLimit,
+      },
       { status: 200 },
     )
   } catch (error) {
@@ -540,6 +593,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       name?: string
       image?: string
       characterType?: CharacterRow["characterType"]
+      maxCarryWeight?: number | null
       statuses?: Record<string, number>
       attributes?: Record<string, number>
       skills?: Record<string, number>
@@ -571,6 +625,25 @@ export async function POST(request: NextRequest, context: RouteContext) {
         { status: 400 },
       )
     }
+
+    const parsedMaxCarryWeight = validateMaxCarryWeight(body.maxCarryWeight)
+    if (!parsedMaxCarryWeight.ok) {
+      return NextResponse.json({ message: parsedMaxCarryWeight.message }, { status: 400 })
+    }
+    if (
+      access.useInventoryWeightLimit &&
+      body.characterType === "player" &&
+      parsedMaxCarryWeight.value === null
+    ) {
+      return NextResponse.json(
+        { message: "Peso maximo e obrigatorio para player neste RPG." },
+        { status: 400 },
+      )
+    }
+    const maxCarryWeight =
+      access.useInventoryWeightLimit && body.characterType === "player"
+        ? parsedMaxCarryWeight.value
+        : null
 
     if (!access.isOwner && body.skills !== undefined) {
       return NextResponse.json(
@@ -822,7 +895,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     const created = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
       INSERT INTO rpg_characters (
-        id, rpg_id, name, image, race_key, class_key, character_type, visibility, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes, skills, identity, characteristics
+        id, rpg_id, name, image, race_key, class_key, character_type, visibility, max_carry_weight, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes, skills, identity, characteristics
       )
       VALUES (
         ${crypto.randomUUID()},
@@ -833,6 +906,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         ${selectedClassKey},
         ${body.characterType}::"RpgCharacterType",
         'public'::"RpgVisibility",
+        ${maxCarryWeight},
         ${createdByUserId},
         ${life.value},
         ${defense.value},
@@ -854,6 +928,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         class_key AS "classKey",
         character_type AS "characterType",
         visibility,
+        max_carry_weight AS "maxCarryWeight",
         created_by_user_id AS "createdByUserId",
         life,
         defense,
@@ -916,10 +991,20 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (
       error instanceof Error &&
       (error.message.includes('column "race_key" of relation "rpg_characters" does not exist') ||
-        error.message.includes('column "class_key" of relation "rpg_characters" does not exist'))
+        error.message.includes('column "class_key" of relation "rpg_characters" does not exist') ||
+        error.message.includes('column "max_carry_weight" of relation "rpg_characters" does not exist'))
     ) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (
+      error instanceof Error &&
+      error.message.includes('column "use_inventory_weight_limit" does not exist')
+    ) {
+      return NextResponse.json(
+        { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },
         { status: 500 },
       )
     }

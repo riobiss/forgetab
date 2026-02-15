@@ -83,6 +83,14 @@
   background: var(--bg-main);
 }
 
+.checkboxField input[type="checkbox"] {
+  width: auto;
+  min-width: 18px;
+  min-height: 18px;
+  justify-self: start;
+  accent-color: var(--accent-main);
+}
+
 .actions input {
   border: 1px solid var(--border-soft);
   border-radius: 10px;

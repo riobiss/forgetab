@@ -53,6 +53,26 @@
   color: var(--text-title);
 }
 
+.weightSummary {
+  margin: 0 0 0.85rem;
+  color: var(--text-main);
+  font-weight: 700;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-main) 88%, var(--bg-surface));
+  padding: 0.55rem 0.7rem;
+}
+
+.weightSummaryDanger {
+  margin: 0 0 0.85rem;
+  color: var(--accent-main);
+  font-weight: 800;
+  border: 1px solid var(--border-hot);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent-main) 14%, transparent);
+  padding: 0.55rem 0.7rem;
+}
+
 .filters {
   margin-bottom: 1rem;
 }

@@ -31,6 +31,8 @@ type InventoryItem = {
 
 type InventoryPayload = {
   inventory?: InventoryItem[]
+  useInventoryWeightLimit?: boolean
+  maxCarryWeight?: number | null
   message?: string
 }
 
@@ -62,6 +64,8 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<
     (typeof baseItemTypeValues)[number] | "all"
   >("all")
+  const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
+  const [maxCarryWeight, setMaxCarryWeight] = useState<number | null>(null)
 
   function parseNamedDescriptionList(value: unknown) {
     if (!Array.isArray(value)) {
@@ -92,6 +96,16 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
   }
 
   const hasInventory = inventory.length > 0
+  const totalWeight = useMemo(
+    () =>
+      inventory.reduce(
+        (acc, item) => acc + (item.itemWeight !== null ? item.itemWeight * item.quantity : 0),
+        0,
+      ),
+    [inventory],
+  )
+  const isOverWeight =
+    useInventoryWeightLimit && maxCarryWeight !== null && totalWeight > maxCarryWeight
   const filteredInventory = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
     return inventory.filter((item) => {
@@ -202,13 +216,19 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
       if (!response.ok) {
         setError(payload.message ?? "Nao foi possivel carregar o inventario.")
         setInventory([])
+        setUseInventoryWeightLimit(false)
+        setMaxCarryWeight(null)
         return
       }
 
       setInventory(payload.inventory ?? [])
+      setUseInventoryWeightLimit(Boolean(payload.useInventoryWeightLimit))
+      setMaxCarryWeight(payload.maxCarryWeight ?? null)
     } catch {
       setError("Erro de conexao ao carregar inventario.")
       setInventory([])
+      setUseInventoryWeightLimit(false)
+      setMaxCarryWeight(null)
     } finally {
       setLoading(false)
     }
@@ -261,6 +281,11 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
   return (
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>Itens do Personagem</h2>
+      {useInventoryWeightLimit ? (
+        <p className={isOverWeight ? styles.weightSummaryDanger : styles.weightSummary}>
+          Peso total: {totalWeight.toFixed(1)} kg / {maxCarryWeight?.toFixed(1) ?? "0.0"} kg
+        </p>
+      ) : null}
       <div className={styles.filters}>
         <label className={styles.searchField}>
           <span>Buscar item</span>

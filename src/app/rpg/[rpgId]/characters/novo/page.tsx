@@ -42,6 +42,7 @@ type SkillTemplatePayload = {
 type RpgConfigPayload = {
   rpg?: {
     useClassRaceBonuses?: boolean
+    useInventoryWeightLimit?: boolean
   }
   message?: string
 }
@@ -86,6 +87,7 @@ type CharacterSummary = {
   classKey?: string | null
   characterType: "player" | "npc" | "monster"
   visibility: "private" | "public"
+  maxCarryWeight?: number | null
   createdByUserId?: string | null
   statuses?: Record<string, number>
   attributes?: Record<string, number>
@@ -93,6 +95,8 @@ type CharacterSummary = {
   identity?: Record<string, string>
   characteristics?: Record<string, string>
 }
+
+type NumericInputValue = number | ""
 
 type CharactersPayload = {
   characters?: CharacterSummary[]
@@ -103,6 +107,21 @@ type CharactersPayload = {
 type UploadImagePayload = {
   message?: string
   url?: string
+}
+
+function parseNumericInputValue(value: string): NumericInputValue {
+  if (value === "") {
+    return ""
+  }
+
+  return Number(value)
+}
+
+function normalizeNumericValues(values: Record<string, NumericInputValue>) {
+  return Object.entries(values).reduce<Record<string, number>>((acc, [key, value]) => {
+    acc[key] = value === "" ? 0 : value
+    return acc
+  }, {})
 }
 
 function isIdentityNameField(field: CharacterIdentityTemplate) {
@@ -133,11 +152,12 @@ export default function NewCharacterPage() {
   const [attributes, setAttributes] = useState<AttributeTemplate[]>([])
   const [statuses, setStatuses] = useState<StatusTemplate[]>([])
   const [skills, setSkills] = useState<SkillTemplate[]>([])
-  const [values, setValues] = useState<Record<string, number>>({})
-  const [statusValues, setStatusValues] = useState<Record<string, number>>({})
-  const [skillValues, setSkillValues] = useState<Record<string, number>>({})
+  const [values, setValues] = useState<Record<string, NumericInputValue>>({})
+  const [statusValues, setStatusValues] = useState<Record<string, NumericInputValue>>({})
+  const [skillValues, setSkillValues] = useState<Record<string, NumericInputValue>>({})
   const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null)
   const [useClassRaceBonuses, setUseClassRaceBonuses] = useState(false)
+  const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
   const [raceTemplates, setRaceTemplates] = useState<IdentityTemplate[]>([])
   const [classTemplates, setClassTemplates] = useState<IdentityTemplate[]>([])
   const [identityTemplates, setIdentityTemplates] = useState<CharacterIdentityTemplate[]>([])
@@ -149,6 +169,7 @@ export default function NewCharacterPage() {
   const [characterType, setCharacterType] = useState<CharacterSummary["characterType"]>(
     "player",
   )
+  const [maxCarryWeight, setMaxCarryWeight] = useState("")
   const [characterVisibility, setCharacterVisibility] = useState<"private" | "public">(
     "public",
   )
@@ -262,19 +283,23 @@ export default function NewCharacterPage() {
         setIdentityTemplates(identityFields)
         setCharacteristicsTemplates(characteristicsFields)
         setUseClassRaceBonuses(Boolean(rpgPayload.rpg?.useClassRaceBonuses))
+        setUseInventoryWeightLimit(Boolean(rpgPayload.rpg?.useInventoryWeightLimit))
         setIsOwner(Boolean(charactersPayload.isOwner))
 
-        const nextAttributes = attributeTemplate.reduce<Record<string, number>>((acc, item) => {
-          acc[item.key] = Number((editTarget?.attributes ?? {})[item.key] ?? 0)
+        const nextAttributes = attributeTemplate.reduce<Record<string, NumericInputValue>>((acc, item) => {
+          const value = (editTarget?.attributes ?? {})[item.key]
+          acc[item.key] = editTarget ? Number(value ?? 0) : ""
           return acc
         }, {})
 
-        const nextStatuses = statusTemplate.reduce<Record<string, number>>((acc, item) => {
-          acc[item.key] = Number((editTarget?.statuses ?? {})[item.key] ?? 0)
+        const nextStatuses = statusTemplate.reduce<Record<string, NumericInputValue>>((acc, item) => {
+          const value = (editTarget?.statuses ?? {})[item.key]
+          acc[item.key] = editTarget ? Number(value ?? 0) : ""
           return acc
         }, {})
-        const nextSkills = skillTemplate.reduce<Record<string, number>>((acc, item) => {
-          acc[item.key] = Number((editTarget?.skills ?? {})[item.key] ?? 0)
+        const nextSkills = skillTemplate.reduce<Record<string, NumericInputValue>>((acc, item) => {
+          const value = (editTarget?.skills ?? {})[item.key]
+          acc[item.key] = editTarget ? Number(value ?? 0) : ""
           return acc
         }, {})
         const nextIdentity = identityFields.reduce<Record<string, string>>((acc, item) => {
@@ -303,6 +328,11 @@ export default function NewCharacterPage() {
         setRaceKey(editTarget?.raceKey ?? "")
         setClassKey(editTarget?.classKey ?? "")
         setCharacterType(editTarget?.characterType ?? "player")
+        setMaxCarryWeight(
+          editTarget?.maxCarryWeight === null || editTarget?.maxCarryWeight === undefined
+            ? ""
+            : String(editTarget.maxCarryWeight),
+        )
         setCharacterVisibility(editTarget?.visibility ?? "public")
         setEditingCharacterId(editTarget?.id ?? null)
       } catch {
@@ -332,6 +362,12 @@ export default function NewCharacterPage() {
       const resolvedName = identityNameField
         ? (identityValues[identityNameField.key] ?? "").trim()
         : name.trim()
+      const parsedMaxCarryWeight =
+        useInventoryWeightLimit && characterType === "player"
+          ? maxCarryWeight.trim() === ""
+            ? null
+            : Number(maxCarryWeight)
+          : null
 
       const response = await fetch(endpoint, {
         method,
@@ -348,12 +384,15 @@ export default function NewCharacterPage() {
                 }
               : {}),
           ...(isEditing ? {} : { characterType }),
+          ...(useInventoryWeightLimit && characterType === "player"
+            ? { maxCarryWeight: parsedMaxCarryWeight }
+            : {}),
           ...(isEditing ? { visibility: characterVisibility } : {}),
-          statuses: statusValues,
-          attributes: values,
+          statuses: normalizeNumericValues(statusValues),
+          attributes: normalizeNumericValues(values),
           identity: identityValues,
           characteristics: characteristicsValues,
-          ...(isOwner ? { skills: skillValues } : {}),
+          ...(isOwner ? { skills: normalizeNumericValues(skillValues) } : {}),
         }),
       })
 
@@ -385,21 +424,21 @@ export default function NewCharacterPage() {
   function updateAttribute(key: string, value: string) {
     setValues((prev) => ({
       ...prev,
-      [key]: Number(value),
+      [key]: parseNumericInputValue(value),
     }))
   }
 
   function updateStatus(key: string, value: string) {
     setStatusValues((prev) => ({
       ...prev,
-      [key]: Number(value),
+      [key]: parseNumericInputValue(value),
     }))
   }
 
   function updateSkill(key: string, value: string) {
     setSkillValues((prev) => ({
       ...prev,
-      [key]: Number(value),
+      [key]: parseNumericInputValue(value),
     }))
   }
 
@@ -623,6 +662,21 @@ export default function NewCharacterPage() {
                   </select>
                 )}
               </label>
+
+              {useInventoryWeightLimit && characterType === "player" ? (
+                <label className={styles.field}>
+                  <span>Peso maximo (kg)</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.1"
+                    value={maxCarryWeight}
+                    onChange={(event) => setMaxCarryWeight(event.target.value)}
+                    placeholder="Ex.: 30"
+                    required
+                  />
+                </label>
+              ) : null}
 
               {editingCharacterId ? (
                 <div className={styles.field}>

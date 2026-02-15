@@ -346,6 +346,18 @@ function validateStat(name: string, value: unknown) {
   return { ok: true as const, value: Math.floor(value) }
 }
 
+function validateMaxCarryWeight(value: unknown) {
+  if (value === null || value === undefined) {
+    return { ok: true as const, value: null as number | null }
+  }
+
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    return { ok: false as const, message: "Peso maximo invalido." }
+  }
+
+  return { ok: true as const, value }
+}
+
 function normalizeOptionalText(value: unknown) {
   if (typeof value !== "string") {
     return null
@@ -380,10 +392,52 @@ function getDefaultStatusTemplate(): StatusTemplateRow[] {
 }
 
 async function canManageCharacter(rpgId: string, characterId: string, userId: string) {
-  const rpg = await prisma.rpg.findUnique({
-    where: { id: rpgId },
-    select: { id: true, ownerId: true },
-  })
+  let rpgRows: Array<{
+    id: string
+    ownerId: string
+    useInventoryWeightLimit: boolean
+  }> = []
+  try {
+    rpgRows = await prisma.$queryRaw<
+      Array<{
+        id: string
+        ownerId: string
+        useInventoryWeightLimit: boolean
+      }>
+    >(Prisma.sql`
+      SELECT
+        id,
+        owner_id AS "ownerId",
+        COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit"
+      FROM rpgs
+      WHERE id = ${rpgId}
+      LIMIT 1
+    `)
+  } catch (error) {
+    if (
+      !(error instanceof Error) ||
+      !error.message.includes('column "use_inventory_weight_limit" does not exist')
+    ) {
+      throw error
+    }
+
+    rpgRows = await prisma.$queryRaw<
+      Array<{
+        id: string
+        ownerId: string
+        useInventoryWeightLimit: boolean
+      }>
+    >(Prisma.sql`
+      SELECT
+        id,
+        owner_id AS "ownerId",
+        false AS "useInventoryWeightLimit"
+      FROM rpgs
+      WHERE id = ${rpgId}
+      LIMIT 1
+    `)
+  }
+  const rpg = rpgRows[0]
 
   if (!rpg) {
     return { ok: false as const, status: 404, message: "RPG nao encontrado." }
@@ -409,6 +463,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
 
   let character: Array<{
     id: string
+    characterType: "player" | "npc" | "monster"
     createdByUserId: string | null
     skills: Prisma.JsonValue
     identity: Prisma.JsonValue
@@ -418,6 +473,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     character = await prisma.$queryRaw<
       Array<{
         id: string
+        characterType: "player" | "npc" | "monster"
         createdByUserId: string | null
         skills: Prisma.JsonValue
         identity: Prisma.JsonValue
@@ -426,6 +482,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     >(Prisma.sql`
       SELECT
         id,
+        character_type AS "characterType",
         created_by_user_id AS "createdByUserId",
         skills,
         COALESCE(identity, '{}'::jsonb) AS identity,
@@ -447,6 +504,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     character = await prisma.$queryRaw<
       Array<{
         id: string
+        characterType: "player" | "npc" | "monster"
         createdByUserId: string | null
         skills: Prisma.JsonValue
         identity: Prisma.JsonValue
@@ -455,6 +513,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     >(Prisma.sql`
       SELECT
         id,
+        character_type AS "characterType",
         created_by_user_id AS "createdByUserId",
         skills,
         '{}'::jsonb AS identity,
@@ -477,6 +536,8 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
   return {
     ok: true as const,
     isOwner,
+    useInventoryWeightLimit: rpg.useInventoryWeightLimit,
+    characterType: character[0].characterType,
     currentSkills: character[0].skills,
     currentIdentity: character[0].identity,
     currentCharacteristics: character[0].characteristics,
@@ -499,6 +560,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const body = (await request.json()) as {
       name?: string
       image?: string
+      maxCarryWeight?: number | null
       statuses?: Record<string, number>
       attributes?: Record<string, number>
       skills?: Record<string, number>
@@ -534,6 +596,18 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     const visibility = body.visibility ?? null
+    const hasMaxCarryWeightInBody = Object.prototype.hasOwnProperty.call(
+      body,
+      "maxCarryWeight",
+    )
+    const parsedMaxCarryWeight = validateMaxCarryWeight(body.maxCarryWeight)
+    if (!parsedMaxCarryWeight.ok) {
+      return NextResponse.json({ message: parsedMaxCarryWeight.message }, { status: 400 })
+    }
+    const resolvedMaxCarryWeight =
+      permission.useInventoryWeightLimit && permission.characterType === "player"
+        ? parsedMaxCarryWeight.value
+        : null
 
     let dbAttributeTemplate: AttributeTemplateRow[] = []
     try {
@@ -722,6 +796,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         name = ${name},
         image = CASE WHEN ${hasImageInBody} THEN ${image} ELSE image END,
         visibility = COALESCE(${visibility}::"RpgVisibility", visibility),
+        max_carry_weight = CASE
+          WHEN ${hasMaxCarryWeightInBody} THEN ${resolvedMaxCarryWeight}
+          ELSE max_carry_weight
+        END,
         life = ${life.value},
         defense = ${defense.value},
         mana = ${mana.value},
@@ -777,6 +855,18 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (error instanceof Error && error.message.includes('column "characteristics" of relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "max_carry_weight" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "use_inventory_weight_limit" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },
         { status: 500 },
       )
     }

@@ -33,7 +33,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { title, description, visibility, useClassRaceBonuses } = parsed.data
+    const {
+      title,
+      description,
+      visibility,
+      useClassRaceBonuses,
+      useInventoryWeightLimit,
+    } = parsed.data
     const created = await prisma.rpg.create({
       data: {
         ownerId: authPayload.userId,
@@ -46,7 +52,9 @@ export async function POST(request: NextRequest) {
     try {
       await prisma.$executeRaw(Prisma.sql`
         UPDATE rpgs
-        SET use_class_race_bonuses = ${Boolean(useClassRaceBonuses)}
+        SET
+          use_class_race_bonuses = ${Boolean(useClassRaceBonuses)},
+          use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
         WHERE id = ${created.id}
       `)
     } catch {
@@ -62,6 +70,7 @@ export async function POST(request: NextRequest) {
           description: created.description,
           visibility: created.visibility,
           useClassRaceBonuses: Boolean(useClassRaceBonuses),
+          useInventoryWeightLimit: Boolean(useInventoryWeightLimit),
           createdAt: created.createdAt,
         },
       },

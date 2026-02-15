@@ -8,6 +8,7 @@ export const createRpgSchema = z.object({
     .min(10, "Descricao deve ter pelo menos 10 caracteres."),
   visibility: z.enum(["private", "public"]),
   useClassRaceBonuses: z.boolean().optional(),
+  useInventoryWeightLimit: z.boolean().optional(),
 })
 
 export type CreateRpgInput = z.infer<typeof createRpgSchema>

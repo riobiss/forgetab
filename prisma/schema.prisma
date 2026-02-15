@@ -75,6 +75,7 @@ model Rpg {
   description        String
   visibility         RpgVisibility          @default(private)
   useClassRaceBonuses Boolean               @default(false) @map("use_class_race_bonuses")
+  useInventoryWeightLimit Boolean           @default(false) @map("use_inventory_weight_limit")
   createdAt          DateTime               @default(now()) @map("created_at")
   baseItems          BaseItem[]
   attributeTemplates RpgAttributeTemplate[]
@@ -147,6 +148,7 @@ model RpgCharacter {
   classKey      String?          @map("class_key")
   characterType RpgCharacterType @default(player) @map("character_type")
   visibility    RpgVisibility    @default(public)
+  maxCarryWeight Float?          @map("max_carry_weight")
   life          Int              @default(0)
   defense       Int              @default(0)
   mana          Int              @default(0)

@@ -23,6 +23,7 @@ export function useEditRpgState() {
   const [description, setDescription] = useState("")
   const [visibility, setVisibility] = useState<Visibility>("private")
   const [useClassRaceBonuses, setUseClassRaceBonuses] = useState(false)
+  const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
 
   const [selectedAttributeKeys, setSelectedAttributeKeys] = useState<string[]>([])
   const [selectedStatusKeys, setSelectedStatusKeys] = useState<string[]>([])
@@ -192,6 +193,8 @@ export function useEditRpgState() {
     setVisibility,
     useClassRaceBonuses,
     setUseClassRaceBonuses,
+    useInventoryWeightLimit,
+    setUseInventoryWeightLimit,
     selectedAttributeKeys,
     setSelectedAttributeKeys,
     selectedStatusKeys,

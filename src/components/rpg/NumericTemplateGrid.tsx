@@ -7,7 +7,7 @@ type TemplateItem = {
 
 type Props = {
   items: TemplateItem[]
-  values: Record<string, number>
+  values: Record<string, number | "">
   onChange: (key: string, value: string) => void
   gridClassName: string
   fieldClassName: string
@@ -36,7 +36,7 @@ export default function NumericTemplateGrid({
           <input
             type="number"
             min={min}
-            value={values[item.key] ?? 0}
+            value={values[item.key] ?? ""}
             onChange={(event) => onChange(item.key, event.target.value)}
             disabled={disabled}
             required={required}

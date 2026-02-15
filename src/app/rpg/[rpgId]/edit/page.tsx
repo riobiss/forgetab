@@ -36,6 +36,7 @@ export default function EditRpgPage() {
     description: state.description,
     visibility: state.visibility,
     useClassRaceBonuses: state.useClassRaceBonuses,
+    useInventoryWeightLimit: state.useInventoryWeightLimit,
     selectedAttributeKeys: state.selectedAttributeKeys,
     selectedStatusKeys: state.selectedStatusKeys,
     statusLabelByKey: state.statusLabelByKey,
@@ -46,6 +47,7 @@ export default function EditRpgPage() {
     setDescription: state.setDescription,
     setVisibility: state.setVisibility,
     setUseClassRaceBonuses: state.setUseClassRaceBonuses,
+    setUseInventoryWeightLimit: state.setUseInventoryWeightLimit,
     setSelectedAttributeKeys: state.setSelectedAttributeKeys,
     setSelectedStatusKeys: state.setSelectedStatusKeys,
     setStatusLabelByKey: state.setStatusLabelByKey,
@@ -190,6 +192,8 @@ export default function EditRpgPage() {
           onDescriptionChange={state.setDescription}
           visibility={state.visibility}
           onVisibilityChange={state.setVisibility}
+          useInventoryWeightLimit={state.useInventoryWeightLimit}
+          onUseInventoryWeightLimitChange={state.setUseInventoryWeightLimit}
           error={data.error}
           success={data.identitySuccess}
           saving={data.saving}

@@ -41,6 +41,11 @@ type InventoryRow = {
   itemDurability: number | null
 }
 
+type CharacterWeightContextRow = {
+  useInventoryWeightLimit: boolean
+  maxCarryWeight: number | null
+}
+
 async function getUserIdFromToken(request: NextRequest) {
   const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
   if (!token) return null
@@ -135,6 +140,32 @@ export async function GET(request: NextRequest, context: RouteContext) {
       )
     }
 
+    let characterWeightContext: CharacterWeightContextRow = {
+      useInventoryWeightLimit: false,
+      maxCarryWeight: null,
+    }
+    try {
+      const weightRows = await prisma.$queryRaw<CharacterWeightContextRow[]>(Prisma.sql`
+        SELECT
+          COALESCE(r.use_inventory_weight_limit, false) AS "useInventoryWeightLimit",
+          c.max_carry_weight AS "maxCarryWeight"
+        FROM rpgs r
+        INNER JOIN rpg_characters c ON c.rpg_id = r.id
+        WHERE r.id = ${rpgId}
+          AND c.id = ${characterId}
+        LIMIT 1
+      `)
+      characterWeightContext = weightRows[0] ?? characterWeightContext
+    } catch (error) {
+      if (
+        !(error instanceof Error) ||
+        (!error.message.includes('column "use_inventory_weight_limit" does not exist') &&
+          !error.message.includes('column "max_carry_weight" does not exist'))
+      ) {
+        throw error
+      }
+    }
+
     const inventoryItems = await prisma.$queryRaw<InventoryRow[]>(Prisma.sql`
       SELECT
         i.id,
@@ -167,7 +198,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
     `)
 
     return NextResponse.json(
-      { inventory: inventoryItems, isOwner: characterContext.isOwner },
+      {
+        inventory: inventoryItems,
+        isOwner: characterContext.isOwner,
+        useInventoryWeightLimit: characterWeightContext.useInventoryWeightLimit,
+        maxCarryWeight: characterWeightContext.maxCarryWeight,
+      },
       { status: 200 },
     )
   } catch (error) {

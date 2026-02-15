@@ -17,6 +17,7 @@ type RpgRow = {
   description: string
   visibility: "private" | "public"
   useClassRaceBonuses: boolean
+  useInventoryWeightLimit: boolean
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
@@ -41,7 +42,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
           title,
           description,
           visibility,
-          COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses"
+          COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
+          COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit"
         FROM rpgs
         WHERE id = ${rpgId}
         LIMIT 1
@@ -49,7 +51,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
     } catch (error) {
       if (
         error instanceof Error &&
-        error.message.includes('column "use_class_race_bonuses" does not exist')
+        (error.message.includes('column "use_class_race_bonuses" does not exist') ||
+          error.message.includes('column "use_inventory_weight_limit" does not exist'))
       ) {
         rows = await prisma.$queryRaw<RpgRow[]>(Prisma.sql`
           SELECT
@@ -58,7 +61,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
             title,
             description,
             visibility,
-            false AS "useClassRaceBonuses"
+            false AS "useClassRaceBonuses",
+            false AS "useInventoryWeightLimit"
           FROM rpgs
           WHERE id = ${rpgId}
           LIMIT 1
@@ -108,6 +112,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           description: rpg.description,
           visibility: rpg.visibility,
           useClassRaceBonuses: rpg.useClassRaceBonuses,
+          useInventoryWeightLimit: rpg.useInventoryWeightLimit,
         },
       },
       { status: 200 },
@@ -142,7 +147,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     const { rpgId } = await context.params
-    const { title, description, visibility, useClassRaceBonuses } = parsed.data
+    const {
+      title,
+      description,
+      visibility,
+      useClassRaceBonuses,
+      useInventoryWeightLimit,
+    } = parsed.data
 
     const updated = await prisma.rpg.updateMany({
       where: { id: rpgId, ownerId: userId },
@@ -156,18 +167,24 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       )
     }
 
-    if (typeof useClassRaceBonuses === "boolean") {
+    if (
+      typeof useClassRaceBonuses === "boolean" ||
+      typeof useInventoryWeightLimit === "boolean"
+    ) {
       try {
         await prisma.$executeRaw(Prisma.sql`
           UPDATE rpgs
-          SET use_class_race_bonuses = ${useClassRaceBonuses}
+          SET
+            use_class_race_bonuses = ${Boolean(useClassRaceBonuses)},
+            use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
           WHERE id = ${rpgId}
             AND owner_id = ${userId}
         `)
       } catch (error) {
         if (
           !(error instanceof Error) ||
-          !error.message.includes('column "use_class_race_bonuses" does not exist')
+          (!error.message.includes('column "use_class_race_bonuses" does not exist') &&
+            !error.message.includes('column "use_inventory_weight_limit" does not exist'))
         ) {
           throw error
         }

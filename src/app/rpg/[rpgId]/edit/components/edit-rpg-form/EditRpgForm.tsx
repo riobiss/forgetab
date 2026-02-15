@@ -13,6 +13,8 @@ type Props = {
   onDescriptionChange: (value: string) => void
   visibility: Visibility
   onVisibilityChange: (value: Visibility) => void
+  useInventoryWeightLimit: boolean
+  onUseInventoryWeightLimitChange: (value: boolean) => void
   error: string
   success: string
   saving: boolean
@@ -26,6 +28,8 @@ export default function EditRpgForm({
   onDescriptionChange,
   visibility,
   onVisibilityChange,
+  useInventoryWeightLimit,
+  onUseInventoryWeightLimitChange,
   error,
   success,
   saving,
@@ -70,6 +74,15 @@ export default function EditRpgForm({
             <option value="private">Privado</option>
             <option value="public">Publico</option>
           </select>
+        </label>
+
+        <label className={`${styles.field} ${styles.checkboxField}`}>
+          <span>Controle de peso no inventario</span>
+          <input
+            type="checkbox"
+            checked={useInventoryWeightLimit}
+            onChange={(event) => onUseInventoryWeightLimitChange(event.target.checked)}
+          />
         </label>
 
         {error ? <p className={styles.error}>{error}</p> : null}
