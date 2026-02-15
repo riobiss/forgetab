@@ -27,7 +27,99 @@ function getImageKitConfig() {
     return { ok: false as const, missing }
   }
 
-  return { ok: true as const, privateKey, urlEndpoint }
+  return { ok: true as const, privateKey: privateKey as string, urlEndpoint: urlEndpoint as string }
+}
+
+function parseHost(value: string) {
+  try {
+    return new URL(value).host.toLowerCase()
+  } catch {
+    return null
+  }
+}
+
+function normalizeUrlPath(value: string) {
+  try {
+    return new URL(value).pathname
+  } catch {
+    return null
+  }
+}
+
+function extractFileNameFromUrl(value: string) {
+  const path = normalizeUrlPath(value)
+  if (!path) return null
+
+  const parts = path.split("/").filter(Boolean)
+  if (parts.length === 0) return null
+
+  return parts[parts.length - 1]
+}
+
+async function deleteImageKitFileByUrl(
+  privateKey: string,
+  urlEndpoint: string,
+  rawOldUrl: unknown,
+) {
+  if (typeof rawOldUrl !== "string") return
+
+  const oldUrl = rawOldUrl.trim()
+  if (!oldUrl) return
+
+  const endpointHost = parseHost(urlEndpoint)
+  const oldUrlHost = parseHost(oldUrl)
+  if (!endpointHost || !oldUrlHost || endpointHost !== oldUrlHost) {
+    return
+  }
+
+  const fileName = extractFileNameFromUrl(oldUrl)
+  if (!fileName) return
+
+  const auth = Buffer.from(`${privateKey}:`, "utf8").toString("base64")
+  const escapedFileName = fileName.replace(/"/g, '\\"')
+  const searchQuery = encodeURIComponent(`name = "${escapedFileName}"`)
+  const listResponse = await fetch(
+    `https://api.imagekit.io/v1/files?limit=100&searchQuery=${searchQuery}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${auth}`,
+      },
+    },
+  )
+
+  if (!listResponse.ok) {
+    throw new Error("Falha ao listar imagem antiga no ImageKit.")
+  }
+
+  const listPayload = (await listResponse.json()) as Array<{
+    fileId?: string
+    url?: string
+  }>
+
+  const normalizedOldPath = normalizeUrlPath(oldUrl)
+  const target = listPayload.find((item) => {
+    if (!item.fileId || !item.url) return false
+    if (item.url === oldUrl) return true
+
+    const itemPath = normalizeUrlPath(item.url)
+    return Boolean(normalizedOldPath && itemPath && itemPath === normalizedOldPath)
+  })
+
+  if (!target?.fileId) {
+    return
+  }
+
+  const deleteResponse = await fetch(`https://api.imagekit.io/v1/files/${target.fileId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Basic ${auth}`,
+    },
+  })
+
+  if (!deleteResponse.ok && deleteResponse.status !== 404) {
+    throw new Error("Falha ao remover imagem antiga no ImageKit.")
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -49,6 +141,7 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData()
     const file = formData.get("file")
+    const oldUrl = formData.get("oldUrl")
 
     if (!(file instanceof File)) {
       return NextResponse.json({ message: "Arquivo de imagem e obrigatorio." }, { status: 400 })
@@ -77,6 +170,12 @@ export async function POST(request: NextRequest) {
 
     // ImageKit upload API uses Basic auth with: base64(privateKey + ":")
     const auth = Buffer.from(`${imageKitConfig.privateKey}:`, "utf8").toString("base64")
+
+    await deleteImageKitFileByUrl(
+      imageKitConfig.privateKey,
+      imageKitConfig.urlEndpoint,
+      oldUrl,
+    )
 
     const response = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
       method: "POST",

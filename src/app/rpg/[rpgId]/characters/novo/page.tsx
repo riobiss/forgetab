@@ -126,6 +126,9 @@ export default function NewCharacterPage() {
   const [uploadError, setUploadError] = useState("")
   const [error, setError] = useState("")
   const [isOwner, setIsOwner] = useState(false)
+  const [showStatusSection, setShowStatusSection] = useState(true)
+  const [showAttributeSection, setShowAttributeSection] = useState(true)
+  const [showSkillSection, setShowSkillSection] = useState(true)
 
   useEffect(() => {
     async function loadTemplate() {
@@ -563,61 +566,96 @@ export default function NewCharacterPage() {
           </section>
 
           <section className={styles.section}>
-            <h2>Status</h2>
-            <div className={styles.valuesGrid}>
-              {statuses.map((status) => (
-                <label className={styles.field} key={status.key}>
-                  <span>{status.label}</span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={statusValues[status.key] ?? 0}
-                    onChange={(event) => updateStatus(status.key, event.target.value)}
-                    required
-                  />
-                </label>
-              ))}
+            <div className={styles.sectionHeader}>
+              <h2>Status</h2>
+              <button
+                type="button"
+                className={styles.sectionToggleButton}
+                onClick={() => setShowStatusSection((prev) => !prev)}
+              >
+                {showStatusSection ? "Ocultar" : "Mostrar"}
+              </button>
             </div>
-          </section>
-
-          <section className={styles.section}>
-            <h2>Atributos</h2>
-            <div className={styles.valuesGrid}>
-              {attributes.map((attribute) => (
-                <label className={styles.field} key={attribute.key}>
-                  <span>{attribute.label}</span>
-                  <input
-                    type="number"
-                    value={values[attribute.key] ?? 0}
-                    onChange={(event) => updateAttribute(attribute.key, event.target.value)}
-                    required
-                  />
-                </label>
-              ))}
-            </div>
-          </section>
-
-          {skills.length > 0 ? (
-            <section className={styles.section}>
-              <h2>Pericias</h2>
-              {!isOwner ? (
-                <p>Somente o owner do RPG pode editar as pericias dos personagens.</p>
-              ) : null}
+            {showStatusSection ? (
               <div className={styles.valuesGrid}>
-                {skills.map((skill) => (
-                  <label className={styles.field} key={skill.key}>
-                    <span>{skill.label}</span>
+                {statuses.map((status) => (
+                  <label className={styles.field} key={status.key}>
+                    <span>{status.label}</span>
                     <input
                       type="number"
                       min={0}
-                      value={skillValues[skill.key] ?? 0}
-                      onChange={(event) => updateSkill(skill.key, event.target.value)}
-                      disabled={!isOwner}
+                      value={statusValues[status.key] ?? 0}
+                      onChange={(event) => updateStatus(status.key, event.target.value)}
                       required
                     />
                   </label>
                 ))}
               </div>
+            ) : null}
+          </section>
+
+          <section className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h2>Atributos</h2>
+              <button
+                type="button"
+                className={styles.sectionToggleButton}
+                onClick={() => setShowAttributeSection((prev) => !prev)}
+              >
+                {showAttributeSection ? "Ocultar" : "Mostrar"}
+              </button>
+            </div>
+            {showAttributeSection ? (
+              <div className={styles.valuesGrid}>
+                {attributes.map((attribute) => (
+                  <label className={styles.field} key={attribute.key}>
+                    <span>{attribute.label}</span>
+                    <input
+                      type="number"
+                      value={values[attribute.key] ?? 0}
+                      onChange={(event) => updateAttribute(attribute.key, event.target.value)}
+                      required
+                    />
+                  </label>
+                ))}
+              </div>
+            ) : null}
+          </section>
+
+          {skills.length > 0 ? (
+            <section className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h2>Pericias</h2>
+                <button
+                  type="button"
+                  className={styles.sectionToggleButton}
+                  onClick={() => setShowSkillSection((prev) => !prev)}
+                >
+                  {showSkillSection ? "Ocultar" : "Mostrar"}
+                </button>
+              </div>
+              {showSkillSection ? (
+                <>
+                  {!isOwner ? (
+                    <p>Somente o owner do RPG pode editar as pericias dos personagens.</p>
+                  ) : null}
+                  <div className={styles.valuesGrid}>
+                    {skills.map((skill) => (
+                      <label className={styles.field} key={skill.key}>
+                        <span>{skill.label}</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={skillValues[skill.key] ?? 0}
+                          onChange={(event) => updateSkill(skill.key, event.target.value)}
+                          disabled={!isOwner}
+                          required
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </>
+              ) : null}
             </section>
           ) : null}
 
