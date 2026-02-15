@@ -157,7 +157,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: normalized.message }, { status: 400 })
     }
 
-    const byKey = new Map(STATUS_CATALOG.map((item) => [item.key, item.label]))
+    const byKey = new Map<string, string>(
+      STATUS_CATALOG.map((item) => [item.key, item.label]),
+    )
 
     await prisma.$executeRaw(Prisma.sql`
       DELETE FROM rpg_status_templates
