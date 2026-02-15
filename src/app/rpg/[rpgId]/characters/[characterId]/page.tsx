@@ -45,6 +45,11 @@ type SkillTemplateLabelRow = {
   label: string
 }
 
+type StatusTemplateLabelRow = {
+  key: string
+  label: string
+}
+
 type CharacterIdentityTemplateLabelRow = {
   key: string
   label: string
@@ -125,6 +130,7 @@ export default async function CharactersPage({ params }: Params) {
   if (!character) {
     let dbCharacter: DbCharacterRow[] = []
     let skillLabelByKey = new Map<string, string>()
+    let statusTemplateLabelByKey = new Map<string, string>()
     let identityTemplateFields: CharacterIdentityTemplateLabelRow[] = []
     let characteristicsTemplateFields: CharacterCharacteristicTemplateLabelRow[] = []
     let userId: string | null = null
@@ -190,6 +196,13 @@ export default async function CharactersPage({ params }: Params) {
       `)
       skillLabelByKey = new Map(skillLabels.map((item) => [item.key, item.label]))
 
+      const statusLabels = await prisma.$queryRaw<StatusTemplateLabelRow[]>(Prisma.sql`
+        SELECT key, label
+        FROM rpg_status_templates
+        WHERE rpg_id = ${rpgId}
+      `)
+      statusTemplateLabelByKey = new Map(statusLabels.map((item) => [item.key, item.label]))
+
       const identityLabels = await prisma.$queryRaw<CharacterIdentityTemplateLabelRow[]>(Prisma.sql`
         SELECT key, label, position
         FROM rpg_character_identity_templates
@@ -208,6 +221,7 @@ export default async function CharactersPage({ params }: Params) {
     } catch {
       dbCharacter = []
       skillLabelByKey = new Map()
+      statusTemplateLabelByKey = new Map()
       identityTemplateFields = []
       characteristicsTemplateFields = []
     }
@@ -230,9 +244,19 @@ export default async function CharactersPage({ params }: Params) {
     const attributes = row.attributes as Record<string, number>
     const statuses = row.statuses as Record<string, number>
     const skills = row.skills as Record<string, number>
+    const skillEntries = Object.entries(skills)
     const identity = row.identity as Record<string, string>
     const characteristics = row.characteristics as Record<string, string>
     const displayName = getIdentityDisplayName(identity)
+    const coreStatusConfig = [
+      { key: "life", label: statusTemplateLabelByKey.get("life") ?? statusLabelByKey.life ?? "Vida" },
+      { key: "mana", label: statusTemplateLabelByKey.get("mana") ?? statusLabelByKey.mana ?? "Mana" },
+      { key: "sanity", label: statusTemplateLabelByKey.get("sanity") ?? statusLabelByKey.sanity ?? "Sanidade" },
+      { key: "stamina", label: statusTemplateLabelByKey.get("stamina") ?? "Exaustao" },
+    ]
+    const extraStatusEntries = Object.entries(statuses).filter(
+      ([key]) => !coreStatusConfig.some((item) => item.key === key),
+    )
     const identityItems =
       identityTemplateFields.length > 0
         ? identityTemplateFields.map((field) => ({
@@ -293,13 +317,17 @@ export default async function CharactersPage({ params }: Params) {
                 Inventario
               </Link>
             </div>
-          </div>
+            <div className={styles.identityInfo}>
+              <div className={styles.actionLinks}>
+                <Link className={styles.actionLink} href={`/rpg/${rpgId}/characters/${characterId}/abilities`}>
+                  Habilidades
+                </Link>
+                <Link className={styles.actionLink} href={`/rpg/${rpgId}/characters/${characterId}/inventory`}>
+                  Equipamentos
+                </Link>
+              </div>
 
-          <div className={styles.grid}>
-            <div>
-              <h4>Ficha Basica</h4>
-              <p>ID: {row.id}</p>
-              <p>
+              <p className={styles.kingdom}>
                 Tipo:{" "}
                 {row.characterType === "player"
                   ? "Player"
@@ -307,30 +335,29 @@ export default async function CharactersPage({ params }: Params) {
                     ? "NPC"
                     : "Monstro"}
               </p>
-              <p>Criado em: {formatDateInBrasilia(row.createdAt)}</p>
             </div>
+          </div>
 
-            {row.raceKey || row.classKey ? (
-              <div>
-                <h4>Raca e Classe</h4>
-                {row.raceKey ? <p>Raca: {row.raceKey}</p> : null}
-                {row.classKey ? <p>Classe: {row.classKey}</p> : null}
-              </div>
-            ) : null}
-
+          <div className={styles.grid}>
             <div>
               <h4>Status</h4>
-              <ul className={styles.list}>
-                {Object.entries(statuses).map(([key, value]) => (
-                  <li key={key}>
-                    {statusLabelByKey[key] ?? key}: {value}
-                  </li>
-                ))}
-              </ul>
+              {coreStatusConfig.map((item) => (
+                <p key={item.key}>
+                  {item.label}: {statuses[item.key] ?? 0}
+                </p>
+              ))}
+              {extraStatusEntries.map(([key, value]) => (
+                <p key={key}>
+                  {statusTemplateLabelByKey.get(key) ?? statusLabelByKey[key] ?? key}: {value}
+                </p>
+              ))}
             </div>
 
+          </div>
+
+          <div className={styles.containerSkillAttributes}>
             <div>
-              <h4>Atributos do Padrao</h4>
+              <h4>Atributos</h4>
               <ul className={styles.list}>
                 {Object.entries(attributes).map(([key, value]) => (
                   <li key={key}>
@@ -340,40 +367,48 @@ export default async function CharactersPage({ params }: Params) {
               </ul>
             </div>
 
-            <div>
-              <h4>Pericias do Padrao</h4>
-              <ul className={styles.list}>
-                {Object.entries(skills).map(([key, value]) => (
-                  <li key={key}>
-                    {skillLabelByKey.get(key) ?? skillLabels[key] ?? key}: {value}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {skillEntries.length > 0 ? (
+              <div>
+                <h4>Pericias</h4>
+                <ul className={styles.list}>
+                  {skillEntries.map(([key, value]) => (
+                    <li key={key}>
+                      {skillLabelByKey.get(key) ?? skillLabels[key] ?? key}: {value}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+
+          <div className={styles.grid}>
+            {row.raceKey || row.classKey ? (
+              <div>
+                <h4>Raca e Classe</h4>
+                {row.raceKey ? <p>Raca: {row.raceKey}</p> : null}
+                {row.classKey ? <p>Classe: {row.classKey}</p> : null}
+              </div>
+            ) : null}
 
             {identityItems.length > 0 ? (
               <div>
                 <h4>Identidade</h4>
-                <ul className={styles.list}>
-                  {identityItems.map((item) => (
-                    <li key={item.key}>
-                      {item.label}: {item.value.trim() || "-"}
-                    </li>
-                  ))}
-                </ul>
+                {identityItems.map((item) => (
+                  <p key={item.key}>
+                    {item.label}: {item.value.trim() || "-"}
+                  </p>
+                ))}
               </div>
             ) : null}
 
             {characteristicsItems.length > 0 ? (
               <div>
                 <h4>Caracteristicas</h4>
-                <ul className={styles.list}>
-                  {characteristicsItems.map((item) => (
-                    <li key={item.key}>
-                      {item.label}: {item.value.trim() || "-"}
-                    </li>
-                  ))}
-                </ul>
+                {characteristicsItems.map((item) => (
+                  <p key={item.key}>
+                    {item.label}: {item.value.trim() || "-"}
+                  </p>
+                ))}
               </div>
             ) : null}
           </div>

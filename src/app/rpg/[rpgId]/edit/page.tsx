@@ -46,6 +46,13 @@ type CharacterIdentityTemplate = {
   position: number
 }
 
+const CORE_STATUS_OPTIONS = [
+  { key: "life", label: "Vida" },
+  { key: "mana", label: "Mana" },
+  { key: "sanity", label: "Sanidade" },
+  { key: "stamina", label: "Exaustao" },
+] as const
+
 export default function EditRpgPage() {
   const params = useParams<{ rpgId: string }>()
   const router = useRouter()
@@ -63,6 +70,8 @@ export default function EditRpgPage() {
 
   const [selectedAttributeKeys, setSelectedAttributeKeys] = useState<string[]>([])
   const [selectedStatusKeys, setSelectedStatusKeys] = useState<string[]>([])
+  const [statusLabelByKey, setStatusLabelByKey] = useState<Record<string, string>>({})
+  const [newCustomStatusLabel, setNewCustomStatusLabel] = useState("")
   const [skillTemplates, setSkillTemplates] = useState<Array<{ key: string; label: string }>>([])
   const [newSkillLabel, setNewSkillLabel] = useState("")
 
@@ -111,7 +120,9 @@ export default function EditRpgPage() {
         }
 
         const attrPayload = (await attrRes.json()) as { attributes?: Array<{ key: string }> }
-        const statusPayload = (await statusRes.json()) as { statuses?: Array<{ key: string }> }
+        const statusPayload = (await statusRes.json()) as {
+          statuses?: Array<{ key: string; label: string }>
+        }
         const skillPayload = (await skillRes.json()) as {
           skills?: Array<{ key: string; label: string }>
         }
@@ -144,7 +155,14 @@ export default function EditRpgPage() {
         setVisibility(rpgPayload.rpg.visibility)
         setUseClassRaceBonuses(Boolean(rpgPayload.rpg.useClassRaceBonuses))
         setSelectedAttributeKeys((attrPayload.attributes ?? []).map((item) => item.key))
-        setSelectedStatusKeys((statusPayload.statuses ?? []).map((item) => item.key))
+        const loadedStatuses = statusPayload.statuses ?? []
+        setSelectedStatusKeys(loadedStatuses.map((item) => item.key))
+        setStatusLabelByKey(
+          loadedStatuses.reduce<Record<string, string>>((acc, item) => {
+            acc[item.key] = item.label
+            return acc
+          }, {}),
+        )
         setSkillTemplates((skillPayload.skills ?? []).map((item) => ({ key: item.key, label: item.label })))
         setRaceDrafts(
           (racePayload.races ?? []).map((item, index) => ({
@@ -218,7 +236,15 @@ export default function EditRpgPage() {
     const response = await fetch(`/api/rpg/${rpgId}/statuses`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ statuses: selectedStatusKeys }),
+      body: JSON.stringify({
+        statuses: selectedStatusKeys.map((key) => ({
+          key,
+          label:
+            statusLabelByKey[key] ??
+            CORE_STATUS_OPTIONS.find((option) => option.key === key)?.label ??
+            key,
+        })),
+      }),
     })
     if (!response.ok) throw new Error("Falha ao salvar status.")
   }
@@ -367,7 +393,7 @@ export default function EditRpgPage() {
               </div>
               {showStatusList ? (
                 <div className={styles.attributeGrid}>
-                  {STATUS_CATALOG.map((item) => (
+                  {CORE_STATUS_OPTIONS.map((item) => (
                     <label key={item.key} className={styles.attributeOption}>
                       <input
                         type="checkbox"
@@ -384,6 +410,79 @@ export default function EditRpgPage() {
                     </label>
                   ))}
                 </div>
+              ) : null}
+              {showStatusList ? (
+                <>
+                  <div className={styles.actions}>
+                    <input
+                      type="text"
+                      value={newCustomStatusLabel}
+                      onChange={(event) => setNewCustomStatusLabel(event.target.value)}
+                      placeholder="Ex.: Energia Arcana"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const label = newCustomStatusLabel.trim()
+                        if (label.length < 2) return
+                        const key = label
+                          .normalize("NFD")
+                          .replace(/[\u0300-\u036f]/g, "")
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/^-+|-+$/g, "")
+                        if (key.length < 2) return
+                        setSelectedStatusKeys((prev) =>
+                          prev.includes(key) ? prev : [...prev, key],
+                        )
+                        setStatusLabelByKey((prev) => ({ ...prev, [key]: label }))
+                        setNewCustomStatusLabel("")
+                      }}
+                    >
+                      <Plus size={16} />
+                      <span>Criar status</span>
+                    </button>
+                  </div>
+
+                  {selectedStatusKeys.filter(
+                    (key) => !CORE_STATUS_OPTIONS.some((option) => option.key === key),
+                  ).length > 0 ? (
+                    <div className={styles.actions}>
+                      {selectedStatusKeys
+                        .filter((key) => !CORE_STATUS_OPTIONS.some((option) => option.key === key))
+                        .map((key) => (
+                          <div key={key} className={styles.actions}>
+                            <input
+                              type="text"
+                              value={statusLabelByKey[key] ?? key}
+                              onChange={(event) =>
+                                setStatusLabelByKey((prev) => ({
+                                  ...prev,
+                                  [key]: event.target.value,
+                                }))
+                              }
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedStatusKeys((prev) =>
+                                  prev.filter((current) => current !== key),
+                                )
+                                setStatusLabelByKey((prev) => {
+                                  const next = { ...prev }
+                                  delete next[key]
+                                  return next
+                                })
+                              }}
+                            >
+                              <Trash2 size={16} />
+                              <span>Remover</span>
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                  ) : null}
+                </>
               ) : null}
               <div className={styles.actions}>
                 <button

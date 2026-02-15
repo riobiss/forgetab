@@ -20,6 +20,11 @@ type StatusTemplateRow = {
   position: number
 }
 
+type IncomingStatusTemplate = {
+  key?: unknown
+  label?: unknown
+}
+
 async function getUserIdFromToken(request: NextRequest) {
   const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
   if (!token) return null
@@ -72,22 +77,60 @@ function getAllowedKeys() {
   return new Set(STATUS_CATALOG.map((item) => item.key))
 }
 
-function normalizeStatusKeys(input: string[]) {
+function normalizeStatusTemplates(input: unknown) {
+  const entries = Array.isArray(input) ? input : []
+  const fromCatalog = new Map<string, string>(
+    STATUS_CATALOG.map((item) => [item.key, item.label]),
+  )
+  const seen = new Set<string>()
+  const normalized: Array<{ key: string; label: string }> = []
   const allowed = getAllowedKeys()
-  const unique = Array.from(new Set(input))
 
-  if (unique.length === 0) {
+  for (const entry of entries) {
+    if (typeof entry === "string") {
+      const key = entry.trim()
+      if (!key) continue
+
+      if (seen.has(key)) continue
+      seen.add(key)
+      normalized.push({ key, label: fromCatalog.get(key) ?? key })
+      continue
+    }
+
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      return { ok: false as const, message: "Status invalido." }
+    }
+
+    const candidate = entry as IncomingStatusTemplate
+    const key = typeof candidate.key === "string" ? candidate.key.trim() : ""
+    const label = typeof candidate.label === "string" ? candidate.label.trim() : ""
+
+    if (!key.match(/^[a-z0-9-]{2,40}$/)) {
+      return { ok: false as const, message: `Chave de status invalida: ${key || "vazia"}.` }
+    }
+    if (label.length < 2) {
+      return { ok: false as const, message: `Nome de status invalido para chave ${key}.` }
+    }
+
+    if (seen.has(key)) continue
+    seen.add(key)
+    normalized.push({ key, label })
+  }
+
+  if (normalized.length === 0) {
     return { ok: false as const, message: "Selecione pelo menos 1 status." }
   }
 
-  const invalid = unique.find(
-    (key) => !allowed.has(key as (typeof STATUS_CATALOG)[number]["key"]),
+  const invalidCatalog = normalized.find(
+    (item) =>
+      allowed.has(item.key as (typeof STATUS_CATALOG)[number]["key"]) &&
+      !fromCatalog.has(item.key),
   )
-  if (invalid) {
-    return { ok: false as const, message: `Status invalido: ${invalid}.` }
+  if (invalidCatalog) {
+    return { ok: false as const, message: `Status invalido: ${invalidCatalog.key}.` }
   }
 
-  return { ok: true as const, values: unique }
+  return { ok: true as const, values: normalized }
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
@@ -149,29 +192,24 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
-    const body = (await request.json()) as { statuses?: string[] }
-    const candidate = Array.isArray(body.statuses) ? body.statuses : []
-    const normalized = normalizeStatusKeys(candidate)
+    const body = (await request.json()) as { statuses?: unknown }
+    const normalized = normalizeStatusTemplates(body.statuses)
 
     if (!normalized.ok) {
       return NextResponse.json({ message: normalized.message }, { status: 400 })
     }
-
-    const byKey = new Map<string, string>(
-      STATUS_CATALOG.map((item) => [item.key, item.label]),
-    )
 
     await prisma.$executeRaw(Prisma.sql`
       DELETE FROM rpg_status_templates
       WHERE rpg_id = ${rpgId}
     `)
 
-    const rows = normalized.values.map((key, index) =>
+    const rows = normalized.values.map((item, index) =>
       Prisma.sql`(
         ${crypto.randomUUID()},
         ${rpgId},
-        ${key},
-        ${byKey.get(key) ?? key},
+        ${item.key},
+        ${item.label},
         ${index}
       )`,
     )
