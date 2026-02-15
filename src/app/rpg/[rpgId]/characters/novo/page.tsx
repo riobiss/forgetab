@@ -60,6 +60,18 @@ type ClassesPayload = {
   message?: string
 }
 
+type CharacterIdentityTemplate = {
+  key: string
+  label: string
+  required: boolean
+  position: number
+}
+
+type CharacterIdentityPayload = {
+  fields?: CharacterIdentityTemplate[]
+  message?: string
+}
+
 type CharacterSummary = {
   id: string
   name: string
@@ -72,6 +84,7 @@ type CharacterSummary = {
   statuses?: Record<string, number>
   attributes?: Record<string, number>
   skills?: Record<string, number>
+  identity?: Record<string, string>
 }
 
 type CharactersPayload = {
@@ -83,6 +96,16 @@ type CharactersPayload = {
 type UploadImagePayload = {
   message?: string
   url?: string
+}
+
+function isIdentityNameField(field: CharacterIdentityTemplate) {
+  const normalizedLabel = field.label.trim().toLowerCase()
+  return (
+    field.key === "nome" ||
+    field.key === "name" ||
+    normalizedLabel === "nome" ||
+    normalizedLabel === "name"
+  )
 }
 
 const CHARACTER_TYPE_LABEL: Record<CharacterSummary["characterType"], string> = {
@@ -110,6 +133,8 @@ export default function NewCharacterPage() {
   const [useClassRaceBonuses, setUseClassRaceBonuses] = useState(false)
   const [raceTemplates, setRaceTemplates] = useState<IdentityTemplate[]>([])
   const [classTemplates, setClassTemplates] = useState<IdentityTemplate[]>([])
+  const [identityTemplates, setIdentityTemplates] = useState<CharacterIdentityTemplate[]>([])
+  const [identityValues, setIdentityValues] = useState<Record<string, string>>({})
   const [raceKey, setRaceKey] = useState("")
   const [classKey, setClassKey] = useState("")
   const [characterType, setCharacterType] = useState<CharacterSummary["characterType"]>(
@@ -129,6 +154,7 @@ export default function NewCharacterPage() {
   const [showStatusSection, setShowStatusSection] = useState(true)
   const [showAttributeSection, setShowAttributeSection] = useState(true)
   const [showSkillSection, setShowSkillSection] = useState(true)
+  const identityNameField = identityTemplates.find((field) => isIdentityNameField(field)) ?? null
 
   useEffect(() => {
     async function loadTemplate() {
@@ -136,7 +162,7 @@ export default function NewCharacterPage() {
         setLoading(true)
         setError("")
 
-        const [attributesResponse, statusesResponse, skillsResponse, charactersResponse, rpgResponse, racesResponse, classesResponse] = await Promise.all([
+        const [attributesResponse, statusesResponse, skillsResponse, charactersResponse, rpgResponse, racesResponse, classesResponse, identityResponse] = await Promise.all([
           fetch(`/api/rpg/${rpgId}/attributes`),
           fetch(`/api/rpg/${rpgId}/statuses`),
           fetch(`/api/rpg/${rpgId}/skills`),
@@ -144,6 +170,7 @@ export default function NewCharacterPage() {
           fetch(`/api/rpg/${rpgId}`),
           fetch(`/api/rpg/${rpgId}/races`),
           fetch(`/api/rpg/${rpgId}/classes`),
+          fetch(`/api/rpg/${rpgId}/character-identity`),
         ])
 
         const attributesPayload = (await attributesResponse.json()) as TemplatePayload
@@ -153,6 +180,7 @@ export default function NewCharacterPage() {
         const rpgPayload = (await rpgResponse.json()) as RpgConfigPayload
         const racesPayload = (await racesResponse.json()) as RacesPayload
         const classesPayload = (await classesResponse.json()) as ClassesPayload
+        const identityPayload = (await identityResponse.json()) as CharacterIdentityPayload
 
         if (!attributesResponse.ok) {
           setError(
@@ -187,12 +215,17 @@ export default function NewCharacterPage() {
           setError(classesPayload.message ?? "Nao foi possivel carregar classes.")
           return
         }
+        if (!identityResponse.ok) {
+          setError(identityPayload.message ?? "Nao foi possivel carregar campos de identidade.")
+          return
+        }
 
         const attributeTemplate = attributesPayload.attributes ?? []
         const statusTemplate = statusesPayload.statuses ?? []
         const skillTemplate = skillsPayload.skills ?? []
         const races = racesPayload.races ?? []
         const classes = classesPayload.classes ?? []
+        const identityFields = identityPayload.fields ?? []
         const allCharacters = charactersPayload.characters ?? []
         const editTarget = characterId
           ? allCharacters.find((character) => character.id === characterId)
@@ -208,6 +241,7 @@ export default function NewCharacterPage() {
         setSkills(skillTemplate)
         setRaceTemplates(races)
         setClassTemplates(classes)
+        setIdentityTemplates(identityFields)
         setUseClassRaceBonuses(Boolean(rpgPayload.rpg?.useClassRaceBonuses))
         setIsOwner(Boolean(charactersPayload.isOwner))
 
@@ -224,10 +258,21 @@ export default function NewCharacterPage() {
           acc[item.key] = Number((editTarget?.skills ?? {})[item.key] ?? 0)
           return acc
         }, {})
+        const nextIdentity = identityFields.reduce<Record<string, string>>((acc, item) => {
+          const value = editTarget?.identity?.[item.key]
+          acc[item.key] =
+            typeof value === "string"
+              ? value
+              : isIdentityNameField(item)
+                ? (editTarget?.name ?? "")
+                : ""
+          return acc
+        }, {})
 
         setValues(nextAttributes)
         setStatusValues(nextStatuses)
         setSkillValues(nextSkills)
+        setIdentityValues(nextIdentity)
         setName(editTarget?.name ?? "")
         setImage(editTarget?.image ?? "")
         setRaceKey(editTarget?.raceKey ?? "")
@@ -259,12 +304,15 @@ export default function NewCharacterPage() {
         ? `/api/rpg/${rpgId}/characters/${editingCharacterId}`
         : `/api/rpg/${rpgId}/characters`
       const method = isEditing ? "PATCH" : "POST"
+      const resolvedName = identityNameField
+        ? (identityValues[identityNameField.key] ?? "").trim()
+        : name.trim()
 
       const response = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
+          name: resolvedName,
           image,
           ...(isEditing
             ? {}
@@ -278,6 +326,7 @@ export default function NewCharacterPage() {
           ...(isEditing ? { visibility: characterVisibility } : {}),
           statuses: statusValues,
           attributes: values,
+          identity: identityValues,
           ...(isOwner ? { skills: skillValues } : {}),
         }),
       })
@@ -325,6 +374,13 @@ export default function NewCharacterPage() {
     setSkillValues((prev) => ({
       ...prev,
       [key]: Number(value),
+    }))
+  }
+
+  function updateIdentityField(key: string, value: string) {
+    setIdentityValues((prev) => ({
+      ...prev,
+      [key]: value,
     }))
   }
 
@@ -415,16 +471,18 @@ export default function NewCharacterPage() {
           <section className={styles.section}>
             <h2>Identificacao</h2>
             <div className={styles.identityGrid}>
-              <label className={styles.field}>
-                <span>Nome</span>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  minLength={2}
-                  required
-                />
-              </label>
+              {!identityNameField ? (
+                <label className={styles.field}>
+                  <span>Nome</span>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    minLength={2}
+                    required
+                  />
+                </label>
+              ) : null}
 
               <label className={styles.field}>
                 <span>Imagem (URL)</span>
@@ -562,6 +620,18 @@ export default function NewCharacterPage() {
                   </div>
                 </div>
               ) : null}
+
+              {identityTemplates.map((field) => (
+                <label className={styles.field} key={field.key}>
+                  <span>{field.label}</span>
+                  <input
+                    type="text"
+                    value={identityValues[field.key] ?? ""}
+                    onChange={(event) => updateIdentityField(field.key, event.target.value)}
+                    required={field.required}
+                  />
+                </label>
+              ))}
             </div>
           </section>
 

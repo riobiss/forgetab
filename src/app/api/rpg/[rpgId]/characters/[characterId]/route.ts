@@ -36,6 +36,13 @@ type SkillTemplateRow = {
   position: number
 }
 
+type CharacterIdentityTemplateRow = {
+  key: string
+  label: string
+  required: boolean
+  position: number
+}
+
 async function getUserIdFromToken(request: NextRequest) {
   const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
   if (!token) return null
@@ -143,6 +150,46 @@ function validateSkillsPayload(
   return { ok: true as const, value: normalized }
 }
 
+function validateIdentityPayload(
+  incoming: unknown,
+  template: CharacterIdentityTemplateRow[],
+) {
+  if (template.length === 0) {
+    return { ok: true as const, value: {} as Record<string, string> }
+  }
+
+  if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
+    return { ok: false as const, message: "Identidade invalida." }
+  }
+
+  const record = incoming as Record<string, unknown>
+  const allowedKeys = template.map((item) => item.key)
+
+  for (const item of template) {
+    const raw = record[item.key]
+    const value = typeof raw === "string" ? raw.trim() : ""
+    if (item.required && value.length === 0) {
+      return { ok: false as const, message: `Campo obrigatorio ausente: ${item.label}.` }
+    }
+    if (raw !== undefined && typeof raw !== "string") {
+      return { ok: false as const, message: `Valor invalido para ${item.label}.` }
+    }
+  }
+
+  const extraKey = Object.keys(record).find((key) => !allowedKeys.includes(key))
+  if (extraKey) {
+    return { ok: false as const, message: `Campo de identidade fora do padrao: ${extraKey}.` }
+  }
+
+  const normalized = template.reduce<Record<string, string>>((acc, item) => {
+    const value = record[item.key]
+    acc[item.key] = typeof value === "string" ? value.trim() : ""
+    return acc
+  }, {})
+
+  return { ok: true as const, value: normalized }
+}
+
 function validateStat(name: string, value: unknown) {
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
     return { ok: false as const, message: `Valor invalido para ${name}.` }
@@ -212,18 +259,55 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     }
   }
 
-  const character = await prisma.$queryRaw<
-    Array<{ id: string; createdByUserId: string | null; skills: Prisma.JsonValue }>
-  >(Prisma.sql`
-    SELECT
-      id,
-      created_by_user_id AS "createdByUserId",
-      skills
-    FROM rpg_characters
-    WHERE id = ${characterId}
-      AND rpg_id = ${rpgId}
-    LIMIT 1
-  `)
+  let character: Array<{
+    id: string
+    createdByUserId: string | null
+    skills: Prisma.JsonValue
+    identity: Prisma.JsonValue
+  }> = []
+  try {
+    character = await prisma.$queryRaw<
+      Array<{
+        id: string
+        createdByUserId: string | null
+        skills: Prisma.JsonValue
+        identity: Prisma.JsonValue
+      }>
+    >(Prisma.sql`
+      SELECT
+        id,
+        created_by_user_id AS "createdByUserId",
+        skills,
+        COALESCE(identity, '{}'::jsonb) AS identity
+      FROM rpg_characters
+      WHERE id = ${characterId}
+        AND rpg_id = ${rpgId}
+      LIMIT 1
+    `)
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.includes('column "identity" does not exist')) {
+      throw error
+    }
+
+    character = await prisma.$queryRaw<
+      Array<{
+        id: string
+        createdByUserId: string | null
+        skills: Prisma.JsonValue
+        identity: Prisma.JsonValue
+      }>
+    >(Prisma.sql`
+      SELECT
+        id,
+        created_by_user_id AS "createdByUserId",
+        skills,
+        '{}'::jsonb AS identity
+      FROM rpg_characters
+      WHERE id = ${characterId}
+        AND rpg_id = ${rpgId}
+      LIMIT 1
+    `)
+  }
 
   if (character.length === 0) {
     return { ok: false as const, status: 404, message: "Personagem nao encontrado." }
@@ -233,7 +317,12 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     return { ok: false as const, status: 403, message: "Sem permissao para editar este personagem." }
   }
 
-  return { ok: true as const, isOwner, currentSkills: character[0].skills }
+  return {
+    ok: true as const,
+    isOwner,
+    currentSkills: character[0].skills,
+    currentIdentity: character[0].identity,
+  }
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
@@ -255,6 +344,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       statuses?: Record<string, number>
       attributes?: Record<string, number>
       skills?: Record<string, number>
+      identity?: Record<string, string>
       visibility?: "private" | "public"
       raceKey?: string
       classKey?: string
@@ -398,6 +488,37 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: parsedSkills.message }, { status: 400 })
     }
 
+    let identityTemplate: CharacterIdentityTemplateRow[] = []
+    try {
+      identityTemplate = await prisma.$queryRaw<CharacterIdentityTemplateRow[]>(Prisma.sql`
+        SELECT key, label, required, position
+        FROM rpg_character_identity_templates
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `)
+    } catch (error) {
+      if (
+        !(error instanceof Error && error.message.includes('relation "rpg_character_identity_templates" does not exist'))
+      ) {
+        throw error
+      }
+    }
+
+    const currentIdentity =
+      permission.currentIdentity &&
+      typeof permission.currentIdentity === "object" &&
+      !Array.isArray(permission.currentIdentity)
+        ? (permission.currentIdentity as Record<string, unknown>)
+        : {}
+    const incomingIdentity =
+      body.identity === undefined
+        ? currentIdentity
+        : body.identity
+    const parsedIdentity = validateIdentityPayload(incomingIdentity, identityTemplate)
+    if (!parsedIdentity.ok) {
+      return NextResponse.json({ message: parsedIdentity.message }, { status: 400 })
+    }
+
     const updated = await prisma.$queryRaw<
       Array<{
         id: string
@@ -416,6 +537,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         statuses = ${JSON.stringify(parsedStatuses.value)}::jsonb,
         attributes = ${JSON.stringify(parsedAttributes.value)}::jsonb,
         skills = ${JSON.stringify(parsedSkills.value)}::jsonb,
+        identity = ${JSON.stringify(parsedIdentity.value)}::jsonb,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${characterId}
         AND rpg_id = ${rpgId}
@@ -449,6 +571,21 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (error instanceof Error && error.message.includes('column "image" of relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "identity" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (
+      error instanceof Error &&
+      error.message.includes('relation "rpg_character_identity_templates" does not exist')
+    ) {
+      return NextResponse.json(
+        { message: "Tabela de identidade de personagem nao existe no banco. Rode a migration." },
         { status: 500 },
       )
     }

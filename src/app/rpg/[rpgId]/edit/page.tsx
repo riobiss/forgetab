@@ -39,6 +39,13 @@ type IdentityTemplate = {
   skillBonuses: Record<string, number>
 }
 
+type CharacterIdentityTemplate = {
+  key: string
+  label: string
+  required: boolean
+  position: number
+}
+
 export default function EditRpgPage() {
   const params = useParams<{ rpgId: string }>()
   const router = useRouter()
@@ -68,6 +75,11 @@ export default function EditRpgPage() {
   const [showSkillList, setShowSkillList] = useState(false)
   const [showRaceList, setShowRaceList] = useState(false)
   const [showClassList, setShowClassList] = useState(false)
+  const [showCharacterIdentityList, setShowCharacterIdentityList] = useState(false)
+  const [characterIdentityTemplates, setCharacterIdentityTemplates] = useState<
+    CharacterIdentityTemplate[]
+  >([])
+  const [newIdentityLabel, setNewIdentityLabel] = useState("")
 
   useEffect(() => {
     async function loadAll() {
@@ -75,13 +87,14 @@ export default function EditRpgPage() {
         setLoading(true)
         setError("")
 
-        const [rpgRes, attrRes, statusRes, skillRes, raceRes, classRes] = await Promise.all([
+        const [rpgRes, attrRes, statusRes, skillRes, raceRes, classRes, characterIdentityRes] = await Promise.all([
           fetch(`/api/rpg/${rpgId}`),
           fetch(`/api/rpg/${rpgId}/attributes`),
           fetch(`/api/rpg/${rpgId}/statuses`),
           fetch(`/api/rpg/${rpgId}/skills`),
           fetch(`/api/rpg/${rpgId}/races`),
           fetch(`/api/rpg/${rpgId}/classes`),
+          fetch(`/api/rpg/${rpgId}/character-identity`),
         ])
 
         const rpgPayload = (await rpgRes.json()) as RpgPayload & { message?: string }
@@ -98,6 +111,16 @@ export default function EditRpgPage() {
         }
         const racePayload = (await raceRes.json()) as { races?: IdentityTemplate[] }
         const classPayload = (await classRes.json()) as { classes?: IdentityTemplate[] }
+        const characterIdentityPayload = (await characterIdentityRes.json()) as {
+          message?: string
+          fields?: CharacterIdentityTemplate[]
+        }
+
+        if (!characterIdentityRes.ok) {
+          setError(characterIdentityPayload.message ?? "Nao foi possivel carregar identidade.")
+          setCanEdit(false)
+          return
+        }
 
         setTitle(rpgPayload.rpg.title)
         setDescription(rpgPayload.rpg.description)
@@ -124,6 +147,7 @@ export default function EditRpgPage() {
             skillBonuses: item.skillBonuses ?? {},
           })),
         )
+        setCharacterIdentityTemplates(characterIdentityPayload.fields ?? [])
         setCanEdit(true)
       } catch {
         setError("Erro de conexao ao carregar RPG.")
@@ -190,6 +214,20 @@ export default function EditRpgPage() {
       }),
     })
     if (!response.ok) throw new Error("Falha ao salvar pericias.")
+  }
+
+  async function saveCharacterIdentityTemplate() {
+    const response = await fetch(`/api/rpg/${rpgId}/character-identity`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fields: characterIdentityTemplates.map((item) => ({
+          label: item.label,
+          required: item.required,
+        })),
+      }),
+    })
+    if (!response.ok) throw new Error("Falha ao salvar campos de identidade.")
   }
 
   if (loading) {
@@ -411,6 +449,119 @@ export default function EditRpgPage() {
                 >
                   <Save size={16} />
                   <span>Salvar pericias</span>
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.attributeTemplateSection}>
+              <h3>Identidade do Player</h3>
+              <p>Defina os campos de identificacao que o Player precisa preencher.</p>
+              <div className={styles.identityHeaderActions}>
+                <button
+                  type="button"
+                  onClick={() => setShowCharacterIdentityList((prev) => !prev)}
+                >
+                  {showCharacterIdentityList ? "Ocultar campos" : "Mostrar campos"}
+                </button>
+              </div>
+              {showCharacterIdentityList ? (
+                <>
+                  <div className={styles.actions}>
+                    <input
+                      type="text"
+                      value={newIdentityLabel}
+                      onChange={(event) => setNewIdentityLabel(event.target.value)}
+                      placeholder="Ex.: Sobrenome"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const label = newIdentityLabel.trim()
+                        if (label.length < 2) return
+                        setCharacterIdentityTemplates((prev) => [
+                          ...prev,
+                          {
+                            key: `draft-${crypto.randomUUID()}`,
+                            label,
+                            required: true,
+                            position: prev.length,
+                          },
+                        ])
+                        setNewIdentityLabel("")
+                      }}
+                    >
+                      <Plus size={16} />
+                      <span>Adicionar campo</span>
+                    </button>
+                  </div>
+                  {characterIdentityTemplates.length === 0 ? (
+                    <p>Nenhum campo configurado.</p>
+                  ) : null}
+                  {characterIdentityTemplates.map((field, index) => (
+                    <div key={field.key} className={styles.actions}>
+                      <input
+                        type="text"
+                        value={field.label}
+                        onChange={(event) =>
+                          setCharacterIdentityTemplates((prev) =>
+                            prev.map((item, currentIndex) =>
+                              currentIndex === index
+                                ? { ...item, label: event.target.value }
+                                : item,
+                            ),
+                          )
+                        }
+                      />
+                      <label className={styles.attributeOption}>
+                        <input
+                          type="checkbox"
+                          checked={field.required}
+                          onChange={(event) =>
+                            setCharacterIdentityTemplates((prev) =>
+                              prev.map((item, currentIndex) =>
+                                currentIndex === index
+                                  ? { ...item, required: event.target.checked }
+                                  : item,
+                              ),
+                            )
+                          }
+                        />
+                        <span>Obrigatorio</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCharacterIdentityTemplates((prev) =>
+                            prev.filter((_, currentIndex) => currentIndex !== index),
+                          )
+                        }
+                      >
+                        <Trash2 size={16} />
+                        <span>Remover</span>
+                      </button>
+                    </div>
+                  ))}
+                </>
+              ) : null}
+              <div className={styles.actions}>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await saveCharacterIdentityTemplate()
+                      setIdentitySuccess("Campos de identidade salvos.")
+                      setIdentityError("")
+                    } catch (error) {
+                      setIdentityError(
+                        error instanceof Error
+                          ? error.message
+                          : "Erro ao salvar campos de identidade.",
+                      )
+                    }
+                  }}
+                >
+                  <Save size={16} />
+                  <span>Salvar identidade</span>
                 </button>
               </div>
             </div>

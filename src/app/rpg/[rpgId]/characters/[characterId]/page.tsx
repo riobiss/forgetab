@@ -35,10 +35,16 @@ type DbCharacterRow = {
   statuses: Prisma.JsonValue
   attributes: Prisma.JsonValue
   skills: Prisma.JsonValue
+  identity: Prisma.JsonValue
   createdAt: Date
 }
 
 type SkillTemplateLabelRow = {
+  key: string
+  label: string
+}
+
+type CharacterIdentityTemplateLabelRow = {
   key: string
   label: string
 }
@@ -83,6 +89,27 @@ const statusLabelByKey: Record<string, string> = Object.fromEntries(
   STATUS_CATALOG.map((item) => [item.key, item.label]),
 )
 
+function getIdentityDisplayName(identity: Record<string, string>) {
+  const firstName =
+    identity.nome?.trim() ||
+    identity.name?.trim() ||
+    identity["primeiro-nome"]?.trim() ||
+    ""
+  const lastName =
+    identity.sobrenome?.trim() ||
+    identity["last-name"]?.trim() ||
+    identity["ultimo-nome"]?.trim() ||
+    ""
+
+  const fullName = `${firstName} ${lastName}`.trim()
+  if (fullName) return fullName
+
+  return (
+    Object.values(identity).find((value) => value.trim().length > 0)?.trim() ||
+    "Personagem"
+  )
+}
+
 export default async function CharactersPage({ params }: Params) {
   const { rpgId, characterId } = await params
   const character = players.find((p) => p.id === characterId)
@@ -90,6 +117,7 @@ export default async function CharactersPage({ params }: Params) {
   if (!character) {
     let dbCharacter: DbCharacterRow[] = []
     let skillLabelByKey = new Map<string, string>()
+    let identityLabelByKey = new Map<string, string>()
     let userId: string | null = null
     let isOwner = false
 
@@ -137,6 +165,7 @@ export default async function CharactersPage({ params }: Params) {
           statuses,
           attributes,
           skills,
+          COALESCE(identity, '{}'::jsonb) AS identity,
           created_at AS "createdAt"
         FROM rpg_characters
         WHERE id = ${characterId}
@@ -150,9 +179,18 @@ export default async function CharactersPage({ params }: Params) {
         WHERE rpg_id = ${rpgId}
       `)
       skillLabelByKey = new Map(skillLabels.map((item) => [item.key, item.label]))
+
+      const identityLabels = await prisma.$queryRaw<CharacterIdentityTemplateLabelRow[]>(Prisma.sql`
+        SELECT key, label
+        FROM rpg_character_identity_templates
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `)
+      identityLabelByKey = new Map(identityLabels.map((item) => [item.key, item.label]))
     } catch {
       dbCharacter = []
       skillLabelByKey = new Map()
+      identityLabelByKey = new Map()
     }
 
     if (dbCharacter.length === 0) {
@@ -173,12 +211,14 @@ export default async function CharactersPage({ params }: Params) {
     const attributes = row.attributes as Record<string, number>
     const statuses = row.statuses as Record<string, number>
     const skills = row.skills as Record<string, number>
+    const identity = row.identity as Record<string, string>
+    const displayName = getIdentityDisplayName(identity)
 
     return (
       <div className={styles.page}>
         <section className={styles.card}>
           <div className={styles.titleBar}>
-            <h3>{row.name}</h3>
+            <h3>{displayName}</h3>
             <div className={styles.titleActions}>
               <Link className={styles.editInlineButton} href={`/rpg/${rpgId}/characters`}>
                 Voltar
@@ -197,7 +237,7 @@ export default async function CharactersPage({ params }: Params) {
             <div className={styles.imageColumn}>
               <Image
                 src={row.image ?? "/images/bg-characters.jpg"}
-                alt={row.name}
+                alt={displayName}
                 width={150}
                 height={192}
                 priority
@@ -266,6 +306,19 @@ export default async function CharactersPage({ params }: Params) {
                 ))}
               </ul>
             </div>
+
+            {Object.keys(identity).length > 0 ? (
+              <div>
+                <h4>Identidade</h4>
+                <ul className={styles.list}>
+                  {Object.entries(identity).map(([key, value]) => (
+                    <li key={key}>
+                      {identityLabelByKey.get(key) ?? key}: {value || "-"}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
 
           <div className={styles.actionLinks}>
