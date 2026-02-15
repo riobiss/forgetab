@@ -6,7 +6,7 @@ import type { CatalogOption } from "../shared/types"
 type Props = {
   showList: boolean
   onToggleList: () => void
-  options: CatalogOption[]
+  options: readonly CatalogOption[]
   selectedKeys: string[]
   onToggleItem: (key: string) => void
 }
