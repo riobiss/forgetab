@@ -31,6 +31,12 @@ type InventoryPayload = {
   message?: string
 }
 
+type RemoveInventoryPayload = {
+  message?: string
+  inventoryItemId?: string
+  remainingQuantity?: number
+}
+
 type Props = {
   rpgId: string
   characterId: string
@@ -48,6 +54,7 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
   const [inventory, setInventory] = useState<InventoryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [removingItemId, setRemovingItemId] = useState<string | null>(null)
 
   function parseNamedDescriptionList(value: unknown) {
     if (!Array.isArray(value)) {
@@ -83,29 +90,33 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
     const effects = parseNamedDescriptionList(item.itemEffects)
     const metaLines: string[] = []
     const coreStats: Array<{ label: string; value: string }> = []
+    const abilityEntries: Array<{ name: string; description: string }> = []
+    const effectEntries: Array<{ name: string; description: string }> = []
 
     if (item.itemDamage) {
-      coreStats.push({ label: "Damage", value: item.itemDamage })
+      coreStats.push({ label: "Dano", value: item.itemDamage })
     }
     if (item.itemWeight !== null) {
-      coreStats.push({ label: "Peso", value: String(item.itemWeight) })
+      coreStats.push({ label: "Peso", value: `${item.itemWeight} kg` })
     }
     if (item.itemDurability !== null) {
       coreStats.push({ label: "Durabilidade", value: String(item.itemDurability) })
     }
     if (abilities.length > 0) {
-      abilities.forEach((ability) =>
-        metaLines.push(`Habilidade (${ability.name}): ${ability.description}`),
-      )
+      abilities.forEach((ability) => abilityEntries.push(ability))
     } else if (item.itemAbility || item.itemAbilityName) {
-      metaLines.push(`Habilidade (${item.itemAbilityName ?? "sem nome"}): ${item.itemAbility ?? "-"}`)
+      abilityEntries.push({
+        name: item.itemAbilityName ?? "sem nome",
+        description: item.itemAbility ?? "-",
+      })
     }
     if (effects.length > 0) {
-      effects.forEach((effect) =>
-        metaLines.push(`Efeito (${effect.name}): ${effect.description}`),
-      )
+      effects.forEach((effect) => effectEntries.push(effect))
     } else if (item.itemEffect || item.itemEffectName) {
-      metaLines.push(`Efeito (${item.itemEffectName ?? "sem nome"}): ${item.itemEffect ?? "-"}`)
+      effectEntries.push({
+        name: item.itemEffectName ?? "sem nome",
+        description: item.itemEffect ?? "-",
+      })
     }
 
     return {
@@ -117,6 +128,8 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
       description: item.itemDescription ?? undefined,
       secondaryLine: item.itemType,
       coreStats,
+      abilityEntries,
+      effectEntries,
       metaLines,
     }
   })
@@ -146,6 +159,46 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
     }
   }, [characterId, rpgId])
 
+  const handleRemoveItem = useCallback(
+    async (inventoryItemId: string, quantity: number) => {
+      try {
+        setRemovingItemId(inventoryItemId)
+        setError("")
+
+        const response = await fetch(
+          `/api/rpg/${rpgId}/characters/${characterId}/inventory`,
+          {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ inventoryItemId, quantity }),
+          },
+        )
+        const payload = (await response.json()) as RemoveInventoryPayload
+
+        if (!response.ok) {
+          setError(payload.message ?? "Nao foi possivel remover item do inventario.")
+          return
+        }
+
+        const remaining = payload.remainingQuantity ?? 0
+        setInventory((prev) => {
+          if (remaining <= 0) {
+            return prev.filter((item) => item.id !== inventoryItemId)
+          }
+
+          return prev.map((item) =>
+            item.id === inventoryItemId ? { ...item, quantity: remaining } : item,
+          )
+        })
+      } catch {
+        setError("Erro de conexao ao remover item do inventario.")
+      } finally {
+        setRemovingItemId(null)
+      }
+    },
+    [characterId, rpgId],
+  )
+
   useEffect(() => {
     void loadInventory()
   }, [loadInventory])
@@ -165,6 +218,8 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
         <InventoryCards
           items={cardItems}
           emptyMessage="Nenhum item no inventario."
+          onRemoveItem={handleRemoveItem}
+          removingItemId={removingItemId}
         />
       ) : null}
     </div>

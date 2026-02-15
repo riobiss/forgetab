@@ -92,17 +92,19 @@ export default function EditRpgPage() {
         setSelectedStatusKeys((statusPayload.statuses ?? []).map((item) => item.key))
         setSkillTemplates((skillPayload.skills ?? []).map((item) => ({ key: item.key, label: item.label })))
         setRaceDrafts(
-          (racePayload.races ?? []).map((item) => ({
+          (racePayload.races ?? []).map((item, index) => ({
             key: item.key,
             label: item.label,
+            position: item.position ?? index,
             attributeBonuses: item.attributeBonuses ?? {},
             skillBonuses: item.skillBonuses ?? {},
           })),
         )
         setClassDrafts(
-          (classPayload.classes ?? []).map((item) => ({
+          (classPayload.classes ?? []).map((item, index) => ({
             key: item.key,
             label: item.label,
+            position: item.position ?? index,
             attributeBonuses: item.attributeBonuses ?? {},
             skillBonuses: item.skillBonuses ?? {},
           })),

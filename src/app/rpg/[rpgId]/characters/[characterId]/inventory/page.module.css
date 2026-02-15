@@ -229,6 +229,56 @@
   line-height: 1.45;
 }
 
+.highlightBlock {
+  border: 1px solid rgba(255, 138, 31, 0.45);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255, 138, 31, 0.12), rgba(255, 138, 31, 0.04));
+  padding: 0.55rem 0.65rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.highlightBlockEffect {
+  border: 1px solid rgba(255, 196, 118, 0.4);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255, 196, 118, 0.1), rgba(255, 196, 118, 0.04));
+  padding: 0.55rem 0.65rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.highlightTitle {
+  margin: 0;
+  color: var(--accent-main);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.highlightList {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.highlightItem {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.highlightName {
+  margin: 0;
+  color: #ffe6c7;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.highlightText {
+  margin: 0;
+  color: #e7d8c5;
+  font-size: 0.83rem;
+  line-height: 1.4;
+}
+
 .cardFooter {
   display: flex;
   justify-content: space-between;
@@ -242,6 +292,61 @@
   padding: 0.25rem 0.5rem;
   font-size: 0.82rem;
   color: var(--text-main);
+}
+
+.removeRow {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.removeButton {
+  border: 1px solid rgba(255, 107, 107, 0.45);
+  border-radius: 8px;
+  padding: 0.36rem 0.62rem;
+  background: rgba(255, 107, 107, 0.14);
+  color: #ffb3b3;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.removeButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.confirmButton {
+  border: 1px solid rgba(34, 197, 94, 0.5);
+  border-radius: 8px;
+  padding: 0.36rem 0.62rem;
+  background: rgba(34, 197, 94, 0.16);
+  color: #b7f4cb;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.confirmButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  padding: 0.36rem 0.62rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-main);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.cancelButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .common {

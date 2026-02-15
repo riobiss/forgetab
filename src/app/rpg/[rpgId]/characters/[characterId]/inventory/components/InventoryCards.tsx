@@ -1,12 +1,24 @@
+"use client"
+
+import { useState } from "react"
 import styles from "../page.module.css"
 import { InventoryCardItem } from "../types"
 
 type Props = {
   items: InventoryCardItem[]
   emptyMessage: string
+  onRemoveItem?: (inventoryItemId: string, quantity: number) => Promise<void> | void
+  removingItemId?: string | null
 }
 
-export default function InventoryCards({ items, emptyMessage }: Props) {
+export default function InventoryCards({
+  items,
+  emptyMessage,
+  onRemoveItem,
+  removingItemId,
+}: Props) {
+  const [confirmingItemId, setConfirmingItemId] = useState<string | null>(null)
+
   if (items.length === 0) {
     return <p className={styles.emptyState}>{emptyMessage}</p>
   }
@@ -39,7 +51,32 @@ export default function InventoryCards({ items, emptyMessage }: Props) {
                 ))}
               </div>
             ) : null}
-            {item.ability ? <p className={styles.minorInfo}>Habilidade: {item.ability}</p> : null}
+            {item.abilityEntries && item.abilityEntries.length > 0 ? (
+              <div className={styles.highlightBlock}>
+                <p className={styles.highlightTitle}>HABILIDADES</p>
+                <div className={styles.highlightList}>
+                  {item.abilityEntries.map((entry, index) => (
+                    <div key={`${item.id}-ability-${index}`} className={styles.highlightItem}>
+                      <p className={styles.highlightName}>{entry.name}</p>
+                      <p className={styles.highlightText}>{entry.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {item.effectEntries && item.effectEntries.length > 0 ? (
+              <div className={styles.highlightBlockEffect}>
+                <p className={styles.highlightTitle}>EFEITOS</p>
+                <div className={styles.highlightList}>
+                  {item.effectEntries.map((entry, index) => (
+                    <div key={`${item.id}-effect-${index}`} className={styles.highlightItem}>
+                      <p className={styles.highlightName}>{entry.name}</p>
+                      <p className={styles.highlightText}>{entry.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             {item.metaLines?.map((line, index) => (
               <p key={`${item.id}-meta-${index}`} className={styles.minorInfo}>
                 {line}
@@ -55,6 +92,43 @@ export default function InventoryCards({ items, emptyMessage }: Props) {
             )}
             <span className={styles.rarityBadge}>{item.rarityLabel}</span>
           </div>
+
+          {onRemoveItem ? (
+            <div className={styles.removeRow}>
+              {confirmingItemId === item.id ? (
+                <>
+                  <button
+                    type="button"
+                    className={styles.confirmButton}
+                    disabled={removingItemId === item.id || item.quantity < 1}
+                    onClick={() => {
+                      void onRemoveItem(item.id, 1)
+                      setConfirmingItemId(null)
+                    }}
+                  >
+                    {removingItemId === item.id ? "Retirando..." : "Confirmar"}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.cancelButton}
+                    disabled={removingItemId === item.id}
+                    onClick={() => setConfirmingItemId(null)}
+                  >
+                    Cancelar
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.removeButton}
+                  disabled={removingItemId === item.id || item.quantity < 1}
+                  onClick={() => setConfirmingItemId(item.id)}
+                >
+                  Retirar
+                </button>
+              )}
+            </div>
+          ) : null}
         </div>
       ))}
     </div>
