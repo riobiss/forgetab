@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
+import { User } from "lucide-react"
 import styles from "./Header.module.css"
 
 export default function Header() {
@@ -53,8 +54,11 @@ export default function Header() {
               type="button"
               className={styles.userButton}
               onClick={() => setOpenUserMenu((prev) => !prev)}
+              aria-haspopup="menu"
+              aria-expanded={openUserMenu}
+              aria-label="Abrir menu do usuario"
             >
-              Usuario
+              <User size={16} aria-hidden="true" />
             </button>
 
             {openUserMenu ? (

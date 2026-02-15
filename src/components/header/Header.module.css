@@ -53,9 +53,12 @@
 }
 
 .userButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid rgba(255, 90, 0, 0.35);
   border-radius: 10px;
-  padding: 0.45rem 0.7rem;
+  padding: 0.45rem;
   background: rgba(255, 255, 255, 0.03);
   color: #d6d0c4;
   font-size: 0.9rem;
