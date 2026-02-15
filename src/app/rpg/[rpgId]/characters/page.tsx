@@ -5,12 +5,12 @@ import styles from "./page.module.css"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../generated/prisma/client"
-import { cookies } from "next/headers"
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { notFound } from "next/navigation"
 import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 import CharacterDeleteButton from "./components/CharacterDeleteButton"
 import CharacterCreationPermission from "./components/CharacterCreationPermission"
+import { getUserIdFromCookieStore } from "@/lib/server/auth"
+import { getMembershipStatus } from "@/lib/server/rpgAccess"
 
 type Params = {
   params: Promise<{
@@ -38,26 +38,6 @@ type DbCharacterRow = {
   attributes: Prisma.JsonValue
 }
 
-type MemberStatusRow = {
-  status: "pending" | "accepted" | "rejected"
-}
-
-async function getUserIdFromCookie() {
-  try {
-    const cookieStore = await cookies()
-    const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value
-
-    if (!token) {
-      return null
-    }
-
-    const payload = await verifyAuthToken(token)
-    return payload.userId
-  } catch {
-    return null
-  }
-}
-
 const statusLabelByKey: Map<string, string> = new Map(
   STATUS_CATALOG.map((item) => [item.key, item.label]),
 )
@@ -82,7 +62,7 @@ export default async function CharactersPage({ params, searchParams }: Params) {
   let isAcceptedMember = false
   let ownCharacterId: string | null = null
 
-  const userId = await getUserIdFromCookie()
+  const userId = await getUserIdFromCookieStore()
 
   try {
     dbRpg = await prisma.rpg.findUnique({
@@ -94,15 +74,7 @@ export default async function CharactersPage({ params, searchParams }: Params) {
       isOwner = userId === dbRpg.ownerId
 
       if (userId && !isOwner) {
-        const membership = await prisma.$queryRaw<MemberStatusRow[]>(Prisma.sql`
-          SELECT status
-          FROM rpg_members
-          WHERE rpg_id = ${rpgId}
-            AND user_id = ${userId}
-          LIMIT 1
-        `)
-
-        isAcceptedMember = membership[0]?.status === "accepted"
+        isAcceptedMember = (await getMembershipStatus(rpgId, userId)) === "accepted"
       }
 
       if (dbRpg.visibility === "private" && !isOwner && !isAcceptedMember) {

@@ -4,19 +4,15 @@ import styles from "./page.module.css"
 import Image from "next/image"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
-import { cookies } from "next/headers"
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { Prisma } from "../../../../generated/prisma/client"
 import MembershipNotifications from "./components/MembershipNotifications"
+import { getUserIdFromCookieStore } from "@/lib/server/auth"
+import { getMembershipStatus } from "@/lib/server/rpgAccess"
 
 type Params = {
   params: Promise<{
     rpgId: string
   }>
-}
-
-type MemberStatusRow = {
-  status: "pending" | "accepted" | "rejected"
 }
 
 type PendingRequestRow = {
@@ -35,22 +31,6 @@ type AcceptedMemberRow = {
 export const generateMetadata = () => {
   return {
     title: "rpg",
-  }
-}
-
-async function getUserIdFromCookie() {
-  try {
-    const cookieStore = await cookies()
-    const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value
-
-    if (!token) {
-      return null
-    }
-
-    const payload = await verifyAuthToken(token)
-    return payload.userId
-  } catch {
-    return null
   }
 }
 
@@ -134,21 +114,13 @@ export default async function ViewInRpg({ params }: Params) {
     notFound()
   }
 
-  const userId = await getUserIdFromCookie()
+  const userId = await getUserIdFromCookieStore()
   const isAuthenticated = Boolean(userId)
   const isOwner = userId === dbRpg.ownerId
 
   let membershipStatus: "pending" | "accepted" | "rejected" | null = null
   if (userId && !isOwner) {
-    const membership = await prisma.$queryRaw<MemberStatusRow[]>(Prisma.sql`
-      SELECT status
-      FROM rpg_members
-      WHERE rpg_id = ${rpgId}
-        AND user_id = ${userId}
-      LIMIT 1
-    `)
-
-    membershipStatus = membership[0]?.status ?? null
+    membershipStatus = await getMembershipStatus(rpgId, userId)
   }
 
   const isAcceptedMember = membershipStatus === "accepted"
@@ -221,7 +193,7 @@ export default async function ViewInRpg({ params }: Params) {
           <>
             <Link href={`/rpg/${dbRpg.id}/items`} className={styles.card}>
               <Image
-                src="/images/bg-library.jpg"
+                src="/images/bg-mine.png"
                 alt="Itens"
                 fill
                 className={styles.cardImage}

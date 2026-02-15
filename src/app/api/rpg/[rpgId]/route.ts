@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../../generated/prisma/client"
 import { prisma } from "@/lib/prisma"
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { createRpgSchema } from "@/lib/validators/rpg"
+import { getUserIdFromRequest } from "@/lib/server/auth"
 
 type RouteContext = {
   params: Promise<{
@@ -19,24 +19,9 @@ type RpgRow = {
   useClassRaceBonuses: boolean
 }
 
-async function getUserIdFromToken(request: NextRequest) {
-  const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
-
-  if (!token) {
-    return null
-  }
-
-  try {
-    const payload = await verifyAuthToken(token)
-    return payload.userId
-  } catch {
-    return null
-  }
-}
-
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const userId = await getUserIdFromToken(request)
+    const userId = await getUserIdFromRequest(request)
 
     if (!userId) {
       return NextResponse.json(
@@ -113,7 +98,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
-    const userId = await getUserIdFromToken(request)
+    const userId = await getUserIdFromRequest(request)
 
     if (!userId) {
       return NextResponse.json(
@@ -200,7 +185,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const userId = await getUserIdFromToken(request)
+    const userId = await getUserIdFromRequest(request)
 
     if (!userId) {
       return NextResponse.json(

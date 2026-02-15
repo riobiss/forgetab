@@ -5,9 +5,9 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../../generated/prisma/client"
-import { cookies } from "next/headers"
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { formatDateInBrasilia } from "@/lib/date"
+import { getUserIdFromCookieStore } from "@/lib/server/auth"
+import { getMembershipStatus } from "@/lib/server/rpgAccess"
 
 type Params = {
   params: Promise<{
@@ -35,29 +35,9 @@ type DbCharacterRow = {
   createdAt: Date
 }
 
-type MemberStatusRow = {
-  status: "pending" | "accepted" | "rejected"
-}
-
 type SkillTemplateLabelRow = {
   key: string
   label: string
-}
-
-async function getUserIdFromCookie() {
-  try {
-    const cookieStore = await cookies()
-    const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value
-
-    if (!token) {
-      return null
-    }
-
-    const payload = await verifyAuthToken(token)
-    return payload.userId
-  } catch {
-    return null
-  }
 }
 
 const skillLabels: Record<string, string> = {
@@ -116,20 +96,12 @@ export default async function CharactersPage({ params }: Params) {
         notFound()
       }
 
-      userId = await getUserIdFromCookie()
+      userId = await getUserIdFromCookieStore()
       isOwner = userId === dbRpg.ownerId
       let isAcceptedMember = false
 
       if (userId && !isOwner) {
-        const membership = await prisma.$queryRaw<MemberStatusRow[]>(Prisma.sql`
-          SELECT status
-          FROM rpg_members
-          WHERE rpg_id = ${rpgId}
-            AND user_id = ${userId}
-          LIMIT 1
-        `)
-
-        isAcceptedMember = membership[0]?.status === "accepted"
+        isAcceptedMember = (await getMembershipStatus(rpgId, userId)) === "accepted"
       }
 
       if (dbRpg.visibility === "private" && !isOwner && !isAcceptedMember) {
