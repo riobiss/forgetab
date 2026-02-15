@@ -6,6 +6,7 @@ import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
 import AdvancedIdentityEditor, {
   IdentityTemplateDraft,
 } from "../../../components/AdvancedIdentityEditor"
+import { createDefaultRaceLore, normalizeRaceLore, type RaceLore } from "@/lib/rpg/raceLore"
 import styles from "./page.module.css"
 
 type IdentityType = "race" | "class"
@@ -15,6 +16,7 @@ type IdentityTemplate = {
   label: string
   attributeBonuses: Record<string, number>
   skillBonuses: Record<string, number>
+  lore?: RaceLore
 }
 
 type SkillTemplate = {
@@ -119,6 +121,7 @@ export default function AdvancedIdentityPage() {
               acc[item.key] = 0
               return acc
             }, {}),
+            ...(type === "race" ? { lore: createDefaultRaceLore() } : {}),
           })
           return
         }
@@ -140,6 +143,9 @@ export default function AdvancedIdentityPage() {
             acc[item.key] = Number(current.skillBonuses[item.key] ?? 0)
             return acc
           }, {}),
+          ...(type === "race"
+            ? { lore: normalizeRaceLore(current.lore, current.label) }
+            : {}),
         })
       } catch {
         setError("Erro de conexao ao carregar editor avancado.")
@@ -184,6 +190,7 @@ export default function AdvancedIdentityPage() {
       label,
       attributeBonuses: parsedAttributes,
       skillBonuses: parsedSkills,
+      ...(type === "race" ? { lore: normalizeRaceLore(draft.lore, label) } : {}),
     }
 
     const nextTemplates =
@@ -201,6 +208,7 @@ export default function AdvancedIdentityPage() {
               label: item.label,
               attributeBonuses: item.attributeBonuses,
               skillBonuses: item.skillBonuses,
+              lore: item.lore,
             })),
           }
         : {
