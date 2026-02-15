@@ -4,8 +4,8 @@
   place-items: start center;
   padding: 1.5rem 1rem 2rem;
   background:
-    radial-gradient(circle at 8% 12%, rgba(234, 179, 8, 0.08), transparent 28%),
-    radial-gradient(circle at 88% 86%, rgba(248, 113, 113, 0.08), transparent 24%),
+    radial-gradient(circle at 8% 12%, color-mix(in srgb, var(--accent-main) 18%, transparent), transparent 28%),
+    radial-gradient(circle at 88% 86%, color-mix(in srgb, var(--accent-main) 10%, transparent), transparent 24%),
     var(--bg-main);
 }
 
@@ -14,7 +14,11 @@
   border: 1px solid var(--border-soft);
   border-radius: 18px;
   padding: 1.2rem;
-  background: linear-gradient(180deg, rgba(28, 28, 30, 0.94), rgba(16, 16, 18, 0.96));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bg-surface) 94%, black),
+    color-mix(in srgb, var(--bg-main) 92%, black)
+  );
   box-shadow: var(--shadow-main);
   display: grid;
   gap: 0.9rem;
@@ -28,39 +32,39 @@
 
 .card p {
   margin: 0.3rem 0 0;
-  color: var(--text-muted);
+  color: var(--text-main);
 }
 
 .advancedToggle {
-  border: 1px solid rgba(250, 204, 21, 0.5);
+  border: 1px solid var(--border-hot);
   border-radius: 12px;
   padding: 0.62rem 0.95rem;
-  background: rgba(250, 204, 21, 0.12);
-  color: #fde68a;
+  background: color-mix(in srgb, var(--accent-main) 12%, transparent);
+  color: var(--text-title);
   cursor: pointer;
   font-weight: 700;
   justify-self: start;
 }
 
 .advancedSection {
-  border: 1px solid rgba(250, 204, 21, 0.26);
+  border: 1px solid var(--border-hot);
   border-radius: 14px;
   padding: 1rem;
-  background: rgba(250, 204, 21, 0.04);
+  background: color-mix(in srgb, var(--accent-main) 4%, transparent);
   display: grid;
   gap: 0.9rem;
 }
 
 .advancedSection h2 {
   margin: 0;
-  color: #fde68a;
+  color: var(--text-title);
 }
 
 .attributeTemplateSection {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border-soft);
   border-radius: 12px;
   padding: 0.85rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
   display: grid;
   gap: 0.7rem;
 }
@@ -83,7 +87,7 @@
   border: 1px solid var(--border-soft);
   border-radius: 10px;
   padding: 0.5rem 0.6rem;
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--bg-main);
 }
 
 .attributeOption input {
@@ -97,18 +101,59 @@
 }
 
 .identityCard {
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--border-soft);
   border-radius: 12px;
   padding: 0.75rem;
   display: grid;
   gap: 0.7rem;
-  background: rgba(0, 0, 0, 0.23);
+  background: var(--bg-main);
 }
 
 .bonusGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 0.6rem;
+}
+
+.identityHeaderActions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.identityNameList {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--text-main);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.identityNameListItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.identityItemActions {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.identityEditorPanel {
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.7rem;
+  background: var(--bg-main);
+}
+
+.identityEditorPanel h4 {
+  margin: 0;
+  color: var(--text-title);
 }
 
 .form {
@@ -133,7 +178,7 @@
   border: 1px solid var(--border-soft);
   border-radius: 10px;
   padding: 0.62rem 0.72rem;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--bg-main);
   color: var(--text-main);
 }
 
@@ -145,12 +190,21 @@
 }
 
 .actions button {
-  border: 1px solid rgba(250, 204, 21, 0.5);
+  border: 1px solid var(--border-hot);
   border-radius: 10px;
   padding: 0.56rem 0.8rem;
-  background: rgba(250, 204, 21, 0.18);
-  color: #fef3c7;
+  background: color-mix(in srgb, var(--accent-main) 18%, transparent);
+  color: var(--text-title);
   font-weight: 700;
+  cursor: pointer;
+}
+
+.secondaryButton {
+  border-color: var(--border-soft) !important;
+  background: var(--bg-hover) !important;
+  color: var(--text-main) !important;
+  border-radius: 10px;
+  padding: 0.56rem 0.8rem;
   cursor: pointer;
 }
 
@@ -166,13 +220,13 @@
 
 .error {
   margin: 0;
-  color: #f87171;
+  color: var(--accent-main);
   font-weight: 600;
 }
 
 .success {
   margin: 0;
-  color: #4ade80;
+  color: var(--text-title);
   font-weight: 600;
 }
 

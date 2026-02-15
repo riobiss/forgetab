@@ -6,6 +6,7 @@ import Link from "next/link"
 import styles from "./page.module.css"
 import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
 import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
+import IdentityTemplateForm from "./components/IdentityTemplateForm"
 
 type Visibility = "private" | "public"
 
@@ -58,6 +59,12 @@ export default function EditRpgPage() {
   const [classDrafts, setClassDrafts] = useState<IdentityTemplateDraft[]>([])
   const [identityError, setIdentityError] = useState("")
   const [identitySuccess, setIdentitySuccess] = useState("")
+  const [showRaceList, setShowRaceList] = useState(false)
+  const [showClassList, setShowClassList] = useState(false)
+  const [activeRaceKey, setActiveRaceKey] = useState<string | null>(null)
+  const [activeClassKey, setActiveClassKey] = useState<string | null>(null)
+  const [creatingRace, setCreatingRace] = useState(false)
+  const [creatingClass, setCreatingClass] = useState(false)
 
   const attributeLabelByKey = useMemo<Map<string, string>>(
     () => new Map(ATTRIBUTE_CATALOG.map((item) => [item.key, item.label])),
@@ -188,72 +195,14 @@ export default function EditRpgPage() {
     }
   }
 
-  function upsertDraft(
+  async function saveIdentityTemplates(
     type: "race" | "class",
-    index: number,
-    field: keyof IdentityTemplateDraft,
-    value: string,
+    draftsOverride?: IdentityTemplateDraft[],
   ) {
-    const setter = type === "race" ? setRaceDrafts : setClassDrafts
-    setter((prev) =>
-      prev.map((item, currentIndex) =>
-        currentIndex === index ? { ...item, [field]: value } : item,
-      ),
-    )
-  }
-
-  function addDraft(type: "race" | "class") {
-    const setter = type === "race" ? setRaceDrafts : setClassDrafts
-    setter((prev) => [
-      ...prev,
-      {
-        key: `draft-${crypto.randomUUID()}`,
-        label: "",
-        attributeBonuses: selectedAttributeKeys.reduce<Record<string, number>>((acc, key) => {
-          acc[key] = 0
-          return acc
-        }, {}),
-        skillBonuses: skillTemplates.reduce<Record<string, number>>((acc, item) => {
-          acc[item.key] = 0
-          return acc
-        }, {}),
-      },
-    ])
-  }
-
-  function removeDraft(type: "race" | "class", index: number) {
-    const setter = type === "race" ? setRaceDrafts : setClassDrafts
-    setter((prev) => prev.filter((_, currentIndex) => currentIndex !== index))
-  }
-
-  function updateDraftBonus(
-    type: "race" | "class",
-    index: number,
-    key: string,
-    value: string,
-    scope: "attributeBonuses" | "skillBonuses",
-  ) {
-    const setter = type === "race" ? setRaceDrafts : setClassDrafts
-    setter((prev) =>
-      prev.map((item, currentIndex) => {
-        if (currentIndex !== index) return item
-
-        return {
-          ...item,
-          [scope]: {
-            ...item[scope],
-            [key]: Number(value),
-          },
-        }
-      }),
-    )
-  }
-
-  async function saveIdentityTemplates(type: "race" | "class") {
     setIdentityError("")
     setIdentitySuccess("")
 
-    const drafts = type === "race" ? raceDrafts : classDrafts
+    const drafts = draftsOverride ?? (type === "race" ? raceDrafts : classDrafts)
     const payload: Array<{
       label: string
       attributeBonuses: Record<string, number>
@@ -310,12 +259,99 @@ export default function EditRpgPage() {
       const result = (await response.json()) as { message?: string }
       if (!response.ok) {
         setIdentityError(result.message ?? "Nao foi possivel salvar.")
-        return
+        return false
       }
       setIdentitySuccess(`${type === "race" ? "Racas" : "Classes"} salvas com sucesso.`)
+      return true
     } catch {
       setIdentityError("Erro de conexao ao salvar.")
+      return false
     }
+  }
+
+  async function reloadIdentityTemplates(type: "race" | "class") {
+    const endpoint = type === "race" ? "races" : "classes"
+    const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`)
+    const payload = (await response.json()) as {
+      races?: IdentityTemplate[]
+      classes?: IdentityTemplate[]
+      message?: string
+    }
+
+    if (!response.ok) {
+      throw new Error(payload.message ?? "Nao foi possivel recarregar dados.")
+    }
+
+    if (type === "race") {
+      setRaceDrafts(
+        (payload.races ?? []).map((item) => ({
+          key: item.key,
+          label: item.label,
+          attributeBonuses: item.attributeBonuses ?? {},
+          skillBonuses: item.skillBonuses ?? {},
+        })),
+      )
+      return
+    }
+
+    setClassDrafts(
+      (payload.classes ?? []).map((item) => ({
+        key: item.key,
+        label: item.label,
+        attributeBonuses: item.attributeBonuses ?? {},
+        skillBonuses: item.skillBonuses ?? {},
+      })),
+    )
+  }
+
+  function createEmptyDraft(): IdentityTemplateDraft {
+    return {
+      key: `draft-${crypto.randomUUID()}`,
+      label: "",
+      attributeBonuses: selectedAttributeKeys.reduce<Record<string, number>>((acc, key) => {
+        acc[key] = 0
+        return acc
+      }, {}),
+      skillBonuses: skillTemplates.reduce<Record<string, number>>((acc, item) => {
+        acc[item.key] = 0
+        return acc
+      }, {}),
+    }
+  }
+
+  async function handleSaveEditedDraft(
+    type: "race" | "class",
+    key: string,
+    draft: IdentityTemplateDraft,
+  ) {
+    const current = type === "race" ? raceDrafts : classDrafts
+    const next = current.map((item) => (item.key === key ? draft : item))
+    const ok = await saveIdentityTemplates(type, next)
+    if (!ok) return
+
+    await reloadIdentityTemplates(type)
+    if (type === "race") {
+      setActiveRaceKey(null)
+      return
+    }
+    setActiveClassKey(null)
+  }
+
+  async function handleSaveCreatedDraft(
+    type: "race" | "class",
+    draft: IdentityTemplateDraft,
+  ) {
+    const current = type === "race" ? raceDrafts : classDrafts
+    const next = [...current, draft]
+    const ok = await saveIdentityTemplates(type, next)
+    if (!ok) return
+
+    await reloadIdentityTemplates(type)
+    if (type === "race") {
+      setCreatingRace(false)
+      return
+    }
+    setCreatingClass(false)
   }
 
   async function saveAttributeTemplate() {
@@ -551,138 +587,170 @@ export default function EditRpgPage() {
               <>
                 <div className={styles.attributeTemplateSection}>
                   <h3>Racas</h3>
-                  <p>Defina nome, bonus de atributos e bonus de pericias.</p>
-                  {raceDrafts.map((draft, index) => (
-                    <div key={draft.key} className={styles.identityCard}>
-                      <input
-                        type="text"
-                        value={draft.label}
-                        onChange={(event) =>
-                          upsertDraft("race", index, "label", event.target.value)
-                        }
-                        placeholder="Nome da raca"
-                      />
-                      <div className={styles.bonusGrid}>
-                        {selectedAttributeKeys.map((key) => (
-                          <label className={styles.field} key={`${draft.key}-att-${key}`}>
-                            <span>{attributeLabelByKey.get(key) ?? key}</span>
-                            <input
-                              type="number"
-                              value={draft.attributeBonuses[key] ?? 0}
-                              onChange={(event) =>
-                                updateDraftBonus(
-                                  "race",
-                                  index,
-                                  key,
-                                  event.target.value,
-                                  "attributeBonuses",
-                                )
-                              }
-                            />
-                          </label>
-                        ))}
-                      </div>
-                      <div className={styles.bonusGrid}>
-                        {skillTemplates.map((skill) => (
-                          <label className={styles.field} key={`${draft.key}-skill-${skill.key}`}>
-                            <span>{skill.label}</span>
-                            <input
-                              type="number"
-                              value={draft.skillBonuses[skill.key] ?? 0}
-                              onChange={(event) =>
-                                updateDraftBonus(
-                                  "race",
-                                  index,
-                                  skill.key,
-                                  event.target.value,
-                                  "skillBonuses",
-                                )
-                              }
-                            />
-                          </label>
-                        ))}
-                      </div>
-                      <button type="button" onClick={() => removeDraft("race", index)}>
-                        Remover raca
-                      </button>
-                    </div>
-                  ))}
-                  <div className={styles.actions}>
-                    <button type="button" onClick={() => addDraft("race")}>
-                      Nova raca
+                  <div className={styles.identityHeaderActions}>
+                    <button
+                      type="button"
+                      onClick={() => setShowRaceList((prev) => !prev)}
+                    >
+                      {showRaceList ? "Ocultar nomes" : "Mostrar nomes"}
                     </button>
-                    <button type="button" onClick={() => void saveIdentityTemplates("race")}>
-                      Salvar racas
+                    <button
+                      type="button"
+                      className={styles.secondaryButton}
+                      onClick={() => {
+                        setCreatingRace(true)
+                        setActiveRaceKey(null)
+                      }}
+                    >
+                      Criar nova raca
                     </button>
                   </div>
+
+                  {showRaceList ? (
+                    <ul className={styles.identityNameList}>
+                      {raceDrafts.length === 0 ? <li>Nenhuma raca cadastrada.</li> : null}
+                      {raceDrafts.map((draft) => (
+                        <li key={draft.key} className={styles.identityNameListItem}>
+                          <span>{draft.label.trim() || "Sem nome"}</span>
+                          <div className={styles.identityItemActions}>
+                            <button
+                              type="button"
+                              className={styles.secondaryButton}
+                              onClick={() => {
+                                setActiveRaceKey(draft.key)
+                                setCreatingRace(false)
+                              }}
+                            >
+                              Avancado
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+
+                  {creatingRace ? (
+                    <>
+                      <p>Preencha os campos da nova raca e salve para voltar.</p>
+                      <IdentityTemplateForm
+                        mode="create"
+                        type="race"
+                        initialDraft={createEmptyDraft()}
+                        selectedAttributeKeys={selectedAttributeKeys}
+                        skillTemplates={skillTemplates}
+                        attributeLabelByKey={attributeLabelByKey}
+                        onCancel={() => setCreatingRace(false)}
+                        onSave={(draft) => handleSaveCreatedDraft("race", draft)}
+                      />
+                    </>
+                  ) : null}
+
+                  {activeRaceKey ? (
+                    <>
+                      <p>Editando somente a raca selecionada.</p>
+                      {raceDrafts
+                        .filter((draft) => draft.key === activeRaceKey)
+                        .map((draft) => (
+                          <IdentityTemplateForm
+                            key={draft.key}
+                            mode="edit"
+                            type="race"
+                            initialDraft={draft}
+                            selectedAttributeKeys={selectedAttributeKeys}
+                            skillTemplates={skillTemplates}
+                            attributeLabelByKey={attributeLabelByKey}
+                            onCancel={() => setActiveRaceKey(null)}
+                            onSave={(nextDraft) =>
+                              handleSaveEditedDraft("race", draft.key, nextDraft)
+                            }
+                          />
+                        ))}
+                    </>
+                  ) : null}
                 </div>
 
                 <div className={styles.attributeTemplateSection}>
                   <h3>Classes</h3>
-                  <p>Defina nome, bonus de atributos e bonus de pericias.</p>
-                  {classDrafts.map((draft, index) => (
-                    <div key={draft.key} className={styles.identityCard}>
-                      <input
-                        type="text"
-                        value={draft.label}
-                        onChange={(event) =>
-                          upsertDraft("class", index, "label", event.target.value)
-                        }
-                        placeholder="Nome da classe"
-                      />
-                      <div className={styles.bonusGrid}>
-                        {selectedAttributeKeys.map((key) => (
-                          <label className={styles.field} key={`${draft.key}-att-${key}`}>
-                            <span>{attributeLabelByKey.get(key) ?? key}</span>
-                            <input
-                              type="number"
-                              value={draft.attributeBonuses[key] ?? 0}
-                              onChange={(event) =>
-                                updateDraftBonus(
-                                  "class",
-                                  index,
-                                  key,
-                                  event.target.value,
-                                  "attributeBonuses",
-                                )
-                              }
-                            />
-                          </label>
-                        ))}
-                      </div>
-                      <div className={styles.bonusGrid}>
-                        {skillTemplates.map((skill) => (
-                          <label className={styles.field} key={`${draft.key}-skill-${skill.key}`}>
-                            <span>{skill.label}</span>
-                            <input
-                              type="number"
-                              value={draft.skillBonuses[skill.key] ?? 0}
-                              onChange={(event) =>
-                                updateDraftBonus(
-                                  "class",
-                                  index,
-                                  skill.key,
-                                  event.target.value,
-                                  "skillBonuses",
-                                )
-                              }
-                            />
-                          </label>
-                        ))}
-                      </div>
-                      <button type="button" onClick={() => removeDraft("class", index)}>
-                        Remover classe
-                      </button>
-                    </div>
-                  ))}
-                  <div className={styles.actions}>
-                    <button type="button" onClick={() => addDraft("class")}>
-                      Nova classe
+                  <div className={styles.identityHeaderActions}>
+                    <button
+                      type="button"
+                      onClick={() => setShowClassList((prev) => !prev)}
+                    >
+                      {showClassList ? "Ocultar nomes" : "Mostrar nomes"}
                     </button>
-                    <button type="button" onClick={() => void saveIdentityTemplates("class")}>
-                      Salvar classes
+                    <button
+                      type="button"
+                      className={styles.secondaryButton}
+                      onClick={() => {
+                        setCreatingClass(true)
+                        setActiveClassKey(null)
+                      }}
+                    >
+                      Criar nova classe
                     </button>
                   </div>
+
+                  {showClassList ? (
+                    <ul className={styles.identityNameList}>
+                      {classDrafts.length === 0 ? <li>Nenhuma classe cadastrada.</li> : null}
+                      {classDrafts.map((draft) => (
+                        <li key={draft.key} className={styles.identityNameListItem}>
+                          <span>{draft.label.trim() || "Sem nome"}</span>
+                          <div className={styles.identityItemActions}>
+                            <button
+                              type="button"
+                              className={styles.secondaryButton}
+                              onClick={() => {
+                                setActiveClassKey(draft.key)
+                                setCreatingClass(false)
+                              }}
+                            >
+                              Avancado
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+
+                  {creatingClass ? (
+                    <>
+                      <p>Preencha os campos da nova classe e salve para voltar.</p>
+                      <IdentityTemplateForm
+                        mode="create"
+                        type="class"
+                        initialDraft={createEmptyDraft()}
+                        selectedAttributeKeys={selectedAttributeKeys}
+                        skillTemplates={skillTemplates}
+                        attributeLabelByKey={attributeLabelByKey}
+                        onCancel={() => setCreatingClass(false)}
+                        onSave={(draft) => handleSaveCreatedDraft("class", draft)}
+                      />
+                    </>
+                  ) : null}
+
+                  {activeClassKey ? (
+                    <>
+                      <p>Editando somente a classe selecionada.</p>
+                      {classDrafts
+                        .filter((draft) => draft.key === activeClassKey)
+                        .map((draft) => (
+                          <IdentityTemplateForm
+                            key={draft.key}
+                            mode="edit"
+                            type="class"
+                            initialDraft={draft}
+                            selectedAttributeKeys={selectedAttributeKeys}
+                            skillTemplates={skillTemplates}
+                            attributeLabelByKey={attributeLabelByKey}
+                            onCancel={() => setActiveClassKey(null)}
+                            onSave={(nextDraft) =>
+                              handleSaveEditedDraft("class", draft.key, nextDraft)
+                            }
+                          />
+                        ))}
+                    </>
+                  ) : null}
                 </div>
               </>
             ) : null}
