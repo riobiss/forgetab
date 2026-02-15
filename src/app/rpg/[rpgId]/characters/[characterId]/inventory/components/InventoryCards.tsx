@@ -17,8 +17,10 @@ export default function InventoryCards({ items, emptyMessage }: Props) {
         <div key={item.id} className={`${styles.card} ${styles[item.rarityClass]}`}>
           <div className={styles.cardTop}>
             <div className={styles.cardHeader}>
-              <h3 className={styles.cardTitle}>{item.title}</h3>
-              <span className={styles.rarityBadge}>{item.rarityLabel}</span>
+              <div className={styles.titleRow}>
+                <h3 className={styles.cardTitle}>{item.title}</h3>
+                <span className={styles.inlineQuantity}>X.{item.quantity}</span>
+              </div>
             </div>
 
             {item.description ? (
@@ -51,7 +53,7 @@ export default function InventoryCards({ items, emptyMessage }: Props) {
             ) : (
               <span />
             )}
-            <span className={styles.quantity}>Q.{item.quantity}</span>
+            <span className={styles.rarityBadge}>{item.rarityLabel}</span>
           </div>
         </div>
       ))}

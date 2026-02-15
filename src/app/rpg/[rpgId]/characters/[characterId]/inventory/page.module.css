@@ -138,16 +138,30 @@
 
 .cardHeader {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.6rem;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.4rem;
   margin-bottom: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  flex-wrap: wrap;
 }
 
 .cardTitle {
   font-size: 1.15rem;
   margin: 0;
   color: var(--text-title);
+}
+
+.inlineQuantity {
+  color: #f1e7d4;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .cardTop {
