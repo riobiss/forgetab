@@ -15,6 +15,7 @@ type BaseItem = {
   type: ItemType
   rarity: string
   damage: string | null
+  range: string | null
   ability: string | null
   abilityName: string | null
   effect: string | null
@@ -362,6 +363,9 @@ export default function ItemsPage() {
                 <p className={styles.rarityLine}>Raridade: {item.rarity}</p>
                 {item.damage !== null ? (
                   <p className={styles.metaLine}>Dano: {item.damage}</p>
+                ) : null}
+                {item.range !== null ? (
+                  <p className={styles.metaLine}>Alcance: {item.range}</p>
                 ) : null}
                 {item.weight !== null ? (
                   <p className={styles.metaLine}>Peso: {item.weight}</p>

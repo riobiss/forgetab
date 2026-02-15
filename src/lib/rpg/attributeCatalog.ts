@@ -3,6 +3,7 @@ export const ATTRIBUTE_CATALOG = [
   { key: "dexterity", label: "Destreza" },
   { key: "constitution", label: "Constituicao" },
   { key: "intelligence", label: "Inteligencia" },
+  { key: "knowledge", label: "Conhecimento" },
   { key: "wisdom", label: "Sabedoria" },
   { key: "charisma", label: "Carisma" },
   { key: "agility", label: "Agilidade" },
@@ -18,7 +19,9 @@ export const DEFAULT_ATTRIBUTE_KEYS: AttributeKey[] = [
   "strength",
   "dexterity",
   "constitution",
-  "intelligence",
+  "knowledge",
   "wisdom",
   "charisma",
+  "agility",
+  "instinct"
 ]

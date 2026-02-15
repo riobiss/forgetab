@@ -46,6 +46,12 @@ export const createBaseItemSchema = z.object({
     .max(120, "Dano deve ter no maximo 120 caracteres.")
     .nullable()
     .optional(),
+  range: z
+    .string()
+    .trim()
+    .max(120, "Alcance deve ter no maximo 120 caracteres.")
+    .nullable()
+    .optional(),
   ability: z
     .string()
     .trim()

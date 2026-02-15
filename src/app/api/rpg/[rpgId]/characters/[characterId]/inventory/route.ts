@@ -29,6 +29,7 @@ type InventoryRow = {
   itemType: string
   itemRarity: string
   itemDamage: string | null
+  itemRange: string | null
   itemAbility: string | null
   itemAbilityName: string | null
   itemEffect: string | null
@@ -148,6 +149,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         b.type AS "itemType",
         b.rarity AS "itemRarity",
         b.damage AS "itemDamage",
+        b."range" AS "itemRange",
         b.ability AS "itemAbility",
         b.ability_name AS "itemAbilityName",
         b.effect AS "itemEffect",

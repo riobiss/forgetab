@@ -24,6 +24,7 @@ type BaseItemRow = {
   type: string
   rarity: string
   damage: string | null
+  range: string | null
   ability: string | null
   abilityName: string | null
   effect: string | null
@@ -102,6 +103,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         type,
         rarity,
         damage,
+        "range" AS "range",
         ability,
         ability_name AS "abilityName",
         effect,
@@ -141,6 +143,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
       }
 
       if (error.message.includes('column "description" does not exist')) {
+        return NextResponse.json(
+          { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+          { status: 500 },
+        )
+      }
+      if (error.message.includes('column "range" does not exist')) {
         return NextResponse.json(
           { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
           { status: 500 },
@@ -190,6 +198,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     const damage = normalizeOptionalText(parsed.data.damage)
+    const range = normalizeOptionalText(parsed.data.range)
     const description = normalizeOptionalText(parsed.data.description)
     const weight = parsed.data.weight ?? null
     const duration = normalizeOptionalText(parsed.data.duration)
@@ -209,6 +218,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         type = ${parsed.data.type}::"public"."BaseItemType",
         rarity = ${parsed.data.rarity}::"public"."BaseItemRarity",
         damage = ${damage},
+        "range" = ${range},
         ability = ${ability},
         ability_name = ${abilityName},
         effect = ${effect},
@@ -229,6 +239,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         type,
         rarity,
         damage,
+        "range" AS "range",
         ability,
         ability_name AS "abilityName",
         effect,
@@ -264,6 +275,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       }
 
       if (error.message.includes('column "description" does not exist')) {
+        return NextResponse.json(
+          { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+          { status: 500 },
+        )
+      }
+      if (error.message.includes('column "range" does not exist')) {
         return NextResponse.json(
           { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
           { status: 500 },

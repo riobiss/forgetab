@@ -24,6 +24,7 @@ type BaseItem = {
   type: ItemType
   rarity: ItemRarity
   damage: string | null
+  range: string | null
   ability: string | null
   abilityName: string | null
   effect: string | null
@@ -115,6 +116,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
   const [type, setType] = useState<ItemType>("weapon")
   const [rarity, setRarity] = useState<ItemRarity>("common")
   const [damage, setDamage] = useState("")
+  const [range, setRange] = useState("")
   const [weight, setWeight] = useState("")
   const [duration, setDuration] = useState("")
   const [durability, setDurability] = useState("")
@@ -148,6 +150,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
         setType(payload.item.type)
         setRarity(payload.item.rarity)
         setDamage(payload.item.damage ?? "")
+        setRange(payload.item.range ?? "")
         setWeight(payload.item.weight !== null ? String(payload.item.weight) : "")
         setDuration(payload.item.duration ?? "")
         setDurability(payload.item.durability !== null ? String(payload.item.durability) : "")
@@ -211,6 +214,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
       type,
       rarity,
       damage: toOptionalText(damage),
+      range: toOptionalText(range),
       abilityName: normalizedAbilities[0]?.name ?? null,
       ability: normalizedAbilities[0]?.description ?? null,
       effectName: normalizedEffects[0]?.name ?? null,
@@ -326,6 +330,16 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
                 value={damage}
                 onChange={(event) => setDamage(event.target.value)}
                 placeholder="Ex: 1d6 + 2"
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span>Alcance</span>
+              <input
+                type="text"
+                value={range}
+                onChange={(event) => setRange(event.target.value)}
+                placeholder="Ex: corpo a corpo, 9m, pessoal"
               />
             </label>
 

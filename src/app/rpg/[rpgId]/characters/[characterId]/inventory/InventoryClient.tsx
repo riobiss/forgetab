@@ -17,6 +17,7 @@ type InventoryItem = {
   itemType: string
   itemRarity: InventoryRarity
   itemDamage: string | null
+  itemRange: string | null
   itemAbility: string | null
   itemAbilityName: string | null
   itemEffect: string | null
@@ -143,6 +144,9 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
 
     if (item.itemDamage) {
       coreStats.push({ label: "Dano", value: item.itemDamage })
+    }
+    if (item.itemRange) {
+      coreStats.push({ label: "Alcance", value: item.itemRange })
     }
     if (item.itemWeight !== null) {
       coreStats.push({ label: "Peso", value: `${item.itemWeight} kg` })

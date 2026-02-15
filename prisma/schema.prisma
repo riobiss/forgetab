@@ -100,6 +100,7 @@ model BaseItem {
   type      BaseItemType
   rarity    BaseItemRarity @default(common)
   damage    String?
+  range     String?
   ability   String?
   abilityName String?      @map("ability_name")
   effect    String?
