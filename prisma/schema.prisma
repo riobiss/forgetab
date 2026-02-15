@@ -79,6 +79,7 @@ model Rpg {
   attributeTemplates RpgAttributeTemplate[]
   statusTemplates    RpgStatusTemplate[]
   characters         RpgCharacter[]
+  inventoryItems     RpgCharacterInventoryItem[]
   members            RpgMember[]
   characterCreationRequests RpgCharacterCreationRequest[]
 
@@ -210,3 +211,4 @@ model RpgCharacterCreationRequest {
   @@index([userId])
   @@map("rpg_character_creation_requests")
 }
+

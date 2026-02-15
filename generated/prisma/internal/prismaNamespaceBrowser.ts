@@ -56,8 +56,10 @@ export const ModelName = {
   BaseItem: 'BaseItem',
   RpgAttributeTemplate: 'RpgAttributeTemplate',
   RpgCharacter: 'RpgCharacter',
+  RpgCharacterInventoryItem: 'RpgCharacterInventoryItem',
   RpgStatusTemplate: 'RpgStatusTemplate',
-  RpgMember: 'RpgMember'
+  RpgMember: 'RpgMember',
+  RpgCharacterCreationRequest: 'RpgCharacterCreationRequest'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -145,6 +147,19 @@ export const RpgCharacterScalarFieldEnum = {
 export type RpgCharacterScalarFieldEnum = (typeof RpgCharacterScalarFieldEnum)[keyof typeof RpgCharacterScalarFieldEnum]
 
 
+export const RpgCharacterInventoryItemScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  characterId: 'characterId',
+  baseItemId: 'baseItemId',
+  quantity: 'quantity',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgCharacterInventoryItemScalarFieldEnum = (typeof RpgCharacterInventoryItemScalarFieldEnum)[keyof typeof RpgCharacterInventoryItemScalarFieldEnum]
+
+
 export const RpgStatusTemplateScalarFieldEnum = {
   id: 'id',
   rpgId: 'rpgId',
@@ -170,6 +185,20 @@ export const RpgMemberScalarFieldEnum = {
 } as const
 
 export type RpgMemberScalarFieldEnum = (typeof RpgMemberScalarFieldEnum)[keyof typeof RpgMemberScalarFieldEnum]
+
+
+export const RpgCharacterCreationRequestScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  userId: 'userId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  requestedAt: 'requestedAt',
+  respondedAt: 'respondedAt'
+} as const
+
+export type RpgCharacterCreationRequestScalarFieldEnum = (typeof RpgCharacterCreationRequestScalarFieldEnum)[keyof typeof RpgCharacterCreationRequestScalarFieldEnum]
 
 
 export const SortOrder = {

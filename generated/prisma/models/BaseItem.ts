@@ -199,6 +199,7 @@ export type BaseItemWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"BaseItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BaseItem"> | Date | string
   rpg?: Prisma.XOR<Prisma.RpgScalarRelationFilter, Prisma.RpgWhereInput>
+  inventories?: Prisma.RpgCharacterInventoryItemListRelationFilter
 }
 
 export type BaseItemOrderByWithRelationInput = {
@@ -210,6 +211,7 @@ export type BaseItemOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   rpg?: Prisma.RpgOrderByWithRelationInput
+  inventories?: Prisma.RpgCharacterInventoryItemOrderByRelationAggregateInput
 }
 
 export type BaseItemWhereUniqueInput = Prisma.AtLeast<{
@@ -224,6 +226,7 @@ export type BaseItemWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"BaseItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BaseItem"> | Date | string
   rpg?: Prisma.XOR<Prisma.RpgScalarRelationFilter, Prisma.RpgWhereInput>
+  inventories?: Prisma.RpgCharacterInventoryItemListRelationFilter
 }, "id">
 
 export type BaseItemOrderByWithAggregationInput = {
@@ -260,6 +263,7 @@ export type BaseItemCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   rpg: Prisma.RpgCreateNestedOneWithoutBaseItemsInput
+  inventories?: Prisma.RpgCharacterInventoryItemCreateNestedManyWithoutBaseItemInput
 }
 
 export type BaseItemUncheckedCreateInput = {
@@ -270,6 +274,7 @@ export type BaseItemUncheckedCreateInput = {
   rarity?: $Enums.BaseItemRarity
   createdAt?: Date | string
   updatedAt?: Date | string
+  inventories?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutBaseItemInput
 }
 
 export type BaseItemUpdateInput = {
@@ -280,6 +285,7 @@ export type BaseItemUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rpg?: Prisma.RpgUpdateOneRequiredWithoutBaseItemsNestedInput
+  inventories?: Prisma.RpgCharacterInventoryItemUpdateManyWithoutBaseItemNestedInput
 }
 
 export type BaseItemUncheckedUpdateInput = {
@@ -290,6 +296,7 @@ export type BaseItemUncheckedUpdateInput = {
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inventories?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutBaseItemNestedInput
 }
 
 export type BaseItemCreateManyInput = {
@@ -361,6 +368,11 @@ export type BaseItemMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type BaseItemScalarRelationFilter = {
+  is?: Prisma.BaseItemWhereInput
+  isNot?: Prisma.BaseItemWhereInput
+}
+
 export type BaseItemCreateNestedManyWithoutRpgInput = {
   create?: Prisma.XOR<Prisma.BaseItemCreateWithoutRpgInput, Prisma.BaseItemUncheckedCreateWithoutRpgInput> | Prisma.BaseItemCreateWithoutRpgInput[] | Prisma.BaseItemUncheckedCreateWithoutRpgInput[]
   connectOrCreate?: Prisma.BaseItemCreateOrConnectWithoutRpgInput | Prisma.BaseItemCreateOrConnectWithoutRpgInput[]
@@ -411,6 +423,20 @@ export type EnumBaseItemRarityFieldUpdateOperationsInput = {
   set?: $Enums.BaseItemRarity
 }
 
+export type BaseItemCreateNestedOneWithoutInventoriesInput = {
+  create?: Prisma.XOR<Prisma.BaseItemCreateWithoutInventoriesInput, Prisma.BaseItemUncheckedCreateWithoutInventoriesInput>
+  connectOrCreate?: Prisma.BaseItemCreateOrConnectWithoutInventoriesInput
+  connect?: Prisma.BaseItemWhereUniqueInput
+}
+
+export type BaseItemUpdateOneRequiredWithoutInventoriesNestedInput = {
+  create?: Prisma.XOR<Prisma.BaseItemCreateWithoutInventoriesInput, Prisma.BaseItemUncheckedCreateWithoutInventoriesInput>
+  connectOrCreate?: Prisma.BaseItemCreateOrConnectWithoutInventoriesInput
+  upsert?: Prisma.BaseItemUpsertWithoutInventoriesInput
+  connect?: Prisma.BaseItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BaseItemUpdateToOneWithWhereWithoutInventoriesInput, Prisma.BaseItemUpdateWithoutInventoriesInput>, Prisma.BaseItemUncheckedUpdateWithoutInventoriesInput>
+}
+
 export type BaseItemCreateWithoutRpgInput = {
   id?: string
   name: string
@@ -418,6 +444,7 @@ export type BaseItemCreateWithoutRpgInput = {
   rarity?: $Enums.BaseItemRarity
   createdAt?: Date | string
   updatedAt?: Date | string
+  inventories?: Prisma.RpgCharacterInventoryItemCreateNestedManyWithoutBaseItemInput
 }
 
 export type BaseItemUncheckedCreateWithoutRpgInput = {
@@ -427,6 +454,7 @@ export type BaseItemUncheckedCreateWithoutRpgInput = {
   rarity?: $Enums.BaseItemRarity
   createdAt?: Date | string
   updatedAt?: Date | string
+  inventories?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutBaseItemInput
 }
 
 export type BaseItemCreateOrConnectWithoutRpgInput = {
@@ -468,6 +496,62 @@ export type BaseItemScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"BaseItem"> | Date | string
 }
 
+export type BaseItemCreateWithoutInventoriesInput = {
+  id?: string
+  name: string
+  type: $Enums.BaseItemType
+  rarity?: $Enums.BaseItemRarity
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rpg: Prisma.RpgCreateNestedOneWithoutBaseItemsInput
+}
+
+export type BaseItemUncheckedCreateWithoutInventoriesInput = {
+  id?: string
+  rpgId: string
+  name: string
+  type: $Enums.BaseItemType
+  rarity?: $Enums.BaseItemRarity
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type BaseItemCreateOrConnectWithoutInventoriesInput = {
+  where: Prisma.BaseItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.BaseItemCreateWithoutInventoriesInput, Prisma.BaseItemUncheckedCreateWithoutInventoriesInput>
+}
+
+export type BaseItemUpsertWithoutInventoriesInput = {
+  update: Prisma.XOR<Prisma.BaseItemUpdateWithoutInventoriesInput, Prisma.BaseItemUncheckedUpdateWithoutInventoriesInput>
+  create: Prisma.XOR<Prisma.BaseItemCreateWithoutInventoriesInput, Prisma.BaseItemUncheckedCreateWithoutInventoriesInput>
+  where?: Prisma.BaseItemWhereInput
+}
+
+export type BaseItemUpdateToOneWithWhereWithoutInventoriesInput = {
+  where?: Prisma.BaseItemWhereInput
+  data: Prisma.XOR<Prisma.BaseItemUpdateWithoutInventoriesInput, Prisma.BaseItemUncheckedUpdateWithoutInventoriesInput>
+}
+
+export type BaseItemUpdateWithoutInventoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumBaseItemTypeFieldUpdateOperationsInput | $Enums.BaseItemType
+  rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rpg?: Prisma.RpgUpdateOneRequiredWithoutBaseItemsNestedInput
+}
+
+export type BaseItemUncheckedUpdateWithoutInventoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  rpgId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumBaseItemTypeFieldUpdateOperationsInput | $Enums.BaseItemType
+  rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type BaseItemCreateManyRpgInput = {
   id?: string
   name: string
@@ -484,6 +568,7 @@ export type BaseItemUpdateWithoutRpgInput = {
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inventories?: Prisma.RpgCharacterInventoryItemUpdateManyWithoutBaseItemNestedInput
 }
 
 export type BaseItemUncheckedUpdateWithoutRpgInput = {
@@ -493,6 +578,7 @@ export type BaseItemUncheckedUpdateWithoutRpgInput = {
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inventories?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutBaseItemNestedInput
 }
 
 export type BaseItemUncheckedUpdateManyWithoutRpgInput = {
@@ -505,6 +591,35 @@ export type BaseItemUncheckedUpdateManyWithoutRpgInput = {
 }
 
 
+/**
+ * Count Type BaseItemCountOutputType
+ */
+
+export type BaseItemCountOutputType = {
+  inventories: number
+}
+
+export type BaseItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  inventories?: boolean | BaseItemCountOutputTypeCountInventoriesArgs
+}
+
+/**
+ * BaseItemCountOutputType without action
+ */
+export type BaseItemCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BaseItemCountOutputType
+   */
+  select?: Prisma.BaseItemCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * BaseItemCountOutputType without action
+ */
+export type BaseItemCountOutputTypeCountInventoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RpgCharacterInventoryItemWhereInput
+}
+
 
 export type BaseItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -515,6 +630,8 @@ export type BaseItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   createdAt?: boolean
   updatedAt?: boolean
   rpg?: boolean | Prisma.RpgDefaultArgs<ExtArgs>
+  inventories?: boolean | Prisma.BaseItem$inventoriesArgs<ExtArgs>
+  _count?: boolean | Prisma.BaseItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["baseItem"]>
 
 export type BaseItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -552,6 +669,8 @@ export type BaseItemSelectScalar = {
 export type BaseItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rpgId" | "name" | "type" | "rarity" | "createdAt" | "updatedAt", ExtArgs["result"]["baseItem"]>
 export type BaseItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rpg?: boolean | Prisma.RpgDefaultArgs<ExtArgs>
+  inventories?: boolean | Prisma.BaseItem$inventoriesArgs<ExtArgs>
+  _count?: boolean | Prisma.BaseItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BaseItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rpg?: boolean | Prisma.RpgDefaultArgs<ExtArgs>
@@ -564,6 +683,7 @@ export type $BaseItemPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   name: "BaseItem"
   objects: {
     rpg: Prisma.$RpgPayload<ExtArgs>
+    inventories: Prisma.$RpgCharacterInventoryItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -968,6 +1088,7 @@ readonly fields: BaseItemFieldRefs;
 export interface Prisma__BaseItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   rpg<T extends Prisma.RpgDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RpgDefaultArgs<ExtArgs>>): Prisma.Prisma__RpgClient<runtime.Types.Result.GetResult<Prisma.$RpgPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  inventories<T extends Prisma.BaseItem$inventoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BaseItem$inventoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgCharacterInventoryItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1397,6 +1518,30 @@ export type BaseItemDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many BaseItems to delete.
    */
   limit?: number
+}
+
+/**
+ * BaseItem.inventories
+ */
+export type BaseItem$inventoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RpgCharacterInventoryItem
+   */
+  select?: Prisma.RpgCharacterInventoryItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RpgCharacterInventoryItem
+   */
+  omit?: Prisma.RpgCharacterInventoryItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RpgCharacterInventoryItemInclude<ExtArgs> | null
+  where?: Prisma.RpgCharacterInventoryItemWhereInput
+  orderBy?: Prisma.RpgCharacterInventoryItemOrderByWithRelationInput | Prisma.RpgCharacterInventoryItemOrderByWithRelationInput[]
+  cursor?: Prisma.RpgCharacterInventoryItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RpgCharacterInventoryItemScalarFieldEnum | Prisma.RpgCharacterInventoryItemScalarFieldEnum[]
 }
 
 /**

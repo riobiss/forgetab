@@ -49,6 +49,15 @@ export const RpgMemberStatus = {
 export type RpgMemberStatus = (typeof RpgMemberStatus)[keyof typeof RpgMemberStatus]
 
 
+export const CharacterCreationRequestStatus = {
+  pending: 'pending',
+  accepted: 'accepted',
+  rejected: 'rejected'
+} as const
+
+export type CharacterCreationRequestStatus = (typeof CharacterCreationRequestStatus)[keyof typeof CharacterCreationRequestStatus]
+
+
 export const RpgCharacterType = {
   player: 'player',
   npc: 'npc',

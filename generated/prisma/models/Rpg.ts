@@ -195,7 +195,9 @@ export type RpgWhereInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateListRelationFilter
   statusTemplates?: Prisma.RpgStatusTemplateListRelationFilter
   characters?: Prisma.RpgCharacterListRelationFilter
+  inventoryItems?: Prisma.RpgCharacterInventoryItemListRelationFilter
   members?: Prisma.RpgMemberListRelationFilter
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestListRelationFilter
 }
 
 export type RpgOrderByWithRelationInput = {
@@ -210,7 +212,9 @@ export type RpgOrderByWithRelationInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateOrderByRelationAggregateInput
   statusTemplates?: Prisma.RpgStatusTemplateOrderByRelationAggregateInput
   characters?: Prisma.RpgCharacterOrderByRelationAggregateInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemOrderByRelationAggregateInput
   members?: Prisma.RpgMemberOrderByRelationAggregateInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestOrderByRelationAggregateInput
 }
 
 export type RpgWhereUniqueInput = Prisma.AtLeast<{
@@ -228,7 +232,9 @@ export type RpgWhereUniqueInput = Prisma.AtLeast<{
   attributeTemplates?: Prisma.RpgAttributeTemplateListRelationFilter
   statusTemplates?: Prisma.RpgStatusTemplateListRelationFilter
   characters?: Prisma.RpgCharacterListRelationFilter
+  inventoryItems?: Prisma.RpgCharacterInventoryItemListRelationFilter
   members?: Prisma.RpgMemberListRelationFilter
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestListRelationFilter
 }, "id">
 
 export type RpgOrderByWithAggregationInput = {
@@ -266,7 +272,9 @@ export type RpgCreateInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutRpgInput
 }
 
 export type RpgUncheckedCreateInput = {
@@ -280,7 +288,9 @@ export type RpgUncheckedCreateInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutRpgInput
 }
 
 export type RpgUpdateInput = {
@@ -294,7 +304,9 @@ export type RpgUpdateInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgUncheckedUpdateInput = {
@@ -308,7 +320,9 @@ export type RpgUncheckedUpdateInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUncheckedUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgCreateManyInput = {
@@ -467,6 +481,20 @@ export type RpgUpdateOneRequiredWithoutCharactersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RpgUpdateToOneWithWhereWithoutCharactersInput, Prisma.RpgUpdateWithoutCharactersInput>, Prisma.RpgUncheckedUpdateWithoutCharactersInput>
 }
 
+export type RpgCreateNestedOneWithoutInventoryItemsInput = {
+  create?: Prisma.XOR<Prisma.RpgCreateWithoutInventoryItemsInput, Prisma.RpgUncheckedCreateWithoutInventoryItemsInput>
+  connectOrCreate?: Prisma.RpgCreateOrConnectWithoutInventoryItemsInput
+  connect?: Prisma.RpgWhereUniqueInput
+}
+
+export type RpgUpdateOneRequiredWithoutInventoryItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.RpgCreateWithoutInventoryItemsInput, Prisma.RpgUncheckedCreateWithoutInventoryItemsInput>
+  connectOrCreate?: Prisma.RpgCreateOrConnectWithoutInventoryItemsInput
+  upsert?: Prisma.RpgUpsertWithoutInventoryItemsInput
+  connect?: Prisma.RpgWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RpgUpdateToOneWithWhereWithoutInventoryItemsInput, Prisma.RpgUpdateWithoutInventoryItemsInput>, Prisma.RpgUncheckedUpdateWithoutInventoryItemsInput>
+}
+
 export type RpgCreateNestedOneWithoutStatusTemplatesInput = {
   create?: Prisma.XOR<Prisma.RpgCreateWithoutStatusTemplatesInput, Prisma.RpgUncheckedCreateWithoutStatusTemplatesInput>
   connectOrCreate?: Prisma.RpgCreateOrConnectWithoutStatusTemplatesInput
@@ -495,6 +523,20 @@ export type RpgUpdateOneRequiredWithoutMembersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RpgUpdateToOneWithWhereWithoutMembersInput, Prisma.RpgUpdateWithoutMembersInput>, Prisma.RpgUncheckedUpdateWithoutMembersInput>
 }
 
+export type RpgCreateNestedOneWithoutCharacterCreationRequestsInput = {
+  create?: Prisma.XOR<Prisma.RpgCreateWithoutCharacterCreationRequestsInput, Prisma.RpgUncheckedCreateWithoutCharacterCreationRequestsInput>
+  connectOrCreate?: Prisma.RpgCreateOrConnectWithoutCharacterCreationRequestsInput
+  connect?: Prisma.RpgWhereUniqueInput
+}
+
+export type RpgUpdateOneRequiredWithoutCharacterCreationRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.RpgCreateWithoutCharacterCreationRequestsInput, Prisma.RpgUncheckedCreateWithoutCharacterCreationRequestsInput>
+  connectOrCreate?: Prisma.RpgCreateOrConnectWithoutCharacterCreationRequestsInput
+  upsert?: Prisma.RpgUpsertWithoutCharacterCreationRequestsInput
+  connect?: Prisma.RpgWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RpgUpdateToOneWithWhereWithoutCharacterCreationRequestsInput, Prisma.RpgUpdateWithoutCharacterCreationRequestsInput>, Prisma.RpgUncheckedUpdateWithoutCharacterCreationRequestsInput>
+}
+
 export type RpgCreateWithoutOwnerInput = {
   id?: string
   title: string
@@ -505,7 +547,9 @@ export type RpgCreateWithoutOwnerInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutRpgInput
 }
 
 export type RpgUncheckedCreateWithoutOwnerInput = {
@@ -518,7 +562,9 @@ export type RpgUncheckedCreateWithoutOwnerInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutRpgInput
 }
 
 export type RpgCreateOrConnectWithoutOwnerInput = {
@@ -569,7 +615,9 @@ export type RpgCreateWithoutBaseItemsInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutRpgInput
 }
 
 export type RpgUncheckedCreateWithoutBaseItemsInput = {
@@ -582,7 +630,9 @@ export type RpgUncheckedCreateWithoutBaseItemsInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutRpgInput
 }
 
 export type RpgCreateOrConnectWithoutBaseItemsInput = {
@@ -611,7 +661,9 @@ export type RpgUpdateWithoutBaseItemsInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgUncheckedUpdateWithoutBaseItemsInput = {
@@ -624,7 +676,9 @@ export type RpgUncheckedUpdateWithoutBaseItemsInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUncheckedUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgCreateWithoutAttributeTemplatesInput = {
@@ -637,7 +691,9 @@ export type RpgCreateWithoutAttributeTemplatesInput = {
   baseItems?: Prisma.BaseItemCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutRpgInput
 }
 
 export type RpgUncheckedCreateWithoutAttributeTemplatesInput = {
@@ -650,7 +706,9 @@ export type RpgUncheckedCreateWithoutAttributeTemplatesInput = {
   baseItems?: Prisma.BaseItemUncheckedCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutRpgInput
 }
 
 export type RpgCreateOrConnectWithoutAttributeTemplatesInput = {
@@ -679,7 +737,9 @@ export type RpgUpdateWithoutAttributeTemplatesInput = {
   baseItems?: Prisma.BaseItemUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgUncheckedUpdateWithoutAttributeTemplatesInput = {
@@ -692,7 +752,9 @@ export type RpgUncheckedUpdateWithoutAttributeTemplatesInput = {
   baseItems?: Prisma.BaseItemUncheckedUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUncheckedUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgCreateWithoutCharactersInput = {
@@ -705,7 +767,9 @@ export type RpgCreateWithoutCharactersInput = {
   baseItems?: Prisma.BaseItemCreateNestedManyWithoutRpgInput
   attributeTemplates?: Prisma.RpgAttributeTemplateCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutRpgInput
 }
 
 export type RpgUncheckedCreateWithoutCharactersInput = {
@@ -718,7 +782,9 @@ export type RpgUncheckedCreateWithoutCharactersInput = {
   baseItems?: Prisma.BaseItemUncheckedCreateNestedManyWithoutRpgInput
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutRpgInput
 }
 
 export type RpgCreateOrConnectWithoutCharactersInput = {
@@ -747,7 +813,9 @@ export type RpgUpdateWithoutCharactersInput = {
   baseItems?: Prisma.BaseItemUpdateManyWithoutRpgNestedInput
   attributeTemplates?: Prisma.RpgAttributeTemplateUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgUncheckedUpdateWithoutCharactersInput = {
@@ -760,7 +828,85 @@ export type RpgUncheckedUpdateWithoutCharactersInput = {
   baseItems?: Prisma.BaseItemUncheckedUpdateManyWithoutRpgNestedInput
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUncheckedUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutRpgNestedInput
+}
+
+export type RpgCreateWithoutInventoryItemsInput = {
+  id?: string
+  title: string
+  description: string
+  visibility?: $Enums.RpgVisibility
+  createdAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutRpgsInput
+  baseItems?: Prisma.BaseItemCreateNestedManyWithoutRpgInput
+  attributeTemplates?: Prisma.RpgAttributeTemplateCreateNestedManyWithoutRpgInput
+  statusTemplates?: Prisma.RpgStatusTemplateCreateNestedManyWithoutRpgInput
+  characters?: Prisma.RpgCharacterCreateNestedManyWithoutRpgInput
+  members?: Prisma.RpgMemberCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutRpgInput
+}
+
+export type RpgUncheckedCreateWithoutInventoryItemsInput = {
+  id?: string
+  ownerId: string
+  title: string
+  description: string
+  visibility?: $Enums.RpgVisibility
+  createdAt?: Date | string
+  baseItems?: Prisma.BaseItemUncheckedCreateNestedManyWithoutRpgInput
+  attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedCreateNestedManyWithoutRpgInput
+  statusTemplates?: Prisma.RpgStatusTemplateUncheckedCreateNestedManyWithoutRpgInput
+  characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutRpgInput
+  members?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutRpgInput
+}
+
+export type RpgCreateOrConnectWithoutInventoryItemsInput = {
+  where: Prisma.RpgWhereUniqueInput
+  create: Prisma.XOR<Prisma.RpgCreateWithoutInventoryItemsInput, Prisma.RpgUncheckedCreateWithoutInventoryItemsInput>
+}
+
+export type RpgUpsertWithoutInventoryItemsInput = {
+  update: Prisma.XOR<Prisma.RpgUpdateWithoutInventoryItemsInput, Prisma.RpgUncheckedUpdateWithoutInventoryItemsInput>
+  create: Prisma.XOR<Prisma.RpgCreateWithoutInventoryItemsInput, Prisma.RpgUncheckedCreateWithoutInventoryItemsInput>
+  where?: Prisma.RpgWhereInput
+}
+
+export type RpgUpdateToOneWithWhereWithoutInventoryItemsInput = {
+  where?: Prisma.RpgWhereInput
+  data: Prisma.XOR<Prisma.RpgUpdateWithoutInventoryItemsInput, Prisma.RpgUncheckedUpdateWithoutInventoryItemsInput>
+}
+
+export type RpgUpdateWithoutInventoryItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutRpgsNestedInput
+  baseItems?: Prisma.BaseItemUpdateManyWithoutRpgNestedInput
+  attributeTemplates?: Prisma.RpgAttributeTemplateUpdateManyWithoutRpgNestedInput
+  statusTemplates?: Prisma.RpgStatusTemplateUpdateManyWithoutRpgNestedInput
+  characters?: Prisma.RpgCharacterUpdateManyWithoutRpgNestedInput
+  members?: Prisma.RpgMemberUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutRpgNestedInput
+}
+
+export type RpgUncheckedUpdateWithoutInventoryItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  baseItems?: Prisma.BaseItemUncheckedUpdateManyWithoutRpgNestedInput
+  attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedUpdateManyWithoutRpgNestedInput
+  statusTemplates?: Prisma.RpgStatusTemplateUncheckedUpdateManyWithoutRpgNestedInput
+  characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutRpgNestedInput
+  members?: Prisma.RpgMemberUncheckedUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgCreateWithoutStatusTemplatesInput = {
@@ -773,7 +919,9 @@ export type RpgCreateWithoutStatusTemplatesInput = {
   baseItems?: Prisma.BaseItemCreateNestedManyWithoutRpgInput
   attributeTemplates?: Prisma.RpgAttributeTemplateCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutRpgInput
 }
 
 export type RpgUncheckedCreateWithoutStatusTemplatesInput = {
@@ -786,7 +934,9 @@ export type RpgUncheckedCreateWithoutStatusTemplatesInput = {
   baseItems?: Prisma.BaseItemUncheckedCreateNestedManyWithoutRpgInput
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutRpgInput
   members?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutRpgInput
 }
 
 export type RpgCreateOrConnectWithoutStatusTemplatesInput = {
@@ -815,7 +965,9 @@ export type RpgUpdateWithoutStatusTemplatesInput = {
   baseItems?: Prisma.BaseItemUpdateManyWithoutRpgNestedInput
   attributeTemplates?: Prisma.RpgAttributeTemplateUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgUncheckedUpdateWithoutStatusTemplatesInput = {
@@ -828,7 +980,9 @@ export type RpgUncheckedUpdateWithoutStatusTemplatesInput = {
   baseItems?: Prisma.BaseItemUncheckedUpdateManyWithoutRpgNestedInput
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUncheckedUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgCreateWithoutMembersInput = {
@@ -842,6 +996,8 @@ export type RpgCreateWithoutMembersInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutRpgInput
 }
 
 export type RpgUncheckedCreateWithoutMembersInput = {
@@ -855,6 +1011,8 @@ export type RpgUncheckedCreateWithoutMembersInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedCreateNestedManyWithoutRpgInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedCreateNestedManyWithoutRpgInput
   characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutRpgInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutRpgInput
 }
 
 export type RpgCreateOrConnectWithoutMembersInput = {
@@ -884,6 +1042,8 @@ export type RpgUpdateWithoutMembersInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgUncheckedUpdateWithoutMembersInput = {
@@ -897,6 +1057,84 @@ export type RpgUncheckedUpdateWithoutMembersInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutRpgNestedInput
+}
+
+export type RpgCreateWithoutCharacterCreationRequestsInput = {
+  id?: string
+  title: string
+  description: string
+  visibility?: $Enums.RpgVisibility
+  createdAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutRpgsInput
+  baseItems?: Prisma.BaseItemCreateNestedManyWithoutRpgInput
+  attributeTemplates?: Prisma.RpgAttributeTemplateCreateNestedManyWithoutRpgInput
+  statusTemplates?: Prisma.RpgStatusTemplateCreateNestedManyWithoutRpgInput
+  characters?: Prisma.RpgCharacterCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemCreateNestedManyWithoutRpgInput
+  members?: Prisma.RpgMemberCreateNestedManyWithoutRpgInput
+}
+
+export type RpgUncheckedCreateWithoutCharacterCreationRequestsInput = {
+  id?: string
+  ownerId: string
+  title: string
+  description: string
+  visibility?: $Enums.RpgVisibility
+  createdAt?: Date | string
+  baseItems?: Prisma.BaseItemUncheckedCreateNestedManyWithoutRpgInput
+  attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedCreateNestedManyWithoutRpgInput
+  statusTemplates?: Prisma.RpgStatusTemplateUncheckedCreateNestedManyWithoutRpgInput
+  characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutRpgInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutRpgInput
+  members?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutRpgInput
+}
+
+export type RpgCreateOrConnectWithoutCharacterCreationRequestsInput = {
+  where: Prisma.RpgWhereUniqueInput
+  create: Prisma.XOR<Prisma.RpgCreateWithoutCharacterCreationRequestsInput, Prisma.RpgUncheckedCreateWithoutCharacterCreationRequestsInput>
+}
+
+export type RpgUpsertWithoutCharacterCreationRequestsInput = {
+  update: Prisma.XOR<Prisma.RpgUpdateWithoutCharacterCreationRequestsInput, Prisma.RpgUncheckedUpdateWithoutCharacterCreationRequestsInput>
+  create: Prisma.XOR<Prisma.RpgCreateWithoutCharacterCreationRequestsInput, Prisma.RpgUncheckedCreateWithoutCharacterCreationRequestsInput>
+  where?: Prisma.RpgWhereInput
+}
+
+export type RpgUpdateToOneWithWhereWithoutCharacterCreationRequestsInput = {
+  where?: Prisma.RpgWhereInput
+  data: Prisma.XOR<Prisma.RpgUpdateWithoutCharacterCreationRequestsInput, Prisma.RpgUncheckedUpdateWithoutCharacterCreationRequestsInput>
+}
+
+export type RpgUpdateWithoutCharacterCreationRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutRpgsNestedInput
+  baseItems?: Prisma.BaseItemUpdateManyWithoutRpgNestedInput
+  attributeTemplates?: Prisma.RpgAttributeTemplateUpdateManyWithoutRpgNestedInput
+  statusTemplates?: Prisma.RpgStatusTemplateUpdateManyWithoutRpgNestedInput
+  characters?: Prisma.RpgCharacterUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUpdateManyWithoutRpgNestedInput
+  members?: Prisma.RpgMemberUpdateManyWithoutRpgNestedInput
+}
+
+export type RpgUncheckedUpdateWithoutCharacterCreationRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  baseItems?: Prisma.BaseItemUncheckedUpdateManyWithoutRpgNestedInput
+  attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedUpdateManyWithoutRpgNestedInput
+  statusTemplates?: Prisma.RpgStatusTemplateUncheckedUpdateManyWithoutRpgNestedInput
+  characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutRpgNestedInput
+  members?: Prisma.RpgMemberUncheckedUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgCreateManyOwnerInput = {
@@ -917,7 +1155,9 @@ export type RpgUpdateWithoutOwnerInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgUncheckedUpdateWithoutOwnerInput = {
@@ -930,7 +1170,9 @@ export type RpgUncheckedUpdateWithoutOwnerInput = {
   attributeTemplates?: Prisma.RpgAttributeTemplateUncheckedUpdateManyWithoutRpgNestedInput
   statusTemplates?: Prisma.RpgStatusTemplateUncheckedUpdateManyWithoutRpgNestedInput
   characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutRpgNestedInput
+  inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutRpgNestedInput
   members?: Prisma.RpgMemberUncheckedUpdateManyWithoutRpgNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutRpgNestedInput
 }
 
 export type RpgUncheckedUpdateManyWithoutOwnerInput = {
@@ -951,7 +1193,9 @@ export type RpgCountOutputType = {
   attributeTemplates: number
   statusTemplates: number
   characters: number
+  inventoryItems: number
   members: number
+  characterCreationRequests: number
 }
 
 export type RpgCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -959,7 +1203,9 @@ export type RpgCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.In
   attributeTemplates?: boolean | RpgCountOutputTypeCountAttributeTemplatesArgs
   statusTemplates?: boolean | RpgCountOutputTypeCountStatusTemplatesArgs
   characters?: boolean | RpgCountOutputTypeCountCharactersArgs
+  inventoryItems?: boolean | RpgCountOutputTypeCountInventoryItemsArgs
   members?: boolean | RpgCountOutputTypeCountMembersArgs
+  characterCreationRequests?: boolean | RpgCountOutputTypeCountCharacterCreationRequestsArgs
 }
 
 /**
@@ -1003,8 +1249,22 @@ export type RpgCountOutputTypeCountCharactersArgs<ExtArgs extends runtime.Types.
 /**
  * RpgCountOutputType without action
  */
+export type RpgCountOutputTypeCountInventoryItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RpgCharacterInventoryItemWhereInput
+}
+
+/**
+ * RpgCountOutputType without action
+ */
 export type RpgCountOutputTypeCountMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.RpgMemberWhereInput
+}
+
+/**
+ * RpgCountOutputType without action
+ */
+export type RpgCountOutputTypeCountCharacterCreationRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RpgCharacterCreationRequestWhereInput
 }
 
 
@@ -1020,7 +1280,9 @@ export type RpgSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   attributeTemplates?: boolean | Prisma.Rpg$attributeTemplatesArgs<ExtArgs>
   statusTemplates?: boolean | Prisma.Rpg$statusTemplatesArgs<ExtArgs>
   characters?: boolean | Prisma.Rpg$charactersArgs<ExtArgs>
+  inventoryItems?: boolean | Prisma.Rpg$inventoryItemsArgs<ExtArgs>
   members?: boolean | Prisma.Rpg$membersArgs<ExtArgs>
+  characterCreationRequests?: boolean | Prisma.Rpg$characterCreationRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.RpgCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rpg"]>
 
@@ -1060,7 +1322,9 @@ export type RpgInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   attributeTemplates?: boolean | Prisma.Rpg$attributeTemplatesArgs<ExtArgs>
   statusTemplates?: boolean | Prisma.Rpg$statusTemplatesArgs<ExtArgs>
   characters?: boolean | Prisma.Rpg$charactersArgs<ExtArgs>
+  inventoryItems?: boolean | Prisma.Rpg$inventoryItemsArgs<ExtArgs>
   members?: boolean | Prisma.Rpg$membersArgs<ExtArgs>
+  characterCreationRequests?: boolean | Prisma.Rpg$characterCreationRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.RpgCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RpgIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1078,7 +1342,9 @@ export type $RpgPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     attributeTemplates: Prisma.$RpgAttributeTemplatePayload<ExtArgs>[]
     statusTemplates: Prisma.$RpgStatusTemplatePayload<ExtArgs>[]
     characters: Prisma.$RpgCharacterPayload<ExtArgs>[]
+    inventoryItems: Prisma.$RpgCharacterInventoryItemPayload<ExtArgs>[]
     members: Prisma.$RpgMemberPayload<ExtArgs>[]
+    characterCreationRequests: Prisma.$RpgCharacterCreationRequestPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1486,7 +1752,9 @@ export interface Prisma__RpgClient<T, Null = never, ExtArgs extends runtime.Type
   attributeTemplates<T extends Prisma.Rpg$attributeTemplatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Rpg$attributeTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgAttributeTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   statusTemplates<T extends Prisma.Rpg$statusTemplatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Rpg$statusTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgStatusTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   characters<T extends Prisma.Rpg$charactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Rpg$charactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgCharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  inventoryItems<T extends Prisma.Rpg$inventoryItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Rpg$inventoryItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgCharacterInventoryItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   members<T extends Prisma.Rpg$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Rpg$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  characterCreationRequests<T extends Prisma.Rpg$characterCreationRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Rpg$characterCreationRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgCharacterCreationRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2014,6 +2282,30 @@ export type Rpg$charactersArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
+ * Rpg.inventoryItems
+ */
+export type Rpg$inventoryItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RpgCharacterInventoryItem
+   */
+  select?: Prisma.RpgCharacterInventoryItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RpgCharacterInventoryItem
+   */
+  omit?: Prisma.RpgCharacterInventoryItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RpgCharacterInventoryItemInclude<ExtArgs> | null
+  where?: Prisma.RpgCharacterInventoryItemWhereInput
+  orderBy?: Prisma.RpgCharacterInventoryItemOrderByWithRelationInput | Prisma.RpgCharacterInventoryItemOrderByWithRelationInput[]
+  cursor?: Prisma.RpgCharacterInventoryItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RpgCharacterInventoryItemScalarFieldEnum | Prisma.RpgCharacterInventoryItemScalarFieldEnum[]
+}
+
+/**
  * Rpg.members
  */
 export type Rpg$membersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2035,6 +2327,30 @@ export type Rpg$membersArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.RpgMemberScalarFieldEnum | Prisma.RpgMemberScalarFieldEnum[]
+}
+
+/**
+ * Rpg.characterCreationRequests
+ */
+export type Rpg$characterCreationRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RpgCharacterCreationRequest
+   */
+  select?: Prisma.RpgCharacterCreationRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RpgCharacterCreationRequest
+   */
+  omit?: Prisma.RpgCharacterCreationRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RpgCharacterCreationRequestInclude<ExtArgs> | null
+  where?: Prisma.RpgCharacterCreationRequestWhereInput
+  orderBy?: Prisma.RpgCharacterCreationRequestOrderByWithRelationInput | Prisma.RpgCharacterCreationRequestOrderByWithRelationInput[]
+  cursor?: Prisma.RpgCharacterCreationRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RpgCharacterCreationRequestScalarFieldEnum | Prisma.RpgCharacterCreationRequestScalarFieldEnum[]
 }
 
 /**

@@ -298,6 +298,23 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type EnumCharacterCreationRequestStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CharacterCreationRequestStatus | Prisma.EnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CharacterCreationRequestStatus[] | Prisma.ListEnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CharacterCreationRequestStatus[] | Prisma.ListEnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCharacterCreationRequestStatusFilter<$PrismaModel> | $Enums.CharacterCreationRequestStatus
+}
+
+export type EnumCharacterCreationRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CharacterCreationRequestStatus | Prisma.EnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CharacterCreationRequestStatus[] | Prisma.ListEnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CharacterCreationRequestStatus[] | Prisma.ListEnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCharacterCreationRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.CharacterCreationRequestStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCharacterCreationRequestStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCharacterCreationRequestStatusFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -566,6 +583,23 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumCharacterCreationRequestStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CharacterCreationRequestStatus | Prisma.EnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CharacterCreationRequestStatus[] | Prisma.ListEnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CharacterCreationRequestStatus[] | Prisma.ListEnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCharacterCreationRequestStatusFilter<$PrismaModel> | $Enums.CharacterCreationRequestStatus
+}
+
+export type NestedEnumCharacterCreationRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CharacterCreationRequestStatus | Prisma.EnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CharacterCreationRequestStatus[] | Prisma.ListEnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CharacterCreationRequestStatus[] | Prisma.ListEnumCharacterCreationRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCharacterCreationRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.CharacterCreationRequestStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCharacterCreationRequestStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCharacterCreationRequestStatusFilter<$PrismaModel>
 }
 
 
