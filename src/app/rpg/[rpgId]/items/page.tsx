@@ -47,8 +47,34 @@ export default function ItemsPage() {
   const [rarity, setRarity] = useState<ItemRarity>("common")
   const [submitError, setSubmitError] = useState("")
   const [saving, setSaving] = useState(false)
+  const [search, setSearch] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<ItemType | "all">("all")
+  const [showCategories, setShowCategories] = useState(false)
+  const [deletingItemId, setDeletingItemId] = useState<string | null>(null)
 
   const isEditing = useMemo(() => Boolean(editingItemId), [editingItemId])
+  const visibleItems = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase()
+
+    return items.filter((item) => {
+      const matchesCategory =
+        selectedCategory === "all" ? true : item.type === selectedCategory
+
+      if (!matchesCategory) {
+        return false
+      }
+
+      if (!normalizedSearch) {
+        return true
+      }
+
+      return (
+        item.name.toLowerCase().includes(normalizedSearch) ||
+        item.type.toLowerCase().includes(normalizedSearch) ||
+        item.rarity.toLowerCase().includes(normalizedSearch)
+      )
+    })
+  }, [items, search, selectedCategory])
 
   async function loadItems() {
     try {
@@ -156,6 +182,36 @@ export default function ItemsPage() {
     }
   }
 
+  async function handleDelete(itemId: string) {
+    const confirmed = window.confirm("Tem certeza que deseja deletar este item?")
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      setDeletingItemId(itemId)
+      setLoadingError("")
+
+      const response = await fetch(`/api/rpg/${rpgId}/items/${itemId}`, {
+        method: "DELETE",
+      })
+
+      const payload = (await response.json()) as { message?: string }
+
+      if (!response.ok) {
+        setLoadingError(payload.message ?? "Nao foi possivel deletar o item.")
+        return
+      }
+
+      setItems((prev) => prev.filter((item) => item.id !== itemId))
+    } catch {
+      setLoadingError("Erro de conexao ao deletar item.")
+    } finally {
+      setDeletingItemId(null)
+    }
+  }
+
   return (
     <main className={styles.page}>
       <div className={styles.header}>
@@ -174,13 +230,64 @@ export default function ItemsPage() {
       <section className={styles.section}>
         <div className={styles.sectionTopbar}>
           <h2 className={styles.sectionTitle}>Baseitems</h2>
-          <button
-            type="button"
-            className={styles.primaryButton}
-            onClick={openCreateForm}
-          >
-            Criar item
-          </button>
+          <div className={styles.topbarActions}>
+            <button
+              type="button"
+              className={styles.ghostButton}
+              onClick={() => setShowCategories((prev) => !prev)}
+            >
+              {showCategories ? "Ocultar categorias" : "Mostrar categorias"}
+            </button>
+            <button
+              type="button"
+              className={styles.primaryButton}
+              onClick={openCreateForm}
+            >
+              Criar item
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.filters}>
+          <label className={styles.searchField}>
+            <span>Buscar item</span>
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Nome, tipo ou raridade"
+            />
+          </label>
+
+          {showCategories ? (
+            <div className={styles.categories}>
+              <button
+                type="button"
+                className={
+                  selectedCategory === "all"
+                    ? `${styles.categoryButton} ${styles.categoryButtonActive}`
+                    : styles.categoryButton
+                }
+                onClick={() => setSelectedCategory("all")}
+              >
+                Todas
+              </button>
+              {baseItemTypeValues.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  className={
+                    selectedCategory === category
+                      ? `${styles.categoryButton} ${styles.categoryButtonActive}`
+                      : styles.categoryButton
+                  }
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         {isFormOpen ? (
@@ -250,9 +357,16 @@ export default function ItemsPage() {
           <p className={styles.feedback}>Nenhum item cadastrado para este RPG.</p>
         ) : null}
 
-        {!loading && !loadingError && items.length > 0 ? (
+        {!loading &&
+        !loadingError &&
+        items.length > 0 &&
+        visibleItems.length === 0 ? (
+          <p className={styles.feedback}>Nenhum item encontrado nos filtros atuais.</p>
+        ) : null}
+
+        {!loading && !loadingError && visibleItems.length > 0 ? (
           <div className={styles.grid}>
-            {items.map((item) => (
+            {visibleItems.map((item) => (
               <article key={item.id} className={styles.card}>
                 <div className={styles.cardHeader}>
                   <h3>{item.name}</h3>
@@ -268,6 +382,14 @@ export default function ItemsPage() {
                     onClick={() => openEditForm(item)}
                   >
                     Editar
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.dangerButton}
+                    onClick={() => handleDelete(item.id)}
+                    disabled={deletingItemId === item.id}
+                  >
+                    {deletingItemId === item.id ? "Deletando..." : "Deletar"}
                   </button>
                 </div>
               </article>

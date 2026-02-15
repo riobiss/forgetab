@@ -113,3 +113,50 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     )
   }
 }
+
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  try {
+    const userId = await getUserIdFromToken(request)
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Usuario nao autenticado." },
+        { status: 401 },
+      )
+    }
+
+    const { rpgId, itemId } = await context.params
+    const hasAccess = await canAccessRpg(rpgId, userId)
+
+    if (!hasAccess) {
+      return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
+    }
+
+    const deleted = await prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
+      DELETE FROM baseitems
+      WHERE id = ${itemId}
+        AND rpg_id = ${rpgId}
+      RETURNING id
+    `)
+
+    if (deleted.length === 0) {
+      return NextResponse.json({ message: "Item nao encontrado." }, { status: 404 })
+    }
+
+    return NextResponse.json(
+      { message: "Item deletado com sucesso." },
+      { status: 200 },
+    )
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message.includes('relation "baseitems" does not exist')) {
+        return NextResponse.json(
+          { message: "Tabela baseitems nao existe no banco. Rode a migration." },
+          { status: 500 },
+        )
+      }
+    }
+
+    return NextResponse.json({ message: "Erro interno ao deletar item." }, { status: 500 })
+  }
+}
