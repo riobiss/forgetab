@@ -10,6 +10,15 @@ type RouteContext = {
   }>
 }
 
+type RpgRow = {
+  id: string
+  ownerId: string
+  title: string
+  description: string
+  visibility: "private" | "public"
+  useClassRaceBonuses: boolean
+}
+
 async function getUserIdFromToken(request: NextRequest) {
   const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
 
@@ -38,16 +47,42 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     const { rpgId } = await context.params
 
-    const rpg = await prisma.rpg.findUnique({
-      where: { id: rpgId },
-      select: {
-        id: true,
-        ownerId: true,
-        title: true,
-        description: true,
-        visibility: true,
-      },
-    })
+    let rows: RpgRow[] = []
+    try {
+      rows = await prisma.$queryRaw<RpgRow[]>(Prisma.sql`
+        SELECT
+          id,
+          owner_id AS "ownerId",
+          title,
+          description,
+          visibility,
+          COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses"
+        FROM rpgs
+        WHERE id = ${rpgId}
+        LIMIT 1
+      `)
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.includes('column "use_class_race_bonuses" does not exist')
+      ) {
+        rows = await prisma.$queryRaw<RpgRow[]>(Prisma.sql`
+          SELECT
+            id,
+            owner_id AS "ownerId",
+            title,
+            description,
+            visibility,
+            false AS "useClassRaceBonuses"
+          FROM rpgs
+          WHERE id = ${rpgId}
+          LIMIT 1
+        `)
+      } else {
+        throw error
+      }
+    }
+    const rpg = rows[0]
 
     if (!rpg || rpg.ownerId !== userId) {
       return NextResponse.json(
@@ -63,6 +98,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           title: rpg.title,
           description: rpg.description,
           visibility: rpg.visibility,
+          useClassRaceBonuses: rpg.useClassRaceBonuses,
         },
       },
       { status: 200 },
@@ -97,7 +133,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     const { rpgId } = await context.params
-    const { title, description, visibility } = parsed.data
+    const { title, description, visibility, useClassRaceBonuses } = parsed.data
 
     const updated = await prisma.rpg.updateMany({
       where: { id: rpgId, ownerId: userId },
@@ -109,6 +145,24 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         { message: "RPG nao encontrado." },
         { status: 404 },
       )
+    }
+
+    if (typeof useClassRaceBonuses === "boolean") {
+      try {
+        await prisma.$executeRaw(Prisma.sql`
+          UPDATE rpgs
+          SET use_class_race_bonuses = ${useClassRaceBonuses}
+          WHERE id = ${rpgId}
+            AND owner_id = ${userId}
+        `)
+      } catch (error) {
+        if (
+          !(error instanceof Error) ||
+          !error.message.includes('column "use_class_race_bonuses" does not exist')
+        ) {
+          throw error
+        }
+      }
     }
 
     return NextResponse.json(

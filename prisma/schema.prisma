@@ -74,11 +74,14 @@ model Rpg {
   title              String
   description        String
   visibility         RpgVisibility          @default(private)
+  useClassRaceBonuses Boolean               @default(false) @map("use_class_race_bonuses")
   createdAt          DateTime               @default(now()) @map("created_at")
   baseItems          BaseItem[]
   attributeTemplates RpgAttributeTemplate[]
   statusTemplates    RpgStatusTemplate[]
   skillTemplates     RpgSkillTemplate[]
+  raceTemplates      RpgRaceTemplate[]
+  classTemplates     RpgClassTemplate[]
   characters         RpgCharacter[]
   inventoryItems     RpgCharacterInventoryItem[]
   members            RpgMember[]
@@ -125,6 +128,8 @@ model RpgCharacter {
   createdByUserId String?        @map("created_by_user_id")
   createdByUser User?            @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
   name          String
+  raceKey       String?          @map("race_key")
+  classKey      String?          @map("class_key")
   characterType RpgCharacterType @default(player) @map("character_type")
   visibility    RpgVisibility    @default(public)
   life          Int              @default(0)
@@ -142,6 +147,8 @@ model RpgCharacter {
   @@index([rpgId])
   @@index([createdByUserId])
   @@index([rpgId, createdByUserId])
+  @@index([rpgId, raceKey])
+  @@index([rpgId, classKey])
   @@map("rpg_characters")
 }
 
@@ -192,6 +199,40 @@ model RpgSkillTemplate {
   @@unique([rpgId, key])
   @@index([rpgId])
   @@map("rpg_skill_templates")
+}
+
+model RpgRaceTemplate {
+  id               String   @id @default(cuid())
+  rpgId            String   @map("rpg_id")
+  rpg              Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key              String
+  label            String
+  attributeBonuses Json     @map("attribute_bonuses")
+  skillBonuses     Json     @map("skill_bonuses")
+  position         Int
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @map("updated_at")
+
+  @@unique([rpgId, key])
+  @@index([rpgId])
+  @@map("rpg_race_templates")
+}
+
+model RpgClassTemplate {
+  id               String   @id @default(cuid())
+  rpgId            String   @map("rpg_id")
+  rpg              Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key              String
+  label            String
+  attributeBonuses Json     @map("attribute_bonuses")
+  skillBonuses     Json     @map("skill_bonuses")
+  position         Int
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @map("updated_at")
+
+  @@unique([rpgId, key])
+  @@index([rpgId])
+  @@map("rpg_class_templates")
 }
 
 model RpgMember {

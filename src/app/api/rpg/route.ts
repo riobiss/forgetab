@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { title, description, visibility } = parsed.data
+    const { title, description, visibility, useClassRaceBonuses } = parsed.data
     const created = await prisma.rpg.create({
       data: {
         ownerId: authPayload.userId,
@@ -43,6 +43,16 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    try {
+      await prisma.$executeRaw(Prisma.sql`
+        UPDATE rpgs
+        SET use_class_race_bonuses = ${Boolean(useClassRaceBonuses)}
+        WHERE id = ${created.id}
+      `)
+    } catch {
+      // Mantem compatibilidade quando a migration ainda nao foi aplicada.
+    }
+
     return NextResponse.json(
       {
         rpg: {
@@ -51,6 +61,7 @@ export async function POST(request: NextRequest) {
           title: created.title,
           description: created.description,
           visibility: created.visibility,
+          useClassRaceBonuses: Boolean(useClassRaceBonuses),
           createdAt: created.createdAt,
         },
       },
