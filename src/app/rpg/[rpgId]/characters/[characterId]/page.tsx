@@ -20,6 +20,8 @@ type DbCharacterRow = {
   id: string
   name: string
   characterType: "player" | "npc" | "monster"
+  visibility: "private" | "public"
+  createdByUserId: string | null
   life: number
   defense: number
   mana: number
@@ -89,6 +91,8 @@ export default async function CharactersPage({ params }: Params) {
 
   if (!character) {
     let dbCharacter: DbCharacterRow[] = []
+    let userId: string | null = null
+    let isOwner = false
 
     try {
       const dbRpg = await prisma.rpg.findUnique({
@@ -104,8 +108,8 @@ export default async function CharactersPage({ params }: Params) {
         notFound()
       }
 
-      const userId = await getUserIdFromCookie()
-      const isOwner = userId === dbRpg.ownerId
+      userId = await getUserIdFromCookie()
+      isOwner = userId === dbRpg.ownerId
       let isAcceptedMember = false
 
       if (userId && !isOwner) {
@@ -129,6 +133,8 @@ export default async function CharactersPage({ params }: Params) {
           id,
           name,
           character_type AS "characterType",
+          visibility,
+          created_by_user_id AS "createdByUserId",
           life,
           defense,
           mana,
@@ -151,6 +157,15 @@ export default async function CharactersPage({ params }: Params) {
     }
 
     const row = dbCharacter[0]
+
+    if (
+      row.visibility === "private" &&
+      !isOwner &&
+      (!userId || row.createdByUserId !== userId)
+    ) {
+      notFound()
+    }
+
     const attributes = row.attributes as Record<string, number>
     const statuses = row.statuses as Record<string, number>
 

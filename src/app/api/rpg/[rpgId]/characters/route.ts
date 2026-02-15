@@ -22,6 +22,7 @@ type CharacterRow = {
   rpgId: string
   name: string
   characterType: "player" | "npc" | "monster"
+  visibility: "private" | "public"
   createdByUserId: string | null
   life: number
   defense: number
@@ -210,6 +211,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         rpg_id AS "rpgId",
         name,
         character_type AS "characterType",
+        visibility,
         created_by_user_id AS "createdByUserId",
         life,
         defense,
@@ -222,6 +224,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
         updated_at AS "updatedAt"
       FROM rpg_characters
       WHERE rpg_id = ${rpgId}
+        ${
+          access.isOwner
+            ? Prisma.empty
+            : userId
+              ? Prisma.sql`AND (visibility = 'public'::"RpgVisibility" OR created_by_user_id = ${userId})`
+              : Prisma.sql`AND visibility = 'public'::"RpgVisibility"`
+        }
       ORDER BY created_at DESC
     `)
 
@@ -388,13 +397,14 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     const created = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
       INSERT INTO rpg_characters (
-        id, rpg_id, name, character_type, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes
+        id, rpg_id, name, character_type, visibility, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes
       )
       VALUES (
         ${crypto.randomUUID()},
         ${rpgId},
         ${name},
         ${body.characterType}::"RpgCharacterType",
+        'public'::"RpgVisibility",
         ${createdByUserId},
         ${life.value},
         ${defense.value},
@@ -409,6 +419,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         rpg_id AS "rpgId",
         name,
         character_type AS "characterType",
+        visibility,
         created_by_user_id AS "createdByUserId",
         life,
         defense,
@@ -442,6 +453,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
       )
     }
     if (error instanceof Error && error.message.includes('column "created_by_user_id" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "visibility" of relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
         { status: 500 },

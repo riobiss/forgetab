@@ -25,6 +25,7 @@ type DbCharacterRow = {
   id: string
   name: string
   characterType: "player" | "npc" | "monster"
+  visibility: "private" | "public"
   createdByUserId: string | null
   life: number
   defense: number
@@ -110,6 +111,7 @@ export default async function CharactersPage({ params, searchParams }: Params) {
             id,
             name,
             character_type AS "characterType",
+            visibility,
             created_by_user_id AS "createdByUserId",
             life,
             defense,
@@ -120,6 +122,13 @@ export default async function CharactersPage({ params, searchParams }: Params) {
             attributes
           FROM rpg_characters
           WHERE rpg_id = ${rpgId}
+            ${
+              isOwner
+                ? Prisma.empty
+                : userId
+                  ? Prisma.sql`AND (visibility = 'public'::"RpgVisibility" OR created_by_user_id = ${userId})`
+                  : Prisma.sql`AND visibility = 'public'::"RpgVisibility"`
+            }
             ${
               filterType !== "all"
                 ? Prisma.sql`AND character_type = ${filterType}::"RpgCharacterType"`
@@ -224,6 +233,9 @@ export default async function CharactersPage({ params, searchParams }: Params) {
                     : character.characterType === "npc"
                       ? "NPC"
                       : "Monstro"}
+                </p>
+                <p className={styles.typeBadge}>
+                  Visibilidade: {character.visibility === "private" ? "Privado" : "Publico"}
                 </p>
                 <div className={styles.statsGrid}>
                   {Object.entries((character.statuses as Record<string, number>) ?? {}).map(

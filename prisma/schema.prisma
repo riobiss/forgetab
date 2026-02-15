@@ -125,6 +125,7 @@ model RpgCharacter {
   createdByUser User?            @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
   name          String
   characterType RpgCharacterType @default(player) @map("character_type")
+  visibility    RpgVisibility    @default(public)
   life          Int              @default(0)
   defense       Int              @default(0)
   mana          Int              @default(0)

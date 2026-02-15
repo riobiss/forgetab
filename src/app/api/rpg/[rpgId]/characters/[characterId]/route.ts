@@ -110,6 +110,10 @@ function validateStat(name: string, value: unknown) {
   return { ok: true as const, value: Math.floor(value) }
 }
 
+function isValidVisibility(value: unknown): value is "private" | "public" {
+  return value === "private" || value === "public"
+}
+
 function getDefaultAttributeTemplate(): AttributeTemplateRow[] {
   return ATTRIBUTE_CATALOG.filter((item) =>
     DEFAULT_ATTRIBUTE_KEYS.includes(item.key),
@@ -198,6 +202,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       name?: string
       statuses?: Record<string, number>
       attributes?: Record<string, number>
+      visibility?: "private" | "public"
     }
 
     const name = body.name?.trim() ?? ""
@@ -207,6 +212,15 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         { status: 400 },
       )
     }
+
+    if (body.visibility !== undefined && !isValidVisibility(body.visibility)) {
+      return NextResponse.json(
+        { message: "Visibilidade invalida. Use private ou public." },
+        { status: 400 },
+      )
+    }
+
+    const visibility = body.visibility ?? null
 
     let dbAttributeTemplate: AttributeTemplateRow[] = []
     try {
@@ -283,6 +297,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       UPDATE rpg_characters
       SET
         name = ${name},
+        visibility = COALESCE(${visibility}::"RpgVisibility", visibility),
         life = ${life.value},
         defense = ${defense.value},
         mana = ${mana.value},
@@ -305,6 +320,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (error instanceof Error && error.message.includes('relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Tabela de personagens nao existe no banco. Rode a migration." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "visibility" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
         { status: 500 },
       )
     }

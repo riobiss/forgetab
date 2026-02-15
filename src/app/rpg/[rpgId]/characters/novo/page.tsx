@@ -31,6 +31,7 @@ type CharacterSummary = {
   id: string
   name: string
   characterType: "player" | "npc" | "monster"
+  visibility: "private" | "public"
   createdByUserId?: string | null
   statuses?: Record<string, number>
   attributes?: Record<string, number>
@@ -54,6 +55,9 @@ export default function NewCharacterPage() {
   const [values, setValues] = useState<Record<string, number>>({})
   const [statusValues, setStatusValues] = useState<Record<string, number>>({})
   const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null)
+  const [characterVisibility, setCharacterVisibility] = useState<"private" | "public">(
+    "public",
+  )
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
@@ -119,6 +123,7 @@ export default function NewCharacterPage() {
         setValues(nextAttributes)
         setStatusValues(nextStatuses)
         setName(editTarget?.name ?? "")
+        setCharacterVisibility(editTarget?.visibility ?? "public")
         setEditingCharacterId(editTarget?.id ?? null)
       } catch {
         setError("Erro de conexao ao carregar padroes de personagem.")
@@ -151,6 +156,7 @@ export default function NewCharacterPage() {
         body: JSON.stringify({
           name,
           ...(isEditing ? {} : { characterType: "player" }),
+          ...(isEditing ? { visibility: characterVisibility } : {}),
           statuses: statusValues,
           attributes: values,
         }),
@@ -227,6 +233,23 @@ export default function NewCharacterPage() {
             <span>Tipo</span>
             <input type="text" value="Player" readOnly />
           </label>
+
+          {editingCharacterId ? (
+            <label className={styles.field}>
+              <span>Visibilidade do personagem</span>
+              <button
+                type="button"
+                className={styles.visibilityToggle}
+                onClick={() =>
+                  setCharacterVisibility((prev) =>
+                    prev === "public" ? "private" : "public",
+                  )
+                }
+              >
+                {characterVisibility === "public" ? "Publico" : "Privado"}
+              </button>
+            </label>
+          ) : null}
 
           {statuses.map((status) => (
             <label className={styles.field} key={status.key}>

@@ -47,6 +47,16 @@
   color: var(--text-main);
 }
 
+.visibilityToggle {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: left;
+}
+
 .error {
   margin: 0;
   color: #ff6b6b;
