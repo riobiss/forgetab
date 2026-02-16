@@ -48,6 +48,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         { status: 400 },
       )
     }
+    const normalizedLevel = body.level
 
     const { id } = await context.params
     const result = await prisma.$transaction(async (tx) => {
@@ -127,14 +128,14 @@ export async function POST(request: NextRequest, context: RouteContext) {
           cost
         FROM skill_levels
         WHERE skill_id = ${normalizedSkillId}
-          AND level_number = ${body.level}
+          AND level_number = ${normalizedLevel}
         LIMIT 1
       `)
       const skillLevel = levelRows[0]
       if (!skillLevel) {
         return {
           status: 404 as const,
-          message: "Nivel da habilidade nao encontrado.",
+          message: "Level da habilidade nao encontrado.",
         }
       }
 
@@ -142,18 +143,30 @@ export async function POST(request: NextRequest, context: RouteContext) {
       if (costPoints === null) {
         return {
           status: 400 as const,
-          message: "Nivel da habilidade sem custo de pontos configurado.",
+          message: "Level da habilidade sem custo de pontos configurado.",
         }
       }
 
       const ownedAbilities = parseCharacterAbilities(character.abilities)
       const alreadyHasLevel = ownedAbilities.some(
-        (item) => item.skillId === normalizedSkillId && item.level === body.level,
+        (item) => item.skillId === normalizedSkillId && item.level === normalizedLevel,
       )
       if (alreadyHasLevel) {
         return {
           status: 409 as const,
-          message: "Personagem ja possui este nivel da habilidade.",
+          message: "Personagem ja possui este level da habilidade.",
+        }
+      }
+
+      if (normalizedLevel > 1) {
+        const hasPreviousLevel = ownedAbilities.some(
+          (item) => item.skillId === normalizedSkillId && item.level === normalizedLevel - 1,
+        )
+        if (!hasPreviousLevel) {
+          return {
+            status: 400 as const,
+            message: `Para comprar o level ${normalizedLevel}, primeiro compre o level ${normalizedLevel - 1}.`,
+          }
         }
       }
 
@@ -164,25 +177,32 @@ export async function POST(request: NextRequest, context: RouteContext) {
         }
       }
 
-      const updated = await tx.$queryRaw<Array<{ remainingPoints: number }>>(Prisma.sql`
-        UPDATE rpg_characters
-        SET
-          skill_points = skill_points - ${costPoints},
-          abilities = COALESCE(abilities, '[]'::jsonb) || jsonb_build_array(
-            jsonb_build_object(
-              'skillId', ${normalizedSkillId},
-              'level', ${body.level}
-            )
-          ),
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = ${character.id}
-        RETURNING skill_points AS "remainingPoints"
-      `)
+      const nextAbilities = [
+        ...ownedAbilities,
+        {
+          skillId: normalizedSkillId,
+          level: normalizedLevel,
+        },
+      ]
+
+      const updated = await tx.rpgCharacter.update({
+        where: { id: character.id },
+        data: {
+          skillPoints: {
+            decrement: costPoints,
+          },
+          abilities: nextAbilities as Prisma.InputJsonValue,
+          updatedAt: new Date(),
+        },
+        select: {
+          skillPoints: true,
+        },
+      })
 
       return {
         status: 200 as const,
         success: true,
-        remainingPoints: updated[0]?.remainingPoints ?? 0,
+        remainingPoints: updated.skillPoints ?? 0,
       }
     })
 
@@ -209,3 +229,4 @@ export async function POST(request: NextRequest, context: RouteContext) {
     )
   }
 }
+
