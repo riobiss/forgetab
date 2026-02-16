@@ -23,6 +23,7 @@ model User {
   rpgMembers   RpgMember[]
   characters   RpgCharacter[]
   characterCreationRequests RpgCharacterCreationRequest[]
+  skills       Skill[]
 
   @@map("users")
 }
@@ -91,6 +92,7 @@ model Rpg {
   inventoryItems     RpgCharacterInventoryItem[]
   members            RpgMember[]
   characterCreationRequests RpgCharacterCreationRequest[]
+  skills             Skill[]
 
   @@index([ownerId])
   @@map("rpgs")
@@ -267,6 +269,7 @@ model RpgRaceTemplate {
   position         Int
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @default(now()) @map("updated_at")
+  skillLinks       SkillRaceLink[]
 
   @@unique([rpgId, key])
   @@index([rpgId])
@@ -279,11 +282,13 @@ model RpgClassTemplate {
   rpg              Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
   key              String
   label            String
+  category         String?  @default("geral")
   attributeBonuses Json     @map("attribute_bonuses")
   skillBonuses     Json     @map("skill_bonuses")
   position         Int
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @default(now()) @map("updated_at")
+  skillLinks       SkillClassLink[]
 
   @@unique([rpgId, key])
   @@index([rpgId])
@@ -324,5 +329,75 @@ model RpgCharacterCreationRequest {
   @@index([rpgId])
   @@index([userId])
   @@map("rpg_character_creation_requests")
+}
+
+model Skill {
+  id           String           @id @default(cuid())
+  ownerId      String           @map("owner_id")
+  owner        User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  rpgId        String?          @map("rpg_id")
+  rpg          Rpg?             @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  rpgScope     String           @default("global") @map("rpg_scope")
+  name         String
+  slug         String
+  category     String?
+  type         String?
+  description  String?
+  currentLevel Int              @default(1) @map("current_level")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @default(now()) @map("updated_at")
+  levels       SkillLevel[]
+  classLinks   SkillClassLink[]
+  raceLinks    SkillRaceLink[]
+
+  @@unique([ownerId, rpgScope, slug])
+  @@index([ownerId, rpgId])
+  @@map("skills")
+}
+
+model SkillLevel {
+  id            String   @id @default(cuid())
+  skillId        String   @map("skill_id")
+  skill          Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  levelNumber    Int      @map("level_number")
+  levelRequired  Int      @default(1) @map("level_required")
+  summary        String?
+  stats          Json?
+  cost           Json?
+  target         Json?
+  area           Json?
+  scaling        Json?
+  requirement    Json?
+  effects        Json     @default("[]")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @map("updated_at")
+
+  @@unique([skillId, levelNumber])
+  @@index([skillId, levelRequired])
+  @@map("skill_levels")
+}
+
+model SkillClassLink {
+  skillId         String           @map("skill_id")
+  classTemplateId String           @map("class_template_id")
+  skill           Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  classTemplate   RpgClassTemplate @relation(fields: [classTemplateId], references: [id], onDelete: Cascade)
+  createdAt       DateTime         @default(now()) @map("created_at")
+
+  @@id([skillId, classTemplateId])
+  @@index([classTemplateId])
+  @@map("skill_class_links")
+}
+
+model SkillRaceLink {
+  skillId        String          @map("skill_id")
+  raceTemplateId String          @map("race_template_id")
+  skill          Skill           @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  raceTemplate   RpgRaceTemplate @relation(fields: [raceTemplateId], references: [id], onDelete: Cascade)
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  @@id([skillId, raceTemplateId])
+  @@index([raceTemplateId])
+  @@map("skill_race_links")
 }
 
