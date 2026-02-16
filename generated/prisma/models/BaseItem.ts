@@ -717,10 +717,6 @@ export type BaseItemUncheckedUpdateManyWithoutRpgNestedInput = {
   deleteMany?: Prisma.BaseItemScalarWhereInput | Prisma.BaseItemScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type EnumBaseItemTypeFieldUpdateOperationsInput = {
   set?: $Enums.BaseItemType
 }

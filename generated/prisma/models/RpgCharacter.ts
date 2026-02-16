@@ -27,19 +27,23 @@ export type AggregateRpgCharacter = {
 }
 
 export type RpgCharacterAvgAggregateOutputType = {
+  maxCarryWeight: number | null
   life: number | null
   defense: number | null
   mana: number | null
   stamina: number | null
   sanity: number | null
+  skillPoints: number | null
 }
 
 export type RpgCharacterSumAggregateOutputType = {
+  maxCarryWeight: number | null
   life: number | null
   defense: number | null
   mana: number | null
   stamina: number | null
   sanity: number | null
+  skillPoints: number | null
 }
 
 export type RpgCharacterMinAggregateOutputType = {
@@ -52,11 +56,13 @@ export type RpgCharacterMinAggregateOutputType = {
   classKey: string | null
   characterType: $Enums.RpgCharacterType | null
   visibility: $Enums.RpgVisibility | null
+  maxCarryWeight: number | null
   life: number | null
   defense: number | null
   mana: number | null
   stamina: number | null
   sanity: number | null
+  skillPoints: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -71,11 +77,13 @@ export type RpgCharacterMaxAggregateOutputType = {
   classKey: string | null
   characterType: $Enums.RpgCharacterType | null
   visibility: $Enums.RpgVisibility | null
+  maxCarryWeight: number | null
   life: number | null
   defense: number | null
   mana: number | null
   stamina: number | null
   sanity: number | null
+  skillPoints: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -90,14 +98,20 @@ export type RpgCharacterCountAggregateOutputType = {
   classKey: number
   characterType: number
   visibility: number
+  maxCarryWeight: number
   life: number
   defense: number
   mana: number
   stamina: number
   sanity: number
   statuses: number
+  currentStatuses: number
   attributes: number
   skills: number
+  skillPoints: number
+  abilities: number
+  identity: number
+  characteristics: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -105,19 +119,23 @@ export type RpgCharacterCountAggregateOutputType = {
 
 
 export type RpgCharacterAvgAggregateInputType = {
+  maxCarryWeight?: true
   life?: true
   defense?: true
   mana?: true
   stamina?: true
   sanity?: true
+  skillPoints?: true
 }
 
 export type RpgCharacterSumAggregateInputType = {
+  maxCarryWeight?: true
   life?: true
   defense?: true
   mana?: true
   stamina?: true
   sanity?: true
+  skillPoints?: true
 }
 
 export type RpgCharacterMinAggregateInputType = {
@@ -130,11 +148,13 @@ export type RpgCharacterMinAggregateInputType = {
   classKey?: true
   characterType?: true
   visibility?: true
+  maxCarryWeight?: true
   life?: true
   defense?: true
   mana?: true
   stamina?: true
   sanity?: true
+  skillPoints?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -149,11 +169,13 @@ export type RpgCharacterMaxAggregateInputType = {
   classKey?: true
   characterType?: true
   visibility?: true
+  maxCarryWeight?: true
   life?: true
   defense?: true
   mana?: true
   stamina?: true
   sanity?: true
+  skillPoints?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -168,14 +190,20 @@ export type RpgCharacterCountAggregateInputType = {
   classKey?: true
   characterType?: true
   visibility?: true
+  maxCarryWeight?: true
   life?: true
   defense?: true
   mana?: true
   stamina?: true
   sanity?: true
   statuses?: true
+  currentStatuses?: true
   attributes?: true
   skills?: true
+  skillPoints?: true
+  abilities?: true
+  identity?: true
+  characteristics?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -277,14 +305,20 @@ export type RpgCharacterGroupByOutputType = {
   classKey: string | null
   characterType: $Enums.RpgCharacterType
   visibility: $Enums.RpgVisibility
+  maxCarryWeight: number | null
   life: number
   defense: number
   mana: number
   stamina: number
   sanity: number
   statuses: runtime.JsonValue
+  currentStatuses: runtime.JsonValue | null
   attributes: runtime.JsonValue
   skills: runtime.JsonValue
+  skillPoints: number
+  abilities: runtime.JsonValue
+  identity: runtime.JsonValue | null
+  characteristics: runtime.JsonValue | null
   createdAt: Date
   updatedAt: Date
   _count: RpgCharacterCountAggregateOutputType | null
@@ -322,14 +356,20 @@ export type RpgCharacterWhereInput = {
   classKey?: Prisma.StringNullableFilter<"RpgCharacter"> | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFilter<"RpgCharacter"> | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFilter<"RpgCharacter"> | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.FloatNullableFilter<"RpgCharacter"> | number | null
   life?: Prisma.IntFilter<"RpgCharacter"> | number
   defense?: Prisma.IntFilter<"RpgCharacter"> | number
   mana?: Prisma.IntFilter<"RpgCharacter"> | number
   stamina?: Prisma.IntFilter<"RpgCharacter"> | number
   sanity?: Prisma.IntFilter<"RpgCharacter"> | number
   statuses?: Prisma.JsonFilter<"RpgCharacter">
+  currentStatuses?: Prisma.JsonNullableFilter<"RpgCharacter">
   attributes?: Prisma.JsonFilter<"RpgCharacter">
   skills?: Prisma.JsonFilter<"RpgCharacter">
+  skillPoints?: Prisma.IntFilter<"RpgCharacter"> | number
+  abilities?: Prisma.JsonFilter<"RpgCharacter">
+  identity?: Prisma.JsonNullableFilter<"RpgCharacter">
+  characteristics?: Prisma.JsonNullableFilter<"RpgCharacter">
   createdAt?: Prisma.DateTimeFilter<"RpgCharacter"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RpgCharacter"> | Date | string
   rpg?: Prisma.XOR<Prisma.RpgScalarRelationFilter, Prisma.RpgWhereInput>
@@ -347,14 +387,20 @@ export type RpgCharacterOrderByWithRelationInput = {
   classKey?: Prisma.SortOrderInput | Prisma.SortOrder
   characterType?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
+  maxCarryWeight?: Prisma.SortOrderInput | Prisma.SortOrder
   life?: Prisma.SortOrder
   defense?: Prisma.SortOrder
   mana?: Prisma.SortOrder
   stamina?: Prisma.SortOrder
   sanity?: Prisma.SortOrder
   statuses?: Prisma.SortOrder
+  currentStatuses?: Prisma.SortOrderInput | Prisma.SortOrder
   attributes?: Prisma.SortOrder
   skills?: Prisma.SortOrder
+  skillPoints?: Prisma.SortOrder
+  abilities?: Prisma.SortOrder
+  identity?: Prisma.SortOrderInput | Prisma.SortOrder
+  characteristics?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   rpg?: Prisma.RpgOrderByWithRelationInput
@@ -375,14 +421,20 @@ export type RpgCharacterWhereUniqueInput = Prisma.AtLeast<{
   classKey?: Prisma.StringNullableFilter<"RpgCharacter"> | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFilter<"RpgCharacter"> | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFilter<"RpgCharacter"> | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.FloatNullableFilter<"RpgCharacter"> | number | null
   life?: Prisma.IntFilter<"RpgCharacter"> | number
   defense?: Prisma.IntFilter<"RpgCharacter"> | number
   mana?: Prisma.IntFilter<"RpgCharacter"> | number
   stamina?: Prisma.IntFilter<"RpgCharacter"> | number
   sanity?: Prisma.IntFilter<"RpgCharacter"> | number
   statuses?: Prisma.JsonFilter<"RpgCharacter">
+  currentStatuses?: Prisma.JsonNullableFilter<"RpgCharacter">
   attributes?: Prisma.JsonFilter<"RpgCharacter">
   skills?: Prisma.JsonFilter<"RpgCharacter">
+  skillPoints?: Prisma.IntFilter<"RpgCharacter"> | number
+  abilities?: Prisma.JsonFilter<"RpgCharacter">
+  identity?: Prisma.JsonNullableFilter<"RpgCharacter">
+  characteristics?: Prisma.JsonNullableFilter<"RpgCharacter">
   createdAt?: Prisma.DateTimeFilter<"RpgCharacter"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RpgCharacter"> | Date | string
   rpg?: Prisma.XOR<Prisma.RpgScalarRelationFilter, Prisma.RpgWhereInput>
@@ -400,14 +452,20 @@ export type RpgCharacterOrderByWithAggregationInput = {
   classKey?: Prisma.SortOrderInput | Prisma.SortOrder
   characterType?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
+  maxCarryWeight?: Prisma.SortOrderInput | Prisma.SortOrder
   life?: Prisma.SortOrder
   defense?: Prisma.SortOrder
   mana?: Prisma.SortOrder
   stamina?: Prisma.SortOrder
   sanity?: Prisma.SortOrder
   statuses?: Prisma.SortOrder
+  currentStatuses?: Prisma.SortOrderInput | Prisma.SortOrder
   attributes?: Prisma.SortOrder
   skills?: Prisma.SortOrder
+  skillPoints?: Prisma.SortOrder
+  abilities?: Prisma.SortOrder
+  identity?: Prisma.SortOrderInput | Prisma.SortOrder
+  characteristics?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RpgCharacterCountOrderByAggregateInput
@@ -430,14 +488,20 @@ export type RpgCharacterScalarWhereWithAggregatesInput = {
   classKey?: Prisma.StringNullableWithAggregatesFilter<"RpgCharacter"> | string | null
   characterType?: Prisma.EnumRpgCharacterTypeWithAggregatesFilter<"RpgCharacter"> | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityWithAggregatesFilter<"RpgCharacter"> | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.FloatNullableWithAggregatesFilter<"RpgCharacter"> | number | null
   life?: Prisma.IntWithAggregatesFilter<"RpgCharacter"> | number
   defense?: Prisma.IntWithAggregatesFilter<"RpgCharacter"> | number
   mana?: Prisma.IntWithAggregatesFilter<"RpgCharacter"> | number
   stamina?: Prisma.IntWithAggregatesFilter<"RpgCharacter"> | number
   sanity?: Prisma.IntWithAggregatesFilter<"RpgCharacter"> | number
   statuses?: Prisma.JsonWithAggregatesFilter<"RpgCharacter">
+  currentStatuses?: Prisma.JsonNullableWithAggregatesFilter<"RpgCharacter">
   attributes?: Prisma.JsonWithAggregatesFilter<"RpgCharacter">
   skills?: Prisma.JsonWithAggregatesFilter<"RpgCharacter">
+  skillPoints?: Prisma.IntWithAggregatesFilter<"RpgCharacter"> | number
+  abilities?: Prisma.JsonWithAggregatesFilter<"RpgCharacter">
+  identity?: Prisma.JsonNullableWithAggregatesFilter<"RpgCharacter">
+  characteristics?: Prisma.JsonNullableWithAggregatesFilter<"RpgCharacter">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RpgCharacter"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RpgCharacter"> | Date | string
 }
@@ -450,14 +514,20 @@ export type RpgCharacterCreateInput = {
   classKey?: string | null
   characterType?: $Enums.RpgCharacterType
   visibility?: $Enums.RpgVisibility
+  maxCarryWeight?: number | null
   life?: number
   defense?: number
   mana?: number
   stamina?: number
   sanity?: number
   statuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   rpg: Prisma.RpgCreateNestedOneWithoutCharactersInput
@@ -475,14 +545,20 @@ export type RpgCharacterUncheckedCreateInput = {
   classKey?: string | null
   characterType?: $Enums.RpgCharacterType
   visibility?: $Enums.RpgVisibility
+  maxCarryWeight?: number | null
   life?: number
   defense?: number
   mana?: number
   stamina?: number
   sanity?: number
   statuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutCharacterInput
@@ -496,14 +572,20 @@ export type RpgCharacterUpdateInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rpg?: Prisma.RpgUpdateOneRequiredWithoutCharactersNestedInput
@@ -521,14 +603,20 @@ export type RpgCharacterUncheckedUpdateInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutCharacterNestedInput
@@ -544,14 +632,20 @@ export type RpgCharacterCreateManyInput = {
   classKey?: string | null
   characterType?: $Enums.RpgCharacterType
   visibility?: $Enums.RpgVisibility
+  maxCarryWeight?: number | null
   life?: number
   defense?: number
   mana?: number
   stamina?: number
   sanity?: number
   statuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -564,14 +658,20 @@ export type RpgCharacterUpdateManyMutationInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -586,14 +686,20 @@ export type RpgCharacterUncheckedUpdateManyInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -618,24 +724,32 @@ export type RpgCharacterCountOrderByAggregateInput = {
   classKey?: Prisma.SortOrder
   characterType?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
+  maxCarryWeight?: Prisma.SortOrder
   life?: Prisma.SortOrder
   defense?: Prisma.SortOrder
   mana?: Prisma.SortOrder
   stamina?: Prisma.SortOrder
   sanity?: Prisma.SortOrder
   statuses?: Prisma.SortOrder
+  currentStatuses?: Prisma.SortOrder
   attributes?: Prisma.SortOrder
   skills?: Prisma.SortOrder
+  skillPoints?: Prisma.SortOrder
+  abilities?: Prisma.SortOrder
+  identity?: Prisma.SortOrder
+  characteristics?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type RpgCharacterAvgOrderByAggregateInput = {
+  maxCarryWeight?: Prisma.SortOrder
   life?: Prisma.SortOrder
   defense?: Prisma.SortOrder
   mana?: Prisma.SortOrder
   stamina?: Prisma.SortOrder
   sanity?: Prisma.SortOrder
+  skillPoints?: Prisma.SortOrder
 }
 
 export type RpgCharacterMaxOrderByAggregateInput = {
@@ -648,11 +762,13 @@ export type RpgCharacterMaxOrderByAggregateInput = {
   classKey?: Prisma.SortOrder
   characterType?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
+  maxCarryWeight?: Prisma.SortOrder
   life?: Prisma.SortOrder
   defense?: Prisma.SortOrder
   mana?: Prisma.SortOrder
   stamina?: Prisma.SortOrder
   sanity?: Prisma.SortOrder
+  skillPoints?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -667,21 +783,25 @@ export type RpgCharacterMinOrderByAggregateInput = {
   classKey?: Prisma.SortOrder
   characterType?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
+  maxCarryWeight?: Prisma.SortOrder
   life?: Prisma.SortOrder
   defense?: Prisma.SortOrder
   mana?: Prisma.SortOrder
   stamina?: Prisma.SortOrder
   sanity?: Prisma.SortOrder
+  skillPoints?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type RpgCharacterSumOrderByAggregateInput = {
+  maxCarryWeight?: Prisma.SortOrder
   life?: Prisma.SortOrder
   defense?: Prisma.SortOrder
   mana?: Prisma.SortOrder
   stamina?: Prisma.SortOrder
   sanity?: Prisma.SortOrder
+  skillPoints?: Prisma.SortOrder
 }
 
 export type RpgCharacterScalarRelationFilter = {
@@ -799,14 +919,20 @@ export type RpgCharacterCreateWithoutCreatedByUserInput = {
   classKey?: string | null
   characterType?: $Enums.RpgCharacterType
   visibility?: $Enums.RpgVisibility
+  maxCarryWeight?: number | null
   life?: number
   defense?: number
   mana?: number
   stamina?: number
   sanity?: number
   statuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   rpg: Prisma.RpgCreateNestedOneWithoutCharactersInput
@@ -822,14 +948,20 @@ export type RpgCharacterUncheckedCreateWithoutCreatedByUserInput = {
   classKey?: string | null
   characterType?: $Enums.RpgCharacterType
   visibility?: $Enums.RpgVisibility
+  maxCarryWeight?: number | null
   life?: number
   defense?: number
   mana?: number
   stamina?: number
   sanity?: number
   statuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutCharacterInput
@@ -874,14 +1006,20 @@ export type RpgCharacterScalarWhereInput = {
   classKey?: Prisma.StringNullableFilter<"RpgCharacter"> | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFilter<"RpgCharacter"> | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFilter<"RpgCharacter"> | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.FloatNullableFilter<"RpgCharacter"> | number | null
   life?: Prisma.IntFilter<"RpgCharacter"> | number
   defense?: Prisma.IntFilter<"RpgCharacter"> | number
   mana?: Prisma.IntFilter<"RpgCharacter"> | number
   stamina?: Prisma.IntFilter<"RpgCharacter"> | number
   sanity?: Prisma.IntFilter<"RpgCharacter"> | number
   statuses?: Prisma.JsonFilter<"RpgCharacter">
+  currentStatuses?: Prisma.JsonNullableFilter<"RpgCharacter">
   attributes?: Prisma.JsonFilter<"RpgCharacter">
   skills?: Prisma.JsonFilter<"RpgCharacter">
+  skillPoints?: Prisma.IntFilter<"RpgCharacter"> | number
+  abilities?: Prisma.JsonFilter<"RpgCharacter">
+  identity?: Prisma.JsonNullableFilter<"RpgCharacter">
+  characteristics?: Prisma.JsonNullableFilter<"RpgCharacter">
   createdAt?: Prisma.DateTimeFilter<"RpgCharacter"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RpgCharacter"> | Date | string
 }
@@ -894,14 +1032,20 @@ export type RpgCharacterCreateWithoutRpgInput = {
   classKey?: string | null
   characterType?: $Enums.RpgCharacterType
   visibility?: $Enums.RpgVisibility
+  maxCarryWeight?: number | null
   life?: number
   defense?: number
   mana?: number
   stamina?: number
   sanity?: number
   statuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   createdByUser?: Prisma.UserCreateNestedOneWithoutCharactersInput
@@ -917,14 +1061,20 @@ export type RpgCharacterUncheckedCreateWithoutRpgInput = {
   classKey?: string | null
   characterType?: $Enums.RpgCharacterType
   visibility?: $Enums.RpgVisibility
+  maxCarryWeight?: number | null
   life?: number
   defense?: number
   mana?: number
   stamina?: number
   sanity?: number
   statuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedCreateNestedManyWithoutCharacterInput
@@ -964,14 +1114,20 @@ export type RpgCharacterCreateWithoutInventoryItemsInput = {
   classKey?: string | null
   characterType?: $Enums.RpgCharacterType
   visibility?: $Enums.RpgVisibility
+  maxCarryWeight?: number | null
   life?: number
   defense?: number
   mana?: number
   stamina?: number
   sanity?: number
   statuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   rpg: Prisma.RpgCreateNestedOneWithoutCharactersInput
@@ -988,14 +1144,20 @@ export type RpgCharacterUncheckedCreateWithoutInventoryItemsInput = {
   classKey?: string | null
   characterType?: $Enums.RpgCharacterType
   visibility?: $Enums.RpgVisibility
+  maxCarryWeight?: number | null
   life?: number
   defense?: number
   mana?: number
   stamina?: number
   sanity?: number
   statuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1024,14 +1186,20 @@ export type RpgCharacterUpdateWithoutInventoryItemsInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rpg?: Prisma.RpgUpdateOneRequiredWithoutCharactersNestedInput
@@ -1048,14 +1216,20 @@ export type RpgCharacterUncheckedUpdateWithoutInventoryItemsInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1069,14 +1243,20 @@ export type RpgCharacterCreateManyCreatedByUserInput = {
   classKey?: string | null
   characterType?: $Enums.RpgCharacterType
   visibility?: $Enums.RpgVisibility
+  maxCarryWeight?: number | null
   life?: number
   defense?: number
   mana?: number
   stamina?: number
   sanity?: number
   statuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1089,14 +1269,20 @@ export type RpgCharacterUpdateWithoutCreatedByUserInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rpg?: Prisma.RpgUpdateOneRequiredWithoutCharactersNestedInput
@@ -1112,14 +1298,20 @@ export type RpgCharacterUncheckedUpdateWithoutCreatedByUserInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutCharacterNestedInput
@@ -1134,14 +1326,20 @@ export type RpgCharacterUncheckedUpdateManyWithoutCreatedByUserInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1155,14 +1353,20 @@ export type RpgCharacterCreateManyRpgInput = {
   classKey?: string | null
   characterType?: $Enums.RpgCharacterType
   visibility?: $Enums.RpgVisibility
+  maxCarryWeight?: number | null
   life?: number
   defense?: number
   mana?: number
   stamina?: number
   sanity?: number
   statuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1175,14 +1379,20 @@ export type RpgCharacterUpdateWithoutRpgInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUser?: Prisma.UserUpdateOneWithoutCharactersNestedInput
@@ -1198,14 +1408,20 @@ export type RpgCharacterUncheckedUpdateWithoutRpgInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   inventoryItems?: Prisma.RpgCharacterInventoryItemUncheckedUpdateManyWithoutCharacterNestedInput
@@ -1220,14 +1436,20 @@ export type RpgCharacterUncheckedUpdateManyWithoutRpgInput = {
   classKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   characterType?: Prisma.EnumRpgCharacterTypeFieldUpdateOperationsInput | $Enums.RpgCharacterType
   visibility?: Prisma.EnumRpgVisibilityFieldUpdateOperationsInput | $Enums.RpgVisibility
+  maxCarryWeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   life?: Prisma.IntFieldUpdateOperationsInput | number
   defense?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
   stamina?: Prisma.IntFieldUpdateOperationsInput | number
   sanity?: Prisma.IntFieldUpdateOperationsInput | number
   statuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentStatuses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   attributes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skills?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  abilities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  identity?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  characteristics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1273,14 +1495,20 @@ export type RpgCharacterSelect<ExtArgs extends runtime.Types.Extensions.Internal
   classKey?: boolean
   characterType?: boolean
   visibility?: boolean
+  maxCarryWeight?: boolean
   life?: boolean
   defense?: boolean
   mana?: boolean
   stamina?: boolean
   sanity?: boolean
   statuses?: boolean
+  currentStatuses?: boolean
   attributes?: boolean
   skills?: boolean
+  skillPoints?: boolean
+  abilities?: boolean
+  identity?: boolean
+  characteristics?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   rpg?: boolean | Prisma.RpgDefaultArgs<ExtArgs>
@@ -1299,14 +1527,20 @@ export type RpgCharacterSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   classKey?: boolean
   characterType?: boolean
   visibility?: boolean
+  maxCarryWeight?: boolean
   life?: boolean
   defense?: boolean
   mana?: boolean
   stamina?: boolean
   sanity?: boolean
   statuses?: boolean
+  currentStatuses?: boolean
   attributes?: boolean
   skills?: boolean
+  skillPoints?: boolean
+  abilities?: boolean
+  identity?: boolean
+  characteristics?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   rpg?: boolean | Prisma.RpgDefaultArgs<ExtArgs>
@@ -1323,14 +1557,20 @@ export type RpgCharacterSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   classKey?: boolean
   characterType?: boolean
   visibility?: boolean
+  maxCarryWeight?: boolean
   life?: boolean
   defense?: boolean
   mana?: boolean
   stamina?: boolean
   sanity?: boolean
   statuses?: boolean
+  currentStatuses?: boolean
   attributes?: boolean
   skills?: boolean
+  skillPoints?: boolean
+  abilities?: boolean
+  identity?: boolean
+  characteristics?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   rpg?: boolean | Prisma.RpgDefaultArgs<ExtArgs>
@@ -1347,19 +1587,25 @@ export type RpgCharacterSelectScalar = {
   classKey?: boolean
   characterType?: boolean
   visibility?: boolean
+  maxCarryWeight?: boolean
   life?: boolean
   defense?: boolean
   mana?: boolean
   stamina?: boolean
   sanity?: boolean
   statuses?: boolean
+  currentStatuses?: boolean
   attributes?: boolean
   skills?: boolean
+  skillPoints?: boolean
+  abilities?: boolean
+  identity?: boolean
+  characteristics?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RpgCharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rpgId" | "createdByUserId" | "name" | "image" | "raceKey" | "classKey" | "characterType" | "visibility" | "life" | "defense" | "mana" | "stamina" | "sanity" | "statuses" | "attributes" | "skills" | "createdAt" | "updatedAt", ExtArgs["result"]["rpgCharacter"]>
+export type RpgCharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rpgId" | "createdByUserId" | "name" | "image" | "raceKey" | "classKey" | "characterType" | "visibility" | "maxCarryWeight" | "life" | "defense" | "mana" | "stamina" | "sanity" | "statuses" | "currentStatuses" | "attributes" | "skills" | "skillPoints" | "abilities" | "identity" | "characteristics" | "createdAt" | "updatedAt", ExtArgs["result"]["rpgCharacter"]>
 export type RpgCharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rpg?: boolean | Prisma.RpgDefaultArgs<ExtArgs>
   createdByUser?: boolean | Prisma.RpgCharacter$createdByUserArgs<ExtArgs>
@@ -1392,14 +1638,20 @@ export type $RpgCharacterPayload<ExtArgs extends runtime.Types.Extensions.Intern
     classKey: string | null
     characterType: $Enums.RpgCharacterType
     visibility: $Enums.RpgVisibility
+    maxCarryWeight: number | null
     life: number
     defense: number
     mana: number
     stamina: number
     sanity: number
     statuses: runtime.JsonValue
+    currentStatuses: runtime.JsonValue | null
     attributes: runtime.JsonValue
     skills: runtime.JsonValue
+    skillPoints: number
+    abilities: runtime.JsonValue
+    identity: runtime.JsonValue | null
+    characteristics: runtime.JsonValue | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["rpgCharacter"]>
@@ -1837,14 +2089,20 @@ export interface RpgCharacterFieldRefs {
   readonly classKey: Prisma.FieldRef<"RpgCharacter", 'String'>
   readonly characterType: Prisma.FieldRef<"RpgCharacter", 'RpgCharacterType'>
   readonly visibility: Prisma.FieldRef<"RpgCharacter", 'RpgVisibility'>
+  readonly maxCarryWeight: Prisma.FieldRef<"RpgCharacter", 'Float'>
   readonly life: Prisma.FieldRef<"RpgCharacter", 'Int'>
   readonly defense: Prisma.FieldRef<"RpgCharacter", 'Int'>
   readonly mana: Prisma.FieldRef<"RpgCharacter", 'Int'>
   readonly stamina: Prisma.FieldRef<"RpgCharacter", 'Int'>
   readonly sanity: Prisma.FieldRef<"RpgCharacter", 'Int'>
   readonly statuses: Prisma.FieldRef<"RpgCharacter", 'Json'>
+  readonly currentStatuses: Prisma.FieldRef<"RpgCharacter", 'Json'>
   readonly attributes: Prisma.FieldRef<"RpgCharacter", 'Json'>
   readonly skills: Prisma.FieldRef<"RpgCharacter", 'Json'>
+  readonly skillPoints: Prisma.FieldRef<"RpgCharacter", 'Int'>
+  readonly abilities: Prisma.FieldRef<"RpgCharacter", 'Json'>
+  readonly identity: Prisma.FieldRef<"RpgCharacter", 'Json'>
+  readonly characteristics: Prisma.FieldRef<"RpgCharacter", 'Json'>
   readonly createdAt: Prisma.FieldRef<"RpgCharacter", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"RpgCharacter", 'DateTime'>
 }

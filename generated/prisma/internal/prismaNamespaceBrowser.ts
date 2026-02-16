@@ -56,13 +56,19 @@ export const ModelName = {
   BaseItem: 'BaseItem',
   RpgAttributeTemplate: 'RpgAttributeTemplate',
   RpgCharacter: 'RpgCharacter',
+  RpgCharacterIdentityTemplate: 'RpgCharacterIdentityTemplate',
+  RpgCharacterCharacteristicTemplate: 'RpgCharacterCharacteristicTemplate',
   RpgCharacterInventoryItem: 'RpgCharacterInventoryItem',
   RpgStatusTemplate: 'RpgStatusTemplate',
   RpgSkillTemplate: 'RpgSkillTemplate',
   RpgRaceTemplate: 'RpgRaceTemplate',
   RpgClassTemplate: 'RpgClassTemplate',
   RpgMember: 'RpgMember',
-  RpgCharacterCreationRequest: 'RpgCharacterCreationRequest'
+  RpgCharacterCreationRequest: 'RpgCharacterCreationRequest',
+  Skill: 'Skill',
+  SkillLevel: 'SkillLevel',
+  SkillClassLink: 'SkillClassLink',
+  SkillRaceLink: 'SkillRaceLink'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -97,8 +103,13 @@ export const RpgScalarFieldEnum = {
   ownerId: 'ownerId',
   title: 'title',
   description: 'description',
+  costsEnabled: 'costsEnabled',
+  costResourceName: 'costResourceName',
+  mapImage: 'mapImage',
+  useMundiMap: 'useMundiMap',
   visibility: 'visibility',
   useClassRaceBonuses: 'useClassRaceBonuses',
+  useInventoryWeightLimit: 'useInventoryWeightLimit',
   createdAt: 'createdAt'
 } as const
 
@@ -153,19 +164,53 @@ export const RpgCharacterScalarFieldEnum = {
   classKey: 'classKey',
   characterType: 'characterType',
   visibility: 'visibility',
+  maxCarryWeight: 'maxCarryWeight',
   life: 'life',
   defense: 'defense',
   mana: 'mana',
   stamina: 'stamina',
   sanity: 'sanity',
   statuses: 'statuses',
+  currentStatuses: 'currentStatuses',
   attributes: 'attributes',
   skills: 'skills',
+  skillPoints: 'skillPoints',
+  abilities: 'abilities',
+  identity: 'identity',
+  characteristics: 'characteristics',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type RpgCharacterScalarFieldEnum = (typeof RpgCharacterScalarFieldEnum)[keyof typeof RpgCharacterScalarFieldEnum]
+
+
+export const RpgCharacterIdentityTemplateScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  key: 'key',
+  label: 'label',
+  required: 'required',
+  position: 'position',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgCharacterIdentityTemplateScalarFieldEnum = (typeof RpgCharacterIdentityTemplateScalarFieldEnum)[keyof typeof RpgCharacterIdentityTemplateScalarFieldEnum]
+
+
+export const RpgCharacterCharacteristicTemplateScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  key: 'key',
+  label: 'label',
+  required: 'required',
+  position: 'position',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgCharacterCharacteristicTemplateScalarFieldEnum = (typeof RpgCharacterCharacteristicTemplateScalarFieldEnum)[keyof typeof RpgCharacterCharacteristicTemplateScalarFieldEnum]
 
 
 export const RpgCharacterInventoryItemScalarFieldEnum = {
@@ -228,6 +273,7 @@ export const RpgClassTemplateScalarFieldEnum = {
   rpgId: 'rpgId',
   key: 'key',
   label: 'label',
+  category: 'category',
   attributeBonuses: 'attributeBonuses',
   skillBonuses: 'skillBonuses',
   position: 'position',
@@ -266,6 +312,62 @@ export const RpgCharacterCreationRequestScalarFieldEnum = {
 export type RpgCharacterCreationRequestScalarFieldEnum = (typeof RpgCharacterCreationRequestScalarFieldEnum)[keyof typeof RpgCharacterCreationRequestScalarFieldEnum]
 
 
+export const SkillScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  rpgId: 'rpgId',
+  rpgScope: 'rpgScope',
+  name: 'name',
+  slug: 'slug',
+  category: 'category',
+  type: 'type',
+  description: 'description',
+  currentLevel: 'currentLevel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SkillScalarFieldEnum = (typeof SkillScalarFieldEnum)[keyof typeof SkillScalarFieldEnum]
+
+
+export const SkillLevelScalarFieldEnum = {
+  id: 'id',
+  skillId: 'skillId',
+  levelNumber: 'levelNumber',
+  levelRequired: 'levelRequired',
+  summary: 'summary',
+  stats: 'stats',
+  cost: 'cost',
+  target: 'target',
+  area: 'area',
+  scaling: 'scaling',
+  requirement: 'requirement',
+  effects: 'effects',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SkillLevelScalarFieldEnum = (typeof SkillLevelScalarFieldEnum)[keyof typeof SkillLevelScalarFieldEnum]
+
+
+export const SkillClassLinkScalarFieldEnum = {
+  skillId: 'skillId',
+  classTemplateId: 'classTemplateId',
+  createdAt: 'createdAt'
+} as const
+
+export type SkillClassLinkScalarFieldEnum = (typeof SkillClassLinkScalarFieldEnum)[keyof typeof SkillClassLinkScalarFieldEnum]
+
+
+export const SkillRaceLinkScalarFieldEnum = {
+  skillId: 'skillId',
+  raceTemplateId: 'raceTemplateId',
+  createdAt: 'createdAt'
+} as const
+
+export type SkillRaceLinkScalarFieldEnum = (typeof SkillRaceLinkScalarFieldEnum)[keyof typeof SkillRaceLinkScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -297,6 +399,14 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -304,12 +414,4 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

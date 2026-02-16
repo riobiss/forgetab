@@ -186,6 +186,7 @@ export type UserWhereInput = {
   rpgMembers?: Prisma.RpgMemberListRelationFilter
   characters?: Prisma.RpgCharacterListRelationFilter
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestListRelationFilter
+  skills?: Prisma.SkillListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -198,6 +199,7 @@ export type UserOrderByWithRelationInput = {
   rpgMembers?: Prisma.RpgMemberOrderByRelationAggregateInput
   characters?: Prisma.RpgCharacterOrderByRelationAggregateInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestOrderByRelationAggregateInput
+  skills?: Prisma.SkillOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -213,6 +215,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   rpgMembers?: Prisma.RpgMemberListRelationFilter
   characters?: Prisma.RpgCharacterListRelationFilter
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestListRelationFilter
+  skills?: Prisma.SkillListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -247,6 +250,7 @@ export type UserCreateInput = {
   rpgMembers?: Prisma.RpgMemberCreateNestedManyWithoutUserInput
   characters?: Prisma.RpgCharacterCreateNestedManyWithoutCreatedByUserInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutUserInput
+  skills?: Prisma.SkillCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -259,6 +263,7 @@ export type UserUncheckedCreateInput = {
   rpgMembers?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutCreatedByUserInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutUserInput
+  skills?: Prisma.SkillUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUpdateInput = {
@@ -271,6 +276,7 @@ export type UserUpdateInput = {
   rpgMembers?: Prisma.RpgMemberUpdateManyWithoutUserNestedInput
   characters?: Prisma.RpgCharacterUpdateManyWithoutCreatedByUserNestedInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutUserNestedInput
+  skills?: Prisma.SkillUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -283,6 +289,7 @@ export type UserUncheckedUpdateInput = {
   rpgMembers?: Prisma.RpgMemberUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutCreatedByUserNestedInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutUserNestedInput
+  skills?: Prisma.SkillUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -409,6 +416,20 @@ export type UserUpdateOneRequiredWithoutCharacterCreationRequestsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCharacterCreationRequestsInput, Prisma.UserUpdateWithoutCharacterCreationRequestsInput>, Prisma.UserUncheckedUpdateWithoutCharacterCreationRequestsInput>
 }
 
+export type UserCreateNestedOneWithoutSkillsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSkillsInput, Prisma.UserUncheckedCreateWithoutSkillsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSkillsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSkillsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSkillsInput, Prisma.UserUncheckedCreateWithoutSkillsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSkillsInput
+  upsert?: Prisma.UserUpsertWithoutSkillsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSkillsInput, Prisma.UserUpdateWithoutSkillsInput>, Prisma.UserUncheckedUpdateWithoutSkillsInput>
+}
+
 export type UserCreateWithoutRpgsInput = {
   id?: string
   name: string
@@ -418,6 +439,7 @@ export type UserCreateWithoutRpgsInput = {
   rpgMembers?: Prisma.RpgMemberCreateNestedManyWithoutUserInput
   characters?: Prisma.RpgCharacterCreateNestedManyWithoutCreatedByUserInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutUserInput
+  skills?: Prisma.SkillCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutRpgsInput = {
@@ -429,6 +451,7 @@ export type UserUncheckedCreateWithoutRpgsInput = {
   rpgMembers?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutCreatedByUserInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutUserInput
+  skills?: Prisma.SkillUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutRpgsInput = {
@@ -456,6 +479,7 @@ export type UserUpdateWithoutRpgsInput = {
   rpgMembers?: Prisma.RpgMemberUpdateManyWithoutUserNestedInput
   characters?: Prisma.RpgCharacterUpdateManyWithoutCreatedByUserNestedInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutUserNestedInput
+  skills?: Prisma.SkillUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRpgsInput = {
@@ -467,6 +491,7 @@ export type UserUncheckedUpdateWithoutRpgsInput = {
   rpgMembers?: Prisma.RpgMemberUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutCreatedByUserNestedInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutUserNestedInput
+  skills?: Prisma.SkillUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutCharactersInput = {
@@ -478,6 +503,7 @@ export type UserCreateWithoutCharactersInput = {
   rpgs?: Prisma.RpgCreateNestedManyWithoutOwnerInput
   rpgMembers?: Prisma.RpgMemberCreateNestedManyWithoutUserInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutUserInput
+  skills?: Prisma.SkillCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutCharactersInput = {
@@ -489,6 +515,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   rpgs?: Prisma.RpgUncheckedCreateNestedManyWithoutOwnerInput
   rpgMembers?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutUserInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutUserInput
+  skills?: Prisma.SkillUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutCharactersInput = {
@@ -516,6 +543,7 @@ export type UserUpdateWithoutCharactersInput = {
   rpgs?: Prisma.RpgUpdateManyWithoutOwnerNestedInput
   rpgMembers?: Prisma.RpgMemberUpdateManyWithoutUserNestedInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutUserNestedInput
+  skills?: Prisma.SkillUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCharactersInput = {
@@ -527,6 +555,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   rpgs?: Prisma.RpgUncheckedUpdateManyWithoutOwnerNestedInput
   rpgMembers?: Prisma.RpgMemberUncheckedUpdateManyWithoutUserNestedInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutUserNestedInput
+  skills?: Prisma.SkillUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutRpgMembersInput = {
@@ -538,6 +567,7 @@ export type UserCreateWithoutRpgMembersInput = {
   rpgs?: Prisma.RpgCreateNestedManyWithoutOwnerInput
   characters?: Prisma.RpgCharacterCreateNestedManyWithoutCreatedByUserInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutUserInput
+  skills?: Prisma.SkillCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutRpgMembersInput = {
@@ -549,6 +579,7 @@ export type UserUncheckedCreateWithoutRpgMembersInput = {
   rpgs?: Prisma.RpgUncheckedCreateNestedManyWithoutOwnerInput
   characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutCreatedByUserInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutUserInput
+  skills?: Prisma.SkillUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutRpgMembersInput = {
@@ -576,6 +607,7 @@ export type UserUpdateWithoutRpgMembersInput = {
   rpgs?: Prisma.RpgUpdateManyWithoutOwnerNestedInput
   characters?: Prisma.RpgCharacterUpdateManyWithoutCreatedByUserNestedInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutUserNestedInput
+  skills?: Prisma.SkillUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRpgMembersInput = {
@@ -587,6 +619,7 @@ export type UserUncheckedUpdateWithoutRpgMembersInput = {
   rpgs?: Prisma.RpgUncheckedUpdateManyWithoutOwnerNestedInput
   characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutCreatedByUserNestedInput
   characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutUserNestedInput
+  skills?: Prisma.SkillUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutCharacterCreationRequestsInput = {
@@ -598,6 +631,7 @@ export type UserCreateWithoutCharacterCreationRequestsInput = {
   rpgs?: Prisma.RpgCreateNestedManyWithoutOwnerInput
   rpgMembers?: Prisma.RpgMemberCreateNestedManyWithoutUserInput
   characters?: Prisma.RpgCharacterCreateNestedManyWithoutCreatedByUserInput
+  skills?: Prisma.SkillCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutCharacterCreationRequestsInput = {
@@ -609,6 +643,7 @@ export type UserUncheckedCreateWithoutCharacterCreationRequestsInput = {
   rpgs?: Prisma.RpgUncheckedCreateNestedManyWithoutOwnerInput
   rpgMembers?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutCreatedByUserInput
+  skills?: Prisma.SkillUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutCharacterCreationRequestsInput = {
@@ -636,6 +671,7 @@ export type UserUpdateWithoutCharacterCreationRequestsInput = {
   rpgs?: Prisma.RpgUpdateManyWithoutOwnerNestedInput
   rpgMembers?: Prisma.RpgMemberUpdateManyWithoutUserNestedInput
   characters?: Prisma.RpgCharacterUpdateManyWithoutCreatedByUserNestedInput
+  skills?: Prisma.SkillUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCharacterCreationRequestsInput = {
@@ -647,6 +683,71 @@ export type UserUncheckedUpdateWithoutCharacterCreationRequestsInput = {
   rpgs?: Prisma.RpgUncheckedUpdateManyWithoutOwnerNestedInput
   rpgMembers?: Prisma.RpgMemberUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  skills?: Prisma.SkillUncheckedUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutSkillsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  rpgs?: Prisma.RpgCreateNestedManyWithoutOwnerInput
+  rpgMembers?: Prisma.RpgMemberCreateNestedManyWithoutUserInput
+  characters?: Prisma.RpgCharacterCreateNestedManyWithoutCreatedByUserInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSkillsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  rpgs?: Prisma.RpgUncheckedCreateNestedManyWithoutOwnerInput
+  rpgMembers?: Prisma.RpgMemberUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.RpgCharacterUncheckedCreateNestedManyWithoutCreatedByUserInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSkillsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSkillsInput, Prisma.UserUncheckedCreateWithoutSkillsInput>
+}
+
+export type UserUpsertWithoutSkillsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSkillsInput, Prisma.UserUncheckedUpdateWithoutSkillsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSkillsInput, Prisma.UserUncheckedCreateWithoutSkillsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSkillsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSkillsInput, Prisma.UserUncheckedUpdateWithoutSkillsInput>
+}
+
+export type UserUpdateWithoutSkillsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rpgs?: Prisma.RpgUpdateManyWithoutOwnerNestedInput
+  rpgMembers?: Prisma.RpgMemberUpdateManyWithoutUserNestedInput
+  characters?: Prisma.RpgCharacterUpdateManyWithoutCreatedByUserNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSkillsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rpgs?: Prisma.RpgUncheckedUpdateManyWithoutOwnerNestedInput
+  rpgMembers?: Prisma.RpgMemberUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.RpgCharacterUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  characterCreationRequests?: Prisma.RpgCharacterCreationRequestUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -659,6 +760,7 @@ export type UserCountOutputType = {
   rpgMembers: number
   characters: number
   characterCreationRequests: number
+  skills: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -666,6 +768,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   rpgMembers?: boolean | UserCountOutputTypeCountRpgMembersArgs
   characters?: boolean | UserCountOutputTypeCountCharactersArgs
   characterCreationRequests?: boolean | UserCountOutputTypeCountCharacterCreationRequestsArgs
+  skills?: boolean | UserCountOutputTypeCountSkillsArgs
 }
 
 /**
@@ -706,6 +809,13 @@ export type UserCountOutputTypeCountCharacterCreationRequestsArgs<ExtArgs extend
   where?: Prisma.RpgCharacterCreationRequestWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSkillsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SkillWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -717,6 +827,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   rpgMembers?: boolean | Prisma.User$rpgMembersArgs<ExtArgs>
   characters?: boolean | Prisma.User$charactersArgs<ExtArgs>
   characterCreationRequests?: boolean | Prisma.User$characterCreationRequestsArgs<ExtArgs>
+  skills?: boolean | Prisma.User$skillsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -750,6 +861,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   rpgMembers?: boolean | Prisma.User$rpgMembersArgs<ExtArgs>
   characters?: boolean | Prisma.User$charactersArgs<ExtArgs>
   characterCreationRequests?: boolean | Prisma.User$characterCreationRequestsArgs<ExtArgs>
+  skills?: boolean | Prisma.User$skillsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -762,6 +874,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     rpgMembers: Prisma.$RpgMemberPayload<ExtArgs>[]
     characters: Prisma.$RpgCharacterPayload<ExtArgs>[]
     characterCreationRequests: Prisma.$RpgCharacterCreationRequestPayload<ExtArgs>[]
+    skills: Prisma.$SkillPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1167,6 +1280,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   rpgMembers<T extends Prisma.User$rpgMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$rpgMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   characters<T extends Prisma.User$charactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$charactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgCharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   characterCreationRequests<T extends Prisma.User$characterCreationRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$characterCreationRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RpgCharacterCreationRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  skills<T extends Prisma.User$skillsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$skillsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SkillPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1682,6 +1796,30 @@ export type User$characterCreationRequestsArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.RpgCharacterCreationRequestScalarFieldEnum | Prisma.RpgCharacterCreationRequestScalarFieldEnum[]
+}
+
+/**
+ * User.skills
+ */
+export type User$skillsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Skill
+   */
+  select?: Prisma.SkillSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Skill
+   */
+  omit?: Prisma.SkillOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SkillInclude<ExtArgs> | null
+  where?: Prisma.SkillWhereInput
+  orderBy?: Prisma.SkillOrderByWithRelationInput | Prisma.SkillOrderByWithRelationInput[]
+  cursor?: Prisma.SkillWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SkillScalarFieldEnum | Prisma.SkillScalarFieldEnum[]
 }
 
 /**

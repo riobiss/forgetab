@@ -65,6 +65,16 @@ export type RpgAttributeTemplate = Prisma.RpgAttributeTemplateModel
  */
 export type RpgCharacter = Prisma.RpgCharacterModel
 /**
+ * Model RpgCharacterIdentityTemplate
+ * 
+ */
+export type RpgCharacterIdentityTemplate = Prisma.RpgCharacterIdentityTemplateModel
+/**
+ * Model RpgCharacterCharacteristicTemplate
+ * 
+ */
+export type RpgCharacterCharacteristicTemplate = Prisma.RpgCharacterCharacteristicTemplateModel
+/**
  * Model RpgCharacterInventoryItem
  * 
  */
@@ -99,3 +109,23 @@ export type RpgMember = Prisma.RpgMemberModel
  * 
  */
 export type RpgCharacterCreationRequest = Prisma.RpgCharacterCreationRequestModel
+/**
+ * Model Skill
+ * 
+ */
+export type Skill = Prisma.SkillModel
+/**
+ * Model SkillLevel
+ * 
+ */
+export type SkillLevel = Prisma.SkillLevelModel
+/**
+ * Model SkillClassLink
+ * 
+ */
+export type SkillClassLink = Prisma.SkillClassLinkModel
+/**
+ * Model SkillRaceLink
+ * 
+ */
+export type SkillRaceLink = Prisma.SkillRaceLinkModel

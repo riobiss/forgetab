@@ -39,6 +39,7 @@ export type RpgClassTemplateMinAggregateOutputType = {
   rpgId: string | null
   key: string | null
   label: string | null
+  category: string | null
   position: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +50,7 @@ export type RpgClassTemplateMaxAggregateOutputType = {
   rpgId: string | null
   key: string | null
   label: string | null
+  category: string | null
   position: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -59,6 +61,7 @@ export type RpgClassTemplateCountAggregateOutputType = {
   rpgId: number
   key: number
   label: number
+  category: number
   attributeBonuses: number
   skillBonuses: number
   position: number
@@ -81,6 +84,7 @@ export type RpgClassTemplateMinAggregateInputType = {
   rpgId?: true
   key?: true
   label?: true
+  category?: true
   position?: true
   createdAt?: true
   updatedAt?: true
@@ -91,6 +95,7 @@ export type RpgClassTemplateMaxAggregateInputType = {
   rpgId?: true
   key?: true
   label?: true
+  category?: true
   position?: true
   createdAt?: true
   updatedAt?: true
@@ -101,6 +106,7 @@ export type RpgClassTemplateCountAggregateInputType = {
   rpgId?: true
   key?: true
   label?: true
+  category?: true
   attributeBonuses?: true
   skillBonuses?: true
   position?: true
@@ -200,6 +206,7 @@ export type RpgClassTemplateGroupByOutputType = {
   rpgId: string
   key: string
   label: string
+  category: string | null
   attributeBonuses: runtime.JsonValue
   skillBonuses: runtime.JsonValue
   position: number
@@ -235,12 +242,14 @@ export type RpgClassTemplateWhereInput = {
   rpgId?: Prisma.StringFilter<"RpgClassTemplate"> | string
   key?: Prisma.StringFilter<"RpgClassTemplate"> | string
   label?: Prisma.StringFilter<"RpgClassTemplate"> | string
+  category?: Prisma.StringNullableFilter<"RpgClassTemplate"> | string | null
   attributeBonuses?: Prisma.JsonFilter<"RpgClassTemplate">
   skillBonuses?: Prisma.JsonFilter<"RpgClassTemplate">
   position?: Prisma.IntFilter<"RpgClassTemplate"> | number
   createdAt?: Prisma.DateTimeFilter<"RpgClassTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RpgClassTemplate"> | Date | string
   rpg?: Prisma.XOR<Prisma.RpgScalarRelationFilter, Prisma.RpgWhereInput>
+  skillLinks?: Prisma.SkillClassLinkListRelationFilter
 }
 
 export type RpgClassTemplateOrderByWithRelationInput = {
@@ -248,12 +257,14 @@ export type RpgClassTemplateOrderByWithRelationInput = {
   rpgId?: Prisma.SortOrder
   key?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
   attributeBonuses?: Prisma.SortOrder
   skillBonuses?: Prisma.SortOrder
   position?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   rpg?: Prisma.RpgOrderByWithRelationInput
+  skillLinks?: Prisma.SkillClassLinkOrderByRelationAggregateInput
 }
 
 export type RpgClassTemplateWhereUniqueInput = Prisma.AtLeast<{
@@ -265,12 +276,14 @@ export type RpgClassTemplateWhereUniqueInput = Prisma.AtLeast<{
   rpgId?: Prisma.StringFilter<"RpgClassTemplate"> | string
   key?: Prisma.StringFilter<"RpgClassTemplate"> | string
   label?: Prisma.StringFilter<"RpgClassTemplate"> | string
+  category?: Prisma.StringNullableFilter<"RpgClassTemplate"> | string | null
   attributeBonuses?: Prisma.JsonFilter<"RpgClassTemplate">
   skillBonuses?: Prisma.JsonFilter<"RpgClassTemplate">
   position?: Prisma.IntFilter<"RpgClassTemplate"> | number
   createdAt?: Prisma.DateTimeFilter<"RpgClassTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RpgClassTemplate"> | Date | string
   rpg?: Prisma.XOR<Prisma.RpgScalarRelationFilter, Prisma.RpgWhereInput>
+  skillLinks?: Prisma.SkillClassLinkListRelationFilter
 }, "id" | "rpgId_key">
 
 export type RpgClassTemplateOrderByWithAggregationInput = {
@@ -278,6 +291,7 @@ export type RpgClassTemplateOrderByWithAggregationInput = {
   rpgId?: Prisma.SortOrder
   key?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
   attributeBonuses?: Prisma.SortOrder
   skillBonuses?: Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -298,6 +312,7 @@ export type RpgClassTemplateScalarWhereWithAggregatesInput = {
   rpgId?: Prisma.StringWithAggregatesFilter<"RpgClassTemplate"> | string
   key?: Prisma.StringWithAggregatesFilter<"RpgClassTemplate"> | string
   label?: Prisma.StringWithAggregatesFilter<"RpgClassTemplate"> | string
+  category?: Prisma.StringNullableWithAggregatesFilter<"RpgClassTemplate"> | string | null
   attributeBonuses?: Prisma.JsonWithAggregatesFilter<"RpgClassTemplate">
   skillBonuses?: Prisma.JsonWithAggregatesFilter<"RpgClassTemplate">
   position?: Prisma.IntWithAggregatesFilter<"RpgClassTemplate"> | number
@@ -309,12 +324,14 @@ export type RpgClassTemplateCreateInput = {
   id?: string
   key: string
   label: string
+  category?: string | null
   attributeBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position: number
   createdAt?: Date | string
   updatedAt?: Date | string
   rpg: Prisma.RpgCreateNestedOneWithoutClassTemplatesInput
+  skillLinks?: Prisma.SkillClassLinkCreateNestedManyWithoutClassTemplateInput
 }
 
 export type RpgClassTemplateUncheckedCreateInput = {
@@ -322,23 +339,27 @@ export type RpgClassTemplateUncheckedCreateInput = {
   rpgId: string
   key: string
   label: string
+  category?: string | null
   attributeBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  skillLinks?: Prisma.SkillClassLinkUncheckedCreateNestedManyWithoutClassTemplateInput
 }
 
 export type RpgClassTemplateUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attributeBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rpg?: Prisma.RpgUpdateOneRequiredWithoutClassTemplatesNestedInput
+  skillLinks?: Prisma.SkillClassLinkUpdateManyWithoutClassTemplateNestedInput
 }
 
 export type RpgClassTemplateUncheckedUpdateInput = {
@@ -346,11 +367,13 @@ export type RpgClassTemplateUncheckedUpdateInput = {
   rpgId?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attributeBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  skillLinks?: Prisma.SkillClassLinkUncheckedUpdateManyWithoutClassTemplateNestedInput
 }
 
 export type RpgClassTemplateCreateManyInput = {
@@ -358,6 +381,7 @@ export type RpgClassTemplateCreateManyInput = {
   rpgId: string
   key: string
   label: string
+  category?: string | null
   attributeBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position: number
@@ -369,6 +393,7 @@ export type RpgClassTemplateUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attributeBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.IntFieldUpdateOperationsInput | number
@@ -381,6 +406,7 @@ export type RpgClassTemplateUncheckedUpdateManyInput = {
   rpgId?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attributeBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.IntFieldUpdateOperationsInput | number
@@ -408,6 +434,7 @@ export type RpgClassTemplateCountOrderByAggregateInput = {
   rpgId?: Prisma.SortOrder
   key?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   attributeBonuses?: Prisma.SortOrder
   skillBonuses?: Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -424,6 +451,7 @@ export type RpgClassTemplateMaxOrderByAggregateInput = {
   rpgId?: Prisma.SortOrder
   key?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   position?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -434,6 +462,7 @@ export type RpgClassTemplateMinOrderByAggregateInput = {
   rpgId?: Prisma.SortOrder
   key?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   position?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -441,6 +470,11 @@ export type RpgClassTemplateMinOrderByAggregateInput = {
 
 export type RpgClassTemplateSumOrderByAggregateInput = {
   position?: Prisma.SortOrder
+}
+
+export type RpgClassTemplateScalarRelationFilter = {
+  is?: Prisma.RpgClassTemplateWhereInput
+  isNot?: Prisma.RpgClassTemplateWhereInput
 }
 
 export type RpgClassTemplateCreateNestedManyWithoutRpgInput = {
@@ -485,26 +519,44 @@ export type RpgClassTemplateUncheckedUpdateManyWithoutRpgNestedInput = {
   deleteMany?: Prisma.RpgClassTemplateScalarWhereInput | Prisma.RpgClassTemplateScalarWhereInput[]
 }
 
+export type RpgClassTemplateCreateNestedOneWithoutSkillLinksInput = {
+  create?: Prisma.XOR<Prisma.RpgClassTemplateCreateWithoutSkillLinksInput, Prisma.RpgClassTemplateUncheckedCreateWithoutSkillLinksInput>
+  connectOrCreate?: Prisma.RpgClassTemplateCreateOrConnectWithoutSkillLinksInput
+  connect?: Prisma.RpgClassTemplateWhereUniqueInput
+}
+
+export type RpgClassTemplateUpdateOneRequiredWithoutSkillLinksNestedInput = {
+  create?: Prisma.XOR<Prisma.RpgClassTemplateCreateWithoutSkillLinksInput, Prisma.RpgClassTemplateUncheckedCreateWithoutSkillLinksInput>
+  connectOrCreate?: Prisma.RpgClassTemplateCreateOrConnectWithoutSkillLinksInput
+  upsert?: Prisma.RpgClassTemplateUpsertWithoutSkillLinksInput
+  connect?: Prisma.RpgClassTemplateWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RpgClassTemplateUpdateToOneWithWhereWithoutSkillLinksInput, Prisma.RpgClassTemplateUpdateWithoutSkillLinksInput>, Prisma.RpgClassTemplateUncheckedUpdateWithoutSkillLinksInput>
+}
+
 export type RpgClassTemplateCreateWithoutRpgInput = {
   id?: string
   key: string
   label: string
+  category?: string | null
   attributeBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  skillLinks?: Prisma.SkillClassLinkCreateNestedManyWithoutClassTemplateInput
 }
 
 export type RpgClassTemplateUncheckedCreateWithoutRpgInput = {
   id?: string
   key: string
   label: string
+  category?: string | null
   attributeBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  skillLinks?: Prisma.SkillClassLinkUncheckedCreateNestedManyWithoutClassTemplateInput
 }
 
 export type RpgClassTemplateCreateOrConnectWithoutRpgInput = {
@@ -541,6 +593,7 @@ export type RpgClassTemplateScalarWhereInput = {
   rpgId?: Prisma.StringFilter<"RpgClassTemplate"> | string
   key?: Prisma.StringFilter<"RpgClassTemplate"> | string
   label?: Prisma.StringFilter<"RpgClassTemplate"> | string
+  category?: Prisma.StringNullableFilter<"RpgClassTemplate"> | string | null
   attributeBonuses?: Prisma.JsonFilter<"RpgClassTemplate">
   skillBonuses?: Prisma.JsonFilter<"RpgClassTemplate">
   position?: Prisma.IntFilter<"RpgClassTemplate"> | number
@@ -548,10 +601,79 @@ export type RpgClassTemplateScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"RpgClassTemplate"> | Date | string
 }
 
+export type RpgClassTemplateCreateWithoutSkillLinksInput = {
+  id?: string
+  key: string
+  label: string
+  category?: string | null
+  attributeBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  position: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rpg: Prisma.RpgCreateNestedOneWithoutClassTemplatesInput
+}
+
+export type RpgClassTemplateUncheckedCreateWithoutSkillLinksInput = {
+  id?: string
+  rpgId: string
+  key: string
+  label: string
+  category?: string | null
+  attributeBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  position: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RpgClassTemplateCreateOrConnectWithoutSkillLinksInput = {
+  where: Prisma.RpgClassTemplateWhereUniqueInput
+  create: Prisma.XOR<Prisma.RpgClassTemplateCreateWithoutSkillLinksInput, Prisma.RpgClassTemplateUncheckedCreateWithoutSkillLinksInput>
+}
+
+export type RpgClassTemplateUpsertWithoutSkillLinksInput = {
+  update: Prisma.XOR<Prisma.RpgClassTemplateUpdateWithoutSkillLinksInput, Prisma.RpgClassTemplateUncheckedUpdateWithoutSkillLinksInput>
+  create: Prisma.XOR<Prisma.RpgClassTemplateCreateWithoutSkillLinksInput, Prisma.RpgClassTemplateUncheckedCreateWithoutSkillLinksInput>
+  where?: Prisma.RpgClassTemplateWhereInput
+}
+
+export type RpgClassTemplateUpdateToOneWithWhereWithoutSkillLinksInput = {
+  where?: Prisma.RpgClassTemplateWhereInput
+  data: Prisma.XOR<Prisma.RpgClassTemplateUpdateWithoutSkillLinksInput, Prisma.RpgClassTemplateUncheckedUpdateWithoutSkillLinksInput>
+}
+
+export type RpgClassTemplateUpdateWithoutSkillLinksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attributeBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  position?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rpg?: Prisma.RpgUpdateOneRequiredWithoutClassTemplatesNestedInput
+}
+
+export type RpgClassTemplateUncheckedUpdateWithoutSkillLinksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  rpgId?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attributeBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  skillBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  position?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type RpgClassTemplateCreateManyRpgInput = {
   id?: string
   key: string
   label: string
+  category?: string | null
   attributeBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position: number
@@ -563,28 +685,33 @@ export type RpgClassTemplateUpdateWithoutRpgInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attributeBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  skillLinks?: Prisma.SkillClassLinkUpdateManyWithoutClassTemplateNestedInput
 }
 
 export type RpgClassTemplateUncheckedUpdateWithoutRpgInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attributeBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  skillLinks?: Prisma.SkillClassLinkUncheckedUpdateManyWithoutClassTemplateNestedInput
 }
 
 export type RpgClassTemplateUncheckedUpdateManyWithoutRpgInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attributeBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   skillBonuses?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   position?: Prisma.IntFieldUpdateOperationsInput | number
@@ -592,6 +719,35 @@ export type RpgClassTemplateUncheckedUpdateManyWithoutRpgInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type RpgClassTemplateCountOutputType
+ */
+
+export type RpgClassTemplateCountOutputType = {
+  skillLinks: number
+}
+
+export type RpgClassTemplateCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  skillLinks?: boolean | RpgClassTemplateCountOutputTypeCountSkillLinksArgs
+}
+
+/**
+ * RpgClassTemplateCountOutputType without action
+ */
+export type RpgClassTemplateCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RpgClassTemplateCountOutputType
+   */
+  select?: Prisma.RpgClassTemplateCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * RpgClassTemplateCountOutputType without action
+ */
+export type RpgClassTemplateCountOutputTypeCountSkillLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SkillClassLinkWhereInput
+}
 
 
 export type RpgClassTemplateSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -599,12 +755,15 @@ export type RpgClassTemplateSelect<ExtArgs extends runtime.Types.Extensions.Inte
   rpgId?: boolean
   key?: boolean
   label?: boolean
+  category?: boolean
   attributeBonuses?: boolean
   skillBonuses?: boolean
   position?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   rpg?: boolean | Prisma.RpgDefaultArgs<ExtArgs>
+  skillLinks?: boolean | Prisma.RpgClassTemplate$skillLinksArgs<ExtArgs>
+  _count?: boolean | Prisma.RpgClassTemplateCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rpgClassTemplate"]>
 
 export type RpgClassTemplateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -612,6 +771,7 @@ export type RpgClassTemplateSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   rpgId?: boolean
   key?: boolean
   label?: boolean
+  category?: boolean
   attributeBonuses?: boolean
   skillBonuses?: boolean
   position?: boolean
@@ -625,6 +785,7 @@ export type RpgClassTemplateSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   rpgId?: boolean
   key?: boolean
   label?: boolean
+  category?: boolean
   attributeBonuses?: boolean
   skillBonuses?: boolean
   position?: boolean
@@ -638,6 +799,7 @@ export type RpgClassTemplateSelectScalar = {
   rpgId?: boolean
   key?: boolean
   label?: boolean
+  category?: boolean
   attributeBonuses?: boolean
   skillBonuses?: boolean
   position?: boolean
@@ -645,9 +807,11 @@ export type RpgClassTemplateSelectScalar = {
   updatedAt?: boolean
 }
 
-export type RpgClassTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rpgId" | "key" | "label" | "attributeBonuses" | "skillBonuses" | "position" | "createdAt" | "updatedAt", ExtArgs["result"]["rpgClassTemplate"]>
+export type RpgClassTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rpgId" | "key" | "label" | "category" | "attributeBonuses" | "skillBonuses" | "position" | "createdAt" | "updatedAt", ExtArgs["result"]["rpgClassTemplate"]>
 export type RpgClassTemplateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rpg?: boolean | Prisma.RpgDefaultArgs<ExtArgs>
+  skillLinks?: boolean | Prisma.RpgClassTemplate$skillLinksArgs<ExtArgs>
+  _count?: boolean | Prisma.RpgClassTemplateCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RpgClassTemplateIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rpg?: boolean | Prisma.RpgDefaultArgs<ExtArgs>
@@ -660,12 +824,14 @@ export type $RpgClassTemplatePayload<ExtArgs extends runtime.Types.Extensions.In
   name: "RpgClassTemplate"
   objects: {
     rpg: Prisma.$RpgPayload<ExtArgs>
+    skillLinks: Prisma.$SkillClassLinkPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     rpgId: string
     key: string
     label: string
+    category: string | null
     attributeBonuses: runtime.JsonValue
     skillBonuses: runtime.JsonValue
     position: number
@@ -1066,6 +1232,7 @@ readonly fields: RpgClassTemplateFieldRefs;
 export interface Prisma__RpgClassTemplateClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   rpg<T extends Prisma.RpgDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RpgDefaultArgs<ExtArgs>>): Prisma.Prisma__RpgClient<runtime.Types.Result.GetResult<Prisma.$RpgPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  skillLinks<T extends Prisma.RpgClassTemplate$skillLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RpgClassTemplate$skillLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SkillClassLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1099,6 +1266,7 @@ export interface RpgClassTemplateFieldRefs {
   readonly rpgId: Prisma.FieldRef<"RpgClassTemplate", 'String'>
   readonly key: Prisma.FieldRef<"RpgClassTemplate", 'String'>
   readonly label: Prisma.FieldRef<"RpgClassTemplate", 'String'>
+  readonly category: Prisma.FieldRef<"RpgClassTemplate", 'String'>
   readonly attributeBonuses: Prisma.FieldRef<"RpgClassTemplate", 'Json'>
   readonly skillBonuses: Prisma.FieldRef<"RpgClassTemplate", 'Json'>
   readonly position: Prisma.FieldRef<"RpgClassTemplate", 'Int'>
@@ -1497,6 +1665,30 @@ export type RpgClassTemplateDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many RpgClassTemplates to delete.
    */
   limit?: number
+}
+
+/**
+ * RpgClassTemplate.skillLinks
+ */
+export type RpgClassTemplate$skillLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SkillClassLink
+   */
+  select?: Prisma.SkillClassLinkSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SkillClassLink
+   */
+  omit?: Prisma.SkillClassLinkOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SkillClassLinkInclude<ExtArgs> | null
+  where?: Prisma.SkillClassLinkWhereInput
+  orderBy?: Prisma.SkillClassLinkOrderByWithRelationInput | Prisma.SkillClassLinkOrderByWithRelationInput[]
+  cursor?: Prisma.SkillClassLinkWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SkillClassLinkScalarFieldEnum | Prisma.SkillClassLinkScalarFieldEnum[]
 }
 
 /**

@@ -74,6 +74,8 @@ model Rpg {
   owner              User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   title              String
   description        String
+  costsEnabled       Boolean                @default(false) @map("costs_enabled")
+  costResourceName   String                 @default("Skill Points") @map("cost_resource_name")
   mapImage           String?                @map("map_image")
   useMundiMap        Boolean                @default(false) @map("use_mundi_map")
   visibility         RpgVisibility          @default(private)
@@ -162,6 +164,8 @@ model RpgCharacter {
   currentStatuses Json?          @map("current_statuses")
   attributes    Json
   skills        Json
+  skillPoints   Int              @default(0) @map("skill_points")
+  abilities     Json             @default("[]")
   identity      Json?            @map("identity")
   characteristics Json?          @map("characteristics")
   createdAt     DateTime         @default(now()) @map("created_at")
