@@ -155,6 +155,7 @@ model RpgCharacter {
   stamina       Int              @default(0)
   sanity        Int              @default(0)
   statuses      Json
+  currentStatuses Json?          @map("current_statuses")
   attributes    Json
   skills        Json
   identity      Json?            @map("identity")
