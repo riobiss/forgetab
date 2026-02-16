@@ -9,6 +9,7 @@ type IdentityType = "race" | "class"
 export type IdentityTemplateDraft = {
   key: string
   label: string
+  category?: string
   attributeBonuses: Record<string, number>
   skillBonuses: Record<string, number>
   lore?: RaceLore

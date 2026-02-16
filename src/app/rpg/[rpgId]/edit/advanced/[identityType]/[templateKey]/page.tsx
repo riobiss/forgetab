@@ -14,6 +14,7 @@ type IdentityType = "race" | "class"
 type IdentityTemplate = {
   key: string
   label: string
+  category?: string
   attributeBonuses: Record<string, number>
   skillBonuses: Record<string, number>
   lore?: RaceLore
@@ -113,6 +114,7 @@ export default function AdvancedIdentityPage() {
           setDraft({
             key: `draft-${crypto.randomUUID()}`,
             label: "",
+            ...(type === "class" ? { category: "geral" } : {}),
             attributeBonuses: attributes.reduce<Record<string, number>>((acc, key) => {
               acc[key] = 0
               return acc
@@ -135,6 +137,7 @@ export default function AdvancedIdentityPage() {
         setDraft({
           key: current.key,
           label: current.label,
+          ...(type === "class" ? { category: current.category?.trim() || "geral" } : {}),
           attributeBonuses: attributes.reduce<Record<string, number>>((acc, key) => {
             acc[key] = Number(current.attributeBonuses[key] ?? 0)
             return acc
@@ -188,6 +191,7 @@ export default function AdvancedIdentityPage() {
 
     const payloadTemplate = {
       label,
+      ...(type === "class" ? { category: draft.category?.trim() || "geral" } : {}),
       attributeBonuses: parsedAttributes,
       skillBonuses: parsedSkills,
       ...(type === "race" ? { lore: normalizeRaceLore(draft.lore, label) } : {}),
@@ -214,6 +218,7 @@ export default function AdvancedIdentityPage() {
         : {
             classes: nextTemplates.map((item) => ({
               label: item.label,
+              category: item.category?.trim() || "geral",
               attributeBonuses: item.attributeBonuses,
               skillBonuses: item.skillBonuses,
             })),

@@ -23,6 +23,7 @@ function normalizeCategory(category: string) {
 
 export default function ClassCategoryManager({ rpgId, initialClasses }: Props) {
   const [classes, setClasses] = useState<ClassItem[]>(initialClasses)
+  const [draftCategories, setDraftCategories] = useState<string[]>([])
   const [newCategory, setNewCategory] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
   const [newClassName, setNewClassName] = useState("")
@@ -33,8 +34,9 @@ export default function ClassCategoryManager({ rpgId, initialClasses }: Props) {
   const categories = useMemo(() => {
     const set = new Set<string>()
     classes.forEach((item) => set.add(normalizeCategory(item.category)))
+    draftCategories.forEach((item) => set.add(normalizeCategory(item)))
     return Array.from(set).sort((left, right) => left.localeCompare(right, "pt-BR"))
-  }, [classes])
+  }, [classes, draftCategories])
 
   async function saveClasses(nextClasses: ClassItem[]) {
     setSaving(true)
@@ -84,9 +86,10 @@ export default function ClassCategoryManager({ rpgId, initialClasses }: Props) {
       return
     }
 
+    setDraftCategories((prev) => (prev.includes(normalized) ? prev : [...prev, normalized]))
     setNewCategory("")
     setSelectedCategory(normalized)
-    setMessage(`Categoria "${normalized}" pronta para receber classes.`)
+    setMessage(`Categoria "${normalized}" criada. Agora crie uma classe nela para salvar no RPG.`)
     setError("")
   }
 
@@ -125,6 +128,7 @@ export default function ClassCategoryManager({ rpgId, initialClasses }: Props) {
 
     setNewClassName("")
     setSelectedCategory(category)
+    setDraftCategories((prev) => prev.filter((item) => normalizeCategory(item) !== category))
   }
 
   return (
