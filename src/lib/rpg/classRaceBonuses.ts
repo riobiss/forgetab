@@ -2,12 +2,14 @@ type BonusRecord = Record<string, number>
 
 export type ClassRaceTemplateInput = {
   label: string
+  category?: string
   attributeBonuses?: Record<string, unknown>
   skillBonuses?: Record<string, unknown>
 }
 
 type NormalizedTemplate = {
   label: string
+  category: string
   attributeBonuses: BonusRecord
   skillBonuses: BonusRecord
 }
@@ -77,6 +79,8 @@ export function normalizeClassRaceTemplates(
     }
     labelsSeen.add(normalizedLabelKey)
 
+    const category = parsed.category?.trim() || "geral"
+
     let attributeBonuses: BonusRecord = {}
     try {
       const parsedAttributes = normalizeBonusRecord(
@@ -111,6 +115,7 @@ export function normalizeClassRaceTemplates(
 
     normalized.push({
       label,
+      category,
       attributeBonuses,
       skillBonuses,
     })

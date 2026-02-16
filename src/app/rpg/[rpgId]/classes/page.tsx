@@ -1,58 +1,147 @@
-"use client" 
-import { useState } from "react"
-import Link from "next/link"
+import { notFound } from "next/navigation"
+import rpgs from "@/data/rpgs"
 import styles from "./page.module.css"
-import { classes } from "@/data/rpg/world-of-clans/classes"
-import rpgItem from "@/data/rpg/world-of-clans/rpg"
+import { prisma } from "@/lib/prisma"
+import { getUserIdFromCookieStore } from "@/lib/server/auth"
+import { getMembershipStatus } from "@/lib/server/rpgAccess"
+import ClassCategoryManager from "./components/ClassCategoryManager"
+import ClassCategoryToggleList from "./components/ClassCategoryToggleList"
+import { Prisma } from "../../../../../generated/prisma/client"
 
-export default function ClassPage() {
-  const [openCategory, setOpenCategory] = useState<string | null>(null)
+type Params = {
+  params: Promise<{
+    rpgId: string
+  }>
+}
 
-  const groupedClasses = classes.reduce(
-    (acc, item) => {
-      const cat = item.category || "Outros"
-      if (!acc[cat]) acc[cat] = []
-      acc[cat].push(item)
-      return acc
-    },
-    {} as Record<string, typeof classes>,
-  )
-  function capitalize(str: string) {
-    if (!str) return ""
-    return str[0].toUpperCase() + str.slice(1)
+type DbClassRow = {
+  id: string
+  key: string
+  label: string
+  category: string | null
+  attributeBonuses: Prisma.JsonValue
+  skillBonuses: Prisma.JsonValue
+}
+
+export default async function ClassesPage({ params }: Params) {
+  const { rpgId } = await params
+
+  const staticRpg = rpgs.find((rpg) => rpg.id === Number(rpgId))
+  const staticClasses =
+    (staticRpg as { classesData?: Array<{ id: string; name: string; description: string }> } | undefined)
+      ?.classesData ?? []
+
+  if (staticRpg) {
+    const staticGroups = [
+      {
+        category: "geral",
+        items: staticClasses.map((item) => ({
+          id: item.id,
+          title: item.name,
+          subtitle: item.description,
+          href: `/rpg/${staticRpg.id}/classes/${item.id}`,
+        })),
+      },
+    ]
+
+    return (
+      <main className={styles.container}>
+        <div className={styles.titleRow}>
+          <h1 className={styles.title}>Classes</h1>
+        </div>
+
+        <ClassCategoryToggleList groups={staticGroups} />
+
+        {staticClasses.length === 0 ? <p>Nenhuma classe cadastrada.</p> : null}
+      </main>
+    )
   }
 
-  const toggleCategory = (category: string) => {
-    setOpenCategory(openCategory === category ? null : category)
+  const dbRpg = await prisma.rpg.findUnique({
+    where: { id: rpgId },
+    select: { id: true, ownerId: true, visibility: true },
+  })
+
+  if (!dbRpg) {
+    notFound()
   }
+
+  const userId = await getUserIdFromCookieStore()
+  const isOwner = userId === dbRpg.ownerId
+  let isAcceptedMember = false
+
+  if (userId && !isOwner) {
+    isAcceptedMember = (await getMembershipStatus(rpgId, userId)) === "accepted"
+  }
+
+  if (dbRpg.visibility === "private" && !isOwner && !isAcceptedMember) {
+    notFound()
+  }
+
+  let dbClasses: DbClassRow[] = []
+  try {
+    dbClasses = await prisma.$queryRaw<DbClassRow[]>`
+      SELECT
+        id,
+        key,
+        label,
+        category,
+        attribute_bonuses AS "attributeBonuses",
+        skill_bonuses AS "skillBonuses"
+      FROM rpg_class_templates
+      WHERE rpg_id = ${rpgId}
+      ORDER BY position ASC
+    `
+  } catch {
+    dbClasses = []
+  }
+
+  const groupedClasses = dbClasses.reduce<Record<string, DbClassRow[]>>((acc, item) => {
+    const category = item.category?.trim() || "geral"
+    if (!acc[category]) {
+      acc[category] = []
+    }
+    acc[category].push(item)
+    return acc
+  }, {})
+
+  const initialClasses = dbClasses.map((item) => ({
+    id: item.id,
+    key: item.key,
+    label: item.label,
+    category: item.category?.trim() || "geral",
+    attributeBonuses:
+      item.attributeBonuses && typeof item.attributeBonuses === "object" && !Array.isArray(item.attributeBonuses)
+        ? (item.attributeBonuses as Record<string, number>)
+        : {},
+    skillBonuses:
+      item.skillBonuses && typeof item.skillBonuses === "object" && !Array.isArray(item.skillBonuses)
+        ? (item.skillBonuses as Record<string, number>)
+        : {},
+  }))
+
+  const classGroups = Object.entries(groupedClasses).map(([category, items]) => ({
+    category,
+    items: items.map((item) => ({
+      id: item.id,
+      title: item.label,
+      subtitle: item.key,
+      href: `/rpg/${rpgId}/classes/${item.id}`,
+      editHref: isOwner ? `/rpg/${rpgId}/edit/advanced/class/${item.key}` : undefined,
+    })),
+  }))
 
   return (
-    <div className={styles.container}>
-      {Object.entries(groupedClasses).map(([category, items]) => (
-        <div key={category} className={styles.categoryWrapper}>
-          <button
-            className={styles.toggleButton}
-            onClick={() => toggleCategory(category)}
-          >
-            {capitalize(category)}
-            <span>{openCategory === category ? "▲" : "▼"}</span>
-          </button>
+    <main className={styles.container}>
+      <div className={styles.titleRow}>
+        <h1 className={styles.title}>Classes</h1>
+      </div>
 
-          {openCategory === category && (
-            <div className={styles.grid}>
-              {items.map((classe) => (
-                <Link
-                  href={`/rpg/${rpgItem.id}/classes/${classe.id}`}
-                  key={classe.id}
-                  className={styles.card}
-                >
-                  <h3 className={styles.title}>{classe.name}</h3>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
+      {isOwner ? <ClassCategoryManager rpgId={rpgId} initialClasses={initialClasses} /> : null}
+
+      <ClassCategoryToggleList groups={classGroups} showEditActions={isOwner} />
+
+      {dbClasses.length === 0 ? <p>Nenhuma classe cadastrada.</p> : null}
+    </main>
   )
 }

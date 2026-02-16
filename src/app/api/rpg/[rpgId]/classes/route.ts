@@ -19,6 +19,7 @@ type ClassTemplateRow = {
   id: string
   key: string
   label: string
+  category: string | null
   position: number
   attributeBonuses: Prisma.JsonValue
   skillBonuses: Prisma.JsonValue
@@ -162,7 +163,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     const rows = await prisma.$queryRaw<ClassTemplateRow[]>(Prisma.sql`
-      SELECT id, key, label, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
+      SELECT id, key, label, category, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
       FROM rpg_class_templates
       WHERE rpg_id = ${rpgId}
       ORDER BY position ASC
@@ -172,6 +173,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       id: item.id,
       key: item.key,
       label: item.label,
+      category: item.category ?? "geral",
       position: item.position,
       attributeBonuses: parseJsonRecord(item.attributeBonuses),
       skillBonuses: parseJsonRecord(item.skillBonuses),
@@ -228,6 +230,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
           ${rpgId},
           ${createUniqueKey(item.label, used)},
           ${item.label},
+          ${item.category},
           ${JSON.stringify(item.attributeBonuses)}::jsonb,
           ${JSON.stringify(item.skillBonuses)}::jsonb,
           ${index}
@@ -235,7 +238,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       )
 
       await prisma.$executeRaw(Prisma.sql`
-        INSERT INTO rpg_class_templates (id, rpg_id, key, label, attribute_bonuses, skill_bonuses, position)
+        INSERT INTO rpg_class_templates (id, rpg_id, key, label, category, attribute_bonuses, skill_bonuses, position)
         VALUES ${Prisma.join(values)}
       `)
     }
