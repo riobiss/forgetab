@@ -392,7 +392,7 @@ export default function NewCharacterPage() {
           attributes: normalizeNumericValues(values),
           identity: identityValues,
           characteristics: characteristicsValues,
-          ...(isOwner ? { skills: normalizeNumericValues(skillValues) } : {}),
+          ...(!isEditing && isOwner ? { skills: normalizeNumericValues(skillValues) } : {}),
         }),
       })
 
@@ -797,7 +797,7 @@ export default function NewCharacterPage() {
             ) : null}
           </section>
 
-          {skills.length > 0 ? (
+          {!editingCharacterId && skills.length > 0 ? (
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
                 <h2>Pericias</h2>

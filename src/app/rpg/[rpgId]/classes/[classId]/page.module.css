@@ -138,13 +138,14 @@
   top: calc(100% + 0.35rem);
   right: 0;
   z-index: 5;
-  min-width: 110px;
+  min-width: 220px;
   background: var(--bg-surface);
   border: 1px solid var(--border-soft);
   border-radius: 8px;
   box-shadow: var(--shadow-main);
   padding: 0.25rem;
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.2rem;
 }
 
@@ -155,7 +156,7 @@
   border-radius: 6px;
   padding: 0.35rem 0.5rem;
   cursor: pointer;
-  text-align: left;
+  text-align: center;
   font-size: 0.82rem;
 }
 

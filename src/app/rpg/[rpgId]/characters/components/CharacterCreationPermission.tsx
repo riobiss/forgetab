@@ -105,17 +105,7 @@ export default function CharacterCreationPermission({
             Ir para a pagina do RPG
           </Link>
         </>
-      ) : ownCharacterId ? (
-        <>
-          <p className={styles.permissionInfo}>Seu personagem ja foi criado.</p>
-          <Link
-            className={styles.secondaryAction}
-            href={`/rpg/${rpgId}/characters/novo?characterId=${ownCharacterId}`}
-          >
-            Editar meu personagem
-          </Link>
-        </>
-      ) : !isAcceptedMember ? (
+      ) : ownCharacterId ? null : !isAcceptedMember ? (
         <p className={styles.permissionInfo}>
           Voce precisa ser membro aceito para solicitar criacao de personagem.
         </p>

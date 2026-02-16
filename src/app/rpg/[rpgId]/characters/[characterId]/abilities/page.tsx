@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import Link from "next/link"
 import { Prisma } from "../../../../../../../generated/prisma/client"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
@@ -6,6 +7,7 @@ import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { parseCharacterAbilities, parseCostPoints } from "@/lib/server/costSystem"
 import players from "@/data/rpg/world-of-clans/entities/player"
 import { classes } from "@/data/rpg/world-of-clans/classes"
+import AbilitiesFiltersClient from "./AbilitiesFiltersClient"
 import styles from "./page.module.css"
 
 const SKILL_CATEGORY_LABEL: Record<string, string> = {
@@ -148,7 +150,14 @@ export default async function AbilitiesPage({ params }: Params) {
         <div className={styles.header}>
           <div>
             <p className={styles.kicker}>Habilidades</p>
-            <h1 className={styles.title}>{staticCharacter.identity.name}</h1>
+            <h1 className={styles.title}>
+              <Link
+                href={`/rpg/${rpgId}/characters/${characterId}`}
+                className={styles.titleLink}
+              >
+                {staticCharacter.identity.name}
+              </Link>
+            </h1>
           </div>
           <div className={styles.badge}>Classe: {classData?.name ?? "Desconhecida"}</div>
         </div>
@@ -313,7 +322,14 @@ export default async function AbilitiesPage({ params }: Params) {
       <div className={styles.header}>
         <div>
           <p className={styles.kicker}>Habilidades</p>
-          <h1 className={styles.title}>{character.name}</h1>
+          <h1 className={styles.title}>
+            <Link
+              href={`/rpg/${rpgId}/characters/${characterId}`}
+              className={styles.titleLink}
+            >
+              {character.name}
+            </Link>
+          </h1>
         </div>
         <div className={styles.badge}>Classe: {classLabel}</div>
       </div>
@@ -323,97 +339,7 @@ export default async function AbilitiesPage({ params }: Params) {
         {abilities.length === 0 ? (
           <p className={styles.emptyState}>Nenhuma habilidade comprada para este personagem.</p>
         ) : (
-          <div className={styles.cardGrid}>
-            {abilities.map((ability) => (
-              <article key={`${ability.skillId}:${ability.levelNumber}`} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <h3 className={styles.cardTitle}>{ability.levelName ?? ability.skillName}</h3>
-                  <span className={styles.levelBadge}>Level {ability.levelNumber}</span>
-                </div>
-
-                {ability.skillDescription ? (
-                  <p className={styles.cardBodyItalic}>{ability.skillDescription}</p>
-                ) : null}
-                {(() => {
-                  const levelDescription = hasText(ability.levelDescription)
-                    ? ability.levelDescription
-                    : hasText(ability.summary)
-                      ? ability.summary
-                      : null
-                  const baseDescription = normalizeText(ability.skillDescription)
-                  const levelDescriptionNormalized = normalizeText(levelDescription)
-                  const showLevelDescription =
-                    levelDescriptionNormalized.length > 0 && levelDescriptionNormalized !== baseDescription
-                  return showLevelDescription ? (
-                    <p className={styles.cardBodyItalic}>{levelDescription}</p>
-                  ) : null
-                })()}
-
-                <div className={styles.cardDetailsGrid}>
-                  {hasText(ability.skillCategory) ? (
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabelOrange}>CATEGORIA</span>
-                      <span className={styles.detailValue}>{toCategoryLabel(ability.skillCategory)}</span>
-                    </div>
-                  ) : null}
-                  {hasText(ability.skillType) ? (
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabelOrange}>TIPO</span>
-                      <span className={styles.detailValue}>{toTypeLabel(ability.skillType)}</span>
-                    </div>
-                  ) : null}
-                  {hasText(ability.damage) ? (
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabelOrange}>DANO</span>
-                      <span className={styles.detailValue}>{ability.damage}</span>
-                    </div>
-                  ) : null}
-                  {hasText(ability.range) ? (
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabelOrange}>ALCANCE</span>
-                      <span className={styles.detailValue}>{ability.range}</span>
-                    </div>
-                  ) : null}
-                  {hasText(ability.cooldown) ? (
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabelOrange}>RECARGA</span>
-                      <span className={styles.detailValue}>{ability.cooldown}</span>
-                    </div>
-                  ) : null}
-                  {hasText(ability.duration) ? (
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabelOrange}>DURACAO</span>
-                      <span className={styles.detailValue}>{ability.duration}</span>
-                    </div>
-                  ) : null}
-                  {hasText(ability.castTime) ? (
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabelOrange}>CONJURACAO</span>
-                      <span className={styles.detailValue}>{ability.castTime}</span>
-                    </div>
-                  ) : null}
-                  {hasText(ability.resourceCost) ? (
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabelOrange}>CUSTO RECURSO</span>
-                      <span className={styles.detailValue}>{ability.resourceCost}</span>
-                    </div>
-                  ) : null}
-                  {hasText(ability.costCustom) ? (
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabelOrange}>CUSTO</span>
-                      <span className={styles.detailValue}>{ability.costCustom}</span>
-                    </div>
-                  ) : null}
-                  {ability.notesList.length > 0 ? (
-                    <div className={`${styles.detailItem} ${styles.detailFull}`}>
-                      <span className={styles.detailLabelOrange}>OBS</span>
-                      <span className={styles.detailValue}>{ability.notesList.join(" | ")}</span>
-                    </div>
-                  ) : null}
-                </div>
-              </article>
-            ))}
-          </div>
+          <AbilitiesFiltersClient abilities={abilities} />
         )}
       </section>
     </div>

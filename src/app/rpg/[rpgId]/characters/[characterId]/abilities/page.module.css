@@ -40,6 +40,15 @@
   font-size: 2.05rem;
 }
 
+.titleLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.titleLink:hover {
+  text-decoration: underline;
+}
+
 .badge {
   border-radius: 999px;
   background: linear-gradient(135deg, var(--bg-hover), var(--bg-surface));
@@ -58,6 +67,40 @@
   margin-bottom: 0.9rem;
   font-size: 1.25rem;
   color: var(--text-title);
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.filterField {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.filterField span {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-main);
+}
+
+.filterField input,
+.filterField select {
+  width: 100%;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 0.48rem 0.6rem;
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text-main);
+  font: inherit;
+}
+
+.filterFieldSearch {
+  grid-column: 1 / -1;
 }
 
 /* GRID */
@@ -195,4 +238,18 @@
     align-items: flex-start;
     gap: 0.6rem;
   }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+.filterField select option {
+  background: var(--bg-surface);
+  color: var(--text-main);
+}
+
+.filterField select:focus {
+  outline: 1px solid var(--accent-main);
+  outline-offset: 1px;
 }
