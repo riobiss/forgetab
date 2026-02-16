@@ -4,17 +4,8 @@ import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import styles from "../page.module.css"
 
-type PendingRequest = {
-  id: string
-  userId: string
-  userName: string
-  userEmail: string
-  requestedAt: string
-}
-
 type Payload = {
   isOwner: boolean
-  pendingRequests?: PendingRequest[]
   canRequest?: boolean
   canCreate?: boolean
   requestStatus?: "pending" | "accepted" | "rejected" | null
@@ -37,7 +28,6 @@ export default function CharacterCreationPermission({
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
-  const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([])
   const [requestStatus, setRequestStatus] = useState<
     "pending" | "accepted" | "rejected" | null
   >(null)
@@ -45,6 +35,11 @@ export default function CharacterCreationPermission({
   const [canCreate, setCanCreate] = useState(false)
 
   const load = useCallback(async () => {
+    if (isOwner) {
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
       setError("")
@@ -57,7 +52,6 @@ export default function CharacterCreationPermission({
         return
       }
 
-      setPendingRequests(payload.pendingRequests ?? [])
       setRequestStatus(payload.requestStatus ?? null)
       setCanRequest(Boolean(payload.canRequest))
       setCanCreate(Boolean(payload.canCreate))
@@ -66,7 +60,7 @@ export default function CharacterCreationPermission({
     } finally {
       setLoading(false)
     }
-  }, [rpgId])
+  }, [isOwner, rpgId])
 
   useEffect(() => {
     void load()
@@ -95,32 +89,6 @@ export default function CharacterCreationPermission({
     }
   }
 
-  async function handleModerateRequest(requestId: string, action: "accept" | "reject") {
-    try {
-      setSubmitting(true)
-      setError("")
-
-      const response = await fetch(`/api/rpg/${rpgId}/character-requests/${requestId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      })
-
-      const payload = (await response.json()) as Payload
-
-      if (!response.ok) {
-        setError(payload.message ?? "Nao foi possivel processar solicitacao.")
-        return
-      }
-
-      await load()
-    } catch {
-      setError("Erro de conexao ao processar solicitacao.")
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
   if (loading) {
     return <p className={styles.permissionInfo}>Carregando permissoes de criacao...</p>
   }
@@ -130,37 +98,12 @@ export default function CharacterCreationPermission({
       {isOwner ? (
         <>
           <h3>Solicitacoes de criacao de personagem</h3>
-          {pendingRequests.length === 0 ? (
-            <p className={styles.permissionInfo}>Nenhuma solicitacao pendente.</p>
-          ) : (
-            <ul className={styles.requestList}>
-              {pendingRequests.map((request) => (
-                <li key={request.id} className={styles.requestItem}>
-                  <div>
-                    <strong>{request.userName}</strong>
-                    <p>{request.userEmail}</p>
-                  </div>
-                  <div className={styles.requestActions}>
-                    <button
-                      type="button"
-                      onClick={() => handleModerateRequest(request.id, "accept")}
-                      disabled={submitting}
-                    >
-                      Aprovar
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.rejectButton}
-                      onClick={() => handleModerateRequest(request.id, "reject")}
-                      disabled={submitting}
-                    >
-                      Rejeitar
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+          <p className={styles.permissionInfo}>
+            As solicitacoes dos membros agora aparecem no sininho da pagina do RPG.
+          </p>
+          <Link className={styles.secondaryAction} href={`/rpg/${rpgId}`}>
+            Ir para a pagina do RPG
+          </Link>
         </>
       ) : ownCharacterId ? (
         <>

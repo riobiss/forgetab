@@ -25,6 +25,13 @@ type PendingRequestRow = {
   requestedAt: Date
 }
 
+type PendingCharacterRequestRow = {
+  id: string
+  userName: string
+  userEmail: string
+  requestedAt: Date
+}
+
 type AcceptedMemberRow = {
   id: string
   userName: string
@@ -170,6 +177,7 @@ export default async function ViewInRpg({ params }: Params) {
   }
 
   let pendingRequests: PendingRequestRow[] = []
+  let pendingCharacterRequests: PendingCharacterRequestRow[] = []
   let acceptedMembers: AcceptedMemberRow[] = []
   let hasRaces = false
   let hasClasses = false
@@ -198,6 +206,19 @@ export default async function ViewInRpg({ params }: Params) {
       WHERE m.rpg_id = ${rpgId}
         AND m.status = 'accepted'::"public"."RpgMemberStatus"
       ORDER BY u.name ASC
+    `)
+
+    pendingCharacterRequests = await prisma.$queryRaw<PendingCharacterRequestRow[]>(Prisma.sql`
+      SELECT
+        r.id,
+        u.name AS "userName",
+        u.email AS "userEmail",
+        r.requested_at AS "requestedAt"
+      FROM rpg_character_creation_requests r
+      INNER JOIN users u ON u.id = r.user_id
+      WHERE r.rpg_id = ${rpgId}
+        AND r.status = 'pending'::"public"."CharacterCreationRequestStatus"
+      ORDER BY r.requested_at ASC
     `)
   }
 
@@ -229,6 +250,10 @@ export default async function ViewInRpg({ params }: Params) {
           isAuthenticated={isAuthenticated}
           membershipStatus={membershipStatus}
           pendingRequests={pendingRequests.map((item) => ({
+            ...item,
+            requestedAt: item.requestedAt.toISOString(),
+          }))}
+          pendingCharacterRequests={pendingCharacterRequests.map((item) => ({
             ...item,
             requestedAt: item.requestedAt.toISOString(),
           }))}
