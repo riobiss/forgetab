@@ -142,38 +142,52 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "Valor atual fora do limite permitido." }, { status: 400 })
     }
 
+    const currentRecord =
+      permission.character.currentStatuses &&
+      typeof permission.character.currentStatuses === "object" &&
+      !Array.isArray(permission.character.currentStatuses)
+        ? (permission.character.currentStatuses as Record<string, unknown>)
+        : {}
+
+    const nextCurrentStatuses = Object.entries(currentRecord).reduce<Record<string, number>>(
+      (acc, [statusKey, statusValue]) => {
+        if (typeof statusValue === "number" && Number.isFinite(statusValue)) {
+          acc[statusKey] = Math.floor(statusValue)
+        }
+        return acc
+      },
+      {},
+    )
+    nextCurrentStatuses[key] = nextValue
+
     const coreColumn = CORE_STATUS_COLUMN_BY_KEY[key as keyof typeof CORE_STATUS_COLUMN_BY_KEY]
-    if (coreColumn) {
-      await prisma.$executeRawUnsafe(
-        `
-        UPDATE rpg_characters
-        SET
-          "${coreColumn}" = $1,
-          current_statuses = COALESCE(current_statuses, '{}'::jsonb) || jsonb_build_object($2, $1),
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = $3
-          AND rpg_id = $4
-        `,
-        nextValue,
-        key,
-        characterId,
+    const updateData: {
+      currentStatuses: Prisma.JsonObject
+      updatedAt: Date
+      life?: number
+      mana?: number
+      sanity?: number
+      stamina?: number
+    } = {
+      currentStatuses: nextCurrentStatuses,
+      updatedAt: new Date(),
+    }
+
+    if (coreColumn === "life") updateData.life = nextValue
+    if (coreColumn === "mana") updateData.mana = nextValue
+    if (coreColumn === "sanity") updateData.sanity = nextValue
+    if (coreColumn === "stamina") updateData.stamina = nextValue
+
+    const updated = await prisma.rpgCharacter.updateMany({
+      where: {
+        id: characterId,
         rpgId,
-      )
-    } else {
-      await prisma.$executeRawUnsafe(
-        `
-        UPDATE rpg_characters
-        SET
-          current_statuses = COALESCE(current_statuses, '{}'::jsonb) || jsonb_build_object($1, $2),
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = $3
-          AND rpg_id = $4
-        `,
-        key,
-        nextValue,
-        characterId,
-        rpgId,
-      )
+      },
+      data: updateData,
+    })
+
+    if (updated.count === 0) {
+      return NextResponse.json({ message: "Personagem nao encontrado." }, { status: 404 })
     }
 
     return NextResponse.json(
@@ -190,6 +204,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (error instanceof Error && error.message.includes('column "current_statuses" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { message: `Erro interno ao salvar status atual: ${error.message}` },
         { status: 500 },
       )
     }
