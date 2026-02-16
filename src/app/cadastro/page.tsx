@@ -11,6 +11,7 @@ function RegisterContent() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -22,8 +23,14 @@ function RegisterContent() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setLoading(true)
     setError("")
+
+    if (password !== confirmPassword) {
+      setError("As senhas nao coincidem.")
+      return
+    }
+
+    setLoading(true)
 
     try {
       const response = await fetch("/api/auth/register", {
@@ -85,6 +92,18 @@ function RegisterContent() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Minimo de 8 caracteres"
+              minLength={8}
+              required
+            />
+          </label>
+
+          <label className={styles.field}>
+            <span>Confirme a senha</span>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              placeholder="Digite a senha novamente"
               minLength={8}
               required
             />
