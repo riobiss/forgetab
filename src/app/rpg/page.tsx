@@ -12,6 +12,7 @@ type CreatedRpg = {
   id: string
   title: string
   description: string
+  image: string | null
   visibility: "private" | "public"
   createdAt: Date
 }
@@ -41,6 +42,7 @@ export default async function ViewRpg() {
           id: true,
           title: true,
           description: true,
+          image: true,
           visibility: true,
           createdAt: true,
         },
@@ -56,6 +58,7 @@ export default async function ViewRpg() {
         id: true,
         title: true,
         description: true,
+        image: true,
         visibility: true,
         createdAt: true,
       },
@@ -88,6 +91,14 @@ export default async function ViewRpg() {
                   href={`/rpg/${item.id}`}
                   className={styles.createdCard}
                 >
+                  <div className={styles.createdCardImageWrap}>
+                    <img
+                      src={item.image || "/images/bg-library.jpg"}
+                      alt={`Capa do RPG ${item.title}`}
+                      className={styles.createdCardImage}
+                      loading="lazy"
+                    />
+                  </div>
                   <h4>{item.title}</h4>
                   <p>{item.description}</p>
                   <small>
@@ -117,6 +128,14 @@ export default async function ViewRpg() {
                 href={`/rpg/${item.id}`}
                 className={styles.createdCard}
               >
+                <div className={styles.createdCardImageWrap}>
+                  <img
+                    src={item.image || "/images/bg-library.jpg"}
+                    alt={`Capa do RPG ${item.title}`}
+                    className={styles.createdCardImage}
+                    loading="lazy"
+                  />
+                </div>
                 <h4>{item.title}</h4>
                 <p>{item.description}</p>
                 <small>
