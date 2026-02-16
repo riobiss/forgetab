@@ -163,7 +163,7 @@
   height: 1.4rem;
   padding: 0 0.3rem;
   border-radius: 999px;
-  background: rgba(30, 64, 175, 0.9);
+  background: var(--accent-main);
   color: #dbeafe;
   font-size: 0.72rem;
   display: inline-flex;
