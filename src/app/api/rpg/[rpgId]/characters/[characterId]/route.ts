@@ -466,6 +466,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     characterType: "player" | "npc" | "monster"
     createdByUserId: string | null
     skills: Prisma.JsonValue
+    currentStatuses: Prisma.JsonValue
     identity: Prisma.JsonValue
     characteristics: Prisma.JsonValue
   }> = []
@@ -476,6 +477,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
         characterType: "player" | "npc" | "monster"
         createdByUserId: string | null
         skills: Prisma.JsonValue
+        currentStatuses: Prisma.JsonValue
         identity: Prisma.JsonValue
         characteristics: Prisma.JsonValue
       }>
@@ -485,6 +487,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
         character_type AS "characterType",
         created_by_user_id AS "createdByUserId",
         skills,
+        COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",
         COALESCE(identity, '{}'::jsonb) AS identity,
         COALESCE(characteristics, '{}'::jsonb) AS characteristics
       FROM rpg_characters
@@ -496,7 +499,8 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     if (
       !(error instanceof Error) ||
       (!error.message.includes('column "identity" does not exist') &&
-        !error.message.includes('column "characteristics" does not exist'))
+        !error.message.includes('column "characteristics" does not exist') &&
+        !error.message.includes('column "current_statuses" does not exist'))
     ) {
       throw error
     }
@@ -507,6 +511,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
         characterType: "player" | "npc" | "monster"
         createdByUserId: string | null
         skills: Prisma.JsonValue
+        currentStatuses: Prisma.JsonValue
         identity: Prisma.JsonValue
         characteristics: Prisma.JsonValue
       }>
@@ -516,6 +521,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
         character_type AS "characterType",
         created_by_user_id AS "createdByUserId",
         skills,
+        '{}'::jsonb AS "currentStatuses",
         '{}'::jsonb AS identity,
         '{}'::jsonb AS characteristics
       FROM rpg_characters
@@ -539,6 +545,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     useInventoryWeightLimit: rpg.useInventoryWeightLimit,
     characterType: character[0].characterType,
     currentSkills: character[0].skills,
+    currentCurrentStatuses: character[0].currentStatuses,
     currentIdentity: character[0].identity,
     currentCharacteristics: character[0].characteristics,
   }
@@ -660,6 +667,23 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (!parsedStatuses.ok) {
       return NextResponse.json({ message: parsedStatuses.message }, { status: 400 })
     }
+    const currentStatusesRecord =
+      permission.currentCurrentStatuses &&
+      typeof permission.currentCurrentStatuses === "object" &&
+      !Array.isArray(permission.currentCurrentStatuses)
+        ? (permission.currentCurrentStatuses as Record<string, unknown>)
+        : {}
+    const normalizedCurrentStatuses = Object.entries(parsedStatuses.value).reduce<
+      Record<string, number>
+    >((acc, [key, maxValue]) => {
+      const rawCurrent = currentStatusesRecord[key]
+      const currentNumber =
+        typeof rawCurrent === "number" && Number.isFinite(rawCurrent)
+          ? Math.floor(rawCurrent)
+          : Math.floor(maxValue)
+      acc[key] = Math.max(0, Math.min(Math.floor(maxValue), currentNumber))
+      return acc
+    }, {})
 
     const life = validateStat("vida", parsedStatuses.value.life ?? 0)
     if (!life.ok) return NextResponse.json({ message: life.message }, { status: 400 })
@@ -806,6 +830,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         stamina = ${stamina.value},
         sanity = ${sanity.value},
         statuses = ${JSON.stringify(parsedStatuses.value)}::jsonb,
+        current_statuses = ${JSON.stringify(normalizedCurrentStatuses)}::jsonb,
         attributes = ${JSON.stringify(parsedAttributes.value)}::jsonb,
         skills = ${JSON.stringify(parsedSkills.value)}::jsonb,
         identity = ${JSON.stringify(parsedIdentity.value)}::jsonb,
@@ -853,6 +878,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       )
     }
     if (error instanceof Error && error.message.includes('column "characteristics" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "current_statuses" of relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
         { status: 500 },

@@ -35,6 +35,7 @@ type CharacterRow = {
   stamina: number
   sanity: number
   statuses: Prisma.JsonValue
+  currentStatuses: Prisma.JsonValue
   attributes: Prisma.JsonValue
   skills: Prisma.JsonValue
   identity: Prisma.JsonValue
@@ -474,6 +475,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           stamina,
           sanity,
           statuses,
+          COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",
           attributes,
           skills,
           COALESCE(identity, '{}'::jsonb) AS identity,
@@ -497,6 +499,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         (error.message.includes('column "race_key" does not exist') ||
           error.message.includes('column "class_key" does not exist') ||
           error.message.includes('column "max_carry_weight" does not exist') ||
+          error.message.includes('column "current_statuses" does not exist') ||
           error.message.includes('column "identity" does not exist') ||
           error.message.includes('column "characteristics" does not exist'))
       ) {
@@ -518,6 +521,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
             stamina,
             sanity,
             statuses,
+            '{}'::jsonb AS "currentStatuses",
             attributes,
             skills,
             '{}'::jsonb AS identity,
@@ -895,7 +899,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     const created = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
       INSERT INTO rpg_characters (
-        id, rpg_id, name, image, race_key, class_key, character_type, visibility, max_carry_weight, created_by_user_id, life, defense, mana, stamina, sanity, statuses, attributes, skills, identity, characteristics
+        id, rpg_id, name, image, race_key, class_key, character_type, visibility, max_carry_weight, created_by_user_id, life, defense, mana, stamina, sanity, statuses, current_statuses, attributes, skills, identity, characteristics
       )
       VALUES (
         ${crypto.randomUUID()},
@@ -913,6 +917,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         ${mana.value},
         ${stamina.value},
         ${sanity.value},
+        ${JSON.stringify(parsedStatuses.value)}::jsonb,
         ${JSON.stringify(parsedStatuses.value)}::jsonb,
         ${JSON.stringify(finalAttributes)}::jsonb,
         ${JSON.stringify(finalSkills)}::jsonb,
@@ -936,6 +941,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         stamina,
         sanity,
         statuses,
+        COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",
         attributes,
         skills,
         identity,
@@ -992,7 +998,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
       error instanceof Error &&
       (error.message.includes('column "race_key" of relation "rpg_characters" does not exist') ||
         error.message.includes('column "class_key" of relation "rpg_characters" does not exist') ||
-        error.message.includes('column "max_carry_weight" of relation "rpg_characters" does not exist'))
+        error.message.includes('column "max_carry_weight" of relation "rpg_characters" does not exist') ||
+        error.message.includes('column "current_statuses" of relation "rpg_characters" does not exist'))
     ) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
