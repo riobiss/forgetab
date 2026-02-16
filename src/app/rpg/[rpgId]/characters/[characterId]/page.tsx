@@ -64,6 +64,16 @@ type CharacterCharacteristicTemplateLabelRow = {
   position?: number
 }
 
+type RaceTemplateLabelRow = {
+  key: string
+  label: string
+}
+
+type ClassTemplateLabelRow = {
+  key: string
+  label: string
+}
+
 const skillLabels: Record<string, string> = {
   archery: "Arcos e Flecha",
   crossbow: "Besta",
@@ -133,6 +143,8 @@ export default async function CharactersPage({ params }: Params) {
     let dbCharacter: DbCharacterRow[] = []
     let skillLabelByKey = new Map<string, string>()
     let statusTemplateLabelByKey = new Map<string, string>()
+    let raceTemplateLabelByKey = new Map<string, string>()
+    let classTemplateLabelByKey = new Map<string, string>()
     let identityTemplateFields: CharacterIdentityTemplateLabelRow[] = []
     let characteristicsTemplateFields: CharacterCharacteristicTemplateLabelRow[] = []
     let userId: string | null = null
@@ -221,10 +233,26 @@ export default async function CharactersPage({ params }: Params) {
         ORDER BY position ASC
       `)
       characteristicsTemplateFields = characteristicsLabels
+
+      const raceLabels = await prisma.$queryRaw<RaceTemplateLabelRow[]>(Prisma.sql`
+        SELECT key, label
+        FROM rpg_race_templates
+        WHERE rpg_id = ${rpgId}
+      `)
+      raceTemplateLabelByKey = new Map(raceLabels.map((item) => [item.key, item.label]))
+
+      const classLabels = await prisma.$queryRaw<ClassTemplateLabelRow[]>(Prisma.sql`
+        SELECT key, label
+        FROM rpg_class_templates
+        WHERE rpg_id = ${rpgId}
+      `)
+      classTemplateLabelByKey = new Map(classLabels.map((item) => [item.key, item.label]))
     } catch {
       dbCharacter = []
       skillLabelByKey = new Map()
       statusTemplateLabelByKey = new Map()
+      raceTemplateLabelByKey = new Map()
+      classTemplateLabelByKey = new Map()
       identityTemplateFields = []
       characteristicsTemplateFields = []
     }
@@ -300,10 +328,22 @@ export default async function CharactersPage({ params }: Params) {
     const identityItemsWithRaceClass = [
       ...identityItems,
       ...(row.raceKey
-        ? [{ key: "race-key", label: "Raca", value: row.raceKey }]
+        ? [
+            {
+              key: "race-key",
+              label: "Raca",
+              value: raceTemplateLabelByKey.get(row.raceKey) ?? row.raceKey,
+            },
+          ]
         : []),
       ...(row.classKey
-        ? [{ key: "class-key", label: "Classe", value: row.classKey }]
+        ? [
+            {
+              key: "class-key",
+              label: "Classe",
+              value: classTemplateLabelByKey.get(row.classKey) ?? row.classKey,
+            },
+          ]
         : []),
     ]
     const characteristicsItems =
@@ -358,9 +398,6 @@ export default async function CharactersPage({ params }: Params) {
               <div className={styles.actionLinks}>
                 <Link className={styles.actionLink} href={`/rpg/${rpgId}/characters/${characterId}/abilities`}>
                   Habilidades
-                </Link>
-                <Link className={styles.actionLink} href={`/rpg/${rpgId}/characters/${characterId}/inventory`}>
-                  Equipamentos
                 </Link>
               </div>
 
