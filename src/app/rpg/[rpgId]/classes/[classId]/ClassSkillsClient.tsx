@@ -27,6 +27,11 @@ const SKILL_TYPE_LABEL: Record<string, string> = {
 type SkillLevelView = {
   levelNumber: number
   levelRequired: number
+  upgradeFromLevelNumber: number | null
+  levelName: string | null
+  levelDescription: string | null
+  notes: string | null
+  notesList: string[]
   description: string | null
   summary: string | null
   damage: string | null
@@ -79,60 +84,6 @@ function hasText(value: string | null | undefined) {
 
 function normalizeText(value: string | null | undefined) {
   return typeof value === "string" ? value.trim() : ""
-}
-
-function hasObject(value: Record<string, unknown> | null | undefined) {
-  return Boolean(value && Object.keys(value).length > 0)
-}
-
-function hasMeaningfulEffects(value: unknown[] | null | undefined) {
-  if (!Array.isArray(value) || value.length === 0) return false
-
-  return value.some((item) => {
-    if (!item || typeof item !== "object" || Array.isArray(item)) return false
-
-    const effect = item as Record<string, unknown>
-    const valueData =
-      effect.value && typeof effect.value === "object" && !Array.isArray(effect.value)
-        ? (effect.value as Record<string, unknown>)
-        : null
-
-    const hasFlatValue =
-      typeof valueData?.flat === "number" && Number.isFinite(valueData.flat)
-    const hasDiceValue =
-      (typeof valueData?.diceCount === "number" && Number.isFinite(valueData.diceCount) && valueData.diceCount > 0) ||
-      (typeof valueData?.diceSides === "number" && Number.isFinite(valueData.diceSides) && valueData.diceSides > 0) ||
-      (typeof valueData?.bonus === "number" && Number.isFinite(valueData.bonus) && valueData.bonus !== 0)
-
-    const hasDuration = typeof effect.duration === "string" && effect.duration.trim().length > 0
-    const hasTickInterval =
-      typeof effect.tickInterval === "string" && effect.tickInterval.trim().length > 0
-    const hasDamageType =
-      typeof effect.damageType === "string" && effect.damageType.trim().length > 0
-    const hasNotes = typeof effect.notes === "string" && effect.notes.trim().length > 0
-    const hasAttributeKey =
-      typeof effect.attributeKey === "string" && effect.attributeKey.trim().length > 0
-    const hasChance =
-      typeof effect.chance === "number" && Number.isFinite(effect.chance) && effect.chance > 0
-    const hasStacks =
-      typeof effect.stacks === "number" && Number.isFinite(effect.stacks) && effect.stacks > 0
-
-    return (
-      hasFlatValue ||
-      hasDiceValue ||
-      hasDuration ||
-      hasTickInterval ||
-      hasDamageType ||
-      hasNotes ||
-      hasAttributeKey ||
-      hasChance ||
-      hasStacks
-    )
-  })
-}
-
-function renderJson(value: unknown) {
-  return <pre className={styles.jsonBlock}>{JSON.stringify(value, null, 2)}</pre>
 }
 
 function toCategoryLabel(value: string | null) {
@@ -244,11 +195,16 @@ export default function ClassSkillsClient({
             loading ||
             cantAfford ||
             selectedLevel.pointsCost === null
-          const levelDescription = hasText(selectedLevel.summary)
+          const levelDescription = hasText(selectedLevel.levelDescription)
+            ? selectedLevel.levelDescription
+            : hasText(selectedLevel.summary)
             ? selectedLevel.summary
             : hasText(selectedLevel.description)
               ? selectedLevel.description
               : null
+          const levelDisplayName = hasText(selectedLevel.levelName)
+            ? selectedLevel.levelName
+            : skill.skillName
           const baseDescription = normalizeText(skill.skillDescription)
           const levelDescriptionNormalized = normalizeText(levelDescription)
           const showLevelDescription =
@@ -258,7 +214,7 @@ export default function ClassSkillsClient({
           return (
             <div key={skill.skillId} className={styles.abilityCard}>
               <div className={styles.abilityHeader}>
-                <h3 className={styles.abilityName}>{skill.skillName}</h3>
+                <h3 className={styles.abilityName}>{levelDisplayName}</h3>
                 <div className={styles.levelSelector}>
                   <button
                     type="button"
@@ -267,7 +223,7 @@ export default function ClassSkillsClient({
                       setOpenLevelSelectorForSkill((prev) => (prev === skill.skillId ? "" : skill.skillId))
                     }
                   >
-                    Nivel {selectedLevel.levelNumber}
+                    Level {selectedLevel.levelNumber}
                   </button>
                   {selectorOpen ? (
                     <div className={styles.levelMenu}>
@@ -288,7 +244,8 @@ export default function ClassSkillsClient({
                             setOpenLevelSelectorForSkill("")
                           }}
                         >
-                          Nivel {levelOption.levelNumber}
+                          Level {levelOption.levelNumber}
+                          {hasText(levelOption.levelName) ? ` - ${levelOption.levelName}` : ""}
                         </button>
                       ))}
                     </div>
@@ -353,44 +310,20 @@ export default function ClassSkillsClient({
                         {selectedLevel.resourceCost}
                       </div>
                     ) : null}
+                    {selectedLevel.notesList.length > 0 ? (
+                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                        <strong>Obs</strong>
+                        {selectedLevel.notesList.join(" | ")}
+                      </div>
+                    ) : null}
                     <div className={styles.statItem}>
                       <strong>Requisito</strong>
-                      Nivel {selectedLevel.levelRequired}
+                      Level {selectedLevel.levelRequired}
                     </div>
                     {hasText(selectedLevel.costCustom) ? (
                       <div className={styles.statItem}>
                         <strong>Custo custom</strong>
                         {selectedLevel.costCustom}
-                      </div>
-                    ) : null}
-                    {hasObject(selectedLevel.target) ? (
-                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                        <strong>Alvo</strong>
-                        {renderJson(selectedLevel.target)}
-                      </div>
-                    ) : null}
-                    {hasObject(selectedLevel.area) ? (
-                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                        <strong>Area</strong>
-                        {renderJson(selectedLevel.area)}
-                      </div>
-                    ) : null}
-                    {hasObject(selectedLevel.scaling) ? (
-                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                        <strong>Escalonamento</strong>
-                        {renderJson(selectedLevel.scaling)}
-                      </div>
-                    ) : null}
-                    {hasObject(selectedLevel.requirement) ? (
-                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                        <strong>Requisitos</strong>
-                        {renderJson(selectedLevel.requirement)}
-                      </div>
-                    ) : null}
-                    {hasMeaningfulEffects(selectedLevel.effects) ? (
-                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                        <strong>Efeitos</strong>
-                        {renderJson(selectedLevel.effects)}
                       </div>
                     ) : null}
                   </div>
@@ -419,3 +352,4 @@ export default function ClassSkillsClient({
     </>
   )
 }
+

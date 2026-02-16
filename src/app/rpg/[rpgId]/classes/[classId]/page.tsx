@@ -53,6 +53,11 @@ type DbCharacterRow = {
 type SkillLevelView = {
   levelNumber: number
   levelRequired: number
+  upgradeFromLevelNumber: number | null
+  levelName: string | null
+  levelDescription: string | null
+  notes: string | null
+  notesList: string[]
   description: string | null
   summary: string | null
   damage: string | null
@@ -108,7 +113,7 @@ export default async function ClassPage({ params }: Props) {
             <div key={ability.id} className={styles.abilityCard}>
               <div className={styles.abilityHeader}>
                 <h3 className={styles.abilityName}>{ability.name}</h3>
-                <span className={styles.abilityLevel}>Nivel {ability.level}</span>
+                <span className={styles.abilityLevel}>Level {ability.level}</span>
               </div>
               <p className={styles.abilityDescription}>{ability.description}</p>
             </div>
@@ -259,6 +264,17 @@ export default async function ClassPage({ params }: Props) {
   const grouped = levelRows.reduce<Record<string, SkillView>>((acc, row) => {
     const stats = parseJsonObject(row.stats)
     const cost = parseJsonObject(row.cost)
+    const requirement = parseJsonObject(row.requirement)
+    const statsNotesListRaw = Array.isArray(stats.notesList) ? stats.notesList : []
+    const statsNotesList = statsNotesListRaw
+      .map((item) => (typeof item === "string" ? item.trim() : ""))
+      .filter((item) => item.length > 0)
+    const fallbackNote = toOptionalText(stats.notes)
+    const upgradeFromLevelNumberRaw = requirement.upgradeFromLevelNumber
+    const upgradeFromLevelNumber =
+      typeof upgradeFromLevelNumberRaw === "number" && Number.isFinite(upgradeFromLevelNumberRaw)
+        ? Math.floor(upgradeFromLevelNumberRaw)
+        : null
     const skill = acc[row.skillId] ?? {
       skillId: row.skillId,
       skillName: row.skillName,
@@ -271,6 +287,11 @@ export default async function ClassPage({ params }: Props) {
     skill.levels.push({
       levelNumber: row.levelNumber,
       levelRequired: row.levelRequired,
+      upgradeFromLevelNumber,
+      levelName: toOptionalText(stats.name),
+      levelDescription: toOptionalText(stats.description),
+      notes: fallbackNote,
+      notesList: statsNotesList.length > 0 ? statsNotesList : fallbackNote ? [fallbackNote] : [],
       description: row.skillDescription?.trim() || null,
       summary: row.summary?.trim() || null,
       damage: toOptionalText(stats.damage),
@@ -284,7 +305,7 @@ export default async function ClassPage({ params }: Props) {
       target: parseJsonObject(row.target),
       area: parseJsonObject(row.area),
       scaling: parseJsonObject(row.scaling),
-      requirement: parseJsonObject(row.requirement),
+      requirement,
       effects: parseJsonArray(row.effects),
     })
 
@@ -313,3 +334,4 @@ export default async function ClassPage({ params }: Props) {
     </div>
   )
 }
+
