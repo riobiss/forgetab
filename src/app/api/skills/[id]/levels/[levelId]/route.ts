@@ -26,7 +26,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     const level = skill.levels.find((item) => item.id === levelId)
     if (!level) {
-      return NextResponse.json({ message: "Nivel nao encontrado." }, { status: 404 })
+      return NextResponse.json({ message: "Level nao encontrado." }, { status: 404 })
     }
 
     const body = await request.json()
@@ -78,6 +78,70 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       )
     }
 
-    return NextResponse.json({ message: "Erro interno ao atualizar nivel." }, { status: 500 })
+    return NextResponse.json({ message: "Erro interno ao atualizar level." }, { status: 500 })
   }
 }
+
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  try {
+    const userId = await getUserIdFromRequest(request)
+    if (!userId) {
+      return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
+    }
+
+    const { id, levelId } = await context.params
+    const skill = await fetchSkillById(id, userId)
+    if (!skill) {
+      return NextResponse.json({ message: "Skill nao encontrada." }, { status: 404 })
+    }
+
+    const level = skill.levels.find((item) => item.id === levelId)
+    if (!level) {
+      return NextResponse.json({ message: "Level nao encontrado." }, { status: 404 })
+    }
+
+    if (skill.levels.length <= 1) {
+      return NextResponse.json(
+        { message: "Nao e possivel remover o ultimo level da habilidade." },
+        { status: 400 },
+      )
+    }
+
+    const remainingLevels = skill.levels.filter((item) => item.id !== levelId)
+    const maxRemainingLevel = remainingLevels.reduce(
+      (max, item) => Math.max(max, item.levelNumber),
+      1,
+    )
+    const nextCurrentLevel = Math.min(skill.currentLevel, maxRemainingLevel)
+
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw(Prisma.sql`
+        DELETE FROM skill_levels
+        WHERE id = ${levelId}
+          AND skill_id = ${id}
+      `)
+
+      await tx.$executeRaw(Prisma.sql`
+        UPDATE skills
+        SET
+          current_level = ${nextCurrentLevel},
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${id}
+          AND owner_id = ${userId}
+      `)
+    })
+
+    const updatedSkill = await fetchSkillById(id, userId)
+    return NextResponse.json({ skill: updatedSkill }, { status: 200 })
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('relation "skill_levels" does not exist')) {
+      return NextResponse.json(
+        { message: "Tabela skill_levels nao existe no banco. Rode a migration." },
+        { status: 500 },
+      )
+    }
+
+    return NextResponse.json({ message: "Erro interno ao remover level." }, { status: 500 })
+  }
+}
+

@@ -116,6 +116,10 @@ const requirementSchema = z
 
 const skillStatsSchema = z
   .object({
+    name: optionalTrimmedText,
+    description: optionalTrimmedText,
+    notes: optionalTrimmedText,
+    notesList: z.array(optionalTrimmedText).max(20).optional(),
     damage: optionalTrimmedText,
     cooldown: optionalTrimmedText,
     range: optionalTrimmedText,

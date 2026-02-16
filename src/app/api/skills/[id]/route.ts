@@ -78,26 +78,31 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       1,
     )
     const nextCurrentLevel = parsed.data.currentLevel ?? existing.currentLevel
+    const nextName = parsed.data.name ?? existing.name
+    const nextCategory =
+      parsed.data.category !== undefined ? parsed.data.category : existing.category
+    const nextType = parsed.data.type !== undefined ? parsed.data.type : existing.type
+    const nextDescription =
+      parsed.data.description !== undefined ? parsed.data.description : existing.description
 
     if (nextCurrentLevel > highestLevel) {
       return NextResponse.json(
-        { message: "currentLevel nao pode ser maior que o maior nivel existente." },
+        { message: "currentLevel nao pode ser maior que o maior level existente." },
         { status: 400 },
       )
     }
 
-    const nextName = parsed.data.name ?? existing.name
     const nextSlug = buildSkillSlug(nextName)
 
     await prisma.$transaction(async (tx) => {
       await tx.$executeRaw(Prisma.sql`
         UPDATE skills
         SET
-          name = ${parsed.data.name ?? existing.name},
+          name = ${nextName},
           slug = ${nextSlug},
-          category = ${parsed.data.category ?? existing.category},
-          type = ${parsed.data.type ?? existing.type},
-          description = ${parsed.data.description ?? existing.description},
+          category = ${nextCategory},
+          type = ${nextType},
+          description = ${nextDescription},
           current_level = ${nextCurrentLevel},
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ${id}
@@ -157,3 +162,53 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     return NextResponse.json({ message: "Erro interno ao atualizar skill." }, { status: 500 })
   }
 }
+
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  try {
+    const userId = await getUserIdFromRequest(request)
+    if (!userId) {
+      return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
+    }
+
+    const { id } = await context.params
+    const existing = await fetchSkillById(id, userId)
+    if (!existing) {
+      return NextResponse.json({ message: "Skill nao encontrada." }, { status: 404 })
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw(Prisma.sql`
+        DELETE FROM skill_class_links
+        WHERE skill_id = ${id}
+      `)
+
+      await tx.$executeRaw(Prisma.sql`
+        DELETE FROM skill_race_links
+        WHERE skill_id = ${id}
+      `)
+
+      await tx.$executeRaw(Prisma.sql`
+        DELETE FROM skill_levels
+        WHERE skill_id = ${id}
+      `)
+
+      await tx.$executeRaw(Prisma.sql`
+        DELETE FROM skills
+        WHERE id = ${id}
+          AND owner_id = ${userId}
+      `)
+    })
+
+    return NextResponse.json({ id }, { status: 200 })
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('relation "skills" does not exist')) {
+      return NextResponse.json(
+        { message: "Tabela skills nao existe no banco. Rode a migration." },
+        { status: 500 },
+      )
+    }
+
+    return NextResponse.json({ message: "Erro interno ao remover skill." }, { status: 500 })
+  }
+}
+

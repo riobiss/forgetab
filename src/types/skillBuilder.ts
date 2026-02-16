@@ -104,6 +104,10 @@ export type Requirement = {
 }
 
 export type SkillStats = {
+  name?: string | null
+  description?: string | null
+  notes?: string | null
+  notesList?: Array<string | null> | null
   damage?: string | null
   cooldown?: string | null
   range?: string | null
