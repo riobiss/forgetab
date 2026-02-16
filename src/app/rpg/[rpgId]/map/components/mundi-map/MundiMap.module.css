@@ -119,6 +119,7 @@
 .brushToggleActive {
   background: var(--accent-main);
   border-color: var(--accent-strong);
+  color: var(--text-alternativ);
 }
 
 .actionButton:hover {

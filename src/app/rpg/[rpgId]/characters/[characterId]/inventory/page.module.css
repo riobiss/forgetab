@@ -113,9 +113,9 @@
 }
 
 .categoryButtonActive {
-  border-color: rgba(255, 138, 31, 0.55);
-  background: rgba(255, 138, 31, 0.14);
-  color: #ffdcb5;
+  border-color: var(--accent-main);
+  background: var(--accent-main);
+  color: var(--text-alternativ);
 }
 
 .searchField {

@@ -136,7 +136,7 @@
   padding: 0 0.3rem;
   border-radius: 999px;
   background: var(--accent-main);
-  color: #dbeafe;
+  color: var(--text-alternativ);
   font-size: 0.72rem;
   display: inline-flex;
   align-items: center;

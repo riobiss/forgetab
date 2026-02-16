@@ -80,17 +80,6 @@
   margin-bottom: 1rem;
 }
 
-.permissionCard {
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  background: var(--bg-surface);
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
-.permissionCard h3 {
-  margin: 0 0 0.65rem;
-}
 
 .permissionInfo {
   margin: 0;
