@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import styles from "./page.module.css"
 
 type StatusItem = {
@@ -17,20 +17,15 @@ type Props = {
   canPersist: boolean
 }
 
-type PersistPayload = {
-  message?: string
-}
-
 export default function StatusTracker({ items, rpgId, characterId, canPersist }: Props) {
+  const storageKey = `rpg-character-status-current:${rpgId}:${characterId}`
   const [currentByKey, setCurrentByKey] = useState<Record<string, number>>(() =>
     items.reduce<Record<string, number>>((acc, item) => {
       acc[item.key] = item.current
       return acc
     }, {}),
   )
-  const [savingByKey, setSavingByKey] = useState<Record<string, boolean>>({})
   const [discountInputByKey, setDiscountInputByKey] = useState<Record<string, string>>({})
-  const [error, setError] = useState("")
 
   const normalizedItems = useMemo(
     () =>
@@ -41,33 +36,45 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
     [currentByKey, items],
   )
 
-  async function persistCurrentStatus(key: string, value: number, rollback: number) {
-    if (!canPersist) {
-      return
-    }
+  useEffect(() => {
+    const nextDefaults = items.reduce<Record<string, number>>((acc, item) => {
+      acc[item.key] = item.current
+      return acc
+    }, {})
+    setCurrentByKey(nextDefaults)
+
+    if (!canPersist) return
 
     try {
-      setSavingByKey((prev) => ({ ...prev, [key]: true }))
-      setError("")
+      const raw = window.localStorage.getItem(storageKey)
+      if (!raw) return
+      const parsed = JSON.parse(raw)
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return
 
-      const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}/status-current`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key, value }),
-      })
-      const payload = (await response.json()) as PersistPayload
-
-      if (!response.ok) {
-        setCurrentByKey((prev) => ({ ...prev, [key]: rollback }))
-        setError(payload.message ?? "Nao foi possivel salvar status atual.")
-      }
+      const merged = items.reduce<Record<string, number>>((acc, item) => {
+        const candidate = (parsed as Record<string, unknown>)[item.key]
+        const parsedNumber =
+          typeof candidate === "number" && Number.isFinite(candidate)
+            ? Math.floor(candidate)
+            : item.current
+        acc[item.key] = Math.max(0, Math.min(item.max, parsedNumber))
+        return acc
+      }, {})
+      setCurrentByKey(merged)
     } catch {
-      setCurrentByKey((prev) => ({ ...prev, [key]: rollback }))
-      setError("Erro de conexao ao salvar status atual.")
-    } finally {
-      setSavingByKey((prev) => ({ ...prev, [key]: false }))
+      // Ignora localStorage invalido para manter uso da tela.
     }
-  }
+  }, [canPersist, items, storageKey])
+
+  useEffect(() => {
+    if (!canPersist) return
+
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(currentByKey))
+    } catch {
+      // Ignora erro de escrita local para nao quebrar interacao.
+    }
+  }, [canPersist, currentByKey, storageKey])
 
   function updateStatus(key: string, delta: number) {
     const item = items.find((entry) => entry.key === key)
@@ -78,7 +85,6 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
     if (next === current) return
 
     setCurrentByKey((prev) => ({ ...prev, [key]: next }))
-    void persistCurrentStatus(key, next, current)
   }
 
   function getDiscountAmount(key: string) {
@@ -102,7 +108,7 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
                 type="button"
                 className={styles.statusButton}
                 onClick={() => updateStatus(item.key, -getDiscountAmount(item.key))}
-                disabled={item.current <= 0 || Boolean(savingByKey[item.key])}
+                disabled={item.current <= 0}
               >
                 -
               </button>
@@ -110,7 +116,7 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
                 type="button"
                 className={styles.statusButton}
                 onClick={() => updateStatus(item.key, getDiscountAmount(item.key))}
-                disabled={item.current >= item.max || Boolean(savingByKey[item.key])}
+                disabled={item.current >= item.max}
               >
                 +
               </button>
@@ -132,7 +138,6 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
           </div>
         ))}
       </div>
-      {error ? <p className={styles.statusError}>{error}</p> : null}
     </div>
   )
 }
