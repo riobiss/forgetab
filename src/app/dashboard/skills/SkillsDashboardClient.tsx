@@ -269,6 +269,19 @@ function mapLevelToForm(level: SkillLevel): LevelForm {
   }
 }
 
+function getLevelCostPoints(level: SkillLevel) {
+  if (!level.cost || typeof level.cost !== "object" || Array.isArray(level.cost)) {
+    return null
+  }
+
+  const value = (level.cost as Record<string, unknown>).points
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    return null
+  }
+
+  return Math.floor(value)
+}
+
 function createInitialMeta(): MetaForm {
   return {
     name: "",
@@ -317,7 +330,7 @@ export default function SkillsDashboardClient({
   ownedRpgs,
   initialRpgId,
   hideRpgSelector = false,
-  title = "Skill Builder",
+  title = "Construtor de Habilidades",
 }: Props) {
   const initialSelection =
     initialRpgId && ownedRpgs.some((item) => item.id === initialRpgId)
@@ -531,7 +544,7 @@ export default function SkillsDashboardClient({
                 />
               </label>
               <label className={styles.field}>
-                <span>duration</span>
+                <span>Duracao</span>
                 <input
                   value={effect.duration}
                   onChange={(event) => onChange(updateEffect(effects, index, { duration: event.target.value }))}
@@ -545,7 +558,7 @@ export default function SkillsDashboardClient({
                 />
               </label>
               <label className={styles.field}>
-                <span>chance</span>
+                <span>Chance</span>
                 <input
                   value={effect.chance}
                   onChange={(event) => onChange(updateEffect(effects, index, { chance: event.target.value }))}
@@ -736,9 +749,7 @@ export default function SkillsDashboardClient({
     <main className={styles.page}>
       <section className={styles.hero}>
         <div>
-          <p className={styles.kicker}>Dashboard</p>
           <h1>{title}</h1>
-          <p>CRUD completo com niveis imutaveis e effects[] flexiveis.</p>
         </div>
         <div className={styles.heroActions}>
           {!hideRpgSelector ? (
@@ -865,6 +876,18 @@ export default function SkillsDashboardClient({
                       }
                     />
                   </label>
+                  <label className={styles.field}>
+                    <span>Pontos necessarios para comprar</span>
+                    <input
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={levelForm.costPoints}
+                      onChange={(event) =>
+                        setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))
+                      }
+                    />
+                  </label>
                   <label className={`${styles.field} ${styles.spanTwo}`}>
                     <span>Descricao</span>
                     <textarea
@@ -978,7 +1001,7 @@ export default function SkillsDashboardClient({
                       />
                     </label>
                     <label className={styles.field}>
-                      <span>Custo em pontos</span>
+                      <span>Pontos necessarios para comprar</span>
                       <input
                         type="number"
                         min={0}
@@ -1160,12 +1183,12 @@ export default function SkillsDashboardClient({
               </div>
 
               <div className={styles.levelHeader}>
-                <h3>Level Editor</h3>
+                <h3>Editor de Niveis</h3>
                 <div className={styles.levelHeaderActions}>
                   <select value={selectedLevelId} onChange={(event) => setSelectedLevelId(event.target.value)}>
                     {activeSkill.levels.map((level) => (
                       <option key={level.id} value={level.id}>
-                        Nivel {level.levelNumber} (req {level.levelRequired})
+                        Nivel {level.levelNumber} (req {level.levelRequired} | pontos {getLevelCostPoints(level) ?? 0})
                       </option>
                     ))}
                   </select>
@@ -1238,7 +1261,7 @@ export default function SkillsDashboardClient({
                     />
                   </label>
                   <label className={styles.field}>
-                    <span>Custo em pontos</span>
+                    <span>Pontos necessarios para comprar</span>
                     <input
                       type="number"
                       min={0}

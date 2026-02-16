@@ -25,6 +25,8 @@ type DbCharacterRow = {
   image: string | null
   raceKey: string | null
   classKey: string | null
+  skillPoints: number
+  costResourceName: string
   characterType: "player" | "npc" | "monster"
   visibility: "private" | "public"
   createdByUserId: string | null
@@ -178,33 +180,76 @@ export default async function CharactersPage({ params }: Params) {
         notFound()
       }
 
-      dbCharacter = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
-        SELECT
-          id,
-          name,
-          image,
-          race_key AS "raceKey",
-          class_key AS "classKey",
-          character_type AS "characterType",
-          visibility,
-          created_by_user_id AS "createdByUserId",
-          life,
-          defense,
-          mana,
-          stamina,
-          sanity,
-          statuses,
-          COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",
-          attributes,
-          skills,
-          COALESCE(identity, '{}'::jsonb) AS identity,
-          COALESCE(characteristics, '{}'::jsonb) AS characteristics,
-          created_at AS "createdAt"
-        FROM rpg_characters
-        WHERE id = ${characterId}
-          AND rpg_id = ${rpgId}
-        LIMIT 1
-      `)
+      try {
+        dbCharacter = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
+          SELECT
+            c.id,
+            c.name,
+            c.image,
+            c.race_key AS "raceKey",
+            c.class_key AS "classKey",
+            c.skill_points AS "skillPoints",
+            COALESCE(NULLIF(TRIM(r.cost_resource_name), ''), 'Skill Points') AS "costResourceName",
+            c.character_type AS "characterType",
+            c.visibility,
+            c.created_by_user_id AS "createdByUserId",
+            c.life,
+            c.defense,
+            c.mana,
+            c.stamina,
+            c.sanity,
+            c.statuses,
+            COALESCE(c.current_statuses, '{}'::jsonb) AS "currentStatuses",
+            c.attributes,
+            c.skills,
+            COALESCE(c.identity, '{}'::jsonb) AS identity,
+            COALESCE(c.characteristics, '{}'::jsonb) AS characteristics,
+            c.created_at AS "createdAt"
+          FROM rpg_characters c
+          INNER JOIN rpgs r ON r.id = c.rpg_id
+          WHERE c.id = ${characterId}
+            AND c.rpg_id = ${rpgId}
+          LIMIT 1
+        `)
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          (error.message.includes('column "skill_points" does not exist') ||
+            error.message.includes('column "cost_resource_name" does not exist'))
+        ) {
+          dbCharacter = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
+            SELECT
+              c.id,
+              c.name,
+              c.image,
+              c.race_key AS "raceKey",
+              c.class_key AS "classKey",
+              0::integer AS "skillPoints",
+              'Skill Points' AS "costResourceName",
+              c.character_type AS "characterType",
+              c.visibility,
+              c.created_by_user_id AS "createdByUserId",
+              c.life,
+              c.defense,
+              c.mana,
+              c.stamina,
+              c.sanity,
+              c.statuses,
+              COALESCE(c.current_statuses, '{}'::jsonb) AS "currentStatuses",
+              c.attributes,
+              c.skills,
+              COALESCE(c.identity, '{}'::jsonb) AS identity,
+              COALESCE(c.characteristics, '{}'::jsonb) AS characteristics,
+              c.created_at AS "createdAt"
+            FROM rpg_characters c
+            WHERE c.id = ${characterId}
+              AND c.rpg_id = ${rpgId}
+            LIMIT 1
+          `)
+        } else {
+          throw error
+        }
+      }
 
       const skillLabels = await prisma.$queryRaw<SkillTemplateLabelRow[]>(Prisma.sql`
         SELECT key, label
@@ -371,7 +416,14 @@ export default async function CharactersPage({ params }: Params) {
       <div className={styles.page}>
         <section className={styles.card}>
           <div className={styles.titleBar}>
-            <h3>{displayName}</h3>
+            <div className={styles.titleInfo}>
+              <h3>{displayName}</h3>
+              {row.characterType === "player" ? (
+                <p className={styles.pointsLabel}>
+                  {row.costResourceName}: {row.skillPoints}
+                </p>
+              ) : null}
+            </div>
             <div className={styles.titleActions}>
               <Link className={styles.editInlineButton} href={`/rpg/${rpgId}/characters`}>
                 Voltar

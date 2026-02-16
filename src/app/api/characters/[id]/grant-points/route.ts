@@ -26,10 +26,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (
       typeof body.amount !== "number" ||
       !Number.isInteger(body.amount) ||
-      body.amount <= 0
+      body.amount === 0
     ) {
       return NextResponse.json(
-        { message: "amount deve ser um inteiro positivo." },
+        { message: "amount deve ser um inteiro diferente de zero." },
         { status: 400 },
       )
     }
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const updated = await prisma.$queryRaw<Array<{ skillPoints: number }>>(Prisma.sql`
       UPDATE rpg_characters
       SET
-        skill_points = skill_points + ${body.amount},
+        skill_points = GREATEST(0, skill_points + ${body.amount}),
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
       RETURNING skill_points AS "skillPoints"

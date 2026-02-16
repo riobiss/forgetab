@@ -29,27 +29,7 @@
   margin-bottom: 0;
 }
 
-.notificationTrigger {
-  width: 100%;
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
-  color: var(--text-main);
-  padding: 0.8rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-  cursor: pointer;
-  font-weight: 700;
-  transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.notificationTrigger:hover {
-  transform: translateY(-1px);
-  border-color: var(--accent-main);
-}
-
+.notificationTrigger,
 .membersTrigger {
   width: 100%;
   border: 1px solid var(--border-soft);
@@ -66,6 +46,7 @@
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
+.notificationTrigger:hover,
 .membersTrigger:hover {
   transform: translateY(-1px);
   border-color: var(--accent-main);
@@ -78,16 +59,7 @@
   outline-offset: 2px;
 }
 
-.notificationTriggerCompact {
-  width: 2.2rem;
-  height: 2.2rem;
-  padding: 0;
-  border-radius: 999px;
-  justify-content: center;
-  position: relative;
-  gap: 0;
-}
-
+.notificationTriggerCompact,
 .membersTriggerCompact {
   width: 2.2rem;
   height: 2.2rem;
@@ -188,27 +160,7 @@
   transform: rotate(180deg);
 }
 
-.memberNotice {
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
-  padding: 1rem;
-  margin-top: 0.7rem;
-}
-
-.memberNoticePopover {
-  position: absolute;
-  top: calc(100% + 0.55rem);
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-  width: min(680px, calc(100vw - 2rem));
-  z-index: 20;
-  max-height: 70vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-main);
-}
-
+.memberNotice,
 .membersPanel {
   border: 1px solid var(--border-soft);
   border-radius: 12px;
@@ -217,6 +169,7 @@
   margin-top: 0.7rem;
 }
 
+.memberNoticePopover,
 .membersPanelPopover {
   position: absolute;
   top: calc(100% + 0.55rem);
@@ -487,9 +440,115 @@
   text-decoration: none;
 }
 
-.quickCreateMenu a:hover {
+.quickCreateMenu button {
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  color: var(--text-main);
+  text-decoration: none;
+  border: 1px solid transparent;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.quickCreateMenu a:hover,
+.quickCreateMenu button:hover {
   background: rgba(255, 122, 24, 0.15);
   color: var(--text-title);
+}
+
+.quickCreatePointsPanel {
+  margin-top: 0.35rem;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 0.5rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.quickCreatePanelTitle {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.quickCreateAmountField {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.quickCreateAmountField span {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.quickCreateAmountField input {
+  width: 100%;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+  padding: 0.4rem 0.5rem;
+}
+
+.quickCreatePlayerRow {
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 0.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.quickCreatePlayerRow strong {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  overflow-wrap: anywhere;
+}
+
+.quickCreatePlayerRow small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.quickCreateGrantActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.quickCreateGrantButton {
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.quickCreateGrantButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.quickCreateError {
+  margin: 0;
+  color: #ff6b6b;
+  font-size: 0.76rem;
+}
+
+.quickCreateSuccess {
+  margin: 0;
+  color: #4ade80;
+  font-size: 0.76rem;
 }
 
 .description {

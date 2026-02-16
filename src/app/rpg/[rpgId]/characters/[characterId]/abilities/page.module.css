@@ -138,6 +138,14 @@
   font-size: 0.9rem;
 }
 
+.detailItem {
+  min-width: 0;
+}
+
+.detailFull {
+  grid-column: 1 / -1;
+}
+
 /* Grid de Detalhes 2x2 */
 .cardDetailsGrid {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -162,6 +170,22 @@
   color: #ff7a18;
   font-weight: bold;
   font-size: 0.9rem;
+}
+
+.jsonBlock {
+  margin: 0.3rem 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 0.45rem;
+  font-size: 0.74rem;
+  color: var(--text-main);
+}
+
+.emptyState {
+  color: var(--text-muted);
 }
 
 /* MOBILE */

@@ -37,6 +37,16 @@
   min-width: 0;
 }
 
+.titleInfo {
+  min-width: 0;
+}
+
+.pointsLabel {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
 .titleActions {
   display: flex;
   align-items: center;

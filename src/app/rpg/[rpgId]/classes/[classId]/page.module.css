@@ -74,11 +74,27 @@
   color: var(--text-muted);
 }
 
+.statItemFull {
+  grid-column: 1 / -1;
+}
+
 .statItem strong {
   color: var(--accent-main);
   display: block;
   text-transform: uppercase;
   font-size: 0.7rem;
+}
+
+.jsonBlock {
+  margin: 0.35rem 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 0.5rem;
+  color: var(--text-main);
+  font-size: 0.74rem;
 }
 
 .costBadge {
@@ -120,6 +136,13 @@
   gap: 0.4rem;
 }
 
+.levelTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 .buyButton {
   border: 1px solid var(--accent-main);
   background: transparent;
@@ -129,6 +152,20 @@
   cursor: pointer;
   font-weight: 700;
   width: fit-content;
+}
+
+.buyAction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  width: 100%;
+}
+
+.buyPrice {
+  color: var(--accent-main);
+  font-weight: 700;
+  font-size: 0.86rem;
 }
 
 .buyButton:disabled {

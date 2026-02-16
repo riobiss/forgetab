@@ -13,6 +13,7 @@ type RouteContext = {
 type CharacterLockedRow = {
   id: string
   rpgId: string
+  ownerId: string
   createdByUserId: string | null
   classKey: string | null
   characterType: "player" | "npc" | "monster"
@@ -54,6 +55,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         SELECT
           c.id,
           c.rpg_id AS "rpgId",
+          r.owner_id AS "ownerId",
           c.created_by_user_id AS "createdByUserId",
           c.class_key AS "classKey",
           c.character_type AS "characterType",
@@ -76,10 +78,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
           message: "Somente personagens do tipo player podem comprar habilidades.",
         }
       }
-      if (character.createdByUserId !== userId) {
+      const canManageCharacter =
+        character.createdByUserId === userId || character.ownerId === userId
+      if (!canManageCharacter) {
         return {
           status: 403 as const,
-          message: "Voce so pode comprar habilidades para o seu proprio personagem.",
+          message: "Sem permissao para comprar habilidades neste personagem.",
         }
       }
       if (!character.costsEnabled) {
@@ -103,7 +107,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
         WHERE s.id = ${normalizedSkillId}
           AND s.rpg_id = ${character.rpgId}
           AND ct.rpg_id = ${character.rpgId}
-          AND ct.key = ${character.classKey}
+          AND (
+            ct.key = ${character.classKey}
+            OR ct.id = ${character.classKey}
+          )
         LIMIT 1
       `)
 

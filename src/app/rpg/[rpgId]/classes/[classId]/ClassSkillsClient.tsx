@@ -3,19 +3,52 @@
 import { useMemo, useState } from "react"
 import styles from "./page.module.css"
 
+const SKILL_CATEGORY_LABEL: Record<string, string> = {
+  attack: "Ataque",
+  burst: "Explosao",
+  support: "Suporte",
+  buff: "Buff",
+  debuff: "Debuff",
+  control: "Controle",
+  defense: "Defesa",
+  mobility: "Mobilidade",
+  summon: "Invocacao",
+  utility: "Utilidade",
+  resource: "Recurso",
+}
+
+const SKILL_TYPE_LABEL: Record<string, string> = {
+  action: "Acao",
+  bonus: "Bonus",
+  reaction: "Reacao",
+  passive: "Passiva",
+}
+
 type SkillLevelView = {
   levelNumber: number
   levelRequired: number
-  summary: string
+  description: string | null
+  summary: string | null
   damage: string | null
   range: string | null
   cooldown: string | null
+  duration: string | null
+  castTime: string | null
+  resourceCost: string | null
   pointsCost: number | null
+  costCustom: string | null
+  target: Record<string, unknown> | null
+  area: Record<string, unknown> | null
+  scaling: Record<string, unknown> | null
+  requirement: Record<string, unknown> | null
+  effects: unknown[]
 }
 
 type SkillView = {
   skillId: string
   skillName: string
+  skillDescription: string | null
+  skillCategory: string | null
   skillType: string | null
   levels: SkillLevelView[]
 }
@@ -38,6 +71,74 @@ function normalizeOwned(input: Record<string, number[]>) {
     acc[skillId] = new Set(levels)
     return acc
   }, {})
+}
+
+function hasText(value: string | null | undefined) {
+  return typeof value === "string" && value.trim().length > 0
+}
+
+function hasObject(value: Record<string, unknown> | null | undefined) {
+  return Boolean(value && Object.keys(value).length > 0)
+}
+
+function hasMeaningfulEffects(value: unknown[] | null | undefined) {
+  if (!Array.isArray(value) || value.length === 0) return false
+
+  return value.some((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return false
+
+    const effect = item as Record<string, unknown>
+    const valueData =
+      effect.value && typeof effect.value === "object" && !Array.isArray(effect.value)
+        ? (effect.value as Record<string, unknown>)
+        : null
+
+    const hasFlatValue =
+      typeof valueData?.flat === "number" && Number.isFinite(valueData.flat)
+    const hasDiceValue =
+      (typeof valueData?.diceCount === "number" && Number.isFinite(valueData.diceCount) && valueData.diceCount > 0) ||
+      (typeof valueData?.diceSides === "number" && Number.isFinite(valueData.diceSides) && valueData.diceSides > 0) ||
+      (typeof valueData?.bonus === "number" && Number.isFinite(valueData.bonus) && valueData.bonus !== 0)
+
+    const hasDuration = typeof effect.duration === "string" && effect.duration.trim().length > 0
+    const hasTickInterval =
+      typeof effect.tickInterval === "string" && effect.tickInterval.trim().length > 0
+    const hasDamageType =
+      typeof effect.damageType === "string" && effect.damageType.trim().length > 0
+    const hasNotes = typeof effect.notes === "string" && effect.notes.trim().length > 0
+    const hasAttributeKey =
+      typeof effect.attributeKey === "string" && effect.attributeKey.trim().length > 0
+    const hasChance =
+      typeof effect.chance === "number" && Number.isFinite(effect.chance) && effect.chance > 0
+    const hasStacks =
+      typeof effect.stacks === "number" && Number.isFinite(effect.stacks) && effect.stacks > 0
+
+    return (
+      hasFlatValue ||
+      hasDiceValue ||
+      hasDuration ||
+      hasTickInterval ||
+      hasDamageType ||
+      hasNotes ||
+      hasAttributeKey ||
+      hasChance ||
+      hasStacks
+    )
+  })
+}
+
+function renderJson(value: unknown) {
+  return <pre className={styles.jsonBlock}>{JSON.stringify(value, null, 2)}</pre>
+}
+
+function toCategoryLabel(value: string | null) {
+  if (!value) return null
+  return SKILL_CATEGORY_LABEL[value] ?? value
+}
+
+function toTypeLabel(value: string | null) {
+  if (!value) return null
+  return SKILL_TYPE_LABEL[value] ?? value
 }
 
 export default function ClassSkillsClient({
@@ -118,6 +219,9 @@ export default function ClassSkillsClient({
             <div className={styles.abilityHeader}>
               <h3 className={styles.abilityName}>{skill.skillName}</h3>
             </div>
+            {hasText(skill.skillDescription) ? (
+              <p className={styles.abilityDescription}>{skill.skillDescription}</p>
+            ) : null}
 
             <div className={styles.levelList}>
               {skill.levels.map((level) => {
@@ -136,44 +240,133 @@ export default function ClassSkillsClient({
                 return (
                   <div key={key} className={styles.levelRow}>
                     <div className={styles.levelInfo}>
-                      <span className={styles.abilityLevel}>Nivel {level.levelNumber}</span>
-                      <p className={styles.abilityDescription}>{level.summary}</p>
+                      <div className={styles.levelTop}>
+                        <span className={styles.abilityLevel}>Nivel {level.levelNumber}</span>
+                        {typeof level.pointsCost === "number" ? (
+                          <span className={styles.costBadge}>
+                            {level.pointsCost} {costResourceName}
+                          </span>
+                        ) : null}
+                      </div>
+                      {hasText(level.summary) ? (
+                        <p className={styles.abilityDescription}>{level.summary}</p>
+                      ) : null}
+                      {hasText(level.description) ? (
+                        <p className={styles.abilityDescription}>{level.description}</p>
+                      ) : null}
                       <div className={styles.abilityStats}>
-                        <div className={styles.statItem}>
-                          <strong>Tipo</strong>
-                          {skill.skillType ?? "-"}
-                        </div>
-                        <div className={styles.statItem}>
-                          <strong>Dano</strong>
-                          {level.damage ?? "-"}
-                        </div>
-                        <div className={styles.statItem}>
-                          <strong>Alcance</strong>
-                          {level.range ?? "-"}
-                        </div>
-                        <div className={styles.statItem}>
-                          <strong>Recarga</strong>
-                          {level.cooldown ?? "-"}
-                        </div>
+                        {hasText(skill.skillCategory) ? (
+                          <div className={styles.statItem}>
+                            <strong>Categoria</strong>
+                            {toCategoryLabel(skill.skillCategory)}
+                          </div>
+                        ) : null}
+                        {hasText(skill.skillType) ? (
+                          <div className={styles.statItem}>
+                            <strong>Tipo</strong>
+                            {toTypeLabel(skill.skillType)}
+                          </div>
+                        ) : null}
+                        {hasText(level.damage) ? (
+                          <div className={styles.statItem}>
+                            <strong>Dano</strong>
+                            {level.damage}
+                          </div>
+                        ) : null}
+                        {hasText(level.range) ? (
+                          <div className={styles.statItem}>
+                            <strong>Alcance</strong>
+                            {level.range}
+                          </div>
+                        ) : null}
+                        {hasText(level.cooldown) ? (
+                          <div className={styles.statItem}>
+                            <strong>Recarga</strong>
+                            {level.cooldown}
+                          </div>
+                        ) : null}
+                        {hasText(level.duration) ? (
+                          <div className={styles.statItem}>
+                            <strong>Duracao</strong>
+                            {level.duration}
+                          </div>
+                        ) : null}
+                        {hasText(level.castTime) ? (
+                          <div className={styles.statItem}>
+                            <strong>Conjuracao</strong>
+                            {level.castTime}
+                          </div>
+                        ) : null}
+                        {hasText(level.resourceCost) ? (
+                          <div className={styles.statItem}>
+                            <strong>Custo de recurso</strong>
+                            {level.resourceCost}
+                          </div>
+                        ) : null}
                         <div className={styles.statItem}>
                           <strong>Requisito</strong>
                           Nivel {level.levelRequired}
                         </div>
-                        <div className={styles.statItem}>
-                          <strong>Custo</strong>
-                          {level.pointsCost === null ? "Nao configurado" : `${level.pointsCost} ${costResourceName}`}
-                        </div>
+                        {typeof level.pointsCost === "number" ? (
+                          <div className={styles.statItem}>
+                            <strong>Custo</strong>
+                            {`${level.pointsCost} ${costResourceName}`}
+                          </div>
+                        ) : null}
+                        {hasText(level.costCustom) ? (
+                          <div className={styles.statItem}>
+                            <strong>Custo custom</strong>
+                            {level.costCustom}
+                          </div>
+                        ) : null}
+                        {hasObject(level.target) ? (
+                          <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                            <strong>Alvo</strong>
+                            {renderJson(level.target)}
+                          </div>
+                        ) : null}
+                        {hasObject(level.area) ? (
+                          <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                            <strong>Area</strong>
+                            {renderJson(level.area)}
+                          </div>
+                        ) : null}
+                        {hasObject(level.scaling) ? (
+                          <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                            <strong>Escalonamento</strong>
+                            {renderJson(level.scaling)}
+                          </div>
+                        ) : null}
+                        {hasObject(level.requirement) ? (
+                          <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                            <strong>Requisitos</strong>
+                            {renderJson(level.requirement)}
+                          </div>
+                        ) : null}
+                        {hasMeaningfulEffects(level.effects) ? (
+                          <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                            <strong>Efeitos</strong>
+                            {renderJson(level.effects)}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      className={styles.buyButton}
-                      disabled={buyDisabled}
-                      onClick={() => void handleBuy(skill.skillId, level.levelNumber)}
-                    >
-                      {owned ? "Comprado" : loading ? "Comprando..." : "Comprar"}
-                    </button>
+                    <div className={styles.buyAction}>
+                      {typeof level.pointsCost === "number" ? (
+                        <span className={styles.buyPrice}>
+                          Preco: {level.pointsCost}
+                        </span>
+                      ) : null}
+                      <button
+                        type="button"
+                        className={styles.buyButton}
+                        disabled={buyDisabled}
+                        onClick={() => void handleBuy(skill.skillId, level.levelNumber)}
+                      >
+                        {owned ? "Comprado" : loading ? "Comprando..." : "Comprar"}
+                      </button>
+                    </div>
                   </div>
                 )
               })}

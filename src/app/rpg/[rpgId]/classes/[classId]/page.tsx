@@ -29,12 +29,19 @@ type DbClassRow = {
 type DbSkillLevelRow = {
   skillId: string
   skillName: string
+  skillDescription: string | null
+  skillCategory: string | null
   skillType: string | null
   levelNumber: number
   levelRequired: number
   summary: string | null
   stats: Prisma.JsonValue
   cost: Prisma.JsonValue
+  target: Prisma.JsonValue
+  area: Prisma.JsonValue
+  scaling: Prisma.JsonValue
+  requirement: Prisma.JsonValue
+  effects: Prisma.JsonValue
 }
 
 type DbCharacterRow = {
@@ -46,16 +53,28 @@ type DbCharacterRow = {
 type SkillLevelView = {
   levelNumber: number
   levelRequired: number
-  summary: string
+  description: string | null
+  summary: string | null
   damage: string | null
   range: string | null
   cooldown: string | null
+  duration: string | null
+  castTime: string | null
+  resourceCost: string | null
   pointsCost: number | null
+  costCustom: string | null
+  target: Record<string, unknown> | null
+  area: Record<string, unknown> | null
+  scaling: Record<string, unknown> | null
+  requirement: Record<string, unknown> | null
+  effects: unknown[]
 }
 
 type SkillView = {
   skillId: string
   skillName: string
+  skillDescription: string | null
+  skillCategory: string | null
   skillType: string | null
   levels: SkillLevelView[]
 }
@@ -66,6 +85,10 @@ function parseJsonObject(value: Prisma.JsonValue) {
   }
 
   return value as Record<string, unknown>
+}
+
+function parseJsonArray(value: Prisma.JsonValue) {
+  return Array.isArray(value) ? value : []
 }
 
 function toOptionalText(value: unknown) {
@@ -161,12 +184,19 @@ export default async function ClassPage({ params }: Props) {
     SELECT
       s.id AS "skillId",
       s.name AS "skillName",
+      s.description AS "skillDescription",
+      s.category AS "skillCategory",
       s.type AS "skillType",
       sl.level_number AS "levelNumber",
       sl.level_required AS "levelRequired",
       sl.summary,
       sl.stats,
-      sl.cost
+      sl.cost,
+      sl.target,
+      sl.area,
+      sl.scaling,
+      sl.requirement,
+      COALESCE(sl.effects, '[]'::jsonb) AS effects
     FROM skill_class_links scl
     INNER JOIN skills s ON s.id = scl.skill_id
     INNER JOIN skill_levels sl ON sl.skill_id = s.id
@@ -187,9 +217,18 @@ export default async function ClassPage({ params }: Props) {
           COALESCE(abilities, '[]'::jsonb) AS abilities
         FROM rpg_characters
         WHERE rpg_id = ${rpgId}
-          AND created_by_user_id = ${userId}
           AND character_type = 'player'::"RpgCharacterType"
-          AND class_key = ${dbClass.key}
+          AND (
+            created_by_user_id = ${userId}
+            OR ${isOwner} = true
+          )
+          AND (
+            class_key = ${dbClass.key}
+            OR class_key = ${dbClass.id}
+          )
+        ORDER BY
+          CASE WHEN created_by_user_id = ${userId} THEN 0 ELSE 1 END ASC,
+          created_at ASC
         LIMIT 1
       `)
 
@@ -219,9 +258,12 @@ export default async function ClassPage({ params }: Props) {
 
   const grouped = levelRows.reduce<Record<string, SkillView>>((acc, row) => {
     const stats = parseJsonObject(row.stats)
+    const cost = parseJsonObject(row.cost)
     const skill = acc[row.skillId] ?? {
       skillId: row.skillId,
       skillName: row.skillName,
+      skillDescription: row.skillDescription?.trim() || null,
+      skillCategory: row.skillCategory?.trim() || null,
       skillType: row.skillType,
       levels: [],
     }
@@ -229,11 +271,21 @@ export default async function ClassPage({ params }: Props) {
     skill.levels.push({
       levelNumber: row.levelNumber,
       levelRequired: row.levelRequired,
-      summary: row.summary?.trim() || "Sem descricao para este nivel.",
+      description: row.skillDescription?.trim() || null,
+      summary: row.summary?.trim() || null,
       damage: toOptionalText(stats.damage),
       range: toOptionalText(stats.range),
       cooldown: toOptionalText(stats.cooldown),
+      duration: toOptionalText(stats.duration),
+      castTime: toOptionalText(stats.castTime),
+      resourceCost: toOptionalText(stats.resourceCost),
       pointsCost: parseCostPoints(row.cost),
+      costCustom: toOptionalText(cost.custom),
+      target: parseJsonObject(row.target),
+      area: parseJsonObject(row.area),
+      scaling: parseJsonObject(row.scaling),
+      requirement: parseJsonObject(row.requirement),
+      effects: parseJsonArray(row.effects),
     })
 
     acc[row.skillId] = skill
