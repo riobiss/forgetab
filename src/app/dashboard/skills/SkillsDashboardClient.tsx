@@ -347,6 +347,8 @@ export default function SkillsDashboardClient({
   const [levelForm, setLevelForm] = useState<LevelForm>(createInitialLevel())
   const [createOpen, setCreateOpen] = useState(false)
   const [createStep, setCreateStep] = useState(1)
+  const [editStep, setEditStep] = useState(1)
+  const [editReloadKey, setEditReloadKey] = useState(0)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
@@ -396,6 +398,8 @@ export default function SkillsDashboardClient({
     if (!selectedSkillId) {
       setActiveSkill(null)
       setSelectedLevelId("")
+      setMetaForm(createInitialMeta())
+      setLevelForm(createInitialLevel())
       return
     }
 
@@ -413,6 +417,7 @@ export default function SkillsDashboardClient({
         setMetaForm(mapSkillToMetaForm(payload.skill))
         const firstLevel = payload.skill.levels[0]
         setSelectedLevelId(firstLevel?.id ?? "")
+        setLevelForm(firstLevel ? mapLevelToForm(firstLevel) : createInitialLevel())
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : "Erro ao carregar skill.")
       } finally {
@@ -421,7 +426,7 @@ export default function SkillsDashboardClient({
     }
 
     void loadSkill()
-  }, [selectedSkillId])
+  }, [selectedSkillId, editReloadKey])
 
   useEffect(() => {
     if (!selectedLevel) return
@@ -621,6 +626,7 @@ export default function SkillsDashboardClient({
       const createdSkill = result.skill
 
       setCreateOpen(false)
+      setEditStep(1)
       setSelectedSkillId(createdSkill.id)
       setSkills((prev) => [
         {
@@ -789,7 +795,9 @@ export default function SkillsDashboardClient({
               className={selectedSkillId === skill.id ? styles.skillCardActive : styles.skillCard}
               onClick={() => {
                 setCreateOpen(false)
+                setEditStep(1)
                 setSelectedSkillId(skill.id)
+                setEditReloadKey((prev) => prev + 1)
               }}
             >
               <strong>{skill.name}</strong>
@@ -805,15 +813,16 @@ export default function SkillsDashboardClient({
 
           {createOpen ? (
             <section className={styles.card}>
+              <h2>Criar</h2>
               <div className={styles.stepper}>
-                {[1, 2, 3].map((step) => (
+                {[1, 2, 3, 4].map((step) => (
                   <button
                     type="button"
                     key={step}
                     className={createStep === step ? styles.stepActive : styles.step}
                     onClick={() => setCreateStep(step)}
                   >
-                    {step === 1 ? "Basico" : step === 2 ? "Vinculos" : "Level 1"}
+                    {step === 1 ? "Basico" : step === 2 ? "Vinculos" : step === 3 ? "Avançado" : "Efeitos"}
                   </button>
                 ))}
               </div>
@@ -873,6 +882,17 @@ export default function SkillsDashboardClient({
                       value={metaForm.currentLevel}
                       onChange={(event) =>
                         setMetaForm((prev) => ({ ...prev, currentLevel: event.target.value }))
+                      }
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span>Nivel requerido</span>
+                    <input
+                      type="number"
+                      min={1}
+                      value={levelForm.levelRequired}
+                      onChange={(event) =>
+                        setLevelForm((prev) => ({ ...prev, levelRequired: event.target.value }))
                       }
                     />
                   </label>
@@ -946,6 +966,270 @@ export default function SkillsDashboardClient({
                 <div className={styles.levelBlock}>
                   <div className={styles.grid}>
                     <label className={styles.field}>
+                      <span>Dano</span>
+                      <input
+                        value={levelForm.damage}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, damage: event.target.value }))}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Recarga</span>
+                      <input
+                        value={levelForm.cooldown}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, cooldown: event.target.value }))}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Alcance</span>
+                      <input
+                        value={levelForm.range}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, range: event.target.value }))}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Duracao</span>
+                      <input
+                        value={levelForm.duration}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, duration: event.target.value }))}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Tempo de conjuracao</span>
+                      <input
+                        value={levelForm.castTime}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, castTime: event.target.value }))}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Custo de recurso</span>
+                      <input
+                        value={levelForm.resourceCost}
+                        onChange={(event) =>
+                          setLevelForm((prev) => ({ ...prev, resourceCost: event.target.value }))
+                        }
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Custo personalizado</span>
+                      <input
+                        value={levelForm.costCustom}
+                        onChange={(event) =>
+                          setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))
+                        }
+                      />
+                    </label>
+                  </div>
+                </div>
+              ) : null}
+
+              {createStep === 4 ? (
+                <div className={styles.levelBlock}>
+                  <EffectEditor
+                    effects={levelForm.effects}
+                    onChange={(effects) => setLevelForm((prev) => ({ ...prev, effects }))}
+                  />
+                </div>
+              ) : null}
+
+              <div className={styles.actions}>
+                {createStep > 1 ? (
+                  <button
+                    type="button"
+                    className={styles.ghostButton}
+                    onClick={() => setCreateStep((prev) => prev - 1)}
+                  >
+                    Voltar etapa
+                  </button>
+                ) : null}
+                {createStep < 4 ? (
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    onClick={() => setCreateStep((prev) => prev + 1)}
+                  >
+                    Proxima etapa
+                  </button>
+                ) : (
+                  <button type="button" className={styles.primaryButton} onClick={createSkill} disabled={saving}>
+                    {saving ? "Criando..." : "Criar habilidade"}
+                  </button>
+                )}
+              </div>
+            </section>
+          ) : null}
+
+          {!createOpen && activeSkill ? (
+            <section className={styles.card}>
+              <h2>Editar</h2>
+              <p className={styles.muted}>{activeSkill.name}</p>
+              <div className={styles.stepper}>
+                {[1, 2, 3, 4].map((step) => (
+                  <button
+                    type="button"
+                    key={step}
+                    className={editStep === step ? styles.stepActive : styles.step}
+                    onClick={() => setEditStep(step)}
+                  >
+                    {step === 1 ? "Basico" : step === 2 ? "Vinculos" : step === 3 ? "Avançado" : "Efeitos"}
+                  </button>
+                ))}
+              </div>
+
+              {editStep === 1 ? (
+                <>
+                  <div className={styles.grid}>
+                    <label className={styles.field}>
+                      <span>Nome</span>
+                      <input
+                        value={metaForm.name}
+                        onChange={(event) => setMetaForm((prev) => ({ ...prev, name: event.target.value }))}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Nivel atual</span>
+                      <input
+                        type="number"
+                        min={1}
+                        value={metaForm.currentLevel}
+                        onChange={(event) =>
+                          setMetaForm((prev) => ({ ...prev, currentLevel: event.target.value }))
+                        }
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Categoria</span>
+                      <select
+                        value={metaForm.category}
+                        onChange={(event) =>
+                          setMetaForm((prev) => ({
+                            ...prev,
+                            category: event.target.value as SkillCategory | "",
+                          }))
+                        }
+                      >
+                        <option value="">Selecione</option>
+                        {skillCategoryValues.map((option) => (
+                          <option key={option} value={option}>
+                            {skillCategoryLabel[option]}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className={styles.field}>
+                      <span>Tipo</span>
+                      <select
+                        value={metaForm.type}
+                        onChange={(event) =>
+                          setMetaForm((prev) => ({
+                            ...prev,
+                            type: event.target.value as SkillUsageType | "",
+                          }))
+                        }
+                      >
+                        <option value="">Selecione</option>
+                        {skillUsageTypeValues.map((option) => (
+                          <option key={option} value={option}>
+                            {skillUsageTypeLabel[option]}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className={`${styles.field} ${styles.spanTwo}`}>
+                      <span>Descricao</span>
+                      <textarea
+                        rows={2}
+                        value={metaForm.description}
+                        onChange={(event) =>
+                          setMetaForm((prev) => ({ ...prev, description: event.target.value }))
+                        }
+                      />
+                    </label>
+                  </div>
+
+                  <div className={styles.actions}>
+                    <button type="button" className={styles.primaryButton} onClick={saveMeta} disabled={saving}>
+                      {saving ? "Salvando..." : "Salvar meta"}
+                    </button>
+                  </div>
+                </>
+              ) : null}
+
+              {editStep === 2 ? (
+                <>
+                  <div className={styles.bindingGrid}>
+                    <div className={styles.bindBox}>
+                      <h3>Classes</h3>
+                      {classes.map((item) => (
+                        <label key={item.id} className={styles.check}>
+                          <input
+                            type="checkbox"
+                            checked={metaForm.classIds.includes(item.id)}
+                            onChange={() =>
+                              setMetaForm((prev) => ({
+                                ...prev,
+                                classIds: toggleId(prev.classIds, item.id),
+                              }))
+                            }
+                          />
+                          <span>{item.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className={styles.bindBox}>
+                      <h3>Racas</h3>
+                      {races.map((item) => (
+                        <label key={item.id} className={styles.check}>
+                          <input
+                            type="checkbox"
+                            checked={metaForm.raceIds.includes(item.id)}
+                            onChange={() =>
+                              setMetaForm((prev) => ({
+                                ...prev,
+                                raceIds: toggleId(prev.raceIds, item.id),
+                              }))
+                            }
+                          />
+                          <span>{item.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className={styles.actions}>
+                    <button type="button" className={styles.primaryButton} onClick={saveMeta} disabled={saving}>
+                      {saving ? "Salvando..." : "Salvar meta"}
+                    </button>
+                  </div>
+                </>
+              ) : null}
+
+              {editStep >= 3 ? (
+                <div className={styles.levelHeader}>
+                  <h3>Editor de Niveis</h3>
+                  <div className={styles.levelHeaderActions}>
+                    <select value={selectedLevelId} onChange={(event) => setSelectedLevelId(event.target.value)}>
+                      {activeSkill.levels.map((level) => (
+                        <option key={level.id} value={level.id}>
+                          Nivel {level.levelNumber} (req {level.levelRequired} | pontos {getLevelCostPoints(level) ?? 0})
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      className={styles.ghostButton}
+                      onClick={createSnapshotLevel}
+                      disabled={saving}
+                    >
+                      Criar novo nivel (copiar anterior)
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {editStep === 3 ? (
+                <div className={styles.levelBlock}>
+                  <div className={styles.grid}>
+                    <label className={styles.field}>
                       <span>Nivel requerido</span>
                       <input
                         type="number"
@@ -1007,296 +1291,60 @@ export default function SkillsDashboardClient({
                         min={0}
                         step={1}
                         value={levelForm.costPoints}
-                        onChange={(event) =>
-                          setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))
-                        }
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))}
                       />
                     </label>
                     <label className={styles.field}>
                       <span>Custo personalizado</span>
                       <input
                         value={levelForm.costCustom}
-                        onChange={(event) =>
-                          setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))
-                        }
-                      />
-                    </label>
-                    <label className={`${styles.field} ${styles.spanTwo}`}>
-                      <span>Resumo do nivel</span>
-                      <textarea
-                        rows={2}
-                        value={levelForm.summary}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, summary: event.target.value }))}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))}
                       />
                     </label>
                   </div>
+
+                  <div className={styles.actions}>
+                    <button type="button" className={styles.primaryButton} onClick={saveLevel} disabled={saving}>
+                      {saving ? "Salvando..." : "Salvar nivel"}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {editStep === 4 ? (
+                <div className={styles.levelBlock}>
                   <EffectEditor
                     effects={levelForm.effects}
                     onChange={(effects) => setLevelForm((prev) => ({ ...prev, effects }))}
                   />
+
+                  <div className={styles.actions}>
+                    <button type="button" className={styles.primaryButton} onClick={saveLevel} disabled={saving}>
+                      {saving ? "Salvando..." : "Salvar nivel"}
+                    </button>
+                  </div>
                 </div>
               ) : null}
 
               <div className={styles.actions}>
-                {createStep > 1 ? (
+                {editStep > 1 ? (
                   <button
                     type="button"
                     className={styles.ghostButton}
-                    onClick={() => setCreateStep((prev) => prev - 1)}
+                    onClick={() => setEditStep((prev) => prev - 1)}
                   >
                     Voltar etapa
                   </button>
                 ) : null}
-                {createStep < 3 ? (
+                {editStep < 4 ? (
                   <button
                     type="button"
                     className={styles.primaryButton}
-                    onClick={() => setCreateStep((prev) => prev + 1)}
+                    onClick={() => setEditStep((prev) => prev + 1)}
                   >
                     Proxima etapa
                   </button>
-                ) : (
-                  <button type="button" className={styles.primaryButton} onClick={createSkill} disabled={saving}>
-                    {saving ? "Criando..." : "Criar habilidade"}
-                  </button>
-                )}
-              </div>
-            </section>
-          ) : null}
-
-          {!createOpen && activeSkill ? (
-            <section className={styles.card}>
-              <h2>{activeSkill.name}</h2>
-
-              <div className={styles.grid}>
-                <label className={styles.field}>
-                  <span>Nome</span>
-                  <input
-                    value={metaForm.name}
-                    onChange={(event) => setMetaForm((prev) => ({ ...prev, name: event.target.value }))}
-                  />
-                </label>
-                <label className={styles.field}>
-                  <span>Nivel atual</span>
-                  <input
-                    type="number"
-                    min={1}
-                    value={metaForm.currentLevel}
-                    onChange={(event) =>
-                      setMetaForm((prev) => ({ ...prev, currentLevel: event.target.value }))
-                    }
-                  />
-                </label>
-                <label className={styles.field}>
-                  <span>Categoria</span>
-                  <select
-                    value={metaForm.category}
-                    onChange={(event) =>
-                      setMetaForm((prev) => ({
-                        ...prev,
-                        category: event.target.value as SkillCategory | "",
-                      }))
-                    }
-                  >
-                    <option value="">Selecione</option>
-                    {skillCategoryValues.map((option) => (
-                      <option key={option} value={option}>
-                        {skillCategoryLabel[option]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className={styles.field}>
-                  <span>Tipo</span>
-                  <select
-                    value={metaForm.type}
-                    onChange={(event) =>
-                      setMetaForm((prev) => ({
-                        ...prev,
-                        type: event.target.value as SkillUsageType | "",
-                      }))
-                    }
-                  >
-                    <option value="">Selecione</option>
-                    {skillUsageTypeValues.map((option) => (
-                      <option key={option} value={option}>
-                        {skillUsageTypeLabel[option]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className={`${styles.field} ${styles.spanTwo}`}>
-                  <span>Descricao</span>
-                  <textarea
-                    rows={2}
-                    value={metaForm.description}
-                    onChange={(event) =>
-                      setMetaForm((prev) => ({ ...prev, description: event.target.value }))
-                    }
-                  />
-                </label>
-              </div>
-
-              <div className={styles.bindingGrid}>
-                <div className={styles.bindBox}>
-                  <h3>Classes</h3>
-                  {classes.map((item) => (
-                    <label key={item.id} className={styles.check}>
-                      <input
-                        type="checkbox"
-                        checked={metaForm.classIds.includes(item.id)}
-                        onChange={() =>
-                          setMetaForm((prev) => ({
-                            ...prev,
-                            classIds: toggleId(prev.classIds, item.id),
-                          }))
-                        }
-                      />
-                      <span>{item.label}</span>
-                    </label>
-                  ))}
-                </div>
-                <div className={styles.bindBox}>
-                  <h3>Racas</h3>
-                  {races.map((item) => (
-                    <label key={item.id} className={styles.check}>
-                      <input
-                        type="checkbox"
-                        checked={metaForm.raceIds.includes(item.id)}
-                        onChange={() =>
-                          setMetaForm((prev) => ({
-                            ...prev,
-                            raceIds: toggleId(prev.raceIds, item.id),
-                          }))
-                        }
-                      />
-                      <span>{item.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className={styles.actions}>
-                <button type="button" className={styles.primaryButton} onClick={saveMeta} disabled={saving}>
-                  {saving ? "Salvando..." : "Salvar meta"}
-                </button>
-              </div>
-
-              <div className={styles.levelHeader}>
-                <h3>Editor de Niveis</h3>
-                <div className={styles.levelHeaderActions}>
-                  <select value={selectedLevelId} onChange={(event) => setSelectedLevelId(event.target.value)}>
-                    {activeSkill.levels.map((level) => (
-                      <option key={level.id} value={level.id}>
-                        Nivel {level.levelNumber} (req {level.levelRequired} | pontos {getLevelCostPoints(level) ?? 0})
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    className={styles.ghostButton}
-                    onClick={createSnapshotLevel}
-                    disabled={saving}
-                  >
-                    Criar novo nivel (copiar anterior)
-                  </button>
-                </div>
-              </div>
-
-              <div className={styles.levelBlock}>
-                <div className={styles.grid}>
-                  <label className={styles.field}>
-                    <span>Nivel requerido</span>
-                    <input
-                      type="number"
-                      min={1}
-                      value={levelForm.levelRequired}
-                      onChange={(event) =>
-                        setLevelForm((prev) => ({ ...prev, levelRequired: event.target.value }))
-                      }
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span>Dano</span>
-                    <input
-                      value={levelForm.damage}
-                      onChange={(event) => setLevelForm((prev) => ({ ...prev, damage: event.target.value }))}
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span>Recarga</span>
-                    <input
-                      value={levelForm.cooldown}
-                      onChange={(event) => setLevelForm((prev) => ({ ...prev, cooldown: event.target.value }))}
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span>Alcance</span>
-                    <input
-                      value={levelForm.range}
-                      onChange={(event) => setLevelForm((prev) => ({ ...prev, range: event.target.value }))}
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span>Duracao</span>
-                    <input
-                      value={levelForm.duration}
-                      onChange={(event) => setLevelForm((prev) => ({ ...prev, duration: event.target.value }))}
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span>Tempo de conjuracao</span>
-                    <input
-                      value={levelForm.castTime}
-                      onChange={(event) => setLevelForm((prev) => ({ ...prev, castTime: event.target.value }))}
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span>Custo de recurso</span>
-                    <input
-                      value={levelForm.resourceCost}
-                      onChange={(event) =>
-                        setLevelForm((prev) => ({ ...prev, resourceCost: event.target.value }))
-                      }
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span>Pontos necessarios para comprar</span>
-                    <input
-                      type="number"
-                      min={0}
-                      step={1}
-                      value={levelForm.costPoints}
-                      onChange={(event) => setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))}
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span>Custo personalizado</span>
-                    <input
-                      value={levelForm.costCustom}
-                      onChange={(event) => setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))}
-                    />
-                  </label>
-                  <label className={`${styles.field} ${styles.spanTwo}`}>
-                    <span>Resumo do nivel</span>
-                    <textarea
-                      rows={2}
-                      value={levelForm.summary}
-                      onChange={(event) => setLevelForm((prev) => ({ ...prev, summary: event.target.value }))}
-                    />
-                  </label>
-                </div>
-
-                <EffectEditor
-                  effects={levelForm.effects}
-                  onChange={(effects) => setLevelForm((prev) => ({ ...prev, effects }))}
-                />
-
-                <div className={styles.actions}>
-                  <button type="button" className={styles.primaryButton} onClick={saveLevel} disabled={saving}>
-                    {saving ? "Salvando..." : "Salvar nivel"}
-                  </button>
-                </div>
+                ) : null}
               </div>
             </section>
           ) : null}

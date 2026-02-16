@@ -77,6 +77,10 @@ function hasText(value: string | null | undefined) {
   return typeof value === "string" && value.trim().length > 0
 }
 
+function normalizeText(value: string | null | undefined) {
+  return typeof value === "string" ? value.trim() : ""
+}
+
 function hasObject(value: Record<string, unknown> | null | undefined) {
   return Boolean(value && Object.keys(value).length > 0)
 }
@@ -151,6 +155,14 @@ export default function ClassSkillsClient({
 }: Props) {
   const [points, setPoints] = useState(initialPoints)
   const [ownedBySkill, setOwnedBySkill] = useState(() => normalizeOwned(initialOwnedBySkill))
+  const [selectedLevelBySkill, setSelectedLevelBySkill] = useState<Record<string, number>>(() =>
+    skills.reduce<Record<string, number>>((acc, skill) => {
+      const firstLevel = skill.levels[0]
+      if (firstLevel) acc[skill.skillId] = firstLevel.levelNumber
+      return acc
+    }, {}),
+  )
+  const [openLevelSelectorForSkill, setOpenLevelSelectorForSkill] = useState("")
   const [loadingKey, setLoadingKey] = useState("")
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
@@ -214,165 +226,195 @@ export default function ClassSkillsClient({
       {success ? <p className={styles.successText}>{success}</p> : null}
 
       <div className={styles.abilityGrid}>
-        {skills.map((skill) => (
-          <div key={skill.skillId} className={styles.abilityCard}>
-            <div className={styles.abilityHeader}>
-              <h3 className={styles.abilityName}>{skill.skillName}</h3>
-            </div>
-            {hasText(skill.skillDescription) ? (
-              <p className={styles.abilityDescription}>{skill.skillDescription}</p>
-            ) : null}
+        {skills.map((skill) => {
+          const selectedLevelNumber = selectedLevelBySkill[skill.skillId] ?? skill.levels[0]?.levelNumber
+          const selectedLevel =
+            skill.levels.find((level) => level.levelNumber === selectedLevelNumber) ?? skill.levels[0]
 
-            <div className={styles.levelList}>
-              {skill.levels.map((level) => {
-                const owned = ownedBySkill[skill.skillId]?.has(level.levelNumber) ?? false
-                const key = buildLevelKey(skill.skillId, level.levelNumber)
-                const loading = loadingKey === key
-                const cantAfford =
-                  typeof level.pointsCost === "number" ? points < level.pointsCost : true
-                const buyDisabled =
-                  Boolean(disabledReason) ||
-                  owned ||
-                  loading ||
-                  cantAfford ||
-                  level.pointsCost === null
+          if (!selectedLevel) return null
 
-                return (
-                  <div key={key} className={styles.levelRow}>
-                    <div className={styles.levelInfo}>
-                      <div className={styles.levelTop}>
-                        <span className={styles.abilityLevel}>Nivel {level.levelNumber}</span>
-                        {typeof level.pointsCost === "number" ? (
-                          <span className={styles.costBadge}>
-                            {level.pointsCost} {costResourceName}
-                          </span>
-                        ) : null}
-                      </div>
-                      {hasText(level.summary) ? (
-                        <p className={styles.abilityDescription}>{level.summary}</p>
-                      ) : null}
-                      {hasText(level.description) ? (
-                        <p className={styles.abilityDescription}>{level.description}</p>
-                      ) : null}
-                      <div className={styles.abilityStats}>
-                        {hasText(skill.skillCategory) ? (
-                          <div className={styles.statItem}>
-                            <strong>Categoria</strong>
-                            {toCategoryLabel(skill.skillCategory)}
-                          </div>
-                        ) : null}
-                        {hasText(skill.skillType) ? (
-                          <div className={styles.statItem}>
-                            <strong>Tipo</strong>
-                            {toTypeLabel(skill.skillType)}
-                          </div>
-                        ) : null}
-                        {hasText(level.damage) ? (
-                          <div className={styles.statItem}>
-                            <strong>Dano</strong>
-                            {level.damage}
-                          </div>
-                        ) : null}
-                        {hasText(level.range) ? (
-                          <div className={styles.statItem}>
-                            <strong>Alcance</strong>
-                            {level.range}
-                          </div>
-                        ) : null}
-                        {hasText(level.cooldown) ? (
-                          <div className={styles.statItem}>
-                            <strong>Recarga</strong>
-                            {level.cooldown}
-                          </div>
-                        ) : null}
-                        {hasText(level.duration) ? (
-                          <div className={styles.statItem}>
-                            <strong>Duracao</strong>
-                            {level.duration}
-                          </div>
-                        ) : null}
-                        {hasText(level.castTime) ? (
-                          <div className={styles.statItem}>
-                            <strong>Conjuracao</strong>
-                            {level.castTime}
-                          </div>
-                        ) : null}
-                        {hasText(level.resourceCost) ? (
-                          <div className={styles.statItem}>
-                            <strong>Custo de recurso</strong>
-                            {level.resourceCost}
-                          </div>
-                        ) : null}
-                        <div className={styles.statItem}>
-                          <strong>Requisito</strong>
-                          Nivel {level.levelRequired}
-                        </div>
-                        {typeof level.pointsCost === "number" ? (
-                          <div className={styles.statItem}>
-                            <strong>Custo</strong>
-                            {`${level.pointsCost} ${costResourceName}`}
-                          </div>
-                        ) : null}
-                        {hasText(level.costCustom) ? (
-                          <div className={styles.statItem}>
-                            <strong>Custo custom</strong>
-                            {level.costCustom}
-                          </div>
-                        ) : null}
-                        {hasObject(level.target) ? (
-                          <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                            <strong>Alvo</strong>
-                            {renderJson(level.target)}
-                          </div>
-                        ) : null}
-                        {hasObject(level.area) ? (
-                          <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                            <strong>Area</strong>
-                            {renderJson(level.area)}
-                          </div>
-                        ) : null}
-                        {hasObject(level.scaling) ? (
-                          <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                            <strong>Escalonamento</strong>
-                            {renderJson(level.scaling)}
-                          </div>
-                        ) : null}
-                        {hasObject(level.requirement) ? (
-                          <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                            <strong>Requisitos</strong>
-                            {renderJson(level.requirement)}
-                          </div>
-                        ) : null}
-                        {hasMeaningfulEffects(level.effects) ? (
-                          <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                            <strong>Efeitos</strong>
-                            {renderJson(level.effects)}
-                          </div>
-                        ) : null}
-                      </div>
+          const owned = ownedBySkill[skill.skillId]?.has(selectedLevel.levelNumber) ?? false
+          const key = buildLevelKey(skill.skillId, selectedLevel.levelNumber)
+          const loading = loadingKey === key
+          const cantAfford =
+            typeof selectedLevel.pointsCost === "number" ? points < selectedLevel.pointsCost : true
+          const buyDisabled =
+            Boolean(disabledReason) ||
+            owned ||
+            loading ||
+            cantAfford ||
+            selectedLevel.pointsCost === null
+          const levelDescription = hasText(selectedLevel.summary)
+            ? selectedLevel.summary
+            : hasText(selectedLevel.description)
+              ? selectedLevel.description
+              : null
+          const baseDescription = normalizeText(skill.skillDescription)
+          const levelDescriptionNormalized = normalizeText(levelDescription)
+          const showLevelDescription =
+            levelDescriptionNormalized.length > 0 && levelDescriptionNormalized !== baseDescription
+          const selectorOpen = openLevelSelectorForSkill === skill.skillId
+
+          return (
+            <div key={skill.skillId} className={styles.abilityCard}>
+              <div className={styles.abilityHeader}>
+                <h3 className={styles.abilityName}>{skill.skillName}</h3>
+                <div className={styles.levelSelector}>
+                  <button
+                    type="button"
+                    className={styles.levelToggleButton}
+                    onClick={() =>
+                      setOpenLevelSelectorForSkill((prev) => (prev === skill.skillId ? "" : skill.skillId))
+                    }
+                  >
+                    Nivel {selectedLevel.levelNumber}
+                  </button>
+                  {selectorOpen ? (
+                    <div className={styles.levelMenu}>
+                      {skill.levels.map((levelOption) => (
+                        <button
+                          key={buildLevelKey(skill.skillId, levelOption.levelNumber)}
+                          type="button"
+                          className={
+                            levelOption.levelNumber === selectedLevel.levelNumber
+                              ? `${styles.levelMenuItem} ${styles.levelMenuItemActive}`
+                              : styles.levelMenuItem
+                          }
+                          onClick={() => {
+                            setSelectedLevelBySkill((prev) => ({
+                              ...prev,
+                              [skill.skillId]: levelOption.levelNumber,
+                            }))
+                            setOpenLevelSelectorForSkill("")
+                          }}
+                        >
+                          Nivel {levelOption.levelNumber}
+                        </button>
+                      ))}
                     </div>
+                  ) : null}
+                </div>
+              </div>
+              {hasText(skill.skillDescription) ? (
+                <p className={styles.abilityDescription}>{skill.skillDescription}</p>
+              ) : null}
 
-                    <div className={styles.buyAction}>
-                      {typeof level.pointsCost === "number" ? (
-                        <span className={styles.buyPrice}>
-                          Preco: {level.pointsCost}
-                        </span>
-                      ) : null}
-                      <button
-                        type="button"
-                        className={styles.buyButton}
-                        disabled={buyDisabled}
-                        onClick={() => void handleBuy(skill.skillId, level.levelNumber)}
-                      >
-                        {owned ? "Comprado" : loading ? "Comprando..." : "Comprar"}
-                      </button>
+              <div className={styles.levelRow}>
+                <div className={styles.levelInfo}>
+                  {showLevelDescription ? (
+                    <p className={styles.abilityDescription}>{levelDescription}</p>
+                  ) : null}
+                  <div className={styles.abilityStats}>
+                    {hasText(skill.skillCategory) ? (
+                      <div className={styles.statItem}>
+                        <strong>Categoria</strong>
+                        {toCategoryLabel(skill.skillCategory)}
+                      </div>
+                    ) : null}
+                    {hasText(skill.skillType) ? (
+                      <div className={styles.statItem}>
+                        <strong>Tipo</strong>
+                        {toTypeLabel(skill.skillType)}
+                      </div>
+                    ) : null}
+                    {hasText(selectedLevel.damage) ? (
+                      <div className={styles.statItem}>
+                        <strong>Dano</strong>
+                        {selectedLevel.damage}
+                      </div>
+                    ) : null}
+                    {hasText(selectedLevel.range) ? (
+                      <div className={styles.statItem}>
+                        <strong>Alcance</strong>
+                        {selectedLevel.range}
+                      </div>
+                    ) : null}
+                    {hasText(selectedLevel.cooldown) ? (
+                      <div className={styles.statItem}>
+                        <strong>Recarga</strong>
+                        {selectedLevel.cooldown}
+                      </div>
+                    ) : null}
+                    {hasText(selectedLevel.duration) ? (
+                      <div className={styles.statItem}>
+                        <strong>Duracao</strong>
+                        {selectedLevel.duration}
+                      </div>
+                    ) : null}
+                    {hasText(selectedLevel.castTime) ? (
+                      <div className={styles.statItem}>
+                        <strong>Conjuracao</strong>
+                        {selectedLevel.castTime}
+                      </div>
+                    ) : null}
+                    {hasText(selectedLevel.resourceCost) ? (
+                      <div className={styles.statItem}>
+                        <strong>Custo de recurso</strong>
+                        {selectedLevel.resourceCost}
+                      </div>
+                    ) : null}
+                    <div className={styles.statItem}>
+                      <strong>Requisito</strong>
+                      Nivel {selectedLevel.levelRequired}
                     </div>
+                    {hasText(selectedLevel.costCustom) ? (
+                      <div className={styles.statItem}>
+                        <strong>Custo custom</strong>
+                        {selectedLevel.costCustom}
+                      </div>
+                    ) : null}
+                    {hasObject(selectedLevel.target) ? (
+                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                        <strong>Alvo</strong>
+                        {renderJson(selectedLevel.target)}
+                      </div>
+                    ) : null}
+                    {hasObject(selectedLevel.area) ? (
+                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                        <strong>Area</strong>
+                        {renderJson(selectedLevel.area)}
+                      </div>
+                    ) : null}
+                    {hasObject(selectedLevel.scaling) ? (
+                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                        <strong>Escalonamento</strong>
+                        {renderJson(selectedLevel.scaling)}
+                      </div>
+                    ) : null}
+                    {hasObject(selectedLevel.requirement) ? (
+                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                        <strong>Requisitos</strong>
+                        {renderJson(selectedLevel.requirement)}
+                      </div>
+                    ) : null}
+                    {hasMeaningfulEffects(selectedLevel.effects) ? (
+                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                        <strong>Efeitos</strong>
+                        {renderJson(selectedLevel.effects)}
+                      </div>
+                    ) : null}
                   </div>
-                )
-              })}
+                </div>
+
+                <div className={styles.buyAction}>
+                  {typeof selectedLevel.pointsCost === "number" ? (
+                    <span className={styles.buyPrice}>
+                      Preco: {selectedLevel.pointsCost}
+                    </span>
+                  ) : null}
+                  <button
+                    type="button"
+                    className={styles.buyButton}
+                    disabled={buyDisabled}
+                    onClick={() => void handleBuy(skill.skillId, selectedLevel.levelNumber)}
+                  >
+                    {owned ? "Comprado" : loading ? "Comprando..." : "Comprar"}
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </>
   )

@@ -35,23 +35,15 @@
 .abilityHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 1rem;
+  gap: 0.8rem;
 }
 
 .abilityName {
   color: var(--text-title);
   margin: 0;
   font-size: 1.5rem;
-}
-
-.abilityLevel {
-  background: var(--accent-main);
-  color: var(--text-alternativ);
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-  font-size: 0.8rem;
 }
 
 .abilityDescription {
@@ -97,11 +89,6 @@
   font-size: 0.74rem;
 }
 
-.costBadge {
-  color: var(--accent-strong);
-  font-weight: bold;
-}
-
 .pointsCard {
   display: flex;
   justify-content: space-between;
@@ -119,11 +106,6 @@
   font-size: 1.1rem;
 }
 
-.levelList {
-  display: grid;
-  gap: 0.9rem;
-}
-
 .levelRow {
   border-top: 1px solid var(--border-soft);
   padding-top: 0.8rem;
@@ -136,11 +118,56 @@
   gap: 0.4rem;
 }
 
-.levelTop {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.6rem;
+.levelSelector {
+  position: relative;
+}
+
+.levelToggleButton {
+  border: 1px solid var(--accent-main);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-main);
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.83rem;
+  white-space: nowrap;
+}
+
+.levelMenu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 5;
+  min-width: 110px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  box-shadow: var(--shadow-main);
+  padding: 0.25rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.levelMenuItem {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-main);
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.82rem;
+}
+
+.levelMenuItem:hover {
+  border-color: var(--accent-main);
+  background: var(--bg-hover);
+}
+
+.levelMenuItemActive {
+  border-color: var(--accent-main);
+  background: rgba(0, 0, 0, 0.22);
 }
 
 .buyButton {
@@ -157,7 +184,7 @@
 .buyAction {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 0.55rem;
   width: 100%;
 }
