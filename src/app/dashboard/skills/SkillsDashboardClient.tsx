@@ -117,6 +117,9 @@ type MetaForm = {
 }
 
 type LevelForm = {
+  levelName: string
+  levelDescription: string
+  notesList: string[]
   levelRequired: string
   summary: string
   damage: string
@@ -147,6 +150,10 @@ function toOptionalNumber(value: string) {
   if (!trimmed) return null
   const parsed = Number(trimmed)
   return Number.isFinite(parsed) ? parsed : null
+}
+
+function normalizeObsList(values: string[]) {
+  return values.map((item) => item.trim()).filter((item) => item.length > 0)
 }
 
 function emptyEffect(): SkillEffect {
@@ -253,8 +260,16 @@ function mapSkillToMetaForm(skill: SkillDetail): MetaForm {
 function mapLevelToForm(level: SkillLevel): LevelForm {
   const stats = level.stats ?? {}
   const cost = level.cost ?? {}
+  const statsNotesListRaw = Array.isArray(stats.notesList) ? stats.notesList : []
+  const statsNotesList = statsNotesListRaw
+    .map((item) => (typeof item === "string" ? item : ""))
+    .filter((item) => item.trim().length > 0)
+  const fallbackNote = typeof stats.notes === "string" ? stats.notes : ""
 
   return {
+    levelName: typeof stats.name === "string" ? stats.name : "",
+    levelDescription: typeof stats.description === "string" ? stats.description : "",
+    notesList: statsNotesList.length > 0 ? statsNotesList : fallbackNote ? [fallbackNote] : [""],
     levelRequired: String(level.levelRequired),
     summary: level.summary ?? "",
     damage: typeof stats.damage === "string" ? stats.damage : "",
@@ -296,6 +311,9 @@ function createInitialMeta(): MetaForm {
 
 function createInitialLevel(): LevelForm {
   return {
+    levelName: "",
+    levelDescription: "",
+    notesList: [""],
     levelRequired: "1",
     summary: "",
     damage: "",
@@ -346,6 +364,7 @@ export default function SkillsDashboardClient({
   const [metaForm, setMetaForm] = useState<MetaForm>(createInitialMeta())
   const [levelForm, setLevelForm] = useState<LevelForm>(createInitialLevel())
   const [createOpen, setCreateOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
   const [createStep, setCreateStep] = useState(1)
   const [editStep, setEditStep] = useState(1)
   const [editReloadKey, setEditReloadKey] = useState(0)
@@ -384,6 +403,7 @@ export default function SkillsDashboardClient({
         setRaces(racePayload.races ?? [])
         setSkills(skillPayload.skills ?? [])
         setSelectedSkillId(skillPayload.skills?.[0]?.id ?? "")
+        setEditOpen(false)
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : "Erro ao carregar dashboard.")
       } finally {
@@ -395,6 +415,8 @@ export default function SkillsDashboardClient({
   }, [selectedRpgId])
 
   useEffect(() => {
+    if (createOpen) return
+
     if (!selectedSkillId) {
       setActiveSkill(null)
       setSelectedLevelId("")
@@ -402,6 +424,8 @@ export default function SkillsDashboardClient({
       setLevelForm(createInitialLevel())
       return
     }
+
+    let cancelled = false
 
     async function loadSkill() {
       setLoading(true)
@@ -413,25 +437,32 @@ export default function SkillsDashboardClient({
           throw new Error(payload.message ?? "Erro ao carregar skill.")
         }
 
+        if (cancelled) return
         setActiveSkill(payload.skill)
         setMetaForm(mapSkillToMetaForm(payload.skill))
         const firstLevel = payload.skill.levels[0]
         setSelectedLevelId(firstLevel?.id ?? "")
         setLevelForm(firstLevel ? mapLevelToForm(firstLevel) : createInitialLevel())
       } catch (cause) {
+        if (cancelled) return
         setError(cause instanceof Error ? cause.message : "Erro ao carregar skill.")
       } finally {
+        if (cancelled) return
         setLoading(false)
       }
     }
 
     void loadSkill()
-  }, [selectedSkillId, editReloadKey])
+    return () => {
+      cancelled = true
+    }
+  }, [selectedSkillId, editReloadKey, createOpen])
 
   useEffect(() => {
+    if (createOpen) return
     if (!selectedLevel) return
     setLevelForm(mapLevelToForm(selectedLevel))
-  }, [selectedLevel])
+  }, [selectedLevel, createOpen])
 
   function EffectEditor({
     effects,
@@ -599,6 +630,10 @@ export default function SkillsDashboardClient({
           levelRequired: toOptionalNumber(levelForm.levelRequired) ?? 1,
           summary: toOptionalText(levelForm.summary),
           stats: {
+            name: toOptionalText(levelForm.levelName),
+            description: toOptionalText(levelForm.levelDescription),
+            notes: toOptionalText(levelForm.notesList[0] ?? ""),
+            notesList: normalizeObsList(levelForm.notesList),
             damage: toOptionalText(levelForm.damage),
             cooldown: toOptionalText(levelForm.cooldown),
             range: toOptionalText(levelForm.range),
@@ -646,17 +681,24 @@ export default function SkillsDashboardClient({
     }
   }
 
-  async function saveMeta() {
-    if (!activeSkill) return
-    setSaving(true)
-    setError("")
-    setSuccess("")
+  async function saveMeta(options?: { manageSaving?: boolean; showSuccess?: boolean }) {
+    if (!activeSkill) return null
+    const manageSaving = options?.manageSaving ?? true
+    const showSuccess = options?.showSuccess ?? true
+    if (manageSaving) {
+      setSaving(true)
+      setError("")
+      setSuccess("")
+    }
     try {
       const response = await fetch(`/api/skills/${activeSkill.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...metaForm,
+          name: metaForm.name,
+          category: metaForm.category,
+          type: metaForm.type,
+          description: metaForm.description,
           currentLevel: toOptionalNumber(metaForm.currentLevel) ?? 1,
         }),
       })
@@ -680,11 +722,13 @@ export default function SkillsDashboardClient({
             : item,
         ),
       )
-      setSuccess("Meta da skill atualizada.")
+      if (showSuccess) setSuccess("Meta da skill atualizada.")
+      return result.skill
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Erro ao salvar skill.")
+      return null
     } finally {
-      setSaving(false)
+      if (manageSaving) setSaving(false)
     }
   }
 
@@ -700,23 +744,39 @@ export default function SkillsDashboardClient({
         body: JSON.stringify({}),
       })
       const result = (await response.json()) as { skill?: SkillDetail; message?: string }
-      if (!response.ok || !result.skill) throw new Error(result.message ?? "Erro ao criar nivel.")
+      if (!response.ok || !result.skill) throw new Error(result.message ?? "Erro ao criar level.")
       setActiveSkill(result.skill)
+      setMetaForm(mapSkillToMetaForm(result.skill))
+      setSkills((prev) =>
+        prev.map((item) =>
+          item.id === result.skill?.id
+            ? {
+                ...item,
+                currentLevel: result.skill.currentLevel,
+                updatedAt: new Date().toISOString(),
+              }
+            : item,
+        ),
+      )
       const newestLevel = result.skill.levels[result.skill.levels.length - 1]
       setSelectedLevelId(newestLevel?.id ?? "")
-      setSuccess("Novo nivel criado com copia profunda do nivel anterior.")
+      setSuccess("Novo level criado com copia profunda do level anterior.")
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao criar novo nivel.")
+      setError(cause instanceof Error ? cause.message : "Erro ao criar novo level.")
     } finally {
       setSaving(false)
     }
   }
 
-  async function saveLevel() {
-    if (!activeSkill || !selectedLevel) return
-    setSaving(true)
-    setError("")
-    setSuccess("")
+  async function saveLevel(options?: { manageSaving?: boolean; showSuccess?: boolean }) {
+    if (!activeSkill || !selectedLevel) return null
+    const manageSaving = options?.manageSaving ?? true
+    const showSuccess = options?.showSuccess ?? true
+    if (manageSaving) {
+      setSaving(true)
+      setError("")
+      setSuccess("")
+    }
     try {
       const response = await fetch(`/api/skills/${activeSkill.id}/levels/${selectedLevel.id}`, {
         method: "PATCH",
@@ -725,6 +785,10 @@ export default function SkillsDashboardClient({
           levelRequired: toOptionalNumber(levelForm.levelRequired) ?? selectedLevel.levelRequired,
           summary: toOptionalText(levelForm.summary),
           stats: {
+            name: toOptionalText(levelForm.levelName),
+            description: toOptionalText(levelForm.levelDescription),
+            notes: toOptionalText(levelForm.notesList[0] ?? ""),
+            notesList: normalizeObsList(levelForm.notesList),
             damage: toOptionalText(levelForm.damage),
             cooldown: toOptionalText(levelForm.cooldown),
             range: toOptionalText(levelForm.range),
@@ -741,11 +805,111 @@ export default function SkillsDashboardClient({
       })
 
       const result = (await response.json()) as { skill?: SkillDetail; message?: string }
-      if (!response.ok || !result.skill) throw new Error(result.message ?? "Erro ao salvar nivel.")
+      if (!response.ok || !result.skill) throw new Error(result.message ?? "Erro ao salvar level.")
       setActiveSkill(result.skill)
-      setSuccess(`Nivel ${selectedLevel.levelNumber} atualizado.`)
+      if (showSuccess) setSuccess(`Level ${selectedLevel.levelNumber} atualizado.`)
+      return result.skill
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao salvar nivel.")
+      setError(cause instanceof Error ? cause.message : "Erro ao salvar level.")
+      return null
+    } finally {
+      if (manageSaving) setSaving(false)
+    }
+  }
+
+  async function saveAll() {
+    if (!activeSkill || !selectedLevel) return
+    setSaving(true)
+    setError("")
+    setSuccess("")
+    try {
+      const savedMeta = await saveMeta({ manageSaving: false, showSuccess: false })
+      if (!savedMeta) return
+
+      const savedLevel = await saveLevel({ manageSaving: false, showSuccess: false })
+      if (!savedLevel) return
+
+      setSuccess("Habilidade atualizada.")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function deleteSelectedLevel() {
+    if (!activeSkill || !selectedLevel) return
+    if (activeSkill.levels.length <= 1) {
+      setError("Nao e possivel remover o ultimo level da habilidade.")
+      return
+    }
+
+    const shouldDelete = window.confirm(
+      `Deseja deletar o level ${selectedLevel.levelNumber}? Essa acao nao pode ser desfeita.`,
+    )
+    if (!shouldDelete) return
+
+    setSaving(true)
+    setError("")
+    setSuccess("")
+    try {
+      const levelNumber = selectedLevel.levelNumber
+      const response = await fetch(`/api/skills/${activeSkill.id}/levels/${selectedLevel.id}`, {
+        method: "DELETE",
+      })
+
+      const result = (await response.json()) as { skill?: SkillDetail; message?: string }
+      if (!response.ok || !result.skill) throw new Error(result.message ?? "Erro ao remover level.")
+
+      setActiveSkill(result.skill)
+      setMetaForm(mapSkillToMetaForm(result.skill))
+      setSkills((prev) =>
+        prev.map((item) =>
+          item.id === result.skill?.id
+            ? {
+                ...item,
+                currentLevel: result.skill.currentLevel,
+                updatedAt: new Date().toISOString(),
+              }
+            : item,
+        ),
+      )
+
+      const fallbackLevel =
+        result.skill.levels.find((item) => item.levelNumber === levelNumber) ??
+        result.skill.levels[result.skill.levels.length - 1]
+      setSelectedLevelId(fallbackLevel?.id ?? "")
+      setSuccess(`Level ${levelNumber} removido.`)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Erro ao remover level.")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function deleteActiveSkill() {
+    if (!activeSkill) return
+
+    const shouldDelete = window.confirm(
+      `Deseja deletar a habilidade "${activeSkill.name}"? Essa acao nao pode ser desfeita.`,
+    )
+    if (!shouldDelete) return
+
+    setSaving(true)
+    setError("")
+    setSuccess("")
+    try {
+      const response = await fetch(`/api/skills/${activeSkill.id}`, {
+        method: "DELETE",
+      })
+      const result = (await response.json()) as { id?: string; message?: string }
+      if (!response.ok || !result.id) throw new Error(result.message ?? "Erro ao remover skill.")
+
+      const nextSkills = skills.filter((item) => item.id !== activeSkill.id)
+      setSkills(nextSkills)
+      setSelectedSkillId(nextSkills[0]?.id ?? "")
+      setEditOpen(nextSkills.length > 0)
+      setSuccess("Habilidade removida com sucesso.")
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Erro ao remover skill.")
     } finally {
       setSaving(false)
     }
@@ -775,6 +939,7 @@ export default function SkillsDashboardClient({
             className={styles.primaryButton}
             onClick={() => {
               setCreateOpen(true)
+              setEditOpen(false)
               setCreateStep(1)
               setMetaForm(createInitialMeta())
               setLevelForm(createInitialLevel())
@@ -789,20 +954,28 @@ export default function SkillsDashboardClient({
         <aside className={styles.sidebar}>
           <h2>Habilidades</h2>
           {skills.map((skill) => (
-            <button
-              type="button"
+            <div
               key={skill.id}
               className={selectedSkillId === skill.id ? styles.skillCardActive : styles.skillCard}
-              onClick={() => {
-                setCreateOpen(false)
-                setEditStep(1)
-                setSelectedSkillId(skill.id)
-                setEditReloadKey((prev) => prev + 1)
-              }}
             >
               <strong>{skill.name}</strong>
               <small>lvl atual: {skill.currentLevel}</small>
-            </button>
+              <div className={styles.actions}>
+                <button
+                  type="button"
+                  className={styles.ghostButton}
+                  onClick={() => {
+                    setCreateOpen(false)
+                    setEditOpen(true)
+                    setEditStep(1)
+                    setSelectedSkillId(skill.id)
+                    setEditReloadKey((prev) => prev + 1)
+                  }}
+                >
+                  Editar
+                </button>
+              </div>
+            </div>
           ))}
         </aside>
 
@@ -875,7 +1048,7 @@ export default function SkillsDashboardClient({
                     </select>
                   </label>
                   <label className={styles.field}>
-                    <span>Nivel atual</span>
+                    <span>Level atual</span>
                     <input
                       type="number"
                       min={1}
@@ -886,7 +1059,7 @@ export default function SkillsDashboardClient({
                     />
                   </label>
                   <label className={styles.field}>
-                    <span>Nivel requerido</span>
+                    <span>Level requerido</span>
                     <input
                       type="number"
                       min={1}
@@ -965,6 +1138,76 @@ export default function SkillsDashboardClient({
               {createStep === 3 ? (
                 <div className={styles.levelBlock}>
                   <div className={styles.grid}>
+                    <label className={styles.field}>
+                      <span>Nome do level</span>
+                      <input
+                        value={levelForm.levelName}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, levelName: event.target.value }))}
+                      />
+                    </label>
+                    <label className={`${styles.field} ${styles.spanTwo}`}>
+                      <span>Resumo do level</span>
+                      <textarea
+                        rows={2}
+                        value={levelForm.summary}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, summary: event.target.value }))}
+                      />
+                    </label>
+                    <label className={`${styles.field} ${styles.spanTwo}`}>
+                      <span>Descricao do level</span>
+                      <textarea
+                        rows={2}
+                        value={levelForm.levelDescription}
+                        onChange={(event) =>
+                          setLevelForm((prev) => ({ ...prev, levelDescription: event.target.value }))
+                        }
+                      />
+                    </label>
+                    <label className={`${styles.field} ${styles.spanTwo}`}>
+                      <span>Obs</span>
+                      <div className={styles.levelBlock}>
+                        {levelForm.notesList.map((item, index) => (
+                          <div key={`create-obs-${index}`} className={styles.actions}>
+                            <textarea
+                              rows={2}
+                              value={item}
+                              onChange={(event) =>
+                                setLevelForm((prev) => ({
+                                  ...prev,
+                                  notesList: prev.notesList.map((obs, obsIndex) =>
+                                    obsIndex === index ? event.target.value : obs,
+                                  ),
+                                }))
+                              }
+                            />
+                            <button
+                              type="button"
+                              className={styles.ghostButton}
+                              onClick={() =>
+                                setLevelForm((prev) => ({
+                                  ...prev,
+                                  notesList:
+                                    prev.notesList.length <= 1
+                                      ? [""]
+                                      : prev.notesList.filter((_, obsIndex) => obsIndex !== index),
+                                }))
+                              }
+                            >
+                              Remover obs
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          className={styles.ghostButton}
+                          onClick={() =>
+                            setLevelForm((prev) => ({ ...prev, notesList: [...prev.notesList, ""] }))
+                          }
+                        >
+                          Adicionar obs
+                        </button>
+                      </div>
+                    </label>
                     <label className={styles.field}>
                       <span>Dano</span>
                       <input
@@ -1058,19 +1301,39 @@ export default function SkillsDashboardClient({
             </section>
           ) : null}
 
-          {!createOpen && activeSkill ? (
+          {!createOpen && editOpen && activeSkill ? (
             <section className={styles.card}>
-              <h2>Editar</h2>
+              <div className={styles.levelHeader}>
+                <h2>Editar</h2>
+                <div className={styles.levelHeaderActions}>
+                  <button
+                    type="button"
+                    className={styles.ghostButton}
+                    onClick={createSnapshotLevel}
+                    disabled={saving}
+                  >
+                    Criar novo level
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.ghostButton}
+                    onClick={deleteActiveSkill}
+                    disabled={saving}
+                  >
+                    Deletar habilidade
+                  </button>
+                </div>
+              </div>
               <p className={styles.muted}>{activeSkill.name}</p>
               <div className={styles.stepper}>
-                {[1, 2, 3, 4].map((step) => (
+                {[1, 2, 3].map((step) => (
                   <button
                     type="button"
                     key={step}
                     className={editStep === step ? styles.stepActive : styles.step}
                     onClick={() => setEditStep(step)}
                   >
-                    {step === 1 ? "Basico" : step === 2 ? "Vinculos" : step === 3 ? "Avançado" : "Efeitos"}
+                    {step === 1 ? "Basico" : step === 2 ? "Avançado" : "Efeitos"}
                   </button>
                 ))}
               </div>
@@ -1086,7 +1349,7 @@ export default function SkillsDashboardClient({
                       />
                     </label>
                     <label className={styles.field}>
-                      <span>Nivel atual</span>
+                      <span>Level atual</span>
                       <input
                         type="number"
                         min={1}
@@ -1146,91 +1409,44 @@ export default function SkillsDashboardClient({
                     </label>
                   </div>
 
-                  <div className={styles.actions}>
-                    <button type="button" className={styles.primaryButton} onClick={saveMeta} disabled={saving}>
-                      {saving ? "Salvando..." : "Salvar meta"}
-                    </button>
-                  </div>
                 </>
               ) : null}
 
-              {editStep === 2 ? (
-                <>
-                  <div className={styles.bindingGrid}>
-                    <div className={styles.bindBox}>
-                      <h3>Classes</h3>
-                      {classes.map((item) => (
-                        <label key={item.id} className={styles.check}>
-                          <input
-                            type="checkbox"
-                            checked={metaForm.classIds.includes(item.id)}
-                            onChange={() =>
-                              setMetaForm((prev) => ({
-                                ...prev,
-                                classIds: toggleId(prev.classIds, item.id),
-                              }))
-                            }
-                          />
-                          <span>{item.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                    <div className={styles.bindBox}>
-                      <h3>Racas</h3>
-                      {races.map((item) => (
-                        <label key={item.id} className={styles.check}>
-                          <input
-                            type="checkbox"
-                            checked={metaForm.raceIds.includes(item.id)}
-                            onChange={() =>
-                              setMetaForm((prev) => ({
-                                ...prev,
-                                raceIds: toggleId(prev.raceIds, item.id),
-                              }))
-                            }
-                          />
-                          <span>{item.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className={styles.actions}>
-                    <button type="button" className={styles.primaryButton} onClick={saveMeta} disabled={saving}>
-                      {saving ? "Salvando..." : "Salvar meta"}
-                    </button>
-                  </div>
-                </>
-              ) : null}
-
-              {editStep >= 3 ? (
+              {editStep >= 2 ? (
                 <div className={styles.levelHeader}>
-                  <h3>Editor de Niveis</h3>
+                  <h3>Editor de Levels</h3>
                   <div className={styles.levelHeaderActions}>
                     <select value={selectedLevelId} onChange={(event) => setSelectedLevelId(event.target.value)}>
                       {activeSkill.levels.map((level) => (
                         <option key={level.id} value={level.id}>
-                          Nivel {level.levelNumber} (req {level.levelRequired} | pontos {getLevelCostPoints(level) ?? 0})
+                          Level {level.levelNumber} (req {level.levelRequired} | pontos {getLevelCostPoints(level) ?? 0})
                         </option>
                       ))}
                     </select>
                     <button
                       type="button"
                       className={styles.ghostButton}
-                      onClick={createSnapshotLevel}
-                      disabled={saving}
+                      onClick={deleteSelectedLevel}
+                      disabled={saving || activeSkill.levels.length <= 1}
                     >
-                      Criar novo nivel (copiar anterior)
+                      Deletar level
                     </button>
                   </div>
                 </div>
               ) : null}
 
-              {editStep === 3 ? (
+              {editStep === 2 ? (
                 <div className={styles.levelBlock}>
                   <div className={styles.grid}>
                     <label className={styles.field}>
-                      <span>Nivel requerido</span>
+                      <span>Nome do level</span>
+                      <input
+                        value={levelForm.levelName}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, levelName: event.target.value }))}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Level requerido</span>
                       <input
                         type="number"
                         min={1}
@@ -1301,28 +1517,81 @@ export default function SkillsDashboardClient({
                         onChange={(event) => setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))}
                       />
                     </label>
+                    <label className={`${styles.field} ${styles.spanTwo}`}>
+                      <span>Resumo do level</span>
+                      <textarea
+                        rows={2}
+                        value={levelForm.summary}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, summary: event.target.value }))}
+                      />
+                    </label>
+                    <label className={`${styles.field} ${styles.spanTwo}`}>
+                      <span>Descricao do level</span>
+                      <textarea
+                        rows={2}
+                        value={levelForm.levelDescription}
+                        onChange={(event) =>
+                          setLevelForm((prev) => ({ ...prev, levelDescription: event.target.value }))
+                        }
+                      />
+                    </label>
+                    <label className={`${styles.field} ${styles.spanTwo}`}>
+                      <span>Obs</span>
+                      <div className={styles.levelBlock}>
+                        {levelForm.notesList.map((item, index) => (
+                          <div key={`edit-obs-${index}`} className={styles.actions}>
+                            <textarea
+                              rows={2}
+                              value={item}
+                              onChange={(event) =>
+                                setLevelForm((prev) => ({
+                                  ...prev,
+                                  notesList: prev.notesList.map((obs, obsIndex) =>
+                                    obsIndex === index ? event.target.value : obs,
+                                  ),
+                                }))
+                              }
+                            />
+                            <button
+                              type="button"
+                              className={styles.ghostButton}
+                              onClick={() =>
+                                setLevelForm((prev) => ({
+                                  ...prev,
+                                  notesList:
+                                    prev.notesList.length <= 1
+                                      ? [""]
+                                      : prev.notesList.filter((_, obsIndex) => obsIndex !== index),
+                                }))
+                              }
+                            >
+                              Remover obs
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          className={styles.ghostButton}
+                          onClick={() =>
+                            setLevelForm((prev) => ({ ...prev, notesList: [...prev.notesList, ""] }))
+                          }
+                        >
+                          Adicionar obs
+                        </button>
+                      </div>
+                    </label>
                   </div>
 
-                  <div className={styles.actions}>
-                    <button type="button" className={styles.primaryButton} onClick={saveLevel} disabled={saving}>
-                      {saving ? "Salvando..." : "Salvar nivel"}
-                    </button>
-                  </div>
                 </div>
               ) : null}
 
-              {editStep === 4 ? (
+              {editStep === 3 ? (
                 <div className={styles.levelBlock}>
                   <EffectEditor
                     effects={levelForm.effects}
                     onChange={(effects) => setLevelForm((prev) => ({ ...prev, effects }))}
                   />
 
-                  <div className={styles.actions}>
-                    <button type="button" className={styles.primaryButton} onClick={saveLevel} disabled={saving}>
-                      {saving ? "Salvando..." : "Salvar nivel"}
-                    </button>
-                  </div>
                 </div>
               ) : null}
 
@@ -1336,7 +1605,7 @@ export default function SkillsDashboardClient({
                     Voltar etapa
                   </button>
                 ) : null}
-                {editStep < 4 ? (
+                {editStep < 3 ? (
                   <button
                     type="button"
                     className={styles.primaryButton}
@@ -1345,11 +1614,19 @@ export default function SkillsDashboardClient({
                     Proxima etapa
                   </button>
                 ) : null}
+                {editStep === 3 ? (
+                  <button type="button" className={styles.primaryButton} onClick={saveAll} disabled={saving}>
+                    {saving ? "Salvando..." : "Salvar tudo"}
+                  </button>
+                ) : null}
               </div>
             </section>
           ) : null}
+
+          {!createOpen && !editOpen ? <p className={styles.muted}>Clique em "Editar" em uma habilidade.</p> : null}
         </div>
       </section>
     </main>
   )
 }
+
