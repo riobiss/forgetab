@@ -1,7 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
-import { Plus } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
 import styles from "./RaceClassOptionsSection.module.css"
 import type { IdentityTemplate } from "../shared/types"
 
@@ -13,10 +14,12 @@ type Props = {
   onToggleRaceList: () => void
   onCreateRace: () => void
   raceDrafts: IdentityTemplate[]
+  onRaceDraftsChange: (next: IdentityTemplate[]) => void
   showClassList: boolean
   onToggleClassList: () => void
   onCreateClass: () => void
   classDrafts: IdentityTemplate[]
+  onClassDraftsChange: (next: IdentityTemplate[]) => void
 }
 
 export default function RaceClassOptionsSection({
@@ -27,13 +30,82 @@ export default function RaceClassOptionsSection({
   onToggleRaceList,
   onCreateRace,
   raceDrafts,
+  onRaceDraftsChange,
   showClassList,
   onToggleClassList,
   onCreateClass,
   classDrafts,
+  onClassDraftsChange,
 }: Props) {
+  const [deletingRaceKey, setDeletingRaceKey] = useState("")
+  const [deletingClassKey, setDeletingClassKey] = useState("")
+  const [feedback, setFeedback] = useState("")
+
+  async function deleteRace(key: string) {
+    const target = raceDrafts.find((item) => item.key === key)
+    if (!target) return
+
+    const confirmed = window.confirm(`Excluir a raca "${target.label}"?`)
+    if (!confirmed) return
+
+    const nextRaces = raceDrafts.filter((item) => item.key !== key)
+    setDeletingRaceKey(key)
+    setFeedback("")
+
+    try {
+      const response = await fetch(`/api/rpg/${rpgId}/races`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ races: nextRaces }),
+      })
+      const payload = (await response.json()) as { message?: string }
+      if (!response.ok) {
+        setFeedback(payload.message ?? "Erro ao excluir raca.")
+        return
+      }
+      onRaceDraftsChange(nextRaces)
+      setFeedback("Raca excluida com sucesso.")
+    } catch {
+      setFeedback("Erro de conexao ao excluir raca.")
+    } finally {
+      setDeletingRaceKey("")
+    }
+  }
+
+  async function deleteClass(key: string) {
+    const target = classDrafts.find((item) => item.key === key)
+    if (!target) return
+
+    const confirmed = window.confirm(`Excluir a classe "${target.label}"?`)
+    if (!confirmed) return
+
+    const nextClasses = classDrafts.filter((item) => item.key !== key)
+    setDeletingClassKey(key)
+    setFeedback("")
+
+    try {
+      const response = await fetch(`/api/rpg/${rpgId}/classes`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ classes: nextClasses }),
+      })
+      const payload = (await response.json()) as { message?: string }
+      if (!response.ok) {
+        setFeedback(payload.message ?? "Erro ao excluir classe.")
+        return
+      }
+      onClassDraftsChange(nextClasses)
+      setFeedback("Classe excluida com sucesso.")
+    } catch {
+      setFeedback("Erro de conexao ao excluir classe.")
+    } finally {
+      setDeletingClassKey("")
+    }
+  }
+
   return (
     <>
+      {feedback ? <p className={styles.feedback}>{feedback}</p> : null}
       <div className={styles.section}>
         <h3>Racas e Classes</h3>
         <label className={styles.option}>
@@ -78,6 +150,17 @@ export default function RaceClassOptionsSection({
                       >
                         Avancado
                       </Link>
+                      <button
+                        type="button"
+                        className={`${styles.secondaryButton} ${styles.dangerButton}`}
+                        onClick={() => void deleteRace(draft.key)}
+                        disabled={deletingRaceKey === draft.key}
+                      >
+                        <Trash2 size={14} />
+                        <span>
+                          {deletingRaceKey === draft.key ? "Excluindo..." : "Excluir"}
+                        </span>
+                      </button>
                     </div>
                   </li>
                 ))}
@@ -115,6 +198,17 @@ export default function RaceClassOptionsSection({
                       >
                         Avancado
                       </Link>
+                      <button
+                        type="button"
+                        className={`${styles.secondaryButton} ${styles.dangerButton}`}
+                        onClick={() => void deleteClass(draft.key)}
+                        disabled={deletingClassKey === draft.key}
+                      >
+                        <Trash2 size={14} />
+                        <span>
+                          {deletingClassKey === draft.key ? "Excluindo..." : "Excluir"}
+                        </span>
+                      </button>
                     </div>
                   </li>
                 ))}

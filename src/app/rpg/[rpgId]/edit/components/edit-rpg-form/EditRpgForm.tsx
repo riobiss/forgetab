@@ -2,7 +2,7 @@
 
 import { FormEvent } from "react"
 import Link from "next/link"
-import { LoaderCircle, Save, X } from "lucide-react"
+import { LoaderCircle, Save, Trash2, X } from "lucide-react"
 import styles from "../../page.module.css"
 import type { Visibility } from "../../hooks/useEditRpgState"
 
@@ -17,10 +17,14 @@ type Props = {
   onUseMundiMapChange: (value: boolean) => void
   useInventoryWeightLimit: boolean
   onUseInventoryWeightLimitChange: (value: boolean) => void
+  costsEnabled: boolean
+  costResourceName: string
   error: string
   success: string
   saving: boolean
+  deleting: boolean
   onSaveAll: () => Promise<void>
+  onDeleteRpg: () => Promise<void>
 }
 
 export default function EditRpgForm({
@@ -34,10 +38,14 @@ export default function EditRpgForm({
   onUseMundiMapChange,
   useInventoryWeightLimit,
   onUseInventoryWeightLimitChange,
+  costsEnabled,
+  costResourceName,
   error,
   success,
   saving,
+  deleting,
   onSaveAll,
+  onDeleteRpg,
 }: Props) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -98,6 +106,13 @@ export default function EditRpgForm({
           />
         </label>
 
+        <div className={styles.field}>
+          <span>Custos (somente leitura)</span>
+          <input value={costsEnabled ? "Ativado" : "Desativado"} readOnly />
+          <input value={costResourceName} readOnly />
+          <p className={styles.error}>Configuracao disponivel apenas na criacao do RPG.</p>
+        </div>
+
         {error ? <p className={styles.error}>{error}</p> : null}
         {success ? <p className={styles.success}>{success}</p> : null}
       </form>
@@ -113,6 +128,19 @@ export default function EditRpgForm({
             <>
               <Save size={16} />
               <span>Salvar tudo</span>
+            </>
+          )}
+        </button>
+        <button type="button" onClick={() => void onDeleteRpg()} disabled={deleting || saving}>
+          {deleting ? (
+            <>
+              <LoaderCircle size={16} className={styles.spin} />
+              <span>Deletando...</span>
+            </>
+          ) : (
+            <>
+              <Trash2 size={16} />
+              <span>Deletar RPG</span>
             </>
           )}
         </button>

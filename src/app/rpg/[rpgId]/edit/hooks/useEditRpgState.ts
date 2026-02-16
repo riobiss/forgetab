@@ -25,6 +25,8 @@ export function useEditRpgState() {
   const [useMundiMap, setUseMundiMap] = useState(false)
   const [useClassRaceBonuses, setUseClassRaceBonuses] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
+  const [costsEnabled, setCostsEnabled] = useState(false)
+  const [costResourceName, setCostResourceName] = useState("Skill Points")
 
   const [selectedAttributeKeys, setSelectedAttributeKeys] = useState<string[]>([])
   const [selectedStatusKeys, setSelectedStatusKeys] = useState<string[]>([])
@@ -198,6 +200,10 @@ export function useEditRpgState() {
     setUseClassRaceBonuses,
     useInventoryWeightLimit,
     setUseInventoryWeightLimit,
+    costsEnabled,
+    setCostsEnabled,
+    costResourceName,
+    setCostResourceName,
     selectedAttributeKeys,
     setSelectedAttributeKeys,
     selectedStatusKeys,

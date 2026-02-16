@@ -2,8 +2,10 @@ export type IdentityTemplate = {
   key: string
   label: string
   position: number
+  category?: string
   attributeBonuses: Record<string, number>
   skillBonuses: Record<string, number>
+  lore?: unknown
 }
 
 export type CharacterIdentityTemplate = {

@@ -10,6 +10,8 @@ type RpgPayload = {
     title: string
     description: string
     visibility: Visibility
+    costsEnabled?: boolean
+    costResourceName?: string
     useMundiMap?: boolean
     useClassRaceBonuses?: boolean
     useInventoryWeightLimit?: boolean
@@ -25,6 +27,8 @@ type UseEditRpgDataParams = {
   useMundiMap: boolean
   useClassRaceBonuses: boolean
   useInventoryWeightLimit: boolean
+  costsEnabled: boolean
+  costResourceName: string
   selectedAttributeKeys: string[]
   selectedStatusKeys: string[]
   statusLabelByKey: Record<string, string>
@@ -37,6 +41,8 @@ type UseEditRpgDataParams = {
   setUseMundiMap: (value: boolean) => void
   setUseClassRaceBonuses: (value: boolean) => void
   setUseInventoryWeightLimit: (value: boolean) => void
+  setCostsEnabled: (value: boolean) => void
+  setCostResourceName: (value: string) => void
   setSelectedAttributeKeys: (value: string[]) => void
   setSelectedStatusKeys: (value: string[]) => void
   setStatusLabelByKey: (value: Record<string, string>) => void
@@ -56,6 +62,8 @@ export function useEditRpgData({
   useMundiMap,
   useClassRaceBonuses,
   useInventoryWeightLimit,
+  costsEnabled,
+  costResourceName,
   selectedAttributeKeys,
   selectedStatusKeys,
   statusLabelByKey,
@@ -68,6 +76,8 @@ export function useEditRpgData({
   setUseMundiMap,
   setUseClassRaceBonuses,
   setUseInventoryWeightLimit,
+  setCostsEnabled,
+  setCostResourceName,
   setSelectedAttributeKeys,
   setSelectedStatusKeys,
   setStatusLabelByKey,
@@ -79,6 +89,7 @@ export function useEditRpgData({
 }: UseEditRpgDataParams) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState("")
   const [canEdit, setCanEdit] = useState(false)
   const [identitySuccess, setIdentitySuccess] = useState("")
@@ -153,6 +164,8 @@ export function useEditRpgData({
         setUseMundiMap(Boolean(rpgPayload.rpg.useMundiMap))
         setUseClassRaceBonuses(Boolean(rpgPayload.rpg.useClassRaceBonuses))
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg.useInventoryWeightLimit))
+        setCostsEnabled(Boolean(rpgPayload.rpg.costsEnabled))
+        setCostResourceName(rpgPayload.rpg.costResourceName?.trim() || "Skill Points")
         setSelectedAttributeKeys((attrPayload.attributes ?? []).map((item) => item.key))
 
         const loadedStatuses = statusPayload.statuses ?? []
@@ -172,8 +185,10 @@ export function useEditRpgData({
             key: item.key,
             label: item.label,
             position: item.position ?? index,
+            category: item.category,
             attributeBonuses: item.attributeBonuses ?? {},
             skillBonuses: item.skillBonuses ?? {},
+            lore: item.lore,
           })),
         )
         setClassDrafts(
@@ -181,6 +196,7 @@ export function useEditRpgData({
             key: item.key,
             label: item.label,
             position: item.position ?? index,
+            category: item.category,
             attributeBonuses: item.attributeBonuses ?? {},
             skillBonuses: item.skillBonuses ?? {},
           })),
@@ -205,6 +221,8 @@ export function useEditRpgData({
     setUseMundiMap,
     setUseClassRaceBonuses,
     setUseInventoryWeightLimit,
+    setCostsEnabled,
+    setCostResourceName,
     setSelectedAttributeKeys,
     setSelectedStatusKeys,
     setStatusLabelByKey,
@@ -320,12 +338,38 @@ export function useEditRpgData({
     }
   }
 
+  async function deleteRpg() {
+    setDeleting(true)
+    setError("")
+    setIdentitySuccess("")
+
+    try {
+      const response = await fetch(`/api/rpg/${rpgId}`, {
+        method: "DELETE",
+      })
+      const payload = (await response.json()) as { message?: string }
+      if (!response.ok) {
+        throw new Error(payload.message ?? "Nao foi possivel deletar o RPG.")
+      }
+      return { ok: true as const }
+    } catch (deleteError) {
+      const message =
+        deleteError instanceof Error ? deleteError.message : "Erro ao deletar RPG."
+      setError(message)
+      return { ok: false as const }
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return {
     loading,
     saving,
+    deleting,
     error,
     canEdit,
     identitySuccess,
     saveAll,
+    deleteRpg,
   }
 }

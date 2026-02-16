@@ -38,6 +38,8 @@ export default function EditRpgPage() {
     useMundiMap: state.useMundiMap,
     useClassRaceBonuses: state.useClassRaceBonuses,
     useInventoryWeightLimit: state.useInventoryWeightLimit,
+    costsEnabled: state.costsEnabled,
+    costResourceName: state.costResourceName,
     selectedAttributeKeys: state.selectedAttributeKeys,
     selectedStatusKeys: state.selectedStatusKeys,
     statusLabelByKey: state.statusLabelByKey,
@@ -50,6 +52,8 @@ export default function EditRpgPage() {
     setUseMundiMap: state.setUseMundiMap,
     setUseClassRaceBonuses: state.setUseClassRaceBonuses,
     setUseInventoryWeightLimit: state.setUseInventoryWeightLimit,
+    setCostsEnabled: state.setCostsEnabled,
+    setCostResourceName: state.setCostResourceName,
     setSelectedAttributeKeys: state.setSelectedAttributeKeys,
     setSelectedStatusKeys: state.setSelectedStatusKeys,
     setStatusLabelByKey: state.setStatusLabelByKey,
@@ -59,6 +63,19 @@ export default function EditRpgPage() {
     setCharacterIdentityTemplates: state.setCharacterIdentityTemplates,
     setCharacterCharacteristicTemplates: state.setCharacterCharacteristicTemplates,
   })
+
+  async function handleDeleteRpg() {
+    const confirmed = window.confirm(
+      "Tem certeza que deseja deletar este RPG? Esta acao nao pode ser desfeita.",
+    )
+    if (!confirmed) return
+
+    const result = await data.deleteRpg()
+    if (result.ok) {
+      router.push("/rpg")
+      router.refresh()
+    }
+  }
 
   if (data.loading) {
     return (
@@ -178,10 +195,12 @@ export default function EditRpgPage() {
             onToggleRaceList={() => state.setShowRaceList((prev) => !prev)}
             onCreateRace={() => router.push(`/rpg/${rpgId}/edit/advanced/race/new`)}
             raceDrafts={state.raceDrafts}
+            onRaceDraftsChange={state.setRaceDrafts}
             showClassList={state.showClassList}
             onToggleClassList={() => state.setShowClassList((prev) => !prev)}
             onCreateClass={() => router.push(`/rpg/${rpgId}/edit/advanced/class/new`)}
             classDrafts={state.classDrafts}
+            onClassDraftsChange={state.setClassDrafts}
           />
 
           {data.identitySuccess ? <p className={styles.success}>{data.identitySuccess}</p> : null}
@@ -198,10 +217,14 @@ export default function EditRpgPage() {
           onUseMundiMapChange={state.setUseMundiMap}
           useInventoryWeightLimit={state.useInventoryWeightLimit}
           onUseInventoryWeightLimitChange={state.setUseInventoryWeightLimit}
+          costsEnabled={state.costsEnabled}
+          costResourceName={state.costResourceName}
           error={data.error}
           success={data.identitySuccess}
           saving={data.saving}
+          deleting={data.deleting}
           onSaveAll={data.saveAll}
+          onDeleteRpg={handleDeleteRpg}
         />
       </section>
     </main>

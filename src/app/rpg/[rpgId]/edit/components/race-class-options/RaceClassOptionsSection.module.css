@@ -7,6 +7,12 @@
   gap: 0.5rem;
 }
 
+.feedback {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 0.85rem;
+}
+
 .section h3 {
   margin: 0;
   color: var(--text-main);
@@ -82,6 +88,16 @@
   align-items: center;
   gap: 0.4rem;
   text-decoration: none;
+}
+
+.dangerButton {
+  border-color: color-mix(in srgb, #ff6464 65%, var(--border-soft)) !important;
+  color: #ffdede !important;
+}
+
+.dangerButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .iconOnlyButton {
