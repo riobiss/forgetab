@@ -18,11 +18,17 @@ const optionalTrimmedText = z
 
 const optionalPositiveNumber = z
   .union([z.number(), z.null(), z.undefined()])
-  .transform((value) => (typeof value === "number" && Number.isFinite(value) ? value : null))
+  .transform((value) =>
+    typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null,
+  )
 
 const optionalPositiveInt = z
   .union([z.number(), z.null(), z.undefined()])
-  .transform((value) => (typeof value === "number" && Number.isFinite(value) ? Math.floor(value) : null))
+  .transform((value) =>
+    typeof value === "number" && Number.isFinite(value) && value >= 0
+      ? Math.floor(value)
+      : null,
+  )
 
 const optionalSkillUsageType = z
   .union([z.enum(skillUsageTypeValues), z.literal(""), z.null(), z.undefined()])
@@ -66,6 +72,7 @@ const costSchema = z
     hp: optionalPositiveNumber,
     sanity: optionalPositiveNumber,
     actionPoints: optionalPositiveNumber,
+    points: z.number().int().min(0).nullable().optional(),
     custom: optionalTrimmedText,
   })
   .partial()

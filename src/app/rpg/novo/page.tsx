@@ -10,6 +10,8 @@ export default function NewRpgPage() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [visibility, setVisibility] = useState<"private" | "public">("private")
+  const [costsEnabled, setCostsEnabled] = useState(false)
+  const [costResourceName, setCostResourceName] = useState("Skill Points")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -22,7 +24,13 @@ export default function NewRpgPage() {
       const response = await fetch("/api/rpg", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, visibility }),
+        body: JSON.stringify({
+          title,
+          description,
+          visibility,
+          costsEnabled,
+          costResourceName,
+        }),
       })
 
       const payload = (await response.json()) as { message?: string }
@@ -81,6 +89,29 @@ export default function NewRpgPage() {
               <option value="private">Privado</option>
               <option value="public">Publico</option>
             </select>
+          </label>
+
+          <label className={styles.field}>
+            <span>Sistema de Custos</span>
+            <select
+              value={costsEnabled ? "enabled" : "disabled"}
+              onChange={(event) => setCostsEnabled(event.target.value === "enabled")}
+            >
+              <option value="disabled">Desativado</option>
+              <option value="enabled">Ativado</option>
+            </select>
+          </label>
+
+          <label className={styles.field}>
+            <span>Nome do recurso de custo</span>
+            <input
+              type="text"
+              value={costResourceName}
+              onChange={(event) => setCostResourceName(event.target.value)}
+              minLength={1}
+              maxLength={60}
+              required
+            />
           </label>
 
           {error ? <p className={styles.error}>{error}</p> : null}

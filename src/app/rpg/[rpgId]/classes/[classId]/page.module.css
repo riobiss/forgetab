@@ -85,3 +85,63 @@
   color: var(--accent-strong);
   font-weight: bold;
 }
+
+.pointsCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--bg-surface);
+}
+
+.pointsCard span {
+  color: var(--accent-main);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.levelList {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.levelRow {
+  border-top: 1px solid var(--border-soft);
+  padding-top: 0.8rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.levelInfo {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.buyButton {
+  border: 1px solid var(--accent-main);
+  background: transparent;
+  color: var(--text-main);
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.buyButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorText {
+  color: #e05555;
+  margin-bottom: 0.6rem;
+}
+
+.successText {
+  color: #66c266;
+  margin-bottom: 0.6rem;
+}

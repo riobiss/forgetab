@@ -70,6 +70,7 @@ export type Cost = {
   hp?: number | null
   sanity?: number | null
   actionPoints?: number | null
+  points?: number | null
   custom?: string | null
 }
 

@@ -16,6 +16,8 @@ type RpgRow = {
   title: string
   description: string
   visibility: "private" | "public"
+  costsEnabled: boolean
+  costResourceName: string
   useMundiMap: boolean
   useClassRaceBonuses: boolean
   useInventoryWeightLimit: boolean
@@ -43,6 +45,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
           title,
           description,
           visibility,
+          COALESCE(costs_enabled, false) AS "costsEnabled",
+          COALESCE(NULLIF(TRIM(cost_resource_name), ''), 'Skill Points') AS "costResourceName",
           COALESCE(use_mundi_map, false) AS "useMundiMap",
           COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
           COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit"
@@ -53,7 +57,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
     } catch (error) {
       if (
         error instanceof Error &&
-        (error.message.includes('column "use_class_race_bonuses" does not exist') ||
+        (error.message.includes('column "costs_enabled" does not exist') ||
+          error.message.includes('column "cost_resource_name" does not exist') ||
+          error.message.includes('column "use_class_race_bonuses" does not exist') ||
           error.message.includes('column "use_inventory_weight_limit" does not exist') ||
           error.message.includes('column "use_mundi_map" does not exist'))
       ) {
@@ -64,6 +70,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
             title,
             description,
             visibility,
+            false AS "costsEnabled",
+            'Skill Points' AS "costResourceName",
             false AS "useMundiMap",
             false AS "useClassRaceBonuses",
             false AS "useInventoryWeightLimit"
@@ -115,6 +123,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
           title: rpg.title,
           description: rpg.description,
           visibility: rpg.visibility,
+          costsEnabled: rpg.costsEnabled,
+          costResourceName: rpg.costResourceName,
           useMundiMap: rpg.useMundiMap,
           useClassRaceBonuses: rpg.useClassRaceBonuses,
           useInventoryWeightLimit: rpg.useInventoryWeightLimit,
@@ -142,6 +152,19 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     const body = await request.json()
+    const safeBody =
+      body && typeof body === "object" && !Array.isArray(body)
+        ? (body as Record<string, unknown>)
+        : {}
+    const requestedCostsUpdate =
+      Object.prototype.hasOwnProperty.call(safeBody, "costsEnabled") ||
+      Object.prototype.hasOwnProperty.call(safeBody, "costResourceName")
+    if (requestedCostsUpdate) {
+      return NextResponse.json(
+        { message: "Configuracao de custos disponivel apenas na criacao do RPG." },
+        { status: 400 },
+      )
+    }
     const parsed = createRpgSchema.safeParse(body)
 
     if (!parsed.success) {
@@ -217,6 +240,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (error instanceof Error) {
       if (
         error.message.includes('relation "rpgs" does not exist') ||
+        error.message.includes('column "costs_enabled" does not exist') ||
+        error.message.includes('column "cost_resource_name" does not exist') ||
         error.message.includes("Could not find the table")
       ) {
         return NextResponse.json(

@@ -37,10 +37,14 @@ export async function POST(request: NextRequest) {
       title,
       description,
       visibility,
+      costsEnabled,
+      costResourceName,
       useMundiMap,
       useClassRaceBonuses,
       useInventoryWeightLimit,
     } = parsed.data
+    const resolvedCostsEnabled = Boolean(costsEnabled)
+    const resolvedCostResourceName = (costResourceName?.trim() || "Skill Points").slice(0, 60)
     const created = await prisma.rpg.create({
       data: {
         ownerId: authPayload.userId,
@@ -54,6 +58,8 @@ export async function POST(request: NextRequest) {
       await prisma.$executeRaw(Prisma.sql`
         UPDATE rpgs
         SET
+          costs_enabled = ${resolvedCostsEnabled},
+          cost_resource_name = ${resolvedCostResourceName},
           use_mundi_map = ${Boolean(useMundiMap)},
           use_class_race_bonuses = ${Boolean(useClassRaceBonuses)},
           use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
@@ -71,6 +77,8 @@ export async function POST(request: NextRequest) {
           title: created.title,
           description: created.description,
           visibility: created.visibility,
+          costsEnabled: resolvedCostsEnabled,
+          costResourceName: resolvedCostResourceName,
           useMundiMap: Boolean(useMundiMap),
           useClassRaceBonuses: Boolean(useClassRaceBonuses),
           useInventoryWeightLimit: Boolean(useInventoryWeightLimit),
@@ -99,6 +107,8 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       if (
         error.message.includes('relation "rpgs" does not exist') ||
+        error.message.includes('column "costs_enabled" does not exist') ||
+        error.message.includes('column "cost_resource_name" does not exist') ||
         error.message.includes("Could not find the table")
       ) {
         return NextResponse.json(

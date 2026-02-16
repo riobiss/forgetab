@@ -125,6 +125,7 @@ type LevelForm = {
   duration: string
   castTime: string
   resourceCost: string
+  costPoints: string
   costCustom: string
   effects: SkillEffect[]
 }
@@ -262,6 +263,7 @@ function mapLevelToForm(level: SkillLevel): LevelForm {
     duration: typeof stats.duration === "string" ? stats.duration : "",
     castTime: typeof stats.castTime === "string" ? stats.castTime : "",
     resourceCost: typeof stats.resourceCost === "string" ? stats.resourceCost : "",
+    costPoints: typeof cost.points === "number" ? String(cost.points) : "",
     costCustom: typeof cost.custom === "string" ? cost.custom : "",
     effects: parseEffects(level.effects),
   }
@@ -289,6 +291,7 @@ function createInitialLevel(): LevelForm {
     duration: "",
     castTime: "",
     resourceCost: "",
+    costPoints: "",
     costCustom: "",
     effects: [emptyEffect()],
   }
@@ -586,6 +589,7 @@ export default function SkillsDashboardClient({
             resourceCost: toOptionalText(levelForm.resourceCost),
           },
           cost: {
+            points: toOptionalNumber(levelForm.costPoints),
             custom: toOptionalText(levelForm.costCustom),
           },
           effects: levelForm.effects.map((effect) => buildEffectPayload(effect)),
@@ -710,6 +714,7 @@ export default function SkillsDashboardClient({
             resourceCost: toOptionalText(levelForm.resourceCost),
           },
           cost: {
+            points: toOptionalNumber(levelForm.costPoints),
             custom: toOptionalText(levelForm.costCustom),
           },
           effects: levelForm.effects.map((effect) => buildEffectPayload(effect)),
@@ -973,6 +978,18 @@ export default function SkillsDashboardClient({
                       />
                     </label>
                     <label className={styles.field}>
+                      <span>Custo em pontos</span>
+                      <input
+                        type="number"
+                        min={0}
+                        step={1}
+                        value={levelForm.costPoints}
+                        onChange={(event) =>
+                          setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))
+                        }
+                      />
+                    </label>
+                    <label className={styles.field}>
                       <span>Custo personalizado</span>
                       <input
                         value={levelForm.costCustom}
@@ -1218,6 +1235,16 @@ export default function SkillsDashboardClient({
                       onChange={(event) =>
                         setLevelForm((prev) => ({ ...prev, resourceCost: event.target.value }))
                       }
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span>Custo em pontos</span>
+                    <input
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={levelForm.costPoints}
+                      onChange={(event) => setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))}
                     />
                   </label>
                   <label className={styles.field}>
