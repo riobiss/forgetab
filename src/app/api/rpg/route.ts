@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       title,
       description,
       visibility,
+      useMundiMap,
       useClassRaceBonuses,
       useInventoryWeightLimit,
     } = parsed.data
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
       await prisma.$executeRaw(Prisma.sql`
         UPDATE rpgs
         SET
+          use_mundi_map = ${Boolean(useMundiMap)},
           use_class_race_bonuses = ${Boolean(useClassRaceBonuses)},
           use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
         WHERE id = ${created.id}
@@ -69,6 +71,7 @@ export async function POST(request: NextRequest) {
           title: created.title,
           description: created.description,
           visibility: created.visibility,
+          useMundiMap: Boolean(useMundiMap),
           useClassRaceBonuses: Boolean(useClassRaceBonuses),
           useInventoryWeightLimit: Boolean(useInventoryWeightLimit),
           createdAt: created.createdAt,

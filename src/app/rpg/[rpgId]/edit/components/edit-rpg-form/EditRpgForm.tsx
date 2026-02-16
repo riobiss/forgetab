@@ -13,6 +13,8 @@ type Props = {
   onDescriptionChange: (value: string) => void
   visibility: Visibility
   onVisibilityChange: (value: Visibility) => void
+  useMundiMap: boolean
+  onUseMundiMapChange: (value: boolean) => void
   useInventoryWeightLimit: boolean
   onUseInventoryWeightLimitChange: (value: boolean) => void
   error: string
@@ -28,6 +30,8 @@ export default function EditRpgForm({
   onDescriptionChange,
   visibility,
   onVisibilityChange,
+  useMundiMap,
+  onUseMundiMapChange,
   useInventoryWeightLimit,
   onUseInventoryWeightLimitChange,
   error,
@@ -74,6 +78,15 @@ export default function EditRpgForm({
             <option value="private">Privado</option>
             <option value="public">Publico</option>
           </select>
+        </label>
+
+        <label className={`${styles.field} ${styles.checkboxField}`}>
+          <span>Mapa mundi</span>
+          <input
+            type="checkbox"
+            checked={useMundiMap}
+            onChange={(event) => onUseMundiMapChange(event.target.checked)}
+          />
         </label>
 
         <label className={`${styles.field} ${styles.checkboxField}`}>

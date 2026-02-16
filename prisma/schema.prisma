@@ -73,6 +73,8 @@ model Rpg {
   owner              User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   title              String
   description        String
+  mapImage           String?                @map("map_image")
+  useMundiMap        Boolean                @default(false) @map("use_mundi_map")
   visibility         RpgVisibility          @default(private)
   useClassRaceBonuses Boolean               @default(false) @map("use_class_race_bonuses")
   useInventoryWeightLimit Boolean           @default(false) @map("use_inventory_weight_limit")

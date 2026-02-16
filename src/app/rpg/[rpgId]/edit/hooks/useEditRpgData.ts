@@ -10,6 +10,7 @@ type RpgPayload = {
     title: string
     description: string
     visibility: Visibility
+    useMundiMap?: boolean
     useClassRaceBonuses?: boolean
     useInventoryWeightLimit?: boolean
   }
@@ -21,6 +22,7 @@ type UseEditRpgDataParams = {
   title: string
   description: string
   visibility: Visibility
+  useMundiMap: boolean
   useClassRaceBonuses: boolean
   useInventoryWeightLimit: boolean
   selectedAttributeKeys: string[]
@@ -32,6 +34,7 @@ type UseEditRpgDataParams = {
   setTitle: (value: string) => void
   setDescription: (value: string) => void
   setVisibility: (value: Visibility) => void
+  setUseMundiMap: (value: boolean) => void
   setUseClassRaceBonuses: (value: boolean) => void
   setUseInventoryWeightLimit: (value: boolean) => void
   setSelectedAttributeKeys: (value: string[]) => void
@@ -50,6 +53,7 @@ export function useEditRpgData({
   title,
   description,
   visibility,
+  useMundiMap,
   useClassRaceBonuses,
   useInventoryWeightLimit,
   selectedAttributeKeys,
@@ -61,6 +65,7 @@ export function useEditRpgData({
   setTitle,
   setDescription,
   setVisibility,
+  setUseMundiMap,
   setUseClassRaceBonuses,
   setUseInventoryWeightLimit,
   setSelectedAttributeKeys,
@@ -145,6 +150,7 @@ export function useEditRpgData({
         setTitle(rpgPayload.rpg.title)
         setDescription(rpgPayload.rpg.description)
         setVisibility(rpgPayload.rpg.visibility)
+        setUseMundiMap(Boolean(rpgPayload.rpg.useMundiMap))
         setUseClassRaceBonuses(Boolean(rpgPayload.rpg.useClassRaceBonuses))
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg.useInventoryWeightLimit))
         setSelectedAttributeKeys((attrPayload.attributes ?? []).map((item) => item.key))
@@ -196,6 +202,7 @@ export function useEditRpgData({
     setTitle,
     setDescription,
     setVisibility,
+    setUseMundiMap,
     setUseClassRaceBonuses,
     setUseInventoryWeightLimit,
     setSelectedAttributeKeys,
@@ -216,6 +223,7 @@ export function useEditRpgData({
         title,
         description,
         visibility,
+        useMundiMap,
         useClassRaceBonuses,
         useInventoryWeightLimit,
       }),

@@ -17,6 +17,42 @@
   overflow: hidden;
 }
 
+.ownerActions {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.editButton {
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  min-height: 2rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  background: rgba(11, 11, 11, 0.72);
+  color: var(--text-title);
+}
+
+.editButton:hover {
+  border-color: var(--border-hot);
+  box-shadow: var(--shadow-accent);
+}
+
+.editPanel {
+  display: flex;
+  gap: 0.45rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: rgba(11, 11, 11, 0.8);
+}
+
 .frameFullscreen {
   height: 100dvh;
   border-radius: 0;
@@ -91,6 +127,11 @@
   box-shadow: var(--shadow-accent);
 }
 
+.actionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .colorPicker {
   margin-left: auto;
   display: flex;
@@ -159,4 +200,14 @@
 .expandButton:hover {
   border-color: var(--border-hot);
   box-shadow: var(--shadow-accent);
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.statusText {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--text-muted);
 }

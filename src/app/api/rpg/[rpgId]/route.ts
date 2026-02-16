@@ -16,6 +16,7 @@ type RpgRow = {
   title: string
   description: string
   visibility: "private" | "public"
+  useMundiMap: boolean
   useClassRaceBonuses: boolean
   useInventoryWeightLimit: boolean
 }
@@ -42,6 +43,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           title,
           description,
           visibility,
+          COALESCE(use_mundi_map, false) AS "useMundiMap",
           COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
           COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit"
         FROM rpgs
@@ -52,7 +54,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
       if (
         error instanceof Error &&
         (error.message.includes('column "use_class_race_bonuses" does not exist') ||
-          error.message.includes('column "use_inventory_weight_limit" does not exist'))
+          error.message.includes('column "use_inventory_weight_limit" does not exist') ||
+          error.message.includes('column "use_mundi_map" does not exist'))
       ) {
         rows = await prisma.$queryRaw<RpgRow[]>(Prisma.sql`
           SELECT
@@ -61,6 +64,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
             title,
             description,
             visibility,
+            false AS "useMundiMap",
             false AS "useClassRaceBonuses",
             false AS "useInventoryWeightLimit"
           FROM rpgs
@@ -111,6 +115,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           title: rpg.title,
           description: rpg.description,
           visibility: rpg.visibility,
+          useMundiMap: rpg.useMundiMap,
           useClassRaceBonuses: rpg.useClassRaceBonuses,
           useInventoryWeightLimit: rpg.useInventoryWeightLimit,
         },
@@ -151,6 +156,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       title,
       description,
       visibility,
+      useMundiMap,
       useClassRaceBonuses,
       useInventoryWeightLimit,
     } = parsed.data
@@ -168,6 +174,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     if (
+      typeof useMundiMap === "boolean" ||
       typeof useClassRaceBonuses === "boolean" ||
       typeof useInventoryWeightLimit === "boolean"
     ) {
@@ -175,6 +182,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         await prisma.$executeRaw(Prisma.sql`
           UPDATE rpgs
           SET
+            use_mundi_map = ${Boolean(useMundiMap)},
             use_class_race_bonuses = ${Boolean(useClassRaceBonuses)},
             use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
           WHERE id = ${rpgId}
@@ -184,7 +192,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         if (
           !(error instanceof Error) ||
           (!error.message.includes('column "use_class_race_bonuses" does not exist') &&
-            !error.message.includes('column "use_inventory_weight_limit" does not exist'))
+            !error.message.includes('column "use_inventory_weight_limit" does not exist') &&
+            !error.message.includes('column "use_mundi_map" does not exist'))
         ) {
           throw error
         }

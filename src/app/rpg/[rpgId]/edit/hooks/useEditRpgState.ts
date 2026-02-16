@@ -22,6 +22,7 @@ export function useEditRpgState() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [visibility, setVisibility] = useState<Visibility>("private")
+  const [useMundiMap, setUseMundiMap] = useState(false)
   const [useClassRaceBonuses, setUseClassRaceBonuses] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
 
@@ -191,6 +192,8 @@ export function useEditRpgState() {
     setDescription,
     visibility,
     setVisibility,
+    useMundiMap,
+    setUseMundiMap,
     useClassRaceBonuses,
     setUseClassRaceBonuses,
     useInventoryWeightLimit,

@@ -34,6 +34,15 @@ type CountRow = {
   total: bigint | number
 }
 
+type DbRpgRow = {
+  id: string
+  ownerId: string
+  title: string
+  description: string
+  visibility: "private" | "public"
+  useMundiMap: boolean
+}
+
 export const generateMetadata = () => {
   return {
     title: "rpg",
@@ -105,16 +114,40 @@ export default async function ViewInRpg({ params }: Params) {
     )
   }
 
-  const dbRpg = await prisma.rpg.findUnique({
-    where: { id: rpgId },
-    select: {
-      id: true,
-      ownerId: true,
-      title: true,
-      description: true,
-      visibility: true,
-    },
-  })
+  let rows: DbRpgRow[] = []
+  try {
+    rows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
+      SELECT
+        id,
+        owner_id AS "ownerId",
+        title,
+        description,
+        visibility,
+        COALESCE(use_mundi_map, false) AS "useMundiMap"
+      FROM rpgs
+      WHERE id = ${rpgId}
+      LIMIT 1
+    `)
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('column "use_mundi_map" does not exist')) {
+      rows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
+        SELECT
+          id,
+          owner_id AS "ownerId",
+          title,
+          description,
+          visibility,
+          false AS "useMundiMap"
+        FROM rpgs
+        WHERE id = ${rpgId}
+        LIMIT 1
+      `)
+    } else {
+      throw error
+    }
+  }
+
+  const dbRpg = rows[0]
 
   if (!dbRpg) {
     notFound()
@@ -254,6 +287,18 @@ export default async function ViewInRpg({ params }: Params) {
             />
             <span>Classes</span>
           </div>
+        ) : null}
+
+        {dbRpg.useMundiMap ? (
+          <Link href={`/rpg/${dbRpg.id}/map`} className={styles.card}>
+            <Image
+              src="/images/bg-regioes.jpg"
+              alt="Mapa Mundi"
+              fill
+              className={styles.cardImage}
+            />
+            <span>Mapa Mundi</span>
+          </Link>
         ) : null}
 
         {isOwner ? (

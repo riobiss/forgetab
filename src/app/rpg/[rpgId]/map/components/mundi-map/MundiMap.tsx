@@ -1,17 +1,26 @@
 "use client"
 
-import { type MutableRefObject, useEffect, useRef, useState } from "react"
+import { type ChangeEvent, type MutableRefObject, useEffect, useRef, useState } from "react"
 import Konva from "konva"
 import Image from "next/image"
 import styles from "./MundiMap.module.css"
 
-const MAP_SRC = "/map/map-mundi.png"
+const DEFAULT_MAP_SRC = "/map/map-mundi.png"
+const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024
 const BRUSH_COLORS = ["#c4243b", "#ff7a18", "#f5e6c8", "#4f9cff", "#34c759"]
 
-export function MundiMap() {
+type MundiMapProps = {
+  rpgId: string
+  isOwner: boolean
+  initialMapSrc: string | null
+}
+
+export function MundiMap({ rpgId, isOwner, initialMapSrc }: MundiMapProps) {
   const frameRef = useRef<HTMLDivElement | null>(null)
   const stageContainerRef = useRef<HTMLDivElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const stageRef = useRef<Konva.Stage | null>(null)
+  const mapLayerRef = useRef<Konva.Layer | null>(null)
   const mapImageRef = useRef<Konva.Image | null>(null)
   const drawLayerRef = useRef<Konva.Layer | null>(null)
   const currentLineRef = useRef<Konva.Line | null>(null)
@@ -24,11 +33,25 @@ export function MundiMap() {
   const isPinchingRef = useRef(false)
   const pinchLastCenterRef = useRef<{ x: number; y: number } | null>(null)
   const pinchLastDistanceRef = useRef<number | null>(null)
+  const [mapSrc, setMapSrc] = useState(initialMapSrc || DEFAULT_MAP_SRC)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isBrushMode, setIsBrushMode] = useState(false)
   const [isInteractive, setIsInteractive] = useState(false)
   const [brushColor, setBrushColor] = useState(BRUSH_COLORS[0])
   const [brushSize, setBrushSize] = useState(4)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+
+  useEffect(() => {
+    setMapSrc(initialMapSrc || DEFAULT_MAP_SRC)
+  }, [initialMapSrc])
+
+  useEffect(() => {
+    if (!isOwner) {
+      setIsEditOpen(false)
+    }
+  }, [isOwner])
 
   useEffect(() => {
     const container = stageContainerRef.current
@@ -49,23 +72,8 @@ export function MundiMap() {
     stage.add(drawLayer)
 
     stageRef.current = stage
+    mapLayerRef.current = mapLayer
     drawLayerRef.current = drawLayer
-
-    const imageObj = new window.Image()
-    imageObj.src = MAP_SRC
-    imageObj.onload = () => {
-      const mapImage = new Konva.Image({
-        image: imageObj,
-        x: 0,
-        y: 0,
-        listening: false,
-      })
-
-      mapImageRef.current = mapImage
-      mapLayer.add(mapImage)
-      fitImageToStage(stage, mapImage)
-      mapLayer.draw()
-    }
 
     const handleWheel = (event: Konva.KonvaEventObject<WheelEvent>) => {
       if (!canInteractMap(isInteractiveRef.current, isFullscreenRef.current) || isBrushModeRef.current) {
@@ -256,11 +264,47 @@ export function MundiMap() {
       stage.off("touchend touchcancel", handleTouchEnd)
       stage.destroy()
       stageRef.current = null
+      mapLayerRef.current = null
       mapImageRef.current = null
       drawLayerRef.current = null
       currentLineRef.current = null
     }
-  }, [])
+  }, [isOwner])
+
+  useEffect(() => {
+    const stage = stageRef.current
+    const mapLayer = mapLayerRef.current
+    if (!stage || !mapLayer) {
+      return
+    }
+
+    const imageObj = new window.Image()
+    imageObj.src = mapSrc
+    imageObj.onload = () => {
+      const previousImage = mapImageRef.current
+      if (previousImage) {
+        previousImage.destroy()
+      }
+
+      const mapImage = new Konva.Image({
+        image: imageObj,
+        x: 0,
+        y: 0,
+        listening: false,
+      })
+
+      mapImageRef.current = mapImage
+      mapLayer.add(mapImage)
+      fitImageToStage(stage, mapImage)
+      mapLayer.draw()
+    }
+    imageObj.onerror = () => {
+      setUploadMessage("Nao foi possivel carregar a imagem do mapa.")
+      if (mapSrc !== DEFAULT_MAP_SRC) {
+        setMapSrc(DEFAULT_MAP_SRC)
+      }
+    }
+  }, [mapSrc])
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -366,12 +410,162 @@ export function MundiMap() {
     drawLayerCurrent.batchDraw()
   }
 
+  const handleOpenFilePicker = () => {
+    if (!isOwner || isUploading) {
+      return
+    }
+
+    fileInputRef.current?.click()
+  }
+
+  const persistMapImage = async (nextMapUrl: string | null) => {
+    const response = await fetch(`/api/rpg/${rpgId}/map`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mapImage: nextMapUrl }),
+    })
+
+    const payload = (await response.json().catch(() => ({}))) as { message?: string }
+    if (!response.ok) {
+      throw new Error(payload.message ?? "Nao foi possivel salvar o mapa.")
+    }
+  }
+
+  const handleMapFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (!isOwner) {
+      return
+    }
+
+    const file = event.currentTarget.files?.[0]
+    event.currentTarget.value = ""
+    if (!file) {
+      return
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setUploadMessage("Envie um arquivo de imagem valido.")
+      return
+    }
+
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setUploadMessage("Imagem muito grande. Limite de 8MB.")
+      return
+    }
+
+    setIsUploading(true)
+    setUploadMessage(null)
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      if (mapSrc !== DEFAULT_MAP_SRC) {
+        formData.append("oldUrl", mapSrc)
+      }
+
+      const uploadResponse = await fetch("/api/uploads/map-image", {
+        method: "POST",
+        body: formData,
+      })
+
+      const uploadPayload = (await uploadResponse.json().catch(() => ({}))) as {
+        url?: string
+        message?: string
+      }
+
+      if (!uploadResponse.ok || !uploadPayload.url) {
+        throw new Error(uploadPayload.message ?? "Falha ao enviar imagem do mapa.")
+      }
+
+      await persistMapImage(uploadPayload.url)
+      setMapSrc(uploadPayload.url)
+      setUploadMessage("Mapa atualizado com sucesso.")
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erro ao atualizar mapa."
+      setUploadMessage(message)
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleResetMapImage = async () => {
+    if (!isOwner || isUploading) {
+      return
+    }
+
+    setIsUploading(true)
+    setUploadMessage(null)
+
+    try {
+      if (mapSrc !== DEFAULT_MAP_SRC) {
+        const deleteResponse = await fetch("/api/uploads/map-image", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: mapSrc }),
+        })
+        const deletePayload = (await deleteResponse.json().catch(() => ({}))) as {
+          message?: string
+        }
+        if (!deleteResponse.ok) {
+          throw new Error(deletePayload.message ?? "Nao foi possivel remover do ImageKit.")
+        }
+      }
+
+      await persistMapImage(null)
+      setMapSrc(DEFAULT_MAP_SRC)
+      setUploadMessage("Imagem do mapa removida com sucesso.")
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erro ao restaurar mapa."
+      setUploadMessage(message)
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   return (
     <section className={styles.wrapper}>
       <div
         ref={frameRef}
         className={`${styles.frame} ${isFullscreen ? styles.frameFullscreen : ""}`}
       >
+        {isOwner ? (
+          <div className={styles.ownerActions}>
+            <button
+              type="button"
+              onClick={() => setIsEditOpen((prev) => !prev)}
+              className={styles.editButton}
+              aria-expanded={isEditOpen}
+              aria-label="Editar mapa"
+            >
+              Editar
+            </button>
+            {isEditOpen ? (
+              <div className={styles.editPanel}>
+                <button
+                  type="button"
+                  onClick={handleOpenFilePicker}
+                  className={styles.actionButton}
+                  disabled={isUploading}
+                >
+                  {isUploading
+                    ? "Enviando..."
+                    : mapSrc === DEFAULT_MAP_SRC
+                      ? "Enviar"
+                      : "Trocar"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetMapImage}
+                  className={styles.actionButton}
+                  disabled={isUploading || mapSrc === DEFAULT_MAP_SRC}
+                >
+                  Deletar
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
         {isFullscreen ? (
           <div className={styles.topControls}>
             <button
@@ -380,9 +574,7 @@ export function MundiMap() {
               className={`${styles.actionButton} ${styles.brushToggle} ${
                 isBrushMode ? styles.brushToggleActive : ""
               }`}
-              aria-label={
-                isBrushMode ? "Desativar modo pincel" : "Ativar modo pincel"
-              }
+              aria-label={isBrushMode ? "Desativar modo pincel" : "Ativar modo pincel"}
             >
               <Image
                 src="/icons/drawIcon.svg"
@@ -469,9 +661,7 @@ export function MundiMap() {
           type="button"
           onClick={toggleFullscreen}
           className={styles.expandButton}
-          aria-label={
-            isFullscreen ? "Fechar mapa completo" : "Abrir mapa completo"
-          }
+          aria-label={isFullscreen ? "Fechar mapa completo" : "Abrir mapa completo"}
           title={isFullscreen ? "Fechar" : "Abrir"}
         >
           <Image
@@ -482,6 +672,21 @@ export function MundiMap() {
           />
         </button>
       </div>
+
+      {isOwner ? (
+        <>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className={styles.hiddenInput}
+            onChange={handleMapFileChange}
+          />
+          {uploadMessage ? (
+            <p className={styles.statusText}>{uploadMessage}</p>
+          ) : null}
+        </>
+      ) : null}
     </section>
   )
 }
@@ -627,9 +832,9 @@ function clampScale(
   scale: number,
 ) {
   const fitScale = getFitScale(stage, mapImage)
-  const MIN_SCALE = fitScale ?? 0.2
-  const MAX_SCALE = 8
-  return Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale))
+  const minScale = fitScale ?? 0.2
+  const maxScale = 8
+  return Math.max(minScale, Math.min(maxScale, scale))
 }
 
 function getFitScale(stage: Konva.Stage, mapImage: Konva.Image | null) {

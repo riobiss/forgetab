@@ -35,6 +35,7 @@ export default function EditRpgPage() {
     title: state.title,
     description: state.description,
     visibility: state.visibility,
+    useMundiMap: state.useMundiMap,
     useClassRaceBonuses: state.useClassRaceBonuses,
     useInventoryWeightLimit: state.useInventoryWeightLimit,
     selectedAttributeKeys: state.selectedAttributeKeys,
@@ -46,6 +47,7 @@ export default function EditRpgPage() {
     setTitle: state.setTitle,
     setDescription: state.setDescription,
     setVisibility: state.setVisibility,
+    setUseMundiMap: state.setUseMundiMap,
     setUseClassRaceBonuses: state.setUseClassRaceBonuses,
     setUseInventoryWeightLimit: state.setUseInventoryWeightLimit,
     setSelectedAttributeKeys: state.setSelectedAttributeKeys,
@@ -192,6 +194,8 @@ export default function EditRpgPage() {
           onDescriptionChange={state.setDescription}
           visibility={state.visibility}
           onVisibilityChange={state.setVisibility}
+          useMundiMap={state.useMundiMap}
+          onUseMundiMapChange={state.setUseMundiMap}
           useInventoryWeightLimit={state.useInventoryWeightLimit}
           onUseInventoryWeightLimitChange={state.setUseInventoryWeightLimit}
           error={data.error}
