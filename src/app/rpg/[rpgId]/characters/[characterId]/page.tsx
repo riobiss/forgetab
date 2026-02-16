@@ -647,9 +647,9 @@ export default async function CharactersPage({ params }: Params) {
 
           <div>
             <h4>Progressao</h4>
-            <p>Nivel: {character.progression.level}</p>
+            <p>Level: {character.progression.level}</p>
             <p>XP: {character.progression.xp}</p>
-            <p>Proximo nivel: {character.progression.xpToNextLevel}</p>
+            <p>Proximo level: {character.progression.xpToNextLevel}</p>
           </div>
         </div>
 
@@ -746,3 +746,4 @@ export default async function CharactersPage({ params }: Params) {
     </div>
   )
 }
+

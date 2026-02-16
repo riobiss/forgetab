@@ -75,7 +75,10 @@ type PurchasedAbilityView = {
   skillId: string
   levelNumber: number
   skillName: string
+  levelName: string | null
   skillDescription: string | null
+  levelDescription: string | null
+  notesList: string[]
   skillCategory: string | null
   skillType: string | null
   levelRequired: number
@@ -88,11 +91,6 @@ type PurchasedAbilityView = {
   resourceCost: string | null
   pointsCost: number | null
   costCustom: string | null
-  target: Record<string, unknown> | null
-  area: Record<string, unknown> | null
-  scaling: Record<string, unknown> | null
-  requirement: Record<string, unknown> | null
-  effects: Prisma.JsonArray
 }
 
 function parseJsonObject(value: Prisma.JsonValue) {
@@ -121,20 +119,12 @@ function toTypeLabel(value: string | null) {
   return SKILL_TYPE_LABEL[value] ?? value
 }
 
-function renderJsonBlock(value: Record<string, unknown> | null) {
-  if (!value || Object.keys(value).length === 0) {
-    return "-"
-  }
-
-  return <pre className={styles.jsonBlock}>{JSON.stringify(value, null, 2)}</pre>
+function hasText(value: string | null | undefined) {
+  return typeof value === "string" && value.trim().length > 0
 }
 
-function renderEffects(value: Prisma.JsonArray) {
-  if (!Array.isArray(value) || value.length === 0) {
-    return "-"
-  }
-
-  return <pre className={styles.jsonBlock}>{JSON.stringify(value, null, 2)}</pre>
+function normalizeText(value: string | null | undefined) {
+  return typeof value === "string" ? value.trim() : ""
 }
 
 export default async function AbilitiesPage({ params }: Params) {
@@ -173,7 +163,7 @@ export default async function AbilitiesPage({ params }: Params) {
                 <article key={ability.id} className={styles.card}>
                   <div className={styles.cardHeader}>
                     <h3 className={styles.cardTitle}>{ability.name}</h3>
-                    <span className={styles.levelBadge}>Nivel {ability.level}</span>
+                    <span className={styles.levelBadge}>Level {ability.level}</span>
                   </div>
                   <p className={styles.cardBodyItalic}>{ability.description}</p>
                 </article>
@@ -287,12 +277,20 @@ export default async function AbilitiesPage({ params }: Params) {
 
       const stats = parseJsonObject(row.stats) ?? {}
       const cost = parseJsonObject(row.cost) ?? {}
+      const statsNotesListRaw = Array.isArray(stats.notesList) ? stats.notesList : []
+      const statsNotesList = statsNotesListRaw
+        .map((item) => (typeof item === "string" ? item.trim() : ""))
+        .filter((item) => item.length > 0)
+      const fallbackNote = toOptionalText(stats.notes)
 
       acc.push({
         skillId: row.skillId,
         levelNumber: row.levelNumber,
         skillName: row.skillName,
+        levelName: toOptionalText(stats.name),
         skillDescription: toOptionalText(row.skillDescription),
+        levelDescription: toOptionalText(stats.description),
+        notesList: statsNotesList.length > 0 ? statsNotesList : fallbackNote ? [fallbackNote] : [],
         skillCategory: toOptionalText(row.skillCategory),
         skillType: toOptionalText(row.skillType),
         levelRequired: row.levelRequired,
@@ -305,11 +303,6 @@ export default async function AbilitiesPage({ params }: Params) {
         resourceCost: toOptionalText(stats.resourceCost),
         pointsCost: parseCostPoints(row.cost),
         costCustom: toOptionalText(cost.custom),
-        target: parseJsonObject(row.target),
-        area: parseJsonObject(row.area),
-        scaling: parseJsonObject(row.scaling),
-        requirement: parseJsonObject(row.requirement),
-        effects: parseJsonArray(row.effects),
       })
 
       return acc
@@ -334,84 +327,89 @@ export default async function AbilitiesPage({ params }: Params) {
             {abilities.map((ability) => (
               <article key={`${ability.skillId}:${ability.levelNumber}`} className={styles.card}>
                 <div className={styles.cardHeader}>
-                  <h3 className={styles.cardTitle}>{ability.skillName}</h3>
-                  <span className={styles.levelBadge}>Nivel {ability.levelNumber}</span>
+                  <h3 className={styles.cardTitle}>{ability.levelName ?? ability.skillName}</h3>
+                  <span className={styles.levelBadge}>Level {ability.levelNumber}</span>
                 </div>
 
                 {ability.skillDescription ? (
                   <p className={styles.cardBodyItalic}>{ability.skillDescription}</p>
                 ) : null}
-                <p className={styles.cardBodyItalic}>{ability.summary ?? "Sem resumo do nivel."}</p>
+                {(() => {
+                  const levelDescription = hasText(ability.levelDescription)
+                    ? ability.levelDescription
+                    : hasText(ability.summary)
+                      ? ability.summary
+                      : null
+                  const baseDescription = normalizeText(ability.skillDescription)
+                  const levelDescriptionNormalized = normalizeText(levelDescription)
+                  const showLevelDescription =
+                    levelDescriptionNormalized.length > 0 && levelDescriptionNormalized !== baseDescription
+                  return showLevelDescription ? (
+                    <p className={styles.cardBodyItalic}>{levelDescription}</p>
+                  ) : null
+                })()}
 
                 <div className={styles.cardDetailsGrid}>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>CATEGORIA</span>
-                    <span className={styles.detailValue}>
-                      {toCategoryLabel(ability.skillCategory) ?? "-"}
-                    </span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>TIPO</span>
-                    <span className={styles.detailValue}>{toTypeLabel(ability.skillType) ?? "-"}</span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>REQUISITO</span>
-                    <span className={styles.detailValue}>Nivel {ability.levelRequired}</span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>DANO</span>
-                    <span className={styles.detailValue}>{ability.damage ?? "-"}</span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>ALCANCE</span>
-                    <span className={styles.detailValue}>{ability.range ?? "-"}</span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>RECARGA</span>
-                    <span className={styles.detailValue}>{ability.cooldown ?? "-"}</span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>DURACAO</span>
-                    <span className={styles.detailValue}>{ability.duration ?? "-"}</span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>CONJURACAO</span>
-                    <span className={styles.detailValue}>{ability.castTime ?? "-"}</span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>CUSTO RECURSO</span>
-                    <span className={styles.detailValue}>{ability.resourceCost ?? "-"}</span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>CUSTO PONTOS</span>
-                    <span className={styles.detailValueHighlight}>
-                      {ability.pointsCost === null ? "-" : String(ability.pointsCost)}
-                    </span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>CUSTO CUSTOM</span>
-                    <span className={styles.detailValue}>{ability.costCustom ?? "-"}</span>
-                  </div>
-                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
-                    <span className={styles.detailLabelOrange}>ALVO</span>
-                    {renderJsonBlock(ability.target)}
-                  </div>
-                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
-                    <span className={styles.detailLabelOrange}>AREA</span>
-                    {renderJsonBlock(ability.area)}
-                  </div>
-                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
-                    <span className={styles.detailLabelOrange}>ESCALONAMENTO</span>
-                    {renderJsonBlock(ability.scaling)}
-                  </div>
-                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
-                    <span className={styles.detailLabelOrange}>REQUISITOS</span>
-                    {renderJsonBlock(ability.requirement)}
-                  </div>
-                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
-                    <span className={styles.detailLabelOrange}>EFEITOS</span>
-                    {renderEffects(ability.effects)}
-                  </div>
+                  {hasText(ability.skillCategory) ? (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabelOrange}>CATEGORIA</span>
+                      <span className={styles.detailValue}>{toCategoryLabel(ability.skillCategory)}</span>
+                    </div>
+                  ) : null}
+                  {hasText(ability.skillType) ? (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabelOrange}>TIPO</span>
+                      <span className={styles.detailValue}>{toTypeLabel(ability.skillType)}</span>
+                    </div>
+                  ) : null}
+                  {hasText(ability.damage) ? (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabelOrange}>DANO</span>
+                      <span className={styles.detailValue}>{ability.damage}</span>
+                    </div>
+                  ) : null}
+                  {hasText(ability.range) ? (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabelOrange}>ALCANCE</span>
+                      <span className={styles.detailValue}>{ability.range}</span>
+                    </div>
+                  ) : null}
+                  {hasText(ability.cooldown) ? (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabelOrange}>RECARGA</span>
+                      <span className={styles.detailValue}>{ability.cooldown}</span>
+                    </div>
+                  ) : null}
+                  {hasText(ability.duration) ? (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabelOrange}>DURACAO</span>
+                      <span className={styles.detailValue}>{ability.duration}</span>
+                    </div>
+                  ) : null}
+                  {hasText(ability.castTime) ? (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabelOrange}>CONJURACAO</span>
+                      <span className={styles.detailValue}>{ability.castTime}</span>
+                    </div>
+                  ) : null}
+                  {hasText(ability.resourceCost) ? (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabelOrange}>CUSTO RECURSO</span>
+                      <span className={styles.detailValue}>{ability.resourceCost}</span>
+                    </div>
+                  ) : null}
+                  {hasText(ability.costCustom) ? (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabelOrange}>CUSTO</span>
+                      <span className={styles.detailValue}>{ability.costCustom}</span>
+                    </div>
+                  ) : null}
+                  {ability.notesList.length > 0 ? (
+                    <div className={`${styles.detailItem} ${styles.detailFull}`}>
+                      <span className={styles.detailLabelOrange}>OBS</span>
+                      <span className={styles.detailValue}>{ability.notesList.join(" | ")}</span>
+                    </div>
+                  ) : null}
                 </div>
               </article>
             ))}
@@ -421,3 +419,4 @@ export default async function AbilitiesPage({ params }: Params) {
     </div>
   )
 }
+
