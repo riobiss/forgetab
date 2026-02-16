@@ -10,6 +10,7 @@ import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
 import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
+import StatusTracker from "./StatusTracker"
 
 type Params = {
   params: Promise<{
@@ -33,6 +34,7 @@ type DbCharacterRow = {
   stamina: number
   sanity: number
   statuses: Prisma.JsonValue
+  currentStatuses: Prisma.JsonValue
   attributes: Prisma.JsonValue
   skills: Prisma.JsonValue
   identity: Prisma.JsonValue
@@ -178,6 +180,7 @@ export default async function CharactersPage({ params }: Params) {
           stamina,
           sanity,
           statuses,
+          COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",
           attributes,
           skills,
           COALESCE(identity, '{}'::jsonb) AS identity,
@@ -243,6 +246,7 @@ export default async function CharactersPage({ params }: Params) {
 
     const attributes = row.attributes as Record<string, number>
     const statuses = row.statuses as Record<string, number>
+    const currentStatuses = row.currentStatuses as Record<string, number>
     const skills = row.skills as Record<string, number>
     const skillEntries = Object.entries(skills)
     const identity = row.identity as Record<string, string>
@@ -257,6 +261,30 @@ export default async function CharactersPage({ params }: Params) {
     const extraStatusEntries = Object.entries(statuses).filter(
       ([key]) => !coreStatusConfig.some((item) => item.key === key),
     )
+    const statusEntries = [
+      ...coreStatusConfig.map((item) => ({
+        key: item.key,
+        label: item.label,
+        max: Number(statuses[item.key] ?? 0),
+        current:
+          item.key === "life"
+            ? Number(row.life ?? 0)
+            : item.key === "mana"
+              ? Number(row.mana ?? 0)
+              : item.key === "sanity"
+                ? Number(row.sanity ?? 0)
+                : Number(row.stamina ?? 0),
+      })),
+      ...extraStatusEntries.map(([key, value]) => ({
+        key,
+        label: statusTemplateLabelByKey.get(key) ?? statusLabelByKey[key] ?? key,
+        max: Number(value ?? 0),
+        current: Math.max(
+          0,
+          Math.min(Number(value ?? 0), Number(currentStatuses[key] ?? value ?? 0)),
+        ),
+      })),
+    ]
     const identityItems =
       identityTemplateFields.length > 0
         ? identityTemplateFields.map((field) => ({
@@ -350,16 +378,12 @@ export default async function CharactersPage({ params }: Params) {
           <div className={styles.grid}>
             <div>
               <h4>Status</h4>
-              {coreStatusConfig.map((item) => (
-                <p key={item.key}>
-                  {item.label}: {statuses[item.key] ?? 0}
-                </p>
-              ))}
-              {extraStatusEntries.map(([key, value]) => (
-                <p key={key}>
-                  {statusTemplateLabelByKey.get(key) ?? statusLabelByKey[key] ?? key}: {value}
-                </p>
-              ))}
+              <StatusTracker
+                items={statusEntries}
+                rpgId={rpgId}
+                characterId={row.id}
+                canPersist={canEditCharacter}
+              />
             </div>
 
           </div>
