@@ -21,6 +21,7 @@ function slugifyLabel(label: string) {
 export function useEditRpgState() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
+  const [image, setImage] = useState("")
   const [visibility, setVisibility] = useState<Visibility>("private")
   const [useMundiMap, setUseMundiMap] = useState(false)
   const [useClassRaceBonuses, setUseClassRaceBonuses] = useState(false)
@@ -192,6 +193,8 @@ export function useEditRpgState() {
     setTitle,
     description,
     setDescription,
+    image,
+    setImage,
     visibility,
     setVisibility,
     useMundiMap,

@@ -15,6 +15,7 @@ import StatusOptionsSection from "./components/status-options/StatusOptionsSecti
 import type { CatalogOption } from "./components/shared/types"
 import { useEditRpgData } from "./hooks/useEditRpgData"
 import { useEditRpgState } from "./hooks/useEditRpgState"
+import { useState } from "react"
 
 const CORE_STATUS_OPTIONS: CatalogOption[] = [
   { key: "life", label: "Vida" },
@@ -23,17 +24,25 @@ const CORE_STATUS_OPTIONS: CatalogOption[] = [
   { key: "stamina", label: "Exaustao" },
 ]
 
+type UploadImagePayload = {
+  message?: string
+  url?: string
+}
+
 export default function EditRpgPage() {
   const params = useParams<{ rpgId: string }>()
   const router = useRouter()
   const rpgId = params.rpgId
   const state = useEditRpgState()
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadError, setUploadError] = useState("")
 
   const data = useEditRpgData({
     rpgId,
     coreStatusOptions: CORE_STATUS_OPTIONS,
     title: state.title,
     description: state.description,
+    image: state.image,
     visibility: state.visibility,
     useMundiMap: state.useMundiMap,
     useClassRaceBonuses: state.useClassRaceBonuses,
@@ -48,6 +57,7 @@ export default function EditRpgPage() {
     characterCharacteristicTemplates: state.characterCharacteristicTemplates,
     setTitle: state.setTitle,
     setDescription: state.setDescription,
+    setImage: state.setImage,
     setVisibility: state.setVisibility,
     setUseMundiMap: state.setUseMundiMap,
     setUseClassRaceBonuses: state.setUseClassRaceBonuses,
@@ -75,6 +85,38 @@ export default function EditRpgPage() {
       router.push("/rpg")
       router.refresh()
     }
+  }
+
+  async function handleImageUpload(file: File) {
+    setUploadingImage(true)
+    setUploadError("")
+
+    try {
+      const payload = new FormData()
+      payload.append("file", file)
+
+      const response = await fetch("/api/uploads/rpg-image", {
+        method: "POST",
+        body: payload,
+      })
+
+      const body = (await response.json()) as UploadImagePayload
+      if (!response.ok || !body.url) {
+        setUploadError(body.message ?? "Nao foi possivel enviar imagem.")
+        return
+      }
+
+      state.setImage(body.url)
+    } catch {
+      setUploadError("Erro de conexao ao enviar imagem.")
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  function handleRemoveImage() {
+    state.setImage("")
+    setUploadError("")
   }
 
   if (data.loading) {
@@ -211,6 +253,12 @@ export default function EditRpgPage() {
           onTitleChange={state.setTitle}
           description={state.description}
           onDescriptionChange={state.setDescription}
+          image={state.image}
+          onImageChange={state.setImage}
+          onImageUpload={handleImageUpload}
+          onRemoveImage={handleRemoveImage}
+          uploadingImage={uploadingImage}
+          uploadError={uploadError}
           visibility={state.visibility}
           onVisibilityChange={state.setVisibility}
           useMundiMap={state.useMundiMap}

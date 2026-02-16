@@ -11,6 +11,12 @@ type Props = {
   onTitleChange: (value: string) => void
   description: string
   onDescriptionChange: (value: string) => void
+  image: string
+  onImageChange: (value: string) => void
+  onImageUpload: (file: File) => Promise<void>
+  onRemoveImage: () => void
+  uploadingImage: boolean
+  uploadError: string
   visibility: Visibility
   onVisibilityChange: (value: Visibility) => void
   useMundiMap: boolean
@@ -32,6 +38,12 @@ export default function EditRpgForm({
   onTitleChange,
   description,
   onDescriptionChange,
+  image,
+  onImageChange,
+  onImageUpload,
+  onRemoveImage,
+  uploadingImage,
+  uploadError,
   visibility,
   onVisibilityChange,
   useMundiMap,
@@ -76,6 +88,46 @@ export default function EditRpgForm({
             required
           />
         </label>
+
+        <label className={styles.field}>
+          <span>Imagem do RPG (URL)</span>
+          <input
+            type="url"
+            value={image}
+            onChange={(event) => onImageChange(event.target.value)}
+            readOnly
+            placeholder="https://ik.imagekit.io/.../rpg.jpg"
+          />
+        </label>
+
+        <label className={styles.field}>
+          <span>Arquivo da imagem</span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(event) => {
+              const file = event.target.files?.[0]
+              if (file) {
+                void onImageUpload(file)
+              }
+            }}
+          />
+        </label>
+
+        {image ? (
+          <div className={styles.actions}>
+            <button
+              type="button"
+              onClick={onRemoveImage}
+              disabled={saving || deleting || uploadingImage}
+            >
+              Remover imagem
+            </button>
+          </div>
+        ) : null}
+
+        {uploadingImage ? <p>Enviando imagem...</p> : null}
+        {uploadError ? <p className={styles.error}>{uploadError}</p> : null}
 
         <label className={styles.field}>
           <span>Visibilidade</span>

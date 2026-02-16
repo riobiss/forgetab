@@ -5,15 +5,56 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import styles from "./page.module.css"
 
+type UploadImagePayload = {
+  message?: string
+  url?: string
+}
+
 export default function NewRpgPage() {
   const router = useRouter()
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
+  const [image, setImage] = useState("")
   const [visibility, setVisibility] = useState<"private" | "public">("private")
   const [costsEnabled, setCostsEnabled] = useState(false)
   const [costResourceName, setCostResourceName] = useState("Skill Points")
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadError, setUploadError] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+
+  async function handleImageUpload(file: File) {
+    setUploadingImage(true)
+    setUploadError("")
+    setError("")
+
+    try {
+      const payload = new FormData()
+      payload.append("file", file)
+
+      const response = await fetch("/api/uploads/rpg-image", {
+        method: "POST",
+        body: payload,
+      })
+
+      const body = (await response.json()) as UploadImagePayload
+      if (!response.ok || !body.url) {
+        setUploadError(body.message ?? "Nao foi possivel enviar imagem.")
+        return
+      }
+
+      setImage(body.url)
+    } catch {
+      setUploadError("Erro de conexao ao enviar imagem.")
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  function handleRemoveImage() {
+    setImage("")
+    setUploadError("")
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -27,6 +68,7 @@ export default function NewRpgPage() {
         body: JSON.stringify({
           title,
           description,
+          ...(image.trim() ? { image: image.trim() } : {}),
           visibility,
           costsEnabled,
           costResourceName,
@@ -90,6 +132,42 @@ export default function NewRpgPage() {
               <option value="public">Publico</option>
             </select>
           </label>
+
+          <label className={styles.field}>
+            <span>Imagem do RPG (URL)</span>
+            <input
+              type="url"
+              value={image}
+              onChange={(event) => setImage(event.target.value)}
+              readOnly
+              placeholder="https://ik.imagekit.io/.../rpg.jpg"
+            />
+          </label>
+
+          <label className={styles.field}>
+            <span>Arquivo da imagem</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (file) {
+                  void handleImageUpload(file)
+                }
+              }}
+            />
+          </label>
+
+          {image ? (
+            <div className={styles.actions}>
+              <button type="button" onClick={handleRemoveImage} disabled={uploadingImage || loading}>
+                Remover imagem
+              </button>
+            </div>
+          ) : null}
+
+          {uploadingImage ? <p>Enviando imagem...</p> : null}
+          {uploadError ? <p className={styles.error}>{uploadError}</p> : null}
 
           <label className={styles.field}>
             <span>Sistema de Custos</span>

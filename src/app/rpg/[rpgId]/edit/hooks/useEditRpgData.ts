@@ -9,6 +9,7 @@ type RpgPayload = {
     id: string
     title: string
     description: string
+    image?: string | null
     visibility: Visibility
     costsEnabled?: boolean
     costResourceName?: string
@@ -23,6 +24,7 @@ type UseEditRpgDataParams = {
   coreStatusOptions: readonly CatalogOption[]
   title: string
   description: string
+  image: string
   visibility: Visibility
   useMundiMap: boolean
   useClassRaceBonuses: boolean
@@ -37,6 +39,7 @@ type UseEditRpgDataParams = {
   characterCharacteristicTemplates: CharacterIdentityTemplate[]
   setTitle: (value: string) => void
   setDescription: (value: string) => void
+  setImage: (value: string) => void
   setVisibility: (value: Visibility) => void
   setUseMundiMap: (value: boolean) => void
   setUseClassRaceBonuses: (value: boolean) => void
@@ -58,6 +61,7 @@ export function useEditRpgData({
   coreStatusOptions,
   title,
   description,
+  image,
   visibility,
   useMundiMap,
   useClassRaceBonuses,
@@ -72,6 +76,7 @@ export function useEditRpgData({
   characterCharacteristicTemplates,
   setTitle,
   setDescription,
+  setImage,
   setVisibility,
   setUseMundiMap,
   setUseClassRaceBonuses,
@@ -160,6 +165,7 @@ export function useEditRpgData({
 
         setTitle(rpgPayload.rpg.title)
         setDescription(rpgPayload.rpg.description)
+        setImage(rpgPayload.rpg.image?.trim() || "")
         setVisibility(rpgPayload.rpg.visibility)
         setUseMundiMap(Boolean(rpgPayload.rpg.useMundiMap))
         setUseClassRaceBonuses(Boolean(rpgPayload.rpg.useClassRaceBonuses))
@@ -217,6 +223,7 @@ export function useEditRpgData({
     rpgId,
     setTitle,
     setDescription,
+    setImage,
     setVisibility,
     setUseMundiMap,
     setUseClassRaceBonuses,
@@ -240,6 +247,7 @@ export function useEditRpgData({
       body: JSON.stringify({
         title,
         description,
+        image: image.trim() || null,
         visibility,
         useMundiMap,
         useClassRaceBonuses,
