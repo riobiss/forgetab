@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
     const {
       title,
       description,
+      image,
       visibility,
       costsEnabled,
       costResourceName,
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
       useClassRaceBonuses,
       useInventoryWeightLimit,
     } = parsed.data
+    const resolvedImage = image?.trim() || null
     const resolvedCostsEnabled = Boolean(costsEnabled)
     const resolvedCostResourceName = (costResourceName?.trim() || "Skill Points").slice(0, 60)
     const created = await prisma.rpg.create({
@@ -69,6 +71,25 @@ export async function POST(request: NextRequest) {
       // Mantem compatibilidade quando a migration ainda nao foi aplicada.
     }
 
+    if (resolvedImage) {
+      try {
+        await prisma.$executeRaw(Prisma.sql`
+          UPDATE rpgs
+          SET image = ${resolvedImage}
+          WHERE id = ${created.id}
+        `)
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('column "image" does not exist')) {
+          return NextResponse.json(
+            { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },
+            { status: 500 },
+          )
+        }
+
+        throw error
+      }
+    }
+
     return NextResponse.json(
       {
         rpg: {
@@ -76,6 +97,7 @@ export async function POST(request: NextRequest) {
           ownerId: created.ownerId,
           title: created.title,
           description: created.description,
+          image: resolvedImage,
           visibility: created.visibility,
           costsEnabled: resolvedCostsEnabled,
           costResourceName: resolvedCostResourceName,

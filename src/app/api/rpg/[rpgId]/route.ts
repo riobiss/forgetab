@@ -10,11 +10,122 @@ type RouteContext = {
   }>
 }
 
+function getImageKitConfig() {
+  const privateKey = process.env.IMAGEKIT_PRIVATE_KEY
+  const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT
+
+  if (!privateKey || !urlEndpoint) {
+    return { ok: false as const }
+  }
+
+  return { ok: true as const, privateKey, urlEndpoint }
+}
+
+function parseHost(value: string) {
+  try {
+    return new URL(value).host.toLowerCase()
+  } catch {
+    return null
+  }
+}
+
+function normalizeUrlPath(value: string) {
+  try {
+    return new URL(value).pathname
+  } catch {
+    return null
+  }
+}
+
+function extractFileNameFromUrl(value: string) {
+  const path = normalizeUrlPath(value)
+  if (!path) return null
+
+  const parts = path.split("/").filter(Boolean)
+  if (parts.length === 0) return null
+
+  return parts[parts.length - 1]
+}
+
+async function deleteImageKitFileByUrl(
+  privateKey: string,
+  urlEndpoint: string,
+  rawUrl: string | null,
+) {
+  if (!rawUrl) return
+
+  const imageUrl = rawUrl.trim()
+  if (!imageUrl) return
+
+  const endpointHost = parseHost(urlEndpoint)
+  const imageUrlHost = parseHost(imageUrl)
+  if (!endpointHost || !imageUrlHost || endpointHost !== imageUrlHost) {
+    return
+  }
+
+  const fileName = extractFileNameFromUrl(imageUrl)
+  if (!fileName) return
+
+  const auth = Buffer.from(`${privateKey}:`, "utf8").toString("base64")
+  const escapedFileName = fileName.replace(/"/g, '\\"')
+  const searchQuery = encodeURIComponent(`name = "${escapedFileName}"`)
+  const listResponse = await fetch(
+    `https://api.imagekit.io/v1/files?limit=100&searchQuery=${searchQuery}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${auth}`,
+      },
+    },
+  )
+
+  if (!listResponse.ok) {
+    throw new Error("Falha ao listar imagem no ImageKit.")
+  }
+
+  const listPayload = (await listResponse.json()) as Array<{
+    fileId?: string
+    url?: string
+  }>
+
+  const normalizedImagePath = normalizeUrlPath(imageUrl)
+  const target = listPayload.find((item) => {
+    if (!item.fileId || !item.url) return false
+    if (item.url === imageUrl) return true
+
+    const itemPath = normalizeUrlPath(item.url)
+    return Boolean(normalizedImagePath && itemPath && itemPath === normalizedImagePath)
+  })
+
+  if (!target?.fileId) return
+
+  const deleteResponse = await fetch(`https://api.imagekit.io/v1/files/${target.fileId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Basic ${auth}`,
+    },
+  })
+
+  if (!deleteResponse.ok && deleteResponse.status !== 404) {
+    throw new Error("Falha ao remover imagem no ImageKit.")
+  }
+}
+
+function normalizeOptionalText(value: unknown) {
+  if (typeof value !== "string") {
+    return null
+  }
+
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
 type RpgRow = {
   id: string
   ownerId: string
   title: string
   description: string
+  image: string | null
   visibility: "private" | "public"
   costsEnabled: boolean
   costResourceName: string
@@ -44,6 +155,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           owner_id AS "ownerId",
           title,
           description,
+          image,
           visibility,
           COALESCE(costs_enabled, false) AS "costsEnabled",
           COALESCE(NULLIF(TRIM(cost_resource_name), ''), 'Skill Points') AS "costResourceName",
@@ -59,6 +171,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         error instanceof Error &&
         (error.message.includes('column "costs_enabled" does not exist') ||
           error.message.includes('column "cost_resource_name" does not exist') ||
+          error.message.includes('column "image" does not exist') ||
           error.message.includes('column "use_class_race_bonuses" does not exist') ||
           error.message.includes('column "use_inventory_weight_limit" does not exist') ||
           error.message.includes('column "use_mundi_map" does not exist'))
@@ -69,6 +182,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
             owner_id AS "ownerId",
             title,
             description,
+            null::text AS image,
             visibility,
             false AS "costsEnabled",
             'Skill Points' AS "costResourceName",
@@ -122,6 +236,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           id: rpg.id,
           title: rpg.title,
           description: rpg.description,
+          image: rpg.image,
           visibility: rpg.visibility,
           costsEnabled: rpg.costsEnabled,
           costResourceName: rpg.costResourceName,
@@ -159,6 +274,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const requestedCostsUpdate =
       Object.prototype.hasOwnProperty.call(safeBody, "costsEnabled") ||
       Object.prototype.hasOwnProperty.call(safeBody, "costResourceName")
+    const hasImageInBody = Object.prototype.hasOwnProperty.call(safeBody, "image")
     if (requestedCostsUpdate) {
       return NextResponse.json(
         { message: "Configuracao de custos disponivel apenas na criacao do RPG." },
@@ -178,11 +294,39 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const {
       title,
       description,
+      image,
       visibility,
       useMundiMap,
       useClassRaceBonuses,
       useInventoryWeightLimit,
     } = parsed.data
+    const normalizedImage = normalizeOptionalText(image)
+    let previousImage: string | null = null
+
+    if (hasImageInBody) {
+      try {
+        const currentRows = await prisma.$queryRaw<Array<{ image: string | null }>>(Prisma.sql`
+          SELECT image
+          FROM rpgs
+          WHERE id = ${rpgId}
+            AND owner_id = ${userId}
+          LIMIT 1
+        `)
+        previousImage = currentRows[0]?.image ?? null
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes('column "image" does not exist')
+        ) {
+          return NextResponse.json(
+            { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },
+            { status: 500 },
+          )
+        }
+
+        throw error
+      }
+    }
 
     const updated = await prisma.rpg.updateMany({
       where: { id: rpgId, ownerId: userId },
@@ -223,6 +367,49 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       }
     }
 
+    if (hasImageInBody) {
+      try {
+        const updatedRows = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+          UPDATE rpgs
+          SET image = ${normalizedImage}
+          WHERE id = ${rpgId}
+            AND owner_id = ${userId}
+          RETURNING id
+        `)
+
+        if (updatedRows.length === 0) {
+          return NextResponse.json(
+            { message: "RPG nao encontrado." },
+            { status: 404 },
+          )
+        }
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('column "image" does not exist')) {
+          return NextResponse.json(
+            { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },
+            { status: 500 },
+          )
+        }
+
+        throw error
+      }
+
+      if (previousImage && previousImage !== normalizedImage) {
+        const imageKitConfig = getImageKitConfig()
+        if (imageKitConfig.ok) {
+          try {
+            await deleteImageKitFileByUrl(
+              imageKitConfig.privateKey,
+              imageKitConfig.urlEndpoint,
+              previousImage,
+            )
+          } catch {
+            // Nao bloqueia a atualizacao do RPG caso a limpeza da imagem falhe.
+          }
+        }
+      }
+    }
+
     return NextResponse.json(
       { message: "RPG atualizado com sucesso." },
       { status: 200 },
@@ -242,6 +429,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         error.message.includes('relation "rpgs" does not exist') ||
         error.message.includes('column "costs_enabled" does not exist') ||
         error.message.includes('column "cost_resource_name" does not exist') ||
+        error.message.includes('column "image" does not exist') ||
         error.message.includes("Could not find the table")
       ) {
         return NextResponse.json(
@@ -270,6 +458,27 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     }
 
     const { rpgId } = await context.params
+    let imageUrl: string | null = null
+
+    try {
+      const currentRpg = await prisma.$queryRaw<Array<{ image: string | null }>>(Prisma.sql`
+        SELECT image
+        FROM rpgs
+        WHERE id = ${rpgId}
+          AND owner_id = ${userId}
+        LIMIT 1
+      `)
+      imageUrl = currentRpg[0]?.image ?? null
+    } catch (error) {
+      if (
+        !(
+          error instanceof Error &&
+          error.message.includes('column "image" does not exist')
+        )
+      ) {
+        throw error
+      }
+    }
 
     const deleted = await prisma.rpg.deleteMany({
       where: { id: rpgId, ownerId: userId },
@@ -280,6 +489,19 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         { message: "RPG nao encontrado." },
         { status: 404 },
       )
+    }
+
+    const imageKitConfig = getImageKitConfig()
+    if (imageKitConfig.ok) {
+      try {
+        await deleteImageKitFileByUrl(
+          imageKitConfig.privateKey,
+          imageKitConfig.urlEndpoint,
+          imageUrl,
+        )
+      } catch {
+        // Nao bloqueia a exclusao do RPG caso a limpeza da imagem falhe.
+      }
     }
 
     return NextResponse.json({ message: "RPG deletado com sucesso." }, { status: 200 })
@@ -296,6 +518,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     if (error instanceof Error) {
       if (
         error.message.includes('relation "rpgs" does not exist') ||
+        error.message.includes('column "image" does not exist') ||
         error.message.includes("Could not find the table")
       ) {
         return NextResponse.json(

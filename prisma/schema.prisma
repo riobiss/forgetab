@@ -74,6 +74,7 @@ model Rpg {
   owner              User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   title              String
   description        String
+  image              String?
   costsEnabled       Boolean                @default(false) @map("costs_enabled")
   costResourceName   String                 @default("Skill Points") @map("cost_resource_name")
   mapImage           String?                @map("map_image")

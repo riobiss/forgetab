@@ -6,6 +6,9 @@ export const createRpgSchema = z.object({
     .string()
     .trim()
     .min(10, "Descricao deve ter pelo menos 10 caracteres."),
+  image: z
+    .union([z.string().trim().url("Imagem do RPG deve ser uma URL valida."), z.null()])
+    .optional(),
   visibility: z.enum(["private", "public"]),
   costsEnabled: z.boolean().optional(),
   costResourceName: z
