@@ -1,0 +1,331 @@
+.page {
+  min-height: calc(100vh - 72px);
+  padding: 1.4rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at top right, rgba(255, 122, 24, 0.25), transparent 55%),
+    linear-gradient(140deg, rgba(255, 122, 24, 0.1), rgba(0, 0, 0, 0.1) 45%, rgba(255, 122, 24, 0.07));
+}
+
+.kicker {
+  margin: 0;
+  color: var(--accent-main);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+.hero h1 {
+  margin: 0.4rem 0;
+  color: var(--text-title);
+}
+
+.hero p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.heroActions {
+  display: flex;
+  gap: 0.8rem;
+  align-items: end;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1rem;
+  min-height: 0;
+}
+
+.sidebar {
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 0.8rem;
+  background: linear-gradient(180deg, rgba(255, 122, 24, 0.08), rgba(0, 0, 0, 0.35));
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+}
+
+.sidebar h2 {
+  margin: 0;
+  color: var(--text-title);
+}
+
+.skillCard,
+.skillCardActive {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.55rem;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-main);
+  display: grid;
+  gap: 0.15rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.skillCardActive {
+  border-color: var(--accent-main);
+  box-shadow: var(--shadow-accent);
+  background: rgba(255, 122, 24, 0.14);
+}
+
+.skillCard span {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.skillCard small {
+  color: var(--text-muted);
+}
+
+.editor {
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 0.9rem;
+  background: linear-gradient(180deg, var(--bg-surface), rgba(0, 0, 0, 0.5));
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+}
+
+.card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0.85rem;
+  background: rgba(0, 0, 0, 0.16);
+  display: grid;
+  gap: 0.8rem;
+}
+
+.card h2,
+.card h3 {
+  margin: 0;
+  color: var(--text-title);
+}
+
+.stepper {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.step,
+.stepActive {
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  background: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.stepActive {
+  border-color: var(--accent-main);
+  background: rgba(255, 122, 24, 0.18);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.65rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.field span {
+  font-size: 0.86rem;
+  color: var(--text-main);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 0.58rem 0.7rem;
+  background: rgba(0, 0, 0, 0.32);
+  color: var(--text-main);
+  font: inherit;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.spanTwo {
+  grid-column: 1 / -1;
+}
+
+.bindingGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.bindBox {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.65rem;
+  display: grid;
+  gap: 0.45rem;
+  max-height: 250px;
+  overflow: auto;
+}
+
+.check {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  color: var(--text-main);
+}
+
+.levelBlock {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.effects {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.effectCard {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.65rem;
+  display: grid;
+  gap: 0.65rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.effectTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.effectActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.effectActions button {
+  border: 1px solid var(--border-soft);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-main);
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.ghostButton {
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.primaryButton {
+  border: none;
+  background: var(--accent-main);
+  color: var(--text-alternativ);
+}
+
+.ghostButton {
+  border: 1px solid var(--border-soft);
+  background: transparent;
+  color: var(--text-main);
+}
+
+.primaryButton:disabled,
+.ghostButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.levelHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.levelHeaderActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.muted {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.success {
+  margin: 0;
+  color: #8edb9c;
+}
+
+.error {
+  margin: 0;
+  color: #ff9b9b;
+}
+
+@media (max-width: 980px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    order: 2;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bindingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .levelHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

@@ -432,6 +432,66 @@
   border-color: var(--accent-main);
 }
 
+.quickCreateWrapper {
+  position: relative;
+}
+
+.quickCreateTrigger {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.quickCreateTrigger:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-main);
+}
+
+.quickCreateTrigger:focus-visible {
+  outline: 2px solid var(--accent-main);
+  outline-offset: 2px;
+}
+
+.quickCreateChevronOpen {
+  transform: rotate(180deg);
+}
+
+.quickCreateMenu {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  min-width: 210px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 0.4rem;
+  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
+  box-shadow: var(--shadow-main);
+  display: grid;
+  gap: 0.2rem;
+  z-index: 30;
+}
+
+.quickCreateMenu a {
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  color: var(--text-main);
+  text-decoration: none;
+}
+
+.quickCreateMenu a:hover {
+  background: rgba(255, 122, 24, 0.15);
+  color: var(--text-title);
+}
+
 .description {
   max-width: 720px;
   margin: 0 auto 3.5rem;

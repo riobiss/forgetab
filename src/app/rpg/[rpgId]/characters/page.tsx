@@ -131,9 +131,11 @@ export default async function CharactersPage({ params, searchParams }: Params) {
         <h1 className={styles.title}>Personagens</h1>
 
         {canCreateCharacter && isOwner ? (
-          <Link href={`/rpg/${rpgId}/characters/novo`} className={styles.createButton}>
-            Criar personagem
-          </Link>
+          <div className={styles.topActions}>
+            <Link href={`/rpg/${rpgId}/characters/novo`} className={styles.createButton}>
+              Criar personagem
+            </Link>
+          </div>
         ) : null}
       </div>
 

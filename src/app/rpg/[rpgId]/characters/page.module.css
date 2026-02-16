@@ -31,6 +31,23 @@
   font-weight: 700;
 }
 
+.secondaryButton {
+  text-decoration: none;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--border-soft);
+  color: var(--text-main);
+  background: var(--bg-surface);
+  font-weight: 700;
+}
+
+.topActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .sectionTitle {
   color: var(--text-main);
   margin: 1.2rem 0 0.8rem;

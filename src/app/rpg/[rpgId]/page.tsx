@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../generated/prisma/client"
 import MembershipNotifications from "./components/MembershipNotifications"
 import MembersList from "./components/MembersList"
+import QuickCreateMenu from "./components/QuickCreateMenu"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 
@@ -233,6 +234,7 @@ export default async function ViewInRpg({ params }: Params) {
           }))}
           compact
         />
+        {isOwner ? <QuickCreateMenu rpgId={dbRpg.id} /> : null}
         {isOwner ? (
           <MembersList rpgId={dbRpg.id} members={acceptedMembers} compact />
         ) : null}
@@ -278,7 +280,7 @@ export default async function ViewInRpg({ params }: Params) {
         ) : null}
 
         {hasClasses ? (
-          <div className={styles.card}>
+          <Link href={`/rpg/${dbRpg.id}/classes`} className={styles.card}>
             <Image
               src="/images/bg-classes.webp"
               alt="Classes"
@@ -286,7 +288,7 @@ export default async function ViewInRpg({ params }: Params) {
               className={styles.cardImage}
             />
             <span>Classes</span>
-          </div>
+          </Link>
         ) : null}
 
         {dbRpg.useMundiMap ? (
