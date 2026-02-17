@@ -1,4 +1,3 @@
-import rpgs from "@/data/rpgs"
 import { notFound } from "next/navigation"
 import styles from "./page.module.css"
 import Image from "next/image"
@@ -59,68 +58,6 @@ export const generateMetadata = () => {
 
 export default async function ViewInRpg({ params }: Params) {
   const { rpgId } = await params
-  const staticRpg = rpgs.find((r) => r.id === Number(rpgId))
-
-  if (staticRpg) {
-    return (
-      <div className={styles.container}>
-        <h2 className={styles.title}>{staticRpg.name}</h2>
-        <p className={styles.description}>{staticRpg.description}</p>
-
-        <h3 className={styles.sectionTitle}>Cronicas do Mundo</h3>
-
-        <div className={styles.cards}>
-          <div className={styles.card}>
-            <Image
-              src="/images/bg-library.jpg"
-              alt="Biblioteca"
-              fill
-              className={styles.cardImage}
-            />
-            <span>Biblioteca</span>
-          </div>
-
-          <Link href={`/rpg/${staticRpg.id}/map`} className={styles.card}>
-            <Image
-              src="/images/bg-regioes.jpg"
-              alt="Regioes"
-              fill
-              className={styles.cardImage}
-            />
-            <span>Regioes</span>
-          </Link>
-
-          <Link href={`/rpg/${staticRpg.id}/races`} className={styles.card}>
-            <Image
-              src="/images/bg-races.jpg"
-              alt="Racas"
-              fill
-              className={styles.cardImage}
-            />
-            <span>Racas</span>
-          </Link>
-          <Link href={`/rpg/${staticRpg.id}/characters`} className={styles.card}>
-            <Image
-              src="/images/bg-characters.jpg"
-              alt="Personagens"
-              fill
-              className={styles.cardImage}
-            />
-            <span>Personagens</span>
-          </Link>
-          <Link href={`/rpg/${staticRpg.id}/classes`} className={styles.card}>
-            <Image
-              src="/images/bg-classes.webp"
-              alt="Classes"
-              fill
-              className={styles.cardImage}
-            />
-            <span>Classes</span>
-          </Link>
-        </div>
-      </div>
-    )
-  }
 
   let rows: DbRpgRow[] = []
   try {
@@ -171,8 +108,9 @@ export default async function ViewInRpg({ params }: Params) {
   }
 
   const isAcceptedMember = membershipStatus === "accepted"
+  const canViewFullContent = isOwner || isAcceptedMember
 
-  if (dbRpg.visibility === "private" && !isOwner && !isAcceptedMember) {
+  if (dbRpg.visibility === "private" && !canViewFullContent) {
     notFound()
   }
 
@@ -239,6 +177,26 @@ export default async function ViewInRpg({ params }: Params) {
   } catch {
     hasRaces = false
     hasClasses = false
+  }
+
+  if (!canViewFullContent) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.titleRow}>
+          <h2 className={styles.title}>{dbRpg.title}</h2>
+        </div>
+        <p className={styles.description}>{dbRpg.description}</p>
+        <MembershipNotifications
+          rpgId={dbRpg.id}
+          isOwner={isOwner}
+          isAuthenticated={isAuthenticated}
+          membershipStatus={membershipStatus}
+          pendingRequests={[]}
+          pendingCharacterRequests={[]}
+          simpleJoin
+        />
+      </div>
+    )
   }
 
   return (

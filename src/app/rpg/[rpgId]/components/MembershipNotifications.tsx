@@ -28,6 +28,7 @@ type Props = {
   pendingRequests: PendingRequest[]
   pendingCharacterRequests: PendingCharacterRequest[]
   compact?: boolean
+  simpleJoin?: boolean
 }
 
 export default function MembershipNotifications({
@@ -38,6 +39,7 @@ export default function MembershipNotifications({
   pendingRequests,
   pendingCharacterRequests,
   compact = false,
+  simpleJoin = false,
 }: Props) {
   const router = useRouter()
   const [loadingRequest, setLoadingRequest] = useState(false)
@@ -130,6 +132,27 @@ export default function MembershipNotifications({
     } finally {
       setProcessingId(null)
     }
+  }
+
+  if (simpleJoin) {
+    return (
+      <section className={styles.joinRequestBox}>
+        {!isAuthenticated ? (
+          <p>Faca login para solicitar participacao nesta campanha.</p>
+        ) : membershipStatus === "pending" ? (
+          <p>Sua solicitacao foi enviada e aguarda aprovacao do mestre.</p>
+        ) : membershipStatus === "accepted" ? (
+          <p>Voce ja e membro deste RPG.</p>
+        ) : (
+          <button type="button" onClick={requestToJoin} disabled={loadingRequest}>
+            {loadingRequest ? "Enviando..." : "Pedir pra entrar"}
+          </button>
+        )}
+
+        {error ? <p className={styles.noticeError}>{error}</p> : null}
+        {message ? <p className={styles.noticeSuccess}>{message}</p> : null}
+      </section>
+    )
   }
 
   return (
