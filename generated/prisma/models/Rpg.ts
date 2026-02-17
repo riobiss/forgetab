@@ -29,6 +29,7 @@ export type RpgMinAggregateOutputType = {
   ownerId: string | null
   title: string | null
   description: string | null
+  image: string | null
   costsEnabled: boolean | null
   costResourceName: string | null
   mapImage: string | null
@@ -44,6 +45,7 @@ export type RpgMaxAggregateOutputType = {
   ownerId: string | null
   title: string | null
   description: string | null
+  image: string | null
   costsEnabled: boolean | null
   costResourceName: string | null
   mapImage: string | null
@@ -59,6 +61,7 @@ export type RpgCountAggregateOutputType = {
   ownerId: number
   title: number
   description: number
+  image: number
   costsEnabled: number
   costResourceName: number
   mapImage: number
@@ -76,6 +79,7 @@ export type RpgMinAggregateInputType = {
   ownerId?: true
   title?: true
   description?: true
+  image?: true
   costsEnabled?: true
   costResourceName?: true
   mapImage?: true
@@ -91,6 +95,7 @@ export type RpgMaxAggregateInputType = {
   ownerId?: true
   title?: true
   description?: true
+  image?: true
   costsEnabled?: true
   costResourceName?: true
   mapImage?: true
@@ -106,6 +111,7 @@ export type RpgCountAggregateInputType = {
   ownerId?: true
   title?: true
   description?: true
+  image?: true
   costsEnabled?: true
   costResourceName?: true
   mapImage?: true
@@ -194,6 +200,7 @@ export type RpgGroupByOutputType = {
   ownerId: string
   title: string
   description: string
+  image: string | null
   costsEnabled: boolean
   costResourceName: string
   mapImage: string | null
@@ -230,6 +237,7 @@ export type RpgWhereInput = {
   ownerId?: Prisma.StringFilter<"Rpg"> | string
   title?: Prisma.StringFilter<"Rpg"> | string
   description?: Prisma.StringFilter<"Rpg"> | string
+  image?: Prisma.StringNullableFilter<"Rpg"> | string | null
   costsEnabled?: Prisma.BoolFilter<"Rpg"> | boolean
   costResourceName?: Prisma.StringFilter<"Rpg"> | string
   mapImage?: Prisma.StringNullableFilter<"Rpg"> | string | null
@@ -259,6 +267,7 @@ export type RpgOrderByWithRelationInput = {
   ownerId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  image?: Prisma.SortOrderInput | Prisma.SortOrder
   costsEnabled?: Prisma.SortOrder
   costResourceName?: Prisma.SortOrder
   mapImage?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -291,6 +300,7 @@ export type RpgWhereUniqueInput = Prisma.AtLeast<{
   ownerId?: Prisma.StringFilter<"Rpg"> | string
   title?: Prisma.StringFilter<"Rpg"> | string
   description?: Prisma.StringFilter<"Rpg"> | string
+  image?: Prisma.StringNullableFilter<"Rpg"> | string | null
   costsEnabled?: Prisma.BoolFilter<"Rpg"> | boolean
   costResourceName?: Prisma.StringFilter<"Rpg"> | string
   mapImage?: Prisma.StringNullableFilter<"Rpg"> | string | null
@@ -320,6 +330,7 @@ export type RpgOrderByWithAggregationInput = {
   ownerId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  image?: Prisma.SortOrderInput | Prisma.SortOrder
   costsEnabled?: Prisma.SortOrder
   costResourceName?: Prisma.SortOrder
   mapImage?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -341,6 +352,7 @@ export type RpgScalarWhereWithAggregatesInput = {
   ownerId?: Prisma.StringWithAggregatesFilter<"Rpg"> | string
   title?: Prisma.StringWithAggregatesFilter<"Rpg"> | string
   description?: Prisma.StringWithAggregatesFilter<"Rpg"> | string
+  image?: Prisma.StringNullableWithAggregatesFilter<"Rpg"> | string | null
   costsEnabled?: Prisma.BoolWithAggregatesFilter<"Rpg"> | boolean
   costResourceName?: Prisma.StringWithAggregatesFilter<"Rpg"> | string
   mapImage?: Prisma.StringNullableWithAggregatesFilter<"Rpg"> | string | null
@@ -355,6 +367,7 @@ export type RpgCreateInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -384,6 +397,7 @@ export type RpgUncheckedCreateInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -411,6 +425,7 @@ export type RpgUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -440,6 +455,7 @@ export type RpgUncheckedUpdateInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -468,6 +484,7 @@ export type RpgCreateManyInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -482,6 +499,7 @@ export type RpgUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -497,6 +515,7 @@ export type RpgUncheckedUpdateManyInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -522,6 +541,7 @@ export type RpgCountOrderByAggregateInput = {
   ownerId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   costsEnabled?: Prisma.SortOrder
   costResourceName?: Prisma.SortOrder
   mapImage?: Prisma.SortOrder
@@ -537,6 +557,7 @@ export type RpgMaxOrderByAggregateInput = {
   ownerId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   costsEnabled?: Prisma.SortOrder
   costResourceName?: Prisma.SortOrder
   mapImage?: Prisma.SortOrder
@@ -552,6 +573,7 @@ export type RpgMinOrderByAggregateInput = {
   ownerId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   costsEnabled?: Prisma.SortOrder
   costResourceName?: Prisma.SortOrder
   mapImage?: Prisma.SortOrder
@@ -614,12 +636,12 @@ export type RpgUncheckedUpdateManyWithoutOwnerNestedInput = {
   deleteMany?: Prisma.RpgScalarWhereInput | Prisma.RpgScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type EnumRpgVisibilityFieldUpdateOperationsInput = {
@@ -814,6 +836,7 @@ export type RpgCreateWithoutOwnerInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -841,6 +864,7 @@ export type RpgUncheckedCreateWithoutOwnerInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -898,6 +922,7 @@ export type RpgScalarWhereInput = {
   ownerId?: Prisma.StringFilter<"Rpg"> | string
   title?: Prisma.StringFilter<"Rpg"> | string
   description?: Prisma.StringFilter<"Rpg"> | string
+  image?: Prisma.StringNullableFilter<"Rpg"> | string | null
   costsEnabled?: Prisma.BoolFilter<"Rpg"> | boolean
   costResourceName?: Prisma.StringFilter<"Rpg"> | string
   mapImage?: Prisma.StringNullableFilter<"Rpg"> | string | null
@@ -912,6 +937,7 @@ export type RpgCreateWithoutBaseItemsInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -940,6 +966,7 @@ export type RpgUncheckedCreateWithoutBaseItemsInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -982,6 +1009,7 @@ export type RpgUpdateWithoutBaseItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1010,6 +1038,7 @@ export type RpgUncheckedUpdateWithoutBaseItemsInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1036,6 +1065,7 @@ export type RpgCreateWithoutAttributeTemplatesInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1064,6 +1094,7 @@ export type RpgUncheckedCreateWithoutAttributeTemplatesInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1106,6 +1137,7 @@ export type RpgUpdateWithoutAttributeTemplatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1134,6 +1166,7 @@ export type RpgUncheckedUpdateWithoutAttributeTemplatesInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1160,6 +1193,7 @@ export type RpgCreateWithoutCharactersInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1188,6 +1222,7 @@ export type RpgUncheckedCreateWithoutCharactersInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1230,6 +1265,7 @@ export type RpgUpdateWithoutCharactersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1258,6 +1294,7 @@ export type RpgUncheckedUpdateWithoutCharactersInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1284,6 +1321,7 @@ export type RpgCreateWithoutCharacterIdentityTemplatesInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1312,6 +1350,7 @@ export type RpgUncheckedCreateWithoutCharacterIdentityTemplatesInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1354,6 +1393,7 @@ export type RpgUpdateWithoutCharacterIdentityTemplatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1382,6 +1422,7 @@ export type RpgUncheckedUpdateWithoutCharacterIdentityTemplatesInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1408,6 +1449,7 @@ export type RpgCreateWithoutCharacterCharacteristicTemplatesInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1436,6 +1478,7 @@ export type RpgUncheckedCreateWithoutCharacterCharacteristicTemplatesInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1478,6 +1521,7 @@ export type RpgUpdateWithoutCharacterCharacteristicTemplatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1506,6 +1550,7 @@ export type RpgUncheckedUpdateWithoutCharacterCharacteristicTemplatesInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1532,6 +1577,7 @@ export type RpgCreateWithoutInventoryItemsInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1560,6 +1606,7 @@ export type RpgUncheckedCreateWithoutInventoryItemsInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1602,6 +1649,7 @@ export type RpgUpdateWithoutInventoryItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1630,6 +1678,7 @@ export type RpgUncheckedUpdateWithoutInventoryItemsInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1656,6 +1705,7 @@ export type RpgCreateWithoutStatusTemplatesInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1684,6 +1734,7 @@ export type RpgUncheckedCreateWithoutStatusTemplatesInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1726,6 +1777,7 @@ export type RpgUpdateWithoutStatusTemplatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1754,6 +1806,7 @@ export type RpgUncheckedUpdateWithoutStatusTemplatesInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1780,6 +1833,7 @@ export type RpgCreateWithoutSkillTemplatesInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1808,6 +1862,7 @@ export type RpgUncheckedCreateWithoutSkillTemplatesInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1850,6 +1905,7 @@ export type RpgUpdateWithoutSkillTemplatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1878,6 +1934,7 @@ export type RpgUncheckedUpdateWithoutSkillTemplatesInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1904,6 +1961,7 @@ export type RpgCreateWithoutRaceTemplatesInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1932,6 +1990,7 @@ export type RpgUncheckedCreateWithoutRaceTemplatesInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -1974,6 +2033,7 @@ export type RpgUpdateWithoutRaceTemplatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2002,6 +2062,7 @@ export type RpgUncheckedUpdateWithoutRaceTemplatesInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2028,6 +2089,7 @@ export type RpgCreateWithoutClassTemplatesInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -2056,6 +2118,7 @@ export type RpgUncheckedCreateWithoutClassTemplatesInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -2098,6 +2161,7 @@ export type RpgUpdateWithoutClassTemplatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2126,6 +2190,7 @@ export type RpgUncheckedUpdateWithoutClassTemplatesInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2152,6 +2217,7 @@ export type RpgCreateWithoutMembersInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -2180,6 +2246,7 @@ export type RpgUncheckedCreateWithoutMembersInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -2222,6 +2289,7 @@ export type RpgUpdateWithoutMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2250,6 +2318,7 @@ export type RpgUncheckedUpdateWithoutMembersInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2276,6 +2345,7 @@ export type RpgCreateWithoutCharacterCreationRequestsInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -2304,6 +2374,7 @@ export type RpgUncheckedCreateWithoutCharacterCreationRequestsInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -2346,6 +2417,7 @@ export type RpgUpdateWithoutCharacterCreationRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2374,6 +2446,7 @@ export type RpgUncheckedUpdateWithoutCharacterCreationRequestsInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2400,6 +2473,7 @@ export type RpgCreateWithoutSkillsInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -2428,6 +2502,7 @@ export type RpgUncheckedCreateWithoutSkillsInput = {
   ownerId: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -2470,6 +2545,7 @@ export type RpgUpdateWithoutSkillsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2498,6 +2574,7 @@ export type RpgUncheckedUpdateWithoutSkillsInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2524,6 +2601,7 @@ export type RpgCreateManyOwnerInput = {
   id?: string
   title: string
   description: string
+  image?: string | null
   costsEnabled?: boolean
   costResourceName?: string
   mapImage?: string | null
@@ -2538,6 +2616,7 @@ export type RpgUpdateWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2565,6 +2644,7 @@ export type RpgUncheckedUpdateWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2592,6 +2672,7 @@ export type RpgUncheckedUpdateManyWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   costResourceName?: Prisma.StringFieldUpdateOperationsInput | string
   mapImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2746,6 +2827,7 @@ export type RpgSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   ownerId?: boolean
   title?: boolean
   description?: boolean
+  image?: boolean
   costsEnabled?: boolean
   costResourceName?: boolean
   mapImage?: boolean
@@ -2776,6 +2858,7 @@ export type RpgSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   ownerId?: boolean
   title?: boolean
   description?: boolean
+  image?: boolean
   costsEnabled?: boolean
   costResourceName?: boolean
   mapImage?: boolean
@@ -2792,6 +2875,7 @@ export type RpgSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   ownerId?: boolean
   title?: boolean
   description?: boolean
+  image?: boolean
   costsEnabled?: boolean
   costResourceName?: boolean
   mapImage?: boolean
@@ -2808,6 +2892,7 @@ export type RpgSelectScalar = {
   ownerId?: boolean
   title?: boolean
   description?: boolean
+  image?: boolean
   costsEnabled?: boolean
   costResourceName?: boolean
   mapImage?: boolean
@@ -2818,7 +2903,7 @@ export type RpgSelectScalar = {
   createdAt?: boolean
 }
 
-export type RpgOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerId" | "title" | "description" | "costsEnabled" | "costResourceName" | "mapImage" | "useMundiMap" | "visibility" | "useClassRaceBonuses" | "useInventoryWeightLimit" | "createdAt", ExtArgs["result"]["rpg"]>
+export type RpgOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerId" | "title" | "description" | "image" | "costsEnabled" | "costResourceName" | "mapImage" | "useMundiMap" | "visibility" | "useClassRaceBonuses" | "useInventoryWeightLimit" | "createdAt", ExtArgs["result"]["rpg"]>
 export type RpgInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   baseItems?: boolean | Prisma.Rpg$baseItemsArgs<ExtArgs>
@@ -2866,6 +2951,7 @@ export type $RpgPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     ownerId: string
     title: string
     description: string
+    image: string | null
     costsEnabled: boolean
     costResourceName: string
     mapImage: string | null
@@ -3315,6 +3401,7 @@ export interface RpgFieldRefs {
   readonly ownerId: Prisma.FieldRef<"Rpg", 'String'>
   readonly title: Prisma.FieldRef<"Rpg", 'String'>
   readonly description: Prisma.FieldRef<"Rpg", 'String'>
+  readonly image: Prisma.FieldRef<"Rpg", 'String'>
   readonly costsEnabled: Prisma.FieldRef<"Rpg", 'Boolean'>
   readonly costResourceName: Prisma.FieldRef<"Rpg", 'String'>
   readonly mapImage: Prisma.FieldRef<"Rpg", 'String'>

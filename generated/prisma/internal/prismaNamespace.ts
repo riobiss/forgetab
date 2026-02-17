@@ -1808,6 +1808,7 @@ export const RpgScalarFieldEnum = {
   ownerId: 'ownerId',
   title: 'title',
   description: 'description',
+  image: 'image',
   costsEnabled: 'costsEnabled',
   costResourceName: 'costResourceName',
   mapImage: 'mapImage',
