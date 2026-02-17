@@ -1,0 +1,87 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-title);
+}
+
+.helpText {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.control {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem 0.75rem;
+  min-height: 2.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-main);
+  color: var(--text-main);
+}
+
+.control:focus-visible {
+  outline: none;
+  border-color: var(--accent-main);
+  box-shadow: var(--shadow-main), var(--shadow-accent);
+}
+
+.control[data-placeholder] {
+  color: var(--text-muted);
+}
+
+.controlFocused {
+  border-color: var(--accent-main);
+  box-shadow: var(--shadow-main), var(--shadow-accent);
+}
+
+.placeholder {
+  color: var(--text-muted);
+}
+
+.singleValue {
+  color: var(--text-main);
+}
+
+.dropdownIndicator {
+  color: var(--text-muted);
+  margin-left: 0.5rem;
+}
+
+.menu {
+  z-index: 50;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-main);
+  overflow: hidden;
+}
+
+.menuList {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.option {
+  padding: 0.55rem 0.75rem;
+  color: var(--text-main);
+}
+
+.option[data-highlighted] {
+  outline: none;
+  background: var(--bg-hover);
+}
+
+.option[data-state="checked"] {
+  background: var(--accent-main);
+  color: var(--text-alternativ);
+}
