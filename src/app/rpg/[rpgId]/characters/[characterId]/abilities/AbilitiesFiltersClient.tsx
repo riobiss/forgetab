@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import styles from "./page.module.css"
+import { NativeSelectField } from "@/components/select/NativeSelectField"
 
 type PurchasedAbilityView = {
   skillId: string
@@ -148,36 +149,36 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
         </label>
         <label className={styles.filterField}>
           <span>Tipo</span>
-          <select value={selectedType} onChange={(event) => setSelectedType(event.target.value)}>
+          <NativeSelectField value={selectedType} onChange={(event) => setSelectedType(event.target.value)}>
             <option value="">Todos</option>
             {typeOptions.map((item) => (
               <option key={item} value={item}>
                 {toTypeLabel(item)}
               </option>
             ))}
-          </select>
+          </NativeSelectField>
         </label>
         <label className={styles.filterField}>
           <span>Categoria</span>
-          <select value={selectedCategory} onChange={(event) => setSelectedCategory(event.target.value)}>
+          <NativeSelectField value={selectedCategory} onChange={(event) => setSelectedCategory(event.target.value)}>
             <option value="">Todas</option>
             {categoryOptions.map((item) => (
               <option key={item} value={item}>
                 {toCategoryLabel(item)}
               </option>
             ))}
-          </select>
+          </NativeSelectField>
         </label>
         <label className={styles.filterField}>
           <span>Alcance</span>
-          <select value={selectedRange} onChange={(event) => setSelectedRange(event.target.value)}>
+          <NativeSelectField value={selectedRange} onChange={(event) => setSelectedRange(event.target.value)}>
             <option value="">Todos</option>
             {rangeOptions.map((item) => (
               <option key={item} value={item}>
                 {item}
               </option>
             ))}
-          </select>
+          </NativeSelectField>
         </label>
       </div>
 
@@ -279,3 +280,4 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
     </>
   )
 }
+

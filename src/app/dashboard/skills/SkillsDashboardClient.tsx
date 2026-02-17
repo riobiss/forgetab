@@ -12,6 +12,7 @@ import {
   type SkillUsageType,
   type TargetStat,
 } from "@/types/skillBuilder"
+import { NativeSelectField } from "@/components/select/NativeSelectField"
 
 const effectTypeLabel: Record<EffectType, string> = {
   damage: "Dano",
@@ -499,7 +500,7 @@ export default function SkillsDashboardClient({
             <div className={styles.grid}>
               <label className={styles.field}>
                 <span>Tipo</span>
-                <select
+                <NativeSelectField
                   value={effect.type}
                   onChange={(event) =>
                     onChange(updateEffect(effects, index, { type: event.target.value as EffectType }))
@@ -510,11 +511,11 @@ export default function SkillsDashboardClient({
                       {effectTypeLabel[option]}
                     </option>
                   ))}
-                </select>
+                </NativeSelectField>
               </label>
               <label className={styles.field}>
                 <span>Atributo alvo</span>
-                <select
+                <NativeSelectField
                   value={effect.targetStat}
                   onChange={(event) =>
                     onChange(updateEffect(effects, index, { targetStat: event.target.value as TargetStat | "" }))
@@ -526,11 +527,11 @@ export default function SkillsDashboardClient({
                       {targetStatLabel[option]}
                     </option>
                   ))}
-                </select>
+                </NativeSelectField>
               </label>
               <label className={styles.field}>
                 <span>Modo do valor</span>
-                <select
+                <NativeSelectField
                   value={effect.valueMode}
                   onChange={(event) =>
                     onChange(updateEffect(effects, index, { valueMode: event.target.value as "flat" | "dice" }))
@@ -538,7 +539,7 @@ export default function SkillsDashboardClient({
                 >
                   <option value="flat">Fixo</option>
                   <option value="dice">Dado</option>
-                </select>
+                </NativeSelectField>
               </label>
               <label className={styles.field}>
                 <span>Valor fixo</span>
@@ -925,13 +926,13 @@ export default function SkillsDashboardClient({
           {!hideRpgSelector ? (
             <label className={styles.field}>
               <span>RPG ativo</span>
-              <select value={selectedRpgId} onChange={(event) => setSelectedRpgId(event.target.value)}>
+              <NativeSelectField value={selectedRpgId} onChange={(event) => setSelectedRpgId(event.target.value)}>
                 {ownedRpgs.map((rpg) => (
                   <option key={rpg.id} value={rpg.id}>
                     {rpg.title}
                   </option>
                 ))}
-              </select>
+              </NativeSelectField>
             </label>
           ) : null}
           <button
@@ -1011,7 +1012,7 @@ export default function SkillsDashboardClient({
                   </label>
                   <label className={styles.field}>
                     <span>Categoria</span>
-                    <select
+                    <NativeSelectField
                       value={metaForm.category}
                       onChange={(event) =>
                         setMetaForm((prev) => ({
@@ -1026,11 +1027,11 @@ export default function SkillsDashboardClient({
                           {skillCategoryLabel[option]}
                         </option>
                       ))}
-                    </select>
+                    </NativeSelectField>
                   </label>
                   <label className={styles.field}>
                     <span>Tipo</span>
-                    <select
+                    <NativeSelectField
                       value={metaForm.type}
                       onChange={(event) =>
                         setMetaForm((prev) => ({
@@ -1045,7 +1046,7 @@ export default function SkillsDashboardClient({
                           {skillUsageTypeLabel[option]}
                         </option>
                       ))}
-                    </select>
+                    </NativeSelectField>
                   </label>
                   <label className={styles.field}>
                     <span>Level atual</span>
@@ -1361,7 +1362,7 @@ export default function SkillsDashboardClient({
                     </label>
                     <label className={styles.field}>
                       <span>Categoria</span>
-                      <select
+                      <NativeSelectField
                         value={metaForm.category}
                         onChange={(event) =>
                           setMetaForm((prev) => ({
@@ -1376,11 +1377,11 @@ export default function SkillsDashboardClient({
                             {skillCategoryLabel[option]}
                           </option>
                         ))}
-                      </select>
+                      </NativeSelectField>
                     </label>
                     <label className={styles.field}>
                       <span>Tipo</span>
-                      <select
+                      <NativeSelectField
                         value={metaForm.type}
                         onChange={(event) =>
                           setMetaForm((prev) => ({
@@ -1395,7 +1396,7 @@ export default function SkillsDashboardClient({
                             {skillUsageTypeLabel[option]}
                           </option>
                         ))}
-                      </select>
+                      </NativeSelectField>
                     </label>
                     <label className={`${styles.field} ${styles.spanTwo}`}>
                       <span>Descricao</span>
@@ -1416,13 +1417,13 @@ export default function SkillsDashboardClient({
                 <div className={styles.levelHeader}>
                   <h3>Editor de Levels</h3>
                   <div className={styles.levelHeaderActions}>
-                    <select value={selectedLevelId} onChange={(event) => setSelectedLevelId(event.target.value)}>
+                    <NativeSelectField value={selectedLevelId} onChange={(event) => setSelectedLevelId(event.target.value)}>
                       {activeSkill.levels.map((level) => (
                         <option key={level.id} value={level.id}>
                           Level {level.levelNumber} (req {level.levelRequired} | pontos {getLevelCostPoints(level) ?? 0})
                         </option>
                       ))}
-                    </select>
+                    </NativeSelectField>
                     <button
                       type="button"
                       className={styles.ghostButton}
@@ -1629,4 +1630,5 @@ export default function SkillsDashboardClient({
     </main>
   )
 }
+
 

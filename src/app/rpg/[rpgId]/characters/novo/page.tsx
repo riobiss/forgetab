@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import styles from "./page.module.css"
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
+import { NativeSelectField } from "@/components/select/NativeSelectField"
 
 type AttributeTemplate = {
   key: string
@@ -598,7 +599,7 @@ export default function NewCharacterPage() {
                           readOnly
                         />
                       ) : (
-                        <select
+                        <NativeSelectField
                           value={raceKey}
                           onChange={(event) => setRaceKey(event.target.value)}
                         >
@@ -608,7 +609,7 @@ export default function NewCharacterPage() {
                               {item.label}
                             </option>
                           ))}
-                        </select>
+                        </NativeSelectField>
                       )}
                     </label>
                   ) : null}
@@ -626,7 +627,7 @@ export default function NewCharacterPage() {
                           readOnly
                         />
                       ) : (
-                        <select
+                        <NativeSelectField
                           value={classKey}
                           onChange={(event) => setClassKey(event.target.value)}
                         >
@@ -636,7 +637,7 @@ export default function NewCharacterPage() {
                               {item.label}
                             </option>
                           ))}
-                        </select>
+                        </NativeSelectField>
                       )}
                     </label>
                   ) : null}
@@ -648,7 +649,7 @@ export default function NewCharacterPage() {
                 {editingCharacterId ? (
                   <input type="text" value={CHARACTER_TYPE_LABEL[characterType]} readOnly />
                 ) : (
-                  <select
+                  <NativeSelectField
                     value={characterType}
                     onChange={(event) =>
                       setCharacterType(
@@ -659,7 +660,7 @@ export default function NewCharacterPage() {
                     <option value="player">Player</option>
                     <option value="npc">NPC</option>
                     <option value="monster">Monstro</option>
-                  </select>
+                  </NativeSelectField>
                 )}
               </label>
 
@@ -893,3 +894,4 @@ export default function NewCharacterPage() {
     </main>
   )
 }
+

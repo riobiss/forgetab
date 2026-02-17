@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react"
 import styles from "../page.module.css"
+import { NativeSelectField } from "@/components/select/NativeSelectField"
 
 type ClassItem = {
   id: string
@@ -150,7 +151,7 @@ export default function ClassCategoryManager({ rpgId, initialClasses }: Props) {
         </form>
 
         <form className={styles.inlineForm} onSubmit={handleCreateClass}>
-          <select
+          <NativeSelectField
             value={selectedCategory}
             onChange={(event) => setSelectedCategory(event.target.value)}
             disabled={saving}
@@ -161,7 +162,7 @@ export default function ClassCategoryManager({ rpgId, initialClasses }: Props) {
                 {category}
               </option>
             ))}
-          </select>
+          </NativeSelectField>
           <input
             type="text"
             placeholder="Nome da classe"
@@ -180,3 +181,4 @@ export default function ClassCategoryManager({ rpgId, initialClasses }: Props) {
     </section>
   )
 }
+

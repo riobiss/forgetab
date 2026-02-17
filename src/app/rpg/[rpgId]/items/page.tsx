@@ -18,6 +18,7 @@ import {
 import styles from "./page.module.css"
 import { baseItemTypeValues } from "@/lib/validators/baseItem"
 import { IconButton } from "@/components/button"
+import { NativeSelectField } from "@/components/select/NativeSelectField"
 
 type ItemType = (typeof baseItemTypeValues)[number]
 
@@ -477,7 +478,7 @@ export default function ItemsPage() {
 
             <label className={styles.field}>
               <span>Personagem</span>
-              <select
+              <NativeSelectField
                 value={selectedCharacterId}
                 onChange={(event) => setSelectedCharacterId(event.target.value)}
                 required
@@ -491,7 +492,7 @@ export default function ItemsPage() {
                     </option>
                   ))
                 )}
-              </select>
+              </NativeSelectField>
             </label>
 
             <label className={styles.field}>
@@ -534,3 +535,4 @@ export default function ItemsPage() {
     </main>
   )
 }
+

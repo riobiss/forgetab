@@ -8,6 +8,7 @@ import {
   baseItemRarityValues,
   baseItemTypeValues,
 } from "@/lib/validators/baseItem"
+import { NativeSelectField } from "@/components/select/NativeSelectField"
 
 type ItemType = (typeof baseItemTypeValues)[number]
 type ItemRarity = (typeof baseItemRarityValues)[number]
@@ -297,7 +298,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
 
             <label className={styles.field}>
               <span>Tipo</span>
-              <select
+              <NativeSelectField
                 value={type}
                 onChange={(event) => setType(event.target.value as ItemType)}
               >
@@ -306,12 +307,12 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
                     {option}
                   </option>
                 ))}
-              </select>
+              </NativeSelectField>
             </label>
 
             <label className={styles.field}>
               <span>Raridade</span>
-              <select
+              <NativeSelectField
                 value={rarity}
                 onChange={(event) => setRarity(event.target.value as ItemRarity)}
               >
@@ -320,7 +321,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
                     {option}
                   </option>
                 ))}
-              </select>
+              </NativeSelectField>
             </label>
 
             <label className={styles.field}>
@@ -499,3 +500,4 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
     </main>
   )
 }
+

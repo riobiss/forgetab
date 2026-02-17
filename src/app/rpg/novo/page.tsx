@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import styles from "./page.module.css"
+import { NativeSelectField } from "@/components/select/NativeSelectField"
 
 type UploadImagePayload = {
   message?: string
@@ -122,7 +123,7 @@ export default function NewRpgPage() {
 
           <label className={styles.field}>
             <span>Visibilidade</span>
-            <select
+            <NativeSelectField
               value={visibility}
               onChange={(event) =>
                 setVisibility(event.target.value as "private" | "public")
@@ -130,7 +131,7 @@ export default function NewRpgPage() {
             >
               <option value="private">Privado</option>
               <option value="public">Publico</option>
-            </select>
+            </NativeSelectField>
           </label>
 
           <label className={styles.field}>
@@ -171,13 +172,13 @@ export default function NewRpgPage() {
 
           <label className={styles.field}>
             <span>Sistema de Custos</span>
-            <select
+            <NativeSelectField
               value={costsEnabled ? "enabled" : "disabled"}
               onChange={(event) => setCostsEnabled(event.target.value === "enabled")}
             >
               <option value="disabled">Desativado</option>
               <option value="enabled">Ativado</option>
-            </select>
+            </NativeSelectField>
           </label>
 
           <label className={styles.field}>
@@ -206,3 +207,4 @@ export default function NewRpgPage() {
     </main>
   )
 }
+
