@@ -2,7 +2,17 @@
 
 import Link from "next/link"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { ChevronDown, Plus } from "lucide-react"
+import {
+  Backpack,
+  ChevronDown,
+  Minus,
+  PackagePlus,
+  Plus,
+  PlusCircle,
+  Sparkles,
+  UserPlus,
+  Users,
+} from "lucide-react"
 import styles from "../page.module.css"
 
 type Props = {
@@ -181,22 +191,26 @@ export default function QuickCreateMenu({ rpgId }: Props) {
         aria-label="Criar novo"
         title="Criar novo"
       >
-        <Plus size={16} />
+        <PlusCircle size={16} />
         <ChevronDown size={14} className={isOpen ? styles.quickCreateChevronOpen : ""} />
       </button>
 
       {isOpen ? (
         <div className={styles.quickCreateMenu}>
           <Link href={`/rpg/${rpgId}/characters/novo`} onClick={() => setIsOpen(false)}>
+            <UserPlus size={15} />
             Criar Personagem
           </Link>
           <Link href={`/rpg/${rpgId}/edit`} onClick={() => setIsOpen(false)}>
+            <Users size={15} />
             Criar Raca
           </Link>
           <Link href={`/rpg/${rpgId}/characters/skills`} onClick={() => setIsOpen(false)}>
+            <Sparkles size={15} />
             Criar Habilidade
           </Link>
           <Link href={`/rpg/${rpgId}/items/new`} onClick={() => setIsOpen(false)}>
+            <PackagePlus size={15} />
             Criar Item
           </Link>
           <button
@@ -209,11 +223,16 @@ export default function QuickCreateMenu({ rpgId }: Props) {
               }
             }}
           >
+            <Backpack size={15} />
             {showPointsPanel ? "Ocultar distribuicao de pontos" : "Distribuir pontos de classe"}
           </button>
 
           {showPointsPanel ? (
             <div className={styles.quickCreatePointsPanel}>
+              <Link href={`/rpg/${rpgId}/items`} onClick={() => setIsOpen(false)}>
+                <Backpack size={15} />
+                Itens
+              </Link>
               <p className={styles.quickCreatePanelTitle}>
                 Players e classes para distribuir {costResourceName}
               </p>
@@ -251,7 +270,7 @@ export default function QuickCreateMenu({ rpgId }: Props) {
                         aria-label={`Diminuir ponto de ${player.name}`}
                         title={`Diminuir ponto de ${player.name}`}
                       >
-                        {loadingRemove ? "..." : "-"}
+                        {loadingRemove ? "..." : <Minus size={14} />}
                       </button>
                       <button
                         type="button"
@@ -261,7 +280,7 @@ export default function QuickCreateMenu({ rpgId }: Props) {
                         aria-label={`Adicionar ponto para ${player.name}`}
                         title={`Adicionar ponto para ${player.name}`}
                       >
-                        {loadingAdd ? "..." : "+"}
+                        {loadingAdd ? "..." : <Plus size={14} />}
                       </button>
                     </div>
                   </div>

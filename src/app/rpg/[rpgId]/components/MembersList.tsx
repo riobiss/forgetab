@@ -69,10 +69,7 @@ export default function MembersList({ rpgId, members, compact = false }: Props) 
         <span className={styles.membersTriggerRight}>
           <span className={styles.membersBadge}>{membersCount}</span>
           {!compact ? (
-            <ChevronDown
-              size={16}
-              className={isOpen ? styles.membersChevronOpen : ""}
-            />
+            <ChevronDown size={16} className={isOpen ? styles.membersChevronOpen : ""} />
           ) : null}
         </span>
       </button>

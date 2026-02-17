@@ -176,10 +176,7 @@ export default function MembershipNotifications({
             <span className={styles.notificationBadge}>{notificationsCount}</span>
           ) : null}
           {!compact ? (
-            <ChevronDown
-              size={16}
-              className={isOpen ? styles.notificationChevronOpen : ""}
-            />
+            <ChevronDown size={16} className={isOpen ? styles.notificationChevronOpen : ""} />
           ) : null}
         </span>
       </button>
