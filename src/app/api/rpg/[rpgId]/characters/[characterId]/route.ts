@@ -3,10 +3,6 @@ import { Prisma } from "../../../../../../../generated/prisma/client"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import {
-  ATTRIBUTE_CATALOG,
-  DEFAULT_ATTRIBUTE_KEYS,
-} from "@/lib/rpg/attributeCatalog"
-import {
   DEFAULT_STATUS_KEYS,
   STATUS_CATALOG,
 } from "@/lib/rpg/statusCatalog"
@@ -371,16 +367,6 @@ function isValidVisibility(value: unknown): value is "private" | "public" {
   return value === "private" || value === "public"
 }
 
-function getDefaultAttributeTemplate(): AttributeTemplateRow[] {
-  return ATTRIBUTE_CATALOG.filter((item) =>
-    DEFAULT_ATTRIBUTE_KEYS.includes(item.key),
-  ).map((item, index) => ({
-    key: item.key,
-    label: item.label,
-    position: index,
-  }))
-}
-
 function getDefaultStatusTemplate(): StatusTemplateRow[] {
   return STATUS_CATALOG.filter((item) => DEFAULT_STATUS_KEYS.includes(item.key)).map(
     (item, index) => ({
@@ -634,8 +620,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         throw error
       }
     }
-    const template =
-      dbAttributeTemplate.length > 0 ? dbAttributeTemplate : getDefaultAttributeTemplate()
+    const template = dbAttributeTemplate
 
     const parsedAttributes = validateAttributesPayload(body.attributes, template)
     if (!parsedAttributes.ok) {

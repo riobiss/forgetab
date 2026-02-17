@@ -6,7 +6,6 @@ import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../../generated/prisma/client"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
-import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
 import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 import StatusTracker from "./StatusTracker"
 
@@ -75,6 +74,11 @@ type ClassTemplateLabelRow = {
   label: string
 }
 
+type AttributeTemplateLabelRow = {
+  key: string
+  label: string
+}
+
 const skillLabels: Record<string, string> = {
   archery: "Arcos e Flecha",
   crossbow: "Besta",
@@ -108,9 +112,6 @@ const skillLabels: Record<string, string> = {
   gambling: "Jogos de Aposta",
 }
 
-const attributeLabelByKey: Record<string, string> = Object.fromEntries(
-  ATTRIBUTE_CATALOG.map((item) => [item.key, item.label]),
-)
 const statusLabelByKey: Record<string, string> = Object.fromEntries(
   STATUS_CATALOG.map((item) => [item.key, item.label]),
 )
@@ -144,6 +145,7 @@ export default async function CharactersPage({ params }: Params) {
   let raceTemplateLabelByKey = new Map<string, string>()
   let classTemplateLabelByKey = new Map<string, string>()
   let classTemplateIdByKey = new Map<string, string>()
+  let attributeLabelByKey = new Map<string, string>()
   let identityTemplateFields: CharacterIdentityTemplateLabelRow[] = []
   let characteristicsTemplateFields: CharacterCharacteristicTemplateLabelRow[] = []
   let userId: string | null = null
@@ -276,6 +278,14 @@ export default async function CharactersPage({ params }: Params) {
       `)
       characteristicsTemplateFields = characteristicsLabels
 
+      const attributeTemplateLabels = await prisma.$queryRaw<AttributeTemplateLabelRow[]>(Prisma.sql`
+        SELECT key, label
+        FROM rpg_attribute_templates
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `)
+      attributeLabelByKey = new Map(attributeTemplateLabels.map((item) => [item.key, item.label]))
+
       const raceLabels = await prisma.$queryRaw<RaceTemplateLabelRow[]>(Prisma.sql`
         SELECT key, label
         FROM rpg_race_templates
@@ -299,6 +309,7 @@ export default async function CharactersPage({ params }: Params) {
       classTemplateIdByKey = new Map()
       identityTemplateFields = []
       characteristicsTemplateFields = []
+      attributeLabelByKey = new Map()
     }
 
     if (dbCharacter.length === 0) {
@@ -323,6 +334,9 @@ export default async function CharactersPage({ params }: Params) {
     const skillEntries = Object.entries(skills)
     const identity = row.identity as Record<string, string>
     const characteristics = row.characteristics as Record<string, string>
+    const attributeEntries = Object.entries(attributes).filter(([key]) =>
+      attributeLabelByKey.has(key),
+    )
     const displayName = getIdentityDisplayName(identity)
     const coreStatusConfig = [
       { key: "life", label: statusTemplateLabelByKey.get("life") ?? statusLabelByKey.life ?? "Vida" },
@@ -484,9 +498,9 @@ export default async function CharactersPage({ params }: Params) {
             <div>
               <h4>Atributos</h4>
               <ul className={styles.list}>
-                {Object.entries(attributes).map(([key, value]) => (
+                {attributeEntries.map(([key, value]) => (
                   <li key={key}>
-                    {attributeLabelByKey[key] ?? key}: {value}
+                    {attributeLabelByKey.get(key)}: {value}
                   </li>
                 ))}
               </ul>

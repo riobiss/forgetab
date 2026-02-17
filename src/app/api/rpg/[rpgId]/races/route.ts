@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../../../generated/prisma/client"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
-import {
-  ATTRIBUTE_CATALOG,
-  DEFAULT_ATTRIBUTE_KEYS,
-} from "@/lib/rpg/attributeCatalog"
 import slugify from "@/utils/slugify"
 import { normalizeClassRaceTemplates } from "@/lib/rpg/classRaceBonuses"
 import { normalizeRaceLore } from "@/lib/rpg/raceLore"
@@ -78,12 +74,6 @@ function parseJsonRecord(value: Prisma.JsonValue) {
   }, {})
 }
 
-function getDefaultAttributeTemplateKeys() {
-  return ATTRIBUTE_CATALOG.filter((item) => DEFAULT_ATTRIBUTE_KEYS.includes(item.key)).map(
-    (item) => item.key,
-  )
-}
-
 async function getAllowedAttributeKeys(rpgId: string) {
   let rows: Array<{ key: string }> = []
 
@@ -103,10 +93,6 @@ async function getAllowedAttributeKeys(rpgId: string) {
     ) {
       throw error
     }
-  }
-
-  if (rows.length === 0) {
-    return getDefaultAttributeTemplateKeys()
   }
 
   return rows.map((item) => item.key)
