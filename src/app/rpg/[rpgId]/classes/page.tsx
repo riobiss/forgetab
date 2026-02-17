@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation"
-import rpgs from "@/data/rpgs"
 import styles from "./page.module.css"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
@@ -25,37 +24,6 @@ type DbClassRow = {
 
 export default async function ClassesPage({ params }: Params) {
   const { rpgId } = await params
-
-  const staticRpg = rpgs.find((rpg) => rpg.id === Number(rpgId))
-  const staticClasses =
-    (staticRpg as { classesData?: Array<{ id: string; name: string; description: string }> } | undefined)
-      ?.classesData ?? []
-
-  if (staticRpg) {
-    const staticGroups = [
-      {
-        category: "geral",
-        items: staticClasses.map((item) => ({
-          id: item.id,
-          title: item.name,
-          subtitle: item.description,
-          href: `/rpg/${staticRpg.id}/classes/${item.id}`,
-        })),
-      },
-    ]
-
-    return (
-      <main className={styles.container}>
-        <div className={styles.titleRow}>
-          <h1 className={styles.title}>Classes</h1>
-        </div>
-
-        <ClassCategoryToggleList groups={staticGroups} />
-
-        {staticClasses.length === 0 ? <p>Nenhuma classe cadastrada.</p> : null}
-      </main>
-    )
-  }
 
   const dbRpg = await prisma.rpg.findUnique({
     where: { id: rpgId },

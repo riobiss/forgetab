@@ -3,7 +3,6 @@ import { Prisma } from "../../../../../generated/prisma/client"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
-import rpgs from "@/data/rpgs"
 import { MundiMap } from "./components/mundi-map/MundiMap"
 import styles from "./page.module.css"
 
@@ -23,20 +22,6 @@ type RpgMapRow = {
 
 export default async function MapPage({ params }: Params) {
   const { rpgId } = await params
-  const staticRpg = rpgs.find((r) => r.id === Number(rpgId))
-
-  if (staticRpg) {
-    return (
-      <div className={styles.page}>
-        <h1 className={styles.title}>Mapa Mundi</h1>
-        <MundiMap rpgId={String(staticRpg.id)} isOwner={false} initialMapSrc={null} />
-        <section className={styles.extraArea}>
-          <h2 className={styles.extraTitle}>Regioes</h2>
-          <p className={styles.extraText}>Todos os jogadores podem visualizar o mapa.</p>
-        </section>
-      </div>
-    )
-  }
 
   let rows: RpgMapRow[] = []
   try {

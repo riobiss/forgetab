@@ -10,7 +10,6 @@ import BattleLogs from "./battle-log/BattleLogs"
 import applyDamageWeapon from "@/lib/applyDamage/applyDamageWeapon"
 import weapons from "@/data/rpg/world-of-clans/weapons"
 import { BaseCharacter } from "@/types/BaseCharacter"
-import { classes } from "@/data/rpg/world-of-clans/classes"
 import { Ability } from "@/types/Ability"
 import { TurnPhase } from "@/types/TurnPhase"
 import { BattleHeader } from "./battle-header/BattleHeader"
@@ -36,32 +35,8 @@ const BATTLE_PHASES: TurnPhase[] = ["Ação", "Ação bonus", "Reação", "Evas�
 
 function getCharacterOwnedAbilities(character: BaseCharacter): Ability[] {
   const characterWithAbilities = character as CharacterWithAbilities
-  const classKey = characterWithAbilities.identity.class
-
-  if (!classKey) return []
-
-  const classData =
-    classes.find((c) => c.id === classKey || c.name === classKey) ??
-    classes.find((c) => {
-      const idKey = c.id
-      const nameKey = c.name
-
-      return (
-        idKey.startsWith(classKey) ||
-        classKey.startsWith(idKey) ||
-        nameKey.startsWith(classKey) ||
-        classKey.startsWith(nameKey)
-      )
-    })
-
-  if (!classData) return []
-
-  const abilityIds = new Set([
-    ...(characterWithAbilities.abilities?.classMainIds ?? []),
-    ...(characterWithAbilities.abilities?.classReinforcementIds ?? []),
-  ])
-
-  return classData.abilities.filter((ability) => abilityIds.has(ability.id))
+  if (!characterWithAbilities.identity.class) return []
+  return []
 }
 
 function canPlayPhase(character: BaseCharacter, phase: TurnPhase): boolean {

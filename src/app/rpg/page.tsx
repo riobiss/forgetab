@@ -1,5 +1,3 @@
-import rpg from "@/data/rpgs"
-import Image from "next/image"
 import styles from "./page.module.css"
 import Link from "next/link"
 import { Plus } from "lucide-react"
@@ -12,7 +10,7 @@ type CreatedRpg = {
   id: string
   title: string
   description: string
-  image: string | null
+  mapImage: string | null
   visibility: "private" | "public"
   createdAt: Date
 }
@@ -42,7 +40,7 @@ export default async function ViewRpg() {
           id: true,
           title: true,
           description: true,
-          image: true,
+          mapImage: true,
           visibility: true,
           createdAt: true,
         },
@@ -58,7 +56,7 @@ export default async function ViewRpg() {
         id: true,
         title: true,
         description: true,
-        image: true,
+        mapImage: true,
         visibility: true,
         createdAt: true,
       },
@@ -93,7 +91,7 @@ export default async function ViewRpg() {
                 >
                   <div className={styles.createdCardImageWrap}>
                     <img
-                      src={item.image || "/images/bg-library.jpg"}
+                      src={item.mapImage || "/images/bg-library.jpg"}
                       alt={`Capa do RPG ${item.title}`}
                       className={styles.createdCardImage}
                       loading="lazy"
@@ -130,7 +128,7 @@ export default async function ViewRpg() {
               >
                 <div className={styles.createdCardImageWrap}>
                   <img
-                    src={item.image || "/images/bg-library.jpg"}
+                    src={item.mapImage || "/images/bg-library.jpg"}
                     alt={`Capa do RPG ${item.title}`}
                     className={styles.createdCardImage}
                     loading="lazy"
@@ -147,28 +145,6 @@ export default async function ViewRpg() {
         </section>
       ) : null}
 
-      <main className={styles.containerMain}>
-        {rpg.map((item) => (
-          <Link
-            href={`/rpg/${item.id}`}
-            key={item.id}
-            className={styles.containerRpg}
-          >
-            <div className={styles.imageWrapper}>
-              <Image
-                src={item.image}
-                width={300}
-                height={420}
-                alt={item.name}
-              />
-            </div>
-
-            <h3 className={styles.rpgTitle}>{item.name}</h3>
-
-            <p className={styles.rpgDescription}>{item.description}</p>
-          </Link>
-        ))}
-      </main>
     </div>
   )
 }

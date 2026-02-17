@@ -1,11 +1,9 @@
 import Image from "next/image"
 import styles from "./page.module.css"
-import players from "@/data/rpg/world-of-clans/entities/player"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../../generated/prisma/client"
-import { formatDateInBrasilia } from "@/lib/date"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
@@ -140,19 +138,16 @@ function getIdentityDisplayName(identity: Record<string, string>) {
 
 export default async function CharactersPage({ params }: Params) {
   const { rpgId, characterId } = await params
-  const character = players.find((p) => p.id === characterId)
-
-  if (!character) {
-    let dbCharacter: DbCharacterRow[] = []
-    let skillLabelByKey = new Map<string, string>()
-    let statusTemplateLabelByKey = new Map<string, string>()
-    let raceTemplateLabelByKey = new Map<string, string>()
-    let classTemplateLabelByKey = new Map<string, string>()
-    let classTemplateIdByKey = new Map<string, string>()
-    let identityTemplateFields: CharacterIdentityTemplateLabelRow[] = []
-    let characteristicsTemplateFields: CharacterCharacteristicTemplateLabelRow[] = []
-    let userId: string | null = null
-    let isOwner = false
+  let dbCharacter: DbCharacterRow[] = []
+  let skillLabelByKey = new Map<string, string>()
+  let statusTemplateLabelByKey = new Map<string, string>()
+  let raceTemplateLabelByKey = new Map<string, string>()
+  let classTemplateLabelByKey = new Map<string, string>()
+  let classTemplateIdByKey = new Map<string, string>()
+  let identityTemplateFields: CharacterIdentityTemplateLabelRow[] = []
+  let characteristicsTemplateFields: CharacterCharacteristicTemplateLabelRow[] = []
+  let userId: string | null = null
+  let isOwner = false
 
     try {
       const dbRpg = await prisma.rpg.findUnique({
@@ -412,9 +407,9 @@ export default async function CharactersPage({ params }: Params) {
             value,
           }))
 
-    return (
-      <div className={styles.page}>
-        <section className={styles.card}>
+  return (
+    <div className={styles.page}>
+      <section className={styles.card}>
           <div className={styles.titleBar}>
             <div className={styles.titleInfo}>
               <h3>{displayName}</h3>
@@ -547,201 +542,6 @@ export default async function CharactersPage({ params }: Params) {
               Voltar para personagens
             </Link>
           </div>
-        </section>
-      </div>
-    )
-  }
-
-  return (
-    <div className={styles.page}>
-      <section key={character.id} className={styles.card}>
-        <div className={styles.titleBar}>
-          <h3>{character.identity.name}</h3>
-          <div className={styles.titleActions}>
-            <Link
-              className={styles.editInlineButton}
-              href={`/rpg/${character.meta.version}/characters`}
-            >
-              Voltar
-            </Link>
-            <Link
-              className={styles.editInlineButton}
-              href={`/rpg/${character.meta.version}/characters/novo?characterId=${character.id}`}
-            >
-              Editar
-            </Link>
-          </div>
-        </div>
-        <div className={styles.header}>
-          <div className={styles.imageColumn}>
-            <Image
-              src={character.image}
-              alt={character.identity.name}
-              width={150}
-              height={192}
-              priority
-            />
-            <Link
-              className={`${styles.actionLink} ${styles.imageActionLink}`}
-              href={`/rpg/${character.meta.version}/characters/${character.id}/inventory`}
-            >
-              Inventario
-            </Link>
-          </div>
-          <div className={styles.identityInfo}>
-            {character.identity.nickname && (
-              <p className={styles.nickname}>
-                &quot;{character.identity.nickname}&quot;
-              </p>
-            )}
-
-            <div className={styles.actionLinks}>
-              <Link
-                className={styles.actionLink}
-                href={`/rpg/${character.meta.version}/characters/${character.id}/abilities`}
-              >
-                Habilidades
-              </Link>
-              <Link
-                className={styles.actionLink}
-                href={`/rpg/${character.meta.version}/characters/${character.id}/magics`}
-              >
-                Magias
-              </Link>
-              <Link
-                className={styles.actionLink}
-                href={`/rpg/${character.meta.version}/characters/${character.id}/magics`}
-              >
-                Armas
-              </Link>
-            </div>
-
-            <p className={styles.kingdom}>Reino: {character.identity.kingdom}</p>
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <div>
-            <h4>Status</h4>
-            <p>
-              Vida: {character.state.currentLife}/{character.health.life}
-            </p>
-            <p>
-              Mana: {character.state.currentMana}/{character.health.mana}
-            </p>
-            <p>
-              Sanidade: {character.state.currentSanity}/{character.health.sanity}
-            </p>
-            <p>
-              Exaustao: {character.state.currentExhaustion}/{character.health.exhaustion}
-            </p>
-          </div>
-
-          <div>
-            <h4>Defesa</h4>
-            <p>Base: {character.defense.base}</p>
-            <p>Armadura: {character.defense.armor}</p>
-            <p>Escudo: {character.defense.shield}</p>
-            <p>Evasao: {character.defense.evasion}</p>
-          </div>
-
-          <div>
-            <h4>Progressao</h4>
-            <p>Level: {character.progression.level}</p>
-            <p>XP: {character.progression.xp}</p>
-            <p>Proximo level: {character.progression.xpToNextLevel}</p>
-          </div>
-        </div>
-
-        <div className={styles.containerSkillAttributes}>
-          <div>
-            <h4>Atributos</h4>
-            <ul className={styles.list}>
-              <li>Agilidade: {character.attributes.agility.total}</li>
-              <li>Forca: {character.attributes.strength.total}</li>
-              <li>Destreza: {character.attributes.dexterity.total}</li>
-              <li>Instinto: {character.attributes.instinct.total}</li>
-              <li>Carisma: {character.attributes.charisma.total}</li>
-              <li>Conhecimento: {character.attributes.knowledge.total}</li>
-              <li>Constituicao: {character.attributes.constitution.total}</li>
-            </ul>
-          </div>
-          <div>
-            <h4>Pericias</h4>
-            <ul className={styles.list}>
-              {Object.entries(character.skills)
-                .filter(([, value]) => value > 0)
-                .map(([key, value]) => (
-                  <li key={key}>
-                    {skillLabels[key] ?? key}: {value}
-                  </li>
-                ))}
-            </ul>
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <div>
-            <h4>Fisico</h4>
-            <p>Idade: {character.physical.age}</p>
-            <p>Altura: {character.physical.heightCm}cm</p>
-            <p>Peso: {character.physical.weightKg}kg</p>
-            <p>Olhos: {character.physical.eyes}</p>
-            <p>Pele: {character.physical.skin}</p>
-            <p>Cabelo: {character.physical.hair}</p>
-            <p>{character.physical.other}</p>
-          </div>
-
-          <div>
-            <h4>Pessoal</h4>
-            <p>Reino: {character.identity.kingdom}</p>
-            <p>Religiao: {character.personal.religion}</p>
-            <p>Lingua: {character.personal.language}</p>
-            <p>Defeitos: {character.personal.defects}</p>
-            <p>
-              Raca:{" "}
-              <Link
-                className={styles.identityLink}
-                href={`/rpg/${character.meta.version}/races/${character.identity.race}`}
-              >
-                {character.identity.race}
-              </Link>
-            </p>
-            <p>
-              Classe:{" "}
-              <Link
-                className={styles.identityLink}
-                href={`/rpg/${character.meta.version}/classes/${character.identity.class}`}
-              >
-                {character.identity.class}
-              </Link>
-            </p>
-            {character.identity.classReinforcement && (
-              <p>Reforco de Classe: {character.identity.classReinforcement}</p>
-            )}
-          </div>
-
-          <div>
-            <h4>Ancestralidade</h4>
-            <p>{character.ancestry.description}</p>
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <div>
-            <h4>Equipamentos</h4>
-            <p>Armas: {character.equipment.weaponIds.join(", ") || "-"}</p>
-            <p>Escudo: {character.equipment.shieldId ?? "-"}</p>
-            <p>Armadura: {character.equipment.armorId ?? "-"}</p>
-          </div>
-
-          <div>
-            <h4>Meta</h4>
-            <p>NPC: {character.meta.isNPC ? "Sim" : "Nao"}</p>
-            <p>Editavel: {character.meta.isEditable ? "Sim" : "Nao"}</p>
-            <p>Versao: {character.meta.version}</p>
-          </div>
-        </div>
       </section>
     </div>
   )

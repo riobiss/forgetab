@@ -1,5 +1,3 @@
-import rpgs from "@/data/rpgs"
-import { PlayerCharacter } from "@/types/PlayerCharacter"
 import Image from "next/image"
 import styles from "./page.module.css"
 import Link from "next/link"
@@ -114,15 +112,8 @@ export default async function CharactersPage({ params, searchParams }: Params) {
     notFound()
   }
 
-  const staticRpg = rpgs.find((r) => r.id === Number(rpgId))
-  const staticCharactersRaw = staticRpg
-    ? (staticRpg.charactersData as PlayerCharacter[])
-    : []
-  const staticCharacters =
-    filterType === "all" || filterType === "player" ? staticCharactersRaw : []
-
-  if (!dbRpg && !staticRpg) {
-    return <div>RPG nao encontrado</div>
+  if (!dbRpg) {
+    notFound()
   }
 
   return (
@@ -177,7 +168,6 @@ export default async function CharactersPage({ params, searchParams }: Params) {
 
       {dbCharacters.length > 0 ? (
         <section className={styles.dbSection}>
-          <h2>Personagens criados no seu RPG</h2>
           <div className={styles.grid}>
             {dbCharacters.map((character) => (
               <article key={character.id} className={styles.card}>
@@ -200,32 +190,7 @@ export default async function CharactersPage({ params, searchParams }: Params) {
         </section>
       ) : null}
 
-      {staticCharacters.length > 0 ? (
-        <section>
-          <h2 className={styles.sectionTitle}>Personagens do conteudo base</h2>
-          <div className={styles.grid}>
-            {staticCharacters.map((c) => (
-              <article key={c.id} className={styles.card}>
-                <Link href={`/rpg/${staticRpg?.id}/characters/${c.id}`}>
-                  <Image
-                    src={c.image}
-                    alt={`Imagem do personagem ${c.identity.name}`}
-                    fill
-                    className={styles.image}
-                    priority
-                    sizes="(max-width: 1099px) 50vw, 33vw"
-                  />
-                  <div className={styles.overlay}>
-                    <h2 className={styles.name}>{c.identity.name}</h2>
-                  </div>
-                </Link>
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {dbCharacters.length === 0 && staticCharacters.length === 0 ? (
+      {dbCharacters.length === 0 ? (
         <p className={styles.emptyState}>Nenhum personagem encontrado.</p>
       ) : null}
     </main>

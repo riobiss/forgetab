@@ -5,31 +5,8 @@ import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { parseCharacterAbilities, parseCostPoints } from "@/lib/server/costSystem"
-import players from "@/data/rpg/world-of-clans/entities/player"
-import { classes } from "@/data/rpg/world-of-clans/classes"
 import AbilitiesFiltersClient from "./AbilitiesFiltersClient"
 import styles from "./page.module.css"
-
-const SKILL_CATEGORY_LABEL: Record<string, string> = {
-  attack: "Ataque",
-  burst: "Explosao",
-  support: "Suporte",
-  buff: "Buff",
-  debuff: "Debuff",
-  control: "Controle",
-  defense: "Defesa",
-  mobility: "Mobilidade",
-  summon: "Invocacao",
-  utility: "Utilidade",
-  resource: "Recurso",
-}
-
-const SKILL_TYPE_LABEL: Record<string, string> = {
-  action: "Acao",
-  bonus: "Bonus",
-  reaction: "Reacao",
-  passive: "Passiva",
-}
 
 type Params = {
   params: Promise<{
@@ -103,86 +80,12 @@ function parseJsonObject(value: Prisma.JsonValue) {
   return value as Record<string, unknown>
 }
 
-function parseJsonArray(value: Prisma.JsonValue) {
-  return Array.isArray(value) ? value : []
-}
-
 function toOptionalText(value: unknown) {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null
 }
 
-function toCategoryLabel(value: string | null) {
-  if (!value) return null
-  return SKILL_CATEGORY_LABEL[value] ?? value
-}
-
-function toTypeLabel(value: string | null) {
-  if (!value) return null
-  return SKILL_TYPE_LABEL[value] ?? value
-}
-
-function hasText(value: string | null | undefined) {
-  return typeof value === "string" && value.trim().length > 0
-}
-
-function normalizeText(value: string | null | undefined) {
-  return typeof value === "string" ? value.trim() : ""
-}
-
 export default async function AbilitiesPage({ params }: Params) {
   const { rpgId, characterId } = await params
-
-  const staticCharacter = players.find(
-    (player) => player.id === characterId && String(player.meta.version) === rpgId,
-  )
-  if (staticCharacter) {
-    const classKey = staticCharacter.identity.class
-    const classData = classes.find((item) => item.id === classKey || item.name === classKey)
-    const abilityIds = new Set([
-      ...staticCharacter.abilities.classMainIds,
-      ...staticCharacter.abilities.classReinforcementIds,
-    ])
-    const classAbilities = classData?.abilities ?? []
-    const ownedAbilities = classAbilities.filter((ability) => abilityIds.has(ability.id))
-
-    return (
-      <div className={styles.page}>
-        <div className={styles.header}>
-          <div>
-            <p className={styles.kicker}>Habilidades</p>
-            <h1 className={styles.title}>
-              <Link
-                href={`/rpg/${rpgId}/characters/${characterId}`}
-                className={styles.titleLink}
-              >
-                {staticCharacter.identity.name}
-              </Link>
-            </h1>
-          </div>
-          <div className={styles.badge}>Classe: {classData?.name ?? "Desconhecida"}</div>
-        </div>
-
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Habilidades do Personagem</h2>
-          {ownedAbilities.length === 0 ? (
-            <p className={styles.emptyState}>Nenhuma habilidade cadastrada.</p>
-          ) : (
-            <div className={styles.cardGrid}>
-              {ownedAbilities.map((ability) => (
-                <article key={ability.id} className={styles.card}>
-                  <div className={styles.cardHeader}>
-                    <h3 className={styles.cardTitle}>{ability.name}</h3>
-                    <span className={styles.levelBadge}>Level {ability.level}</span>
-                  </div>
-                  <p className={styles.cardBodyItalic}>{ability.description}</p>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-    )
-  }
 
   const dbRpg = await prisma.rpg.findUnique({
     where: { id: rpgId },

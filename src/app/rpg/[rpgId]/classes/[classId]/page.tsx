@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
 import { Prisma } from "../../../../../../generated/prisma/client"
 import { prisma } from "@/lib/prisma"
-import { classes } from "@/data/rpg/world-of-clans/classes"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { parseCharacterAbilities, parseCostPoints } from "@/lib/server/costSystem"
@@ -102,26 +101,6 @@ function toOptionalText(value: unknown) {
 
 export default async function ClassPage({ params }: Props) {
   const { rpgId, classId } = await params
-
-  const staticClass = classes.find((item) => item.id === classId)
-  if (staticClass) {
-    return (
-      <div className={styles.container}>
-        <h1 className={styles.classTitle}>{staticClass.name}</h1>
-        <div className={styles.abilityGrid}>
-          {staticClass.abilities.map((ability) => (
-            <div key={ability.id} className={styles.abilityCard}>
-              <div className={styles.abilityHeader}>
-                <h3 className={styles.abilityName}>{ability.name}</h3>
-                <span className={styles.abilityLevel}>Level {ability.level}</span>
-              </div>
-              <p className={styles.abilityDescription}>{ability.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
 
   let classRows: DbClassRow[] = []
   try {

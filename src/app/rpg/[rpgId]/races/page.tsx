@@ -1,7 +1,4 @@
-import rpgs from "@/data/rpgs"
-import Image from "next/image"
 import Link from "next/link"
-import slugify from "@/utils/slugify"
 import styles from "./page.module.css"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
@@ -22,33 +19,6 @@ type DbRaceRow = {
 
 export default async function RacesPage({ params }: Params) {
   const { rpgId } = await params
-
-  const rpg = rpgs.find((r) => r.id === Number(rpgId))
-  if (rpg) {
-    return (
-      <main className={styles.container}>
-        <div className={styles.titleRow}>
-          <h1 className={styles.title}>Raças</h1>
-        </div>
-
-        <section className={styles.grid}>
-          {rpg.races?.map((race) => (
-            <article key={race.id} className={styles.card}>
-              <Link href={`/rpg/${rpg.id}/races/${slugify(race.name)}`}>
-                <Image
-                  src={race.img}
-                  alt={`Imagem da raça ${race.name}`}
-                  fill
-                  className={styles.image}
-                />
-                <h2>{race.name}</h2>
-              </Link>
-            </article>
-          ))}
-        </section>
-      </main>
-    )
-  }
 
   const dbRpg = await prisma.rpg.findUnique({
     where: { id: rpgId },

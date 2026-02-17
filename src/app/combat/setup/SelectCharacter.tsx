@@ -1,7 +1,5 @@
 "use client"
 
-import players from "@/data/rpg/world-of-clans/entities/player"
-import enemies from "@/data/rpg/world-of-clans/entities/enemy"
 import { useState } from "react"
 import styles from "./SelectCharacter.module.css"
 import { Button } from "@/components/button"
@@ -16,7 +14,9 @@ export default function SelectCharacter({ onConfirm }: Props) {
   const [view, setView] = useState<"players" | "enemies">("players")
   const [selected, setSelected] = useState<BaseCharacter[]>([])
 
-  const list: BaseCharacter[] = view === "players" ? players : enemies
+  const playerList: BaseCharacter[] = []
+  const enemyList: BaseCharacter[] = []
+  const list: BaseCharacter[] = view === "players" ? playerList : enemyList
 
   function handleSelect(character: BaseCharacter) {
     const alreadySelected = selected.some((c) => c.id === character.id)
@@ -55,29 +55,33 @@ export default function SelectCharacter({ onConfirm }: Props) {
           </button>
         </div>
 
-        <ul className={styles.listCharacter}>
-          {list.map((c) => {
-            const isSelected = selected.some((s) => s.id === c.id)
+        {list.length === 0 ? (
+          <p>Nenhum personagem disponivel.</p>
+        ) : (
+          <ul className={styles.listCharacter}>
+            {list.map((c) => {
+              const isSelected = selected.some((s) => s.id === c.id)
 
-            return (
-              <li key={c.id}>
-                <span>{c.identity.name}</span>
+              return (
+                <li key={c.id}>
+                  <span>{c.identity.name}</span>
 
-                <button className={styles.showCharacterButton}>
-                  <Link href={`/characters/`}>Exibir</Link>
-                </button>
+                  <button className={styles.showCharacterButton}>
+                    <Link href={`/characters/`}>Exibir</Link>
+                  </button>
 
-                <button
-                  className={styles.selectCharacterButton}
-                  onClick={() => handleSelect(c)}
-                  disabled={isSelected}
-                >
-                  {isSelected ? "Selecionado" : "Selecionar"}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
+                  <button
+                    className={styles.selectCharacterButton}
+                    onClick={() => handleSelect(c)}
+                    disabled={isSelected}
+                  >
+                    {isSelected ? "Selecionado" : "Selecionar"}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </div>
       {selected.length > 0 && (
         <div className={styles.containerSelected}>
