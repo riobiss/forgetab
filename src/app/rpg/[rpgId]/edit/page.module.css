@@ -31,6 +31,49 @@
   color: var(--text-main);
 }
 
+.stageTabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-surface) 82%, transparent);
+}
+
+.stageTab {
+  border: 1px solid transparent;
+  border-radius: 9px;
+  padding: 0.45rem 0.7rem;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+.stageTabActive {
+  border-color: var(--border-hot);
+  background: color-mix(in srgb, var(--accent-main) 18%, transparent);
+  color: var(--text-title);
+}
+
+.advancedStage {
+  border: 1px solid var(--border-hot);
+  border-radius: 14px;
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--accent-main) 4%, transparent);
+  display: grid;
+  gap: 0.6rem;
+}
+
+.advancedStage h2 {
+  margin: 0;
+  color: var(--text-title);
+}
+
 .form {
   order: 10;
   display: grid;
@@ -45,6 +88,9 @@
 .field span {
   font-size: 0.82rem;
   color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .field input,
@@ -81,6 +127,65 @@
   border-color: var(--border-hot);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-main) 30%, transparent);
   background: var(--bg-main);
+}
+
+.fileUploadInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+.fileUploadTrigger {
+  border: 1px dashed var(--border-soft);
+  border-radius: 10px;
+  padding: 0.62rem 0.72rem;
+  background: color-mix(in srgb, var(--bg-main) 90%, var(--bg-surface));
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.fileUploadTrigger:hover {
+  border-color: color-mix(in srgb, var(--border-hot) 70%, var(--border-soft));
+}
+
+.fileUploadActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fileRemoveButton {
+  border: 1px solid color-mix(in srgb, #ff6464 65%, var(--border-soft));
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: color-mix(in srgb, var(--accent-main) 18%, transparent);
+  color: #ffdede;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fileRemoveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fileUploadStatus {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
 }
 
 .checkboxField input[type="checkbox"] {

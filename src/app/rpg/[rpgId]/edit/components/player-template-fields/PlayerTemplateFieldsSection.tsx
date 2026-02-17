@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, Trash2 } from "lucide-react"
+import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react"
 import styles from "./PlayerTemplateFieldsSection.module.css"
 import type { CharacterIdentityTemplate } from "../shared/types"
 
@@ -49,6 +49,7 @@ export default function PlayerTemplateFieldsSection({
       <p>{description}</p>
       <div className={styles.headerActions}>
         <button type="button" onClick={onToggleList}>
+          {showList ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           {showList ? toggleLabelOpen : toggleLabelClosed}
         </button>
       </div>

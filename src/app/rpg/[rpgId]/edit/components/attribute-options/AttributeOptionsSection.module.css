@@ -28,6 +28,9 @@
   font-weight: 600;
   line-height: 1.1;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease,
     transform 120ms ease;
 }

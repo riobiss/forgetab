@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Plus, Trash2 } from "lucide-react"
+import { ChevronDown, ChevronUp, Plus, Settings2, Trash2 } from "lucide-react"
 import styles from "./RaceClassOptionsSection.module.css"
+import RadixSwitchField from "../shared/RadixSwitchField"
 import type { IdentityTemplate } from "../shared/types"
 
 type Props = {
@@ -108,14 +109,17 @@ export default function RaceClassOptionsSection({
       {feedback ? <p className={styles.feedback}>{feedback}</p> : null}
       <div className={styles.section}>
         <h3>Racas e Classes</h3>
-        <label className={styles.option}>
-          <input
-            type="checkbox"
-            checked={useClassRaceBonuses}
-            onChange={(event) => onUseClassRaceBonusesChange(event.target.checked)}
-          />
-          <span>Usar racas/classes na criacao de personagem</span>
-        </label>
+        <RadixSwitchField
+          id="edit-race-class-enabled"
+          label="Usar racas/classes na criacao de personagem"
+          description={
+            useClassRaceBonuses
+              ? "Players escolhem raca e classe"
+              : "Criacao sem raca/classe"
+          }
+          checked={useClassRaceBonuses}
+          onCheckedChange={onUseClassRaceBonusesChange}
+        />
       </div>
 
       {useClassRaceBonuses ? (
@@ -124,6 +128,7 @@ export default function RaceClassOptionsSection({
             <h3>Racas</h3>
             <div className={styles.headerActions}>
               <button type="button" onClick={onToggleRaceList}>
+                {showRaceList ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 {showRaceList ? "Ocultar nomes" : "Mostrar nomes"}
               </button>
               <button
@@ -148,6 +153,7 @@ export default function RaceClassOptionsSection({
                         className={styles.secondaryButton}
                         href={`/rpg/${rpgId}/edit/advanced/race/${draft.key}`}
                       >
+                        <Settings2 size={14} />
                         Avancado
                       </Link>
                       <button
@@ -172,6 +178,7 @@ export default function RaceClassOptionsSection({
             <h3>Classes</h3>
             <div className={styles.headerActions}>
               <button type="button" onClick={onToggleClassList}>
+                {showClassList ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 {showClassList ? "Ocultar nomes" : "Mostrar nomes"}
               </button>
               <button
@@ -196,6 +203,7 @@ export default function RaceClassOptionsSection({
                         className={styles.secondaryButton}
                         href={`/rpg/${rpgId}/edit/advanced/class/${draft.key}`}
                       >
+                        <Settings2 size={14} />
                         Avancado
                       </Link>
                       <button

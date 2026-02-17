@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, Trash2 } from "lucide-react"
+import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react"
 import styles from "./SkillOptionsSection.module.css"
 import type { SkillTemplate } from "../shared/types"
 
@@ -28,6 +28,7 @@ export default function SkillOptionsSection({
       <h3>Pericias</h3>
       <div className={styles.headerActions}>
         <button type="button" onClick={onToggleList}>
+          {showList ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           {showList ? "Ocultar pericias" : "Mostrar pericias"}
         </button>
       </div>

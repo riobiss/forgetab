@@ -1,5 +1,6 @@
 "use client"
 
+import { ChevronDown, ChevronUp } from "lucide-react"
 import styles from "./AttributeOptionsSection.module.css"
 import type { CatalogOption } from "../shared/types"
 
@@ -23,6 +24,7 @@ export default function AttributeOptionsSection({
       <h3>Atributos</h3>
       <div className={styles.headerActions}>
         <button type="button" onClick={onToggleList}>
+          {showList ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           {showList ? "Ocultar atributos" : "Mostrar atributos"}
         </button>
       </div>

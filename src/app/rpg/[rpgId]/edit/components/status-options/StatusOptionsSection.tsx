@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, Trash2 } from "lucide-react"
+import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react"
 import styles from "./StatusOptionsSection.module.css"
 import type { CatalogOption } from "../shared/types"
 
@@ -40,6 +40,7 @@ export default function StatusOptionsSection({
       <h3>Status</h3>
       <div className={styles.headerActions}>
         <button type="button" onClick={onToggleList}>
+          {showList ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           {showList ? "Ocultar status" : "Mostrar status"}
         </button>
       </div>

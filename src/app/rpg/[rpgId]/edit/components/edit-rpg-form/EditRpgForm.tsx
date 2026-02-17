@@ -1,9 +1,17 @@
 "use client"
 
-import { FormEvent } from "react"
+import { FormEvent, useMemo, useState } from "react"
 import Link from "next/link"
-import { LoaderCircle, Save, Trash2, X } from "lucide-react"
+import {
+  Paperclip,
+  ImagePlus,
+  LoaderCircle,
+  Save,
+  Trash2,
+  X,
+} from "lucide-react"
 import styles from "../../page.module.css"
+import RadixSwitchField from "../shared/RadixSwitchField"
 import type { Visibility } from "../../hooks/useEditRpgState"
 
 type Props = {
@@ -12,19 +20,12 @@ type Props = {
   description: string
   onDescriptionChange: (value: string) => void
   image: string
-  onImageChange: (value: string) => void
   onImageUpload: (file: File) => Promise<void>
   onRemoveImage: () => void
   uploadingImage: boolean
   uploadError: string
   visibility: Visibility
   onVisibilityChange: (value: Visibility) => void
-  useMundiMap: boolean
-  onUseMundiMapChange: (value: boolean) => void
-  useInventoryWeightLimit: boolean
-  onUseInventoryWeightLimitChange: (value: boolean) => void
-  costsEnabled: boolean
-  costResourceName: string
   error: string
   success: string
   saving: boolean
@@ -39,19 +40,12 @@ export default function EditRpgForm({
   description,
   onDescriptionChange,
   image,
-  onImageChange,
   onImageUpload,
   onRemoveImage,
   uploadingImage,
   uploadError,
   visibility,
   onVisibilityChange,
-  useMundiMap,
-  onUseMundiMapChange,
-  useInventoryWeightLimit,
-  onUseInventoryWeightLimitChange,
-  costsEnabled,
-  costResourceName,
   error,
   success,
   saving,
@@ -59,6 +53,22 @@ export default function EditRpgForm({
   onSaveAll,
   onDeleteRpg,
 }: Props) {
+  const [selectedImageName, setSelectedImageName] = useState("")
+
+  const imageStatusText = useMemo(() => {
+    if (selectedImageName.trim().length > 0) {
+      return selectedImageName
+    }
+
+    if (image.trim().length > 0) {
+      const lastPathSegment = image.split("/").pop() ?? ""
+      if (!lastPathSegment) return "Imagem atual selecionada"
+      return decodeURIComponent(lastPathSegment)
+    }
+
+    return ""
+  }, [image, selectedImageName])
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     await onSaveAll()
@@ -67,6 +77,48 @@ export default function EditRpgForm({
   return (
     <>
       <form id="edit-rpg-form" className={styles.form} onSubmit={(event) => void handleSubmit(event)}>
+        <div className={styles.field}>
+          <span>
+            <Paperclip size={14} />
+            Imagem do RPG
+          </span>
+          <div className={styles.fileUploadActions}>
+            <label htmlFor="rpg-image-file" className={styles.fileUploadTrigger}>
+              <ImagePlus size={16} />
+              <span>Selecionar imagem</span>
+            </label>
+            {image ? (
+              <button
+                type="button"
+                className={styles.fileRemoveButton}
+                onClick={() => {
+                  setSelectedImageName("")
+                  onRemoveImage()
+                }}
+                disabled={saving || deleting || uploadingImage}
+                aria-label="Remover imagem"
+                title="Remover imagem"
+              >
+                <Trash2 size={16} />
+              </button>
+            ) : null}
+          </div>
+          <input
+            id="rpg-image-file"
+            className={styles.fileUploadInput}
+            type="file"
+            accept="image/*"
+            onChange={(event) => {
+              const file = event.target.files?.[0]
+              if (file) {
+                setSelectedImageName(file.name)
+                void onImageUpload(file)
+              }
+            }}
+          />
+          {imageStatusText ? <p className={styles.fileUploadStatus}>{imageStatusText}</p> : null}
+        </div>
+
         <label className={styles.field}>
           <span>Titulo</span>
           <input
@@ -89,81 +141,20 @@ export default function EditRpgForm({
           />
         </label>
 
-        <label className={styles.field}>
-          <span>Imagem do RPG (URL)</span>
-          <input
-            type="url"
-            value={image}
-            onChange={(event) => onImageChange(event.target.value)}
-            readOnly
-            placeholder="https://ik.imagekit.io/.../rpg.jpg"
-          />
-        </label>
-
-        <label className={styles.field}>
-          <span>Arquivo da imagem</span>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(event) => {
-              const file = event.target.files?.[0]
-              if (file) {
-                void onImageUpload(file)
-              }
-            }}
-          />
-        </label>
-
-        {image ? (
-          <div className={styles.actions}>
-            <button
-              type="button"
-              onClick={onRemoveImage}
-              disabled={saving || deleting || uploadingImage}
-            >
-              Remover imagem
-            </button>
-          </div>
-        ) : null}
-
         {uploadingImage ? <p>Enviando imagem...</p> : null}
         {uploadError ? <p className={styles.error}>{uploadError}</p> : null}
 
-        <label className={styles.field}>
-          <span>Visibilidade</span>
-          <select
-            value={visibility}
-            onChange={(event) => onVisibilityChange(event.target.value as Visibility)}
-          >
-            <option value="private">Privado</option>
-            <option value="public">Publico</option>
-          </select>
-        </label>
-
-        <label className={`${styles.field} ${styles.checkboxField}`}>
-          <span>Mapa mundi</span>
-          <input
-            type="checkbox"
-            checked={useMundiMap}
-            onChange={(event) => onUseMundiMapChange(event.target.checked)}
-          />
-        </label>
-
-        <label className={`${styles.field} ${styles.checkboxField}`}>
-          <span>Controle de peso no inventario</span>
-          <input
-            type="checkbox"
-            checked={useInventoryWeightLimit}
-            onChange={(event) => onUseInventoryWeightLimitChange(event.target.checked)}
-          />
-        </label>
-
-        <div className={styles.field}>
-          <span>Custos (somente leitura)</span>
-          <input value={costsEnabled ? "Ativado" : "Desativado"} readOnly />
-          <input value={costResourceName} readOnly />
-          <p className={styles.error}>Configuracao disponivel apenas na criacao do RPG.</p>
-        </div>
+        <RadixSwitchField
+          id="edit-rpg-visibility"
+          label="Visibilidade"
+          description={
+            visibility === "public"
+              ? "Publico: qualquer jogador pode visualizar"
+              : "Privado: apenas membros podem visualizar"
+          }
+          checked={visibility === "public"}
+          onCheckedChange={(checked) => onVisibilityChange(checked ? "public" : "private")}
+        />
 
         {error ? <p className={styles.error}>{error}</p> : null}
         {success ? <p className={styles.success}>{success}</p> : null}
@@ -179,7 +170,7 @@ export default function EditRpgForm({
           ) : (
             <>
               <Save size={16} />
-              <span>Salvar tudo</span>
+              <span>Salvar</span>
             </>
           )}
         </button>
@@ -192,7 +183,7 @@ export default function EditRpgForm({
           ) : (
             <>
               <Trash2 size={16} />
-              <span>Deletar RPG</span>
+              <span>Deletar</span>
             </>
           )}
         </button>
@@ -204,3 +195,4 @@ export default function EditRpgForm({
     </>
   )
 }
+

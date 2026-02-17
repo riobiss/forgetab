@@ -12,6 +12,7 @@
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
     "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-switch": "^1.2.6",
     "bcryptjs": "^3.0.2",
     "jose": "^6.1.0",
     "konva": "^10.2.0",
