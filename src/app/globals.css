@@ -8,6 +8,8 @@
 --color-bg-surface: #16181C;           /* ferro escuro */
 --color-bg-surface-alt: #1D2026;       /* variação levemente azulada */
 --color-bg-elevated: #242830;          /* cards elevados */
+--color-bg-card: #1A1D23;
+--color-bg-input: #151920;
 --color-bg-hover: #2C313A;             /* hover neutro */
 --color-bg-overlay-soft: rgba(0, 0, 0, 0.45);
 --color-bg-overlay-strong: rgba(0, 0, 0, 0.75);
@@ -18,12 +20,18 @@
 --color-text-muted: #8B9099;           /* metal fosco */
 --color-text-inverse: #0F0F11;         /* texto em fundo claro */
 --color-text-brand: #FF7A1A;           /* brasa ativa */
+--color-text-on-brand: #FFFFFF;
+--color-text-on-danger: #FFFFFF;
+--color-text-on-success: #FFFFFF;
+--color-text-on-warning: #1A1A1A;
+--color-text-on-info: #FFFFFF;
 
 /* Brand / Accent */
 --color-brand-primary: #FF6A00;        /* laranja forja */
 --color-brand-strong: #E65100;         /* laranja queimado */
 --color-brand-soft: rgba(255, 106, 0, 0.15);
 --color-brand-contrast: #FFFFFF;
+--color-brand-soft-subtle: color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
 
 /* Bordas */
 --color-border-default: #2A2E36;
@@ -113,7 +121,7 @@ select option {
 
 select option:checked {
   background: var(--color-brand-primary);
-  color: var(--color-text-inverse);
+  color: var(--color-text-on-brand);
 }
 
 

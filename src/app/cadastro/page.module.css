@@ -11,8 +11,8 @@
 .card {
   width: 100%;
   max-width: 460px;
-  background: var(--color-bg-overlay-strong);
-  border: 1px solid var(--color-border-brand);
+  background: linear-gradient(180deg, var(--color-bg-card), var(--color-bg-surface));
+  border: 1px solid var(--color-border-strong);
   border-radius: 14px;
   box-shadow: var(--shadow-elevation-md);
   padding: 28px;
@@ -47,7 +47,7 @@
   border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 10px 12px;
-  background: var(--color-bg-surface);
+  background: var(--color-bg-input);
   color: var(--color-text-secondary);
 }
 
@@ -63,7 +63,7 @@
   padding: 11px 14px;
   font-weight: 700;
   background: var(--color-brand-primary);
-  color: var(--color-bg-app);
+  color: var(--color-text-on-brand);
   cursor: pointer;
 }
 

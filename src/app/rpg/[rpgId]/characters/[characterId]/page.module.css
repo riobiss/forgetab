@@ -168,7 +168,7 @@
   padding: 8px 14px;
   border-radius: 10px;
   background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-strong));
-  color: var(--color-text-inverse);
+  color: var(--color-text-on-brand);
   font-weight: 600;
   font-size: 13px;
   border: 1px solid var(--color-brand-strong);
@@ -345,5 +345,6 @@
     padding: 24px;
   }
 }
+
 
 

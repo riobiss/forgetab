@@ -63,7 +63,7 @@
 
 .buttonActive {
   background: linear-gradient(180deg, var(--color-brand-primary), var(--color-brand-strong));
-  color: var(--color-text-inverse);
+  color: var(--color-text-on-brand);
   border: 1px solid var(--color-brand-strong);
   box-shadow: var(--shadow-brand-glow);
 }
@@ -125,7 +125,7 @@
 
 .listCharacter li button.selectCharacterButton {
   background: linear-gradient(180deg, var(--color-brand-primary), var(--color-brand-strong));
-  color: var(--color-text-inverse);
+  color: var(--color-text-on-brand);
   font-weight: 600;
 }
 
@@ -149,4 +149,5 @@
   box-shadow: var(--shadow-elevation-md);
   background-color: var(--color-bg-surface);
 }
+
 

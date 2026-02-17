@@ -33,7 +33,7 @@
 .actionButtons button:active {
   transform: translateY(1px);
   background-color: var(--color-brand-strong);
-  color: var(--color-text-inverse);
+  color: var(--color-text-on-brand);
 }
 
 .actionButtons button:focus-visible {
@@ -41,4 +41,5 @@
   border-color: var(--color-brand-primary);
   box-shadow: 0 0 0 2px var(--color-border-brand);
 }
+
 

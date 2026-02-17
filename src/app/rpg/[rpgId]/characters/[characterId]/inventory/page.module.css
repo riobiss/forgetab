@@ -115,7 +115,7 @@
 .categoryButtonActive {
   border-color: var(--color-brand-primary);
   background: var(--color-brand-primary);
-  color: var(--color-text-inverse);
+  color: var(--color-text-on-brand);
 }
 
 .searchField {
@@ -527,6 +527,7 @@
   }
 
 }
+
 
 
 

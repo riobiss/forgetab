@@ -119,7 +119,7 @@
 .brushToggleActive {
   background: var(--color-brand-primary);
   border-color: var(--color-brand-strong);
-  color: var(--color-text-inverse);
+  color: var(--color-text-on-brand);
 }
 
 .actionButton:hover {
@@ -212,5 +212,6 @@
   font-size: 0.84rem;
   color: var(--color-text-muted);
 }
+
 
 
