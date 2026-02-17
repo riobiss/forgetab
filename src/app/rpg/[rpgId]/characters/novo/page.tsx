@@ -1,8 +1,9 @@
 "use client"
 
-import { FormEvent, useEffect, useState } from "react"
+import { FormEvent, useEffect, useMemo, useState } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { ImagePlus, Paperclip, Trash2 } from "lucide-react"
 import styles from "./page.module.css"
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
@@ -185,7 +186,21 @@ export default function NewCharacterPage() {
   const [showStatusSection, setShowStatusSection] = useState(true)
   const [showAttributeSection, setShowAttributeSection] = useState(true)
   const [showSkillSection, setShowSkillSection] = useState(true)
+  const [selectedImageName, setSelectedImageName] = useState("")
   const identityNameField = identityTemplates.find((field) => isIdentityNameField(field)) ?? null
+  const imageStatusText = useMemo(() => {
+    if (selectedImageName.trim().length > 0) {
+      return selectedImageName
+    }
+
+    if (image.trim().length > 0) {
+      const lastPathSegment = image.split("/").pop() ?? ""
+      if (!lastPathSegment) return "Imagem atual selecionada"
+      return decodeURIComponent(lastPathSegment)
+    }
+
+    return ""
+  }, [image, selectedImageName])
 
   useEffect(() => {
     async function loadTemplate() {
@@ -326,6 +341,7 @@ export default function NewCharacterPage() {
         setCharacteristicsValues(nextCharacteristics)
         setName(editTarget?.name ?? "")
         setImage(editTarget?.image ?? "")
+        setSelectedImageName("")
         setRaceKey(editTarget?.raceKey ?? "")
         setClassKey(editTarget?.classKey ?? "")
         setCharacterType(editTarget?.characterType ?? "player")
@@ -488,6 +504,12 @@ export default function NewCharacterPage() {
     }
   }
 
+  function handleRemoveImage() {
+    setImage("")
+    setSelectedImageName("")
+    setUploadError("")
+  }
+
   async function handleDeleteCharacter() {
     if (!editingCharacterId) return
 
@@ -557,30 +579,44 @@ export default function NewCharacterPage() {
                 </label>
               ) : null}
 
-              <label className={styles.field}>
-                <span>Imagem (URL)</span>
+              <div className={styles.field}>
+                <span>
+                  <Paperclip size={14} />
+                  Imagem do personagem
+                </span>
+                <div className={styles.fileUploadActions}>
+                  <label htmlFor="character-image-file" className={styles.fileUploadTrigger}>
+                    <ImagePlus size={16} />
+                    <span>Selecionar imagem</span>
+                  </label>
+                  {image ? (
+                    <button
+                      type="button"
+                      className={styles.fileRemoveButton}
+                      onClick={handleRemoveImage}
+                      disabled={saving || deleting || uploadingImage}
+                      aria-label="Remover imagem"
+                      title="Remover imagem"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  ) : null}
+                </div>
                 <input
-                  type="url"
-                  value={image}
-                  onChange={(event) => setImage(event.target.value)}
-                  readOnly
-                  placeholder="https://ik.imagekit.io/.../personagem.jpg"
-                />
-              </label>
-
-              <label className={styles.field}>
-                <span>Arquivo da imagem</span>
-                <input
+                  id="character-image-file"
+                  className={styles.fileUploadInput}
                   type="file"
                   accept="image/*"
                   onChange={(event) => {
                     const file = event.target.files?.[0]
                     if (file) {
+                      setSelectedImageName(file.name)
                       void handleImageUpload(file)
                     }
                   }}
                 />
-              </label>
+                {imageStatusText ? <p className={styles.fileUploadStatus}>{imageStatusText}</p> : null}
+              </div>
               {uploadingImage ? <p>Enviando imagem...</p> : null}
               {uploadError ? <p className={styles.error}>{uploadError}</p> : null}
 
