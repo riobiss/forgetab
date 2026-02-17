@@ -10,20 +10,20 @@
   align-items: center;
   justify-content: space-between;
 
-  background: linear-gradient(to bottom, #0b0b0b 0%, #120a05 100%);
-  border-bottom: 1px solid rgba(255, 90, 0, 0.35);
+  background: linear-gradient(to bottom, var(--color-bg-app) 0%, var(--color-bg-surface-alt) 100%);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-brand-primary) 35%, transparent);
   box-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.8),
-    inset 0 -1px 0 rgba(255, 80, 0, 0.15);
+    0 2px 12px var(--color-bg-overlay-strong),
+    inset 0 -1px 0 color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
 }
 
 .header h1 {
   font-size: 1.8rem;
   letter-spacing: 1px;
-  color: #f5e6c8;
+  color: var(--color-text-primary);
   text-shadow:
-    0 0 4px rgba(255, 120, 40, 0.4),
-    0 0 10px rgba(255, 60, 0, 0.25);
+    0 0 4px color-mix(in srgb, var(--color-brand-primary) 40%, transparent),
+    0 0 10px color-mix(in srgb, var(--color-brand-primary) 25%, transparent);
 }
 
 .header nav ul {
@@ -37,15 +37,15 @@
   font-size: 0.95rem;
   letter-spacing: 0.5px;
   text-decoration: none;
-  color: #d6d0c4;
+  color: var(--color-text-secondary);
   transition:
     color 0.2s ease,
     text-shadow 0.2s ease;
 }
 
 .header nav a:hover {
-  color: #ff7a18;
-  text-shadow: 0 0 6px rgba(255, 90, 0, 0.6);
+  color: var(--color-text-brand);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--color-brand-primary) 60%, transparent);
 }
 
 .userMenu {
@@ -56,17 +56,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 90, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 35%, transparent);
   border-radius: 10px;
   padding: 0.45rem;
-  background: rgba(255, 255, 255, 0.03);
-  color: #d6d0c4;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
   cursor: pointer;
 }
 
 .userButton:hover {
-  color: #ff7a18;
+  color: var(--color-text-brand);
 }
 
 .dropdown {
@@ -74,13 +74,13 @@
   top: calc(100% + 8px);
   right: 0;
   min-width: 140px;
-  border: 1px solid rgba(255, 90, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 35%, transparent);
   border-radius: 10px;
-  background: #1a130d;
+  background: var(--color-bg-surface-alt);
   padding: 0.35rem;
   display: grid;
   gap: 0.25rem;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 16px var(--color-bg-overlay-soft);
 }
 
 .dropdown a,
@@ -88,7 +88,7 @@
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: #d6d0c4;
+  color: var(--color-text-secondary);
   text-align: left;
   text-decoration: none;
   font-size: 0.88rem;
@@ -98,6 +98,8 @@
 
 .dropdown a:hover,
 .dropdown button:hover {
-  background: rgba(255, 122, 24, 0.12);
-  color: #ff7a18;
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+  color: var(--color-text-brand);
 }
+
+

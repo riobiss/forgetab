@@ -7,14 +7,14 @@
 }
 
 .actionButtons button {
-  border: 1px solid var(--border-soft);
-  background-color: var(--accent-main);
+  border: 1px solid var(--color-border-soft);
+  background-color: var(--color-brand-primary);
   border-radius: 6px;
   padding: 10px 20px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 
   transition:
     background-color 0.2s ease,
@@ -24,20 +24,21 @@
 }
 
 .actionButtons button:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--accent-main);
-  box-shadow: var(--shadow-accent);
-  color: var(--text-main);
+  background-color: var(--color-bg-hover);
+  border-color: var(--color-brand-primary);
+  box-shadow: var(--shadow-brand-glow);
+  color: var(--color-text-secondary);
 }
 
 .actionButtons button:active {
   transform: translateY(1px);
-  background-color: var(--accent-strong);
-  color: var(--text-alternativ);
+  background-color: var(--color-brand-strong);
+  color: var(--color-text-inverse);
 }
 
 .actionButtons button:focus-visible {
   outline: none;
-  border-color: var(--accent-main);
-  box-shadow: 0 0 0 2px var(--border-hot);
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 2px var(--color-border-brand);
 }
+

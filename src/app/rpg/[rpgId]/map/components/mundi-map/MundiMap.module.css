@@ -10,10 +10,10 @@
   position: relative;
   width: min(100%, 920px);
   height: min(62dvh, 560px);
-  border: 1px solid var(--border-hot);
+  border: 1px solid var(--color-border-brand);
   border-radius: 12px;
-  background: var(--bg-surface);
-  box-shadow: var(--shadow-main);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-elevation-md);
   overflow: hidden;
 }
 
@@ -29,28 +29,28 @@
 }
 
 .editButton {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   min-height: 2rem;
   padding: 0.4rem 0.7rem;
   font-size: 0.82rem;
   cursor: pointer;
-  background: rgba(11, 11, 11, 0.72);
-  color: var(--text-title);
+  background: var(--color-bg-overlay-strong);
+  color: var(--color-text-primary);
 }
 
 .editButton:hover {
-  border-color: var(--border-hot);
-  box-shadow: var(--shadow-accent);
+  border-color: var(--color-border-brand);
+  box-shadow: var(--shadow-brand-glow);
 }
 
 .editPanel {
   display: flex;
   gap: 0.45rem;
   padding: 0.5rem;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
-  background: rgba(11, 11, 11, 0.8);
+  background: var(--color-bg-overlay-strong);
 }
 
 .frameFullscreen {
@@ -77,21 +77,21 @@
   z-index: 20;
   background: linear-gradient(
     180deg,
-    rgba(11, 11, 11, 0.92) 0%,
-    rgba(11, 11, 11, 0.6) 58%,
-    rgba(11, 11, 11, 0) 100%
+    var(--color-bg-overlay-strong) 0%,
+    var(--color-bg-overlay-strong) 58%,
+    transparent 100%
   );
 }
 
 .actionButton {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   min-height: 2.2rem;
   padding: 0.45rem 0.7rem;
   font-size: 0.84rem;
   cursor: pointer;
-  background: var(--bg-hover);
-  color: var(--text-main);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -117,15 +117,15 @@
 }
 
 .brushToggleActive {
-  background: var(--accent-main);
-  border-color: var(--accent-strong);
-  color: var(--text-alternativ);
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-strong);
+  color: var(--color-text-inverse);
 }
 
 .actionButton:hover {
-  border-color: var(--border-hot);
-  color: var(--text-title);
-  box-shadow: var(--shadow-accent);
+  border-color: var(--color-border-brand);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-brand-glow);
 }
 
 .actionButton:disabled {
@@ -146,10 +146,10 @@
   gap: 0.35rem;
   min-height: 2.2rem;
   padding: 0.35rem 0.55rem;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
-  background: var(--bg-hover);
-  color: var(--text-main);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
   font-size: 0.82rem;
 }
 
@@ -161,12 +161,12 @@
   width: 1.25rem;
   height: 1.25rem;
   border-radius: 999px;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   cursor: pointer;
 }
 
 .colorOptionActive {
-  outline: 2px solid var(--text-title);
+  outline: 2px solid var(--color-text-primary);
   outline-offset: 1px;
 }
 
@@ -175,8 +175,8 @@
   inset: 0;
   z-index: 25;
   border: 0;
-  background: rgba(11, 11, 11, 0.58);
-  color: var(--text-title);
+  background: var(--color-bg-overlay-strong);
+  color: var(--color-text-primary);
   font-size: 1rem;
   cursor: pointer;
 }
@@ -186,21 +186,21 @@
   right: 0.8rem;
   bottom: 0.8rem;
   z-index: 30;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 999px;
   width: 2.4rem;
   height: 2.4rem;
   cursor: pointer;
-  background: var(--bg-hover);
-  color: var(--text-main);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .expandButton:hover {
-  border-color: var(--border-hot);
-  box-shadow: var(--shadow-accent);
+  border-color: var(--color-border-brand);
+  box-shadow: var(--shadow-brand-glow);
 }
 
 .hiddenInput {
@@ -210,5 +210,7 @@
 .statusText {
   margin: 0;
   font-size: 0.84rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
+
+

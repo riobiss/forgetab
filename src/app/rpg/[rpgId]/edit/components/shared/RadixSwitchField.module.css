@@ -3,10 +3,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.5rem 0.65rem;
-  background: var(--bg-main);
+  background: var(--color-bg-app);
 }
 
 .switchText {
@@ -16,20 +16,20 @@
 }
 
 .switchLabel {
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   font-size: 0.87rem;
 }
 
 .switchDescription {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.75rem;
 }
 
 .root {
   width: 40px;
   height: 24px;
-  background: color-mix(in srgb, var(--bg-surface) 88%, transparent);
-  border: 1px solid var(--border-soft);
+  background: color-mix(in srgb, var(--color-bg-surface) 88%, transparent);
+  border: 1px solid var(--color-border-soft);
   border-radius: 999px;
   position: relative;
   flex-shrink: 0;
@@ -38,12 +38,12 @@
 }
 
 .root[data-state="checked"] {
-  background: color-mix(in srgb, var(--accent-main) 32%, transparent);
-  border-color: var(--border-hot);
+  background: color-mix(in srgb, var(--color-brand-primary) 32%, transparent);
+  border-color: var(--color-border-brand);
 }
 
 .root:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--accent-main) 55%, white);
+  outline: 2px solid color-mix(in srgb, var(--color-brand-primary) 55%, white);
   outline-offset: 2px;
 }
 
@@ -51,7 +51,7 @@
   display: block;
   width: 18px;
   height: 18px;
-  background: var(--text-title);
+  background: var(--color-text-primary);
   border-radius: 999px;
   transform: translateX(2px);
   transition: transform 160ms ease;
@@ -61,3 +61,4 @@
 .root[data-state="checked"] .thumb {
   transform: translateX(18px);
 }
+

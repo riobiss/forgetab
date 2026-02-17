@@ -6,11 +6,11 @@
 
 .classTitle {
   font-size: 3rem;
-  color: var(--text-title);
+  color: var(--color-text-primary);
   text-transform: uppercase;
-  border-bottom: 2px solid var(--accent-main);
+  border-bottom: 2px solid var(--color-brand-primary);
   margin-bottom: 2rem;
-  text-shadow: var(--shadow-accent);
+  text-shadow: var(--shadow-brand-glow);
 }
 
 .abilityGrid {
@@ -19,17 +19,17 @@
 }
 
 .abilityCard {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-soft);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 1.5rem;
   transition: all 0.3s ease;
 }
 
 .abilityCard:hover {
-  border-color: var(--accent-main);
-  background: var(--bg-hover);
-  box-shadow: var(--shadow-main);
+  border-color: var(--color-brand-primary);
+  background: var(--color-bg-hover);
+  box-shadow: var(--shadow-elevation-md);
 }
 
 .abilityHeader {
@@ -41,13 +41,13 @@
 }
 
 .abilityName {
-  color: var(--text-title);
+  color: var(--color-text-primary);
   margin: 0;
   font-size: 1.5rem;
 }
 
 .abilityDescription {
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   line-height: 1.6;
   margin-bottom: 1rem;
   font-style: italic;
@@ -62,7 +62,7 @@
 
 .statItem {
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .statItemFull {
@@ -70,7 +70,7 @@
 }
 
 .statItem strong {
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
   display: block;
   text-transform: uppercase;
   font-size: 0.7rem;
@@ -80,11 +80,11 @@
   margin: 0.35rem 0 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--border-soft);
+  background: var(--color-bg-overlay-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 6px;
   padding: 0.5rem;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   font-size: 0.74rem;
 }
 
@@ -94,19 +94,19 @@
   align-items: center;
   margin-bottom: 1.2rem;
   padding: 0.8rem 1rem;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
-  background: var(--bg-surface);
+  background: var(--color-bg-surface);
 }
 
 .pointsCard span {
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
   font-weight: 700;
   font-size: 1.1rem;
 }
 
 .levelRow {
-  border-top: 1px solid var(--border-soft);
+  border-top: 1px solid var(--color-border-soft);
   padding-top: 0.8rem;
   display: grid;
   gap: 0.8rem;
@@ -122,9 +122,9 @@
 }
 
 .levelToggleButton {
-  border: 1px solid var(--accent-main);
-  background: rgba(0, 0, 0, 0.2);
-  color: var(--text-main);
+  border: 1px solid var(--color-brand-primary);
+  background: var(--color-bg-overlay-soft);
+  color: var(--color-text-secondary);
   border-radius: 6px;
   padding: 0.35rem 0.7rem;
   cursor: pointer;
@@ -139,10 +139,10 @@
   right: 0;
   z-index: 5;
   min-width: 220px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-soft);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
-  box-shadow: var(--shadow-main);
+  box-shadow: var(--shadow-elevation-md);
   padding: 0.25rem;
   display: flex;
   flex-wrap: wrap;
@@ -152,7 +152,7 @@
 .levelMenuItem {
   border: 1px solid transparent;
   background: transparent;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   border-radius: 6px;
   padding: 0.35rem 0.5rem;
   cursor: pointer;
@@ -161,19 +161,19 @@
 }
 
 .levelMenuItem:hover {
-  border-color: var(--accent-main);
-  background: var(--bg-hover);
+  border-color: var(--color-brand-primary);
+  background: var(--color-bg-hover);
 }
 
 .levelMenuItemActive {
-  border-color: var(--accent-main);
-  background: rgba(0, 0, 0, 0.22);
+  border-color: var(--color-brand-primary);
+  background: var(--color-bg-overlay-soft);
 }
 
 .buyButton {
-  border: 1px solid var(--accent-main);
+  border: 1px solid var(--color-brand-primary);
   background: transparent;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   border-radius: 6px;
   padding: 0.5rem 0.8rem;
   cursor: pointer;
@@ -190,7 +190,7 @@
 }
 
 .buyPrice {
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
   font-weight: 700;
   font-size: 0.86rem;
 }
@@ -201,11 +201,13 @@
 }
 
 .errorText {
-  color: #e05555;
+  color: var(--color-status-danger);
   margin-bottom: 0.6rem;
 }
 
 .successText {
-  color: #66c266;
+  color: var(--color-status-success);
   margin-bottom: 0.6rem;
 }
+
+

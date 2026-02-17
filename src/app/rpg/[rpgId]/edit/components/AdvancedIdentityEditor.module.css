@@ -1,14 +1,14 @@
 .panel {
   width: min(980px, 100%);
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 18px;
   padding: 1.2rem;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--bg-surface) 94%, black),
-    color-mix(in srgb, var(--bg-main) 92%, black)
+    color-mix(in srgb, var(--color-bg-surface) 94%, black),
+    color-mix(in srgb, var(--color-bg-app) 92%, black)
   );
-  box-shadow: var(--shadow-main);
+  box-shadow: var(--shadow-elevation-md);
   display: grid;
   gap: 0.9rem;
 }
@@ -16,14 +16,14 @@
 .panel h1 {
   margin: 0;
   font-size: 1.45rem;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 .section {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
   padding: 0.85rem;
-  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 80%, transparent);
   display: grid;
   gap: 0.7rem;
 }
@@ -31,7 +31,7 @@
 .section h2 {
   margin: 0;
   font-size: 1rem;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .grid {
@@ -47,25 +47,25 @@
 
 .field span {
   font-size: 0.82rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .field input {
   width: 100%;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.62rem 0.72rem;
-  background: var(--bg-main);
-  color: var(--text-main);
+  background: var(--color-bg-app);
+  color: var(--color-text-secondary);
 }
 
 .field textarea {
   width: 100%;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.62rem 0.72rem;
-  background: var(--bg-main);
-  color: var(--text-main);
+  background: var(--color-bg-app);
+  color: var(--color-text-secondary);
   min-height: 140px;
   line-height: 1.45;
   resize: vertical;
@@ -79,19 +79,19 @@
 }
 
 .actions button {
-  border: 1px solid var(--border-hot);
+  border: 1px solid var(--color-border-brand);
   border-radius: 10px;
   padding: 0.56rem 0.8rem;
-  background: color-mix(in srgb, var(--accent-main) 18%, transparent);
-  color: var(--text-title);
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, transparent);
+  color: var(--color-text-primary);
   font-weight: 700;
   cursor: pointer;
 }
 
 .secondaryButton {
-  border-color: var(--border-soft) !important;
-  background: var(--bg-hover) !important;
-  color: var(--text-main) !important;
+  border-color: var(--color-border-soft) !important;
+  background: var(--color-bg-hover) !important;
+  color: var(--color-text-secondary) !important;
 }
 
 .actions button:disabled {
@@ -101,20 +101,20 @@
 
 .error {
   margin: 0;
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
   font-weight: 600;
 }
 
 .success {
   margin: 0;
-  color: var(--text-title);
+  color: var(--color-text-primary);
   font-weight: 600;
 }
 
 .subSection {
   display: grid;
   gap: 0.7rem;
-  border-top: 1px dashed var(--border-soft);
+  border-top: 1px dashed var(--color-border-soft);
   padding-top: 0.8rem;
 }
 
@@ -128,21 +128,21 @@
 .inlineHeader h3,
 .inlineHeader h4 {
   margin: 0;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .itemCard {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.7rem;
-  background: color-mix(in srgb, var(--bg-surface) 82%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 82%, transparent);
   display: grid;
   gap: 0.55rem;
 }
 
 .hint {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
@@ -152,3 +152,4 @@
     align-items: stretch;
   }
 }
+

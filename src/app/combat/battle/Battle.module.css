@@ -4,16 +4,17 @@
   align-items: center;
   gap: 8px;
 
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   font-size: 1rem;
 }
 
 .activeCharacter strong {
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 
 .container {
   padding: 10px;
 }
+
 

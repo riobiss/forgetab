@@ -1,6 +1,6 @@
 .page {
-  color: var(--text-main);
-  background: var(--bg-main);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-app);
   max-width: 100%;
   overflow-x: hidden;
 }
@@ -8,12 +8,12 @@
 .card {
   background: linear-gradient(
     180deg,
-    var(--bg-surface) 0%,
-    var(--bg-main) 100%
+    var(--color-bg-surface) 0%,
+    var(--color-bg-app) 100%
   );
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   padding: 20px;
-  box-shadow: var(--shadow-main);
+  box-shadow: var(--shadow-elevation-md);
   display: grid;
   gap: 16px;
   max-width: 100%;
@@ -25,7 +25,7 @@
   margin: 0;
   font-size: 22px;
   letter-spacing: 0.3px;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 .titleBar {
@@ -43,7 +43,7 @@
 
 .pointsLabel {
   margin: 4px 0 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 
@@ -60,9 +60,9 @@
   justify-content: center;
   padding: 6px 12px;
   border-radius: 8px;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-hover);
-  color: var(--text-main);
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
@@ -75,8 +75,8 @@
   align-items: center;
   padding: 12px;
   border-radius: 12px;
-  background: var(--bg-hover);
-  border: 1px solid var(--border-soft);
+  background: var(--color-bg-hover);
+  border: 1px solid var(--color-border-soft);
   max-width: 100%;
   overflow-x: hidden;
   min-width: 0;
@@ -84,13 +84,13 @@
 
 .header img {
   border-radius: 12px;
-  border: 2px solid var(--border-hot);
-  box-shadow: var(--shadow-accent);
+  border: 2px solid var(--color-border-brand);
+  box-shadow: var(--shadow-brand-glow);
 }
 
 .header p {
   margin: 4px 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .imageColumn {
@@ -113,11 +113,11 @@
 .nickname {
   font-size: 18px;
   font-style: italic;
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
   margin-bottom: 6px;
   letter-spacing: 0.6px;
   opacity: 0.9;
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 0 8px var(--color-bg-overlay-soft);
 }
 
 .identityMeta {
@@ -127,16 +127,16 @@
 }
 
 .identityMeta a {
-  background: var(--bg-main);
+  background: var(--color-bg-app);
   padding: 4px 10px;
   border-radius: 999px;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   font-size: 13px;
   white-space: nowrap;
 }
 
 .identityLink {
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
   font-weight: 600;
   text-decoration: underline;
   cursor: pointer;
@@ -146,8 +146,8 @@
 }
 
 .identityLink:hover {
-  color: var(--accent-hot);
-  text-shadow: 0 0 6px var(--accent-hot);
+  color: var(--color-text-brand);
+  text-shadow: 0 0 6px var(--color-text-brand);
 }
 
 .identityLink:active {
@@ -167,12 +167,12 @@
   justify-content: center;
   padding: 8px 14px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent-main), var(--accent-strong));
-  color: var(--text-alternativ);
+  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-strong));
+  color: var(--color-text-inverse);
   font-weight: 600;
   font-size: 13px;
-  border: 1px solid var(--accent-strong);
-  box-shadow: var(--shadow-accent);
+  border: 1px solid var(--color-brand-strong);
+  box-shadow: var(--shadow-brand-glow);
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease,
@@ -181,7 +181,7 @@
 
 .actionLink:hover {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-main), var(--shadow-accent);
+  box-shadow: var(--shadow-elevation-md), var(--shadow-brand-glow);
 }
 
 .actionLink:active {
@@ -191,17 +191,17 @@
 
 .kingdom {
   margin-top: 6px;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .grid {
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  background: var(--bg-surface);
+  background: var(--color-bg-surface);
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   min-width: 0;
 }
 
@@ -210,12 +210,12 @@
   font-size: 14px;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
 }
 
 .grid p {
   margin: 4px 0;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .statusList {
@@ -229,9 +229,9 @@
   justify-content: space-between;
   gap: 10px;
   padding: 8px 10px;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
-  background: var(--bg-hover);
+  background: var(--color-bg-hover);
 }
 
 .statusActions {
@@ -245,9 +245,9 @@
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-main);
-  color: var(--text-main);
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-app);
+  color: var(--color-text-secondary);
   font-weight: 700;
   cursor: pointer;
 }
@@ -259,22 +259,22 @@
 
 .statusStepInput {
   width: 64px;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 5px 8px;
-  background: var(--bg-main);
-  color: var(--text-main);
+  background: var(--color-bg-app);
+  color: var(--color-text-secondary);
 }
 
 .statusHint {
   margin-top: 8px;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 12px;
 }
 
 .statusError {
   margin-top: 8px;
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
   font-size: 13px;
   font-weight: 600;
 }
@@ -288,18 +288,18 @@
 }
 
 .list li {
-  background: var(--bg-hover);
-  border: 1px solid var(--border-soft);
+  background: var(--color-bg-hover);
+  border: 1px solid var(--color-border-soft);
   padding: 8px 12px;
   border-radius: 10px;
-  color: var(--text-main);
-  box-shadow: var(--shadow-main);
+  color: var(--color-text-secondary);
+  box-shadow: var(--shadow-elevation-md);
   overflow-wrap: anywhere;
 }
 
 .list strong {
   text-transform: capitalize;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 /* MOBILE */
@@ -345,3 +345,5 @@
     padding: 24px;
   }
 }
+
+

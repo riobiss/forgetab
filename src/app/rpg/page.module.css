@@ -16,14 +16,14 @@
   font-family: serif;
   font-size: 2.2rem;
   letter-spacing: 0.15em;
-  color: var(--text-title);
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 .createButton {
   text-decoration: none;
-  background: var(--accent-main);
-  color: var(--bg-main);
+  background: var(--color-brand-primary);
+  color: var(--color-bg-app);
   font-weight: 700;
   padding: 0.7rem 1rem;
   border-radius: 10px;
@@ -37,12 +37,12 @@
 }
 
 .sectionTitle {
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   margin-bottom: 1rem;
 }
 
 .authMessage {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   margin-bottom: 1.4rem;
 }
 
@@ -54,8 +54,8 @@
 
 .createdCard {
   display: block;
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
-  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
   padding: 1rem;
   overflow: hidden;
@@ -65,12 +65,12 @@
 
 .createdCard:hover {
   transform: translateY(-3px);
-  border-color: var(--border-hot);
+  border-color: var(--color-border-brand);
 }
 
 .createdCard h4 {
   margin: 0 0 0.5rem;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .createdCardImageWrap {
@@ -79,8 +79,8 @@
   margin-bottom: 0.75rem;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-hover);
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-hover);
 }
 
 .createdCardImage {
@@ -92,11 +92,11 @@
 
 .createdCard p {
   margin: 0 0 0.6rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .createdCard small {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .createdActions {
@@ -108,10 +108,10 @@
 
 .createdActions a {
   text-decoration: none;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 9px;
   padding: 0.45rem 0.7rem;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   font-size: 0.82rem;
   font-weight: 600;
   display: inline-flex;
@@ -120,17 +120,17 @@
 }
 
 .createdActions a:nth-child(2) {
-  background: var(--accent-main);
-  color: var(--bg-main);
+  background: var(--color-brand-primary);
+  color: var(--color-bg-app);
   border-color: transparent;
 }
 
 .deleteButton {
-  border: 1px solid #7f1d1d;
+  border: 1px solid var(--color-status-danger);
   border-radius: 9px;
   padding: 0.45rem 0.7rem;
-  background: rgba(127, 29, 29, 0.18);
-  color: #fecaca;
+  background: var(--color-status-danger-soft);
+  color: var(--color-status-danger-contrast);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
@@ -161,12 +161,12 @@
 }
 
 .containerRpg {
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
-  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  border: 1px solid var(--color-border-soft);
   border-radius: 14px;
   padding: 1.2rem;
   text-decoration: none;
-  box-shadow: var(--shadow-main);
+  box-shadow: var(--shadow-elevation-md);
   transition: all 0.3s ease;
   position: relative;
 }
@@ -176,14 +176,14 @@
   position: absolute;
   inset: 0;
   border-radius: 14px;
-  box-shadow: var(--shadow-accent);
+  box-shadow: var(--shadow-brand-glow);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 .containerRpg:hover {
   transform: translateY(-6px);
-  border-color: var(--border-hot);
+  border-color: var(--color-border-brand);
 }
 
 .containerRpg:hover::after {
@@ -212,17 +212,17 @@
   font-size: 1.05rem;
   letter-spacing: 0.08em;
   text-align: center;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .containerRpg:hover .rpgTitle {
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
 }
 
 .rpgDescription {
   font-size: 0.85rem;
   line-height: 1.4;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   text-align: center;
   margin-top: 0.5rem;
 }
@@ -241,3 +241,5 @@
     text-align: center;
   }
 }
+
+

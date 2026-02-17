@@ -1,17 +1,17 @@
 .container {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-soft);
-  border-left: 4px solid var(--accent-main);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-soft);
+  border-left: 4px solid var(--color-brand-primary);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: var(--shadow-main);
+  box-shadow: var(--shadow-elevation-md);
 }
 
 .title {
   margin-bottom: 16px;
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .targetList {
@@ -31,15 +31,15 @@
 
   padding: 12px 16px;
   border-radius: 10px;
-  border: 1px solid var(--border-soft);
-  background-color: var(--bg-main);
+  border: 1px solid var(--color-border-soft);
+  background-color: var(--color-bg-app);
 
   cursor: pointer;
   transition: border 0.2s, transform 0.2s;
 }
 
 .targetCard:hover {
-  border-color: var(--accent-main);
+  border-color: var(--color-brand-primary);
   transform: translateY(-1px);
 }
 
@@ -61,8 +61,8 @@
 .selectButton {
   background: linear-gradient(
     135deg,
-    var(--accent-main),
-    var(--accent-strong)
+    var(--color-brand-primary),
+    var(--color-brand-strong)
   );
   color: white;
   border: none;
@@ -71,3 +71,4 @@
   font-weight: 600;
   cursor: pointer;
 }
+

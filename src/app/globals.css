@@ -1,17 +1,74 @@
 :root {
-  --bg-main: #0b0b0b;
-  --bg-surface: #151515;
-  --bg-hover: #1f1f1f;
-  --text-title: #f5e6c8;
-  --text-main: #cfc7b8;
-  --text-muted: #9b948a;
-  --text-alternativ: #000000;
-  --accent-main: #ff7a18;
-  --accent-strong: #d65a00;
-  --border-hot: rgba(255, 90, 0, 0.25);
-  --border-soft: rgba(255, 255, 255, 0.08);
-  --shadow-main: 0 4px 16px rgba(0, 0, 0, 0.8);
-  --shadow-accent: 0 0 8px rgba(255, 90, 0, 0.35);
+/* =========================
+   FORJA THEME
+========================= */
+
+/* Base */
+--color-bg-app: #0F0F11;               /* carvão profundo */
+--color-bg-surface: #16181C;           /* ferro escuro */
+--color-bg-surface-alt: #1D2026;       /* variação levemente azulada */
+--color-bg-elevated: #242830;          /* cards elevados */
+--color-bg-hover: #2C313A;             /* hover neutro */
+--color-bg-overlay-soft: rgba(0, 0, 0, 0.45);
+--color-bg-overlay-strong: rgba(0, 0, 0, 0.75);
+
+/* Texto */
+--color-text-primary: #F5F5F5;         /* quase branco */
+--color-text-secondary: #C9CDD3;       /* aço claro */
+--color-text-muted: #8B9099;           /* metal fosco */
+--color-text-inverse: #0F0F11;         /* texto em fundo claro */
+--color-text-brand: #FF7A1A;           /* brasa ativa */
+
+/* Brand / Accent */
+--color-brand-primary: #FF6A00;        /* laranja forja */
+--color-brand-strong: #E65100;         /* laranja queimado */
+--color-brand-soft: rgba(255, 106, 0, 0.15);
+--color-brand-contrast: #FFFFFF;
+
+/* Bordas */
+--color-border-default: #2A2E36;
+--color-border-soft: #20242B;
+--color-border-strong: #3A3F48;
+--color-border-brand: #FF6A00;
+--color-border-focus: #FF8C42;
+
+/* Status */
+--color-status-danger: #E53935;
+--color-status-danger-soft: rgba(229, 57, 53, 0.15);
+--color-status-danger-contrast: #FFFFFF;
+
+--color-status-success: #43A047;
+--color-status-success-soft: rgba(67, 160, 71, 0.15);
+--color-status-success-contrast: #FFFFFF;
+
+--color-status-warning: #FB8C00;
+--color-status-warning-soft: rgba(251, 140, 0, 0.15);
+--color-status-warning-contrast: #1A1A1A;
+
+--color-status-info: #1E88E5;
+--color-status-info-soft: rgba(30, 136, 229, 0.15);
+--color-status-info-contrast: #FFFFFF;
+
+/* Raridade (itens) */
+--color-rarity-common: #9E9E9E;        /* ferro comum */
+--color-rarity-uncommon: #4CAF50;
+--color-rarity-rare: #2196F3;
+--color-rarity-epic: #9C27B0;
+--color-rarity-legendary: #FF6A00;     /* lendário = fogo */
+
+/* Shadow */
+--shadow-elevation-sm: 0 2px 6px rgba(0, 0, 0, 0.4);
+--shadow-elevation-md: 0 6px 18px rgba(0, 0, 0, 0.45);
+--shadow-elevation-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+
+--shadow-brand-glow: 0 0 12px rgba(255, 106, 0, 0.5);
+--shadow-danger-glow: 0 0 12px rgba(229, 57, 53, 0.5);
+--shadow-success-glow: 0 0 12px rgba(67, 160, 71, 0.5);
+--shadow-warning-glow: 0 0 12px rgba(251, 140, 0, 0.5);
+--shadow-info-glow: 0 0 12px rgba(30, 136, 229, 0.5);
+
+--text-shadow-brand: 0 0 8px rgba(255, 106, 0, 0.6);
+
 }
 
 @font-face {
@@ -25,11 +82,11 @@
 html,
 body {
   max-width: 100vw;
-  background: var(--bg-main);
-  color: var(--text-main);
+  background: var(--color-bg-app);
+  color: var(--color-text-secondary);
 }
 p {
-  color: #cfc7b8;
+  color: var(--color-text-secondary);
 }
 
 * {
@@ -44,17 +101,20 @@ a {
 }
 
 select {
-  background: var(--bg-hover);
-  color: var(--text-main);
-  border: 1px solid var(--border-soft);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-soft);
 }
 
 select option {
-  background: var(--bg-surface);
-  color: var(--text-main);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
 }
 
 select option:checked {
-  background: var(--accent-main);
-  color: var(--text-alternativ);
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
 }
+
+
+

@@ -7,11 +7,11 @@
 
 .card {
   width: min(920px, 100%);
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
-  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  border: 1px solid var(--color-border-soft);
   border-radius: 16px;
   padding: 1.15rem;
-  box-shadow: var(--shadow-main);
+  box-shadow: var(--shadow-elevation-md);
 }
 
 .header {
@@ -24,13 +24,13 @@
 
 .header h1 {
   margin: 0;
-  color: var(--text-title);
+  color: var(--color-text-primary);
   font-size: 1.35rem;
 }
 
 .header p {
   margin: 0.3rem 0 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.94rem;
 }
 
@@ -42,12 +42,12 @@
 }
 
 .badges span {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 999px;
   padding: 0.28rem 0.58rem;
   font-size: 0.75rem;
-  color: var(--text-muted);
-  background: var(--bg-hover);
+  color: var(--color-text-muted);
+  background: var(--color-bg-hover);
 }
 
 .form {
@@ -56,9 +56,9 @@
 }
 
 .section {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  background: var(--bg-main);
+  background: var(--color-bg-app);
   padding: 0.72rem;
 }
 
@@ -75,15 +75,15 @@
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .sectionToggleButton {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 999px;
   padding: 0.34rem 0.62rem;
-  background: var(--bg-hover);
-  color: var(--text-main);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -107,18 +107,18 @@
 }
 
 .field span {
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   font-size: 0.84rem;
   font-weight: 600;
 }
 
 .field input,
 .field select {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 9px;
   padding: 0.56rem 0.7rem;
-  background: var(--bg-hover);
-  color: var(--text-main);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
   font-size: 0.93rem;
 }
 
@@ -129,25 +129,25 @@
 }
 
 .visibilityOption {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 9px;
   padding: 0.56rem 0.7rem;
-  background: var(--bg-hover);
-  color: var(--text-main);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
   cursor: pointer;
   text-align: center;
 }
 
 .visibilityOptionActive {
-  border-color: var(--border-hot);
-  background: var(--accent-main);
-  color: var(--text-alternativ);
-  box-shadow: var(--shadow-accent);
+  border-color: var(--color-border-brand);
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-brand-glow);
 }
 
 .error {
   margin: 0;
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
   font-size: 0.9rem;
 }
 
@@ -163,16 +163,16 @@
   border: none;
   border-radius: 9px;
   padding: 0.54rem 0.82rem;
-  background: var(--accent-main);
-  color: var(--bg-main);
+  background: var(--color-brand-primary);
+  color: var(--color-bg-app);
   font-weight: 700;
   cursor: pointer;
 }
 
 .dangerButton {
-  border: 1px solid color-mix(in srgb, #9b1c1c 55%, var(--border-soft)) !important;
-  background: color-mix(in srgb, #9b1c1c 35%, var(--bg-main)) !important;
-  color: #ffe7e7 !important;
+  border: 1px solid color-mix(in srgb, var(--color-status-danger) 55%, var(--color-border-soft)) !important;
+  background: color-mix(in srgb, var(--color-status-danger) 35%, var(--color-bg-app)) !important;
+  color: var(--color-status-danger-contrast) !important;
 }
 
 .actions button:disabled {
@@ -181,23 +181,23 @@
 }
 
 .actions a {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   text-decoration: none;
   font-size: 0.9rem;
 }
 
 .deleteNotice {
-  border: 1px solid color-mix(in srgb, #9b1c1c 55%, var(--border-soft));
+  border: 1px solid color-mix(in srgb, var(--color-status-danger) 55%, var(--color-border-soft));
   border-radius: 12px;
   padding: 0.75rem;
-  background: color-mix(in srgb, #9b1c1c 12%, var(--bg-main));
+  background: color-mix(in srgb, var(--color-status-danger) 12%, var(--color-bg-app));
   display: grid;
   gap: 0.55rem;
 }
 
 .deleteNotice p {
   margin: 0;
-  color: #ffd6d6;
+  color: var(--color-status-danger-contrast);
   font-size: 0.9rem;
 }
 
@@ -219,3 +219,5 @@
     grid-template-columns: 1fr;
   }
 }
+
+

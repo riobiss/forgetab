@@ -23,12 +23,12 @@
 .card h1 {
   margin: 0;
   font-size: 1.45rem;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 .card p {
   margin: 0.3rem 0 0;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .stageTabs {
@@ -36,9 +36,9 @@
   align-items: center;
   gap: 0.45rem;
   padding: 0.25rem;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  background: color-mix(in srgb, var(--bg-surface) 82%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 82%, transparent);
 }
 
 .stageTab {
@@ -46,7 +46,7 @@
   border-radius: 9px;
   padding: 0.45rem 0.7rem;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -55,23 +55,23 @@
 }
 
 .stageTabActive {
-  border-color: var(--border-hot);
-  background: color-mix(in srgb, var(--accent-main) 18%, transparent);
-  color: var(--text-title);
+  border-color: var(--color-border-brand);
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, transparent);
+  color: var(--color-text-primary);
 }
 
 .advancedStage {
-  border: 1px solid var(--border-hot);
+  border: 1px solid var(--color-border-brand);
   border-radius: 14px;
   padding: 0.75rem;
-  background: color-mix(in srgb, var(--accent-main) 4%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 4%, transparent);
   display: grid;
   gap: 0.6rem;
 }
 
 .advancedStage h2 {
   margin: 0;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 .form {
@@ -87,7 +87,7 @@
 
 .field span {
   font-size: 0.82rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -97,18 +97,18 @@
 .field textarea,
 .field select {
   width: 100%;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.62rem 0.72rem;
-  background: color-mix(in srgb, var(--bg-main) 90%, var(--bg-surface));
-  color: var(--text-main);
+  background: color-mix(in srgb, var(--color-bg-app) 90%, var(--color-bg-surface));
+  color: var(--color-text-secondary);
   transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
 
 .field input::placeholder,
 .field textarea::placeholder,
 .actions input::placeholder {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   opacity: 0.9;
 }
 
@@ -116,7 +116,7 @@
 .field textarea:hover,
 .field select:hover,
 .actions input:hover {
-  border-color: color-mix(in srgb, var(--border-hot) 70%, var(--border-soft));
+  border-color: color-mix(in srgb, var(--color-border-brand) 70%, var(--color-border-soft));
 }
 
 .field input:focus-visible,
@@ -124,9 +124,9 @@
 .field select:focus-visible,
 .actions input:focus-visible {
   outline: none;
-  border-color: var(--border-hot);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-main) 30%, transparent);
-  background: var(--bg-main);
+  border-color: var(--color-border-brand);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand-primary) 30%, transparent);
+  background: var(--color-bg-app);
 }
 
 .fileUploadInput {
@@ -138,11 +138,11 @@
 }
 
 .fileUploadTrigger {
-  border: 1px dashed var(--border-soft);
+  border: 1px dashed var(--color-border-soft);
   border-radius: 10px;
   padding: 0.62rem 0.72rem;
-  background: color-mix(in srgb, var(--bg-main) 90%, var(--bg-surface));
-  color: var(--text-main);
+  background: color-mix(in srgb, var(--color-bg-app) 90%, var(--color-bg-surface));
+  color: var(--color-text-secondary);
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -151,7 +151,7 @@
 }
 
 .fileUploadTrigger:hover {
-  border-color: color-mix(in srgb, var(--border-hot) 70%, var(--border-soft));
+  border-color: color-mix(in srgb, var(--color-border-brand) 70%, var(--color-border-soft));
 }
 
 .fileUploadActions {
@@ -162,13 +162,13 @@
 }
 
 .fileRemoveButton {
-  border: 1px solid color-mix(in srgb, #ff6464 65%, var(--border-soft));
+  border: 1px solid color-mix(in srgb, var(--color-status-danger) 65%, var(--color-border-soft));
   border-radius: 10px;
   width: 40px;
   height: 40px;
   padding: 0;
-  background: color-mix(in srgb, var(--accent-main) 18%, transparent);
-  color: #ffdede;
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, transparent);
+  color: var(--color-status-danger-contrast);
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
@@ -183,7 +183,7 @@
 
 .fileUploadStatus {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.82rem;
   overflow-wrap: anywhere;
 }
@@ -193,15 +193,15 @@
   min-width: 18px;
   min-height: 18px;
   justify-self: start;
-  accent-color: var(--accent-main);
+  accent-color: var(--color-brand-primary);
 }
 
 .actions input {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.5rem 0.65rem;
-  background: color-mix(in srgb, var(--bg-main) 88%, var(--bg-surface));
-  color: var(--text-main);
+  background: color-mix(in srgb, var(--color-bg-app) 88%, var(--color-bg-surface));
+  color: var(--color-text-secondary);
   min-width: 190px;
   transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
@@ -218,11 +218,11 @@
 }
 
 .actions button {
-  border: 1px solid var(--border-hot);
+  border: 1px solid var(--color-border-brand);
   border-radius: 10px;
   padding: 0.56rem 0.8rem;
-  background: color-mix(in srgb, var(--accent-main) 18%, transparent);
-  color: var(--text-title);
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, transparent);
+  color: var(--color-text-primary);
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
@@ -236,7 +236,7 @@
 }
 
 .actions a {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -255,13 +255,13 @@
 
 .error {
   margin: 0;
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
   font-weight: 600;
 }
 
 .success {
   margin: 0;
-  color: var(--text-title);
+  color: var(--color-text-primary);
   font-weight: 600;
 }
 
@@ -275,3 +275,5 @@
     align-items: center;
   }
 }
+
+

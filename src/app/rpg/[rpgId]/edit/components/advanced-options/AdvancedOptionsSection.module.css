@@ -1,10 +1,10 @@
 .advancedToggle {
   order: 20;
-  border: 1px solid var(--border-hot);
+  border: 1px solid var(--color-border-brand);
   border-radius: 12px;
   padding: 0.62rem 0.95rem;
-  background: color-mix(in srgb, var(--accent-main) 12%, transparent);
-  color: var(--text-title);
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+  color: var(--color-text-primary);
   cursor: pointer;
   font-weight: 700;
   justify-self: start;
@@ -15,15 +15,16 @@
 
 .advancedSection {
   order: 21;
-  border: 1px solid var(--border-hot);
+  border: 1px solid var(--color-border-brand);
   border-radius: 14px;
   padding: 0.75rem;
-  background: color-mix(in srgb, var(--accent-main) 4%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 4%, transparent);
   display: grid;
   gap: 0.6rem;
 }
 
 .advancedSection h2 {
   margin: 0;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
+

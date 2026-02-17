@@ -1,8 +1,8 @@
 .container {
   margin-top: 16px;
   padding: 16px;
-  background: #0f0f0f;
-  border: 1px solid #2a2a2a;
+  background: var(--color-bg-app);
+  border: 1px solid var(--color-border-default);
   border-radius: 10px;
 }
 
@@ -10,7 +10,7 @@
   margin-bottom: 12px;
   font-size: 1rem;
   font-weight: 600;
-  color: #f0c58a;
+  color: var(--color-status-warning-contrast);
 }
 
 .list {
@@ -26,20 +26,20 @@
 
 .logItem {
   padding: 12px 14px;
-  background: linear-gradient(180deg, #151515, #101010);
-  border: 1px solid #262626;
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-surface));
+  border: 1px solid var(--color-border-default);
   border-radius: 8px;
 }
 
 .header {
   font-weight: 600;
-  color: #e6e6e6;
+  color: var(--color-text-secondary);
   margin-bottom: 4px;
 }
 
 .details {
   font-size: 0.85rem;
-  color: #b5b5b5;
+  color: var(--color-text-muted);
 }
 
 .result {
@@ -50,14 +50,16 @@
 /* Estados */
 
 .hit {
-  color: #7bd389;
+  color: var(--color-status-success-contrast);
 }
 
 .miss {
-  color: #e05d5d;
+  color: var(--color-status-danger);
 }
 
 .critical {
-  color: #ff9f43;
-  text-shadow: 0 0 6px rgba(255, 159, 67, 0.6);
+  color: var(--color-status-warning);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--color-status-warning) 60%, transparent);
 }
+
+

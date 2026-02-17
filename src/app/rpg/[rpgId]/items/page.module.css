@@ -13,7 +13,7 @@
 
 .kicker {
   margin: 0;
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 0.72rem;
@@ -21,12 +21,12 @@
 
 .title {
   margin: 0.4rem 0 0.3rem;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 .subtitle {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   max-width: 60ch;
 }
 
@@ -39,8 +39,8 @@
 
 .backLink {
   text-decoration: none;
-  color: var(--text-main);
-  border: 1px solid var(--border-soft);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.5rem 0.8rem;
   font-weight: 600;
@@ -50,10 +50,10 @@
 }
 
 .section {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
   padding: 1rem;
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
 }
 
 .sectionTopbar {
@@ -66,7 +66,7 @@
 
 .sectionTitle {
   margin: 0;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 .filters {
@@ -81,17 +81,17 @@
 }
 
 .searchField span {
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 
 .searchField input {
   width: 100%;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 0.65rem 0.8rem;
-  background: rgba(0, 0, 0, 0.2);
-  color: var(--text-main);
+  background: var(--color-bg-overlay-soft);
+  color: var(--color-text-secondary);
 }
 
 .categories {
@@ -101,27 +101,27 @@
 }
 
 .categoryButton {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 999px;
   padding: 0.4rem 0.7rem;
   background: transparent;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   cursor: pointer;
   text-transform: capitalize;
 }
 
 .categoryButtonActive {
-  background: var(--accent-main);
-  color: var(--bg-main);
-  border-color: var(--accent-main);
+  background: var(--color-brand-primary);
+  color: var(--color-bg-app);
+  border-color: var(--color-brand-primary);
 }
 
 .primaryButton {
   border: none;
   border-radius: 10px;
   padding: 0.55rem 0.9rem;
-  background: var(--accent-main);
-  color: var(--bg-main);
+  background: var(--color-brand-primary);
+  color: var(--color-bg-app);
   cursor: pointer;
   font-weight: 700;
   text-decoration: none;
@@ -137,11 +137,11 @@
 }
 
 .ghostButton {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.5rem 0.85rem;
   background: transparent;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   cursor: pointer;
   font-weight: 700;
   text-decoration: none;
@@ -152,11 +152,11 @@
 }
 
 .dangerButton {
-  border: 1px solid #ff6b6b;
+  border: 1px solid var(--color-status-danger);
   border-radius: 10px;
   padding: 0.5rem 0.85rem;
-  background: rgba(255, 107, 107, 0.15);
-  color: #ffb3b3;
+  background: var(--color-status-danger-soft);
+  color: var(--color-status-danger-contrast);
   cursor: pointer;
   font-weight: 700;
   display: inline-flex;
@@ -172,12 +172,12 @@
 
 .error {
   margin: 0;
-  color: #ff6b6b;
+  color: var(--color-status-danger);
 }
 
 .feedback {
   margin: 0.3rem 0 0.8rem;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .grid {
@@ -187,10 +187,10 @@
 }
 
 .card {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.9rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in srgb, var(--color-brand-contrast) 2%, transparent);
   display: grid;
   gap: 0.35rem;
 }
@@ -204,24 +204,24 @@
 
 .cardHeader h3 {
   margin: 0;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .cardHeader span {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.8rem;
   text-transform: uppercase;
 }
 
 .rarityLine {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
 .metaLine {
   margin: 0;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   font-size: 0.85rem;
 }
 
@@ -235,7 +235,7 @@
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: var(--color-bg-overlay-strong);
   display: grid;
   place-items: center;
   padding: 1rem;
@@ -244,9 +244,9 @@
 
 .modal {
   width: min(560px, 100%);
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
   padding: 1rem;
   display: grid;
   gap: 0.8rem;
@@ -254,12 +254,12 @@
 
 .modal h3 {
   margin: 0;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 .modalDescription {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .field {
@@ -268,18 +268,18 @@
 }
 
 .field span {
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 
 .field input,
 .field select {
   width: 100%;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 0.65rem 0.8rem;
-  background: rgba(0, 0, 0, 0.2);
-  color: var(--text-main);
+  background: var(--color-bg-overlay-soft);
+  color: var(--color-text-secondary);
 }
 
 .formActions {
@@ -314,3 +314,5 @@
     text-align: center;
   }
 }
+
+

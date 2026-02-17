@@ -32,10 +32,10 @@
 .notificationTrigger,
 .membersTrigger {
   width: 100%;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
-  color: var(--text-main);
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  color: var(--color-text-secondary);
   padding: 0.8rem 1rem;
   display: flex;
   align-items: center;
@@ -49,13 +49,13 @@
 .notificationTrigger:hover,
 .membersTrigger:hover {
   transform: translateY(-1px);
-  border-color: var(--accent-main);
+  border-color: var(--color-brand-primary);
 }
 
 .notificationTrigger:focus-visible,
 .membersTrigger:focus-visible,
 .settingsButton:focus-visible {
-  outline: 2px solid var(--accent-main);
+  outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
 }
 
@@ -113,14 +113,14 @@
   height: 1.4rem;
   padding: 0 0.3rem;
   border-radius: 999px;
-  background: rgba(127, 29, 29, 0.9);
-  color: #fecaca;
+  background: color-mix(in srgb, var(--color-status-danger) 90%, transparent);
+  color: var(--color-status-danger-contrast);
   font-size: 0.72rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--color-brand-contrast) 15%, transparent);
+  box-shadow: 0 4px 10px var(--color-bg-overlay-soft);
 }
 
 .notificationTriggerCompact .notificationBadge {
@@ -135,14 +135,14 @@
   height: 1.4rem;
   padding: 0 0.3rem;
   border-radius: 999px;
-  background: var(--accent-main);
-  color: var(--text-alternativ);
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
   font-size: 0.72rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--color-brand-contrast) 15%, transparent);
+  box-shadow: 0 4px 10px var(--color-bg-overlay-soft);
 }
 
 .membersTriggerCompact .membersBadge {
@@ -162,9 +162,9 @@
 
 .memberNotice,
 .membersPanel {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
   padding: 1rem;
   margin-top: 0.7rem;
 }
@@ -180,18 +180,18 @@
   z-index: 20;
   max-height: 70vh;
   overflow-y: auto;
-  box-shadow: var(--shadow-main);
+  box-shadow: var(--shadow-elevation-md);
 }
 
 .membersPanel h3 {
   margin: 0;
-  color: var(--text-title);
+  color: var(--color-text-primary);
   letter-spacing: 0.08em;
 }
 
 .membersPanel p {
   margin: 0.45rem 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .membersList {
@@ -201,14 +201,14 @@
 }
 
 .membersCard {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.7rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.7rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in srgb, var(--color-brand-contrast) 2%, transparent);
 }
 
 .membersCard > div {
@@ -217,24 +217,24 @@
 }
 
 .membersCard strong {
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   display: block;
   overflow-wrap: anywhere;
 }
 
 .membersCard small {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   display: block;
   font-size: 0.78rem;
   overflow-wrap: anywhere;
 }
 
 .expelMemberButton {
-  border: 1px solid #7f1d1d;
+  border: 1px solid var(--color-status-danger);
   border-radius: 8px;
   padding: 0.42rem 0.7rem;
-  background: rgba(127, 29, 29, 0.22);
-  color: #fecaca;
+  background: var(--color-status-danger-soft);
+  color: var(--color-status-danger-contrast);
   cursor: pointer;
   font-weight: 700;
   white-space: nowrap;
@@ -247,13 +247,13 @@
 
 .memberNotice h3 {
   margin: 0;
-  color: var(--text-title);
+  color: var(--color-text-primary);
   letter-spacing: 0.08em;
 }
 
 .memberNotice p {
   margin: 0.45rem 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .noticeList {
@@ -263,14 +263,14 @@
 }
 
 .noticeCard {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.7rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in srgb, var(--color-brand-contrast) 2%, transparent);
 }
 
 .noticeCard > div:first-child {
@@ -279,13 +279,13 @@
 }
 
 .noticeCard strong {
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   display: block;
   overflow-wrap: anywhere;
 }
 
 .noticeCard small {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   display: block;
   font-size: 0.78rem;
   overflow-wrap: anywhere;
@@ -298,26 +298,26 @@
 
 .noticeActions button,
 .joinActions button {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 0.45rem 0.7rem;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-main);
+  background: color-mix(in srgb, var(--color-brand-contrast) 5%, transparent);
+  color: var(--color-text-secondary);
   cursor: pointer;
   font-weight: 700;
   white-space: nowrap;
 }
 
 .noticeActions button:first-child {
-  border-color: #14532d;
-  color: #86efac;
-  background: rgba(20, 83, 45, 0.2);
+  border-color: var(--color-status-success);
+  color: var(--color-status-success-contrast);
+  background: var(--color-status-success-soft);
 }
 
 .noticeActions button:last-child {
-  border-color: #7f1d1d;
-  color: #fecaca;
-  background: rgba(127, 29, 29, 0.22);
+  border-color: var(--color-status-danger);
+  color: var(--color-status-danger-contrast);
+  background: var(--color-status-danger-soft);
 }
 
 .noticeActions button:disabled,
@@ -341,19 +341,19 @@
 }
 
 .noticeError {
-  color: #ff6b6b !important;
+  color: var(--color-status-danger) !important;
 }
 
 .noticeSuccess {
-  color: #4ade80 !important;
+  color: var(--color-status-success) !important;
 }
 
 .joinRequestBox {
   max-width: 420px;
   margin: 2rem auto 0;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
   padding: 1rem;
   display: grid;
   gap: 0.75rem;
@@ -361,16 +361,16 @@
 
 .joinRequestBox p {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   text-align: center;
 }
 
 .joinRequestBox button {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 0.55rem 0.9rem;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-main);
+  background: color-mix(in srgb, var(--color-brand-contrast) 5%, transparent);
+  color: var(--color-text-secondary);
   cursor: pointer;
   font-weight: 700;
 }
@@ -384,7 +384,7 @@
   text-align: center;
   font-size: 2.2rem;
   letter-spacing: 0.18em;
-  color: var(--text-title);
+  color: var(--color-text-primary);
   margin-bottom: 1.2rem;
 }
 
@@ -404,17 +404,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 999px;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   text-decoration: none;
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .settingsButton:hover {
   transform: translateY(-1px);
-  border-color: var(--accent-main);
+  border-color: var(--color-brand-primary);
 }
 
 .quickCreateWrapper {
@@ -428,21 +428,21 @@
   align-items: center;
   justify-content: center;
   gap: 0.15rem;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 999px;
-  color: var(--text-main);
-  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
   cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .quickCreateTrigger:hover {
   transform: translateY(-1px);
-  border-color: var(--accent-main);
+  border-color: var(--color-brand-primary);
 }
 
 .quickCreateTrigger:focus-visible {
-  outline: 2px solid var(--accent-main);
+  outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
 }
 
@@ -455,11 +455,11 @@
   top: calc(100% + 0.45rem);
   right: 0;
   min-width: 210px;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
   padding: 0.4rem;
-  background: linear-gradient(180deg, var(--bg-surface), var(--bg-main));
-  box-shadow: var(--shadow-main);
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  box-shadow: var(--shadow-elevation-md);
   display: grid;
   gap: 0.2rem;
   z-index: 30;
@@ -471,7 +471,7 @@
   gap: 0.45rem;
   border-radius: 8px;
   padding: 0.5rem 0.6rem;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   text-decoration: none;
 }
 
@@ -481,7 +481,7 @@
   gap: 0.45rem;
   border-radius: 8px;
   padding: 0.5rem 0.6rem;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   text-decoration: none;
   border: 1px solid transparent;
   background: transparent;
@@ -491,13 +491,13 @@
 
 .quickCreateMenu a:hover,
 .quickCreateMenu button:hover {
-  background: rgba(255, 122, 24, 0.15);
-  color: var(--text-title);
+  background: var(--color-brand-soft);
+  color: var(--color-text-primary);
 }
 
 .quickCreatePointsPanel {
   margin-top: 0.35rem;
-  border-top: 1px solid var(--border-soft);
+  border-top: 1px solid var(--color-border-soft);
   padding-top: 0.5rem;
   display: grid;
   gap: 0.45rem;
@@ -505,7 +505,7 @@
 
 .quickCreatePanelTitle {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.78rem;
 }
 
@@ -515,21 +515,21 @@
 }
 
 .quickCreateAmountField span {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.72rem;
 }
 
 .quickCreateAmountField input {
   width: 100%;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-main);
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
   padding: 0.4rem 0.5rem;
 }
 
 .quickCreatePlayerRow {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 0.45rem;
   display: flex;
@@ -541,12 +541,12 @@
 .quickCreatePlayerRow strong {
   display: block;
   font-size: 0.82rem;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   overflow-wrap: anywhere;
 }
 
 .quickCreatePlayerRow small {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 0.72rem;
 }
 
@@ -557,10 +557,10 @@
 }
 
 .quickCreateGrantButton {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-main);
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
   font-size: 1rem;
   font-weight: 700;
   white-space: nowrap;
@@ -579,13 +579,13 @@
 
 .quickCreateError {
   margin: 0;
-  color: #ff6b6b;
+  color: var(--color-status-danger);
   font-size: 0.76rem;
 }
 
 .quickCreateSuccess {
   margin: 0;
-  color: #4ade80;
+  color: var(--color-status-success);
   font-size: 0.76rem;
 }
 
@@ -593,7 +593,7 @@
   max-width: 720px;
   margin: 0 auto 3.5rem;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   line-height: 1.8;
 }
 
@@ -601,7 +601,7 @@
   text-align: center;
   margin-bottom: 2.5rem;
   letter-spacing: 0.14em;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 .cards {
@@ -621,8 +621,8 @@
   align-items: center;
   justify-content: center;
 
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-main);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: var(--shadow-elevation-md);
   transition: all 0.35s ease;
 }
 
@@ -632,8 +632,8 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.25),
-    rgba(0, 0, 0, 0.85)
+    var(--color-bg-overlay-soft),
+    var(--color-bg-overlay-strong)
   );
 }
 
@@ -643,10 +643,10 @@
 
 .card:hover {
   transform: translateY(-5px);
-  border-color: var(--accent-main);
+  border-color: var(--color-brand-primary);
   box-shadow:
-    var(--shadow-main),
-    var(--shadow-accent);
+    var(--shadow-elevation-md),
+    var(--shadow-brand-glow);
 }
 
 .card span {
@@ -655,10 +655,10 @@
   font-size: 1.35rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--text-title);
+  color: var(--color-text-primary);
   text-shadow:
-    0 0 8px rgba(0, 0, 0, 0.8),
-    0 0 18px rgba(0, 0, 0, 0.6);
+    0 0 8px var(--color-bg-overlay-strong),
+    0 0 18px var(--color-bg-overlay-strong);
 }
 
 @media (max-width: 720px) {
@@ -684,3 +684,5 @@
     align-items: stretch;
   }
 }
+
+

@@ -4,21 +4,22 @@
   place-items: start center;
   padding: 1.5rem 1rem 2rem;
   background:
-    radial-gradient(circle at 8% 12%, color-mix(in srgb, var(--accent-main) 18%, transparent), transparent 28%),
-    radial-gradient(circle at 88% 86%, color-mix(in srgb, var(--accent-main) 10%, transparent), transparent 24%),
-    var(--bg-main);
+    radial-gradient(circle at 8% 12%, color-mix(in srgb, var(--color-brand-primary) 18%, transparent), transparent 28%),
+    radial-gradient(circle at 88% 86%, color-mix(in srgb, var(--color-brand-primary) 10%, transparent), transparent 24%),
+    var(--color-bg-app);
 }
 
 .status {
-  color: var(--text-main);
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .backButton {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.56rem 0.8rem;
-  background: var(--bg-hover);
-  color: var(--text-main);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
   cursor: pointer;
 }
+

@@ -9,23 +9,24 @@
 .title {
   margin: 0;
   font-size: 1.3rem;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 .extraArea {
-  border: 1px dashed var(--border-soft);
+  border: 1px dashed var(--color-border-soft);
   border-radius: 10px;
   padding: 1rem;
-  background: var(--bg-surface);
+  background: var(--color-bg-surface);
 }
 
 .extraTitle {
   margin: 0 0 0.5rem;
   font-size: 1rem;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .extraText {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
+

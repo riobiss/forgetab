@@ -4,28 +4,28 @@
   place-items: center;
   padding: 24px;
   background:
-    radial-gradient(circle at top, rgba(255, 122, 24, 0.22), transparent 40%),
-    linear-gradient(180deg, #111111, #090909);
+    radial-gradient(circle at top, color-mix(in srgb, var(--color-brand-primary) 22%, transparent), transparent 40%),
+    linear-gradient(180deg, var(--color-bg-app), var(--color-bg-app));
 }
 
 .card {
   width: 100%;
   max-width: 460px;
-  background: rgba(20, 20, 20, 0.92);
-  border: 1px solid var(--border-hot);
+  background: var(--color-bg-overlay-strong);
+  border: 1px solid var(--color-border-brand);
   border-radius: 14px;
-  box-shadow: var(--shadow-main);
+  box-shadow: var(--shadow-elevation-md);
   padding: 28px;
 }
 
 .card h1 {
   font-size: 30px;
   margin-bottom: 8px;
-  color: var(--text-title);
+  color: var(--color-text-primary);
 }
 
 .card p {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   margin-bottom: 20px;
 }
 
@@ -40,20 +40,20 @@
 }
 
 .field span {
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .field input {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 10px 12px;
-  background: #101010;
-  color: var(--text-main);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
 }
 
 .field input:focus {
-  outline: 1px solid var(--accent-main);
-  border-color: var(--accent-main);
+  outline: 1px solid var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
 }
 
 .form button {
@@ -62,8 +62,8 @@
   border-radius: 9px;
   padding: 11px 14px;
   font-weight: 700;
-  background: var(--accent-main);
-  color: #0f0f0f;
+  background: var(--color-brand-primary);
+  color: var(--color-bg-app);
   cursor: pointer;
 }
 
@@ -73,15 +73,18 @@
 }
 
 .error {
-  color: #ff8a8a;
+  color: var(--color-status-danger);
   margin: 0;
 }
 
 .switchAuth {
   margin-top: 16px;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .switchAuth a {
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
 }
+
+
+

@@ -1,9 +1,9 @@
 .container {
-  background: var(--bg-main);
+  background: var(--color-bg-app);
   padding: 2rem 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
-  color: var(--text-main);
+  color: var(--color-text-secondary);
 }
 
 .titleRow {
@@ -16,10 +16,10 @@
 
 .title {
   font-size: 2.3rem;
-  color: var(--text-title);
+  color: var(--color-text-primary);
   margin: 0;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--border-soft);
+  border-bottom: 2px solid var(--color-border-soft);
 }
 
 .manageButton {
@@ -28,9 +28,9 @@
   justify-content: center;
   padding: 0.55rem 1rem;
   border-radius: 10px;
-  border: 1px solid var(--accent-strong);
-  background: linear-gradient(135deg, var(--accent-main), var(--accent-strong));
-  color: var(--text-alternativ);
+  border: 1px solid var(--color-brand-strong);
+  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-strong));
+  color: var(--color-text-inverse);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -43,19 +43,19 @@
 
 .card {
   position: relative;
-  background: var(--bg-surface);
+  background: var(--color-bg-surface);
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-main);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: var(--shadow-elevation-md);
   transition: all 0.25s ease;
   aspect-ratio: 16 / 9;
 }
 
 .card:hover {
-  background: var(--bg-hover);
-  border-color: var(--border-hot);
-  box-shadow: var(--shadow-main), var(--shadow-accent);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-brand);
+  box-shadow: var(--shadow-elevation-md), var(--shadow-brand-glow);
   transform: translateY(-2px);
 }
 
@@ -77,17 +77,17 @@
   margin: 0;
   padding: 1rem 1.25rem;
   font-size: 1.6rem;
-  color: var(--text-title);
+  color: var(--color-text-primary);
   background: linear-gradient(
     to top,
-    rgba(11, 11, 11, 0.95),
-    rgba(11, 11, 11, 0)
+    var(--color-bg-overlay-strong),
+    transparent
   );
   letter-spacing: 1px;
 }
 
 .card:hover h2 {
-  color: var(--accent-main);
+  color: var(--color-brand-primary);
 }
 
 .cardActions {
@@ -103,16 +103,16 @@
   justify-content: center;
   padding: 0.35rem 0.7rem;
   border-radius: 8px;
-  border: 1px solid var(--border-soft);
-  background: rgba(0, 0, 0, 0.65);
-  color: var(--text-title);
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-overlay-strong);
+  color: var(--color-text-primary);
   font-size: 0.85rem;
   font-weight: 600;
 }
 
 .editButton:hover {
-  border-color: var(--accent-main);
-  color: var(--accent-main);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
 }
 
 .dbRaceLink {
@@ -137,3 +137,5 @@
     align-items: flex-start;
   }
 }
+
+
