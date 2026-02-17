@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
 import AdvancedIdentityEditor, {
   IdentityTemplateDraft,
 } from "../../../components/AdvancedIdentityEditor"
 import { createDefaultRaceLore, normalizeRaceLore, type RaceLore } from "@/lib/rpg/raceLore"
+import type { AttributeTemplate } from "@/app/rpg/[rpgId]/edit/components/shared/types"
 import styles from "./page.module.css"
 
 type IdentityType = "race" | "class"
@@ -52,15 +52,10 @@ export default function AdvancedIdentityPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
-  const [selectedAttributeKeys, setSelectedAttributeKeys] = useState<string[]>([])
+  const [attributeTemplates, setAttributeTemplates] = useState<AttributeTemplate[]>([])
   const [skillTemplates, setSkillTemplates] = useState<SkillTemplate[]>([])
   const [identityTemplates, setIdentityTemplates] = useState<IdentityTemplate[]>([])
   const [draft, setDraft] = useState<IdentityTemplateDraft | null>(null)
-
-  const attributeLabelByKey = useMemo<Map<string, string>>(
-    () => new Map(ATTRIBUTE_CATALOG.map((item) => [item.key, item.label])),
-    [],
-  )
 
   useEffect(() => {
     async function loadAll() {
@@ -89,7 +84,7 @@ export default function AdvancedIdentityPage() {
           return
         }
 
-        const attrPayload = (await attrRes.json()) as { attributes?: Array<{ key: string }> }
+        const attrPayload = (await attrRes.json()) as { attributes?: Array<{ key: string; label: string }> }
         const skillPayload = (await skillRes.json()) as { skills?: SkillTemplate[] }
         const identityPayload = (await identityRes.json()) as {
           races?: IdentityTemplate[]
@@ -102,11 +97,12 @@ export default function AdvancedIdentityPage() {
           return
         }
 
-        const attributes = (attrPayload.attributes ?? []).map((item) => item.key)
+        const attributes = attrPayload.attributes ?? []
+        const attributeKeys = attributes.map((item) => item.key)
         const skills = skillPayload.skills ?? []
         const templates = type === "race" ? (identityPayload.races ?? []) : (identityPayload.classes ?? [])
 
-        setSelectedAttributeKeys(attributes)
+        setAttributeTemplates(attributes)
         setSkillTemplates(skills)
         setIdentityTemplates(templates)
 
@@ -115,10 +111,10 @@ export default function AdvancedIdentityPage() {
             key: `draft-${crypto.randomUUID()}`,
             label: "",
             ...(type === "class" ? { category: "geral" } : {}),
-            attributeBonuses: attributes.reduce<Record<string, number>>((acc, key) => {
-              acc[key] = 0
-              return acc
-            }, {}),
+          attributeBonuses: attributeKeys.reduce<Record<string, number>>((acc, key) => {
+            acc[key] = 0
+            return acc
+          }, {}),
             skillBonuses: skills.reduce<Record<string, number>>((acc, item) => {
               acc[item.key] = 0
               return acc
@@ -138,7 +134,7 @@ export default function AdvancedIdentityPage() {
           key: current.key,
           label: current.label,
           ...(type === "class" ? { category: current.category?.trim() || "geral" } : {}),
-          attributeBonuses: attributes.reduce<Record<string, number>>((acc, key) => {
+          attributeBonuses: attributeKeys.reduce<Record<string, number>>((acc, key) => {
             acc[key] = Number(current.attributeBonuses[key] ?? 0)
             return acc
           }, {}),
@@ -169,7 +165,8 @@ export default function AdvancedIdentityPage() {
       return
     }
 
-    const parsedAttributes = selectedAttributeKeys.reduce<Record<string, number>>((acc, key) => {
+    const attributeKeys = attributeTemplates.map((item) => item.key)
+    const parsedAttributes = attributeKeys.reduce<Record<string, number>>((acc, key) => {
       acc[key] = Math.floor(Number(draft.attributeBonuses[key] ?? 0))
       return acc
     }, {})
@@ -277,9 +274,8 @@ export default function AdvancedIdentityPage() {
         type={type}
         mode={mode}
         draft={draft}
-        selectedAttributeKeys={selectedAttributeKeys}
+        attributeTemplates={attributeTemplates}
         skillTemplates={skillTemplates}
-        attributeLabelByKey={attributeLabelByKey}
         saving={saving}
         error={error}
         success={success}

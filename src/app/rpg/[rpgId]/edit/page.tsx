@@ -4,7 +4,6 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Eye, LayoutList, Settings2 } from "lucide-react"
 import styles from "./page.module.css"
-import { ATTRIBUTE_CATALOG } from "@/lib/rpg/attributeCatalog"
 import AttributeOptionsSection from "./components/attribute-options/AttributeOptionsSection"
 import EditRpgForm from "./components/edit-rpg-form/EditRpgForm"
 import PlayerTemplateFieldsSection from "./components/player-template-fields/PlayerTemplateFieldsSection"
@@ -48,7 +47,7 @@ export default function EditRpgPage() {
     useMundiMap: state.useMundiMap,
     useClassRaceBonuses: state.useClassRaceBonuses,
     useInventoryWeightLimit: state.useInventoryWeightLimit,
-    selectedAttributeKeys: state.selectedAttributeKeys,
+    attributeTemplates: state.attributeTemplates,
     selectedStatusKeys: state.selectedStatusKeys,
     statusLabelByKey: state.statusLabelByKey,
     skillTemplates: state.skillTemplates,
@@ -63,7 +62,7 @@ export default function EditRpgPage() {
     setUseInventoryWeightLimit: state.setUseInventoryWeightLimit,
     setCostsEnabled: state.setCostsEnabled,
     setCostResourceName: state.setCostResourceName,
-    setSelectedAttributeKeys: state.setSelectedAttributeKeys,
+    setAttributeTemplates: state.setAttributeTemplates,
     setSelectedStatusKeys: state.setSelectedStatusKeys,
     setStatusLabelByKey: state.setStatusLabelByKey,
     setSkillTemplates: state.setSkillTemplates,
@@ -225,9 +224,11 @@ export default function EditRpgPage() {
             <AttributeOptionsSection
               showList={state.showAttributeList}
               onToggleList={() => state.setShowAttributeList((prev) => !prev)}
-              options={ATTRIBUTE_CATALOG}
-              selectedKeys={state.selectedAttributeKeys}
-              onToggleItem={state.toggleAttributeKey}
+              newAttributeLabel={state.newAttributeLabel}
+              onNewAttributeLabelChange={state.setNewAttributeLabel}
+              onAddAttribute={state.addAttribute}
+              attributeTemplates={state.attributeTemplates}
+              onRemoveAttribute={state.removeAttribute}
             />
 
             <StatusOptionsSection

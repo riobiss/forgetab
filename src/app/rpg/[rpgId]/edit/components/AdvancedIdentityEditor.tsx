@@ -1,7 +1,6 @@
-"use client"
-
 import styles from "./AdvancedIdentityEditor.module.css"
 import { createDefaultRaceLore, type RaceLore } from "@/lib/rpg/raceLore"
+import type { AttributeTemplate } from "./shared/types"
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
 
 type IdentityType = "race" | "class"
@@ -24,9 +23,8 @@ type Props = {
   type: IdentityType
   mode: "create" | "edit"
   draft: IdentityTemplateDraft
-  selectedAttributeKeys: string[]
+  attributeTemplates: AttributeTemplate[]
   skillTemplates: SkillTemplate[]
-  attributeLabelByKey: Map<string, string>
   saving: boolean
   error: string
   success: string
@@ -39,9 +37,8 @@ export default function AdvancedIdentityEditor({
   type,
   mode,
   draft,
-  selectedAttributeKeys,
+  attributeTemplates,
   skillTemplates,
-  attributeLabelByKey,
   saving,
   error,
   success,
@@ -179,6 +176,11 @@ export default function AdvancedIdentityEditor({
       }),
     })
   }
+
+  const attributeItems = attributeTemplates.map((item) => ({
+    key: item.key,
+    label: item.label,
+  }))
 
   return (
     <section className={styles.panel}>
@@ -425,10 +427,7 @@ export default function AdvancedIdentityEditor({
       <section className={styles.section}>
         <h2>Bonus de atributos</h2>
         <NumericTemplateGrid
-          items={selectedAttributeKeys.map((key) => ({
-            key,
-            label: attributeLabelByKey.get(key) ?? key,
-          }))}
+          items={attributeItems}
           values={draft.attributeBonuses}
           onChange={(key, value) => updateBonus("attributeBonuses", key, value)}
           gridClassName={styles.grid}

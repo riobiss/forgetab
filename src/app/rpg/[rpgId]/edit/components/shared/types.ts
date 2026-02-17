@@ -15,6 +15,11 @@ export type CharacterIdentityTemplate = {
   position: number
 }
 
+export type AttributeTemplate = {
+  key: string
+  label: string
+}
+
 export type SkillTemplate = {
   key: string
   label: string

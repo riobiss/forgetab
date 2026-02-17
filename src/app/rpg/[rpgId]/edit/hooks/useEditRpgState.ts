@@ -2,6 +2,7 @@
 
 import { Dispatch, SetStateAction, useState } from "react"
 import type {
+  AttributeTemplate,
   CharacterIdentityTemplate,
   IdentityTemplate,
   SkillTemplate,
@@ -29,12 +30,13 @@ export function useEditRpgState() {
   const [costsEnabled, setCostsEnabled] = useState(false)
   const [costResourceName, setCostResourceName] = useState("Skill Points")
 
-  const [selectedAttributeKeys, setSelectedAttributeKeys] = useState<string[]>([])
+  const [attributeTemplates, setAttributeTemplates] = useState<AttributeTemplate[]>([])
   const [selectedStatusKeys, setSelectedStatusKeys] = useState<string[]>([])
   const [statusLabelByKey, setStatusLabelByKey] = useState<Record<string, string>>({})
   const [newCustomStatusLabel, setNewCustomStatusLabel] = useState("")
   const [skillTemplates, setSkillTemplates] = useState<SkillTemplate[]>([])
   const [newSkillLabel, setNewSkillLabel] = useState("")
+  const [newAttributeLabel, setNewAttributeLabel] = useState("")
 
   const [raceDrafts, setRaceDrafts] = useState<IdentityTemplate[]>([])
   const [classDrafts, setClassDrafts] = useState<IdentityTemplate[]>([])
@@ -62,10 +64,6 @@ export function useEditRpgState() {
     setter((prev) =>
       prev.includes(key) ? prev.filter((value) => value !== key) : [...prev, key],
     )
-  }
-
-  function toggleAttributeKey(key: string) {
-    toggleKeyInList(key, setSelectedAttributeKeys)
   }
 
   function toggleStatusKey(key: string) {
@@ -110,6 +108,36 @@ export function useEditRpgState() {
 
   function removeSkill(key: string) {
     setSkillTemplates((prev) => prev.filter((current) => current.key !== key))
+  }
+
+  function addAttribute() {
+    const label = newAttributeLabel.trim()
+    if (label.length < 2) return
+    const baseKey = slugifyLabel(label)
+    if (!baseKey) return
+
+    setAttributeTemplates((prev) => {
+      if (prev.some((item) => item.label.toLowerCase() === label.toLowerCase())) {
+        return prev
+      }
+
+      const usedKeys = new Set(prev.map((item) => item.key))
+      let key = baseKey
+      let suffix = 2
+
+      while (usedKeys.has(key)) {
+        key = `${baseKey}-${suffix}`
+        suffix += 1
+      }
+
+      return [...prev, { key, label }]
+    })
+
+    setNewAttributeLabel("")
+  }
+
+  function removeAttribute(key: string) {
+    setAttributeTemplates((prev) => prev.filter((item) => item.key !== key))
   }
 
   function addIdentityField() {
@@ -207,8 +235,8 @@ export function useEditRpgState() {
     setCostsEnabled,
     costResourceName,
     setCostResourceName,
-    selectedAttributeKeys,
-    setSelectedAttributeKeys,
+    attributeTemplates,
+    setAttributeTemplates,
     selectedStatusKeys,
     setSelectedStatusKeys,
     statusLabelByKey,
@@ -247,13 +275,16 @@ export function useEditRpgState() {
     setCharacterCharacteristicTemplates,
     newCharacteristicLabel,
     setNewCharacteristicLabel,
-    toggleAttributeKey,
     toggleStatusKey,
     addCustomStatus,
     updateCustomStatusLabel,
     removeCustomStatus,
     addSkill,
     removeSkill,
+    newAttributeLabel,
+    setNewAttributeLabel,
+    addAttribute,
+    removeAttribute,
     addIdentityField,
     updateIdentityFieldLabel,
     updateIdentityFieldRequired,

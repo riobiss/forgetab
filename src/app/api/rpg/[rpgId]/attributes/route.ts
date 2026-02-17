@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../../../generated/prisma/client"
 import { prisma } from "@/lib/prisma"
+import slugify from "@/utils/slugify"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
-import {
-  ATTRIBUTE_CATALOG,
-  DEFAULT_ATTRIBUTE_KEYS,
-} from "@/lib/rpg/attributeCatalog"
 
 type RouteContext = {
   params: Promise<{
@@ -18,6 +15,11 @@ type AttributeTemplateRow = {
   key: string
   label: string
   position: number
+}
+
+type AttributeInput = {
+  key?: string
+  label?: string
 }
 
 async function getUserIdFromToken(request: NextRequest) {
@@ -68,24 +70,42 @@ async function canReadRpgAttributes(rpgId: string, userId: string) {
   return membership?.status === "accepted"
 }
 
-function getAllowedKeys() {
-  return new Set(ATTRIBUTE_CATALOG.map((item) => item.key))
-}
+function normalizeAttributeTemplates(
+  input: unknown,
+): { ok: true; values: Array<AttributeInput & { key: string; label: string }> } | { ok: false; message: string } {
+  const entries = Array.isArray(input) ? input : []
+  const templates: Array<AttributeInput & { key: string; label: string }> = []
+  const usedKeys = new Set<string>()
 
-function normalizeAttributeKeys(input: string[]) {
-  const allowed = getAllowedKeys()
-  const unique = Array.from(new Set(input))
+  for (const rawEntry of entries) {
+    if (!rawEntry || typeof rawEntry !== "object") continue
+    const entry = rawEntry as AttributeInput
+    const label = (entry.label ?? "").trim()
+    if (label.length < 2) {
+      return { ok: false, message: "Cada atributo precisa de um nome com pelo menos 2 caracteres." }
+    }
 
-  if (unique.length === 0) {
-    return { ok: false as const, message: "Selecione pelo menos 1 atributo." }
+    const candidateKey =
+      (typeof entry.key === "string" && entry.key.trim()
+        ? slugify(entry.key.trim())
+        : slugify(label)) || ""
+
+    if (!candidateKey) {
+      return { ok: false, message: `Nao foi possivel gerar chave para o atributo ${label}.` }
+    }
+
+    let uniqueKey = candidateKey
+    let suffix = 2
+    while (usedKeys.has(uniqueKey)) {
+      uniqueKey = `${candidateKey}-${suffix}`
+      suffix += 1
+    }
+
+    usedKeys.add(uniqueKey)
+    templates.push({ key: uniqueKey, label })
   }
 
-  const invalid = unique.find((key) => !allowed.has(key as (typeof ATTRIBUTE_CATALOG)[number]["key"]))
-  if (invalid) {
-    return { ok: false as const, message: `Atributo invalido: ${invalid}.` }
-  }
-
-  return { ok: true as const, values: unique }
+  return { ok: true, values: templates }
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
@@ -108,20 +128,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       ORDER BY position ASC
     `)
 
-    if (rows.length === 0) {
-      const fallback = ATTRIBUTE_CATALOG
-        .filter((item) => DEFAULT_ATTRIBUTE_KEYS.includes(item.key))
-        .map((item, index) => ({
-          id: `default-${item.key}`,
-          key: item.key,
-          label: item.label,
-          position: index,
-        }))
-
-      return NextResponse.json({ attributes: fallback, isDefault: true }, { status: 200 })
-    }
-
-    return NextResponse.json({ attributes: rows, isDefault: false }, { status: 200 })
+    return NextResponse.json({ attributes: rows, isDefault: rows.length === 0 }, { status: 200 })
   } catch (error) {
     if (error instanceof Error && error.message.includes('relation "rpg_attribute_templates" does not exist')) {
       return NextResponse.json(
@@ -147,37 +154,34 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
-    const body = (await request.json()) as { attributes?: string[] }
-    const candidate = Array.isArray(body.attributes) ? body.attributes : []
-    const normalized = normalizeAttributeKeys(candidate)
+    const body = (await request.json()) as { attributes?: unknown }
+    const normalized = normalizeAttributeTemplates(body.attributes)
 
     if (!normalized.ok) {
       return NextResponse.json({ message: normalized.message }, { status: 400 })
     }
-
-    const byKey = new Map<string, string>(
-      ATTRIBUTE_CATALOG.map((item) => [item.key, item.label]),
-    )
 
     await prisma.$executeRaw(Prisma.sql`
       DELETE FROM rpg_attribute_templates
       WHERE rpg_id = ${rpgId}
     `)
 
-    const rows = normalized.values.map((key, index) =>
-      Prisma.sql`(
-        ${crypto.randomUUID()},
-        ${rpgId},
-        ${key},
-        ${byKey.get(key) ?? key},
-        ${index}
-      )`,
-    )
+    if (normalized.values.length > 0) {
+      const rows = normalized.values.map((item, index) =>
+        Prisma.sql`(
+          ${crypto.randomUUID()},
+          ${rpgId},
+          ${item.key},
+          ${item.label},
+          ${index}
+        )`,
+      )
 
-    await prisma.$executeRaw(Prisma.sql`
-      INSERT INTO rpg_attribute_templates (id, rpg_id, key, label, position)
-      VALUES ${Prisma.join(rows)}
-    `)
+      await prisma.$executeRaw(Prisma.sql`
+        INSERT INTO rpg_attribute_templates (id, rpg_id, key, label, position)
+        VALUES ${Prisma.join(rows)}
+      `)
+    }
 
     return NextResponse.json({ message: "Padrao de atributos atualizado." }, { status: 200 })
   } catch (error) {

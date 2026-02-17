@@ -31,8 +31,6 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease,
-    transform 120ms ease;
 }
 
 .headerActions button:hover {
@@ -50,29 +48,56 @@
   transform: translateY(1px);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 0.55rem;
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-.option {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
+.actions input {
   border: 1px solid var(--color-border-soft);
   border-radius: 10px;
-  padding: 0.5rem 0.6rem;
-  background: var(--color-bg-app);
+  padding: 0.5rem 0.65rem;
+  background: color-mix(in srgb, var(--color-bg-app) 88%, var(--color-bg-surface));
+  color: var(--color-text-secondary);
+  min-width: 190px;
 }
 
-.option input {
-  width: 16px;
-  height: 16px;
+.actions span {
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
 }
 
-.option span {
-  font-size: 0.87rem;
+.hint {
+  margin: 0;
+  font-size: 0.88rem;
   color: var(--color-text-secondary);
 }
 
+.iconOnlyButton {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  padding: 0 !important;
+  justify-content: center;
+  gap: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-bg-surface) 86%, transparent);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.iconOnlyButton:hover {
+  border-color: var(--color-border-brand);
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+  color: var(--color-text-primary);
+}
+
+.iconOnlyButton:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-brand-primary) 55%, white);
+  outline-offset: 2px;
+}

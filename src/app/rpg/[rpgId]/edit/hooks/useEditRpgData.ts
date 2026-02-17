@@ -1,7 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type { CatalogOption, CharacterIdentityTemplate, IdentityTemplate } from "../components/shared/types"
+import type {
+  AttributeTemplate,
+  CatalogOption,
+  CharacterIdentityTemplate,
+  IdentityTemplate,
+} from "../components/shared/types"
 import type { Visibility } from "./useEditRpgState"
 
 type RpgPayload = {
@@ -29,7 +34,7 @@ type UseEditRpgDataParams = {
   useMundiMap: boolean
   useClassRaceBonuses: boolean
   useInventoryWeightLimit: boolean
-  selectedAttributeKeys: string[]
+  attributeTemplates: AttributeTemplate[]
   selectedStatusKeys: string[]
   statusLabelByKey: Record<string, string>
   skillTemplates: Array<{ key: string; label: string }>
@@ -44,7 +49,7 @@ type UseEditRpgDataParams = {
   setUseInventoryWeightLimit: (value: boolean) => void
   setCostsEnabled: (value: boolean) => void
   setCostResourceName: (value: string) => void
-  setSelectedAttributeKeys: (value: string[]) => void
+  setAttributeTemplates: (value: AttributeTemplate[]) => void
   setSelectedStatusKeys: (value: string[]) => void
   setStatusLabelByKey: (value: Record<string, string>) => void
   setSkillTemplates: (value: Array<{ key: string; label: string }>) => void
@@ -64,7 +69,7 @@ export function useEditRpgData({
   useMundiMap,
   useClassRaceBonuses,
   useInventoryWeightLimit,
-  selectedAttributeKeys,
+  attributeTemplates,
   selectedStatusKeys,
   statusLabelByKey,
   skillTemplates,
@@ -79,7 +84,7 @@ export function useEditRpgData({
   setUseInventoryWeightLimit,
   setCostsEnabled,
   setCostResourceName,
-  setSelectedAttributeKeys,
+  setAttributeTemplates,
   setSelectedStatusKeys,
   setStatusLabelByKey,
   setSkillTemplates,
@@ -128,7 +133,7 @@ export function useEditRpgData({
           return
         }
 
-        const attrPayload = (await attrRes.json()) as { attributes?: Array<{ key: string }> }
+        const attrPayload = (await attrRes.json()) as { attributes?: Array<{ key: string; label: string }> }
         const statusPayload = (await statusRes.json()) as {
           statuses?: Array<{ key: string; label: string }>
         }
@@ -168,7 +173,7 @@ export function useEditRpgData({
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg.useInventoryWeightLimit))
         setCostsEnabled(Boolean(rpgPayload.rpg.costsEnabled))
         setCostResourceName(rpgPayload.rpg.costResourceName?.trim() || "Skill Points")
-        setSelectedAttributeKeys((attrPayload.attributes ?? []).map((item) => item.key))
+        setAttributeTemplates(attrPayload.attributes ?? [])
 
         const loadedStatuses = statusPayload.statuses ?? []
         setSelectedStatusKeys(loadedStatuses.map((item) => item.key))
@@ -226,7 +231,7 @@ export function useEditRpgData({
     setUseInventoryWeightLimit,
     setCostsEnabled,
     setCostResourceName,
-    setSelectedAttributeKeys,
+    setAttributeTemplates,
     setSelectedStatusKeys,
     setStatusLabelByKey,
     setSkillTemplates,
@@ -258,7 +263,12 @@ export function useEditRpgData({
     const response = await fetch(`/api/rpg/${rpgId}/attributes`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ attributes: selectedAttributeKeys }),
+      body: JSON.stringify({
+        attributes: attributeTemplates.map((item) => ({
+          key: item.key,
+          label: item.label,
+        })),
+      }),
     })
     if (!response.ok) throw new Error("Falha ao salvar atributos.")
   }

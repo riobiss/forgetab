@@ -1,23 +1,27 @@
 "use client"
 
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react"
 import styles from "./AttributeOptionsSection.module.css"
-import type { CatalogOption } from "../shared/types"
+import type { AttributeTemplate } from "../shared/types"
 
 type Props = {
   showList: boolean
   onToggleList: () => void
-  options: readonly CatalogOption[]
-  selectedKeys: string[]
-  onToggleItem: (key: string) => void
+  newAttributeLabel: string
+  onNewAttributeLabelChange: (value: string) => void
+  onAddAttribute: () => void
+  attributeTemplates: AttributeTemplate[]
+  onRemoveAttribute: (key: string) => void
 }
 
 export default function AttributeOptionsSection({
   showList,
   onToggleList,
-  options,
-  selectedKeys,
-  onToggleItem,
+  newAttributeLabel,
+  onNewAttributeLabelChange,
+  onAddAttribute,
+  attributeTemplates,
+  onRemoveAttribute,
 }: Props) {
   return (
     <div className={styles.section}>
@@ -29,18 +33,44 @@ export default function AttributeOptionsSection({
         </button>
       </div>
       {showList ? (
-        <div className={styles.grid}>
-          {options.map((item) => (
-            <label key={item.key} className={styles.option}>
-              <input
-                type="checkbox"
-                checked={selectedKeys.includes(item.key)}
-                onChange={() => onToggleItem(item.key)}
-              />
+        <>
+          <div className={styles.actions}>
+            <input
+              type="text"
+              value={newAttributeLabel}
+              onChange={(event) => onNewAttributeLabelChange(event.target.value)}
+              placeholder="Ex.: Força"
+            />
+            <button
+              type="button"
+              className={styles.iconOnlyButton}
+              title="Adicionar atributo"
+              aria-label="Adicionar atributo"
+              onClick={onAddAttribute}
+            >
+              <Plus size={16} />
+            </button>
+          </div>
+
+          {attributeTemplates.length === 0 ? (
+            <p className={styles.hint}>Nenhum atributo cadastrado.</p>
+          ) : null}
+
+          {attributeTemplates.map((item) => (
+            <div key={item.key} className={styles.actions}>
               <span>{item.label}</span>
-            </label>
+              <button
+                type="button"
+                className={styles.iconOnlyButton}
+                title={`Remover atributo ${item.label}`}
+                aria-label={`Remover atributo ${item.label}`}
+                onClick={() => onRemoveAttribute(item.key)}
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           ))}
-        </div>
+        </>
       ) : null}
     </div>
   )
