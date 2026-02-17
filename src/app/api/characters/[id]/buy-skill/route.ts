@@ -178,7 +178,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       }
 
       const nextAbilities = [
-        ...ownedAbilities,
+        ...ownedAbilities.filter((item) => item.skillId !== normalizedSkillId),
         {
           skillId: normalizedSkillId,
           level: normalizedLevel,

@@ -19,13 +19,58 @@ type Props = {
 
 export default function StatusTracker({ items, rpgId, characterId, canPersist }: Props) {
   const storageKey = `rpg-character-status-current:${rpgId}:${characterId}`
-  const [currentByKey, setCurrentByKey] = useState<Record<string, number>>(() =>
-    items.reduce<Record<string, number>>((acc, item) => {
-      acc[item.key] = item.current
-      return acc
-    }, {}),
+  const defaults = useMemo(
+    () =>
+      items.reduce<Record<string, number>>((acc, item) => {
+        acc[item.key] = item.current
+        return acc
+      }, {}),
+    [items],
   )
+  const [currentByKey, setCurrentByKey] = useState<Record<string, number>>(defaults)
+  const [hasLoadedPersistedState, setHasLoadedPersistedState] = useState(false)
   const [discountInputByKey, setDiscountInputByKey] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    setCurrentByKey(defaults)
+  }, [defaults])
+
+  useEffect(() => {
+    if (!canPersist) {
+      setHasLoadedPersistedState(true)
+      return
+    }
+
+    try {
+      const raw = window.localStorage.getItem(storageKey)
+      if (!raw) {
+        setHasLoadedPersistedState(true)
+        return
+      }
+
+      const parsed = JSON.parse(raw)
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        setHasLoadedPersistedState(true)
+        return
+      }
+
+      setCurrentByKey(
+        items.reduce<Record<string, number>>((acc, item) => {
+          const candidate = (parsed as Record<string, unknown>)[item.key]
+          const parsedNumber =
+            typeof candidate === "number" && Number.isFinite(candidate)
+              ? Math.floor(candidate)
+              : defaults[item.key] ?? item.current
+          acc[item.key] = Math.max(0, Math.min(item.max, parsedNumber))
+          return acc
+        }, {}),
+      )
+    } catch {
+      setCurrentByKey(defaults)
+    } finally {
+      setHasLoadedPersistedState(true)
+    }
+  }, [canPersist, defaults, items, storageKey])
 
   const normalizedItems = useMemo(
     () =>
@@ -37,44 +82,14 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
   )
 
   useEffect(() => {
-    const nextDefaults = items.reduce<Record<string, number>>((acc, item) => {
-      acc[item.key] = item.current
-      return acc
-    }, {})
-    setCurrentByKey(nextDefaults)
-
-    if (!canPersist) return
-
-    try {
-      const raw = window.localStorage.getItem(storageKey)
-      if (!raw) return
-      const parsed = JSON.parse(raw)
-      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return
-
-      const merged = items.reduce<Record<string, number>>((acc, item) => {
-        const candidate = (parsed as Record<string, unknown>)[item.key]
-        const parsedNumber =
-          typeof candidate === "number" && Number.isFinite(candidate)
-            ? Math.floor(candidate)
-            : item.current
-        acc[item.key] = Math.max(0, Math.min(item.max, parsedNumber))
-        return acc
-      }, {})
-      setCurrentByKey(merged)
-    } catch {
-      // Ignora localStorage invalido para manter uso da tela.
-    }
-  }, [canPersist, items, storageKey])
-
-  useEffect(() => {
-    if (!canPersist) return
+    if (!canPersist || !hasLoadedPersistedState) return
 
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(currentByKey))
     } catch {
       // Ignora erro de escrita local para nao quebrar interacao.
     }
-  }, [canPersist, currentByKey, storageKey])
+  }, [canPersist, currentByKey, hasLoadedPersistedState, storageKey])
 
   function updateStatus(key: string, delta: number) {
     const item = items.find((entry) => entry.key === key)

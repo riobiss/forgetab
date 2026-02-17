@@ -47,8 +47,6 @@ export default function EditRpgPage() {
     useMundiMap: state.useMundiMap,
     useClassRaceBonuses: state.useClassRaceBonuses,
     useInventoryWeightLimit: state.useInventoryWeightLimit,
-    costsEnabled: state.costsEnabled,
-    costResourceName: state.costResourceName,
     selectedAttributeKeys: state.selectedAttributeKeys,
     selectedStatusKeys: state.selectedStatusKeys,
     statusLabelByKey: state.statusLabelByKey,

@@ -1623,7 +1623,7 @@ export default function SkillsDashboardClient({
             </section>
           ) : null}
 
-          {!createOpen && !editOpen ? <p className={styles.muted}>Clique em "Editar" em uma habilidade.</p> : null}
+          {!createOpen && !editOpen ? <p className={styles.muted}>Clique em &quot;Editar&quot; em uma habilidade.</p> : null}
         </div>
       </section>
     </main>

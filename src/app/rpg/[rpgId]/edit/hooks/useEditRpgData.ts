@@ -29,8 +29,6 @@ type UseEditRpgDataParams = {
   useMundiMap: boolean
   useClassRaceBonuses: boolean
   useInventoryWeightLimit: boolean
-  costsEnabled: boolean
-  costResourceName: string
   selectedAttributeKeys: string[]
   selectedStatusKeys: string[]
   statusLabelByKey: Record<string, string>
@@ -66,8 +64,6 @@ export function useEditRpgData({
   useMundiMap,
   useClassRaceBonuses,
   useInventoryWeightLimit,
-  costsEnabled,
-  costResourceName,
   selectedAttributeKeys,
   selectedStatusKeys,
   statusLabelByKey,
