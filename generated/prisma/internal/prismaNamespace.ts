@@ -386,6 +386,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Rpg: 'Rpg',
+  RpgLibrarySection: 'RpgLibrarySection',
+  RpgLibraryBook: 'RpgLibraryBook',
   BaseItem: 'BaseItem',
   RpgAttributeTemplate: 'RpgAttributeTemplate',
   RpgCharacter: 'RpgCharacter',
@@ -417,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "rpg" | "baseItem" | "rpgAttributeTemplate" | "rpgCharacter" | "rpgCharacterIdentityTemplate" | "rpgCharacterCharacteristicTemplate" | "rpgCharacterInventoryItem" | "rpgStatusTemplate" | "rpgSkillTemplate" | "rpgRaceTemplate" | "rpgClassTemplate" | "rpgMember" | "rpgCharacterCreationRequest" | "skill" | "skillLevel" | "skillClassLink" | "skillRaceLink"
+    modelProps: "user" | "rpg" | "rpgLibrarySection" | "rpgLibraryBook" | "baseItem" | "rpgAttributeTemplate" | "rpgCharacter" | "rpgCharacterIdentityTemplate" | "rpgCharacterCharacteristicTemplate" | "rpgCharacterInventoryItem" | "rpgStatusTemplate" | "rpgSkillTemplate" | "rpgRaceTemplate" | "rpgClassTemplate" | "rpgMember" | "rpgCharacterCreationRequest" | "skill" | "skillLevel" | "skillClassLink" | "skillRaceLink"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -566,6 +568,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.RpgCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.RpgCountAggregateOutputType> | number
+        }
+      }
+    }
+    RpgLibrarySection: {
+      payload: Prisma.$RpgLibrarySectionPayload<ExtArgs>
+      fields: Prisma.RpgLibrarySectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RpgLibrarySectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibrarySectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RpgLibrarySectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibrarySectionPayload>
+        }
+        findFirst: {
+          args: Prisma.RpgLibrarySectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibrarySectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RpgLibrarySectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibrarySectionPayload>
+        }
+        findMany: {
+          args: Prisma.RpgLibrarySectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibrarySectionPayload>[]
+        }
+        create: {
+          args: Prisma.RpgLibrarySectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibrarySectionPayload>
+        }
+        createMany: {
+          args: Prisma.RpgLibrarySectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RpgLibrarySectionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibrarySectionPayload>[]
+        }
+        delete: {
+          args: Prisma.RpgLibrarySectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibrarySectionPayload>
+        }
+        update: {
+          args: Prisma.RpgLibrarySectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibrarySectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.RpgLibrarySectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RpgLibrarySectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RpgLibrarySectionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibrarySectionPayload>[]
+        }
+        upsert: {
+          args: Prisma.RpgLibrarySectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibrarySectionPayload>
+        }
+        aggregate: {
+          args: Prisma.RpgLibrarySectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRpgLibrarySection>
+        }
+        groupBy: {
+          args: Prisma.RpgLibrarySectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgLibrarySectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RpgLibrarySectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgLibrarySectionCountAggregateOutputType> | number
+        }
+      }
+    }
+    RpgLibraryBook: {
+      payload: Prisma.$RpgLibraryBookPayload<ExtArgs>
+      fields: Prisma.RpgLibraryBookFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RpgLibraryBookFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibraryBookPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RpgLibraryBookFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibraryBookPayload>
+        }
+        findFirst: {
+          args: Prisma.RpgLibraryBookFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibraryBookPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RpgLibraryBookFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibraryBookPayload>
+        }
+        findMany: {
+          args: Prisma.RpgLibraryBookFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibraryBookPayload>[]
+        }
+        create: {
+          args: Prisma.RpgLibraryBookCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibraryBookPayload>
+        }
+        createMany: {
+          args: Prisma.RpgLibraryBookCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RpgLibraryBookCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibraryBookPayload>[]
+        }
+        delete: {
+          args: Prisma.RpgLibraryBookDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibraryBookPayload>
+        }
+        update: {
+          args: Prisma.RpgLibraryBookUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibraryBookPayload>
+        }
+        deleteMany: {
+          args: Prisma.RpgLibraryBookDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RpgLibraryBookUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RpgLibraryBookUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibraryBookPayload>[]
+        }
+        upsert: {
+          args: Prisma.RpgLibraryBookUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RpgLibraryBookPayload>
+        }
+        aggregate: {
+          args: Prisma.RpgLibraryBookAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRpgLibraryBook>
+        }
+        groupBy: {
+          args: Prisma.RpgLibraryBookGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgLibraryBookGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RpgLibraryBookCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RpgLibraryBookCountAggregateOutputType> | number
         }
       }
     }
@@ -1822,6 +1972,35 @@ export const RpgScalarFieldEnum = {
 export type RpgScalarFieldEnum = (typeof RpgScalarFieldEnum)[keyof typeof RpgScalarFieldEnum]
 
 
+export const RpgLibrarySectionScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  title: 'title',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgLibrarySectionScalarFieldEnum = (typeof RpgLibrarySectionScalarFieldEnum)[keyof typeof RpgLibrarySectionScalarFieldEnum]
+
+
+export const RpgLibraryBookScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  sectionId: 'sectionId',
+  title: 'title',
+  content: 'content',
+  visibility: 'visibility',
+  allowedCharacterIds: 'allowedCharacterIds',
+  allowedClassKeys: 'allowedClassKeys',
+  allowedRaceKeys: 'allowedRaceKeys',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgLibraryBookScalarFieldEnum = (typeof RpgLibraryBookScalarFieldEnum)[keyof typeof RpgLibraryBookScalarFieldEnum]
+
+
 export const BaseItemScalarFieldEnum = {
   id: 'id',
   rpgId: 'rpgId',
@@ -2083,19 +2262,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
-
-
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -2179,6 +2358,20 @@ export type ListEnumRpgVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'BaseItemType'
  */
 export type EnumBaseItemTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BaseItemType'>
@@ -2203,20 +2396,6 @@ export type EnumBaseItemRarityFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'BaseItemRarity[]'
  */
 export type ListEnumBaseItemRarityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BaseItemRarity[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -2386,6 +2565,8 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   rpg?: Prisma.RpgOmit
+  rpgLibrarySection?: Prisma.RpgLibrarySectionOmit
+  rpgLibraryBook?: Prisma.RpgLibraryBookOmit
   baseItem?: Prisma.BaseItemOmit
   rpgAttributeTemplate?: Prisma.RpgAttributeTemplateOmit
   rpgCharacter?: Prisma.RpgCharacterOmit

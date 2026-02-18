@@ -53,6 +53,8 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Rpg: 'Rpg',
+  RpgLibrarySection: 'RpgLibrarySection',
+  RpgLibraryBook: 'RpgLibraryBook',
   BaseItem: 'BaseItem',
   RpgAttributeTemplate: 'RpgAttributeTemplate',
   RpgCharacter: 'RpgCharacter',
@@ -115,6 +117,35 @@ export const RpgScalarFieldEnum = {
 } as const
 
 export type RpgScalarFieldEnum = (typeof RpgScalarFieldEnum)[keyof typeof RpgScalarFieldEnum]
+
+
+export const RpgLibrarySectionScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  title: 'title',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgLibrarySectionScalarFieldEnum = (typeof RpgLibrarySectionScalarFieldEnum)[keyof typeof RpgLibrarySectionScalarFieldEnum]
+
+
+export const RpgLibraryBookScalarFieldEnum = {
+  id: 'id',
+  rpgId: 'rpgId',
+  sectionId: 'sectionId',
+  title: 'title',
+  content: 'content',
+  visibility: 'visibility',
+  allowedCharacterIds: 'allowedCharacterIds',
+  allowedClassKeys: 'allowedClassKeys',
+  allowedRaceKeys: 'allowedRaceKeys',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RpgLibraryBookScalarFieldEnum = (typeof RpgLibraryBookScalarFieldEnum)[keyof typeof RpgLibraryBookScalarFieldEnum]
 
 
 export const BaseItemScalarFieldEnum = {
@@ -378,19 +409,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
-
-
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

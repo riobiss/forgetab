@@ -96,9 +96,45 @@ model Rpg {
   members            RpgMember[]
   characterCreationRequests RpgCharacterCreationRequest[]
   skills             Skill[]
+  librarySections    RpgLibrarySection[]
+  libraryBooks       RpgLibraryBook[]
 
   @@index([ownerId])
   @@map("rpgs")
+}
+
+model RpgLibrarySection {
+  id          String           @id @default(cuid())
+  rpgId       String           @map("rpg_id")
+  rpg         Rpg              @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @default(now()) @map("updated_at")
+  books       RpgLibraryBook[]
+
+  @@index([rpgId])
+  @@map("rpg_library_sections")
+}
+
+model RpgLibraryBook {
+  id         String            @id @default(cuid())
+  rpgId      String            @map("rpg_id")
+  sectionId  String            @map("section_id")
+  rpg        Rpg               @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  section    RpgLibrarySection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title      String
+  content    Json              @default("{\"type\":\"doc\",\"content\":[]}")
+  visibility RpgVisibility     @default(private)
+  allowedCharacterIds Json     @default("[]") @map("allowed_character_ids")
+  allowedClassKeys Json        @default("[]") @map("allowed_class_keys")
+  allowedRaceKeys Json         @default("[]") @map("allowed_race_keys")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @default(now()) @map("updated_at")
+
+  @@index([rpgId])
+  @@index([sectionId])
+  @@map("rpg_library_books")
 }
 
 model BaseItem {

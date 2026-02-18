@@ -10,6 +10,8 @@
  */
 export type * from './models/User'
 export type * from './models/Rpg'
+export type * from './models/RpgLibrarySection'
+export type * from './models/RpgLibraryBook'
 export type * from './models/BaseItem'
 export type * from './models/RpgAttributeTemplate'
 export type * from './models/RpgCharacter'

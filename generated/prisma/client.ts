@@ -50,6 +50,16 @@ export type User = Prisma.UserModel
  */
 export type Rpg = Prisma.RpgModel
 /**
+ * Model RpgLibrarySection
+ * 
+ */
+export type RpgLibrarySection = Prisma.RpgLibrarySectionModel
+/**
+ * Model RpgLibraryBook
+ * 
+ */
+export type RpgLibraryBook = Prisma.RpgLibraryBookModel
+/**
  * Model BaseItem
  * 
  */
