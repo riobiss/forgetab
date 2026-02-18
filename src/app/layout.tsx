@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
+import "@/styles/_variables.scss"
+import "@/styles/_keyframe-animations.scss"
 import Header from "@/components/header/Header"
 
 const geistSans = Geist({
