@@ -53,6 +53,7 @@ export default function MembershipNotifications({
     : 0
 
   async function requestToJoin() {
+    if (loadingRequest) return
     setLoadingRequest(true)
     setMessage("")
     setError("")
@@ -79,6 +80,7 @@ export default function MembershipNotifications({
   }
 
   async function processRequest(memberId: string, action: "accept" | "reject") {
+    if (processingId) return
     setProcessingId(memberId)
     setMessage("")
     setError("")
@@ -107,6 +109,7 @@ export default function MembershipNotifications({
   }
 
   async function processCharacterRequest(requestId: string, action: "accept" | "reject") {
+    if (processingId) return
     setProcessingId(requestId)
     setMessage("")
     setError("")

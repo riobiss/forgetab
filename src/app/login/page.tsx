@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { FormEvent, Suspense, useState } from "react"
+import { FormEvent, Suspense, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import styles from "./page.module.css"
 
@@ -12,6 +12,7 @@ function LoginContent() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const submittingRef = useRef(false)
 
   const rawNextPath = searchParams.get("next") || "/"
   const nextPath =
@@ -21,6 +22,8 @@ function LoginContent() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (submittingRef.current) return
+    submittingRef.current = true
     setLoading(true)
     setError("")
 
@@ -44,6 +47,7 @@ function LoginContent() {
       setError("Erro de conexao ao autenticar.")
     } finally {
       setLoading(false)
+      submittingRef.current = false
     }
   }
 

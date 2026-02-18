@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { FormEvent, Suspense, useState } from "react"
+import { FormEvent, Suspense, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import styles from "./page.module.css"
 
@@ -14,6 +14,7 @@ function RegisterContent() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const submittingRef = useRef(false)
 
   const rawNextPath = searchParams.get("next") || "/"
   const nextPath =
@@ -23,10 +24,13 @@ function RegisterContent() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (submittingRef.current) return
+    submittingRef.current = true
     setError("")
 
     if (password !== confirmPassword) {
       setError("As senhas nao coincidem.")
+      submittingRef.current = false
       return
     }
 
@@ -52,6 +56,7 @@ function RegisterContent() {
       setError("Erro de conexao ao cadastrar.")
     } finally {
       setLoading(false)
+      submittingRef.current = false
     }
   }
 

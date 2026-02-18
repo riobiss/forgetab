@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { FormEvent, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import styles from "./page.module.css"
@@ -23,6 +23,7 @@ export default function NewRpgPage() {
   const [uploadError, setUploadError] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const creatingRef = useRef(false)
 
   async function handleImageUpload(file: File) {
     setUploadingImage(true)
@@ -59,6 +60,8 @@ export default function NewRpgPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (creatingRef.current) return
+    creatingRef.current = true
     setLoading(true)
     setError("")
 
@@ -89,6 +92,7 @@ export default function NewRpgPage() {
       setError("Erro de conexao ao criar RPG.")
     } finally {
       setLoading(false)
+      creatingRef.current = false
     }
   }
 
@@ -134,16 +138,6 @@ export default function NewRpgPage() {
             </NativeSelectField>
           </label>
 
-          <label className={styles.field}>
-            <span>Imagem do RPG (URL)</span>
-            <input
-              type="url"
-              value={image}
-              onChange={(event) => setImage(event.target.value)}
-              readOnly
-              placeholder="https://ik.imagekit.io/.../rpg.jpg"
-            />
-          </label>
          
           <label className={styles.field}>
             <span>imagem do RPG</span>
@@ -207,4 +201,3 @@ export default function NewRpgPage() {
     </main>
   )
 }
-

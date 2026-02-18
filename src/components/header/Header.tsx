@@ -9,6 +9,7 @@ import styles from "./Header.module.css"
 export default function Header() {
   const router = useRouter()
   const [openUserMenu, setOpenUserMenu] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
   const menuRef = useRef<HTMLLIElement | null>(null)
 
   useEffect(() => {
@@ -27,12 +28,15 @@ export default function Header() {
   }, [])
 
   async function handleLogout() {
+    if (loggingOut) return
+    setLoggingOut(true)
     try {
       await fetch("/api/auth/logout", { method: "POST" })
     } finally {
       setOpenUserMenu(false)
       router.push("/login")
       router.refresh()
+      setLoggingOut(false)
     }
   }
 
@@ -66,8 +70,8 @@ export default function Header() {
                 <Link href="/perfil" onClick={() => setOpenUserMenu(false)}>
                   Perfil
                 </Link>
-                <button type="button" onClick={handleLogout}>
-                  Deslogar
+                <button type="button" onClick={handleLogout} disabled={loggingOut}>
+                  {loggingOut ? "Saindo..." : "Deslogar"}
                 </button>
               </div>
             ) : null}

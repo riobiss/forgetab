@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useEffect, useMemo, useState } from "react"
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { ImagePlus, Paperclip, Trash2 } from "lucide-react"
@@ -187,6 +187,8 @@ export default function NewCharacterPage() {
   const [showAttributeSection, setShowAttributeSection] = useState(true)
   const [showSkillSection, setShowSkillSection] = useState(true)
   const [selectedImageName, setSelectedImageName] = useState("")
+  const savingRef = useRef(false)
+  const deletingRef = useRef(false)
   const identityNameField = identityTemplates.find((field) => isIdentityNameField(field)) ?? null
   const imageStatusText = useMemo(() => {
     if (selectedImageName.trim().length > 0) {
@@ -366,6 +368,8 @@ export default function NewCharacterPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (savingRef.current) return
+    savingRef.current = true
 
     setSaving(true)
     setError("")
@@ -435,6 +439,7 @@ export default function NewCharacterPage() {
       )
     } finally {
       setSaving(false)
+      savingRef.current = false
     }
   }
 
@@ -512,7 +517,9 @@ export default function NewCharacterPage() {
 
   async function handleDeleteCharacter() {
     if (!editingCharacterId) return
+    if (deletingRef.current) return
 
+    deletingRef.current = true
     setDeleting(true)
     setError("")
 
@@ -534,6 +541,7 @@ export default function NewCharacterPage() {
     } finally {
       setDeleting(false)
       setShowDeleteConfirm(false)
+      deletingRef.current = false
     }
   }
 

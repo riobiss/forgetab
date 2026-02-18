@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type {
   AttributeTemplate,
   CatalogOption,
@@ -99,6 +99,8 @@ export function useEditRpgData({
   const [error, setError] = useState("")
   const [canEdit, setCanEdit] = useState(false)
   const [identitySuccess, setIdentitySuccess] = useState("")
+  const savingRef = useRef(false)
+  const deletingRef = useRef(false)
 
   useEffect(() => {
     async function loadAll() {
@@ -330,6 +332,8 @@ export function useEditRpgData({
   }
 
   async function saveAll() {
+    if (savingRef.current) return
+    savingRef.current = true
     setSaving(true)
     setError("")
     setIdentitySuccess("")
@@ -349,10 +353,13 @@ export function useEditRpgData({
       setError(message)
     } finally {
       setSaving(false)
+      savingRef.current = false
     }
   }
 
   async function deleteRpg() {
+    if (deletingRef.current) return { ok: false as const }
+    deletingRef.current = true
     setDeleting(true)
     setError("")
     setIdentitySuccess("")
@@ -373,6 +380,7 @@ export function useEditRpgData({
       return { ok: false as const }
     } finally {
       setDeleting(false)
+      deletingRef.current = false
     }
   }
 

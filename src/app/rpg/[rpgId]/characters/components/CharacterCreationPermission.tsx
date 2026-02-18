@@ -67,6 +67,7 @@ export default function CharacterCreationPermission({
   }, [load])
 
   async function handleRequestPermission() {
+    if (submitting) return
     try {
       setSubmitting(true)
       setError("")

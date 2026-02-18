@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react"
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "next/navigation"
 import {
   ArrowLeft,
@@ -81,6 +81,8 @@ export default function ItemsPage() {
   const [giving, setGiving] = useState(false)
   const [giveError, setGiveError] = useState("")
   const [giveSuccess, setGiveSuccess] = useState("")
+  const deletingRef = useRef(false)
+  const givingRef = useRef(false)
 
   const visibleItems = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
@@ -204,12 +206,14 @@ export default function ItemsPage() {
   }
 
   async function handleDelete(itemId: string) {
+    if (deletingRef.current) return
     const confirmed = window.confirm("Tem certeza que deseja deletar este item?")
     if (!confirmed) {
       return
     }
 
     try {
+      deletingRef.current = true
       setDeletingItemId(itemId)
       setLoadingError("")
 
@@ -229,11 +233,14 @@ export default function ItemsPage() {
       setLoadingError("Erro de conexao ao deletar item.")
     } finally {
       setDeletingItemId(null)
+      deletingRef.current = false
     }
   }
 
   async function handleGiveItem(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (givingRef.current) return
+    givingRef.current = true
     setGiving(true)
     setGiveError("")
     setGiveSuccess("")
@@ -241,6 +248,7 @@ export default function ItemsPage() {
     if (!selectedGiveItem || !selectedCharacterId) {
       setGiveError("Selecione um personagem para receber o item.")
       setGiving(false)
+      givingRef.current = false
       return
     }
 
@@ -268,6 +276,7 @@ export default function ItemsPage() {
       setGiveError("Erro de conexao ao entregar item.")
     } finally {
       setGiving(false)
+      givingRef.current = false
     }
   }
 

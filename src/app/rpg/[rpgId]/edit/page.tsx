@@ -299,8 +299,6 @@ export default function EditRpgPage() {
 
             <RaceClassOptionsSection
               rpgId={rpgId}
-              useClassRaceBonuses={state.useClassRaceBonuses}
-              onUseClassRaceBonusesChange={state.setUseClassRaceBonuses}
               showRaceList={state.showRaceList}
               onToggleRaceList={() => state.setShowRaceList((prev) => !prev)}
               onCreateRace={() => router.push(`/rpg/${rpgId}/edit/advanced/race/new`)}

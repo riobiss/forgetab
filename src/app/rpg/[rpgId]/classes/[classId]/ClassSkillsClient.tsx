@@ -128,6 +128,7 @@ export default function ClassSkillsClient({
     if (!characterId || !costsEnabled) return
 
     const key = buildLevelKey(skillId, level)
+    if (loadingKey) return
     setLoadingKey(key)
     setError("")
     setSuccess("")

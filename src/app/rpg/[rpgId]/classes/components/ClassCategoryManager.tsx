@@ -40,6 +40,7 @@ export default function ClassCategoryManager({ rpgId, initialClasses }: Props) {
   }, [classes, draftCategories])
 
   async function saveClasses(nextClasses: ClassItem[]) {
+    if (saving) return false
     setSaving(true)
     setError("")
     setMessage("")
@@ -79,6 +80,7 @@ export default function ClassCategoryManager({ rpgId, initialClasses }: Props) {
 
   function handleCreateCategory(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (saving) return
     const normalized = normalizeCategory(newCategory)
     if (!normalized) return
 
@@ -96,6 +98,7 @@ export default function ClassCategoryManager({ rpgId, initialClasses }: Props) {
 
   async function handleCreateClass(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (saving) return
 
     const label = newClassName.trim()
     if (label.length < 2) {

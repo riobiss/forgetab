@@ -24,6 +24,7 @@ export default function MembersList({ rpgId, members, compact = false }: Props) 
   const membersCount = members.length
 
   async function expelMember(memberId: string) {
+    if (expellingId) return
     const confirmed = window.confirm("Deseja realmente expulsar este membro?")
     if (!confirmed) {
       return

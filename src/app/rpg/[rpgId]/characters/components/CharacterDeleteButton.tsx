@@ -14,6 +14,7 @@ export default function CharacterDeleteButton({ rpgId, characterId }: Props) {
   const [deleting, setDeleting] = useState(false)
 
   async function handleDelete() {
+    if (deleting) return
     const confirmed = window.confirm("Tem certeza que deseja deletar este personagem?")
     if (!confirmed) return
 

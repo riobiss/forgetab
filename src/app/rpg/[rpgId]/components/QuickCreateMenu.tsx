@@ -64,6 +64,8 @@ export default function QuickCreateMenu({ rpgId }: Props) {
   const [amountInput, setAmountInput] = useState("1")
   const [players, setPlayers] = useState<Array<{ id: string; name: string; classLabel: string }>>([])
   const [loadingActionKey, setLoadingActionKey] = useState("")
+  const loadingPanelRef = useRef(false)
+  const loadingGrantRef = useRef(false)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
 
   const hasPlayers = useMemo(() => players.length > 0, [players])
@@ -76,6 +78,8 @@ export default function QuickCreateMenu({ rpgId }: Props) {
   }, [amountInput])
 
   const loadPointsPanelData = useCallback(async () => {
+    if (loadingPanelRef.current) return
+    loadingPanelRef.current = true
     try {
       setLoadingPanel(true)
       setPanelError("")
@@ -125,16 +129,19 @@ export default function QuickCreateMenu({ rpgId }: Props) {
       setPanelError("Erro de conexao ao carregar distribuicao de pontos.")
     } finally {
       setLoadingPanel(false)
+      loadingPanelRef.current = false
     }
   }, [rpgId])
 
   async function handleGrantPoint(characterId: string, playerName: string, amount: 1 | -1) {
+    if (loadingGrantRef.current) return
     if (!selectedAmount) {
       setPanelError("Informe uma quantidade valida (inteiro maior que zero).")
       return
     }
 
     try {
+      loadingGrantRef.current = true
       setLoadingActionKey(`${characterId}:${amount}`)
       setPanelError("")
       setPanelMessage("")
@@ -162,6 +169,7 @@ export default function QuickCreateMenu({ rpgId }: Props) {
       setPanelError("Erro de conexao ao atualizar ponto de classe.")
     } finally {
       setLoadingActionKey("")
+      loadingGrantRef.current = false
     }
   }
 

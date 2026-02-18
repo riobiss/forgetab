@@ -16,6 +16,7 @@ export default function OwnedRpgActions({ rpgId }: Props) {
   const [deleting, setDeleting] = useState(false)
 
   async function handleDelete() {
+    if (deleting) return
     const confirmed = window.confirm("Tem certeza que deseja deletar este RPG?")
     if (!confirmed) {
       return

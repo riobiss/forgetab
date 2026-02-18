@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useEffect, useMemo, useState } from "react"
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import styles from "./ItemEditorForm.module.css"
@@ -111,6 +111,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
   const [loadingError, setLoadingError] = useState("")
   const [submitError, setSubmitError] = useState("")
   const [saving, setSaving] = useState(false)
+  const savingRef = useRef(false)
 
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
@@ -192,6 +193,8 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (savingRef.current) return
+    savingRef.current = true
     setSubmitError("")
     setSaving(true)
 
@@ -251,6 +254,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
       setSubmitError("Erro de conexao ao salvar o item.")
     } finally {
       setSaving(false)
+      savingRef.current = false
     }
   }
 
