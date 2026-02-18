@@ -1,0 +1,57 @@
+.page {
+  min-height: 100vh;
+  padding: 1rem;
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.topbar {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.ghostButton {
+  border-radius: 10px;
+  padding: 0.52rem 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.primaryButton {
+  border: 1px solid var(--color-brand-primary);
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+}
+
+.primaryButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ghostButton {
+  border: 1px solid var(--color-border-soft);
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+}
+
+.feedback {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.error {
+  margin: 0;
+  color: var(--color-status-danger);
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 0.75rem;
+  }
+}
