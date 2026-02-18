@@ -14,6 +14,18 @@ type MembershipRow = {
   status: "pending" | "accepted" | "rejected"
 }
 
+type RpgRow = {
+  id: string
+  ownerId: string
+  visibility: "private" | "public"
+}
+
+type RpgUserRow = {
+  id: string
+  name: string
+  email: string
+}
+
 async function getUserIdFromToken(request: NextRequest) {
   const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
 
@@ -26,6 +38,83 @@ async function getUserIdFromToken(request: NextRequest) {
     return payload.userId
   } catch {
     return null
+  }
+}
+
+async function canReadRpgMembers(rpgId: string, userId: string) {
+  const rows = await prisma.$queryRaw<RpgRow[]>(Prisma.sql`
+    SELECT
+      id,
+      owner_id AS "ownerId",
+      visibility
+    FROM rpgs
+    WHERE id = ${rpgId}
+    LIMIT 1
+  `)
+
+  const rpg = rows[0]
+  if (!rpg) return false
+  if (rpg.ownerId === userId || rpg.visibility === "public") return true
+
+  const membership = await prisma.$queryRaw<MembershipRow[]>(Prisma.sql`
+    SELECT id, status
+    FROM rpg_members
+    WHERE rpg_id = ${rpgId}
+      AND user_id = ${userId}
+    LIMIT 1
+  `)
+
+  return membership[0]?.status === "accepted"
+}
+
+export async function GET(request: NextRequest, context: RouteContext) {
+  try {
+    const userId = await getUserIdFromToken(request)
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Usuario nao autenticado." },
+        { status: 401 },
+      )
+    }
+
+    const { rpgId } = await context.params
+    const hasAccess = await canReadRpgMembers(rpgId, userId)
+    if (!hasAccess) {
+      return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
+    }
+
+    const users = await prisma.$queryRaw<RpgUserRow[]>(Prisma.sql`
+      SELECT DISTINCT
+        u.id,
+        u.name,
+        u.email
+      FROM users u
+      INNER JOIN (
+        SELECT owner_id AS user_id
+        FROM rpgs
+        WHERE id = ${rpgId}
+        UNION
+        SELECT user_id
+        FROM rpg_members
+        WHERE rpg_id = ${rpgId}
+          AND status = 'accepted'::"public"."RpgMemberStatus"
+      ) allowed_users ON allowed_users.user_id = u.id
+      ORDER BY u.name ASC
+    `)
+
+    return NextResponse.json({ users }, { status: 200 })
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('relation "rpg_members" does not exist')) {
+      return NextResponse.json(
+        { message: "Tabela de membros nao existe no banco. Rode a migration." },
+        { status: 500 },
+      )
+    }
+
+    return NextResponse.json(
+      { message: "Erro interno ao listar membros." },
+      { status: 500 },
+    )
   }
 }
 
