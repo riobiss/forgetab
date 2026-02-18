@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Forja",
-  description: "Forja",
+  title: "ForgeTab",
+  description: "forgeTab",
 }
 
 export default function RootLayout({

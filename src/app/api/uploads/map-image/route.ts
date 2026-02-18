@@ -27,7 +27,11 @@ function getImageKitConfig() {
     return { ok: false as const, missing }
   }
 
-  return { ok: true as const, privateKey: privateKey as string, urlEndpoint: urlEndpoint as string }
+  return {
+    ok: true as const,
+    privateKey: privateKey as string,
+    urlEndpoint: urlEndpoint as string,
+  }
 }
 
 function parseHost(value: string) {
@@ -103,19 +107,24 @@ async function deleteImageKitFileByUrl(
     if (item.url === oldUrl) return true
 
     const itemPath = normalizeUrlPath(item.url)
-    return Boolean(normalizedOldPath && itemPath && itemPath === normalizedOldPath)
+    return Boolean(
+      normalizedOldPath && itemPath && itemPath === normalizedOldPath,
+    )
   })
 
   if (!target?.fileId) {
     return
   }
 
-  const deleteResponse = await fetch(`https://api.imagekit.io/v1/files/${target.fileId}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Basic ${auth}`,
+  const deleteResponse = await fetch(
+    `https://api.imagekit.io/v1/files/${target.fileId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Basic ${auth}`,
+      },
     },
-  })
+  )
 
   if (!deleteResponse.ok && deleteResponse.status !== 404) {
     throw new Error("Falha ao remover imagem no ImageKit.")
@@ -126,7 +135,10 @@ export async function POST(request: NextRequest) {
   try {
     const userId = await getUserIdFromToken(request)
     if (!userId) {
-      return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
+      return NextResponse.json(
+        { message: "Usuario nao autenticado." },
+        { status: 401 },
+      )
     }
 
     const imageKitConfig = getImageKitConfig()
@@ -144,11 +156,17 @@ export async function POST(request: NextRequest) {
     const oldUrl = formData.get("oldUrl")
 
     if (!(file instanceof File)) {
-      return NextResponse.json({ message: "Arquivo de imagem e obrigatorio." }, { status: 400 })
+      return NextResponse.json(
+        { message: "Arquivo de imagem e obrigatorio." },
+        { status: 400 },
+      )
     }
 
     if (!file.type.startsWith("image/")) {
-      return NextResponse.json({ message: "Envie um arquivo de imagem valido." }, { status: 400 })
+      return NextResponse.json(
+        { message: "Envie um arquivo de imagem valido." },
+        { status: 400 },
+      )
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
@@ -165,10 +183,12 @@ export async function POST(request: NextRequest) {
     const uploadPayload = new FormData()
     uploadPayload.append("file", `data:${file.type};base64,${base64}`)
     uploadPayload.append("fileName", safeName)
-    uploadPayload.append("folder", "/rpg-web/maps")
+    uploadPayload.append("folder", "/forgetab/maps")
     uploadPayload.append("useUniqueFileName", "true")
 
-    const auth = Buffer.from(`${imageKitConfig.privateKey}:`, "utf8").toString("base64")
+    const auth = Buffer.from(`${imageKitConfig.privateKey}:`, "utf8").toString(
+      "base64",
+    )
 
     await deleteImageKitFileByUrl(
       imageKitConfig.privateKey,
@@ -176,13 +196,16 @@ export async function POST(request: NextRequest) {
       oldUrl,
     )
 
-    const response = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${auth}`,
+    const response = await fetch(
+      "https://upload.imagekit.io/api/v1/files/upload",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${auth}`,
+        },
+        body: uploadPayload,
       },
-      body: uploadPayload,
-    })
+    )
 
     const payload = (await response.json()) as {
       url?: string
@@ -193,7 +216,9 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok || !payload.url) {
       return NextResponse.json(
-        { message: payload.message ?? "Falha ao enviar imagem para o ImageKit." },
+        {
+          message: payload.message ?? "Falha ao enviar imagem para o ImageKit.",
+        },
         { status: 502 },
       )
     }
@@ -219,7 +244,10 @@ export async function DELETE(request: NextRequest) {
   try {
     const userId = await getUserIdFromToken(request)
     if (!userId) {
-      return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
+      return NextResponse.json(
+        { message: "Usuario nao autenticado." },
+        { status: 401 },
+      )
     }
 
     const imageKitConfig = getImageKitConfig()
@@ -239,7 +267,10 @@ export async function DELETE(request: NextRequest) {
       body.url,
     )
 
-    return NextResponse.json({ message: "Imagem removida com sucesso." }, { status: 200 })
+    return NextResponse.json(
+      { message: "Imagem removida com sucesso." },
+      { status: 200 },
+    )
   } catch {
     return NextResponse.json(
       { message: "Erro interno ao remover imagem." },

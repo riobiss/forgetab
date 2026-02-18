@@ -38,7 +38,7 @@ export default function Header() {
 
   return (
     <header className={styles.header}>
-      <h1>Forja</h1>
+      <h1>ForgeTab</h1>
       <nav>
         <ul>
           <li>

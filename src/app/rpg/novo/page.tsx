@@ -144,9 +144,9 @@ export default function NewRpgPage() {
               placeholder="https://ik.imagekit.io/.../rpg.jpg"
             />
           </label>
-
+         
           <label className={styles.field}>
-            <span>Arquivo da imagem</span>
+            <span>imagem do RPG</span>
             <input
               type="file"
               accept="image/*"

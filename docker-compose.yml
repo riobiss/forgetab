@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: forja
+    container_name: forgetab
     ports:
       - "3000:3000"
     env_file:
@@ -24,7 +24,7 @@ services:
 
   db:
     image: postgres:16-alpine
-    container_name: rpg-db
+    container_name: forgetab-db
     restart: unless-stopped
     env_file:
       - .env.development
