@@ -28,6 +28,15 @@ export default function InventoryCards({
       {items.map((item) => (
         <div key={item.id} className={`${styles.card} ${styles[item.rarityClass]}`}>
           <div className={styles.cardTop}>
+            {item.imageUrl ? (
+              <div className={styles.cardImageFrame}>
+                <img
+                  src={item.imageUrl}
+                  alt={`Imagem de ${item.title}`}
+                  className={styles.cardImage}
+                />
+              </div>
+            ) : null}
             <div className={styles.cardHeader}>
               <div className={styles.titleRow}>
                 <h3 className={styles.cardTitle}>{item.title}</h3>

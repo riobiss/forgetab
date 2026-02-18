@@ -211,6 +211,7 @@
   background: var(--color-bg-surface);
   padding: 1.5rem;
   box-shadow: 0 4px 20px var(--color-bg-overlay-soft);
+  overflow: hidden;
 }
 
 .card:hover {
@@ -251,6 +252,23 @@
 .cardTop {
   display: grid;
   gap: 0.6rem;
+}
+
+.cardImageFrame {
+  width: 100%;
+  height: 180px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  background: color-mix(in srgb, var(--color-bg-overlay-soft) 70%, transparent);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .rarityBadge {
@@ -354,6 +372,8 @@
   color: var(--color-text-primary);
   font-size: 0.84rem;
   font-weight: 700;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .highlightText {
@@ -361,6 +381,8 @@
   color: var(--color-text-secondary);
   font-size: 0.83rem;
   line-height: 1.4;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .cardFooter {
@@ -439,7 +461,7 @@
 }
 
 .common .cardTitle {
-  color: var(--color-text-secondary);
+  color: var(--color-rarity-common);
 }
 
 .uncommon {
@@ -448,7 +470,7 @@
 }
 
 .uncommon .cardTitle {
-  color: var(--color-status-success-contrast);
+  color: var(--color-rarity-uncommon);
 }
 
 .rare {
@@ -457,7 +479,7 @@
 }
 
 .rare .cardTitle {
-  color: var(--color-status-info-contrast);
+  color: var(--color-rarity-rare);
 }
 
 .legendary {
@@ -468,7 +490,7 @@
 }
 
 .legendary .cardTitle {
-  color: var(--color-status-warning-contrast);
+  color: var(--color-rarity-legendary);
 }
 
 .epic {

@@ -3,6 +3,7 @@ export type InventoryRarity = "common" | "uncommon" | "rare" | "epic" | "legenda
 export type InventoryCardItem = {
   id: string
   title: string
+  imageUrl?: string
   rarityLabel: string
   rarityClass: InventoryRarity
   quantity: number

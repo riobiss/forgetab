@@ -21,6 +21,7 @@ type NamedDescription = {
 type BaseItem = {
   id: string
   name: string
+  image: string | null
   description: string | null
   type: ItemType
   rarity: ItemRarity
@@ -40,6 +41,11 @@ type BaseItem = {
 type ApiItemPayload = {
   item?: BaseItem
   message?: string
+}
+
+type UploadImagePayload = {
+  message?: string
+  url?: string
 }
 
 type Props = {
@@ -114,6 +120,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
   const savingRef = useRef(false)
 
   const [name, setName] = useState("")
+  const [image, setImage] = useState("")
   const [description, setDescription] = useState("")
   const [type, setType] = useState<ItemType>("weapon")
   const [rarity, setRarity] = useState<ItemRarity>("common")
@@ -128,6 +135,8 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
   const [effects, setEffects] = useState<NamedDescription[]>([
     { name: "", description: "" },
   ])
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadError, setUploadError] = useState("")
 
   useEffect(() => {
     if (!isEditing || !itemId) {
@@ -148,6 +157,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
         }
 
         setName(payload.item.name)
+        setImage(payload.item.image ?? "")
         setDescription(payload.item.description ?? "")
         setType(payload.item.type)
         setRarity(payload.item.rarity)
@@ -214,6 +224,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
 
     const payload = {
       name,
+      image: toOptionalText(image),
       description: toOptionalText(description),
       type,
       rarity,
@@ -258,6 +269,69 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
     }
   }
 
+  async function handleImageUpload(file: File) {
+    setUploadingImage(true)
+    setUploadError("")
+    setSubmitError("")
+
+    try {
+      const payload = new FormData()
+      payload.append("file", file)
+      if (image.trim()) {
+        payload.append("oldUrl", image.trim())
+      }
+
+      const response = await fetch("/api/uploads/item-image", {
+        method: "POST",
+        body: payload,
+      })
+
+      const body = (await response.json()) as UploadImagePayload
+      if (!response.ok || !body.url) {
+        setUploadError(body.message ?? "Nao foi possivel enviar imagem.")
+        return
+      }
+
+      setImage(body.url)
+    } catch {
+      setUploadError("Erro de conexao ao enviar imagem.")
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  async function handleRemoveImage() {
+    const currentImage = image.trim()
+    if (!currentImage) {
+      setImage("")
+      setUploadError("")
+      return
+    }
+
+    setUploadingImage(true)
+    setUploadError("")
+    setSubmitError("")
+
+    try {
+      const response = await fetch("/api/uploads/item-image", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: currentImage }),
+      })
+      if (!response.ok) {
+        const payload = (await response.json()) as { message?: string }
+        setUploadError(payload.message ?? "Nao foi possivel remover imagem.")
+        return
+      }
+
+      setImage("")
+    } catch {
+      setUploadError("Erro de conexao ao remover imagem.")
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
   return (
     <main className={styles.page}>
       <div className={styles.header}>
@@ -299,6 +373,51 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
                 placeholder="Descricao opcional do item"
               />
             </label>
+
+            <label className={styles.field}>
+              <span>Imagem do item</span>
+              <div className={styles.imageActions}>
+                <label htmlFor="item-image-file" className={styles.ghostButton}>
+                  {uploadingImage ? "Enviando..." : "Adicionar imagem"}
+                </label>
+                {image ? (
+                  <button
+                    type="button"
+                    className={styles.removeButton}
+                    onClick={() => void handleRemoveImage()}
+                    disabled={saving || uploadingImage}
+                  >
+                    {uploadingImage ? "Removendo..." : "Remover imagem"}
+                  </button>
+                ) : null}
+              </div>
+              <input
+                id="item-image-file"
+                className={styles.fileInput}
+                type="file"
+                accept="image/*"
+                onChange={(event) => {
+                  const file = event.target.files?.[0]
+                  if (file) {
+                    void handleImageUpload(file)
+                  }
+                }}
+                disabled={saving || uploadingImage}
+              />
+            </label>
+
+            {image ? (
+              <div className={styles.field}>
+                <span>Preview</span>
+                <div className={styles.itemImagePreviewFrame}>
+                  <img
+                    src={image}
+                    alt={`Imagem de ${name || "item"}`}
+                    className={styles.itemImagePreview}
+                  />
+                </div>
+              </div>
+            ) : null}
 
             <label className={styles.field}>
               <span>Tipo</span>
@@ -490,6 +609,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
           </div>
 
           {submitError ? <p className={styles.error}>{submitError}</p> : null}
+          {uploadError ? <p className={styles.error}>{uploadError}</p> : null}
 
           <div className={styles.formActions}>
             <button type="submit" className={styles.primaryButton} disabled={saving}>

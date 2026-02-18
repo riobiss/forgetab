@@ -13,6 +13,7 @@ type InventoryItem = {
   baseItemId: string
   quantity: number
   itemName: string
+  itemImage: string | null
   itemDescription: string | null
   itemType: string
   itemRarity: InventoryRarity
@@ -191,6 +192,7 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
     return {
       id: item.id,
       title: item.itemName,
+      imageUrl: item.itemImage ?? undefined,
       rarityLabel: rarityLabel[item.itemRarity],
       rarityClass: item.itemRarity,
       quantity: item.quantity,

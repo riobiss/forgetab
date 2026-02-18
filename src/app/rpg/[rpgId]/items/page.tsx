@@ -26,6 +26,7 @@ type BaseItem = {
   id: string
   rpgId: string
   name: string
+  image: string | null
   type: ItemType
   rarity: string
   damage: string | null
@@ -390,6 +391,11 @@ export default function ItemsPage() {
 
                   return (
                     <>
+                {item.image ? (
+                  <div className={styles.cardImageFrame}>
+                    <img src={item.image} alt={`Imagem de ${item.name}`} className={styles.cardImage} />
+                  </div>
+                ) : null}
                 <div className={styles.cardHeader}>
                   <h3>{item.name}</h3>
                   <span>{item.type}</span>
