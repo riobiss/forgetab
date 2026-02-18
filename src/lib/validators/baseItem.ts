@@ -32,6 +32,12 @@ const namedDescriptionSchema = z.object({
 
 export const createBaseItemSchema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres."),
+  image: z
+    .string()
+    .trim()
+    .max(2000, "URL da imagem deve ter no maximo 2000 caracteres.")
+    .nullable()
+    .optional(),
   description: z
     .string()
     .trim()

@@ -19,6 +19,7 @@ type BaseItemRow = {
   id: string
   rpgId: string
   name: string
+  image: string | null
   description: string | null
   type: string
   rarity: string
@@ -98,6 +99,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         id,
         rpg_id AS "rpgId",
         name,
+        image,
         description,
         type,
         rarity,
@@ -153,6 +155,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
           { status: 500 },
         )
       }
+      if (error.message.includes('column "image" does not exist')) {
+        return NextResponse.json(
+          { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+          { status: 500 },
+        )
+      }
     }
 
     return NextResponse.json(
@@ -191,6 +199,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     const damage = normalizeOptionalText(parsed.data.damage)
+    const image = normalizeOptionalText(parsed.data.image)
     const range = normalizeOptionalText(parsed.data.range)
     const description = normalizeOptionalText(parsed.data.description)
     const weight = parsed.data.weight ?? null
@@ -208,6 +217,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         id,
         rpg_id,
         name,
+        image,
         description,
         type,
         rarity,
@@ -227,6 +237,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         ${crypto.randomUUID()},
         ${rpgId},
         ${parsed.data.name},
+        ${image},
         ${description},
         ${parsed.data.type}::"public"."BaseItemType",
         ${parsed.data.rarity}::"public"."BaseItemRarity",
@@ -246,6 +257,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         id,
         rpg_id AS "rpgId",
         name,
+        image,
         description,
         type,
         rarity,
@@ -293,6 +305,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
         )
       }
       if (error.message.includes('column "range" does not exist')) {
+        return NextResponse.json(
+          { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+          { status: 500 },
+        )
+      }
+      if (error.message.includes('column "image" does not exist')) {
         return NextResponse.json(
           { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
           { status: 500 },

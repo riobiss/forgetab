@@ -25,6 +25,7 @@ type InventoryRow = {
   createdAt: Date
   updatedAt: Date
   itemName: string
+  itemImage: string | null
   itemDescription: string | null
   itemType: string
   itemRarity: string
@@ -176,6 +177,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         i.created_at AS "createdAt",
         i.updated_at AS "updatedAt",
         b.name AS "itemName",
+        b.image AS "itemImage",
         b.description AS "itemDescription",
         b.type AS "itemType",
         b.rarity AS "itemRarity",
@@ -224,6 +226,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
       )
     }
     if (error instanceof Error && error.message.includes('column "duration" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "image" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
         { status: 500 },

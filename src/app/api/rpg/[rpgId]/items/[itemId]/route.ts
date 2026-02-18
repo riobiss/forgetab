@@ -20,6 +20,7 @@ type BaseItemRow = {
   id: string
   rpgId: string
   name: string
+  image: string | null
   description: string | null
   type: string
   rarity: string
@@ -36,6 +37,107 @@ type BaseItemRow = {
   durability: number | null
   createdAt: Date
   updatedAt: Date
+}
+
+function getImageKitConfig() {
+  const privateKey = process.env.IMAGEKIT_PRIVATE_KEY
+  const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT
+
+  if (!privateKey || !urlEndpoint) {
+    return { ok: false as const }
+  }
+
+  return { ok: true as const, privateKey, urlEndpoint }
+}
+
+function parseHost(value: string) {
+  try {
+    return new URL(value).host.toLowerCase()
+  } catch {
+    return null
+  }
+}
+
+function normalizeUrlPath(value: string) {
+  try {
+    return new URL(value).pathname
+  } catch {
+    return null
+  }
+}
+
+function extractFileNameFromUrl(value: string) {
+  const path = normalizeUrlPath(value)
+  if (!path) return null
+
+  const parts = path.split("/").filter(Boolean)
+  if (parts.length === 0) return null
+
+  return parts[parts.length - 1]
+}
+
+async function deleteImageKitFileByUrl(
+  privateKey: string,
+  urlEndpoint: string,
+  rawUrl: string | null,
+) {
+  if (!rawUrl) return
+
+  const imageUrl = rawUrl.trim()
+  if (!imageUrl) return
+
+  const endpointHost = parseHost(urlEndpoint)
+  const imageUrlHost = parseHost(imageUrl)
+  if (!endpointHost || !imageUrlHost || endpointHost !== imageUrlHost) {
+    return
+  }
+
+  const fileName = extractFileNameFromUrl(imageUrl)
+  if (!fileName) return
+
+  const auth = Buffer.from(`${privateKey}:`, "utf8").toString("base64")
+  const escapedFileName = fileName.replace(/"/g, '\\"')
+  const searchQuery = encodeURIComponent(`name = "${escapedFileName}"`)
+  const listResponse = await fetch(
+    `https://api.imagekit.io/v1/files?limit=100&searchQuery=${searchQuery}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${auth}`,
+      },
+    },
+  )
+
+  if (!listResponse.ok) {
+    throw new Error("Falha ao listar imagem no ImageKit.")
+  }
+
+  const listPayload = (await listResponse.json()) as Array<{
+    fileId?: string
+    url?: string
+  }>
+
+  const normalizedImagePath = normalizeUrlPath(imageUrl)
+  const target = listPayload.find((item) => {
+    if (!item.fileId || !item.url) return false
+    if (item.url === imageUrl) return true
+
+    const itemPath = normalizeUrlPath(item.url)
+    return Boolean(normalizedImagePath && itemPath && itemPath === normalizedImagePath)
+  })
+
+  if (!target?.fileId) return
+
+  const deleteResponse = await fetch(`https://api.imagekit.io/v1/files/${target.fileId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Basic ${auth}`,
+    },
+  })
+
+  if (!deleteResponse.ok && deleteResponse.status !== 404) {
+    throw new Error("Falha ao remover imagem no ImageKit.")
+  }
 }
 
 async function getUserIdFromToken(request: NextRequest) {
@@ -99,6 +201,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         id,
         rpg_id AS "rpgId",
         name,
+        image,
         description,
         type,
         rarity,
@@ -160,6 +263,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
           { status: 500 },
         )
       }
+      if (error.message.includes('column "image" does not exist')) {
+        return NextResponse.json(
+          { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+          { status: 500 },
+        )
+      }
     }
 
     return NextResponse.json(
@@ -198,6 +307,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     const damage = normalizeOptionalText(parsed.data.damage)
+    const image = normalizeOptionalText(parsed.data.image)
     const range = normalizeOptionalText(parsed.data.range)
     const description = normalizeOptionalText(parsed.data.description)
     const weight = parsed.data.weight ?? null
@@ -214,6 +324,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       UPDATE baseitems
       SET
         name = ${parsed.data.name},
+        image = ${image},
         description = ${description},
         type = ${parsed.data.type}::"public"."BaseItemType",
         rarity = ${parsed.data.rarity}::"public"."BaseItemRarity",
@@ -235,6 +346,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         id,
         rpg_id AS "rpgId",
         name,
+        image,
         description,
         type,
         rarity,
@@ -292,6 +404,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           { status: 500 },
         )
       }
+      if (error.message.includes('column "image" does not exist')) {
+        return NextResponse.json(
+          { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+          { status: 500 },
+        )
+      }
     }
 
     return NextResponse.json(
@@ -319,15 +437,28 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
-    const deleted = await prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
+    const deleted = await prisma.$queryRaw<{ id: string; image: string | null }[]>(Prisma.sql`
       DELETE FROM baseitems
       WHERE id = ${itemId}
         AND rpg_id = ${rpgId}
-      RETURNING id
+      RETURNING id, image
     `)
 
     if (deleted.length === 0) {
       return NextResponse.json({ message: "Item nao encontrado." }, { status: 404 })
+    }
+
+    const imageKitConfig = getImageKitConfig()
+    if (imageKitConfig.ok) {
+      try {
+        await deleteImageKitFileByUrl(
+          imageKitConfig.privateKey,
+          imageKitConfig.urlEndpoint,
+          deleted[0]?.image ?? null,
+        )
+      } catch {
+        // Nao bloqueia a exclusao do item caso a limpeza da imagem falhe.
+      }
     }
 
     return NextResponse.json(
@@ -339,6 +470,12 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       if (error.message.includes('relation "baseitems" does not exist')) {
         return NextResponse.json(
           { message: "Tabela baseitems nao existe no banco. Rode a migration." },
+          { status: 500 },
+        )
+      }
+      if (error.message.includes('column "image" does not exist')) {
+        return NextResponse.json(
+          { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
           { status: 500 },
         )
       }
