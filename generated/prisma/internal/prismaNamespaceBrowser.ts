@@ -121,6 +121,7 @@ export const BaseItemScalarFieldEnum = {
   id: 'id',
   rpgId: 'rpgId',
   name: 'name',
+  image: 'image',
   description: 'description',
   type: 'type',
   rarity: 'rarity',

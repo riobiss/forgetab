@@ -106,6 +106,7 @@ model BaseItem {
   rpgId     String         @map("rpg_id")
   rpg       Rpg            @relation(fields: [rpgId], references: [id], onDelete: Cascade)
   name      String
+  image     String?
   description String?
   type      BaseItemType
   rarity    BaseItemRarity @default(common)

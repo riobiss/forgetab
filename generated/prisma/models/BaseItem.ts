@@ -40,6 +40,7 @@ export type BaseItemMinAggregateOutputType = {
   id: string | null
   rpgId: string | null
   name: string | null
+  image: string | null
   description: string | null
   type: $Enums.BaseItemType | null
   rarity: $Enums.BaseItemRarity | null
@@ -60,6 +61,7 @@ export type BaseItemMaxAggregateOutputType = {
   id: string | null
   rpgId: string | null
   name: string | null
+  image: string | null
   description: string | null
   type: $Enums.BaseItemType | null
   rarity: $Enums.BaseItemRarity | null
@@ -80,6 +82,7 @@ export type BaseItemCountAggregateOutputType = {
   id: number
   rpgId: number
   name: number
+  image: number
   description: number
   type: number
   rarity: number
@@ -114,6 +117,7 @@ export type BaseItemMinAggregateInputType = {
   id?: true
   rpgId?: true
   name?: true
+  image?: true
   description?: true
   type?: true
   rarity?: true
@@ -134,6 +138,7 @@ export type BaseItemMaxAggregateInputType = {
   id?: true
   rpgId?: true
   name?: true
+  image?: true
   description?: true
   type?: true
   rarity?: true
@@ -154,6 +159,7 @@ export type BaseItemCountAggregateInputType = {
   id?: true
   rpgId?: true
   name?: true
+  image?: true
   description?: true
   type?: true
   rarity?: true
@@ -263,6 +269,7 @@ export type BaseItemGroupByOutputType = {
   id: string
   rpgId: string
   name: string
+  image: string | null
   description: string | null
   type: $Enums.BaseItemType
   rarity: $Enums.BaseItemRarity
@@ -308,6 +315,7 @@ export type BaseItemWhereInput = {
   id?: Prisma.StringFilter<"BaseItem"> | string
   rpgId?: Prisma.StringFilter<"BaseItem"> | string
   name?: Prisma.StringFilter<"BaseItem"> | string
+  image?: Prisma.StringNullableFilter<"BaseItem"> | string | null
   description?: Prisma.StringNullableFilter<"BaseItem"> | string | null
   type?: Prisma.EnumBaseItemTypeFilter<"BaseItem"> | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFilter<"BaseItem"> | $Enums.BaseItemRarity
@@ -332,6 +340,7 @@ export type BaseItemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   rpgId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  image?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   rarity?: Prisma.SortOrder
@@ -359,6 +368,7 @@ export type BaseItemWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.BaseItemWhereInput | Prisma.BaseItemWhereInput[]
   rpgId?: Prisma.StringFilter<"BaseItem"> | string
   name?: Prisma.StringFilter<"BaseItem"> | string
+  image?: Prisma.StringNullableFilter<"BaseItem"> | string | null
   description?: Prisma.StringNullableFilter<"BaseItem"> | string | null
   type?: Prisma.EnumBaseItemTypeFilter<"BaseItem"> | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFilter<"BaseItem"> | $Enums.BaseItemRarity
@@ -383,6 +393,7 @@ export type BaseItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   rpgId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  image?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   rarity?: Prisma.SortOrder
@@ -413,6 +424,7 @@ export type BaseItemScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"BaseItem"> | string
   rpgId?: Prisma.StringWithAggregatesFilter<"BaseItem"> | string
   name?: Prisma.StringWithAggregatesFilter<"BaseItem"> | string
+  image?: Prisma.StringNullableWithAggregatesFilter<"BaseItem"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"BaseItem"> | string | null
   type?: Prisma.EnumBaseItemTypeWithAggregatesFilter<"BaseItem"> | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityWithAggregatesFilter<"BaseItem"> | $Enums.BaseItemRarity
@@ -434,6 +446,7 @@ export type BaseItemScalarWhereWithAggregatesInput = {
 export type BaseItemCreateInput = {
   id?: string
   name: string
+  image?: string | null
   description?: string | null
   type: $Enums.BaseItemType
   rarity?: $Enums.BaseItemRarity
@@ -458,6 +471,7 @@ export type BaseItemUncheckedCreateInput = {
   id?: string
   rpgId: string
   name: string
+  image?: string | null
   description?: string | null
   type: $Enums.BaseItemType
   rarity?: $Enums.BaseItemRarity
@@ -480,6 +494,7 @@ export type BaseItemUncheckedCreateInput = {
 export type BaseItemUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumBaseItemTypeFieldUpdateOperationsInput | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
@@ -504,6 +519,7 @@ export type BaseItemUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   rpgId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumBaseItemTypeFieldUpdateOperationsInput | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
@@ -527,6 +543,7 @@ export type BaseItemCreateManyInput = {
   id?: string
   rpgId: string
   name: string
+  image?: string | null
   description?: string | null
   type: $Enums.BaseItemType
   rarity?: $Enums.BaseItemRarity
@@ -548,6 +565,7 @@ export type BaseItemCreateManyInput = {
 export type BaseItemUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumBaseItemTypeFieldUpdateOperationsInput | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
@@ -570,6 +588,7 @@ export type BaseItemUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   rpgId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumBaseItemTypeFieldUpdateOperationsInput | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
@@ -602,6 +621,7 @@ export type BaseItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   rpgId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   rarity?: Prisma.SortOrder
@@ -629,6 +649,7 @@ export type BaseItemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   rpgId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   rarity?: Prisma.SortOrder
@@ -649,6 +670,7 @@ export type BaseItemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   rpgId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   rarity?: Prisma.SortOrder
@@ -758,6 +780,7 @@ export type BaseItemUpdateOneRequiredWithoutInventoriesNestedInput = {
 export type BaseItemCreateWithoutRpgInput = {
   id?: string
   name: string
+  image?: string | null
   description?: string | null
   type: $Enums.BaseItemType
   rarity?: $Enums.BaseItemRarity
@@ -780,6 +803,7 @@ export type BaseItemCreateWithoutRpgInput = {
 export type BaseItemUncheckedCreateWithoutRpgInput = {
   id?: string
   name: string
+  image?: string | null
   description?: string | null
   type: $Enums.BaseItemType
   rarity?: $Enums.BaseItemRarity
@@ -832,6 +856,7 @@ export type BaseItemScalarWhereInput = {
   id?: Prisma.StringFilter<"BaseItem"> | string
   rpgId?: Prisma.StringFilter<"BaseItem"> | string
   name?: Prisma.StringFilter<"BaseItem"> | string
+  image?: Prisma.StringNullableFilter<"BaseItem"> | string | null
   description?: Prisma.StringNullableFilter<"BaseItem"> | string | null
   type?: Prisma.EnumBaseItemTypeFilter<"BaseItem"> | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFilter<"BaseItem"> | $Enums.BaseItemRarity
@@ -853,6 +878,7 @@ export type BaseItemScalarWhereInput = {
 export type BaseItemCreateWithoutInventoriesInput = {
   id?: string
   name: string
+  image?: string | null
   description?: string | null
   type: $Enums.BaseItemType
   rarity?: $Enums.BaseItemRarity
@@ -876,6 +902,7 @@ export type BaseItemUncheckedCreateWithoutInventoriesInput = {
   id?: string
   rpgId: string
   name: string
+  image?: string | null
   description?: string | null
   type: $Enums.BaseItemType
   rarity?: $Enums.BaseItemRarity
@@ -913,6 +940,7 @@ export type BaseItemUpdateToOneWithWhereWithoutInventoriesInput = {
 export type BaseItemUpdateWithoutInventoriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumBaseItemTypeFieldUpdateOperationsInput | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
@@ -936,6 +964,7 @@ export type BaseItemUncheckedUpdateWithoutInventoriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   rpgId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumBaseItemTypeFieldUpdateOperationsInput | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
@@ -957,6 +986,7 @@ export type BaseItemUncheckedUpdateWithoutInventoriesInput = {
 export type BaseItemCreateManyRpgInput = {
   id?: string
   name: string
+  image?: string | null
   description?: string | null
   type: $Enums.BaseItemType
   rarity?: $Enums.BaseItemRarity
@@ -978,6 +1008,7 @@ export type BaseItemCreateManyRpgInput = {
 export type BaseItemUpdateWithoutRpgInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumBaseItemTypeFieldUpdateOperationsInput | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
@@ -1000,6 +1031,7 @@ export type BaseItemUpdateWithoutRpgInput = {
 export type BaseItemUncheckedUpdateWithoutRpgInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumBaseItemTypeFieldUpdateOperationsInput | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
@@ -1022,6 +1054,7 @@ export type BaseItemUncheckedUpdateWithoutRpgInput = {
 export type BaseItemUncheckedUpdateManyWithoutRpgInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumBaseItemTypeFieldUpdateOperationsInput | $Enums.BaseItemType
   rarity?: Prisma.EnumBaseItemRarityFieldUpdateOperationsInput | $Enums.BaseItemRarity
@@ -1075,6 +1108,7 @@ export type BaseItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   rpgId?: boolean
   name?: boolean
+  image?: boolean
   description?: boolean
   type?: boolean
   rarity?: boolean
@@ -1100,6 +1134,7 @@ export type BaseItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   rpgId?: boolean
   name?: boolean
+  image?: boolean
   description?: boolean
   type?: boolean
   rarity?: boolean
@@ -1123,6 +1158,7 @@ export type BaseItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   rpgId?: boolean
   name?: boolean
+  image?: boolean
   description?: boolean
   type?: boolean
   rarity?: boolean
@@ -1146,6 +1182,7 @@ export type BaseItemSelectScalar = {
   id?: boolean
   rpgId?: boolean
   name?: boolean
+  image?: boolean
   description?: boolean
   type?: boolean
   rarity?: boolean
@@ -1164,7 +1201,7 @@ export type BaseItemSelectScalar = {
   updatedAt?: boolean
 }
 
-export type BaseItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rpgId" | "name" | "description" | "type" | "rarity" | "damage" | "range" | "ability" | "abilityName" | "effect" | "effectName" | "abilities" | "effects" | "weight" | "duration" | "durability" | "createdAt" | "updatedAt", ExtArgs["result"]["baseItem"]>
+export type BaseItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rpgId" | "name" | "image" | "description" | "type" | "rarity" | "damage" | "range" | "ability" | "abilityName" | "effect" | "effectName" | "abilities" | "effects" | "weight" | "duration" | "durability" | "createdAt" | "updatedAt", ExtArgs["result"]["baseItem"]>
 export type BaseItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rpg?: boolean | Prisma.RpgDefaultArgs<ExtArgs>
   inventories?: boolean | Prisma.BaseItem$inventoriesArgs<ExtArgs>
@@ -1187,6 +1224,7 @@ export type $BaseItemPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: string
     rpgId: string
     name: string
+    image: string | null
     description: string | null
     type: $Enums.BaseItemType
     rarity: $Enums.BaseItemRarity
@@ -1631,6 +1669,7 @@ export interface BaseItemFieldRefs {
   readonly id: Prisma.FieldRef<"BaseItem", 'String'>
   readonly rpgId: Prisma.FieldRef<"BaseItem", 'String'>
   readonly name: Prisma.FieldRef<"BaseItem", 'String'>
+  readonly image: Prisma.FieldRef<"BaseItem", 'String'>
   readonly description: Prisma.FieldRef<"BaseItem", 'String'>
   readonly type: Prisma.FieldRef<"BaseItem", 'BaseItemType'>
   readonly rarity: Prisma.FieldRef<"BaseItem", 'BaseItemRarity'>
