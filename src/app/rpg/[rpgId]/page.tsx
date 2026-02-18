@@ -286,6 +286,16 @@ export default async function ViewInRpg({ params }: Params) {
           </Link>
         ) : null}
 
+        <Link href={`/rpg/${dbRpg.id}/library`} className={styles.card}>
+          <Image
+            src="/images/bg-library.jpg"
+            alt="Biblioteca"
+            fill
+            className={styles.cardImage}
+          />
+          <span>Biblioteca</span>
+        </Link>
+
       </div>
     </div>
   )

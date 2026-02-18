@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Backpack,
+  BookOpen,
   ChevronDown,
   Minus,
   PackagePlus,
@@ -220,6 +221,10 @@ export default function QuickCreateMenu({ rpgId }: Props) {
           <Link href={`/rpg/${rpgId}/items/new`} onClick={() => setIsOpen(false)}>
             <PackagePlus size={15} />
             Criar Item
+          </Link>
+          <Link href={`/rpg/${rpgId}/library`} onClick={() => setIsOpen(false)}>
+            <BookOpen size={15} />
+            Biblioteca
           </Link>
           <button
             type="button"
