@@ -84,7 +84,8 @@
 }
 
 .field select,
-.field input {
+.field input,
+.field textarea {
   width: 100%;
   border: 1px solid var(--color-border-soft);
   border-radius: 8px;
@@ -109,6 +110,18 @@
   padding: 0.8rem;
   display: grid;
   gap: 0.55rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.bookCard:hover {
+  border-color: var(--color-border-focus);
+  transform: translateY(-1px);
+}
+
+.bookCard:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
 }
 
 .bookCard h3 {
@@ -122,10 +135,41 @@
   font-size: 0.86rem;
 }
 
+.bookDescription {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
 .cardActions {
   display: flex;
   gap: 0.45rem;
   flex-wrap: wrap;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: var(--color-bg-overlay-strong);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.modal {
+  width: min(100%, 560px);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  padding: 0.95rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.modalTitle {
+  margin: 0;
+  color: var(--color-text-primary);
 }
 
 .error {
@@ -142,5 +186,9 @@
   .header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .modal {
+    width: 100%;
   }
 }
