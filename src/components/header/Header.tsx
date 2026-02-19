@@ -2,24 +2,15 @@
 
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { User } from "lucide-react"
 import styles from "./Header.module.css"
 
 export default function Header() {
   const router = useRouter()
-  const pathname = usePathname()
   const [openUserMenu, setOpenUserMenu] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
   const menuRef = useRef<HTMLLIElement | null>(null)
-
-  const hideHeader =
-    typeof pathname === "string" &&
-    /^\/rpg\/[^/]+\/library\/[^/]+\/books\/(?:new|[^/]+\/edit)$/.test(pathname)
-
-  if (hideHeader) {
-    return null
-  }
 
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {

@@ -1,29 +1,37 @@
 .page {
   min-height: 100vh;
-  padding: 1rem;
-  max-width: 960px;
+  background: var(--color-bg-app);
+}
+
+.pageContent {
+  max-width: 1120px;
   margin: 0 auto;
+  padding: 24px 16px;
   display: grid;
   gap: 0.75rem;
 }
 
-.topbar {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-  flex-wrap: wrap;
+.editorCard {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  box-shadow: var(--shadow-elevation-sm);
+  overflow: hidden;
 }
 
-.primaryButton,
-.ghostButton {
-  border-radius: 10px;
-  padding: 0.52rem 0.9rem;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
+.editorBody {
+  max-height: calc(100vh - 170px);
+  overflow: auto;
+  padding: 0.35rem 0.45rem 0.45rem;
+  background: var(--color-bg-app);
 }
 
 .primaryButton {
+  border-radius: 10px;
+  padding: 0.5rem 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
   border: 1px solid var(--color-brand-primary);
   background: var(--color-brand-primary);
   color: var(--color-text-on-brand);
@@ -32,12 +40,6 @@
 .primaryButton:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
-
-.ghostButton {
-  border: 1px solid var(--color-border-soft);
-  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
-  color: var(--color-text-secondary);
 }
 
 .feedback {
@@ -51,7 +53,12 @@
 }
 
 @media (max-width: 720px) {
-  .page {
-    padding: 0.75rem;
+  .pageContent {
+    padding: 14px 10px;
+  }
+
+  .editorBody {
+    max-height: calc(100vh - 150px);
+    padding: 0.2rem 0.2rem 0.3rem;
   }
 }
