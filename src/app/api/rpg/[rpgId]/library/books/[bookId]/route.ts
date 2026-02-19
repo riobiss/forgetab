@@ -18,7 +18,9 @@ type LibraryBookRow = {
   id: string
   rpgId: string
   sectionId: string
+  createdByUserId: string | null
   title: string
+  description: string | null
   content: Prisma.JsonValue
   visibility: "private" | "public"
   allowedCharacterIds: Prisma.JsonValue
@@ -105,7 +107,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
         id,
         rpg_id AS "rpgId",
         section_id AS "sectionId",
+        created_by_user_id AS "createdByUserId",
         title,
+        description,
         content,
         visibility,
         allowed_character_ids AS "allowedCharacterIds",
@@ -130,11 +134,16 @@ export async function GET(request: NextRequest, context: RouteContext) {
       }
     }
 
-    return NextResponse.json({ book: books[0], canManage: access.canManage }, { status: 200 })
+    return NextResponse.json(
+      { book: books[0], canManage: access.canManage, canEdit: books[0].createdByUserId === userId },
+      { status: 200 },
+    )
   } catch (error) {
     if (
       error instanceof Error &&
       (error.message.includes('relation "rpg_library_books" does not exist') ||
+        error.message.includes('column "created_by_user_id" does not exist') ||
+        error.message.includes('column "description" does not exist') ||
         error.message.includes('column "visibility" does not exist') ||
         error.message.includes('column "allowed_character_ids" does not exist') ||
         error.message.includes('column "allowed_class_keys" does not exist') ||
@@ -175,10 +184,26 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       )
     }
 
+    const ownerRows = await prisma.$queryRaw<Array<{ createdByUserId: string | null }>>(Prisma.sql`
+      SELECT created_by_user_id AS "createdByUserId"
+      FROM rpg_library_books
+      WHERE id = ${bookId}
+        AND rpg_id = ${rpgId}
+      LIMIT 1
+    `)
+    const ownerRow = ownerRows[0]
+    if (!ownerRow) {
+      return NextResponse.json({ message: "Livro nao encontrado." }, { status: 404 })
+    }
+    if (ownerRow.createdByUserId !== userId) {
+      return NextResponse.json({ message: "Apenas o autor pode editar este livro." }, { status: 403 })
+    }
+
     const updated = await prisma.$queryRaw<LibraryBookRow[]>(Prisma.sql`
       UPDATE rpg_library_books
       SET
         title = ${parsed.data.title.trim()},
+        description = ${parsed.data.description?.trim() ? parsed.data.description.trim() : null},
         content = ${JSON.stringify(parsed.data.content)}::jsonb,
         visibility = ${parsed.data.visibility}::"public"."RpgVisibility",
         allowed_character_ids = ${JSON.stringify(normalizeTextList(parsed.data.allowedCharacterIds))}::jsonb,
@@ -191,7 +216,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         id,
         rpg_id AS "rpgId",
         section_id AS "sectionId",
+        created_by_user_id AS "createdByUserId",
         title,
+        description,
         content,
         visibility,
         allowed_character_ids AS "allowedCharacterIds",
@@ -216,6 +243,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (
       error instanceof Error &&
       (error.message.includes('relation "rpg_library_books" does not exist') ||
+        error.message.includes('column "created_by_user_id" does not exist') ||
+        error.message.includes('column "description" does not exist') ||
         error.message.includes('column "visibility" does not exist') ||
         error.message.includes('column "allowed_character_ids" does not exist') ||
         error.message.includes('column "allowed_class_keys" does not exist') ||
@@ -247,6 +276,21 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "Voce nao pode editar a biblioteca deste RPG." }, { status: 403 })
     }
 
+    const ownerRows = await prisma.$queryRaw<Array<{ createdByUserId: string | null }>>(Prisma.sql`
+      SELECT created_by_user_id AS "createdByUserId"
+      FROM rpg_library_books
+      WHERE id = ${bookId}
+        AND rpg_id = ${rpgId}
+      LIMIT 1
+    `)
+    const ownerRow = ownerRows[0]
+    if (!ownerRow) {
+      return NextResponse.json({ message: "Livro nao encontrado." }, { status: 404 })
+    }
+    if (ownerRow.createdByUserId !== userId) {
+      return NextResponse.json({ message: "Apenas o autor pode remover este livro." }, { status: 403 })
+    }
+
     const deleted = await prisma.$queryRaw<{ id: string; sectionId: string }[]>(Prisma.sql`
       DELETE FROM rpg_library_books
       WHERE id = ${bookId}
@@ -269,6 +313,8 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     if (
       error instanceof Error &&
       (error.message.includes('relation "rpg_library_books" does not exist') ||
+        error.message.includes('column "created_by_user_id" does not exist') ||
+        error.message.includes('column "description" does not exist') ||
         error.message.includes('column "visibility" does not exist') ||
         error.message.includes('column "allowed_character_ids" does not exist') ||
         error.message.includes('column "allowed_class_keys" does not exist') ||

@@ -20,6 +20,12 @@ export const createLibraryBookSchema = z.object({
     .trim()
     .min(2, "Informe um titulo com ao menos 2 caracteres.")
     .max(160, "Titulo muito grande."),
+  description: z
+    .string()
+    .trim()
+    .max(280, "Descricao muito grande.")
+    .nullable()
+    .optional(),
   content: z
     .object({
       type: z.string(),

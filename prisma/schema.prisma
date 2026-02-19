@@ -121,9 +121,11 @@ model RpgLibraryBook {
   id         String            @id @default(cuid())
   rpgId      String            @map("rpg_id")
   sectionId  String            @map("section_id")
+  createdByUserId String?      @map("created_by_user_id")
   rpg        Rpg               @relation(fields: [rpgId], references: [id], onDelete: Cascade)
   section    RpgLibrarySection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   title      String
+  description String?
   content    Json              @default("{\"type\":\"doc\",\"content\":[]}")
   visibility RpgVisibility     @default(private)
   allowedCharacterIds Json     @default("[]") @map("allowed_character_ids")
@@ -134,6 +136,7 @@ model RpgLibraryBook {
 
   @@index([rpgId])
   @@index([sectionId])
+  @@index([createdByUserId])
   @@map("rpg_library_books")
 }
 

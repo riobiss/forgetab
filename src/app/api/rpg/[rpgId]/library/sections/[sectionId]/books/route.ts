@@ -18,7 +18,9 @@ type LibraryBookRow = {
   id: string
   rpgId: string
   sectionId: string
+  createdByUserId: string | null
   title: string
+  description: string | null
   content: Prisma.JsonValue
   visibility: "private" | "public"
   allowedCharacterIds: Prisma.JsonValue
@@ -127,7 +129,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
         id,
         rpg_id AS "rpgId",
         section_id AS "sectionId",
+        created_by_user_id AS "createdByUserId",
         title,
+        description,
         content,
         visibility,
         allowed_character_ids AS "allowedCharacterIds",
@@ -150,14 +154,22 @@ export async function GET(request: NextRequest, context: RouteContext) {
           )
         })()
 
+    const resolvedBooks = await visibleBooks
+    const booksWithPermissions = resolvedBooks.map((book) => ({
+      ...book,
+      canEdit: book.createdByUserId === userId,
+    }))
+
     return NextResponse.json(
-      { books: await visibleBooks, canManage: access.canManage },
+      { books: booksWithPermissions, canManage: access.canManage },
       { status: 200 },
     )
   } catch (error) {
     if (
       error instanceof Error &&
       (error.message.includes('relation "rpg_library_books" does not exist') ||
+        error.message.includes('column "created_by_user_id" does not exist') ||
+        error.message.includes('column "description" does not exist') ||
         error.message.includes('column "visibility" does not exist') ||
         error.message.includes('column "allowed_character_ids" does not exist') ||
         error.message.includes('column "allowed_class_keys" does not exist') ||
@@ -207,7 +219,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
         id,
         rpg_id,
         section_id,
+        created_by_user_id,
         title,
+        description,
         content,
         visibility,
         allowed_character_ids,
@@ -218,7 +232,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
         ${crypto.randomUUID()},
         ${rpgId},
         ${sectionId},
+        ${userId},
         ${parsed.data.title.trim()},
+        ${parsed.data.description?.trim() ? parsed.data.description.trim() : null},
         ${JSON.stringify(parsed.data.content ?? EMPTY_DOC)}::jsonb,
         ${parsed.data.visibility}::"public"."RpgVisibility",
         ${JSON.stringify(normalizeTextList(parsed.data.allowedCharacterIds))}::jsonb,
@@ -229,7 +245,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
         id,
         rpg_id AS "rpgId",
         section_id AS "sectionId",
+        created_by_user_id AS "createdByUserId",
         title,
+        description,
         content,
         visibility,
         allowed_character_ids AS "allowedCharacterIds",
@@ -250,6 +268,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (
       error instanceof Error &&
       (error.message.includes('relation "rpg_library_books" does not exist') ||
+        error.message.includes('column "created_by_user_id" does not exist') ||
+        error.message.includes('column "description" does not exist') ||
         error.message.includes('column "visibility" does not exist') ||
         error.message.includes('column "allowed_character_ids" does not exist') ||
         error.message.includes('column "allowed_class_keys" does not exist') ||
