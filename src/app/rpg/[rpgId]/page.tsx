@@ -50,11 +50,6 @@ type DbRpgRow = {
   useMundiMap: boolean
 }
 
-export const generateMetadata = () => {
-  return {
-    title: "rpg",
-  }
-}
 
 export default async function ViewInRpg({ params }: Params) {
   const { rpgId } = await params
