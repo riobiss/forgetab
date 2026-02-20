@@ -1,11 +1,14 @@
 
 .page {
+  --home-hero-image: url("/bg-home.jpg");
+  --home-hero-position: center 28%;
+
   min-height: calc(100vh - 72px);
   background:
     radial-gradient(circle at 15% 15%, rgba(255, 126, 40, 0.24), transparent 45%),
     radial-gradient(circle at 80% 15%, rgba(255, 106, 0, 0.16), transparent 36%),
     linear-gradient(180deg, rgba(8, 8, 10, 0.2), rgba(8, 8, 10, 0.9)),
-    url("/images/bg-woc.jpeg") center / cover no-repeat;
+    var(--home-hero-image) var(--home-hero-position) / cover no-repeat;
 }
 
 .main {
@@ -125,6 +128,11 @@
 }
 
 @media (max-width: 900px) {
+  .page {
+    --home-hero-image: url("/bg-home-y.jpg");
+    --home-hero-position: center center;
+  }
+
   .highlights {
     grid-template-columns: 1fr;
   }
