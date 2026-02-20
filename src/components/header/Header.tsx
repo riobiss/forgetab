@@ -3,14 +3,22 @@
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { User } from "lucide-react"
+import { Menu, User, X } from "lucide-react"
 import styles from "./Header.module.css"
 
 export default function Header() {
   const router = useRouter()
   const [openUserMenu, setOpenUserMenu] = useState(false)
+  const [openNav, setOpenNav] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
   const menuRef = useRef<HTMLLIElement | null>(null)
+  const navLinks = [
+    { href: "/", label: "Início" },
+    { href: "/rpg", label: "Campanhas" },
+    { href: "/combat", label: "Combate" },
+    { href: "/dashboard/skills", label: "Habilidades" },
+    { href: "/docs", label: "Guias" },
+  ]
 
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
@@ -40,18 +48,34 @@ export default function Header() {
     }
   }
 
+  function closeMenus() {
+    setOpenUserMenu(false)
+    setOpenNav(false)
+  }
+
   return (
     <header className={styles.header}>
-      <h1>ForgeTab</h1>
-      <nav>
-        <ul>
-          <li>
-            <Link href="/">Inicio</Link>
-          </li>
-
-          <li>
-            <Link href="/rpg">Campanhas</Link>
-          </li>
+      <Link href="/" className={styles.brand} onClick={closeMenus}>
+        ForgeTab
+      </Link>
+      <button
+        type="button"
+        className={styles.menuToggle}
+        aria-label={openNav ? "Fechar menu de navegação" : "Abrir menu de navegação"}
+        aria-expanded={openNav}
+        onClick={() => setOpenNav((prev) => !prev)}
+      >
+        {openNav ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
+      </button>
+      <nav className={`${styles.nav} ${openNav ? styles.navOpen : ""}`}>
+        <ul className={styles.navList}>
+          {navLinks.map((link) => (
+            <li key={link.href}>
+              <Link href={link.href} onClick={closeMenus}>
+                {link.label}
+              </Link>
+            </li>
+          ))}
 
           <li className={styles.userMenu} ref={menuRef}>
             <button
@@ -67,8 +91,11 @@ export default function Header() {
 
             {openUserMenu ? (
               <div className={styles.dropdown}>
-                <Link href="/perfil" onClick={() => setOpenUserMenu(false)}>
+                <Link href="/perfil" onClick={closeMenus}>
                   Perfil
+                </Link>
+                <Link href="/login" onClick={closeMenus}>
+                  Login
                 </Link>
                 <button type="button" onClick={handleLogout} disabled={loggingOut}>
                   {loggingOut ? "Saindo..." : "Deslogar"}

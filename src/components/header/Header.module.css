@@ -4,36 +4,55 @@
   z-index: 1000;
 
   height: 72px;
-  padding: 0 32px;
+  padding: 0 1rem;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 
-  background: linear-gradient(to bottom, var(--color-bg-app) 0%, var(--color-bg-surface-alt) 100%);
+  background:
+    linear-gradient(to bottom, rgba(15, 15, 17, 0.95) 0%, rgba(29, 32, 38, 0.88) 100%),
+    radial-gradient(circle at top, rgba(255, 106, 0, 0.14), transparent 55%);
   border-bottom: 1px solid color-mix(in srgb, var(--color-brand-primary) 35%, transparent);
   box-shadow:
     0 2px 12px var(--color-bg-overlay-strong),
     inset 0 -1px 0 color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
+  backdrop-filter: blur(10px);
 }
 
-.header h1 {
-  font-size: 1.8rem;
-  letter-spacing: 1px;
+.brand {
+  font-family: "Cinzel", serif;
+  font-size: 1.3rem;
+  letter-spacing: 1.2px;
   color: var(--color-text-primary);
   text-shadow:
     0 0 4px color-mix(in srgb, var(--color-brand-primary) 40%, transparent),
     0 0 10px color-mix(in srgb, var(--color-brand-primary) 25%, transparent);
 }
 
-.header nav ul {
+.menuToggle {
+  display: none;
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 30%, transparent);
+  border-radius: 10px;
+  padding: 0.45rem;
+  background: color-mix(in srgb, var(--color-brand-primary) 8%, var(--color-bg-surface-alt));
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.nav {
+  margin-left: auto;
+}
+
+.navList {
   display: flex;
-  gap: 24px;
+  gap: 1.1rem;
   list-style: none;
   align-items: center;
 }
 
-.header nav a {
+.navList a {
   font-size: 0.95rem;
   letter-spacing: 0.5px;
   text-decoration: none;
@@ -43,7 +62,7 @@
     text-shadow 0.2s ease;
 }
 
-.header nav a:hover {
+.navList a:hover {
   color: var(--color-text-brand);
   text-shadow: 0 0 6px color-mix(in srgb, var(--color-brand-primary) 60%, transparent);
 }
@@ -100,6 +119,66 @@
 .dropdown button:hover {
   background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
   color: var(--color-text-brand);
+}
+
+@media (max-width: 960px) {
+  .menuToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav {
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    padding: 0.85rem 1rem 1rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-brand-primary) 25%, transparent);
+    background:
+      linear-gradient(to bottom, rgba(15, 15, 17, 0.98), rgba(22, 24, 28, 0.98)),
+      radial-gradient(circle at top, rgba(255, 106, 0, 0.12), transparent 55%);
+    transform: translateY(-12px);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .navOpen {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .navList {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .navList a {
+    display: block;
+    width: 100%;
+    border-radius: 0.6rem;
+    padding: 0.55rem 0.6rem;
+    background: color-mix(in srgb, var(--color-bg-surface-alt) 80%, transparent);
+  }
+
+  .userMenu {
+    display: block;
+  }
+
+  .userButton {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .dropdown {
+    position: static;
+    margin-top: 0.5rem;
+  }
 }
 
 
