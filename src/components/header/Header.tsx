@@ -11,6 +11,12 @@ const HIDDEN_ROUTES = new Set(["/login", "/register", "/cadastro"])
 export default function Header() {
   const router = useRouter()
   const pathname = usePathname()
+  const pathSegments = pathname.split("/").filter(Boolean)
+  const rpgSegmentIndex = pathSegments.indexOf("rpg")
+  const routeRpgId =
+    rpgSegmentIndex >= 0 && pathSegments[rpgSegmentIndex + 1] && pathSegments[rpgSegmentIndex + 1] !== "novo"
+      ? pathSegments[rpgSegmentIndex + 1]
+      : null
   const [openUserMenu, setOpenUserMenu] = useState(false)
   const [openNav, setOpenNav] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
@@ -65,15 +71,6 @@ export default function Header() {
       <Link href="/" className={styles.brand} onClick={closeMenus}>
         ForgeTab
       </Link>
-      <button
-        type="button"
-        className={styles.menuToggle}
-        aria-label={openNav ? "Fechar menu de navegação" : "Abrir menu de navegação"}
-        aria-expanded={openNav}
-        onClick={() => setOpenNav((prev) => !prev)}
-      >
-        {openNav ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
-      </button>
       <nav className={`${styles.nav} ${openNav ? styles.navOpen : ""}`}>
         <ul className={styles.navList}>
           {navLinks.map((link) => (
@@ -112,6 +109,22 @@ export default function Header() {
           </li>
         </ul>
       </nav>
+      <div className={styles.quickActions}>
+        {routeRpgId ? (
+          <Link href={`/rpg/${routeRpgId}`} className={styles.campaignButton} onClick={closeMenus}>
+            Campanha
+          </Link>
+        ) : null}
+        <button
+          type="button"
+          className={styles.menuToggle}
+          aria-label={openNav ? "Fechar menu de navegação" : "Abrir menu de navegação"}
+          aria-expanded={openNav}
+          onClick={() => setOpenNav((prev) => !prev)}
+        >
+          {openNav ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
+        </button>
+      </div>
     </header>
   )
 }

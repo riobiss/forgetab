@@ -41,6 +41,34 @@
   cursor: pointer;
 }
 
+.quickActions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-left: 0.65rem;
+}
+
+.campaignButton {
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 30%, transparent);
+  border-radius: 10px;
+  padding: 0.4rem 0.65rem;
+  background: color-mix(in srgb, var(--color-brand-primary) 8%, var(--color-bg-surface-alt));
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 0.86rem;
+  letter-spacing: 0.3px;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.campaignButton:hover {
+  color: var(--color-text-brand);
+  border-color: color-mix(in srgb, var(--color-brand-primary) 45%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 14%, var(--color-bg-surface-alt));
+}
+
 .nav {
   margin-left: auto;
 }
@@ -122,6 +150,11 @@
 }
 
 @media (max-width: 960px) {
+  .campaignButton {
+    font-size: 0.82rem;
+    padding: 0.38rem 0.58rem;
+  }
+
   .menuToggle {
     display: inline-flex;
     align-items: center;
