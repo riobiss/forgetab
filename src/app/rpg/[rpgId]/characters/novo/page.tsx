@@ -104,7 +104,6 @@ type NumericInputValue = number | ""
 
 type CharactersPayload = {
   characters?: CharacterSummary[]
-  isOwner?: boolean
   message?: string
 }
 
@@ -185,7 +184,6 @@ export default function NewCharacterPage() {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadError, setUploadError] = useState("")
   const [error, setError] = useState("")
-  const [isOwner, setIsOwner] = useState(false)
   const [showStatusSection, setShowStatusSection] = useState(true)
   const [showAttributeSection, setShowAttributeSection] = useState(true)
   const [showSkillSection, setShowSkillSection] = useState(true)
@@ -316,7 +314,6 @@ export default function NewCharacterPage() {
             : legacyClassRaceFlag,
         )
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg?.useInventoryWeightLimit))
-        setIsOwner(Boolean(charactersPayload.isOwner))
 
         const nextAttributes = attributeTemplate.reduce<Record<string, NumericInputValue>>((acc, item) => {
           const value = (editTarget?.attributes ?? {})[item.key]
@@ -452,7 +449,7 @@ export default function NewCharacterPage() {
           attributes: normalizeNumericValues(values),
           identity: identityValues,
           characteristics: characteristicsValues,
-          ...(!isEditing && isOwner ? { skills: normalizeNumericValues(skillValues) } : {}),
+          ...(!isEditing ? { skills: normalizeNumericValues(skillValues) } : {}),
         }),
       })
 
@@ -882,9 +879,6 @@ export default function NewCharacterPage() {
               </div>
               {showSkillSection ? (
                 <>
-                  {!isOwner ? (
-                    <p>Somente o owner do RPG pode editar as pericias dos personagens.</p>
-                  ) : null}
                   <NumericTemplateGrid
                     items={skills.map((skill) => ({
                       key: skill.key,
@@ -896,7 +890,6 @@ export default function NewCharacterPage() {
                     fieldClassName={styles.field}
                     keyPrefix="character-skill"
                     min={0}
-                    disabled={!isOwner}
                     required
                   />
                 </>

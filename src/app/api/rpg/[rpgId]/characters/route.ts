@@ -669,13 +669,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
         ? parsedMaxCarryWeight.value
         : null
 
-    if (!access.isOwner && body.skills !== undefined) {
-      return NextResponse.json(
-        { message: "Somente o owner do RPG pode definir pericias." },
-        { status: 403 },
-      )
-    }
-
     if (!access.isOwner) {
       const creationRequest = await prisma.$queryRaw<CharacterCreationRequestRow[]>(Prisma.sql`
         SELECT status
@@ -795,7 +788,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       acc[item.key] = 0
       return acc
     }, {})
-    const incomingSkills = access.isOwner ? body.skills ?? defaultSkills : defaultSkills
+    const incomingSkills = body.skills ?? defaultSkills
     const parsedSkills = validateSkillsPayload(incomingSkills, skillTemplate)
     if (!parsedSkills.ok) {
       return NextResponse.json({ message: parsedSkills.message }, { status: 400 })

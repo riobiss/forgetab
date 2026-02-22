@@ -127,11 +127,8 @@ export default async function AbilitiesPage({ params }: Params) {
     notFound()
   }
 
-  if (
-    character.visibility === "private" &&
-    !isOwner &&
-    (!userId || character.createdByUserId !== userId)
-  ) {
+  const canViewAbilities = Boolean(userId && (isOwner || character.createdByUserId === userId))
+  if (!canViewAbilities) {
     notFound()
   }
 
