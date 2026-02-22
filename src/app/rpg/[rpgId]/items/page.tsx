@@ -27,6 +27,7 @@ type BaseItem = {
   rpgId: string
   name: string
   image: string | null
+  preRequirement: string | null
   type: ItemType
   rarity: string
   damage: string | null
@@ -104,6 +105,7 @@ export default function ItemsPage() {
         item.name.toLowerCase().includes(normalizedSearch) ||
         item.type.toLowerCase().includes(normalizedSearch) ||
         item.rarity.toLowerCase().includes(normalizedSearch) ||
+        (item.preRequirement ?? "").toLowerCase().includes(normalizedSearch) ||
         (item.ability ?? "").toLowerCase().includes(normalizedSearch) ||
         (item.abilityName ?? "").toLowerCase().includes(normalizedSearch)
       )
@@ -416,6 +418,9 @@ export default function ItemsPage() {
                 ) : null}
                 {item.duration !== null ? (
                   <p className={styles.metaLine}>Duracao: {item.duration}</p>
+                ) : null}
+                {item.preRequirement !== null ? (
+                  <p className={styles.metaLine}>Pre-Requisito: {item.preRequirement}</p>
                 ) : null}
                 {abilities.length > 0
                   ? abilities.map((ability, index) => (

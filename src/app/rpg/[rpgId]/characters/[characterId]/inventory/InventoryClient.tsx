@@ -15,6 +15,7 @@ type InventoryItem = {
   itemName: string
   itemImage: string | null
   itemDescription: string | null
+  itemPreRequirement: string | null
   itemType: string
   itemRarity: InventoryRarity
   itemDamage: string | null
@@ -129,6 +130,7 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
         item.itemType.toLowerCase().includes(normalizedSearch) ||
         item.itemRarity.toLowerCase().includes(normalizedSearch) ||
         (item.itemDescription ?? "").toLowerCase().includes(normalizedSearch) ||
+        (item.itemPreRequirement ?? "").toLowerCase().includes(normalizedSearch) ||
         (item.itemDamage ?? "").toLowerCase().includes(normalizedSearch) ||
         (item.itemDuration ?? "").toLowerCase().includes(normalizedSearch) ||
         (item.itemAbility ?? "").toLowerCase().includes(normalizedSearch) ||
@@ -171,6 +173,9 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
     }
     if (item.itemDurability !== null) {
       coreStats.push({ label: "Durabilidade", value: `${item.itemDurability}` })
+    }
+    if (item.itemPreRequirement) {
+      coreStats.push({ label: "Pre-Requisito", value: item.itemPreRequirement })
     }
     if (abilities.length > 0) {
       abilities.forEach((ability) => abilityEntries.push(ability))
@@ -295,7 +300,7 @@ export default function InventoryClient({ rpgId, characterId }: Props) {
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Nome, tipo, raridade, habilidade ou efeito"
+            placeholder="Nome, tipo, raridade, pre-requisito, habilidade ou efeito"
           />
         </label>
 

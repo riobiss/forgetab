@@ -23,6 +23,7 @@ type BaseItem = {
   name: string
   image: string | null
   description: string | null
+  preRequirement: string | null
   type: ItemType
   rarity: ItemRarity
   damage: string | null
@@ -122,6 +123,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
   const [name, setName] = useState("")
   const [image, setImage] = useState("")
   const [description, setDescription] = useState("")
+  const [preRequirement, setPreRequirement] = useState("")
   const [type, setType] = useState<ItemType>("weapon")
   const [rarity, setRarity] = useState<ItemRarity>("common")
   const [damage, setDamage] = useState("")
@@ -178,6 +180,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
         })
         setPendingImageRemoval(false)
         setDescription(payload.item.description ?? "")
+        setPreRequirement(payload.item.preRequirement ?? "")
         setType(payload.item.type)
         setRarity(payload.item.rarity)
         setDamage(payload.item.damage ?? "")
@@ -279,6 +282,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
       name,
       image: submittedImage,
       description: toOptionalText(description),
+      preRequirement: toOptionalText(preRequirement),
       type,
       rarity,
       damage: toOptionalText(damage),
@@ -400,6 +404,16 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
                 onChange={(event) => setDescription(event.target.value)}
                 rows={3}
                 placeholder="Descricao opcional do item"
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span>Pre-Requisito</span>
+              <textarea
+                value={preRequirement}
+                onChange={(event) => setPreRequirement(event.target.value)}
+                rows={3}
+                placeholder="Ex: Nivel 10, Forca 15, Classe guerreiro"
               />
             </label>
 

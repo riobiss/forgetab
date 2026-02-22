@@ -27,6 +27,7 @@ type InventoryRow = {
   itemName: string
   itemImage: string | null
   itemDescription: string | null
+  itemPreRequirement: string | null
   itemType: string
   itemRarity: string
   itemDamage: string | null
@@ -179,6 +180,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         b.name AS "itemName",
         b.image AS "itemImage",
         b.description AS "itemDescription",
+        b.pre_requirement AS "itemPreRequirement",
         b.type AS "itemType",
         b.rarity AS "itemRarity",
         b.damage AS "itemDamage",
@@ -220,6 +222,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     if (error instanceof Error && error.message.includes('column "description" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (error instanceof Error && error.message.includes('column "pre_requirement" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
         { status: 500 },

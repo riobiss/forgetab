@@ -44,6 +44,12 @@ export const createBaseItemSchema = z.object({
     .max(2000, "Descricao deve ter no maximo 2000 caracteres.")
     .nullable()
     .optional(),
+  preRequirement: z
+    .string()
+    .trim()
+    .max(500, "Pre-Requisito deve ter no maximo 500 caracteres.")
+    .nullable()
+    .optional(),
   type: z.enum(baseItemTypeValues, { message: "Tipo de item invalido." }),
   rarity: z.enum(baseItemRarityValues, { message: "Raridade invalida." }),
   damage: z

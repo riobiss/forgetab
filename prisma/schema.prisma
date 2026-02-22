@@ -149,6 +149,7 @@ model BaseItem {
   name      String
   image     String?
   description String?
+  preRequirement String?   @map("pre_requirement")
   type      BaseItemType
   rarity    BaseItemRarity @default(common)
   damage    String?

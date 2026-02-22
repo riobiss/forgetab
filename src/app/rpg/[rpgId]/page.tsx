@@ -281,6 +281,18 @@ export default async function ViewInRpg({ params }: Params) {
           </Link>
         ) : null}
 
+        {isOwner ? (
+          <Link href={`/rpg/${dbRpg.id}/items`} className={styles.card}>
+            <Image
+              src="/images/bg-mine.png"
+              alt="Itens"
+              fill
+              className={styles.cardImage}
+            />
+            <span>Items</span>
+          </Link>
+        ) : null}
+
         <Link href={`/rpg/${dbRpg.id}/library`} className={styles.card}>
           <Image
             src="/images/bg-library.jpg"

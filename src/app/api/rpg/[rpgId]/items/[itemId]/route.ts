@@ -22,6 +22,7 @@ type BaseItemRow = {
   name: string
   image: string | null
   description: string | null
+  preRequirement: string | null
   type: string
   rarity: string
   damage: string | null
@@ -203,6 +204,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         name,
         image,
         description,
+        pre_requirement AS "preRequirement",
         type,
         rarity,
         damage,
@@ -246,6 +248,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
       }
 
       if (error.message.includes('column "description" does not exist')) {
+        return NextResponse.json(
+          { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+          { status: 500 },
+        )
+      }
+      if (error.message.includes('column "pre_requirement" does not exist')) {
         return NextResponse.json(
           { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
           { status: 500 },
@@ -322,6 +330,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const image = normalizeOptionalText(parsed.data.image)
     const range = normalizeOptionalText(parsed.data.range)
     const description = normalizeOptionalText(parsed.data.description)
+    const preRequirement = normalizeOptionalText(parsed.data.preRequirement)
     const weight = parsed.data.weight ?? null
     const duration = normalizeOptionalText(parsed.data.duration)
     const durability = parsed.data.durability ?? null
@@ -338,6 +347,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         name = ${parsed.data.name},
         image = ${image},
         description = ${description},
+        pre_requirement = ${preRequirement},
         type = ${parsed.data.type}::"public"."BaseItemType",
         rarity = ${parsed.data.rarity}::"public"."BaseItemRarity",
         damage = ${damage},
@@ -360,6 +370,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         name,
         image,
         description,
+        pre_requirement AS "preRequirement",
         type,
         rarity,
         damage,
@@ -414,6 +425,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       }
 
       if (error.message.includes('column "description" does not exist')) {
+        return NextResponse.json(
+          { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
+          { status: 500 },
+        )
+      }
+      if (error.message.includes('column "pre_requirement" does not exist')) {
         return NextResponse.json(
           { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
           { status: 500 },
