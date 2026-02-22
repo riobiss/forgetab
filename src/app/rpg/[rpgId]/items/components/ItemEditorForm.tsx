@@ -137,6 +137,17 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
   ])
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadError, setUploadError] = useState("")
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
+  const [selectedImagePreviewUrl, setSelectedImagePreviewUrl] = useState("")
+  const [pendingImageRemoval, setPendingImageRemoval] = useState(false)
+
+  useEffect(() => {
+    return () => {
+      if (selectedImagePreviewUrl) {
+        URL.revokeObjectURL(selectedImagePreviewUrl)
+      }
+    }
+  }, [selectedImagePreviewUrl])
 
   useEffect(() => {
     if (!isEditing || !itemId) {
@@ -158,6 +169,14 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
 
         setName(payload.item.name)
         setImage(payload.item.image ?? "")
+        setSelectedImageFile(null)
+        setSelectedImagePreviewUrl((previousPreviewUrl) => {
+          if (previousPreviewUrl) {
+            URL.revokeObjectURL(previousPreviewUrl)
+          }
+          return ""
+        })
+        setPendingImageRemoval(false)
         setDescription(payload.item.description ?? "")
         setType(payload.item.type)
         setRarity(payload.item.rarity)
@@ -222,9 +241,43 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
       }))
       .filter((entry) => entry.name && entry.description)
 
+    let submittedImage = pendingImageRemoval ? null : toOptionalText(image)
+    let uploadedImageUrl = ""
+    let hasFreshUpload = false
+
+    if (selectedImageFile) {
+      setUploadingImage(true)
+      try {
+        const uploadPayload = new FormData()
+        uploadPayload.append("file", selectedImageFile)
+
+        const uploadResponse = await fetch("/api/uploads/item-image", {
+          method: "POST",
+          body: uploadPayload,
+        })
+        const uploadBody = (await uploadResponse.json()) as UploadImagePayload
+        if (!uploadResponse.ok || !uploadBody.url) {
+          const message = uploadBody.message ?? "Nao foi possivel enviar imagem."
+          setUploadError(message)
+          setSubmitError(message)
+          return
+        }
+
+        uploadedImageUrl = uploadBody.url.trim()
+        hasFreshUpload = true
+        submittedImage = uploadedImageUrl
+      } catch {
+        setUploadError("Erro de conexao ao enviar imagem.")
+        setSubmitError("Erro de conexao ao enviar imagem.")
+        return
+      } finally {
+        setUploadingImage(false)
+      }
+    }
+
     const payload = {
       name,
-      image: toOptionalText(image),
+      image: submittedImage,
       description: toOptionalText(description),
       type,
       rarity,
@@ -255,6 +308,17 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
 
       const responsePayload = (await response.json()) as ApiItemPayload
       if (!response.ok) {
+        if (hasFreshUpload && uploadedImageUrl) {
+          try {
+            await fetch("/api/uploads/item-image", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url: uploadedImageUrl }),
+            })
+          } catch {
+            // Nao bloqueia a resposta de erro se a limpeza da imagem falhar.
+          }
+        }
         setSubmitError(responsePayload.message ?? "Nao foi possivel salvar o item.")
         return
       }
@@ -269,67 +333,32 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
     }
   }
 
-  async function handleImageUpload(file: File) {
-    setUploadingImage(true)
+  function handleImageUpload(file: File) {
+    setSelectedImagePreviewUrl((previousPreviewUrl) => {
+      if (previousPreviewUrl) {
+        URL.revokeObjectURL(previousPreviewUrl)
+      }
+      return URL.createObjectURL(file)
+    })
+
+    setSelectedImageFile(file)
+    setPendingImageRemoval(false)
     setUploadError("")
     setSubmitError("")
-
-    try {
-      const payload = new FormData()
-      payload.append("file", file)
-      if (image.trim()) {
-        payload.append("oldUrl", image.trim())
-      }
-
-      const response = await fetch("/api/uploads/item-image", {
-        method: "POST",
-        body: payload,
-      })
-
-      const body = (await response.json()) as UploadImagePayload
-      if (!response.ok || !body.url) {
-        setUploadError(body.message ?? "Nao foi possivel enviar imagem.")
-        return
-      }
-
-      setImage(body.url)
-    } catch {
-      setUploadError("Erro de conexao ao enviar imagem.")
-    } finally {
-      setUploadingImage(false)
-    }
   }
 
-  async function handleRemoveImage() {
-    const currentImage = image.trim()
-    if (!currentImage) {
-      setImage("")
-      setUploadError("")
-      return
-    }
-
-    setUploadingImage(true)
+  function handleRemoveImage() {
+    setSelectedImagePreviewUrl((previousPreviewUrl) => {
+      if (previousPreviewUrl) {
+        URL.revokeObjectURL(previousPreviewUrl)
+      }
+      return ""
+    })
+    setSelectedImageFile(null)
+    setPendingImageRemoval(image.trim().length > 0)
+    setImage("")
     setUploadError("")
     setSubmitError("")
-
-    try {
-      const response = await fetch("/api/uploads/item-image", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: currentImage }),
-      })
-      if (!response.ok) {
-        const payload = (await response.json()) as { message?: string }
-        setUploadError(payload.message ?? "Nao foi possivel remover imagem.")
-        return
-      }
-
-      setImage("")
-    } catch {
-      setUploadError("Erro de conexao ao remover imagem.")
-    } finally {
-      setUploadingImage(false)
-    }
   }
 
   return (
@@ -378,16 +407,20 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
               <span>Imagem do item</span>
               <div className={styles.imageActions}>
                 <label htmlFor="item-image-file" className={styles.ghostButton}>
-                  {uploadingImage ? "Enviando..." : "Adicionar imagem"}
+                  {uploadingImage
+                    ? "Enviando..."
+                    : selectedImageFile
+                      ? "Trocar imagem"
+                      : "Adicionar imagem"}
                 </label>
-                {image ? (
+                {image || selectedImageFile ? (
                   <button
                     type="button"
                     className={styles.removeButton}
-                    onClick={() => void handleRemoveImage()}
+                    onClick={handleRemoveImage}
                     disabled={saving || uploadingImage}
                   >
-                    {uploadingImage ? "Removendo..." : "Remover imagem"}
+                    Remover imagem
                   </button>
                 ) : null}
               </div>
@@ -399,19 +432,19 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
                 onChange={(event) => {
                   const file = event.target.files?.[0]
                   if (file) {
-                    void handleImageUpload(file)
+                    handleImageUpload(file)
                   }
                 }}
                 disabled={saving || uploadingImage}
               />
             </label>
 
-            {image ? (
+            {selectedImagePreviewUrl || image ? (
               <div className={styles.field}>
                 <span>Preview</span>
                 <div className={styles.itemImagePreviewFrame}>
                   <img
-                    src={image}
+                    src={selectedImagePreviewUrl || image}
                     alt={`Imagem de ${name || "item"}`}
                     className={styles.itemImagePreview}
                   />
@@ -471,6 +504,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
               <span>Peso</span>
               <input
                 type="number"
+                onWheel={(event) => event.currentTarget.blur()}
                 min={0}
                 step="0.1"
                 value={weight}
@@ -483,6 +517,7 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
               <span>Durabilidade</span>
               <input
                 type="number"
+                onWheel={(event) => event.currentTarget.blur()}
                 min={0}
                 step={1}
                 value={durability}
