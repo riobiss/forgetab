@@ -9,6 +9,7 @@ import styles from "./BookEditorClient.module.css"
 type Props = {
   mode: "create" | "edit"
   bookId?: string
+  forceReadOnly?: boolean
 }
 
 type LibraryBook = {
@@ -25,7 +26,7 @@ type LibraryBook = {
 
 const EMPTY_DOC: JSONContent = { type: "doc", content: [] }
 
-export default function BookEditorClient({ mode, bookId }: Props) {
+export default function BookEditorClient({ mode, bookId, forceReadOnly = false }: Props) {
   const params = useParams<{ rpgId: string; sectionId: string }>()
   const rpgId = params.rpgId
   const sectionId = params.sectionId
@@ -42,7 +43,7 @@ export default function BookEditorClient({ mode, bookId }: Props) {
   const [allowedRaceKeys, setAllowedRaceKeys] = useState<string[]>([])
   const [jsonContent, setJsonContent] = useState<JSONContent>(EMPTY_DOC)
   const [editorKey, setEditorKey] = useState("new")
-  const [canEdit, setCanEdit] = useState(!isEdit)
+  const [canEdit, setCanEdit] = useState(!isEdit && !forceReadOnly)
   const [currentBookId, setCurrentBookId] = useState<string | null>(bookId ?? null)
 
   useEffect(() => {
@@ -70,7 +71,7 @@ export default function BookEditorClient({ mode, bookId }: Props) {
         setAllowedRaceKeys(Array.isArray(book.allowedRaceKeys) ? book.allowedRaceKeys : [])
         setJsonContent(book.content ?? EMPTY_DOC)
         setEditorKey(`edit-${book.id}`)
-        setCanEdit(Boolean(payload.canEdit))
+        setCanEdit(Boolean(payload.canEdit) && !forceReadOnly)
       } catch (loadError) {
         setError(loadError instanceof Error ? loadError.message : "Erro ao carregar livro.")
       } finally {
@@ -79,7 +80,7 @@ export default function BookEditorClient({ mode, bookId }: Props) {
     }
 
     void loadBook()
-  }, [bookId, isEdit, rpgId])
+  }, [bookId, forceReadOnly, isEdit, rpgId])
 
   async function handleSave() {
     if (saving || !canEdit) return
@@ -131,22 +132,19 @@ export default function BookEditorClient({ mode, bookId }: Props) {
 
   return (
     <main className={styles.page}>
-      <div className={styles.pageContent}>
-        <section className={styles.editorCard}>
-          <div className={styles.editorBody}>
-            <SimpleEditor
-              key={editorKey}
-              initialContent={jsonContent}
-              onJsonChange={setJsonContent}
-              disabled={!canEdit}
-              onSave={() => void handleSave()}
-              canSave={canEdit}
-              isSaving={saving}
-            />
-          </div>
-        </section>
-        {error ? <p className={styles.error}>{error}</p> : null}
-      </div>
+      <section className={`${styles.editorCard} ${!canEdit ? styles.readOnlyBody : ""}`}>
+        <SimpleEditor
+          key={editorKey}
+          initialContent={jsonContent}
+          onJsonChange={setJsonContent}
+          disabled={!canEdit}
+          className="library-book-editor"
+          onSave={() => void handleSave()}
+          canSave={canEdit}
+          isSaving={saving}
+        />
+      </section>
+      {error ? <p className={styles.error}>{error}</p> : null}
     </main>
   )
 }

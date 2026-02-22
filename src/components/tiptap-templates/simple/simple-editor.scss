@@ -145,3 +145,206 @@ body {
     padding: 1rem 0.85rem 3rem;
   }
 }
+
+.simple-editor-wrapper.is-readonly {
+  background: var(--color-bg-app);
+  border: none;
+  border-radius: 0;
+}
+
+.simple-editor-wrapper.library-book-editor {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content {
+  max-width: 960px;
+  padding: 0;
+  gap: 0;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor {
+  min-height: 0;
+  padding: 1.4rem 1.4rem 2.6rem;
+  background: transparent;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h1,
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h2,
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h3,
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h4,
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h5,
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h6 {
+  font-family: "Cinzel", serif;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  letter-spacing: 0.04em;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h1 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(1.8rem, 2.6vw, 2.2rem);
+  line-height: 1.2;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h2 {
+  margin: 1.8rem 0 1rem;
+  font-size: clamp(1.35rem, 2vw, 1.6rem);
+  color: var(--color-brand-primary);
+  letter-spacing: 0.08em;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h3 {
+  margin: 1.5rem 0 0.85rem;
+  font-size: clamp(1.15rem, 1.6vw, 1.3rem);
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h4,
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h5,
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h6 {
+  margin: 1.25rem 0 0.65rem;
+  font-size: 1.05rem;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor p {
+  margin: 0 0 1rem;
+  color: var(--color-text-secondary);
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor p:last-child {
+  margin-bottom: 0;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor blockquote {
+  margin: 1.2rem 0;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--color-brand-strong);
+  background: color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor ul,
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor ol {
+  margin: 0.3rem 0 1rem;
+  padding-left: 1.2rem;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor li {
+  margin-bottom: 0.45rem;
+  color: var(--color-text-secondary);
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor ul[data-type="taskList"] li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor ul[data-type="taskList"] li > label {
+  margin-top: 0.2rem;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor ul[data-type="taskList"] input[type="checkbox"] {
+  accent-color: var(--color-brand-primary);
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor a {
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor a:hover {
+  color: var(--color-border-focus);
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor hr {
+  border: none;
+  height: 1px;
+  margin: 1.6rem 0;
+  background: var(--color-border-soft);
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor code {
+  background: color-mix(in srgb, var(--color-bg-hover) 80%, transparent);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 6px;
+  padding: 0.12rem 0.35rem;
+  color: var(--color-text-primary);
+  font-size: 0.92em;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor pre {
+  margin: 1.25rem 0;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-surface-alt);
+  overflow-x: auto;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor pre code {
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  margin: 1rem 0;
+  box-shadow: var(--shadow-elevation-sm);
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  border: 1px solid var(--color-border-soft);
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor th,
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor td {
+  border: 1px solid var(--color-border-soft);
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor th {
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-bg-hover) 65%, transparent);
+}
+
+.simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor mark {
+  border-radius: 0.2rem;
+  padding: 0.05rem 0.2rem;
+}
+
+@media (max-width: 640px) {
+  .simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content {
+    padding: 0;
+  }
+
+  .simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor {
+    padding: 1rem 0.95rem 2rem;
+  }
+
+  .simple-editor-wrapper:is(.is-readonly, .library-book-editor) .simple-editor-content .tiptap.ProseMirror.simple-editor h1 {
+    font-size: 1.7rem;
+  }
+}

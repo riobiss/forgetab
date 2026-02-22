@@ -204,6 +204,7 @@ type SimpleEditorProps = {
   onSave?: () => void
   canSave?: boolean
   isSaving?: boolean
+  className?: string
 }
 
 export function SimpleEditor({
@@ -213,6 +214,7 @@ export function SimpleEditor({
   onSave,
   canSave = false,
   isSaving = false,
+  className = "",
 }: SimpleEditorProps) {
   const isMobile = useIsBreakpoint()
   const { height } = useWindowSize()
@@ -282,7 +284,9 @@ export function SimpleEditor({
   }, [disabled, editor])
 
   return (
-    <div className="simple-editor-wrapper dark">
+    <div
+      className={`simple-editor-wrapper dark ${disabled ? "is-readonly" : ""} ${className}`.trim()}
+    >
       <EditorContext.Provider value={{ editor }}>
         {!disabled ? (
           <Toolbar

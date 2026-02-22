@@ -1,9 +1,6 @@
 .page {
   min-height: 100vh;
   background: var(--color-bg-app);
-}
-
-.pageContent {
   max-width: 1120px;
   margin: 0 auto;
   padding: 24px 16px;
@@ -14,16 +11,16 @@
 .editorCard {
   border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  background-color: var(--color-bg-surface);
   box-shadow: var(--shadow-elevation-sm);
-  overflow: hidden;
-}
-
-.editorBody {
   max-height: calc(100vh - 170px);
   overflow: auto;
   padding: 0.35rem 0.45rem 0.45rem;
-  background: var(--color-bg-app);
+}
+
+.readOnlyBody {
+  max-height: none;
+  overflow: visible;
 }
 
 .primaryButton {
@@ -53,12 +50,16 @@
 }
 
 @media (max-width: 720px) {
-  .pageContent {
+  .page {
     padding: 14px 10px;
   }
 
-  .editorBody {
+  .editorCard {
     max-height: calc(100vh - 150px);
     padding: 0.2rem 0.2rem 0.3rem;
+  }
+
+  .readOnlyBody {
+    max-height: none;
   }
 }
