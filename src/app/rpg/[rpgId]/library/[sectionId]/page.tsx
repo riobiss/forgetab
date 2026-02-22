@@ -317,11 +317,11 @@ export default function LibraryBooksPage() {
               className={styles.bookCard}
               role="button"
               tabIndex={0}
-              onClick={() => router.push(`/rpg/${rpgId}/library/${sectionId}/books/${book.id}/edit`)}
+              onClick={() => router.push(`/rpg/${rpgId}/library/${sectionId}/books/${book.id}`)}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault()
-                  router.push(`/rpg/${rpgId}/library/${sectionId}/books/${book.id}/edit`)
+                  router.push(`/rpg/${rpgId}/library/${sectionId}/books/${book.id}`)
                 }
               }}
             >
@@ -331,9 +331,19 @@ export default function LibraryBooksPage() {
               <p className={styles.bookMeta}>
                 Visibilidade: {book.visibility === "public" ? "Publica" : "Privada"}
               </p>
-              {canManage ? (
+              {book.canEdit ? (
                 <div className={styles.cardActions}>
-                  {book.canEdit ? (
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      router.push(`/rpg/${rpgId}/library/${sectionId}/books/${book.id}/edit`)
+                    }}
+                  >
+                    Escrever
+                  </button>
+                  {canManage && book.canEdit ? (
                     <>
                       <button
                         type="button"
