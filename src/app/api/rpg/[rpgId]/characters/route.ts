@@ -812,58 +812,64 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: parsedCharacteristics.message }, { status: 400 })
     }
 
-    let selectedRaceKey: string | null = null
-    let selectedClassKey: string | null = null
+    let selectedRaceKey: string | null = body.raceKey?.trim() || null
+    let selectedClassKey: string | null = body.classKey?.trim() || null
     let raceAttributeBonuses: Record<string, number> = {}
     let classAttributeBonuses: Record<string, number> = {}
     let raceSkillBonuses: Record<string, number> = {}
     let classSkillBonuses: Record<string, number> = {}
+    let raceTemplates: IdentityTemplateRow[] = []
+    let classTemplates: IdentityTemplateRow[] = []
 
-    if (access.useClassRaceBonuses) {
-      selectedRaceKey = body.raceKey?.trim() || null
-      selectedClassKey = body.classKey?.trim() || null
-
-      let raceTemplates: IdentityTemplateRow[] = []
-      let classTemplates: IdentityTemplateRow[] = []
-      try {
-        raceTemplates = await prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
-          SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
-          FROM rpg_race_templates
-          WHERE rpg_id = ${rpgId}
-        `)
-        classTemplates = await prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
-          SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
-          FROM rpg_class_templates
-          WHERE rpg_id = ${rpgId}
-        `)
-      } catch (error) {
-        if (
-          error instanceof Error &&
-          (error.message.includes('relation "rpg_race_templates" does not exist') ||
-            error.message.includes('relation "rpg_class_templates" does not exist'))
-        ) {
-          return NextResponse.json(
-            { message: "Estrutura de racas/classes nao existe no banco. Rode a migration." },
-            { status: 500 },
-          )
-        }
-        throw error
+    try {
+      raceTemplates = await prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
+        SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
+        FROM rpg_race_templates
+        WHERE rpg_id = ${rpgId}
+      `)
+      classTemplates = await prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
+        SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
+        FROM rpg_class_templates
+        WHERE rpg_id = ${rpgId}
+      `)
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        (error.message.includes('relation "rpg_race_templates" does not exist') ||
+          error.message.includes('relation "rpg_class_templates" does not exist'))
+      ) {
+        return NextResponse.json(
+          { message: "Estrutura de racas/classes nao existe no banco. Rode a migration." },
+          { status: 500 },
+        )
       }
+      throw error
+    }
 
-      if (selectedRaceKey) {
-        const race = raceTemplates.find((item) => item.key === selectedRaceKey)
-        if (!race) {
-          return NextResponse.json({ message: "Raca invalida para este RPG." }, { status: 400 })
-        }
+    if (raceTemplates.length > 0 && !selectedRaceKey) {
+      return NextResponse.json({ message: "Selecione uma raca." }, { status: 400 })
+    }
+    if (classTemplates.length > 0 && !selectedClassKey) {
+      return NextResponse.json({ message: "Selecione uma classe." }, { status: 400 })
+    }
+
+    if (selectedRaceKey) {
+      const race = raceTemplates.find((item) => item.key === selectedRaceKey)
+      if (!race) {
+        return NextResponse.json({ message: "Raca invalida para este RPG." }, { status: 400 })
+      }
+      if (access.useClassRaceBonuses) {
         raceAttributeBonuses = parseJsonBonusRecord(race.attributeBonuses)
         raceSkillBonuses = parseJsonBonusRecord(race.skillBonuses)
       }
+    }
 
-      if (selectedClassKey) {
-        const cls = classTemplates.find((item) => item.key === selectedClassKey)
-        if (!cls) {
-          return NextResponse.json({ message: "Classe invalida para este RPG." }, { status: 400 })
-        }
+    if (selectedClassKey) {
+      const cls = classTemplates.find((item) => item.key === selectedClassKey)
+      if (!cls) {
+        return NextResponse.json({ message: "Classe invalida para este RPG." }, { status: 400 })
+      }
+      if (access.useClassRaceBonuses) {
         classAttributeBonuses = parseJsonBonusRecord(cls.attributeBonuses)
         classSkillBonuses = parseJsonBonusRecord(cls.skillBonuses)
       }
