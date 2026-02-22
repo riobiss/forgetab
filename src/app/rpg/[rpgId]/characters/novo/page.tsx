@@ -187,6 +187,7 @@ export default function NewCharacterPage() {
   const [showAttributeSection, setShowAttributeSection] = useState(true)
   const [showSkillSection, setShowSkillSection] = useState(true)
   const [selectedImageName, setSelectedImageName] = useState("")
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const savingRef = useRef(false)
   const deletingRef = useRef(false)
   const identityNameField = identityTemplates.find((field) => isIdentityNameField(field)) ?? null
@@ -343,6 +344,7 @@ export default function NewCharacterPage() {
         setCharacteristicsValues(nextCharacteristics)
         setName(editTarget?.name ?? "")
         setImage(editTarget?.image ?? "")
+        setSelectedImageFile(null)
         setSelectedImageName("")
         setRaceKey(editTarget?.raceKey ?? "")
         setClassKey(editTarget?.classKey ?? "")
@@ -389,20 +391,46 @@ export default function NewCharacterPage() {
             ? null
             : Number(maxCarryWeight)
           : null
+      let submittedImage = image
+      let uploadedImageUrl = ""
+      let hasFreshUpload = false
+
+      if (selectedImageFile) {
+        setUploadingImage(true)
+        const uploadPayload = new FormData()
+        uploadPayload.append("file", selectedImageFile)
+
+        const uploadResponse = await fetch("/api/uploads/character-image", {
+          method: "POST",
+          body: uploadPayload,
+        })
+
+        const uploadBody = (await uploadResponse.json()) as UploadImagePayload
+        if (!uploadResponse.ok || !uploadBody.url) {
+          const message = uploadBody.message ?? "Nao foi possivel enviar imagem."
+          setUploadError(message)
+          setError(message)
+          return
+        }
+
+        uploadedImageUrl = uploadBody.url.trim()
+        submittedImage = uploadedImageUrl
+        hasFreshUpload = true
+      }
 
       const response = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: resolvedName,
-          image,
+          image: submittedImage,
           ...(isEditing
             ? {}
             : useClassRaceBonuses
               ? {
-                  ...(raceKey ? { raceKey } : {}),
-                  ...(classKey ? { classKey } : {}),
-                }
+                ...(raceKey ? { raceKey } : {}),
+                ...(classKey ? { classKey } : {}),
+              }
               : {}),
           ...(isEditing ? {} : { characterType }),
           ...(useInventoryWeightLimit && characterType === "player"
@@ -420,6 +448,17 @@ export default function NewCharacterPage() {
       const payload = (await response.json()) as { message?: string }
 
       if (!response.ok) {
+        if (hasFreshUpload && uploadedImageUrl) {
+          try {
+            await fetch("/api/uploads/character-image", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url: uploadedImageUrl }),
+            })
+          } catch {
+            // Nao bloqueia a resposta de erro se a limpeza da imagem falhar.
+          }
+        }
         setError(
           payload.message ??
             (isEditing
@@ -429,6 +468,8 @@ export default function NewCharacterPage() {
         return
       }
 
+      setSelectedImageFile(null)
+      setSelectedImageName("")
       router.push(`/rpg/${rpgId}/characters`)
       router.refresh()
     } catch {
@@ -438,6 +479,7 @@ export default function NewCharacterPage() {
           : "Erro de conexao ao criar personagem.",
       )
     } finally {
+      setUploadingImage(false)
       setSaving(false)
       savingRef.current = false
     }
@@ -479,37 +521,14 @@ export default function NewCharacterPage() {
   }
 
   async function handleImageUpload(file: File) {
-    setUploadingImage(true)
+    setSelectedImageFile(file)
     setUploadError("")
     setError("")
-
-    try {
-      const payload = new FormData()
-      payload.append("file", file)
-      if (image.trim()) {
-        payload.append("oldUrl", image.trim())
-      }
-
-      const response = await fetch("/api/uploads/character-image", {
-        method: "POST",
-        body: payload,
-      })
-
-      const body = (await response.json()) as UploadImagePayload
-      if (!response.ok || !body.url) {
-        setUploadError(body.message ?? "Nao foi possivel enviar imagem.")
-        return
-      }
-
-      setImage(body.url)
-    } catch {
-      setUploadError("Erro de conexao ao enviar imagem.")
-    } finally {
-      setUploadingImage(false)
-    }
+    setSelectedImageName(file.name)
   }
 
   function handleRemoveImage() {
+    setSelectedImageFile(null)
     setImage("")
     setSelectedImageName("")
     setUploadError("")
@@ -618,7 +637,6 @@ export default function NewCharacterPage() {
                   onChange={(event) => {
                     const file = event.target.files?.[0]
                     if (file) {
-                      setSelectedImageName(file.name)
                       void handleImageUpload(file)
                     }
                   }}
@@ -713,6 +731,7 @@ export default function NewCharacterPage() {
                   <span>Peso maximo (kg)</span>
                   <input
                     type="number"
+                    onWheel={(event) => event.currentTarget.blur()}
                     min={0}
                     step="0.1"
                     value={maxCarryWeight}
