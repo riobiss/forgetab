@@ -18,6 +18,8 @@ export const createRpgSchema = z.object({
     .max(60, "Nome do recurso de custo muito longo.")
     .optional(),
   useMundiMap: z.boolean().optional(),
+  useRaceBonuses: z.boolean().optional(),
+  useClassBonuses: z.boolean().optional(),
   useClassRaceBonuses: z.boolean().optional(),
   useInventoryWeightLimit: z.boolean().optional(),
 })

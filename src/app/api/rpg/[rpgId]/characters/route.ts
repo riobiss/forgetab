@@ -98,28 +98,32 @@ type RpgAccess = {
   exists: boolean
   canAccess: boolean
   isOwner: boolean
-  useClassRaceBonuses: boolean
+  useRaceBonuses: boolean
+  useClassBonuses: boolean
   useInventoryWeightLimit: boolean
 }
 
 async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
   let rows: Array<{
     ownerId: string
-    useClassRaceBonuses: boolean
+    useRaceBonuses: boolean
+    useClassBonuses: boolean
     useInventoryWeightLimit: boolean
   }> = []
   try {
     rows = await prisma.$queryRaw<
       Array<{
         ownerId: string
-        useClassRaceBonuses: boolean
+        useRaceBonuses: boolean
+        useClassBonuses: boolean
         useInventoryWeightLimit: boolean
       }>
     >(
       Prisma.sql`
         SELECT
           owner_id AS "ownerId",
-          COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
+          COALESCE(use_race_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useRaceBonuses",
+          COALESCE(use_class_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useClassBonuses",
           COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit"
         FROM rpgs
         WHERE id = ${rpgId}
@@ -129,26 +133,52 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
   } catch (error) {
     if (
       error instanceof Error &&
-      (error.message.includes('column "use_class_race_bonuses" does not exist') ||
+      (error.message.includes('column "use_race_bonuses" does not exist') ||
+        error.message.includes('column "use_class_bonuses" does not exist') ||
+        error.message.includes('column "use_class_race_bonuses" does not exist') ||
         error.message.includes('column "use_inventory_weight_limit" does not exist'))
     ) {
-      rows = await prisma.$queryRaw<
-        Array<{
-          ownerId: string
-          useClassRaceBonuses: boolean
-          useInventoryWeightLimit: boolean
-        }>
-      >(
-        Prisma.sql`
-          SELECT
-            owner_id AS "ownerId",
-            false AS "useClassRaceBonuses",
-            false AS "useInventoryWeightLimit"
-          FROM rpgs
-          WHERE id = ${rpgId}
-          LIMIT 1
-        `,
-      )
+      try {
+        rows = await prisma.$queryRaw<
+          Array<{
+            ownerId: string
+            useRaceBonuses: boolean
+            useClassBonuses: boolean
+            useInventoryWeightLimit: boolean
+          }>
+        >(
+          Prisma.sql`
+            SELECT
+              owner_id AS "ownerId",
+              COALESCE(use_class_race_bonuses, false) AS "useRaceBonuses",
+              COALESCE(use_class_race_bonuses, false) AS "useClassBonuses",
+              false AS "useInventoryWeightLimit"
+            FROM rpgs
+            WHERE id = ${rpgId}
+            LIMIT 1
+          `,
+        )
+      } catch {
+        rows = await prisma.$queryRaw<
+          Array<{
+            ownerId: string
+            useRaceBonuses: boolean
+            useClassBonuses: boolean
+            useInventoryWeightLimit: boolean
+          }>
+        >(
+          Prisma.sql`
+            SELECT
+              owner_id AS "ownerId",
+              false AS "useRaceBonuses",
+              false AS "useClassBonuses",
+              false AS "useInventoryWeightLimit"
+            FROM rpgs
+            WHERE id = ${rpgId}
+            LIMIT 1
+          `,
+        )
+      }
     } else {
       throw error
     }
@@ -160,7 +190,8 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
       exists: false,
       canAccess: false,
       isOwner: false,
-      useClassRaceBonuses: false,
+      useRaceBonuses: false,
+      useClassBonuses: false,
       useInventoryWeightLimit: false,
     }
   }
@@ -170,7 +201,8 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
       exists: true,
       canAccess: true,
       isOwner: true,
-      useClassRaceBonuses: rpg.useClassRaceBonuses,
+      useRaceBonuses: rpg.useRaceBonuses,
+      useClassBonuses: rpg.useClassBonuses,
       useInventoryWeightLimit: rpg.useInventoryWeightLimit,
     }
   }
@@ -189,7 +221,8 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
     exists: true,
     canAccess: membership?.status === "accepted",
     isOwner: false,
-    useClassRaceBonuses: rpg.useClassRaceBonuses,
+    useRaceBonuses: rpg.useRaceBonuses,
+    useClassBonuses: rpg.useClassBonuses,
     useInventoryWeightLimit: rpg.useInventoryWeightLimit,
   }
 }
@@ -534,7 +567,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
       {
         characters,
         isOwner: access.isOwner,
-        useClassRaceBonuses: access.useClassRaceBonuses,
+        useRaceBonuses: access.useRaceBonuses,
+        useClassBonuses: access.useClassBonuses,
         useInventoryWeightLimit: access.useInventoryWeightLimit,
       },
       { status: 200 },
@@ -812,8 +846,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: parsedCharacteristics.message }, { status: 400 })
     }
 
-    let selectedRaceKey: string | null = body.raceKey?.trim() || null
-    let selectedClassKey: string | null = body.classKey?.trim() || null
+    let selectedRaceKey: string | null = access.useRaceBonuses ? body.raceKey?.trim() || null : null
+    let selectedClassKey: string | null = access.useClassBonuses ? body.classKey?.trim() || null : null
     let raceAttributeBonuses: Record<string, number> = {}
     let classAttributeBonuses: Record<string, number> = {}
     let raceSkillBonuses: Record<string, number> = {}
@@ -846,10 +880,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
       throw error
     }
 
-    if (raceTemplates.length > 0 && !selectedRaceKey) {
+    if (access.useRaceBonuses && raceTemplates.length > 0 && !selectedRaceKey) {
       return NextResponse.json({ message: "Selecione uma raca." }, { status: 400 })
     }
-    if (classTemplates.length > 0 && !selectedClassKey) {
+    if (access.useClassBonuses && classTemplates.length > 0 && !selectedClassKey) {
       return NextResponse.json({ message: "Selecione uma classe." }, { status: 400 })
     }
 
@@ -858,7 +892,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       if (!race) {
         return NextResponse.json({ message: "Raca invalida para este RPG." }, { status: 400 })
       }
-      if (access.useClassRaceBonuses) {
+      if (access.useRaceBonuses) {
         raceAttributeBonuses = parseJsonBonusRecord(race.attributeBonuses)
         raceSkillBonuses = parseJsonBonusRecord(race.skillBonuses)
       }
@@ -869,7 +903,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       if (!cls) {
         return NextResponse.json({ message: "Classe invalida para este RPG." }, { status: 400 })
       }
-      if (access.useClassRaceBonuses) {
+      if (access.useClassBonuses) {
         classAttributeBonuses = parseJsonBonusRecord(cls.attributeBonuses)
         classSkillBonuses = parseJsonBonusRecord(cls.skillBonuses)
       }

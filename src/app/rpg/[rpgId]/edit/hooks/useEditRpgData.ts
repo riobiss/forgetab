@@ -19,6 +19,8 @@ type RpgPayload = {
     costsEnabled?: boolean
     costResourceName?: string
     useMundiMap?: boolean
+    useRaceBonuses?: boolean
+    useClassBonuses?: boolean
     useClassRaceBonuses?: boolean
     useInventoryWeightLimit?: boolean
   }
@@ -32,7 +34,8 @@ type UseEditRpgDataParams = {
   image: string
   visibility: Visibility
   useMundiMap: boolean
-  useClassRaceBonuses: boolean
+  useRaceBonuses: boolean
+  useClassBonuses: boolean
   useInventoryWeightLimit: boolean
   attributeTemplates: AttributeTemplate[]
   selectedStatusKeys: string[]
@@ -45,7 +48,8 @@ type UseEditRpgDataParams = {
   setImage: (value: string) => void
   setVisibility: (value: Visibility) => void
   setUseMundiMap: (value: boolean) => void
-  setUseClassRaceBonuses: (value: boolean) => void
+  setUseRaceBonuses: (value: boolean) => void
+  setUseClassBonuses: (value: boolean) => void
   setUseInventoryWeightLimit: (value: boolean) => void
   setCostsEnabled: (value: boolean) => void
   setCostResourceName: (value: string) => void
@@ -67,7 +71,8 @@ export function useEditRpgData({
   image,
   visibility,
   useMundiMap,
-  useClassRaceBonuses,
+  useRaceBonuses,
+  useClassBonuses,
   useInventoryWeightLimit,
   attributeTemplates,
   selectedStatusKeys,
@@ -80,7 +85,8 @@ export function useEditRpgData({
   setImage,
   setVisibility,
   setUseMundiMap,
-  setUseClassRaceBonuses,
+  setUseRaceBonuses,
+  setUseClassBonuses,
   setUseInventoryWeightLimit,
   setCostsEnabled,
   setCostResourceName,
@@ -171,7 +177,17 @@ export function useEditRpgData({
         setImage(rpgPayload.rpg.image?.trim() || "")
         setVisibility(rpgPayload.rpg.visibility)
         setUseMundiMap(Boolean(rpgPayload.rpg.useMundiMap))
-        setUseClassRaceBonuses(Boolean(rpgPayload.rpg.useClassRaceBonuses))
+        const legacyClassRaceFlag = Boolean(rpgPayload.rpg.useClassRaceBonuses)
+        setUseRaceBonuses(
+          typeof rpgPayload.rpg.useRaceBonuses === "boolean"
+            ? rpgPayload.rpg.useRaceBonuses
+            : legacyClassRaceFlag,
+        )
+        setUseClassBonuses(
+          typeof rpgPayload.rpg.useClassBonuses === "boolean"
+            ? rpgPayload.rpg.useClassBonuses
+            : legacyClassRaceFlag,
+        )
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg.useInventoryWeightLimit))
         setCostsEnabled(Boolean(rpgPayload.rpg.costsEnabled))
         setCostResourceName(rpgPayload.rpg.costResourceName?.trim() || "Skill Points")
@@ -229,7 +245,8 @@ export function useEditRpgData({
     setImage,
     setVisibility,
     setUseMundiMap,
-    setUseClassRaceBonuses,
+    setUseRaceBonuses,
+    setUseClassBonuses,
     setUseInventoryWeightLimit,
     setCostsEnabled,
     setCostResourceName,
@@ -253,7 +270,8 @@ export function useEditRpgData({
         image: image.trim() || null,
         visibility,
         useMundiMap,
-        useClassRaceBonuses,
+        useRaceBonuses,
+        useClassBonuses,
         useInventoryWeightLimit,
       }),
     })

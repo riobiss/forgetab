@@ -130,6 +130,8 @@ type RpgRow = {
   costsEnabled: boolean
   costResourceName: string
   useMundiMap: boolean
+  useRaceBonuses: boolean
+  useClassBonuses: boolean
   useClassRaceBonuses: boolean
   useInventoryWeightLimit: boolean
 }
@@ -160,6 +162,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
           COALESCE(costs_enabled, false) AS "costsEnabled",
           COALESCE(NULLIF(TRIM(cost_resource_name), ''), 'Skill Points') AS "costResourceName",
           COALESCE(use_mundi_map, false) AS "useMundiMap",
+          COALESCE(use_race_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useRaceBonuses",
+          COALESCE(use_class_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useClassBonuses",
           COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
           COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit"
         FROM rpgs
@@ -172,27 +176,53 @@ export async function GET(request: NextRequest, context: RouteContext) {
         (error.message.includes('column "costs_enabled" does not exist') ||
           error.message.includes('column "cost_resource_name" does not exist') ||
           error.message.includes('column "image" does not exist') ||
+          error.message.includes('column "use_race_bonuses" does not exist') ||
+          error.message.includes('column "use_class_bonuses" does not exist') ||
           error.message.includes('column "use_class_race_bonuses" does not exist') ||
           error.message.includes('column "use_inventory_weight_limit" does not exist') ||
           error.message.includes('column "use_mundi_map" does not exist'))
       ) {
-        rows = await prisma.$queryRaw<RpgRow[]>(Prisma.sql`
-          SELECT
-            id,
-            owner_id AS "ownerId",
-            title,
-            description,
-            null::text AS image,
-            visibility,
-            false AS "costsEnabled",
-            'Skill Points' AS "costResourceName",
-            false AS "useMundiMap",
-            false AS "useClassRaceBonuses",
-            false AS "useInventoryWeightLimit"
-          FROM rpgs
-          WHERE id = ${rpgId}
-          LIMIT 1
-        `)
+        try {
+          rows = await prisma.$queryRaw<RpgRow[]>(Prisma.sql`
+            SELECT
+              id,
+              owner_id AS "ownerId",
+              title,
+              description,
+              null::text AS image,
+              visibility,
+              false AS "costsEnabled",
+              'Skill Points' AS "costResourceName",
+              false AS "useMundiMap",
+              COALESCE(use_class_race_bonuses, false) AS "useRaceBonuses",
+              COALESCE(use_class_race_bonuses, false) AS "useClassBonuses",
+              COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
+              false AS "useInventoryWeightLimit"
+            FROM rpgs
+            WHERE id = ${rpgId}
+            LIMIT 1
+          `)
+        } catch {
+          rows = await prisma.$queryRaw<RpgRow[]>(Prisma.sql`
+            SELECT
+              id,
+              owner_id AS "ownerId",
+              title,
+              description,
+              null::text AS image,
+              visibility,
+              false AS "costsEnabled",
+              'Skill Points' AS "costResourceName",
+              false AS "useMundiMap",
+              false AS "useRaceBonuses",
+              false AS "useClassBonuses",
+              false AS "useClassRaceBonuses",
+              false AS "useInventoryWeightLimit"
+            FROM rpgs
+            WHERE id = ${rpgId}
+            LIMIT 1
+          `)
+        }
       } else {
         throw error
       }
@@ -241,6 +271,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
           costsEnabled: rpg.costsEnabled,
           costResourceName: rpg.costResourceName,
           useMundiMap: rpg.useMundiMap,
+          useRaceBonuses: rpg.useRaceBonuses,
+          useClassBonuses: rpg.useClassBonuses,
           useClassRaceBonuses: rpg.useClassRaceBonuses,
           useInventoryWeightLimit: rpg.useInventoryWeightLimit,
         },
@@ -297,9 +329,19 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       image,
       visibility,
       useMundiMap,
+      useRaceBonuses,
+      useClassBonuses,
       useClassRaceBonuses,
       useInventoryWeightLimit,
     } = parsed.data
+    const resolvedUseRaceBonuses =
+      typeof useRaceBonuses === "boolean"
+        ? useRaceBonuses
+        : Boolean(useClassRaceBonuses)
+    const resolvedUseClassBonuses =
+      typeof useClassBonuses === "boolean"
+        ? useClassBonuses
+        : Boolean(useClassRaceBonuses)
     const normalizedImage = normalizeOptionalText(image)
     let previousImage: string | null = null
 
@@ -342,6 +384,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     if (
       typeof useMundiMap === "boolean" ||
+      typeof useRaceBonuses === "boolean" ||
+      typeof useClassBonuses === "boolean" ||
       typeof useClassRaceBonuses === "boolean" ||
       typeof useInventoryWeightLimit === "boolean"
     ) {
@@ -350,18 +394,47 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           UPDATE rpgs
           SET
             use_mundi_map = ${Boolean(useMundiMap)},
-            use_class_race_bonuses = ${Boolean(useClassRaceBonuses)},
+            use_race_bonuses = ${resolvedUseRaceBonuses},
+            use_class_bonuses = ${resolvedUseClassBonuses},
+            use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
             use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
           WHERE id = ${rpgId}
             AND owner_id = ${userId}
         `)
       } catch (error) {
-        if (
-          !(error instanceof Error) ||
-          (!error.message.includes('column "use_class_race_bonuses" does not exist') &&
+        if (error instanceof Error) {
+          if (
+            error.message.includes('column "use_race_bonuses" does not exist') ||
+            error.message.includes('column "use_class_bonuses" does not exist')
+          ) {
+            try {
+              await prisma.$executeRaw(Prisma.sql`
+                UPDATE rpgs
+                SET
+                  use_mundi_map = ${Boolean(useMundiMap)},
+                  use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
+                  use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
+                WHERE id = ${rpgId}
+                  AND owner_id = ${userId}
+              `)
+            } catch (innerError) {
+              if (
+                !(innerError instanceof Error) ||
+                (!innerError.message.includes('column "use_class_race_bonuses" does not exist') &&
+                  !innerError.message.includes('column "use_inventory_weight_limit" does not exist') &&
+                  !innerError.message.includes('column "use_mundi_map" does not exist'))
+              ) {
+                throw innerError
+              }
+            }
+          } else if (
+            !error.message.includes('column "use_class_race_bonuses" does not exist') &&
             !error.message.includes('column "use_inventory_weight_limit" does not exist') &&
-            !error.message.includes('column "use_mundi_map" does not exist'))
-        ) {
+            !error.message.includes('column "use_mundi_map" does not exist')
+          ) {
+            throw error
+          }
+        } else {
           throw error
         }
       }

@@ -17,6 +17,8 @@ export default function NewRpgPage() {
   const [description, setDescription] = useState("")
   const [image, setImage] = useState("")
   const [visibility, setVisibility] = useState<"private" | "public">("private")
+  const [useRaceBonuses, setUseRaceBonuses] = useState(false)
+  const [useClassBonuses, setUseClassBonuses] = useState(false)
   const [costsEnabled, setCostsEnabled] = useState(false)
   const [costResourceName, setCostResourceName] = useState("Skill Points")
   const [uploadingImage, setUploadingImage] = useState(false)
@@ -83,6 +85,8 @@ export default function NewRpgPage() {
           visibility,
           costsEnabled,
           costResourceName,
+          useRaceBonuses,
+          useClassBonuses,
         }),
       })
 
@@ -193,6 +197,28 @@ export default function NewRpgPage() {
             >
               <option value="disabled">Desativado</option>
               <option value="enabled">Ativado</option>
+            </NativeSelectField>
+          </label>
+
+          <label className={styles.field}>
+            <span>Usar raca</span>
+            <NativeSelectField
+              value={useRaceBonuses ? "enabled" : "disabled"}
+              onChange={(event) => setUseRaceBonuses(event.target.value === "enabled")}
+            >
+              <option value="disabled">Nao</option>
+              <option value="enabled">Sim</option>
+            </NativeSelectField>
+          </label>
+
+          <label className={styles.field}>
+            <span>Usar classe</span>
+            <NativeSelectField
+              value={useClassBonuses ? "enabled" : "disabled"}
+              onChange={(event) => setUseClassBonuses(event.target.value === "enabled")}
+            >
+              <option value="disabled">Nao</option>
+              <option value="enabled">Sim</option>
             </NativeSelectField>
           </label>
 

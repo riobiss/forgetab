@@ -25,7 +25,8 @@ export function useEditRpgState() {
   const [image, setImage] = useState("")
   const [visibility, setVisibility] = useState<Visibility>("private")
   const [useMundiMap, setUseMundiMap] = useState(false)
-  const [useClassRaceBonuses, setUseClassRaceBonuses] = useState(false)
+  const [useRaceBonuses, setUseRaceBonuses] = useState(false)
+  const [useClassBonuses, setUseClassBonuses] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
   const [costsEnabled, setCostsEnabled] = useState(false)
   const [costResourceName, setCostResourceName] = useState("Skill Points")
@@ -227,8 +228,10 @@ export function useEditRpgState() {
     setVisibility,
     useMundiMap,
     setUseMundiMap,
-    useClassRaceBonuses,
-    setUseClassRaceBonuses,
+    useRaceBonuses,
+    setUseRaceBonuses,
+    useClassBonuses,
+    setUseClassBonuses,
     useInventoryWeightLimit,
     setUseInventoryWeightLimit,
     costsEnabled,

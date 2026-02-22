@@ -41,12 +41,22 @@ export async function POST(request: NextRequest) {
       costsEnabled,
       costResourceName,
       useMundiMap,
+      useRaceBonuses,
+      useClassBonuses,
       useClassRaceBonuses,
       useInventoryWeightLimit,
     } = parsed.data
     const resolvedImage = image?.trim() || null
     const resolvedCostsEnabled = Boolean(costsEnabled)
     const resolvedCostResourceName = (costResourceName?.trim() || "Skill Points").slice(0, 60)
+    const resolvedUseRaceBonuses =
+      typeof useRaceBonuses === "boolean"
+        ? useRaceBonuses
+        : Boolean(useClassRaceBonuses)
+    const resolvedUseClassBonuses =
+      typeof useClassBonuses === "boolean"
+        ? useClassBonuses
+        : Boolean(useClassRaceBonuses)
     const created = await prisma.rpg.create({
       data: {
         ownerId: authPayload.userId,
@@ -63,12 +73,35 @@ export async function POST(request: NextRequest) {
           costs_enabled = ${resolvedCostsEnabled},
           cost_resource_name = ${resolvedCostResourceName},
           use_mundi_map = ${Boolean(useMundiMap)},
-          use_class_race_bonuses = ${Boolean(useClassRaceBonuses)},
+          use_race_bonuses = ${resolvedUseRaceBonuses},
+          use_class_bonuses = ${resolvedUseClassBonuses},
+          use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
           use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
         WHERE id = ${created.id}
       `)
-    } catch {
-      // Mantem compatibilidade quando a migration ainda nao foi aplicada.
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        (error.message.includes('column "use_race_bonuses" does not exist') ||
+          error.message.includes('column "use_class_bonuses" does not exist'))
+      ) {
+        try {
+          await prisma.$executeRaw(Prisma.sql`
+            UPDATE rpgs
+            SET
+              costs_enabled = ${resolvedCostsEnabled},
+              cost_resource_name = ${resolvedCostResourceName},
+              use_mundi_map = ${Boolean(useMundiMap)},
+              use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
+              use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
+            WHERE id = ${created.id}
+          `)
+        } catch {
+          // Mantem compatibilidade quando a migration ainda nao foi aplicada.
+        }
+      } else {
+        throw error
+      }
     }
 
     if (resolvedImage) {
@@ -102,7 +135,9 @@ export async function POST(request: NextRequest) {
           costsEnabled: resolvedCostsEnabled,
           costResourceName: resolvedCostResourceName,
           useMundiMap: Boolean(useMundiMap),
-          useClassRaceBonuses: Boolean(useClassRaceBonuses),
+          useRaceBonuses: resolvedUseRaceBonuses,
+          useClassBonuses: resolvedUseClassBonuses,
+          useClassRaceBonuses: resolvedUseRaceBonuses || resolvedUseClassBonuses,
           useInventoryWeightLimit: Boolean(useInventoryWeightLimit),
           createdAt: created.createdAt,
         },

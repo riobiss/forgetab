@@ -46,7 +46,8 @@ export default function EditRpgPage() {
     image: state.image,
     visibility: state.visibility,
     useMundiMap: state.useMundiMap,
-    useClassRaceBonuses: state.useClassRaceBonuses,
+    useRaceBonuses: state.useRaceBonuses,
+    useClassBonuses: state.useClassBonuses,
     useInventoryWeightLimit: state.useInventoryWeightLimit,
     attributeTemplates: state.attributeTemplates,
     selectedStatusKeys: state.selectedStatusKeys,
@@ -59,7 +60,8 @@ export default function EditRpgPage() {
     setImage: state.setImage,
     setVisibility: state.setVisibility,
     setUseMundiMap: state.setUseMundiMap,
-    setUseClassRaceBonuses: state.setUseClassRaceBonuses,
+    setUseRaceBonuses: state.setUseRaceBonuses,
+    setUseClassBonuses: state.setUseClassBonuses,
     setUseInventoryWeightLimit: state.setUseInventoryWeightLimit,
     setCostsEnabled: state.setCostsEnabled,
     setCostResourceName: state.setCostResourceName,
@@ -252,6 +254,22 @@ export default function EditRpgPage() {
               }
               checked={state.useInventoryWeightLimit}
               onCheckedChange={state.setUseInventoryWeightLimit}
+            />
+
+            <RadixSwitchField
+              id="edit-rpg-use-race"
+              label="Usar raca"
+              description={state.useRaceBonuses ? "Racas habilitadas" : "Racas desativadas"}
+              checked={state.useRaceBonuses}
+              onCheckedChange={state.setUseRaceBonuses}
+            />
+
+            <RadixSwitchField
+              id="edit-rpg-use-class"
+              label="Usar classe"
+              description={state.useClassBonuses ? "Classes habilitadas" : "Classes desativadas"}
+              checked={state.useClassBonuses}
+              onCheckedChange={state.setUseClassBonuses}
             />
 
             <div className={styles.field}>

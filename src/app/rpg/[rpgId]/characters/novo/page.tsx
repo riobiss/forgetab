@@ -43,6 +43,8 @@ type SkillTemplatePayload = {
 
 type RpgConfigPayload = {
   rpg?: {
+    useRaceBonuses?: boolean
+    useClassBonuses?: boolean
     useClassRaceBonuses?: boolean
     useInventoryWeightLimit?: boolean
   }
@@ -158,7 +160,8 @@ export default function NewCharacterPage() {
   const [statusValues, setStatusValues] = useState<Record<string, NumericInputValue>>({})
   const [skillValues, setSkillValues] = useState<Record<string, NumericInputValue>>({})
   const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null)
-  const [useClassRaceBonuses, setUseClassRaceBonuses] = useState(false)
+  const [useRaceBonuses, setUseRaceBonuses] = useState(false)
+  const [useClassBonuses, setUseClassBonuses] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
   const [raceTemplates, setRaceTemplates] = useState<IdentityTemplate[]>([])
   const [classTemplates, setClassTemplates] = useState<IdentityTemplate[]>([])
@@ -301,7 +304,17 @@ export default function NewCharacterPage() {
         setClassTemplates(classes)
         setIdentityTemplates(identityFields)
         setCharacteristicsTemplates(characteristicsFields)
-        setUseClassRaceBonuses(Boolean(rpgPayload.rpg?.useClassRaceBonuses))
+        const legacyClassRaceFlag = Boolean(rpgPayload.rpg?.useClassRaceBonuses)
+        setUseRaceBonuses(
+          typeof rpgPayload.rpg?.useRaceBonuses === "boolean"
+            ? rpgPayload.rpg.useRaceBonuses
+            : legacyClassRaceFlag,
+        )
+        setUseClassBonuses(
+          typeof rpgPayload.rpg?.useClassBonuses === "boolean"
+            ? rpgPayload.rpg.useClassBonuses
+            : legacyClassRaceFlag,
+        )
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg?.useInventoryWeightLimit))
         setIsOwner(Boolean(charactersPayload.isOwner))
 
@@ -426,12 +439,10 @@ export default function NewCharacterPage() {
           image: submittedImage,
           ...(isEditing
             ? {}
-            : useClassRaceBonuses
-              ? {
-                ...(raceKey ? { raceKey } : {}),
-                ...(classKey ? { classKey } : {}),
-              }
-              : {}),
+            : {
+              ...(useRaceBonuses && raceKey ? { raceKey } : {}),
+              ...(useClassBonuses && classKey ? { classKey } : {}),
+            }),
           ...(isEditing ? {} : { characterType }),
           ...(useInventoryWeightLimit && characterType === "player"
             ? { maxCarryWeight: parsedMaxCarryWeight }
@@ -646,64 +657,60 @@ export default function NewCharacterPage() {
               {uploadingImage ? <p>Enviando imagem...</p> : null}
               {uploadError ? <p className={styles.error}>{uploadError}</p> : null}
 
-              {useClassRaceBonuses ? (
-                <>
-                  {raceTemplates.length > 0 ? (
-                    <label className={styles.field}>
-                      <span>Raca</span>
-                      {editingCharacterId ? (
-                        <input
-                          type="text"
-                          value={
-                            raceTemplates.find((item) => item.key === raceKey)?.label ??
-                            "Sem raca"
-                          }
-                          readOnly
-                        />
-                      ) : (
-                        <NativeSelectField
-                          value={raceKey}
-                          onChange={(event) => setRaceKey(event.target.value)}
-                        >
-                          <option value="">Sem raca</option>
-                          {raceTemplates.map((item) => (
-                            <option key={item.key} value={item.key}>
-                              {item.label}
-                            </option>
-                          ))}
-                        </NativeSelectField>
-                      )}
-                    </label>
-                  ) : null}
+              {useRaceBonuses && raceTemplates.length > 0 ? (
+                <label className={styles.field}>
+                  <span>Raca</span>
+                  {editingCharacterId ? (
+                    <input
+                      type="text"
+                      value={
+                        raceTemplates.find((item) => item.key === raceKey)?.label ??
+                        "Sem raca"
+                      }
+                      readOnly
+                    />
+                  ) : (
+                    <NativeSelectField
+                      value={raceKey}
+                      onChange={(event) => setRaceKey(event.target.value)}
+                    >
+                      <option value="">Sem raca</option>
+                      {raceTemplates.map((item) => (
+                        <option key={item.key} value={item.key}>
+                          {item.label}
+                        </option>
+                      ))}
+                    </NativeSelectField>
+                  )}
+                </label>
+              ) : null}
 
-                  {classTemplates.length > 0 ? (
-                    <label className={styles.field}>
-                      <span>Classe</span>
-                      {editingCharacterId ? (
-                        <input
-                          type="text"
-                          value={
-                            classTemplates.find((item) => item.key === classKey)?.label ??
-                            "Sem classe"
-                          }
-                          readOnly
-                        />
-                      ) : (
-                        <NativeSelectField
-                          value={classKey}
-                          onChange={(event) => setClassKey(event.target.value)}
-                        >
-                          <option value="">Sem classe</option>
-                          {classTemplates.map((item) => (
-                            <option key={item.key} value={item.key}>
-                              {item.label}
-                            </option>
-                          ))}
-                        </NativeSelectField>
-                      )}
-                    </label>
-                  ) : null}
-                </>
+              {useClassBonuses && classTemplates.length > 0 ? (
+                <label className={styles.field}>
+                  <span>Classe</span>
+                  {editingCharacterId ? (
+                    <input
+                      type="text"
+                      value={
+                        classTemplates.find((item) => item.key === classKey)?.label ??
+                        "Sem classe"
+                      }
+                      readOnly
+                    />
+                  ) : (
+                    <NativeSelectField
+                      value={classKey}
+                      onChange={(event) => setClassKey(event.target.value)}
+                    >
+                      <option value="">Sem classe</option>
+                      {classTemplates.map((item) => (
+                        <option key={item.key} value={item.key}>
+                          {item.label}
+                        </option>
+                      ))}
+                    </NativeSelectField>
+                  )}
+                </label>
               ) : null}
 
               <label className={styles.field}>

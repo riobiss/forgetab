@@ -80,6 +80,8 @@ model Rpg {
   mapImage           String?                @map("map_image")
   useMundiMap        Boolean                @default(false) @map("use_mundi_map")
   visibility         RpgVisibility          @default(private)
+  useRaceBonuses     Boolean                @default(false) @map("use_race_bonuses")
+  useClassBonuses    Boolean                @default(false) @map("use_class_bonuses")
   useClassRaceBonuses Boolean               @default(false) @map("use_class_race_bonuses")
   useInventoryWeightLimit Boolean           @default(false) @map("use_inventory_weight_limit")
   createdAt          DateTime               @default(now()) @map("created_at")
