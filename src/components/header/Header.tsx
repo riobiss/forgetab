@@ -2,12 +2,15 @@
 
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Menu, User, X } from "lucide-react"
 import styles from "./Header.module.css"
 
+const HIDDEN_ROUTES = new Set(["/login", "/register", "/cadastro"])
+
 export default function Header() {
   const router = useRouter()
+  const pathname = usePathname()
   const [openUserMenu, setOpenUserMenu] = useState(false)
   const [openNav, setOpenNav] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
@@ -51,6 +54,10 @@ export default function Header() {
   function closeMenus() {
     setOpenUserMenu(false)
     setOpenNav(false)
+  }
+
+  if (HIDDEN_ROUTES.has(pathname)) {
+    return null
   }
 
   return (

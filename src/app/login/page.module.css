@@ -1,5 +1,5 @@
 .page {
-  min-height: calc(100vh - 72px);
+  min-height: 100vh;
   display: grid;
   place-items: center;
   padding: 24px;
@@ -85,6 +85,7 @@
 .switchAuth a {
   color: var(--color-brand-primary);
 }
+
 
 
 
