@@ -348,9 +348,11 @@ export function useEditRpgData({
         saveCharacterCharacteristicsTemplate(),
       ])
       setIdentitySuccess("Tudo salvo com sucesso.")
+      return true
     } catch (saveError) {
       const message = saveError instanceof Error ? saveError.message : "Erro ao salvar alteracoes."
       setError(message)
+      return false
     } finally {
       setSaving(false)
       savingRef.current = false

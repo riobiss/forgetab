@@ -21,39 +21,20 @@ export default function NewRpgPage() {
   const [costResourceName, setCostResourceName] = useState("Skill Points")
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadError, setUploadError] = useState("")
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const creatingRef = useRef(false)
 
-  async function handleImageUpload(file: File) {
-    setUploadingImage(true)
+  function handleImageUpload(file: File) {
+    setSelectedImageFile(file)
+    setImage("")
     setUploadError("")
     setError("")
-
-    try {
-      const payload = new FormData()
-      payload.append("file", file)
-
-      const response = await fetch("/api/uploads/rpg-image", {
-        method: "POST",
-        body: payload,
-      })
-
-      const body = (await response.json()) as UploadImagePayload
-      if (!response.ok || !body.url) {
-        setUploadError(body.message ?? "Nao foi possivel enviar imagem.")
-        return
-      }
-
-      setImage(body.url)
-    } catch {
-      setUploadError("Erro de conexao ao enviar imagem.")
-    } finally {
-      setUploadingImage(false)
-    }
   }
 
   function handleRemoveImage() {
+    setSelectedImageFile(null)
     setImage("")
     setUploadError("")
   }
@@ -66,13 +47,39 @@ export default function NewRpgPage() {
     setError("")
 
     try {
+      let uploadedImageUrl = image.trim() || ""
+      let hasFreshUpload = false
+
+      if (selectedImageFile) {
+        setUploadingImage(true)
+        const uploadPayload = new FormData()
+        uploadPayload.append("file", selectedImageFile)
+
+        const uploadResponse = await fetch("/api/uploads/rpg-image", {
+          method: "POST",
+          body: uploadPayload,
+        })
+        const uploadBody = (await uploadResponse.json()) as UploadImagePayload
+
+        if (!uploadResponse.ok || !uploadBody.url) {
+          const message = uploadBody.message ?? "Nao foi possivel enviar imagem."
+          setUploadError(message)
+          setError(message)
+          return
+        }
+
+        uploadedImageUrl = uploadBody.url.trim()
+        hasFreshUpload = true
+        setImage(uploadedImageUrl)
+      }
+
       const response = await fetch("/api/rpg", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
           description,
-          ...(image.trim() ? { image: image.trim() } : {}),
+          ...(uploadedImageUrl ? { image: uploadedImageUrl } : {}),
           visibility,
           costsEnabled,
           costResourceName,
@@ -82,15 +89,28 @@ export default function NewRpgPage() {
       const payload = (await response.json()) as { message?: string }
 
       if (!response.ok) {
+        if (hasFreshUpload && uploadedImageUrl) {
+          try {
+            await fetch("/api/uploads/rpg-image", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url: uploadedImageUrl }),
+            })
+          } catch {
+            // Nao bloqueia a resposta de erro se a limpeza da imagem falhar.
+          }
+        }
         setError(payload.message ?? "Nao foi possivel criar o RPG.")
         return
       }
 
+      setSelectedImageFile(null)
       router.push("/rpg")
       router.refresh()
     } catch {
       setError("Erro de conexao ao criar RPG.")
     } finally {
+      setUploadingImage(false)
       setLoading(false)
       creatingRef.current = false
     }
@@ -147,13 +167,13 @@ export default function NewRpgPage() {
               onChange={(event) => {
                 const file = event.target.files?.[0]
                 if (file) {
-                  void handleImageUpload(file)
+                  handleImageUpload(file)
                 }
               }}
             />
           </label>
 
-          {image ? (
+          {image || selectedImageFile ? (
             <div className={styles.actions}>
               <button type="button" onClick={handleRemoveImage} disabled={uploadingImage || loading}>
                 Remover imagem
@@ -161,6 +181,7 @@ export default function NewRpgPage() {
             </div>
           ) : null}
 
+          {selectedImageFile ? <p>Imagem selecionada: {selectedImageFile.name}</p> : null}
           {uploadingImage ? <p>Enviando imagem...</p> : null}
           {uploadError ? <p className={styles.error}>{uploadError}</p> : null}
 

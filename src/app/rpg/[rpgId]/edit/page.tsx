@@ -36,6 +36,7 @@ export default function EditRpgPage() {
   const [activeStage, setActiveStage] = useState<"basic" | "advanced">("basic")
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadError, setUploadError] = useState("")
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
 
   const data = useEditRpgData({
     rpgId,
@@ -86,35 +87,77 @@ export default function EditRpgPage() {
   }
 
   async function handleImageUpload(file: File) {
-    setUploadingImage(true)
+    setSelectedImageFile(file)
     setUploadError("")
-
-    try {
-      const payload = new FormData()
-      payload.append("file", file)
-
-      const response = await fetch("/api/uploads/rpg-image", {
-        method: "POST",
-        body: payload,
-      })
-
-      const body = (await response.json()) as UploadImagePayload
-      if (!response.ok || !body.url) {
-        setUploadError(body.message ?? "Nao foi possivel enviar imagem.")
-        return
-      }
-
-      state.setImage(body.url)
-    } catch {
-      setUploadError("Erro de conexao ao enviar imagem.")
-    } finally {
-      setUploadingImage(false)
-    }
   }
 
   function handleRemoveImage() {
+    setSelectedImageFile(null)
     state.setImage("")
     setUploadError("")
+  }
+
+  async function handleSaveAll() {
+    setUploadError("")
+    let uploadedImageUrl = ""
+    const previousImage = state.image.trim() || ""
+    let hasFreshUpload = false
+
+    try {
+      if (selectedImageFile) {
+        setUploadingImage(true)
+        const payload = new FormData()
+        payload.append("file", selectedImageFile)
+
+        const uploadResponse = await fetch("/api/uploads/rpg-image", {
+          method: "POST",
+          body: payload,
+        })
+        const uploadBody = (await uploadResponse.json()) as UploadImagePayload
+        if (!uploadResponse.ok || !uploadBody.url) {
+          setUploadError(uploadBody.message ?? "Nao foi possivel enviar imagem.")
+          return
+        }
+
+        uploadedImageUrl = uploadBody.url.trim()
+        state.setImage(uploadedImageUrl)
+        hasFreshUpload = true
+      }
+
+      const saved = await data.saveAll()
+      if (!saved && hasFreshUpload && uploadedImageUrl) {
+        try {
+          await fetch("/api/uploads/rpg-image", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: uploadedImageUrl }),
+          })
+        } catch {
+          // Nao bloqueia erro de salvamento se a limpeza da imagem falhar.
+        }
+        state.setImage(previousImage)
+        return
+      }
+
+      if (saved) {
+        setSelectedImageFile(null)
+      }
+    } catch {
+      if (hasFreshUpload && uploadedImageUrl) {
+        try {
+          await fetch("/api/uploads/rpg-image", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: uploadedImageUrl }),
+          })
+        } catch {
+          // Nao bloqueia erro de salvamento se a limpeza da imagem falhar.
+        }
+        state.setImage(previousImage)
+      }
+    } finally {
+      setUploadingImage(false)
+    }
   }
 
   if (data.loading) {
@@ -188,7 +231,7 @@ export default function EditRpgPage() {
             success={data.identitySuccess}
             saving={data.saving}
             deleting={data.deleting}
-            onSaveAll={data.saveAll}
+            onSaveAll={handleSaveAll}
             onDeleteRpg={handleDeleteRpg}
           />
         ) : (
