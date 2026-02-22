@@ -514,6 +514,7 @@ export default function ItemsPage() {
               <span>Quantidade</span>
               <input
                 type="number"
+                onWheel={(event) => event.currentTarget.blur()}
                 min={1}
                 value={giveQuantity}
                 onChange={(event) => setGiveQuantity(Number(event.target.value))}

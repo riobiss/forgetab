@@ -126,3 +126,15 @@ select option:checked {
   background: var(--color-brand-primary);
   color: var(--color-text-on-brand);
 }
+
+/* Remove browser spin controls from numeric inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}

@@ -253,6 +253,7 @@ export default function QuickCreateMenu({ rpgId }: Props) {
                 <span>Quantidade</span>
                 <input
                   type="number"
+                  onWheel={(event) => event.currentTarget.blur()}
                   min={1}
                   step={1}
                   value={amountInput}

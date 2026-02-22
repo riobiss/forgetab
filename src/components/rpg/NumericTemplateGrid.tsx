@@ -35,6 +35,7 @@ export default function NumericTemplateGrid({
           <span>{item.label}</span>
           <input
             type="number"
+            onWheel={(event) => event.currentTarget.blur()}
             min={min}
             value={values[item.key] ?? ""}
             onChange={(event) => onChange(item.key, event.target.value)}

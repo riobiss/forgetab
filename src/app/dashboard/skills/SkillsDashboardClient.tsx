@@ -1052,6 +1052,7 @@ export default function SkillsDashboardClient({
                     <span>Level atual</span>
                     <input
                       type="number"
+                      onWheel={(event) => event.currentTarget.blur()}
                       min={1}
                       value={metaForm.currentLevel}
                       onChange={(event) =>
@@ -1063,6 +1064,7 @@ export default function SkillsDashboardClient({
                     <span>Level requerido</span>
                     <input
                       type="number"
+                      onWheel={(event) => event.currentTarget.blur()}
                       min={1}
                       value={levelForm.levelRequired}
                       onChange={(event) =>
@@ -1074,6 +1076,7 @@ export default function SkillsDashboardClient({
                     <span>Pontos necessarios para comprar</span>
                     <input
                       type="number"
+                      onWheel={(event) => event.currentTarget.blur()}
                       min={0}
                       step={1}
                       value={levelForm.costPoints}
@@ -1353,6 +1356,7 @@ export default function SkillsDashboardClient({
                       <span>Level atual</span>
                       <input
                         type="number"
+                        onWheel={(event) => event.currentTarget.blur()}
                         min={1}
                         value={metaForm.currentLevel}
                         onChange={(event) =>
@@ -1450,6 +1454,7 @@ export default function SkillsDashboardClient({
                       <span>Level requerido</span>
                       <input
                         type="number"
+                        onWheel={(event) => event.currentTarget.blur()}
                         min={1}
                         value={levelForm.levelRequired}
                         onChange={(event) =>
@@ -1505,6 +1510,7 @@ export default function SkillsDashboardClient({
                       <span>Pontos necessarios para comprar</span>
                       <input
                         type="number"
+                        onWheel={(event) => event.currentTarget.blur()}
                         min={0}
                         step={1}
                         value={levelForm.costPoints}
