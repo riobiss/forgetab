@@ -240,3 +240,42 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const userId = await getUserIdFromToken(request)
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Usuario nao autenticado." },
+        { status: 401 },
+      )
+    }
+
+    const imageKitConfig = getImageKitConfig()
+    if (!imageKitConfig.ok) {
+      return NextResponse.json(
+        {
+          message: `ImageKit nao configurado no servidor. Variaveis ausentes: ${imageKitConfig.missing.join(", ")}.`,
+        },
+        { status: 500 },
+      )
+    }
+
+    const body = (await request.json()) as { url?: unknown }
+    await deleteImageKitFileByUrl(
+      imageKitConfig.privateKey,
+      imageKitConfig.urlEndpoint,
+      body.url,
+    )
+
+    return NextResponse.json(
+      { message: "Imagem removida com sucesso." },
+      { status: 200 },
+    )
+  } catch {
+    return NextResponse.json(
+      { message: "Erro interno ao remover imagem." },
+      { status: 500 },
+    )
+  }
+}

@@ -574,6 +574,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const name = body.name?.trim() ?? ""
     const hasImageInBody = Object.prototype.hasOwnProperty.call(body, "image")
     const image = normalizeOptionalText(body.image)
+    let previousImage: string | null = null
     if (name.length < 2) {
       return NextResponse.json(
         { message: "Nome deve ter pelo menos 2 caracteres." },
@@ -601,6 +602,17 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       permission.useInventoryWeightLimit && permission.characterType === "player"
         ? parsedMaxCarryWeight.value
         : null
+
+    if (hasImageInBody) {
+      const currentRows = await prisma.$queryRaw<Array<{ image: string | null }>>(Prisma.sql`
+        SELECT image
+        FROM rpg_characters
+        WHERE id = ${characterId}
+          AND rpg_id = ${rpgId}
+        LIMIT 1
+      `)
+      previousImage = currentRows[0]?.image ?? null
+    }
 
     let dbAttributeTemplate: AttributeTemplateRow[] = []
     try {
@@ -828,6 +840,21 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     if (updated.length === 0) {
       return NextResponse.json({ message: "Personagem nao encontrado." }, { status: 404 })
+    }
+
+    if (hasImageInBody && previousImage && previousImage !== image) {
+      const imageKitConfig = getImageKitConfig()
+      if (imageKitConfig.ok) {
+        try {
+          await deleteImageKitFileByUrl(
+            imageKitConfig.privateKey,
+            imageKitConfig.urlEndpoint,
+            previousImage,
+          )
+        } catch {
+          // Nao bloqueia a atualizacao do personagem caso a limpeza da imagem falhe.
+        }
+      }
     }
 
     return NextResponse.json({ message: "Personagem atualizado com sucesso." }, { status: 200 })

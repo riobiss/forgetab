@@ -296,6 +296,18 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
+    const currentRows = await prisma.$queryRaw<Array<{ image: string | null }>>(Prisma.sql`
+      SELECT image
+      FROM baseitems
+      WHERE id = ${itemId}
+        AND rpg_id = ${rpgId}
+      LIMIT 1
+    `)
+    if (currentRows.length === 0) {
+      return NextResponse.json({ message: "Item nao encontrado." }, { status: 404 })
+    }
+    const previousImage = currentRows[0]?.image ?? null
+
     const body = await request.json()
     const parsed = createBaseItemSchema.safeParse(body)
 
@@ -367,6 +379,21 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     if (updated.length === 0) {
       return NextResponse.json({ message: "Item nao encontrado." }, { status: 404 })
+    }
+
+    if (previousImage && previousImage !== image) {
+      const imageKitConfig = getImageKitConfig()
+      if (imageKitConfig.ok) {
+        try {
+          await deleteImageKitFileByUrl(
+            imageKitConfig.privateKey,
+            imageKitConfig.urlEndpoint,
+            previousImage,
+          )
+        } catch {
+          // Nao bloqueia a atualizacao do item caso a limpeza da imagem falhe.
+        }
+      }
     }
 
     return NextResponse.json({ item: updated[0] }, { status: 200 })
