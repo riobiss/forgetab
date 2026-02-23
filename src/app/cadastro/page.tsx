@@ -9,6 +9,7 @@ function RegisterContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [name, setName] = useState("")
+  const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -40,7 +41,7 @@ function RegisterContent() {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, username, email, password }),
       })
 
       const payload = (await response.json()) as { message?: string }
@@ -86,6 +87,20 @@ function RegisterContent() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="seuemail@exemplo.com"
+              required
+            />
+          </label>
+
+          <label className={styles.field}>
+            <span>Username</span>
+            <input
+              type="text"
+              value={username}
+              onChange={(event) => setUsername(event.target.value.toLowerCase())}
+              placeholder="ex: mestre_dado"
+              minLength={3}
+              maxLength={24}
+              pattern="[a-z0-9_]+"
               required
             />
           </label>

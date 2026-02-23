@@ -18,7 +18,7 @@ const LOGIN_RATE_LIMIT = {
 export async function POST(request: Request) {
   try {
     const clientIp = getClientIp(request)
-    const ipRate = checkRateLimit(
+    const ipRate = await checkRateLimit(
       `login:ip:${clientIp}`,
       LOGIN_RATE_LIMIT.ipLimit,
       LOGIN_RATE_LIMIT.windowMs,
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
     const { email, password } = parsed.data
     const normalizedEmail = email.toLowerCase()
-    const emailRate = checkRateLimit(
+    const emailRate = await checkRateLimit(
       `login:email:${clientIp}:${normalizedEmail}`,
       LOGIN_RATE_LIMIT.emailPerIpLimit,
       LOGIN_RATE_LIMIT.windowMs,
@@ -80,6 +80,7 @@ export async function POST(request: Request) {
       user: {
         id: user.id,
         name: user.name,
+        username: user.username,
         email: user.email,
         createdAt: user.createdAt,
       },

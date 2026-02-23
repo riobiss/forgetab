@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "../../../../../generated/prisma/client"
 import {
   createAuthToken,
   TOKEN_COOKIE_NAME,
@@ -18,7 +19,7 @@ const REGISTER_RATE_LIMIT = {
 export async function POST(request: Request) {
   try {
     const clientIp = getClientIp(request)
-    const ipRate = checkRateLimit(
+    const ipRate = await checkRateLimit(
       `register:ip:${clientIp}`,
       REGISTER_RATE_LIMIT.ipLimit,
       REGISTER_RATE_LIMIT.windowMs,
@@ -44,9 +45,10 @@ export async function POST(request: Request) {
       )
     }
 
-    const { name, email, password } = parsed.data
+    const { name, username, email, password } = parsed.data
+    const normalizedUsername = username.toLowerCase()
     const normalizedEmail = email.toLowerCase()
-    const emailRate = checkRateLimit(
+    const emailRate = await checkRateLimit(
       `register:email:${clientIp}:${normalizedEmail}`,
       REGISTER_RATE_LIMIT.emailPerIpLimit,
       REGISTER_RATE_LIMIT.windowMs,
@@ -73,10 +75,23 @@ export async function POST(request: Request) {
       )
     }
 
+    const existingUsername = await prisma.user.findUnique({
+      where: { username: normalizedUsername },
+      select: { id: true },
+    })
+
+    if (existingUsername) {
+      return NextResponse.json(
+        { message: "Username ja esta em uso." },
+        { status: 409 },
+      )
+    }
+
     const passwordHash = await hashPassword(password)
     const user = await prisma.user.create({
       data: {
         name,
+        username: normalizedUsername,
         email: normalizedEmail,
         passwordHash,
       },
@@ -88,6 +103,7 @@ export async function POST(request: Request) {
         user: {
           id: user.id,
           name: user.name,
+          username: user.username,
           email: user.email,
           createdAt: user.createdAt,
         },
@@ -106,7 +122,27 @@ export async function POST(request: Request) {
     })
 
     return response
-  } catch {
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      const target = Array.isArray(error.meta?.target) ? error.meta.target : []
+      if (target.includes("username")) {
+        return NextResponse.json(
+          { message: "Username ja esta em uso." },
+          { status: 409 },
+        )
+      }
+
+      if (target.includes("email")) {
+        return NextResponse.json(
+          { message: "Email ja cadastrado." },
+          { status: 409 },
+        )
+      }
+    }
+
     return NextResponse.json(
       { message: "Erro interno ao cadastrar usuario." },
       { status: 500 },

@@ -28,6 +28,7 @@ export default async function PerfilPage() {
     where: { id: userId },
     select: {
       name: true,
+      username: true,
       email: true,
       createdAt: true,
     },
@@ -43,6 +44,11 @@ export default async function PerfilPage() {
           <div>
             <span>Nome</span>
             <strong>{user?.name ?? "-"}</strong>
+          </div>
+
+          <div>
+            <span>Username</span>
+            <strong>{user?.username ? `@${user.username}` : "-"}</strong>
           </div>
 
           <div>
