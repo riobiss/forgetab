@@ -2,14 +2,13 @@
 
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { Menu, User, X } from "lucide-react"
 import styles from "./Header.module.css"
 
 const HIDDEN_ROUTES = new Set(["/login", "/register", "/cadastro"])
 
 export default function Header() {
-  const router = useRouter()
   const pathname = usePathname()
   const pathSegments = pathname.split("/").filter(Boolean)
   const rpgSegmentIndex = pathSegments.indexOf("rpg")
@@ -48,11 +47,14 @@ export default function Header() {
     if (loggingOut) return
     setLoggingOut(true)
     try {
-      await fetch("/api/auth/logout", { method: "POST" })
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
+      })
     } finally {
       setOpenUserMenu(false)
-      router.push("/login")
-      router.refresh()
+      window.location.replace("/login")
       setLoggingOut(false)
     }
   }
