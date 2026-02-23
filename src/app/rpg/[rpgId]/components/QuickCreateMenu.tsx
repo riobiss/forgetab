@@ -201,7 +201,6 @@ export default function QuickCreateMenu({ rpgId }: Props) {
         title="Criar novo"
       >
         <PlusCircle size={16} />
-        <ChevronDown size={14} className={isOpen ? styles.quickCreateChevronOpen : ""} />
       </button>
 
       {isOpen ? (

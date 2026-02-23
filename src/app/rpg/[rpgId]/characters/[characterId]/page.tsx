@@ -456,15 +456,16 @@ export default async function CharactersPage({ params }: Params) {
                 height={192}
                 priority
               />
-              <Link
+         
+            </div>
+            <div className={styles.identityInfo}>
+              <div className={styles.actionLinks}>
+                     <Link
                 className={`${styles.actionLink} ${styles.imageActionLink}`}
                 href={`/rpg/${rpgId}/characters/${characterId}/inventory`}
               >
                 Inventario
               </Link>
-            </div>
-            <div className={styles.identityInfo}>
-              <div className={styles.actionLinks}>
                 <Link className={styles.actionLink} href={`/rpg/${rpgId}/characters/${characterId}/abilities`}>
                   Habilidades
                 </Link>
