@@ -46,6 +46,10 @@ type CharacterCharacteristicTemplateRow = {
   position: number
 }
 
+function normalizeStatusKey(key: string) {
+  return key === "stamina" ? "exhaustion" : key
+}
+
 async function getUserIdFromToken(request: NextRequest) {
   const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
   if (!token) return null
@@ -220,8 +224,15 @@ function validateStatusesPayload(
     return { ok: false as const, message: "Status invalidos." }
   }
 
-  const record = incoming as Record<string, unknown>
-  const allowedKeys = template.map((item) => item.key)
+  const sourceRecord = incoming as Record<string, unknown>
+  const record = Object.entries(sourceRecord).reduce<Record<string, unknown>>(
+    (acc, [rawKey, value]) => {
+      acc[normalizeStatusKey(rawKey)] = value
+      return acc
+    },
+    {},
+  )
+  const allowedKeys = template.map((item) => normalizeStatusKey(item.key))
 
   for (const key of allowedKeys) {
     if (!(key in record)) {
@@ -719,8 +730,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const mana = validateStat("mana", parsedStatuses.value.mana ?? 0)
     if (!mana.ok) return NextResponse.json({ message: mana.message }, { status: 400 })
 
-    const stamina = validateStat("estamina", parsedStatuses.value.stamina ?? 0)
-    if (!stamina.ok) return NextResponse.json({ message: stamina.message }, { status: 400 })
+    const exhaustion = validateStat("exaustão", parsedStatuses.value.exhaustion ?? 0)
+    if (!exhaustion.ok) return NextResponse.json({ message: exhaustion.message }, { status: 400 })
 
     const sanity = validateStat("sanidade", parsedStatuses.value.sanity ?? 0)
     if (!sanity.ok) return NextResponse.json({ message: sanity.message }, { status: 400 })
@@ -852,7 +863,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         life = ${life.value},
         defense = ${defense.value},
         mana = ${mana.value},
-        stamina = ${stamina.value},
+        stamina = ${exhaustion.value},
         sanity = ${sanity.value},
         statuses = ${JSON.stringify(parsedStatuses.value)}::jsonb,
         current_statuses = ${JSON.stringify(normalizedCurrentStatuses)}::jsonb,

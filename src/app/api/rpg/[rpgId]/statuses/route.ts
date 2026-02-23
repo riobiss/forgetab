@@ -74,6 +74,15 @@ function getAllowedKeys() {
   return new Set(STATUS_CATALOG.map((item) => item.key))
 }
 
+function normalizeStatusKey(key: string) {
+  return key === "stamina" ? "exhaustion" : key
+}
+
+function normalizeStatusLabel(key: string, label: string) {
+  if (normalizeStatusKey(key) === "exhaustion") return "Exaustão"
+  return label
+}
+
 function normalizeStatusTemplates(input: unknown) {
   const entries = Array.isArray(input) ? input : []
   const fromCatalog = new Map<string, string>(
@@ -85,12 +94,12 @@ function normalizeStatusTemplates(input: unknown) {
 
   for (const entry of entries) {
     if (typeof entry === "string") {
-      const key = entry.trim()
+      const key = normalizeStatusKey(entry.trim())
       if (!key) continue
 
       if (seen.has(key)) continue
       seen.add(key)
-      normalized.push({ key, label: fromCatalog.get(key) ?? key })
+      normalized.push({ key, label: normalizeStatusLabel(key, fromCatalog.get(key) ?? key) })
       continue
     }
 
@@ -99,19 +108,20 @@ function normalizeStatusTemplates(input: unknown) {
     }
 
     const candidate = entry as IncomingStatusTemplate
-    const key = typeof candidate.key === "string" ? candidate.key.trim() : ""
+    const key =
+      typeof candidate.key === "string" ? normalizeStatusKey(candidate.key.trim()) : ""
     const label = typeof candidate.label === "string" ? candidate.label.trim() : ""
 
     if (!key.match(/^[a-z0-9-]{2,40}$/)) {
-      return { ok: false as const, message: `Chave de status invalida: ${key || "vazia"}.` }
+      return { ok: false as const, message: `Chave de status inválida: ${key || "vazia"}.` }
     }
     if (label.length < 2) {
-      return { ok: false as const, message: `Nome de status invalido para chave ${key}.` }
+      return { ok: false as const, message: `Nome de status inválido para chave ${key}.` }
     }
 
     if (seen.has(key)) continue
     seen.add(key)
-    normalized.push({ key, label })
+    normalized.push({ key, label: normalizeStatusLabel(key, label) })
   }
 
   if (normalized.length === 0) {
@@ -124,7 +134,7 @@ function normalizeStatusTemplates(input: unknown) {
       !fromCatalog.has(item.key),
   )
   if (invalidCatalog) {
-    return { ok: false as const, message: `Status invalido: ${invalidCatalog.key}.` }
+      return { ok: false as const, message: `Status inválido: ${invalidCatalog.key}.` }
   }
 
   return { ok: true as const, values: normalized }
@@ -163,7 +173,20 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ statuses: fallback, isDefault: true }, { status: 200 })
     }
 
-    return NextResponse.json({ statuses: rows, isDefault: false }, { status: 200 })
+    return NextResponse.json(
+      {
+        statuses: rows.map((item) => {
+          const key = normalizeStatusKey(item.key)
+          return {
+            ...item,
+            key,
+            label: normalizeStatusLabel(key, item.label),
+          }
+        }),
+        isDefault: false,
+      },
+      { status: 200 },
+    )
   } catch (error) {
     if (error instanceof Error && error.message.includes('relation "rpg_status_templates" does not exist')) {
       return NextResponse.json(

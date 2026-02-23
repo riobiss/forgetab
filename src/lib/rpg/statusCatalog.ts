@@ -2,7 +2,7 @@ export const STATUS_CATALOG = [
   { key: "life", label: "Vida" },
   { key: "defense", label: "Defesa" },
   { key: "mana", label: "Mana" },
-  { key: "stamina", label: "Estamina" },
+  { key: "exhaustion", label: "Exaustão" },
   { key: "sanity", label: "Sanidade" },
   { key: "shield", label: "Escudo" },
   { key: "energy", label: "Energia" },
@@ -18,7 +18,6 @@ export const DEFAULT_STATUS_KEYS: StatusKey[] = [
   "life",
   "defense",
   "mana",
-  "stamina",
+  "exhaustion",
   "sanity",
 ]
-

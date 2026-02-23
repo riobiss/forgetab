@@ -7,7 +7,7 @@ export type Ability = {
 
   cost?: {
     mana?: number
-    stamina?: number
+    exhaustion?: number
     sanity?: number
   }
   level: number

@@ -16,7 +16,7 @@ type CharacterStatusRow = {
   life: number
   mana: number
   sanity: number
-  stamina: number
+  exhaustion: number
   statuses: Prisma.JsonValue
   currentStatuses: Prisma.JsonValue
 }
@@ -25,7 +25,7 @@ const CORE_STATUS_COLUMN_BY_KEY = {
   life: "life",
   mana: "mana",
   sanity: "sanity",
-  stamina: "stamina",
+  exhaustion: "stamina",
 } as const
 
 async function getUserIdFromToken(request: NextRequest) {
@@ -74,7 +74,7 @@ async function canManageCurrentStatus(rpgId: string, characterId: string, userId
       life,
       mana,
       sanity,
-      stamina,
+      stamina AS exhaustion,
       statuses,
       COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses"
     FROM rpg_characters

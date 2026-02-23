@@ -28,7 +28,7 @@ type CharacterRow = {
   life: number
   defense: number
   mana: number
-  stamina: number
+  exhaustion: number
   sanity: number
   statuses: Prisma.JsonValue
   currentStatuses: Prisma.JsonValue
@@ -101,6 +101,10 @@ type RpgAccess = {
   useRaceBonuses: boolean
   useClassBonuses: boolean
   useInventoryWeightLimit: boolean
+}
+
+function normalizeStatusKey(key: string) {
+  return key === "stamina" ? "exhaustion" : key
 }
 
 async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
@@ -266,8 +270,15 @@ function validateStatusesPayload(
     return { ok: false as const, message: "Status invalidos." }
   }
 
-  const record = incoming as Record<string, unknown>
-  const allowedKeys = template.map((item) => item.key)
+  const sourceRecord = incoming as Record<string, unknown>
+  const record = Object.entries(sourceRecord).reduce<Record<string, unknown>>(
+    (acc, [rawKey, value]) => {
+      acc[normalizeStatusKey(rawKey)] = value
+      return acc
+    },
+    {},
+  )
+  const allowedKeys = template.map((item) => normalizeStatusKey(item.key))
 
   for (const key of allowedKeys) {
     if (!(key in record)) {
@@ -492,7 +503,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           life,
           defense,
           mana,
-          stamina,
+          stamina AS exhaustion,
           sanity,
           statuses,
           COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",
@@ -538,7 +549,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
             life,
             defense,
             mana,
-            stamina,
+            stamina AS exhaustion,
             sanity,
             statuses,
             '{}'::jsonb AS "currentStatuses",
@@ -760,9 +771,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const mana = validateStat("mana", parsedStatuses.value.mana ?? 0)
     if (!mana.ok) return NextResponse.json({ message: mana.message }, { status: 400 })
 
-    const stamina = validateStat("estamina", parsedStatuses.value.stamina ?? 0)
-    if (!stamina.ok) {
-      return NextResponse.json({ message: stamina.message }, { status: 400 })
+    const exhaustion = validateStat("exaustão", parsedStatuses.value.exhaustion ?? 0)
+    if (!exhaustion.ok) {
+      return NextResponse.json({ message: exhaustion.message }, { status: 400 })
     }
 
     const sanity = validateStat("sanidade", parsedStatuses.value.sanity ?? 0)
@@ -934,7 +945,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         ${life.value},
         ${defense.value},
         ${mana.value},
-        ${stamina.value},
+        ${exhaustion.value},
         ${sanity.value},
         ${JSON.stringify(parsedStatuses.value)}::jsonb,
         ${JSON.stringify(parsedStatuses.value)}::jsonb,
@@ -957,7 +968,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         life,
         defense,
         mana,
-        stamina,
+        stamina AS exhaustion,
         sanity,
         statuses,
         COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",

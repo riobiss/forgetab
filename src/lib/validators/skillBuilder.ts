@@ -68,7 +68,7 @@ const effectSchema = z.object({
 const costSchema = z
   .object({
     mana: optionalPositiveNumber,
-    stamina: optionalPositiveNumber,
+    exhaustion: optionalPositiveNumber,
     hp: optionalPositiveNumber,
     sanity: optionalPositiveNumber,
     actionPoints: optionalPositiveNumber,

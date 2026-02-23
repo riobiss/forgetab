@@ -66,7 +66,7 @@ export type Effect = {
 
 export type Cost = {
   mana?: number | null
-  stamina?: number | null
+  exhaustion?: number | null
   hp?: number | null
   sanity?: number | null
   actionPoints?: number | null
