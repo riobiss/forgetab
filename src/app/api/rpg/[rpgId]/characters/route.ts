@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { Prisma } from "../../../../../../generated/prisma/client"
+import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import {
@@ -839,8 +839,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: parsedCharacteristics.message }, { status: 400 })
     }
 
-    let selectedRaceKey: string | null = access.useRaceBonuses ? body.raceKey?.trim() || null : null
-    let selectedClassKey: string | null = access.useClassBonuses ? body.classKey?.trim() || null : null
+    const selectedRaceKey: string | null = access.useRaceBonuses ? body.raceKey?.trim() || null : null
+    const selectedClassKey: string | null = access.useClassBonuses ? body.classKey?.trim() || null : null
     let raceAttributeBonuses: Record<string, number> = {}
     let classAttributeBonuses: Record<string, number> = {}
     let raceSkillBonuses: Record<string, number> = {}
