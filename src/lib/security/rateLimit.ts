@@ -14,10 +14,9 @@ type RateLimitResult = {
 const store = new Map<string, RateLimitEntry>()
 const MAX_LOCAL_KEYS = 10_000
 
-const upstashConfig = {
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-}
+const isProduction = process.env.NODE_ENV === "production"
+const trustedIpHeader = (process.env.TRUSTED_IP_HEADER ?? "x-vercel-forwarded-for").toLowerCase()
+const localFallbackHeaders = ["cf-connecting-ip", "x-real-ip", "x-forwarded-for"]
 
 function now() {
   return Date.now()
@@ -70,16 +69,16 @@ function firstValidIpFromHeader(value: string | null) {
 }
 
 export function getClientIp(request: Request) {
-  const priorityHeaders = [
-    "x-vercel-forwarded-for",
-    "cf-connecting-ip",
-    "x-real-ip",
-    "x-forwarded-for",
-  ]
+  // In production, trust only the edge header configured by infrastructure.
+  const trustedIp = firstValidIpFromHeader(request.headers.get(trustedIpHeader))
+  if (trustedIp) return trustedIp
 
-  for (const headerName of priorityHeaders) {
-    const ip = firstValidIpFromHeader(request.headers.get(headerName))
-    if (ip) return ip
+  // Non-production keeps broader header fallback to preserve local DX.
+  if (!isProduction) {
+    for (const headerName of localFallbackHeaders) {
+      const ip = firstValidIpFromHeader(request.headers.get(headerName))
+      if (ip) return ip
+    }
   }
 
   return "unknown"
@@ -141,57 +140,11 @@ function toNumber(value: unknown): number | null {
 }
 
 async function checkRateLimitUpstash(
-  key: string,
-  limit: number,
-  windowMs: number,
+  _key: string,
+  _limit: number,
+  _windowMs: number,
 ): Promise<RateLimitResult | null> {
-  const { url, token } = upstashConfig
-  if (!url || !token) return null
-
-  const windowSeconds = Math.max(1, Math.ceil(windowMs / 1000))
-  const pipelineCommands = [
-    ["INCR", key],
-    ["EXPIRE", key, String(windowSeconds), "NX"],
-    ["TTL", key],
-  ]
-
-  try {
-    const response = await fetch(`${url}/pipeline`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(pipelineCommands),
-      cache: "no-store",
-    })
-
-    if (!response.ok) return null
-
-    const payload = (await response.json()) as { result?: UpstashPipelineItem[] } | UpstashPipelineItem[]
-    const resultArray = Array.isArray(payload)
-      ? payload
-      : Array.isArray(payload?.result)
-        ? payload.result
-        : []
-
-    const count = toNumber(resultArray[0]?.result)
-    const ttl = toNumber(resultArray[2]?.result)
-
-    if (count === null) return null
-
-    const retryAfterSeconds =
-      ttl && ttl > 0 ? ttl : Math.max(1, Math.ceil(windowMs / 1000))
-    const allowed = count <= limit
-
-    return {
-      allowed,
-      remaining: allowed ? Math.max(limit - count, 0) : 0,
-      retryAfterSeconds,
-    }
-  } catch {
-    return null
-  }
+  return null
 }
 
 export async function checkRateLimit(
@@ -201,5 +154,6 @@ export async function checkRateLimit(
 ): Promise<RateLimitResult> {
   const distributedResult = await checkRateLimitUpstash(key, limit, windowMs)
   if (distributedResult) return distributedResult
+
   return checkRateLimitLocal(key, limit, windowMs)
 }

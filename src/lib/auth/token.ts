@@ -6,11 +6,13 @@ export const TOKEN_EXPIRES_IN_SECONDS = 60 * 60 * 24 * 7
 const configuredSecret =
   process.env.JWT_SECRET ?? process.env.NEXTAUTH_SECRET ?? process.env.APP_SECRET_KEY
 
-if (!configuredSecret && process.env.NODE_ENV === "production") {
-  throw new Error("JWT secret nao configurado para producao.")
+if (!configuredSecret) {
+  throw new Error(
+    "JWT secret nao configurado. Defina JWT_SECRET (ou NEXTAUTH_SECRET/APP_SECRET_KEY).",
+  )
 }
 
-const secretValue = configuredSecret ?? "dev-insecure-secret-change-me"
+const secretValue = configuredSecret
 
 export const jwtSecret = new TextEncoder().encode(secretValue)
 

@@ -28,7 +28,7 @@ function getRequestOrigin(request: NextRequest) {
   return null
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
 
   if (pathname.startsWith("/api/")) {
@@ -86,4 +86,3 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/api/:path*", "/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 }
-
