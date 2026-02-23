@@ -74,6 +74,7 @@
 }
 
 .createdCardImageWrap {
+  position: relative;
   width: 100%;
   height: 140px;
   margin-bottom: 0.75rem;
@@ -241,5 +242,4 @@
     text-align: center;
   }
 }
-
 

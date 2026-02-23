@@ -90,16 +90,18 @@ export default async function ViewRpg() {
                   href={`/rpg/${item.id}`}
                   className={styles.createdCard}
                 >
-                  <div className={styles.createdCardImageWrap}>
-                    <Image
-                      src={item.image || "/images/bg-library.jpg"}
-                      alt={`Capa do RPG ${item.title}`}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 360px"
-                      unoptimized
-                      className={styles.createdCardImage}
-                    />
-                  </div>
+                  {item.image ? (
+                    <div className={styles.createdCardImageWrap}>
+                      <Image
+                        src={item.image}
+                        alt={`Capa do RPG ${item.title}`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 360px"
+                        unoptimized
+                        className={styles.createdCardImage}
+                      />
+                    </div>
+                  ) : null}
                   <h4>{item.title}</h4>
                   <p>{item.description}</p>
                   <small>
@@ -129,16 +131,18 @@ export default async function ViewRpg() {
                 href={`/rpg/${item.id}`}
                 className={styles.createdCard}
               >
-                <div className={styles.createdCardImageWrap}>
-                  <Image
-                    src={item.image || "/images/bg-library.jpg"}
-                    alt={`Capa do RPG ${item.title}`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 360px"
-                    unoptimized
-                    className={styles.createdCardImage}
-                  />
-                </div>
+                {item.image ? (
+                  <div className={styles.createdCardImageWrap}>
+                    <Image
+                      src={item.image}
+                      alt={`Capa do RPG ${item.title}`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 360px"
+                      unoptimized
+                      className={styles.createdCardImage}
+                    />
+                  </div>
+                ) : null}
                 <h4>{item.title}</h4>
                 <p>{item.description}</p>
                 <small>

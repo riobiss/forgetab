@@ -133,7 +133,7 @@ export default async function ViewInRpg({ params }: Params) {
       SELECT
         m.id,
         u.username AS "userUsername",
-        u.name AS "userName",
+        u.name AS "userName"
       FROM rpg_members m
       INNER JOIN users u ON u.id = m.user_id
       WHERE m.rpg_id = ${rpgId}
@@ -284,7 +284,7 @@ export default async function ViewInRpg({ params }: Params) {
         {isOwner ? (
           <Link href={`/rpg/${dbRpg.id}/items`} className={styles.card}>
             <Image
-              src="/images/bg-mine.png"
+              src="/images/bg-items.png"
               alt="Itens"
               fill
               className={styles.cardImage}
