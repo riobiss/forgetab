@@ -236,25 +236,33 @@ function validateAttributesPayload(
   incoming: unknown,
   template: AttributeTemplateRow[],
 ) {
-  if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
-    return { ok: false as const, message: "Atributos invalidos." }
-  }
-
-  const record = incoming as Record<string, unknown>
+  const sourceRecord =
+    incoming && typeof incoming === "object" && !Array.isArray(incoming)
+      ? (incoming as Record<string, unknown>)
+      : {}
   const allowedKeys = template.map((item) => item.key)
+  const record = allowedKeys.reduce<Record<string, number>>((acc, key) => {
+    const value = sourceRecord[key]
+    if (value === undefined || value === null || value === "") {
+      acc[key] = 0
+      return acc
+    }
+    if (typeof value === "number" && Number.isFinite(value)) {
+      acc[key] = value
+    } else {
+      acc[key] = Number.NaN
+    }
+    return acc
+  }, {})
 
   for (const key of allowedKeys) {
-    if (!(key in record)) {
-      return { ok: false as const, message: `Atributo obrigatorio ausente: ${key}.` }
-    }
-
     const value = record[key]
-    if (typeof value !== "number" || Number.isNaN(value)) {
+    if (Number.isNaN(value)) {
       return { ok: false as const, message: `Valor invalido para atributo ${key}.` }
     }
   }
 
-  const extraKey = Object.keys(record).find((key) => !allowedKeys.includes(key))
+  const extraKey = Object.keys(sourceRecord).find((key) => !allowedKeys.includes(key))
   if (extraKey) {
     return { ok: false as const, message: `Atributo fora do padrao: ${extraKey}.` }
   }
@@ -266,12 +274,11 @@ function validateStatusesPayload(
   incoming: unknown,
   template: StatusTemplateRow[],
 ) {
-  if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
-    return { ok: false as const, message: "Status invalidos." }
-  }
-
-  const sourceRecord = incoming as Record<string, unknown>
-  const record = Object.entries(sourceRecord).reduce<Record<string, unknown>>(
+  const sourceRecordRaw =
+    incoming && typeof incoming === "object" && !Array.isArray(incoming)
+      ? (incoming as Record<string, unknown>)
+      : {}
+  const sourceRecord = Object.entries(sourceRecordRaw).reduce<Record<string, unknown>>(
     (acc, [rawKey, value]) => {
       acc[normalizeStatusKey(rawKey)] = value
       return acc
@@ -279,14 +286,23 @@ function validateStatusesPayload(
     {},
   )
   const allowedKeys = template.map((item) => normalizeStatusKey(item.key))
+  const record = allowedKeys.reduce<Record<string, number>>((acc, key) => {
+    const value = sourceRecord[key]
+    if (value === undefined || value === null || value === "") {
+      acc[key] = 0
+      return acc
+    }
+    if (typeof value === "number" && Number.isFinite(value)) {
+      acc[key] = value
+    } else {
+      acc[key] = Number.NaN
+    }
+    return acc
+  }, {})
 
   for (const key of allowedKeys) {
-    if (!(key in record)) {
-      return { ok: false as const, message: `Status obrigatorio ausente: ${key}.` }
-    }
-
     const value = record[key]
-    if (typeof value !== "number" || Number.isNaN(value) || value < 0) {
+    if (Number.isNaN(value) || value < 0) {
       return { ok: false as const, message: `Valor invalido para status ${key}.` }
     }
   }
@@ -303,31 +319,39 @@ function validateSkillsPayload(
   incoming: unknown,
   template: SkillTemplateRow[],
 ) {
-  if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
-    return { ok: false as const, message: "Pericias invalidas." }
-  }
-
-  const record = incoming as Record<string, unknown>
+  const sourceRecord =
+    incoming && typeof incoming === "object" && !Array.isArray(incoming)
+      ? (incoming as Record<string, unknown>)
+      : {}
   const allowedKeys = template.map((item) => item.key)
+  const record = allowedKeys.reduce<Record<string, number>>((acc, key) => {
+    const value = sourceRecord[key]
+    if (value === undefined || value === null || value === "") {
+      acc[key] = 0
+      return acc
+    }
+    if (typeof value === "number" && Number.isFinite(value)) {
+      acc[key] = value
+    } else {
+      acc[key] = Number.NaN
+    }
+    return acc
+  }, {})
 
   for (const key of allowedKeys) {
-    if (!(key in record)) {
-      return { ok: false as const, message: `Pericia obrigatoria ausente: ${key}.` }
-    }
-
     const value = record[key]
-    if (typeof value !== "number" || Number.isNaN(value) || value < 0) {
+    if (Number.isNaN(value) || value < 0) {
       return { ok: false as const, message: `Valor invalido para pericia ${key}.` }
     }
   }
 
-  const extraKey = Object.keys(record).find((key) => !allowedKeys.includes(key))
+  const extraKey = Object.keys(sourceRecord).find((key) => !allowedKeys.includes(key))
   if (extraKey) {
     return { ok: false as const, message: `Pericia fora do padrao: ${extraKey}.` }
   }
 
   const normalized = allowedKeys.reduce<Record<string, number>>((acc, key) => {
-    acc[key] = Math.floor(Number(record[key]))
+    acc[key] = Math.floor(record[key])
     return acc
   }, {})
 
