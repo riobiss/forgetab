@@ -24,8 +24,8 @@ type RequestRow = {
 type PendingRequestRow = {
   id: string
   userId: string
+  userUsername: string
   userName: string
-  userEmail: string
   requestedAt: Date
 }
 
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const { rpgId } = await context.params
     const rpg = await prisma.rpg.findUnique({
       where: { id: rpgId },
-      select: { id: true, ownerId: true, visibility: true },
+      select: { id: true, ownerId: true },
     })
 
     if (!rpg) {
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       isAcceptedMember = membership[0]?.status === "accepted"
     }
 
-    if (!isOwner && rpg.visibility === "private" && !isAcceptedMember) {
+    if (!isOwner && !isAcceptedMember) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
@@ -82,8 +82,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
         SELECT
           r.id,
           r.user_id AS "userId",
+          u.username AS "userUsername",
           u.name AS "userName",
-          u.email AS "userEmail",
           r.requested_at AS "requestedAt"
         FROM rpg_character_creation_requests r
         INNER JOIN users u ON u.id = r.user_id

@@ -46,11 +46,11 @@ async function canAccessRpg(rpgId: string, userId: string) {
 async function canReadRpgRaces(rpgId: string, userId: string) {
   const rpg = await prisma.rpg.findUnique({
     where: { id: rpgId },
-    select: { id: true, ownerId: true, visibility: true },
+    select: { id: true, ownerId: true },
   })
 
   if (!rpg) return false
-  if (rpg.visibility === "public" || rpg.ownerId === userId) return true
+  if (rpg.ownerId === userId) return true
 
   const membership = await prisma.rpgMember.findUnique({
     where: { rpgId_userId: { rpgId, userId } },

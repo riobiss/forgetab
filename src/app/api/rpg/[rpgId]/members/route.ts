@@ -22,8 +22,8 @@ type RpgRow = {
 
 type RpgUserRow = {
   id: string
+  username: string
   name: string
-  email: string
 }
 
 async function getUserIdFromToken(request: NextRequest) {
@@ -54,7 +54,7 @@ async function canReadRpgMembers(rpgId: string, userId: string) {
 
   const rpg = rows[0]
   if (!rpg) return false
-  if (rpg.ownerId === userId || rpg.visibility === "public") return true
+  if (rpg.ownerId === userId) return true
 
   const membership = await prisma.$queryRaw<MembershipRow[]>(Prisma.sql`
     SELECT id, status
@@ -86,8 +86,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const users = await prisma.$queryRaw<RpgUserRow[]>(Prisma.sql`
       SELECT DISTINCT
         u.id,
-        u.name,
-        u.email
+        u.username,
+        u.name
       FROM users u
       INNER JOIN (
         SELECT owner_id AS user_id
