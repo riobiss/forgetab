@@ -20,7 +20,7 @@ const CORE_STATUS_OPTIONS: CatalogOption[] = [
   { key: "life", label: "Vida" },
   { key: "mana", label: "Mana" },
   { key: "sanity", label: "Sanidade" },
-  { key: "stamina", label: "Exaustao" },
+  { key: "exhaustion", label: "Exaustão" },
 ]
 
 type UploadImagePayload = {

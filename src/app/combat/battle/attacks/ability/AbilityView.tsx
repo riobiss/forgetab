@@ -47,8 +47,8 @@ export default function AbilityView({ abilities, onConfirm }: Props) {
               <div>
                 <label>Custo</label>
                 <span>
-                  {ability.cost?.stamina
-                    ? `${ability.cost.stamina} ST`
+                  {ability.cost?.exhaustion
+                    ? `${ability.cost.exhaustion} EX`
                     : ability.cost?.mana
                       ? `${ability.cost.mana} MP`
                       : "0"}

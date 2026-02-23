@@ -30,7 +30,7 @@ type DbCharacterRow = {
   life: number
   defense: number
   mana: number
-  stamina: number
+  exhaustion: number
   sanity: number
   statuses: Prisma.JsonValue
   currentStatuses: Prisma.JsonValue
@@ -137,6 +137,15 @@ function getIdentityDisplayName(identity: Record<string, string>) {
   )
 }
 
+function normalizeLegacyStatusKeys(record: Record<string, number>) {
+  const normalized = { ...record }
+  if (typeof normalized.stamina === "number" && typeof normalized.exhaustion !== "number") {
+    normalized.exhaustion = normalized.stamina
+  }
+  delete normalized.stamina
+  return normalized
+}
+
 export default async function CharactersPage({ params }: Params) {
   const { rpgId, characterId } = await params
   let dbCharacter: DbCharacterRow[] = []
@@ -193,7 +202,7 @@ export default async function CharactersPage({ params }: Params) {
             c.life,
             c.defense,
             c.mana,
-            c.stamina,
+            c.stamina AS exhaustion,
             c.sanity,
             c.statuses,
             COALESCE(c.current_statuses, '{}'::jsonb) AS "currentStatuses",
@@ -229,7 +238,7 @@ export default async function CharactersPage({ params }: Params) {
               c.life,
               c.defense,
               c.mana,
-              c.stamina,
+              c.stamina AS exhaustion,
               c.sanity,
               c.statuses,
               COALESCE(c.current_statuses, '{}'::jsonb) AS "currentStatuses",
@@ -328,8 +337,10 @@ export default async function CharactersPage({ params }: Params) {
     }
 
     const attributes = row.attributes as Record<string, number>
-    const statuses = row.statuses as Record<string, number>
-    const currentStatuses = row.currentStatuses as Record<string, number>
+    const statuses = normalizeLegacyStatusKeys(row.statuses as Record<string, number>)
+    const currentStatuses = normalizeLegacyStatusKeys(
+      row.currentStatuses as Record<string, number>,
+    )
     const skills = row.skills as Record<string, number>
     const skillEntries = Object.entries(skills)
     const identity = row.identity as Record<string, string>
@@ -342,7 +353,13 @@ export default async function CharactersPage({ params }: Params) {
       { key: "life", label: statusTemplateLabelByKey.get("life") ?? statusLabelByKey.life ?? "Vida" },
       { key: "mana", label: statusTemplateLabelByKey.get("mana") ?? statusLabelByKey.mana ?? "Mana" },
       { key: "sanity", label: statusTemplateLabelByKey.get("sanity") ?? statusLabelByKey.sanity ?? "Sanidade" },
-      { key: "stamina", label: statusTemplateLabelByKey.get("stamina") ?? "Exaustao" },
+      {
+        key: "exhaustion",
+        label:
+          statusTemplateLabelByKey.get("exhaustion") ??
+          statusTemplateLabelByKey.get("stamina") ??
+          "Exaustão",
+      },
     ]
     const extraStatusEntries = Object.entries(statuses).filter(
       ([key]) => !coreStatusConfig.some((item) => item.key === key),
@@ -359,7 +376,7 @@ export default async function CharactersPage({ params }: Params) {
               ? Number(row.mana ?? 0)
               : item.key === "sanity"
                 ? Number(row.sanity ?? 0)
-                : Number(row.stamina ?? 0),
+                : Number(row.exhaustion ?? 0),
       })),
       ...extraStatusEntries.map(([key, value]) => ({
         key,
