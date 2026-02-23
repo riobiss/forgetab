@@ -7,8 +7,8 @@ import styles from "../page.module.css"
 
 type AcceptedMember = {
   id: string
+  userUsername: string
   userName: string
-  userEmail: string
 }
 
 type Props = {
@@ -87,8 +87,8 @@ export default function MembersList({ rpgId, members, compact = false }: Props) 
               {members.map((member) => (
                 <article key={member.id} className={styles.membersCard}>
                   <div>
-                    <strong>{member.userName}</strong>
-                    <small>{member.userEmail}</small>
+                    <strong>@{member.userUsername}</strong>
+                    <small>{member.userName}</small>
                   </div>
                   <button
                     type="button"

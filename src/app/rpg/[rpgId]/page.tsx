@@ -19,22 +19,22 @@ type Params = {
 
 type PendingRequestRow = {
   id: string
+  userUsername: string
   userName: string
-  userEmail: string
   requestedAt: Date
 }
 
 type PendingCharacterRequestRow = {
   id: string
+  userUsername: string
   userName: string
-  userEmail: string
   requestedAt: Date
 }
 
 type AcceptedMemberRow = {
   id: string
+  userUsername: string
   userName: string
-  userEmail: string
 }
 
 type CountRow = {
@@ -119,8 +119,8 @@ export default async function ViewInRpg({ params }: Params) {
     pendingRequests = await prisma.$queryRaw<PendingRequestRow[]>(Prisma.sql`
       SELECT
         m.id,
+        u.username AS "userUsername",
         u.name AS "userName",
-        u.email AS "userEmail",
         m.requested_at AS "requestedAt"
       FROM rpg_members m
       INNER JOIN users u ON u.id = m.user_id
@@ -132,8 +132,8 @@ export default async function ViewInRpg({ params }: Params) {
     acceptedMembers = await prisma.$queryRaw<AcceptedMemberRow[]>(Prisma.sql`
       SELECT
         m.id,
+        u.username AS "userUsername",
         u.name AS "userName",
-        u.email AS "userEmail"
       FROM rpg_members m
       INNER JOIN users u ON u.id = m.user_id
       WHERE m.rpg_id = ${rpgId}
@@ -144,8 +144,8 @@ export default async function ViewInRpg({ params }: Params) {
     pendingCharacterRequests = await prisma.$queryRaw<PendingCharacterRequestRow[]>(Prisma.sql`
       SELECT
         r.id,
+        u.username AS "userUsername",
         u.name AS "userName",
-        u.email AS "userEmail",
         r.requested_at AS "requestedAt"
       FROM rpg_character_creation_requests r
       INNER JOIN users u ON u.id = r.user_id

@@ -8,15 +8,15 @@ import { Bell, ChevronDown } from "lucide-react"
 
 type PendingRequest = {
   id: string
+  userUsername: string
   userName: string
-  userEmail: string
   requestedAt: string
 }
 
 type PendingCharacterRequest = {
   id: string
+  userUsername: string
   userName: string
-  userEmail: string
   requestedAt: string
 }
 
@@ -198,8 +198,8 @@ export default function MembershipNotifications({
                   {pendingRequests.map((request) => (
                     <article key={request.id} className={styles.noticeCard}>
                       <div>
-                        <strong>{request.userName}</strong>
-                        <small>{request.userEmail}</small>
+                        <strong>@{request.userUsername}</strong>
+                        <small>{request.userName}</small>
                         <small>
                           Solicitou em {formatDateInBrasilia(request.requestedAt)}
                         </small>
@@ -226,8 +226,8 @@ export default function MembershipNotifications({
                   {pendingCharacterRequests.map((request) => (
                     <article key={request.id} className={styles.noticeCard}>
                       <div>
-                        <strong>{request.userName}</strong>
-                        <small>{request.userEmail}</small>
+                        <strong>@{request.userUsername}</strong>
+                        <small>{request.userName}</small>
                         <small>
                           Solicitou criacao de personagem em{" "}
                           {formatDateInBrasilia(request.requestedAt)}

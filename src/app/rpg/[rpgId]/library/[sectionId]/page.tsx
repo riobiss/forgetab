@@ -48,8 +48,8 @@ type BooksPayload = {
 
 type RpgUserOption = {
   id: string
+  username: string
   name: string
-  email: string
 }
 
 type RaceOption = {
@@ -96,7 +96,7 @@ export default function LibraryBooksPage() {
     () =>
       playerOptions.map((item) => ({
         value: item.id,
-        label: `${item.name} (${item.email})`,
+        label: item.name ? `@${item.username} - ${item.name}` : `@${item.username}`,
       })),
     [playerOptions],
   )
