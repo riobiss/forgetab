@@ -15,6 +15,10 @@ async function getUserIdFromToken(request: NextRequest) {
   }
 }
 
+function buildUserFolder(userId: string) {
+  return `/forgetab/users/${userId}/rpgs`
+}
+
 function getImageKitConfig() {
   const privateKey = process.env.IMAGEKIT_PRIVATE_KEY
   const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT
@@ -64,6 +68,7 @@ async function deleteImageKitFileByUrl(
   privateKey: string,
   urlEndpoint: string,
   rawOldUrl: unknown,
+  allowedFolderPath: string,
 ) {
   if (typeof rawOldUrl !== "string") return
 
@@ -73,6 +78,14 @@ async function deleteImageKitFileByUrl(
   const endpointHost = parseHost(urlEndpoint)
   const oldUrlHost = parseHost(oldUrl)
   if (!endpointHost || !oldUrlHost || endpointHost !== oldUrlHost) {
+    return
+  }
+
+  const normalizedOldPath = normalizeUrlPath(oldUrl)
+  const allowedPrefix = allowedFolderPath.endsWith("/")
+    ? allowedFolderPath
+    : `${allowedFolderPath}/`
+  if (!normalizedOldPath || !normalizedOldPath.startsWith(allowedPrefix)) {
     return
   }
 
@@ -101,14 +114,16 @@ async function deleteImageKitFileByUrl(
     url?: string
   }>
 
-  const normalizedOldPath = normalizeUrlPath(oldUrl)
   const target = listPayload.find((item) => {
     if (!item.fileId || !item.url) return false
     if (item.url === oldUrl) return true
 
     const itemPath = normalizeUrlPath(item.url)
     return Boolean(
-      normalizedOldPath && itemPath && itemPath === normalizedOldPath,
+      normalizedOldPath &&
+        itemPath &&
+        itemPath === normalizedOldPath &&
+        itemPath.startsWith(allowedPrefix),
     )
   })
 
@@ -179,11 +194,12 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer())
     const base64 = buffer.toString("base64")
     const safeName = file.name?.trim() || "rpg-image.jpg"
+    const userFolder = buildUserFolder(userId)
 
     const uploadPayload = new FormData()
     uploadPayload.append("file", `data:${file.type};base64,${base64}`)
     uploadPayload.append("fileName", safeName)
-    uploadPayload.append("folder", "/forgetab/rpgs")
+    uploadPayload.append("folder", userFolder)
     uploadPayload.append("useUniqueFileName", "true")
 
     const auth = Buffer.from(`${imageKitConfig.privateKey}:`, "utf8").toString(
@@ -194,6 +210,7 @@ export async function POST(request: NextRequest) {
       imageKitConfig.privateKey,
       imageKitConfig.urlEndpoint,
       oldUrl,
+      userFolder,
     )
 
     const response = await fetch(
@@ -260,11 +277,13 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    const userFolder = buildUserFolder(userId)
     const body = (await request.json()) as { url?: unknown }
     await deleteImageKitFileByUrl(
       imageKitConfig.privateKey,
       imageKitConfig.urlEndpoint,
       body.url,
+      userFolder,
     )
 
     return NextResponse.json(
