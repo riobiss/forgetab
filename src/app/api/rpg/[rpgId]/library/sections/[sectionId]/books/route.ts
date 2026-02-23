@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { Prisma } from "../../../../../../../../../generated/prisma/client"
+import { Prisma } from "../../../../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { createLibraryBookSchema } from "@/lib/validators/library"
 import {
@@ -34,65 +34,10 @@ type SectionExistenceRow = {
   id: string
 }
 
-type ViewerCharacterRow = {
-  id: string
-  classKey: string | null
-  raceKey: string | null
-}
-
 const EMPTY_DOC = { type: "doc", content: [] as unknown[] }
 
 function normalizeTextList(input: string[]) {
   return input.map((value) => value.trim()).filter((value) => value.length > 0)
-}
-
-function parseTextListJson(value: Prisma.JsonValue): string[] {
-  if (!Array.isArray(value)) return []
-  return value.filter((item): item is string => typeof item === "string")
-}
-
-async function getViewerCharacters(rpgId: string, userId: string) {
-  const rows = await prisma.$queryRaw<ViewerCharacterRow[]>(Prisma.sql`
-    SELECT
-      id,
-      class_key AS "classKey",
-      race_key AS "raceKey"
-    FROM rpg_characters
-    WHERE rpg_id = ${rpgId}
-      AND created_by_user_id = ${userId}
-      AND character_type = 'player'::"RpgCharacterType"
-  `)
-
-  return rows
-}
-
-function canUserSeePrivateBook(
-  book: LibraryBookRow,
-  userId: string,
-  viewerCharacters: ViewerCharacterRow[],
-) {
-  if (book.visibility === "public") return true
-
-  const allowedCharacterIds = new Set(parseTextListJson(book.allowedCharacterIds))
-  const allowedClassKeys = new Set(parseTextListJson(book.allowedClassKeys))
-  const allowedRaceKeys = new Set(parseTextListJson(book.allowedRaceKeys))
-
-  if (allowedCharacterIds.has(userId)) {
-    return true
-  }
-
-  if (viewerCharacters.length === 0) return false
-
-  if (allowedCharacterIds.size === 0 && allowedClassKeys.size === 0 && allowedRaceKeys.size === 0) {
-    return false
-  }
-
-  return viewerCharacters.some((character) => {
-    if (allowedCharacterIds.has(character.id)) return true
-    if (character.classKey && allowedClassKeys.has(character.classKey)) return true
-    if (character.raceKey && allowedRaceKeys.has(character.raceKey)) return true
-    return false
-  })
 }
 
 async function sectionExists(rpgId: string, sectionId: string) {
@@ -145,17 +90,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       ORDER BY updated_at DESC
     `)
 
-    const visibleBooks = access.canManage
-      ? books
-      : (() => {
-          const viewerCharactersPromise = getViewerCharacters(rpgId, userId)
-          return viewerCharactersPromise.then((viewerCharacters) =>
-            books.filter((book) => canUserSeePrivateBook(book, userId, viewerCharacters)),
-          )
-        })()
-
-    const resolvedBooks = await visibleBooks
-    const booksWithPermissions = resolvedBooks.map((book) => ({
+    const booksWithPermissions = books.map((book) => ({
       ...book,
       canEdit: book.createdByUserId === userId,
     }))
