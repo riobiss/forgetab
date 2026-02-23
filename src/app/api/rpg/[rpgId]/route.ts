@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { Prisma } from "../../../../../generated/prisma/client"
+import { Prisma } from "../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { createRpgSchema } from "@/lib/validators/rpg"
 import { getUserIdFromRequest } from "@/lib/server/auth"
@@ -19,6 +19,10 @@ function getImageKitConfig() {
   }
 
   return { ok: true as const, privateKey, urlEndpoint }
+}
+
+function buildRpgFolder(userId: string) {
+  return `/forgetab/users/${userId}/rpgs`
 }
 
 function parseHost(value: string) {
@@ -51,6 +55,7 @@ async function deleteImageKitFileByUrl(
   privateKey: string,
   urlEndpoint: string,
   rawUrl: string | null,
+  allowedFolderPaths: string[],
 ) {
   if (!rawUrl) return
 
@@ -60,6 +65,20 @@ async function deleteImageKitFileByUrl(
   const endpointHost = parseHost(urlEndpoint)
   const imageUrlHost = parseHost(imageUrl)
   if (!endpointHost || !imageUrlHost || endpointHost !== imageUrlHost) {
+    return
+  }
+
+  const normalizedImagePath = normalizeUrlPath(imageUrl)
+  const allowedPrefixes = allowedFolderPaths
+    .map((folder) => folder.trim())
+    .filter((folder) => folder.length > 0)
+    .map((folder) => (folder.endsWith("/") ? folder : `${folder}/`))
+
+  if (
+    !normalizedImagePath ||
+    allowedPrefixes.length === 0 ||
+    !allowedPrefixes.some((prefix) => normalizedImagePath.startsWith(prefix))
+  ) {
     return
   }
 
@@ -88,13 +107,17 @@ async function deleteImageKitFileByUrl(
     url?: string
   }>
 
-  const normalizedImagePath = normalizeUrlPath(imageUrl)
   const target = listPayload.find((item) => {
     if (!item.fileId || !item.url) return false
     if (item.url === imageUrl) return true
 
     const itemPath = normalizeUrlPath(item.url)
-    return Boolean(normalizedImagePath && itemPath && itemPath === normalizedImagePath)
+    return Boolean(
+      normalizedImagePath &&
+        itemPath &&
+        itemPath === normalizedImagePath &&
+        allowedPrefixes.some((prefix) => itemPath.startsWith(prefix)),
+    )
   })
 
   if (!target?.fileId) return
@@ -470,11 +493,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       if (previousImage && previousImage !== normalizedImage) {
         const imageKitConfig = getImageKitConfig()
         if (imageKitConfig.ok) {
+          const allowedFolderPaths = [buildRpgFolder(userId)]
           try {
             await deleteImageKitFileByUrl(
               imageKitConfig.privateKey,
               imageKitConfig.urlEndpoint,
               previousImage,
+              allowedFolderPaths,
             )
           } catch {
             // Nao bloqueia a atualizacao do RPG caso a limpeza da imagem falhe.
@@ -566,11 +591,13 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     const imageKitConfig = getImageKitConfig()
     if (imageKitConfig.ok) {
+      const allowedFolderPaths = [buildRpgFolder(userId)]
       try {
         await deleteImageKitFileByUrl(
           imageKitConfig.privateKey,
           imageKitConfig.urlEndpoint,
           imageUrl,
+          allowedFolderPaths,
         )
       } catch {
         // Nao bloqueia a exclusao do RPG caso a limpeza da imagem falhe.

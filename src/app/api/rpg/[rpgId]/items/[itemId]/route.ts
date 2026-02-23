@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { Prisma } from "../../../../../../../generated/prisma/client"
+import { Prisma } from "../../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { createBaseItemSchema } from "@/lib/validators/baseItem"
@@ -51,6 +51,10 @@ function getImageKitConfig() {
   return { ok: true as const, privateKey, urlEndpoint }
 }
 
+function buildItemFolder(userId: string) {
+  return `/forgetab/users/${userId}/items`
+}
+
 function parseHost(value: string) {
   try {
     return new URL(value).host.toLowerCase()
@@ -81,6 +85,7 @@ async function deleteImageKitFileByUrl(
   privateKey: string,
   urlEndpoint: string,
   rawUrl: string | null,
+  allowedFolderPaths: string[],
 ) {
   if (!rawUrl) return
 
@@ -90,6 +95,20 @@ async function deleteImageKitFileByUrl(
   const endpointHost = parseHost(urlEndpoint)
   const imageUrlHost = parseHost(imageUrl)
   if (!endpointHost || !imageUrlHost || endpointHost !== imageUrlHost) {
+    return
+  }
+
+  const normalizedImagePath = normalizeUrlPath(imageUrl)
+  const allowedPrefixes = allowedFolderPaths
+    .map((folder) => folder.trim())
+    .filter((folder) => folder.length > 0)
+    .map((folder) => (folder.endsWith("/") ? folder : `${folder}/`))
+
+  if (
+    !normalizedImagePath ||
+    allowedPrefixes.length === 0 ||
+    !allowedPrefixes.some((prefix) => normalizedImagePath.startsWith(prefix))
+  ) {
     return
   }
 
@@ -118,13 +137,17 @@ async function deleteImageKitFileByUrl(
     url?: string
   }>
 
-  const normalizedImagePath = normalizeUrlPath(imageUrl)
   const target = listPayload.find((item) => {
     if (!item.fileId || !item.url) return false
     if (item.url === imageUrl) return true
 
     const itemPath = normalizeUrlPath(item.url)
-    return Boolean(normalizedImagePath && itemPath && itemPath === normalizedImagePath)
+    return Boolean(
+      normalizedImagePath &&
+        itemPath &&
+        itemPath === normalizedImagePath &&
+        allowedPrefixes.some((prefix) => itemPath.startsWith(prefix)),
+    )
   })
 
   if (!target?.fileId) return
@@ -395,11 +418,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (previousImage && previousImage !== image) {
       const imageKitConfig = getImageKitConfig()
       if (imageKitConfig.ok) {
+        const allowedFolderPaths = [buildItemFolder(userId)]
         try {
           await deleteImageKitFileByUrl(
             imageKitConfig.privateKey,
             imageKitConfig.urlEndpoint,
             previousImage,
+            allowedFolderPaths,
           )
         } catch {
           // Nao bloqueia a atualizacao do item caso a limpeza da imagem falhe.
@@ -494,11 +519,13 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     const imageKitConfig = getImageKitConfig()
     if (imageKitConfig.ok) {
+      const allowedFolderPaths = [buildItemFolder(userId)]
       try {
         await deleteImageKitFileByUrl(
           imageKitConfig.privateKey,
           imageKitConfig.urlEndpoint,
           deleted[0]?.image ?? null,
+          allowedFolderPaths,
         )
       } catch {
         // Nao bloqueia a exclusao do item caso a limpeza da imagem falhe.

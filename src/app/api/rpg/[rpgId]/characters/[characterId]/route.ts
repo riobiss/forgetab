@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { Prisma } from "../../../../../../../generated/prisma/client"
+import { Prisma } from "../../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import {
@@ -69,6 +69,10 @@ function getImageKitConfig() {
   return { ok: true as const, privateKey, urlEndpoint }
 }
 
+function buildCharacterFolder(userId: string) {
+  return `/forgetab/users/${userId}/characters`
+}
+
 function parseHost(value: string) {
   try {
     return new URL(value).host.toLowerCase()
@@ -99,6 +103,7 @@ async function deleteImageKitFileByUrl(
   privateKey: string,
   urlEndpoint: string,
   rawUrl: string | null,
+  allowedFolderPaths: string[],
 ) {
   if (!rawUrl) return
 
@@ -108,6 +113,20 @@ async function deleteImageKitFileByUrl(
   const endpointHost = parseHost(urlEndpoint)
   const imageUrlHost = parseHost(imageUrl)
   if (!endpointHost || !imageUrlHost || endpointHost !== imageUrlHost) {
+    return
+  }
+
+  const normalizedImagePath = normalizeUrlPath(imageUrl)
+  const allowedPrefixes = allowedFolderPaths
+    .map((folder) => folder.trim())
+    .filter((folder) => folder.length > 0)
+    .map((folder) => (folder.endsWith("/") ? folder : `${folder}/`))
+
+  if (
+    !normalizedImagePath ||
+    allowedPrefixes.length === 0 ||
+    !allowedPrefixes.some((prefix) => normalizedImagePath.startsWith(prefix))
+  ) {
     return
   }
 
@@ -136,13 +155,17 @@ async function deleteImageKitFileByUrl(
     url?: string
   }>
 
-  const normalizedImagePath = normalizeUrlPath(imageUrl)
   const target = listPayload.find((item) => {
     if (!item.fileId || !item.url) return false
     if (item.url === imageUrl) return true
 
     const itemPath = normalizeUrlPath(item.url)
-    return Boolean(normalizedImagePath && itemPath && itemPath === normalizedImagePath)
+    return Boolean(
+      normalizedImagePath &&
+        itemPath &&
+        itemPath === normalizedImagePath &&
+        allowedPrefixes.some((prefix) => itemPath.startsWith(prefix)),
+    )
   })
 
   if (!target?.fileId) return
@@ -528,6 +551,8 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
   return {
     ok: true as const,
     isOwner,
+    rpgOwnerId: rpg.ownerId,
+    characterCreatedByUserId: character[0].createdByUserId,
     useInventoryWeightLimit: rpg.useInventoryWeightLimit,
     characterType: character[0].characterType,
     currentSkills: character[0].skills,
@@ -845,11 +870,18 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (hasImageInBody && previousImage && previousImage !== image) {
       const imageKitConfig = getImageKitConfig()
       if (imageKitConfig.ok) {
+        const allowedFolderPaths = [
+          buildCharacterFolder(permission.rpgOwnerId),
+          ...(permission.characterCreatedByUserId
+            ? [buildCharacterFolder(permission.characterCreatedByUserId)]
+            : []),
+        ]
         try {
           await deleteImageKitFileByUrl(
             imageKitConfig.privateKey,
             imageKitConfig.urlEndpoint,
             previousImage,
+            allowedFolderPaths,
           )
         } catch {
           // Nao bloqueia a atualizacao do personagem caso a limpeza da imagem falhe.
@@ -993,11 +1025,18 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     const imageKitConfig = getImageKitConfig()
     if (imageKitConfig.ok) {
+      const allowedFolderPaths = [
+        buildCharacterFolder(permission.rpgOwnerId),
+        ...(permission.characterCreatedByUserId
+          ? [buildCharacterFolder(permission.characterCreatedByUserId)]
+          : []),
+      ]
       try {
         await deleteImageKitFileByUrl(
           imageKitConfig.privateKey,
           imageKitConfig.urlEndpoint,
           imageUrl,
+          allowedFolderPaths,
         )
       } catch {
         // Nao bloqueia a exclusao do personagem caso a limpeza da imagem falhe.
