@@ -207,20 +207,21 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
     }
   }
 
-  const membership = await prisma.rpgMember.findUnique({
-    where: {
-      rpgId_userId: {
-        rpgId,
-        userId,
-      },
-    },
-    select: { status: true },
-  })
+  const membership = await prisma.$queryRaw<Array<{ status: string; role: string }>>(Prisma.sql`
+    SELECT status::text AS status, role::text AS role
+    FROM rpg_members
+    WHERE rpg_id = ${rpgId}
+      AND user_id = ${userId}
+    LIMIT 1
+  `)
+
+  const isAcceptedMember = membership[0]?.status === "accepted"
+  const isModerator = isAcceptedMember && membership[0]?.role === "moderator"
 
   return {
     exists: true,
-    canAccess: membership?.status === "accepted",
-    isOwner: false,
+    canAccess: isAcceptedMember,
+    isOwner: isModerator,
     useRaceBonuses: rpg.useRaceBonuses,
     useClassBonuses: rpg.useClassBonuses,
     useInventoryWeightLimit: rpg.useInventoryWeightLimit,

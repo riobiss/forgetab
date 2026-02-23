@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 import SkillsDashboardClient from "@/app/dashboard/skills/SkillsDashboardClient"
 
 type PageProps = {
@@ -22,7 +23,12 @@ export default async function CharacterSkillsBuilderPage({ params }: PageProps) 
     select: { id: true, title: true, ownerId: true },
   })
 
-  if (!rpg || rpg.ownerId !== userId) {
+  if (!rpg) {
+    notFound()
+  }
+
+  const permission = await getRpgPermission(rpgId, userId)
+  if (!permission.canManage) {
     notFound()
   }
 

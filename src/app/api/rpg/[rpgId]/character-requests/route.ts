@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 
 type RouteContext = {
   params: Promise<{
@@ -58,10 +59,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
-    const isOwner = rpg.ownerId === userId
+    const permission = await getRpgPermission(rpgId, userId)
+    const isOwner = permission.canManage
     let isAcceptedMember = false
 
-    if (!isOwner) {
+    if (!permission.canManage) {
       const membership = await prisma.$queryRaw<MembershipRow[]>(Prisma.sql`
         SELECT status
         FROM rpg_members
@@ -73,11 +75,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
       isAcceptedMember = membership[0]?.status === "accepted"
     }
 
-    if (!isOwner && !isAcceptedMember) {
+    if (!permission.canManage && !isAcceptedMember) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
-    if (isOwner) {
+    if (permission.canManage) {
       const pendingRequests = await prisma.$queryRaw<PendingRequestRow[]>(Prisma.sql`
         SELECT
           r.id,
@@ -155,9 +157,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
-    if (rpg.ownerId === userId) {
+    const permission = await getRpgPermission(rpgId, userId)
+    if (permission.canManage) {
       return NextResponse.json(
-        { message: "O mestre nao precisa solicitar criacao de personagem." },
+        { message: "Mestre ou moderador nao precisam solicitar criacao de personagem." },
         { status: 400 },
       )
     }

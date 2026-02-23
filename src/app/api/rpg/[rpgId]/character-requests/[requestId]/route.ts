@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 
 type RouteContext = {
   params: Promise<{
@@ -26,19 +27,15 @@ async function getUserIdFromToken(request: NextRequest) {
 }
 
 async function canManageCharacterRequests(rpgId: string, userId: string) {
-  const rpg = await prisma.rpg.findUnique({
-    where: { id: rpgId },
-    select: { ownerId: true },
-  })
-
-  if (!rpg) {
+  const permission = await getRpgPermission(rpgId, userId)
+  if (!permission.exists) {
     return { ok: false as const, message: "RPG nao encontrado.", status: 404 }
   }
 
-  if (rpg.ownerId !== userId) {
+  if (!permission.canManage) {
     return {
       ok: false as const,
-      message: "Somente o mestre pode gerenciar solicitacoes de personagem.",
+      message: "Somente mestre ou moderador podem gerenciar solicitacoes de personagem.",
       status: 403,
     }
   }

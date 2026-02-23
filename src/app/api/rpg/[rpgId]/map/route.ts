@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromRequest } from "@/lib/server/auth"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 
 type RouteContext = {
   params: Promise<{
@@ -30,6 +31,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     const { rpgId } = await context.params
+    const permission = await getRpgPermission(rpgId, userId)
+    if (!permission.exists) {
+      return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
+    }
+    if (!permission.canManage) {
+      return NextResponse.json({ message: "Voce nao pode editar o mapa deste RPG." }, { status: 403 })
+    }
     const body = (await request.json()) as { mapImage?: unknown }
     const mapImage = normalizeOptionalUrl(body.mapImage)
 
@@ -39,7 +47,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         UPDATE rpgs
         SET map_image = ${mapImage}
         WHERE id = ${rpgId}
-          AND owner_id = ${userId}
         RETURNING id
       `)
 

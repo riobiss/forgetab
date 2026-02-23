@@ -3,6 +3,7 @@ import { Prisma } from "../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { createRpgSchema } from "@/lib/validators/rpg"
 import { getUserIdFromRequest } from "@/lib/server/auth"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 
 type RouteContext = {
   params: Promise<{
@@ -259,22 +260,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
       )
     }
 
-    const isOwner = rpg.ownerId === userId
-    let isAcceptedMember = false
-
-    if (!isOwner) {
-      const membership = await prisma.rpgMember.findUnique({
-        where: {
-          rpgId_userId: {
-            rpgId,
-            userId,
-          },
-        },
-        select: { status: true },
-      })
-
-      isAcceptedMember = membership?.status === "accepted"
-    }
+    const permission = await getRpgPermission(rpgId, userId)
+    const isOwner = permission.isOwner
+    const isAcceptedMember = permission.isAcceptedMember
 
     if (!isOwner && rpg.visibility === "private" && !isAcceptedMember) {
       return NextResponse.json(
@@ -298,6 +286,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
           useClassBonuses: rpg.useClassBonuses,
           useClassRaceBonuses: rpg.useClassRaceBonuses,
           useInventoryWeightLimit: rpg.useInventoryWeightLimit,
+          canManage: permission.canManage,
+          canDelete: permission.isOwner,
         },
       },
       { status: 200 },
@@ -346,6 +336,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     const { rpgId } = await context.params
+    const permission = await getRpgPermission(rpgId, userId)
+    if (!permission.exists) {
+      return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
+    }
+    if (!permission.canManage) {
+      return NextResponse.json({ message: "Voce nao pode editar este RPG." }, { status: 403 })
+    }
     const {
       title,
       description,
@@ -374,7 +371,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           SELECT image
           FROM rpgs
           WHERE id = ${rpgId}
-            AND owner_id = ${userId}
           LIMIT 1
         `)
         previousImage = currentRows[0]?.image ?? null
@@ -394,7 +390,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     const updated = await prisma.rpg.updateMany({
-      where: { id: rpgId, ownerId: userId },
+      where: { id: rpgId },
       data: { title, description, visibility },
     })
 
@@ -422,7 +418,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
             use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
             use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
           WHERE id = ${rpgId}
-            AND owner_id = ${userId}
         `)
       } catch (error) {
         if (error instanceof Error) {
@@ -438,7 +433,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
                   use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
                   use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
                 WHERE id = ${rpgId}
-                  AND owner_id = ${userId}
               `)
             } catch (innerError) {
               if (
@@ -469,7 +463,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           UPDATE rpgs
           SET image = ${normalizedImage}
           WHERE id = ${rpgId}
-            AND owner_id = ${userId}
           RETURNING id
         `)
 
@@ -493,7 +486,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       if (previousImage && previousImage !== normalizedImage) {
         const imageKitConfig = getImageKitConfig()
         if (imageKitConfig.ok) {
-          const allowedFolderPaths = [buildRpgFolder(userId)]
+          const allowedFolderPaths = [buildRpgFolder(permission.ownerId ?? userId)]
           try {
             await deleteImageKitFileByUrl(
               imageKitConfig.privateKey,

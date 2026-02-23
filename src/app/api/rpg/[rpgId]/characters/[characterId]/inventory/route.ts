@@ -75,22 +75,25 @@ async function getCharacterContext(
   }
 
   const isOwner = rpg.ownerId === userId
+  let isModerator = false
 
   if (!isOwner) {
-    const membership = await prisma.rpgMember.findUnique({
-      where: {
-        rpgId_userId: {
-          rpgId,
-          userId,
-        },
-      },
-      select: { status: true },
-    })
+    const membership = await prisma.$queryRaw<Array<{ status: string; role: string }>>(Prisma.sql`
+      SELECT status::text AS status, role::text AS role
+      FROM rpg_members
+      WHERE rpg_id = ${rpgId}
+        AND user_id = ${userId}
+      LIMIT 1
+    `)
 
-    if (membership?.status !== "accepted") {
+    if (membership[0]?.status !== "accepted") {
       return { ok: false as const, status: 404, message: "RPG nao encontrado." }
     }
+
+    isModerator = membership[0]?.role === "moderator"
   }
+
+  const canManageAsMaster = isOwner || isModerator
 
   const characters = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
     SELECT
@@ -108,11 +111,11 @@ async function getCharacterContext(
   }
 
   const character = characters[0]
-  const canViewInventory = isOwner || character.createdByUserId === userId
+  const canViewInventory = canManageAsMaster || character.createdByUserId === userId
 
   return {
     ok: true as const,
-    isOwner,
+    isOwner: canManageAsMaster,
     canViewInventory,
     character,
   }

@@ -3,6 +3,7 @@ import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import slugify from "@/utils/slugify"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 
 type RouteContext = {
   params: Promise<{
@@ -35,12 +36,8 @@ async function getUserIdFromToken(request: NextRequest) {
 }
 
 async function canAccessRpg(rpgId: string, userId: string) {
-  const rpg = await prisma.rpg.findFirst({
-    where: { id: rpgId, ownerId: userId },
-    select: { id: true },
-  })
-
-  return Boolean(rpg)
+  const permission = await getRpgPermission(rpgId, userId)
+  return permission.canManage
 }
 
 async function canReadRpgAttributes(rpgId: string, userId: string) {

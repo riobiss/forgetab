@@ -3,6 +3,7 @@ import { Prisma } from "../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 import { MundiMap } from "./components/mundi-map/MundiMap"
 import styles from "./page.module.css"
 
@@ -64,7 +65,9 @@ export default async function MapPage({ params }: Params) {
   }
 
   const userId = await getUserIdFromCookieStore()
-  const isOwner = userId === dbRpg.ownerId
+  const permission =
+    userId && userId.length > 0 ? await getRpgPermission(rpgId, userId) : null
+  const isOwner = permission?.canManage ?? false
   let isAcceptedMember = false
 
   if (userId && !isOwner) {
@@ -88,7 +91,7 @@ export default async function MapPage({ params }: Params) {
         <p className={styles.extraText}>
           {isOwner
             ? "Voce pode enviar a imagem do mapa e ajustar no modo de mapa completo."
-            : "Somente o owner pode alterar a imagem. Todos os membros podem visualizar o mapa."}
+            : "Somente mestre ou moderador podem alterar a imagem. Todos os membros podem visualizar o mapa."}
         </p>
       </section>
     </div>

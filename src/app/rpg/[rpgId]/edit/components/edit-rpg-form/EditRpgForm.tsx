@@ -30,6 +30,7 @@ type Props = {
   success: string
   saving: boolean
   deleting: boolean
+  canDelete: boolean
   onSaveAll: () => Promise<void>
   onDeleteRpg: () => Promise<void>
 }
@@ -50,6 +51,7 @@ export default function EditRpgForm({
   success,
   saving,
   deleting,
+  canDelete,
   onSaveAll,
   onDeleteRpg,
 }: Props) {
@@ -174,19 +176,21 @@ export default function EditRpgForm({
             </>
           )}
         </button>
-        <button type="button" onClick={() => void onDeleteRpg()} disabled={deleting || saving}>
-          {deleting ? (
-            <>
-              <LoaderCircle size={16} className={styles.spin} />
-              <span>Deletando...</span>
-            </>
-          ) : (
-            <>
-              <Trash2 size={16} />
-              <span>Deletar</span>
-            </>
-          )}
-        </button>
+        {canDelete ? (
+          <button type="button" onClick={() => void onDeleteRpg()} disabled={deleting || saving}>
+            {deleting ? (
+              <>
+                <LoaderCircle size={16} className={styles.spin} />
+                <span>Deletando...</span>
+              </>
+            ) : (
+              <>
+                <Trash2 size={16} />
+                <span>Deletar</span>
+              </>
+            )}
+          </button>
+        ) : null}
         <Link href="/rpg">
           <X size={16} />
           <span>Cancelar</span>

@@ -233,6 +233,7 @@ export default function EditRpgPage() {
             success={data.identitySuccess}
             saving={data.saving}
             deleting={data.deleting}
+            canDelete={data.canDelete}
             onSaveAll={handleSaveAll}
             onDeleteRpg={handleDeleteRpg}
           />

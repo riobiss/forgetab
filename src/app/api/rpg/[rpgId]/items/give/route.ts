@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 
 type RouteContext = {
   params: Promise<{
@@ -24,13 +25,9 @@ async function getUserIdFromToken(request: NextRequest) {
   }
 }
 
-async function isOwner(rpgId: string, userId: string) {
-  const rpg = await prisma.rpg.findFirst({
-    where: { id: rpgId, ownerId: userId },
-    select: { id: true },
-  })
-
-  return Boolean(rpg)
+async function canManageRpg(rpgId: string, userId: string) {
+  const permission = await getRpgPermission(rpgId, userId)
+  return permission.canManage
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
@@ -42,7 +39,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     const { rpgId } = await context.params
-    const ownerAccess = await isOwner(rpgId, userId)
+    const ownerAccess = await canManageRpg(rpgId, userId)
 
     if (!ownerAccess) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })

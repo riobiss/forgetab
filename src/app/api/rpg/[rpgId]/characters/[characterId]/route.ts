@@ -453,22 +453,25 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
   }
 
   const isOwner = rpg.ownerId === userId
+  let isModerator = false
 
   if (!isOwner) {
-    const membership = await prisma.rpgMember.findUnique({
-      where: {
-        rpgId_userId: {
-          rpgId,
-          userId,
-        },
-      },
-      select: { status: true },
-    })
+    const membership = await prisma.$queryRaw<Array<{ status: string; role: string }>>(Prisma.sql`
+      SELECT status::text AS status, role::text AS role
+      FROM rpg_members
+      WHERE rpg_id = ${rpgId}
+        AND user_id = ${userId}
+      LIMIT 1
+    `)
 
-    if (membership?.status !== "accepted") {
+    if (membership[0]?.status !== "accepted") {
       return { ok: false as const, status: 404, message: "RPG nao encontrado." }
     }
+
+    isModerator = membership[0]?.role === "moderator"
   }
+
+  const canManageAsMaster = isOwner || isModerator
 
   let character: Array<{
     id: string
@@ -544,13 +547,13 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     return { ok: false as const, status: 404, message: "Personagem nao encontrado." }
   }
 
-  if (!isOwner && character[0].createdByUserId !== userId) {
+  if (!canManageAsMaster && character[0].createdByUserId !== userId) {
     return { ok: false as const, status: 403, message: "Sem permissao para editar este personagem." }
   }
 
   return {
     ok: true as const,
-    isOwner,
+    isOwner: canManageAsMaster,
     rpgOwnerId: rpg.ownerId,
     characterCreatedByUserId: character[0].createdByUserId,
     useInventoryWeightLimit: rpg.useInventoryWeightLimit,
@@ -724,7 +727,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     if (!permission.isOwner && body.skills !== undefined) {
       return NextResponse.json(
-        { message: "Somente o owner do RPG pode editar pericias de personagens." },
+        { message: "Somente mestre ou moderador podem editar pericias de personagens." },
         { status: 403 },
       )
     }

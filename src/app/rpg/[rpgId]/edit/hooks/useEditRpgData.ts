@@ -23,6 +23,8 @@ type RpgPayload = {
     useClassBonuses?: boolean
     useClassRaceBonuses?: boolean
     useInventoryWeightLimit?: boolean
+    canManage?: boolean
+    canDelete?: boolean
   }
 }
 
@@ -104,6 +106,7 @@ export function useEditRpgData({
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState("")
   const [canEdit, setCanEdit] = useState(false)
+  const [canDelete, setCanDelete] = useState(false)
   const [identitySuccess, setIdentitySuccess] = useState("")
   const savingRef = useRef(false)
   const deletingRef = useRef(false)
@@ -172,6 +175,13 @@ export function useEditRpgData({
           return
         }
 
+        if (!rpgPayload.rpg.canManage) {
+          setError("Voce nao pode editar este RPG.")
+          setCanEdit(false)
+          setCanDelete(false)
+          return
+        }
+
         setTitle(rpgPayload.rpg.title)
         setDescription(rpgPayload.rpg.description)
         setImage(rpgPayload.rpg.image?.trim() || "")
@@ -229,6 +239,7 @@ export function useEditRpgData({
         setCharacterIdentityTemplates(characterIdentityPayload.fields ?? [])
         setCharacterCharacteristicTemplates(characterCharacteristicsPayload.fields ?? [])
         setCanEdit(true)
+        setCanDelete(Boolean(rpgPayload.rpg.canDelete))
       } catch {
         setError("Erro de conexao ao carregar RPG.")
         setCanEdit(false)
@@ -410,6 +421,7 @@ export function useEditRpgData({
     deleting,
     error,
     canEdit,
+    canDelete,
     identitySuccess,
     saveAll,
     deleteRpg,

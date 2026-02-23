@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromRequest } from "@/lib/server/auth"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 
 type RouteContext = {
   params: Promise<{
@@ -11,6 +12,7 @@ type RouteContext = {
 
 type CharacterRow = {
   id: string
+  rpgId: string
   ownerId: string
   characterType: "player" | "npc" | "monster"
 }
@@ -38,6 +40,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const characterRows = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
       SELECT
         c.id,
+        c.rpg_id AS "rpgId",
         r.owner_id AS "ownerId",
         c.character_type AS "characterType"
       FROM rpg_characters c
@@ -51,9 +54,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "Personagem nao encontrado." }, { status: 404 })
     }
 
-    if (character.ownerId !== userId) {
+    const permission = await getRpgPermission(character.rpgId, userId)
+    if (!permission.canManage) {
       return NextResponse.json(
-        { message: "Apenas o owner do RPG pode conceder pontos." },
+        { message: "Apenas mestre ou moderador podem conceder pontos." },
         { status: 403 },
       )
     }

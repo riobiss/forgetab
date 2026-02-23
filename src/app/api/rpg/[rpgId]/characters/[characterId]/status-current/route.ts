@@ -51,20 +51,21 @@ async function canManageCurrentStatus(rpgId: string, characterId: string, userId
   }
 
   const isOwner = rpg.ownerId === userId
+  let isModerator = false
   if (!isOwner) {
-    const membership = await prisma.rpgMember.findUnique({
-      where: {
-        rpgId_userId: {
-          rpgId,
-          userId,
-        },
-      },
-      select: { status: true },
-    })
-    if (membership?.status !== "accepted") {
+    const membership = await prisma.$queryRaw<Array<{ status: string; role: string }>>(Prisma.sql`
+      SELECT status::text AS status, role::text AS role
+      FROM rpg_members
+      WHERE rpg_id = ${rpgId}
+        AND user_id = ${userId}
+      LIMIT 1
+    `)
+    if (membership[0]?.status !== "accepted") {
       return { ok: false as const, status: 404, message: "RPG nao encontrado." }
     }
+    isModerator = membership[0]?.role === "moderator"
   }
+  const canManageAsMaster = isOwner || isModerator
 
   const rows = await prisma.$queryRaw<CharacterStatusRow[]>(Prisma.sql`
     SELECT
@@ -87,7 +88,7 @@ async function canManageCurrentStatus(rpgId: string, characterId: string, userId
   }
 
   const character = rows[0]
-  if (!isOwner && character.createdByUserId !== userId) {
+  if (!canManageAsMaster && character.createdByUserId !== userId) {
     return { ok: false as const, status: 403, message: "Sem permissao para editar este personagem." }
   }
 
