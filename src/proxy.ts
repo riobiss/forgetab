@@ -10,7 +10,7 @@ function getRequestOrigin(request: NextRequest) {
   const originHeader = request.headers.get("origin")
   if (originHeader) {
     try {
-      return new URL(originHeader).origin
+      return new URL(originHeader)
     } catch {
       return null
     }
@@ -19,7 +19,7 @@ function getRequestOrigin(request: NextRequest) {
   const refererHeader = request.headers.get("referer")
   if (refererHeader) {
     try {
-      return new URL(refererHeader).origin
+      return new URL(refererHeader)
     } catch {
       return null
     }
@@ -28,15 +28,61 @@ function getRequestOrigin(request: NextRequest) {
   return null
 }
 
+function isLikelySameOriginRequest(request: NextRequest) {
+  const fetchSite = request.headers.get("sec-fetch-site")?.toLowerCase()
+  return fetchSite === "same-origin" || fetchSite === "same-site"
+}
+
+function getExpectedHosts(request: NextRequest) {
+  const candidates = [
+    request.headers.get("x-forwarded-host"),
+    request.headers.get("host"),
+    request.nextUrl.host,
+  ]
+
+  return new Set(
+    candidates
+      .filter((value): value is string => Boolean(value))
+      .map((value) => value.trim().toLowerCase())
+      .filter((value) => value.length > 0),
+  )
+}
+
+function isTrustedLocalAliasHost(originHost: string, expectedHosts: Set<string>) {
+  const localHostnames = new Set(["localhost", "127.0.0.1", "0.0.0.0", "[::1]", "::1"])
+
+  const [originHostname, originPort = ""] = originHost.toLowerCase().split(":")
+  if (!localHostnames.has(originHostname)) return false
+
+  for (const expectedHost of expectedHosts) {
+    const [expectedHostname, expectedPort = ""] = expectedHost.toLowerCase().split(":")
+    if (!localHostnames.has(expectedHostname)) continue
+    if (originPort === expectedPort) return true
+  }
+
+  return false
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
 
   if (pathname.startsWith("/api/")) {
     if (csrfProtectedMethods.has(request.method.toUpperCase())) {
       const requestOrigin = getRequestOrigin(request)
-      const expectedOrigin = request.nextUrl.origin
+      const expectedHosts = getExpectedHosts(request)
 
-      if (!requestOrigin || requestOrigin !== expectedOrigin) {
+      // Some browsers/privacy settings may omit Origin/Referer on same-origin requests.
+      const missingOriginButSameOrigin = !requestOrigin && isLikelySameOriginRequest(request)
+      const originHost = requestOrigin?.host.toLowerCase() ?? null
+      const matchesExpectedHost = originHost ? expectedHosts.has(originHost) : false
+      const trustedLocalAlias = originHost
+        ? isTrustedLocalAliasHost(originHost, expectedHosts)
+        : false
+
+      if (
+        (!requestOrigin && !missingOriginButSameOrigin) ||
+        (requestOrigin && !matchesExpectedHost && !trustedLocalAlias)
+      ) {
         return NextResponse.json(
           { message: "Requisicao bloqueada por protecao CSRF." },
           { status: 403 },

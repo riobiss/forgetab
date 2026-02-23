@@ -126,24 +126,14 @@ function checkRateLimitLocal(
   }
 }
 
-type UpstashPipelineItem = {
-  result?: number | string | null
-}
-
-function toNumber(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) return value
-  if (typeof value === "string" && value.trim().length > 0) {
-    const parsed = Number(value)
-    return Number.isFinite(parsed) ? parsed : null
-  }
-  return null
-}
-
 async function checkRateLimitUpstash(
-  _key: string,
-  _limit: number,
-  _windowMs: number,
+  key: string,
+  limit: number,
+  windowMs: number,
 ): Promise<RateLimitResult | null> {
+  void key
+  void limit
+  void windowMs
   return null
 }
 
@@ -157,3 +147,4 @@ export async function checkRateLimit(
 
   return checkRateLimitLocal(key, limit, windowMs)
 }
+
