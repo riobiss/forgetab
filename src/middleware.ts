@@ -4,9 +4,49 @@ import { jwtVerify } from "jose"
 import { TOKEN_COOKIE_NAME, jwtSecret } from "@/lib/auth/token"
 
 const authPages = new Set(["/login", "/cadastro"])
+const csrfProtectedMethods = new Set(["POST", "PUT", "PATCH", "DELETE"])
+
+function getRequestOrigin(request: NextRequest) {
+  const originHeader = request.headers.get("origin")
+  if (originHeader) {
+    try {
+      return new URL(originHeader).origin
+    } catch {
+      return null
+    }
+  }
+
+  const refererHeader = request.headers.get("referer")
+  if (refererHeader) {
+    try {
+      return new URL(refererHeader).origin
+    } catch {
+      return null
+    }
+  }
+
+  return null
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl
+
+  if (pathname.startsWith("/api/")) {
+    if (csrfProtectedMethods.has(request.method.toUpperCase())) {
+      const requestOrigin = getRequestOrigin(request)
+      const expectedOrigin = request.nextUrl.origin
+
+      if (!requestOrigin || requestOrigin !== expectedOrigin) {
+        return NextResponse.json(
+          { message: "Requisicao bloqueada por protecao CSRF." },
+          { status: 403 },
+        )
+      }
+    }
+
+    return NextResponse.next()
+  }
+
   const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
 
   if (!token) {
@@ -44,6 +84,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
+  matcher: ["/api/:path*", "/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 }
 
