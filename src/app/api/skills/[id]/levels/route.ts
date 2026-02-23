@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { Prisma } from "../../../../../../generated/prisma/client"
+import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { deepCopyJson, fetchSkillById, getUserIdFromRequest } from "@/lib/server/skillBuilder"
 import { skillLevelCreateSchema } from "@/lib/validators/skillBuilder"

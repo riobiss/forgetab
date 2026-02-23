@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import type { ReactNode } from "react"
-import { Prisma } from "../../../../../generated/prisma/client"
+import { Prisma } from "../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 

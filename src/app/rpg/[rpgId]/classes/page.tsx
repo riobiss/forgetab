@@ -5,7 +5,7 @@ import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import ClassCategoryManager from "./components/ClassCategoryManager"
 import ClassCategoryToggleList from "./components/ClassCategoryToggleList"
-import { Prisma } from "../../../../../generated/prisma/client"
+import { Prisma } from "../../../../../generated/prisma/client.js"
 
 type Params = {
   params: Promise<{

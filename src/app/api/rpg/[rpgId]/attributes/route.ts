@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { Prisma } from "../../../../../../generated/prisma/client"
+import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import slugify from "@/utils/slugify"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"

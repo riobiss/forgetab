@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { createRpgSchema } from "@/lib/validators/rpg"
-import { Prisma } from "../../../../generated/prisma/client"
+import { Prisma } from "../../../../generated/prisma/client.js"
 
 export async function POST(request: NextRequest) {
   try {
