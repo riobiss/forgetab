@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
 import styles from "./ItemEditorForm.module.css"
 import {
@@ -457,9 +458,12 @@ export default function ItemEditorForm({ mode, itemId }: Props) {
               <div className={styles.field}>
                 <span>Preview</span>
                 <div className={styles.itemImagePreviewFrame}>
-                  <img
+                  <Image
                     src={selectedImagePreviewUrl || image}
                     alt={`Imagem de ${name || "item"}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 320px"
+                    unoptimized
                     className={styles.itemImagePreview}
                   />
                 </div>

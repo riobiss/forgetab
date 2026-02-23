@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import styles from "../page.module.css"
 import { InventoryCardItem } from "../types"
 
@@ -30,9 +31,12 @@ export default function InventoryCards({
           <div className={styles.cardTop}>
             {item.imageUrl ? (
               <div className={styles.cardImageFrame}>
-                <img
+                <Image
                   src={item.imageUrl}
                   alt={`Imagem de ${item.title}`}
+                  fill
+                  sizes="96px"
+                  unoptimized
                   className={styles.cardImage}
                 />
               </div>

@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "next/navigation"
+import Image from "next/image"
 import {
   ArrowLeft,
   Check,
@@ -395,7 +396,14 @@ export default function ItemsPage() {
                     <>
                 {item.image ? (
                   <div className={styles.cardImageFrame}>
-                    <img src={item.image} alt={`Imagem de ${item.name}`} className={styles.cardImage} />
+                    <Image
+                      src={item.image}
+                      alt={`Imagem de ${item.name}`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 280px"
+                      unoptimized
+                      className={styles.cardImage}
+                    />
                   </div>
                 ) : null}
                 <div className={styles.cardHeader}>

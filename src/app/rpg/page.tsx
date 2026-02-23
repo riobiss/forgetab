@@ -1,5 +1,6 @@
 import styles from "./page.module.css"
 import Link from "next/link"
+import Image from "next/image"
 import { Plus } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { cookies } from "next/headers"
@@ -90,11 +91,13 @@ export default async function ViewRpg() {
                   className={styles.createdCard}
                 >
                   <div className={styles.createdCardImageWrap}>
-                    <img
+                    <Image
                       src={item.image || "/images/bg-library.jpg"}
                       alt={`Capa do RPG ${item.title}`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 360px"
+                      unoptimized
                       className={styles.createdCardImage}
-                      loading="lazy"
                     />
                   </div>
                   <h4>{item.title}</h4>
@@ -127,11 +130,13 @@ export default async function ViewRpg() {
                 className={styles.createdCard}
               >
                 <div className={styles.createdCardImageWrap}>
-                  <img
+                  <Image
                     src={item.image || "/images/bg-library.jpg"}
                     alt={`Capa do RPG ${item.title}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 360px"
+                    unoptimized
                     className={styles.createdCardImage}
-                    loading="lazy"
                   />
                 </div>
                 <h4>{item.title}</h4>
