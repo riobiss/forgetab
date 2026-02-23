@@ -240,6 +240,30 @@
   white-space: nowrap;
 }
 
+.memberActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.moderatorToggleButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.42rem 0.7rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 5%, transparent);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.moderatorToggleButtonActive {
+  border-color: var(--color-status-success);
+  background: var(--color-status-success-soft);
+  color: var(--color-status-success-contrast);
+}
+
+.moderatorToggleButton:disabled,
 .expelMemberButton:disabled {
   opacity: 0.7;
   cursor: not-allowed;

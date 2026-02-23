@@ -10,6 +10,7 @@ import MembersList from "./components/MembersList"
 import QuickCreateMenu from "./components/QuickCreateMenu"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 
 type Params = {
   params: Promise<{
@@ -35,6 +36,7 @@ type AcceptedMemberRow = {
   id: string
   userUsername: string
   userName: string
+  role: "member" | "moderator"
 }
 
 type CountRow = {
@@ -95,7 +97,10 @@ export default async function ViewInRpg({ params }: Params) {
 
   const userId = await getUserIdFromCookieStore()
   const isAuthenticated = Boolean(userId)
-  const isOwner = userId === dbRpg.ownerId
+  const permission =
+    userId && userId.length > 0 ? await getRpgPermission(rpgId, userId) : null
+  const isOwner = permission?.isOwner ?? false
+  const canManageRpg = permission?.canManage ?? false
 
   let membershipStatus: "pending" | "accepted" | "rejected" | null = null
   if (userId && !isOwner) {
@@ -115,7 +120,7 @@ export default async function ViewInRpg({ params }: Params) {
   let hasRaces = false
   let hasClasses = false
 
-  if (isOwner) {
+  if (canManageRpg) {
     pendingRequests = await prisma.$queryRaw<PendingRequestRow[]>(Prisma.sql`
       SELECT
         m.id,
@@ -133,7 +138,8 @@ export default async function ViewInRpg({ params }: Params) {
       SELECT
         m.id,
         u.username AS "userUsername",
-        u.name AS "userName"
+        u.name AS "userName",
+        m.role::text AS role
       FROM rpg_members m
       INNER JOIN users u ON u.id = m.user_id
       WHERE m.rpg_id = ${rpgId}
@@ -199,7 +205,7 @@ export default async function ViewInRpg({ params }: Params) {
       <div className={styles.topActions}>
         <MembershipNotifications
           rpgId={dbRpg.id}
-          isOwner={isOwner}
+          isOwner={canManageRpg}
           isAuthenticated={isAuthenticated}
           membershipStatus={membershipStatus}
           pendingRequests={pendingRequests.map((item) => ({
@@ -212,11 +218,11 @@ export default async function ViewInRpg({ params }: Params) {
           }))}
           compact
         />
-        {isOwner ? <QuickCreateMenu rpgId={dbRpg.id} /> : null}
-        {isOwner ? (
+        {canManageRpg ? <QuickCreateMenu rpgId={dbRpg.id} /> : null}
+        {canManageRpg ? (
           <MembersList rpgId={dbRpg.id} members={acceptedMembers} compact />
         ) : null}
-        {isOwner ? (
+        {canManageRpg ? (
           <Link
             href={`/rpg/${dbRpg.id}/edit`}
             className={styles.settingsButton}
@@ -281,7 +287,7 @@ export default async function ViewInRpg({ params }: Params) {
           </Link>
         ) : null}
 
-        {isOwner ? (
+        {canManageRpg ? (
           <Link href={`/rpg/${dbRpg.id}/items`} className={styles.card}>
             <Image
               src="/images/bg-items.png"

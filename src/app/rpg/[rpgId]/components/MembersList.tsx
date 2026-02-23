@@ -9,6 +9,7 @@ type AcceptedMember = {
   id: string
   userUsername: string
   userName: string
+  role: "member" | "moderator"
 }
 
 type Props = {
@@ -21,6 +22,7 @@ export default function MembersList({ rpgId, members, compact = false }: Props) 
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [expellingId, setExpellingId] = useState<string | null>(null)
+  const [togglingModeratorId, setTogglingModeratorId] = useState<string | null>(null)
   const membersCount = members.length
 
   async function expelMember(memberId: string) {
@@ -48,6 +50,32 @@ export default function MembersList({ rpgId, members, compact = false }: Props) 
       window.alert("Erro de conexao ao expulsar membro.")
     } finally {
       setExpellingId(null)
+    }
+  }
+
+  async function toggleModerator(memberId: string) {
+    if (togglingModeratorId || expellingId) return
+
+    setTogglingModeratorId(memberId)
+
+    try {
+      const response = await fetch(`/api/rpg/${rpgId}/members/${memberId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "toggleModerator" }),
+      })
+
+      if (!response.ok) {
+        const payload = (await response.json()) as { message?: string }
+        window.alert(payload.message ?? "Nao foi possivel atualizar moderador.")
+        return
+      }
+
+      router.refresh()
+    } catch {
+      window.alert("Erro de conexao ao atualizar moderador.")
+    } finally {
+      setTogglingModeratorId(null)
     }
   }
 
@@ -90,14 +118,26 @@ export default function MembersList({ rpgId, members, compact = false }: Props) 
                     <strong>@{member.userUsername}</strong>
                     <small>{member.userName}</small>
                   </div>
-                  <button
-                    type="button"
-                    className={styles.expelMemberButton}
-                    onClick={() => expelMember(member.id)}
-                    disabled={expellingId === member.id}
-                  >
-                    {expellingId === member.id ? "Expulsando..." : "Expulsar"}
-                  </button>
+                  <div className={styles.memberActions}>
+                    <button
+                      type="button"
+                      className={`${styles.moderatorToggleButton} ${
+                        member.role === "moderator" ? styles.moderatorToggleButtonActive : ""
+                      }`}
+                      onClick={() => toggleModerator(member.id)}
+                      disabled={togglingModeratorId === member.id || expellingId === member.id}
+                    >
+                      {togglingModeratorId === member.id ? "Salvando..." : "Moderador"}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.expelMemberButton}
+                      onClick={() => expelMember(member.id)}
+                      disabled={expellingId === member.id || togglingModeratorId === member.id}
+                    >
+                      {expellingId === member.id ? "Expulsando..." : "Expulsar"}
+                    </button>
+                  </div>
                 </article>
               ))}
             </div>

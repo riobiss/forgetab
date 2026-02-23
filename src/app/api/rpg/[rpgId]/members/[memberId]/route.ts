@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 
 type RouteContext = {
   params: Promise<{
@@ -26,24 +27,20 @@ async function getUserIdFromToken(request: NextRequest) {
 }
 
 async function canManageMembers(rpgId: string, userId: string) {
-  const rpg = await prisma.rpg.findUnique({
-    where: { id: rpgId },
-    select: { ownerId: true },
-  })
-
-  if (!rpg) {
+  const permission = await getRpgPermission(rpgId, userId)
+  if (!permission.exists) {
     return { ok: false as const, message: "RPG nao encontrado.", status: 404 }
   }
 
-  if (rpg.ownerId !== userId) {
+  if (!permission.canManage) {
     return {
       ok: false as const,
-      message: "Somente o mestre pode gerenciar membros.",
+      message: "Somente mestre ou moderador podem gerenciar membros.",
       status: 403,
     }
   }
 
-  return { ok: true as const, ownerId: rpg.ownerId }
+  return { ok: true as const, ownerId: permission.ownerId ?? "" }
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
@@ -64,12 +61,49 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: permission.message }, { status: permission.status })
     }
 
-    const body = (await request.json()) as { action?: "accept" | "reject" }
+    const body = (await request.json()) as {
+      action?: "accept" | "reject" | "toggleModerator"
+    }
 
-    if (!body.action || !["accept", "reject"].includes(body.action)) {
+    if (!body.action || !["accept", "reject", "toggleModerator"].includes(body.action)) {
       return NextResponse.json(
         { message: "Acao invalida." },
         { status: 400 },
+      )
+    }
+
+    if (body.action === "toggleModerator") {
+      const updatedRole = await prisma.$queryRaw<Array<{ role: string }>>(Prisma.sql`
+        UPDATE rpg_members
+        SET
+          role = CASE
+            WHEN role = 'moderator'::"public"."RpgMemberRole" THEN 'member'::"public"."RpgMemberRole"
+            ELSE 'moderator'::"public"."RpgMemberRole"
+          END,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${memberId}
+          AND rpg_id = ${rpgId}
+          AND status = 'accepted'::"public"."RpgMemberStatus"
+          AND user_id <> ${permission.ownerId}
+        RETURNING role::text AS role
+      `)
+
+      if (updatedRole.length === 0) {
+        return NextResponse.json(
+          { message: "Membro nao encontrado para alternar moderacao." },
+          { status: 404 },
+        )
+      }
+
+      return NextResponse.json(
+        {
+          message:
+            updatedRole[0].role === "moderator"
+              ? "Membro promovido para moderador."
+              : "Membro removido da moderacao.",
+          role: updatedRole[0].role,
+        },
+        { status: 200 },
       )
     }
 

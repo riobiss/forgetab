@@ -10,8 +10,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -56,6 +57,11 @@ enum RpgMemberStatus {
   pending
   accepted
   rejected
+}
+
+enum RpgMemberRole {
+  member
+  moderator
 }
 
 enum CharacterCreationRequestStatus {
@@ -350,6 +356,7 @@ model RpgMember {
   rpgId      String          @map("rpg_id")
   userId     String          @map("user_id")
   status     RpgMemberStatus @default(pending)
+  role       RpgMemberRole   @default(member)
   createdAt  DateTime        @default(now()) @map("created_at")
   updatedAt  DateTime        @default(now()) @map("updated_at")
   requestedAt DateTime       @default(now()) @map("requested_at")
