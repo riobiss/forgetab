@@ -833,7 +833,6 @@ export default function NewCharacterPage() {
                 fieldClassName={styles.field}
                 keyPrefix="character-status"
                 min={0}
-                required
               />
             ) : null}
           </section>
@@ -860,7 +859,6 @@ export default function NewCharacterPage() {
                 gridClassName={styles.valuesGrid}
                 fieldClassName={styles.field}
                 keyPrefix="character-attribute"
-                required
               />
             ) : null}
           </section>
@@ -890,7 +888,6 @@ export default function NewCharacterPage() {
                     fieldClassName={styles.field}
                     keyPrefix="character-skill"
                     min={0}
-                    required
                   />
                 </>
               ) : null}

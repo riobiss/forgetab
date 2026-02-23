@@ -342,11 +342,11 @@ export default async function CharactersPage({ params }: Params) {
       row.currentStatuses as Record<string, number>,
     )
     const skills = row.skills as Record<string, number>
-    const skillEntries = Object.entries(skills)
+    const skillEntries = Object.entries(skills).filter(([, value]) => Number(value) > 0)
     const identity = row.identity as Record<string, string>
     const characteristics = row.characteristics as Record<string, string>
-    const attributeEntries = Object.entries(attributes).filter(([key]) =>
-      attributeLabelByKey.has(key),
+    const attributeEntries = Object.entries(attributes).filter(
+      ([key, value]) => attributeLabelByKey.has(key) && Number(value) > 0,
     )
     const displayName = getIdentityDisplayName(identity)
     const coreStatusConfig = [
@@ -362,7 +362,8 @@ export default async function CharactersPage({ params }: Params) {
       },
     ]
     const extraStatusEntries = Object.entries(statuses).filter(
-      ([key]) => !coreStatusConfig.some((item) => item.key === key),
+      ([key, value]) =>
+        !coreStatusConfig.some((item) => item.key === key) && Number(value) > 0,
     )
     const statusEntries = [
       ...coreStatusConfig.map((item) => ({
@@ -387,7 +388,7 @@ export default async function CharactersPage({ params }: Params) {
           Math.min(Number(value ?? 0), Number(currentStatuses[key] ?? value ?? 0)),
         ),
       })),
-    ]
+    ].filter((item) => item.max > 0)
     const identityItems =
       identityTemplateFields.length > 0
         ? identityTemplateFields.map((field) => ({
@@ -499,44 +500,49 @@ export default async function CharactersPage({ params }: Params) {
             </div>
           </div>
 
-          <div className={styles.grid}>
-            <div>
-              <h4>Status</h4>
-              <StatusTracker
-                items={statusEntries}
-                rpgId={rpgId}
-                characterId={row.id}
-                canPersist={canEditCharacter}
-              />
-            </div>
-
-          </div>
-
-          <div className={styles.containerSkillAttributes}>
-            <div>
-              <h4>Atributos</h4>
-              <ul className={styles.list}>
-                {attributeEntries.map(([key, value]) => (
-                  <li key={key}>
-                    {attributeLabelByKey.get(key)}: {value}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {skillEntries.length > 0 ? (
+          {statusEntries.length > 0 ? (
+            <div className={styles.grid}>
               <div>
-                <h4>Pericias</h4>
-                <ul className={styles.list}>
-                  {skillEntries.map(([key, value]) => (
-                    <li key={key}>
-                      {skillLabelByKey.get(key) ?? skillLabels[key] ?? key}: {value}
-                    </li>
-                  ))}
-                </ul>
+                <h4>Status</h4>
+                <StatusTracker
+                  items={statusEntries}
+                  rpgId={rpgId}
+                  characterId={row.id}
+                  canPersist={canEditCharacter}
+                />
               </div>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
+
+          {attributeEntries.length > 0 || skillEntries.length > 0 ? (
+            <div className={styles.containerSkillAttributes}>
+              {attributeEntries.length > 0 ? (
+                <div>
+                  <h4>Atributos</h4>
+                  <ul className={styles.list}>
+                    {attributeEntries.map(([key, value]) => (
+                      <li key={key}>
+                        {attributeLabelByKey.get(key)}: {value}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {skillEntries.length > 0 ? (
+                <div>
+                  <h4>Pericias</h4>
+                  <ul className={styles.list}>
+                    {skillEntries.map(([key, value]) => (
+                      <li key={key}>
+                        {skillLabelByKey.get(key) ?? skillLabels[key] ?? key}: {value}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className={styles.grid}>
             {identityItemsWithRaceClass.length > 0 ? (
