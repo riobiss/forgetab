@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { Prisma } from "../../../../../generated/prisma/client"
+import { Prisma } from "../../../../../generated/prisma/client.js"
 import {
   createAuthToken,
   TOKEN_COOKIE_NAME,
@@ -15,6 +15,10 @@ const REGISTER_RATE_LIMIT = {
   emailPerIpLimit: 4,
   windowMs: 60 * 60 * 1000,
 }
+
+const GENERIC_REGISTER_CONFLICT_MESSAGE =
+  "Nao foi possivel concluir o cadastro com os dados informados."
+const USERNAME_CONFLICT_MESSAGE = "Username ja esta em uso. Tente outro."
 
 export async function POST(request: Request) {
   try {
@@ -70,7 +74,7 @@ export async function POST(request: Request) {
 
     if (existingUser) {
       return NextResponse.json(
-        { message: "Email ja cadastrado." },
+        { message: GENERIC_REGISTER_CONFLICT_MESSAGE },
         { status: 409 },
       )
     }
@@ -82,7 +86,7 @@ export async function POST(request: Request) {
 
     if (existingUsername) {
       return NextResponse.json(
-        { message: "Username ja esta em uso." },
+        { message: USERNAME_CONFLICT_MESSAGE },
         { status: 409 },
       )
     }
@@ -130,17 +134,15 @@ export async function POST(request: Request) {
       const target = Array.isArray(error.meta?.target) ? error.meta.target : []
       if (target.includes("username")) {
         return NextResponse.json(
-          { message: "Username ja esta em uso." },
+          { message: USERNAME_CONFLICT_MESSAGE },
           { status: 409 },
         )
       }
 
-      if (target.includes("email")) {
-        return NextResponse.json(
-          { message: "Email ja cadastrado." },
-          { status: 409 },
-        )
-      }
+      return NextResponse.json(
+        { message: GENERIC_REGISTER_CONFLICT_MESSAGE },
+        { status: 409 },
+      )
     }
 
     return NextResponse.json(
