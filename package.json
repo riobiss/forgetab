@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0",
+    "dev": "next dev --webpack -H 0.0.0.0",
     "prebuild": "prisma generate",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.18",
@@ -45,6 +48,9 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/lodash.throttle": "^4.1.9",
     "@types/node": "^20",
     "@types/pg": "^8.15.5",
@@ -52,8 +58,13 @@
     "@types/react-dom": "^19",
     "eslint": "^9.39.3",
     "eslint-config-next": "^16.1.6",
+    "jsdom": "^27.0.1",
     "prisma": "6.19.2",
     "sass": "^1.97.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "^7.1.12",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
   }
 }
+
