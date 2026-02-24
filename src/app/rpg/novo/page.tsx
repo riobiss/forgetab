@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import styles from "./page.module.css"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
+import {
+  getDefaultProgressionTiers,
+  getProgressionModeLabel,
+  type ProgressionMode,
+} from "@/lib/rpg/progression"
 
 type UploadImagePayload = {
   message?: string
@@ -19,6 +24,8 @@ export default function NewRpgPage() {
   const [visibility, setVisibility] = useState<"private" | "public">("private")
   const [useRaceBonuses, setUseRaceBonuses] = useState(false)
   const [useClassBonuses, setUseClassBonuses] = useState(false)
+  const [progressionMode, setProgressionMode] = useState<ProgressionMode>("xp_level")
+  const [isProgressionModalOpen, setIsProgressionModalOpen] = useState(false)
   const [costsEnabled, setCostsEnabled] = useState(false)
   const [costResourceName, setCostResourceName] = useState("Skill Points")
   const [uploadingImage, setUploadingImage] = useState(false)
@@ -87,6 +94,8 @@ export default function NewRpgPage() {
           costResourceName,
           useRaceBonuses,
           useClassBonuses,
+          progressionMode,
+          progressionTiers: getDefaultProgressionTiers(progressionMode),
         }),
       })
 
@@ -223,6 +232,17 @@ export default function NewRpgPage() {
           </label>
 
           <label className={styles.field}>
+            <span>Progressao</span>
+            <button
+              type="button"
+              className={styles.progressionButton}
+              onClick={() => setIsProgressionModalOpen(true)}
+            >
+              {getProgressionModeLabel(progressionMode)}
+            </button>
+          </label>
+
+          <label className={styles.field}>
             <span>Nome do recurso de custo</span>
             <input
               type="text"
@@ -244,6 +264,51 @@ export default function NewRpgPage() {
             <Link href="/rpg">Cancelar</Link>
           </div>
         </form>
+
+        {isProgressionModalOpen ? (
+          <div
+            className={styles.modalOverlay}
+            onClick={() => setIsProgressionModalOpen(false)}
+            role="presentation"
+          >
+            <div
+              className={styles.modalCard}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Selecionar progressao"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <h3>Selecionar progressao</h3>
+              <p>Escolha apenas uma opcao.</p>
+              <div className={styles.modalOptions}>
+                {(["xp_level", "rank", "custom"] as ProgressionMode[]).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    className={
+                      progressionMode === mode
+                        ? `${styles.modalOption} ${styles.modalOptionActive}`
+                        : styles.modalOption
+                    }
+                    onClick={() => {
+                      setProgressionMode(mode)
+                      setIsProgressionModalOpen(false)
+                    }}
+                  >
+                    {getProgressionModeLabel(mode)}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className={styles.modalCloseButton}
+                onClick={() => setIsProgressionModalOpen(false)}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        ) : null}
       </section>
     </main>
   )

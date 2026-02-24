@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Eye, LayoutList, Settings2 } from "lucide-react"
+import { ArrowLeft, Eye, LayoutList, LoaderCircle, Plus, Save, Settings2, Trash2 } from "lucide-react"
 import styles from "./page.module.css"
 import AttributeOptionsSection from "./components/attribute-options/AttributeOptionsSection"
 import EditRpgForm from "./components/edit-rpg-form/EditRpgForm"
@@ -13,8 +13,9 @@ import StatusOptionsSection from "./components/status-options/StatusOptionsSecti
 import type { CatalogOption } from "./components/shared/types"
 import { useEditRpgData } from "./hooks/useEditRpgData"
 import { useEditRpgState } from "./hooks/useEditRpgState"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import RadixSwitchField from "./components/shared/RadixSwitchField"
+import { getProgressionModeLabel } from "@/lib/rpg/progression"
 
 const CORE_STATUS_OPTIONS: CatalogOption[] = [
   { key: "life", label: "Vida" },
@@ -37,6 +38,9 @@ export default function EditRpgPage() {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadError, setUploadError] = useState("")
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
+  const [isProgressionLevelsModalOpen, setIsProgressionLevelsModalOpen] = useState(false)
+  const progressionLevelsModalRef = useRef<HTMLDivElement | null>(null)
+  const previousFocusedElementRef = useRef<HTMLElement | null>(null)
 
   const data = useEditRpgData({
     rpgId,
@@ -49,6 +53,8 @@ export default function EditRpgPage() {
     useRaceBonuses: state.useRaceBonuses,
     useClassBonuses: state.useClassBonuses,
     useInventoryWeightLimit: state.useInventoryWeightLimit,
+    progressionMode: state.progressionMode,
+    progressionTiers: state.progressionTiers,
     attributeTemplates: state.attributeTemplates,
     selectedStatusKeys: state.selectedStatusKeys,
     statusLabelByKey: state.statusLabelByKey,
@@ -63,6 +69,8 @@ export default function EditRpgPage() {
     setUseRaceBonuses: state.setUseRaceBonuses,
     setUseClassBonuses: state.setUseClassBonuses,
     setUseInventoryWeightLimit: state.setUseInventoryWeightLimit,
+    setProgressionMode: state.setProgressionMode,
+    setProgressionTiers: state.setProgressionTiers,
     setCostsEnabled: state.setCostsEnabled,
     setCostResourceName: state.setCostResourceName,
     setAttributeTemplates: state.setAttributeTemplates,
@@ -98,6 +106,35 @@ export default function EditRpgPage() {
     state.setImage("")
     setUploadError("")
   }
+
+  useEffect(() => {
+    const anyModalOpen = isProgressionLevelsModalOpen
+
+    if (anyModalOpen && !previousFocusedElementRef.current) {
+      const current = document.activeElement
+      if (current instanceof HTMLElement) {
+        previousFocusedElementRef.current = current
+      }
+    }
+
+    if (anyModalOpen) {
+      const previousOverflow = document.body.style.overflow
+      document.body.style.overflow = "hidden"
+      const target = progressionLevelsModalRef.current
+      const rafId = window.requestAnimationFrame(() => {
+        target?.focus()
+      })
+      return () => {
+        window.cancelAnimationFrame(rafId)
+        document.body.style.overflow = previousOverflow
+      }
+    }
+
+    if (!anyModalOpen && previousFocusedElementRef.current) {
+      previousFocusedElementRef.current.focus()
+      previousFocusedElementRef.current = null
+    }
+  }, [isProgressionLevelsModalOpen])
 
   async function handleSaveAll() {
     setUploadError("")
@@ -283,6 +320,115 @@ export default function EditRpgPage() {
               <p className={styles.error}>Configuracao disponivel apenas na criacao do RPG.</p>
             </div>
 
+            <section className={styles.progressionSection}>
+              <h2>Progressao</h2>
+              <button
+                type="button"
+                className={styles.progressionModePickerButton}
+                disabled
+                title="Modo de progressao definido na criacao do RPG."
+              >
+                {getProgressionModeLabel(state.progressionMode)}
+              </button>
+              <button
+                type="button"
+                className={styles.progressionTableToggleButton}
+                onClick={() => setIsProgressionLevelsModalOpen(true)}
+              >
+                Editar etapas
+              </button>
+            </section>
+
+            {isProgressionLevelsModalOpen ? (
+              <div
+                className={styles.progressionModalOverlay}
+                onClick={() => setIsProgressionLevelsModalOpen(false)}
+                role="presentation"
+              >
+                <div
+                  className={`${styles.progressionModalCard} ${styles.progressionLevelsModalCard}`}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Editar etapas da progressao"
+                  tabIndex={-1}
+                  ref={progressionLevelsModalRef}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <h3>Editar etapas</h3>
+                  <p>Ajuste nome e required de cada etapa.</p>
+                  <div className={styles.progressionLevelsBody}>
+                    <div className={styles.progressionTable}>
+                      {state.progressionTiers.map((tier, index) => (
+                        <div key={`progression-tier-${index}`} className={styles.progressionRow}>
+                        <label className={styles.field}>
+                          <span>Nome</span>
+                          {state.progressionMode === "xp_level" ? (
+                            <div className={styles.readonlyTierLabel}>{`Level ${index + 1}`}</div>
+                          ) : (
+                            <input
+                              type="text"
+                              value={tier.label}
+                              onChange={(event) =>
+                                state.updateProgressionTierLabel(index, event.target.value)
+                              }
+                              placeholder={
+                                state.progressionMode === "rank"
+                                  ? `Novato ${index + 1}`
+                                  : `Etapa ${index + 1}`
+                              }
+                            />
+                          )}
+                        </label>
+                          <label className={styles.field}>
+                            <span>Required</span>
+                          <input
+                            type="number"
+                            onWheel={(event) => event.currentTarget.blur()}
+                            min={0}
+                            required
+                            value={tier.required === 0 ? "" : tier.required}
+                            placeholder="Digite um numero"
+                            onChange={(event) =>
+                              state.updateProgressionTierRequired(
+                                index,
+                                Number(event.target.value || 0),
+                              )
+                              }
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            className={styles.progressionDelete}
+                            onClick={() => state.removeProgressionTier(index)}
+                            disabled={state.progressionTiers.length <= 1}
+                            aria-label={`Remover etapa ${index + 1}`}
+                            title="Remover etapa"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.progressionAdd}
+                      onClick={state.addProgressionTier}
+                    >
+                      <Plus size={14} />
+                      Adicionar etapa
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.progressionModalCloseButton}
+                    onClick={() => setIsProgressionLevelsModalOpen(false)}
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
             <AttributeOptionsSection
               showList={state.showAttributeList}
               onToggleList={() => state.setShowAttributeList((prev) => !prev)}
@@ -372,6 +518,22 @@ export default function EditRpgPage() {
               classDrafts={state.classDrafts}
               onClassDraftsChange={state.setClassDrafts}
             />
+
+            <div className={styles.actions}>
+              <button type="button" onClick={() => void handleSaveAll()} disabled={data.saving}>
+                {data.saving ? (
+                  <>
+                    <LoaderCircle size={16} className={styles.spin} />
+                    <span>Salvando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save size={16} />
+                    <span>Salvar tudo</span>
+                  </>
+                )}
+              </button>
+            </div>
 
             {data.error ? <p className={styles.error}>{data.error}</p> : null}
             {data.identitySuccess ? <p className={styles.success}>{data.identitySuccess}</p> : null}

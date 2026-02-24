@@ -72,6 +72,193 @@
   color: var(--color-text-primary);
 }
 
+.progressionSection {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 0.72rem;
+  display: grid;
+  gap: 0.65rem;
+  background: color-mix(in srgb, var(--color-bg-app) 88%, var(--color-bg-surface));
+}
+
+.progressionModes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.progressionModePickerButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  padding: 0.4rem 0.72rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.progressionModePickerButton:disabled {
+  opacity: 0.9;
+  cursor: not-allowed;
+}
+
+.progressionTableToggleButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  padding: 0.38rem 0.68rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.progressionModeButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  padding: 0.38rem 0.7rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.progressionModeButtonActive {
+  border-color: var(--color-border-brand);
+  background: color-mix(in srgb, var(--color-brand-primary) 24%, transparent);
+  color: var(--color-text-primary);
+}
+
+.progressionModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, #000 42%, transparent);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  z-index: 60;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.progressionModalCard {
+  width: min(460px, 100%);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: var(--color-bg-surface);
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.62rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.progressionLevelsModalCard {
+  width: min(760px, 100%);
+  max-height: min(80vh, 760px);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.progressionLevelsBody {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+}
+
+.progressionModalCard h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.progressionModalCard p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+}
+
+.progressionModeOptions {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.progressionModeOption {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 9px;
+  padding: 0.56rem 0.7rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.progressionModeOptionActive {
+  border-color: var(--color-border-brand);
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+}
+
+.progressionModalCloseButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 9px;
+  padding: 0.5rem 0.7rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  justify-self: end;
+  cursor: pointer;
+}
+
+.progressionTable {
+  display: grid;
+  gap: 0.5rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.1rem;
+}
+
+.progressionRow {
+  display: grid;
+  grid-template-columns: 1fr minmax(130px, 180px) auto;
+  gap: 0.5rem;
+  align-items: end;
+}
+
+.progressionDelete {
+  border: 1px solid color-mix(in srgb, var(--color-status-danger) 60%, var(--color-border-soft));
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  background: color-mix(in srgb, var(--color-status-danger) 14%, transparent);
+  color: var(--color-status-danger-contrast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.progressionDelete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.progressionAdd {
+  border: 1px dashed var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.45rem 0.7rem;
+  background: transparent;
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+  width: fit-content;
+  cursor: pointer;
+}
+
 .form {
   order: 10;
   display: grid;
@@ -101,6 +288,16 @@
   background: color-mix(in srgb, var(--color-bg-app) 90%, var(--color-bg-surface));
   color: var(--color-text-secondary);
   transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.readonlyTierLabel {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.62rem 0.72rem;
+  background: color-mix(in srgb, var(--color-bg-app) 90%, var(--color-bg-surface));
+  color: var(--color-text-secondary);
+  line-height: 1.2;
 }
 
 .field input::placeholder,
@@ -271,6 +468,10 @@
   .actions {
     flex-direction: row;
     align-items: center;
+  }
+
+  .progressionRow {
+    grid-template-columns: minmax(0, 1fr) minmax(120px, 160px) auto;
   }
 }
 

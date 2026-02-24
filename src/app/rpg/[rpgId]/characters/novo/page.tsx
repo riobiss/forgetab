@@ -7,6 +7,14 @@ import { ImagePlus, Paperclip, Trash2 } from "lucide-react"
 import styles from "./page.module.css"
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
+import {
+  getDefaultProgressionTiers,
+  getProgressionModeLabel,
+  isProgressionMode,
+  normalizeProgressionTiers,
+  type ProgressionMode,
+  type ProgressionTier,
+} from "@/lib/rpg/progression"
 
 type AttributeTemplate = {
   key: string
@@ -47,6 +55,8 @@ type RpgConfigPayload = {
     useClassBonuses?: boolean
     useClassRaceBonuses?: boolean
     useInventoryWeightLimit?: boolean
+    progressionMode?: ProgressionMode
+    progressionTiers?: ProgressionTier[]
   }
   message?: string
 }
@@ -92,6 +102,10 @@ type CharacterSummary = {
   characterType: "player" | "npc" | "monster"
   visibility: "private" | "public"
   maxCarryWeight?: number | null
+  progressionMode?: string
+  progressionLabel?: string
+  progressionRequired?: number
+  progressionCurrent?: number
   createdByUserId?: string | null
   statuses?: Record<string, number>
   attributes?: Record<string, number>
@@ -143,6 +157,10 @@ const CHARACTER_TYPE_LABEL: Record<CharacterSummary["characterType"], string> = 
   monster: "Monstro",
 }
 
+function toProgressionKey(tier: ProgressionTier) {
+  return `${tier.label}::${tier.required}`
+}
+
 export default function NewCharacterPage() {
   const params = useParams<{ rpgId: string }>()
   const router = useRouter()
@@ -162,6 +180,13 @@ export default function NewCharacterPage() {
   const [useRaceBonuses, setUseRaceBonuses] = useState(false)
   const [useClassBonuses, setUseClassBonuses] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
+  const [progressionMode, setProgressionMode] = useState<ProgressionMode>("xp_level")
+  const [progressionTiers, setProgressionTiers] = useState<ProgressionTier[]>(
+    getDefaultProgressionTiers("xp_level"),
+  )
+  const [selectedProgressionKey, setSelectedProgressionKey] = useState("")
+  const [isProgressionModalOpen, setIsProgressionModalOpen] = useState(false)
+  const [progressionCurrent, setProgressionCurrent] = useState("0")
   const [raceTemplates, setRaceTemplates] = useState<IdentityTemplate[]>([])
   const [classTemplates, setClassTemplates] = useState<IdentityTemplate[]>([])
   const [identityTemplates, setIdentityTemplates] = useState<CharacterIdentityTemplate[]>([])
@@ -205,6 +230,16 @@ export default function NewCharacterPage() {
 
     return ""
   }, [image, selectedImageName])
+
+  useEffect(() => {
+    if (progressionTiers.length === 0) return
+    const hasSelected = progressionTiers.some(
+      (item) => toProgressionKey(item) === selectedProgressionKey,
+    )
+    if (!hasSelected) {
+      setSelectedProgressionKey(toProgressionKey(progressionTiers[0]))
+    }
+  }, [progressionTiers, selectedProgressionKey])
 
   useEffect(() => {
     async function loadTemplate() {
@@ -314,6 +349,15 @@ export default function NewCharacterPage() {
             : legacyClassRaceFlag,
         )
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg?.useInventoryWeightLimit))
+        const loadedProgressionMode = isProgressionMode(rpgPayload.rpg?.progressionMode)
+          ? rpgPayload.rpg.progressionMode
+          : ("xp_level" as ProgressionMode)
+        const loadedProgressionTiers = normalizeProgressionTiers(
+          rpgPayload.rpg?.progressionTiers,
+          loadedProgressionMode,
+        )
+        setProgressionMode(loadedProgressionMode)
+        setProgressionTiers(loadedProgressionTiers)
 
         const nextAttributes = attributeTemplate.reduce<Record<string, NumericInputValue>>((acc, item) => {
           const value = (editTarget?.attributes ?? {})[item.key]
@@ -365,6 +409,32 @@ export default function NewCharacterPage() {
             : String(editTarget.maxCarryWeight),
         )
         setCharacterVisibility(editTarget?.visibility ?? "public")
+        const editProgressionLabel =
+          typeof editTarget?.progressionLabel === "string"
+            ? editTarget.progressionLabel
+            : loadedProgressionTiers[0]?.label
+        const editProgressionRequired =
+          typeof editTarget?.progressionRequired === "number"
+            ? editTarget.progressionRequired
+            : loadedProgressionTiers[0]?.required
+        const matchedProgression = loadedProgressionTiers.find(
+          (item) => item.label === editProgressionLabel && item.required === editProgressionRequired,
+        )
+        if (matchedProgression) {
+          setSelectedProgressionKey(toProgressionKey(matchedProgression))
+        } else {
+          setSelectedProgressionKey(
+            toProgressionKey({
+              label: editProgressionLabel ?? "Etapa",
+              required: Number(editProgressionRequired ?? 0),
+            }),
+          )
+        }
+        setProgressionCurrent(
+          typeof editTarget?.progressionCurrent === "number"
+            ? String(editTarget.progressionCurrent)
+            : "0",
+        )
         setEditingCharacterId(editTarget?.id ?? null)
       } catch {
         setError("Erro de conexao ao carregar padroes de personagem.")
@@ -401,6 +471,11 @@ export default function NewCharacterPage() {
             ? null
             : Number(maxCarryWeight)
           : null
+      const selectedProgressionTier =
+        progressionTiers.find((item) => toProgressionKey(item) === selectedProgressionKey) ??
+        progressionTiers[0] ??
+        getDefaultProgressionTiers(progressionMode)[0]
+      const parsedProgressionCurrent = Number(progressionCurrent || 0)
       let submittedImage = image
       let uploadedImageUrl = ""
       let hasFreshUpload = false
@@ -445,6 +520,11 @@ export default function NewCharacterPage() {
             ? { maxCarryWeight: parsedMaxCarryWeight }
             : {}),
           ...(isEditing ? { visibility: characterVisibility } : {}),
+          progressionLabel: selectedProgressionTier.label,
+          progressionRequired: selectedProgressionTier.required,
+          progressionCurrent: Number.isFinite(parsedProgressionCurrent)
+            ? Math.max(0, Math.floor(parsedProgressionCurrent))
+            : 0,
           statuses: normalizeNumericValues(statusValues),
           attributes: normalizeNumericValues(values),
           identity: identityValues,
@@ -730,6 +810,29 @@ export default function NewCharacterPage() {
                 )}
               </label>
 
+              <label className={styles.field}>
+                <span>Progressao ({getProgressionModeLabel(progressionMode)})</span>
+                <button
+                  type="button"
+                  className={styles.progressionPickerButton}
+                  onClick={() => setIsProgressionModalOpen(true)}
+                >
+                  {(progressionTiers.find((item) => toProgressionKey(item) === selectedProgressionKey) ??
+                    progressionTiers[0])?.label ?? "Selecionar"}
+                </button>
+              </label>
+
+              <label className={styles.field}>
+                <span>Atual</span>
+                <input
+                  type="number"
+                  onWheel={(event) => event.currentTarget.blur()}
+                  min={0}
+                  value={progressionCurrent}
+                  onChange={(event) => setProgressionCurrent(event.target.value)}
+                />
+              </label>
+
               {useInventoryWeightLimit && characterType === "player" ? (
                 <label className={styles.field}>
                   <span>Peso maximo (kg)</span>
@@ -895,6 +998,55 @@ export default function NewCharacterPage() {
           ) : null}
 
           {error ? <p className={styles.error}>{error}</p> : null}
+
+          {isProgressionModalOpen ? (
+            <div
+              className={styles.modalOverlay}
+              onClick={() => setIsProgressionModalOpen(false)}
+              role="presentation"
+            >
+              <div
+                className={styles.modalCard}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Selecionar progressao"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <h3>Selecionar progressao</h3>
+                <p>Escolha apenas uma opcao.</p>
+                <div className={styles.progressionOptions}>
+                  {progressionTiers.map((item) => {
+                    const key = toProgressionKey(item)
+                    const isActive = key === selectedProgressionKey
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        className={
+                          isActive
+                            ? `${styles.progressionOption} ${styles.progressionOptionActive}`
+                            : styles.progressionOption
+                        }
+                        onClick={() => {
+                          setSelectedProgressionKey(key)
+                          setIsProgressionModalOpen(false)
+                        }}
+                      >
+                        {item.label} - required {item.required}
+                      </button>
+                    )
+                  })}
+                </div>
+                <button
+                  type="button"
+                  className={styles.modalCloseButton}
+                  onClick={() => setIsProgressionModalOpen(false)}
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          ) : null}
 
           <div className={styles.actions}>
             <button

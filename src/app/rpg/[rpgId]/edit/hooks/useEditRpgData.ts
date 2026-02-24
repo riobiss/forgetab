@@ -8,6 +8,30 @@ import type {
   IdentityTemplate,
 } from "../components/shared/types"
 import type { Visibility } from "./useEditRpgState"
+import {
+  enforceXpLevelPattern,
+  getDefaultProgressionTiers,
+  isProgressionMode,
+  normalizeProgressionTiers,
+  type ProgressionMode,
+  type ProgressionTier,
+} from "@/lib/rpg/progression"
+
+function isLegacyFiveLevelDefault(tiers: ProgressionTier[]) {
+  if (tiers.length !== 5) return false
+  const expected = [
+    ["Level 1", 0],
+    ["Level 2", 100],
+    ["Level 3", 250],
+    ["Level 4", 450],
+    ["Level 5", 700],
+  ] as const
+
+  return expected.every(
+    ([label, required], index) =>
+      tiers[index]?.label === label && tiers[index]?.required === required,
+  )
+}
 
 type RpgPayload = {
   rpg: {
@@ -23,6 +47,8 @@ type RpgPayload = {
     useClassBonuses?: boolean
     useClassRaceBonuses?: boolean
     useInventoryWeightLimit?: boolean
+    progressionMode?: ProgressionMode
+    progressionTiers?: ProgressionTier[]
     canManage?: boolean
     canDelete?: boolean
   }
@@ -39,6 +65,8 @@ type UseEditRpgDataParams = {
   useRaceBonuses: boolean
   useClassBonuses: boolean
   useInventoryWeightLimit: boolean
+  progressionMode: ProgressionMode
+  progressionTiers: ProgressionTier[]
   attributeTemplates: AttributeTemplate[]
   selectedStatusKeys: string[]
   statusLabelByKey: Record<string, string>
@@ -53,6 +81,8 @@ type UseEditRpgDataParams = {
   setUseRaceBonuses: (value: boolean) => void
   setUseClassBonuses: (value: boolean) => void
   setUseInventoryWeightLimit: (value: boolean) => void
+  setProgressionMode: (value: ProgressionMode) => void
+  setProgressionTiers: (value: ProgressionTier[]) => void
   setCostsEnabled: (value: boolean) => void
   setCostResourceName: (value: string) => void
   setAttributeTemplates: (value: AttributeTemplate[]) => void
@@ -76,6 +106,8 @@ export function useEditRpgData({
   useRaceBonuses,
   useClassBonuses,
   useInventoryWeightLimit,
+  progressionMode,
+  progressionTiers,
   attributeTemplates,
   selectedStatusKeys,
   statusLabelByKey,
@@ -90,6 +122,8 @@ export function useEditRpgData({
   setUseRaceBonuses,
   setUseClassBonuses,
   setUseInventoryWeightLimit,
+  setProgressionMode,
+  setProgressionTiers,
   setCostsEnabled,
   setCostResourceName,
   setAttributeTemplates,
@@ -199,6 +233,19 @@ export function useEditRpgData({
             : legacyClassRaceFlag,
         )
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg.useInventoryWeightLimit))
+        const loadedProgressionMode = isProgressionMode(rpgPayload.rpg.progressionMode)
+          ? rpgPayload.rpg.progressionMode
+          : ("xp_level" as ProgressionMode)
+        setProgressionMode(loadedProgressionMode)
+        const loadedTiers = normalizeProgressionTiers(
+          rpgPayload.rpg.progressionTiers,
+          loadedProgressionMode,
+        )
+        setProgressionTiers(
+          loadedProgressionMode === "xp_level" && isLegacyFiveLevelDefault(loadedTiers)
+            ? loadedTiers.slice(0, 2)
+            : loadedTiers,
+        )
         setCostsEnabled(Boolean(rpgPayload.rpg.costsEnabled))
         setCostResourceName(rpgPayload.rpg.costResourceName?.trim() || "Skill Points")
         setAttributeTemplates(attrPayload.attributes ?? [])
@@ -259,6 +306,8 @@ export function useEditRpgData({
     setUseRaceBonuses,
     setUseClassBonuses,
     setUseInventoryWeightLimit,
+    setProgressionMode,
+    setProgressionTiers,
     setCostsEnabled,
     setCostResourceName,
     setAttributeTemplates,
@@ -284,6 +333,21 @@ export function useEditRpgData({
         useRaceBonuses,
         useClassBonuses,
         useInventoryWeightLimit,
+        progressionMode,
+        progressionTiers:
+          progressionTiers.length > 0
+            ? progressionMode === "xp_level"
+              ? enforceXpLevelPattern(
+                  progressionTiers.map((item) => ({
+                    label: item.label.trim() || "Level",
+                    required: Math.max(0, Math.floor(item.required)),
+                  })),
+                )
+              : progressionTiers.map((item) => ({
+                  label: item.label.trim() || "Etapa",
+                  required: Math.max(0, Math.floor(item.required)),
+                }))
+            : getDefaultProgressionTiers(progressionMode),
       }),
     })
     const payload = (await response.json()) as { message?: string }

@@ -7,6 +7,12 @@ import type {
   IdentityTemplate,
   SkillTemplate,
 } from "../components/shared/types"
+import {
+  enforceXpLevelPattern,
+  getDefaultProgressionTiers,
+  type ProgressionMode,
+  type ProgressionTier,
+} from "@/lib/rpg/progression"
 
 export type Visibility = "private" | "public"
 
@@ -30,6 +36,10 @@ export function useEditRpgState() {
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
   const [costsEnabled, setCostsEnabled] = useState(false)
   const [costResourceName, setCostResourceName] = useState("Skill Points")
+  const [progressionMode, setProgressionMode] = useState<ProgressionMode>("xp_level")
+  const [progressionTiers, setProgressionTiers] = useState<ProgressionTier[]>(
+    getDefaultProgressionTiers("xp_level"),
+  )
 
   const [attributeTemplates, setAttributeTemplates] = useState<AttributeTemplate[]>([])
   const [selectedStatusKeys, setSelectedStatusKeys] = useState<string[]>([])
@@ -217,6 +227,49 @@ export function useEditRpgState() {
     )
   }
 
+  function addProgressionTier() {
+    setProgressionTiers((prev) => {
+      if (progressionMode === "xp_level") {
+        const previousRequired = prev.length > 0 ? prev[prev.length - 1].required : 0
+        return enforceXpLevelPattern([
+          ...prev,
+          { label: "Level", required: Math.max(0, previousRequired + 100) },
+        ])
+      }
+
+      return [...prev, { label: "Etapa", required: 0 }]
+    })
+  }
+
+  function updateProgressionTierLabel(index: number, label: string) {
+    if (progressionMode === "xp_level") {
+      return
+    }
+
+    setProgressionTiers((prev) =>
+      prev.map((item, currentIndex) =>
+        currentIndex === index ? { ...item, label } : item,
+      ),
+    )
+  }
+
+  function updateProgressionTierRequired(index: number, required: number) {
+    setProgressionTiers((prev) =>
+      prev.map((item, currentIndex) =>
+        currentIndex === index
+          ? { ...item, required: Number.isFinite(required) ? Math.max(0, Math.floor(required)) : 0 }
+          : item,
+      ),
+    )
+  }
+
+  function removeProgressionTier(index: number) {
+    setProgressionTiers((prev) => {
+      if (prev.length <= 1) return prev
+      return prev.filter((_, currentIndex) => currentIndex !== index)
+    })
+  }
+
   return {
     title,
     setTitle,
@@ -238,6 +291,10 @@ export function useEditRpgState() {
     setCostsEnabled,
     costResourceName,
     setCostResourceName,
+    progressionMode,
+    setProgressionMode,
+    progressionTiers,
+    setProgressionTiers,
     attributeTemplates,
     setAttributeTemplates,
     selectedStatusKeys,
@@ -296,5 +353,9 @@ export function useEditRpgState() {
     updateCharacteristicFieldLabel,
     updateCharacteristicFieldRequired,
     removeCharacteristicField,
+    addProgressionTier,
+    updateProgressionTierLabel,
+    updateProgressionTierRequired,
+    removeProgressionTier,
   }
 }

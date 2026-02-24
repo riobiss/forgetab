@@ -4,6 +4,13 @@ import { prisma } from "@/lib/prisma"
 import { createRpgSchema } from "@/lib/validators/rpg"
 import { getUserIdFromRequest } from "@/lib/server/auth"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import {
+  enforceXpLevelPattern,
+  getDefaultProgressionTiers,
+  isProgressionMode,
+  normalizeProgressionTiers,
+  type ProgressionMode,
+} from "@/lib/rpg/progression"
 
 type RouteContext = {
   params: Promise<{
@@ -158,6 +165,8 @@ type RpgRow = {
   useClassBonuses: boolean
   useClassRaceBonuses: boolean
   useInventoryWeightLimit: boolean
+  progressionMode: string
+  progressionTiers: Prisma.JsonValue
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
@@ -189,7 +198,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
           COALESCE(use_race_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useRaceBonuses",
           COALESCE(use_class_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useClassBonuses",
           COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
-          COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit"
+          COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit",
+          COALESCE(progression_mode, 'xp_level') AS "progressionMode",
+          COALESCE(progression_tiers, '[{"label":"Level 1","required":0}]'::jsonb) AS "progressionTiers"
         FROM rpgs
         WHERE id = ${rpgId}
         LIMIT 1
@@ -204,7 +215,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
           error.message.includes('column "use_class_bonuses" does not exist') ||
           error.message.includes('column "use_class_race_bonuses" does not exist') ||
           error.message.includes('column "use_inventory_weight_limit" does not exist') ||
-          error.message.includes('column "use_mundi_map" does not exist'))
+          error.message.includes('column "use_mundi_map" does not exist') ||
+          error.message.includes('column "progression_mode" does not exist') ||
+          error.message.includes('column "progression_tiers" does not exist'))
       ) {
         try {
           rows = await prisma.$queryRaw<RpgRow[]>(Prisma.sql`
@@ -221,7 +234,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
               COALESCE(use_class_race_bonuses, false) AS "useRaceBonuses",
               COALESCE(use_class_race_bonuses, false) AS "useClassBonuses",
               COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
-              false AS "useInventoryWeightLimit"
+              false AS "useInventoryWeightLimit",
+              'xp_level'::text AS "progressionMode",
+              '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
             FROM rpgs
             WHERE id = ${rpgId}
             LIMIT 1
@@ -241,7 +256,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
               false AS "useRaceBonuses",
               false AS "useClassBonuses",
               false AS "useClassRaceBonuses",
-              false AS "useInventoryWeightLimit"
+              false AS "useInventoryWeightLimit",
+              'xp_level'::text AS "progressionMode",
+              '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
             FROM rpgs
             WHERE id = ${rpgId}
             LIMIT 1
@@ -286,6 +303,15 @@ export async function GET(request: NextRequest, context: RouteContext) {
           useClassBonuses: rpg.useClassBonuses,
           useClassRaceBonuses: rpg.useClassRaceBonuses,
           useInventoryWeightLimit: rpg.useInventoryWeightLimit,
+          progressionMode: isProgressionMode(rpg.progressionMode)
+            ? rpg.progressionMode
+            : ("xp_level" as ProgressionMode),
+          progressionTiers: normalizeProgressionTiers(
+            rpg.progressionTiers,
+            isProgressionMode(rpg.progressionMode)
+              ? rpg.progressionMode
+              : ("xp_level" as ProgressionMode),
+          ),
           canManage: permission.canManage,
           canDelete: permission.isOwner,
         },
@@ -353,6 +379,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       useClassBonuses,
       useClassRaceBonuses,
       useInventoryWeightLimit,
+      progressionMode,
+      progressionTiers,
     } = parsed.data
     const resolvedUseRaceBonuses =
       typeof useRaceBonuses === "boolean"
@@ -362,8 +390,55 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       typeof useClassBonuses === "boolean"
         ? useClassBonuses
         : Boolean(useClassRaceBonuses)
+    const resolvedProgressionMode = isProgressionMode(progressionMode)
+      ? progressionMode
+      : ("xp_level" as ProgressionMode)
+    const resolvedProgressionTiers =
+      progressionTiers && progressionTiers.length > 0
+        ? resolvedProgressionMode === "xp_level"
+          ? enforceXpLevelPattern(
+              progressionTiers.map((item) => ({
+                label: item.label.trim(),
+                required: Math.max(0, Math.floor(item.required)),
+              })),
+            )
+          : progressionTiers.map((item) => ({
+              label: item.label.trim(),
+              required: Math.max(0, Math.floor(item.required)),
+            }))
+        : getDefaultProgressionTiers(resolvedProgressionMode)
     const normalizedImage = normalizeOptionalText(image)
     let previousImage: string | null = null
+    let currentProgressionMode: ProgressionMode = "xp_level"
+
+    try {
+      const currentProgressionRows = await prisma.$queryRaw<Array<{ progressionMode: string }>>(
+        Prisma.sql`
+          SELECT COALESCE(progression_mode, 'xp_level') AS "progressionMode"
+          FROM rpgs
+          WHERE id = ${rpgId}
+          LIMIT 1
+        `,
+      )
+      const dbMode = currentProgressionRows[0]?.progressionMode
+      currentProgressionMode = isProgressionMode(dbMode)
+        ? dbMode
+        : ("xp_level" as ProgressionMode)
+    } catch (error) {
+      if (
+        !(error instanceof Error) ||
+        !error.message.includes('column "progression_mode" does not exist')
+      ) {
+        throw error
+      }
+    }
+
+    if (progressionMode !== undefined && resolvedProgressionMode !== currentProgressionMode) {
+      return NextResponse.json(
+        { message: "Modo de progressao nao pode ser alterado apos a criacao do RPG." },
+        { status: 400 },
+      )
+    }
 
     if (hasImageInBody) {
       try {
@@ -406,7 +481,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       typeof useRaceBonuses === "boolean" ||
       typeof useClassBonuses === "boolean" ||
       typeof useClassRaceBonuses === "boolean" ||
-      typeof useInventoryWeightLimit === "boolean"
+      typeof useInventoryWeightLimit === "boolean" ||
+      progressionMode !== undefined ||
+      progressionTiers !== undefined
     ) {
       try {
         await prisma.$executeRaw(Prisma.sql`
@@ -416,14 +493,18 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
             use_race_bonuses = ${resolvedUseRaceBonuses},
             use_class_bonuses = ${resolvedUseClassBonuses},
             use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
-            use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
+            use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
+            progression_mode = ${resolvedProgressionMode},
+            progression_tiers = ${JSON.stringify(resolvedProgressionTiers)}::jsonb
           WHERE id = ${rpgId}
         `)
       } catch (error) {
         if (error instanceof Error) {
           if (
             error.message.includes('column "use_race_bonuses" does not exist') ||
-            error.message.includes('column "use_class_bonuses" does not exist')
+            error.message.includes('column "use_class_bonuses" does not exist') ||
+            error.message.includes('column "progression_mode" does not exist') ||
+            error.message.includes('column "progression_tiers" does not exist')
           ) {
             try {
               await prisma.$executeRaw(Prisma.sql`
@@ -439,7 +520,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
                 !(innerError instanceof Error) ||
                 (!innerError.message.includes('column "use_class_race_bonuses" does not exist') &&
                   !innerError.message.includes('column "use_inventory_weight_limit" does not exist') &&
-                  !innerError.message.includes('column "use_mundi_map" does not exist'))
+                  !innerError.message.includes('column "use_mundi_map" does not exist') &&
+                  !innerError.message.includes('column "progression_mode" does not exist') &&
+                  !innerError.message.includes('column "progression_tiers" does not exist'))
               ) {
                 throw innerError
               }
@@ -447,7 +530,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           } else if (
             !error.message.includes('column "use_class_race_bonuses" does not exist') &&
             !error.message.includes('column "use_inventory_weight_limit" does not exist') &&
-            !error.message.includes('column "use_mundi_map" does not exist')
+            !error.message.includes('column "use_mundi_map" does not exist') &&
+            !error.message.includes('column "progression_mode" does not exist') &&
+            !error.message.includes('column "progression_tiers" does not exist')
           ) {
             throw error
           }
@@ -521,6 +606,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         error.message.includes('column "costs_enabled" does not exist') ||
         error.message.includes('column "cost_resource_name" does not exist') ||
         error.message.includes('column "image" does not exist') ||
+        error.message.includes('column "progression_mode" does not exist') ||
+        error.message.includes('column "progression_tiers" does not exist') ||
         error.message.includes("Could not find the table")
       ) {
         return NextResponse.json(

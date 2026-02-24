@@ -7,6 +7,13 @@ import {
   STATUS_CATALOG,
 } from "@/lib/rpg/statusCatalog"
 import { addBonusToBase } from "@/lib/rpg/classRaceBonuses"
+import {
+  getDefaultProgressionTiers,
+  isProgressionMode,
+  normalizeProgressionTiers,
+  type ProgressionMode,
+  type ProgressionTier,
+} from "@/lib/rpg/progression"
 
 type RouteContext = {
   params: Promise<{
@@ -24,6 +31,10 @@ type CharacterRow = {
   characterType: "player" | "npc" | "monster"
   visibility: "private" | "public"
   maxCarryWeight: number | null
+  progressionMode: string
+  progressionLabel: string
+  progressionRequired: number
+  progressionCurrent: number
   createdByUserId: string | null
   life: number
   defense: number
@@ -101,6 +112,8 @@ type RpgAccess = {
   useRaceBonuses: boolean
   useClassBonuses: boolean
   useInventoryWeightLimit: boolean
+  progressionMode: ProgressionMode
+  progressionTiers: ProgressionTier[]
 }
 
 function normalizeStatusKey(key: string) {
@@ -113,6 +126,8 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
     useRaceBonuses: boolean
     useClassBonuses: boolean
     useInventoryWeightLimit: boolean
+    progressionMode: string
+    progressionTiers: Prisma.JsonValue
   }> = []
   try {
     rows = await prisma.$queryRaw<
@@ -121,6 +136,8 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
         useRaceBonuses: boolean
         useClassBonuses: boolean
         useInventoryWeightLimit: boolean
+        progressionMode: string
+        progressionTiers: Prisma.JsonValue
       }>
     >(
       Prisma.sql`
@@ -128,7 +145,9 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
           owner_id AS "ownerId",
           COALESCE(use_race_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useRaceBonuses",
           COALESCE(use_class_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useClassBonuses",
-          COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit"
+          COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit",
+          COALESCE(progression_mode, 'xp_level') AS "progressionMode",
+          COALESCE(progression_tiers, '[{"label":"Level 1","required":0}]'::jsonb) AS "progressionTiers"
         FROM rpgs
         WHERE id = ${rpgId}
         LIMIT 1
@@ -140,7 +159,9 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
       (error.message.includes('column "use_race_bonuses" does not exist') ||
         error.message.includes('column "use_class_bonuses" does not exist') ||
         error.message.includes('column "use_class_race_bonuses" does not exist') ||
-        error.message.includes('column "use_inventory_weight_limit" does not exist'))
+        error.message.includes('column "use_inventory_weight_limit" does not exist') ||
+        error.message.includes('column "progression_mode" does not exist') ||
+        error.message.includes('column "progression_tiers" does not exist'))
     ) {
       try {
         rows = await prisma.$queryRaw<
@@ -149,6 +170,8 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
             useRaceBonuses: boolean
             useClassBonuses: boolean
             useInventoryWeightLimit: boolean
+            progressionMode: string
+            progressionTiers: Prisma.JsonValue
           }>
         >(
           Prisma.sql`
@@ -156,7 +179,9 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
               owner_id AS "ownerId",
               COALESCE(use_class_race_bonuses, false) AS "useRaceBonuses",
               COALESCE(use_class_race_bonuses, false) AS "useClassBonuses",
-              false AS "useInventoryWeightLimit"
+              false AS "useInventoryWeightLimit",
+              'xp_level'::text AS "progressionMode",
+              '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
             FROM rpgs
             WHERE id = ${rpgId}
             LIMIT 1
@@ -169,6 +194,8 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
             useRaceBonuses: boolean
             useClassBonuses: boolean
             useInventoryWeightLimit: boolean
+            progressionMode: string
+            progressionTiers: Prisma.JsonValue
           }>
         >(
           Prisma.sql`
@@ -176,7 +203,9 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
               owner_id AS "ownerId",
               false AS "useRaceBonuses",
               false AS "useClassBonuses",
-              false AS "useInventoryWeightLimit"
+              false AS "useInventoryWeightLimit",
+              'xp_level'::text AS "progressionMode",
+              '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
             FROM rpgs
             WHERE id = ${rpgId}
             LIMIT 1
@@ -197,8 +226,18 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
       useRaceBonuses: false,
       useClassBonuses: false,
       useInventoryWeightLimit: false,
+      progressionMode: "xp_level",
+      progressionTiers: getDefaultProgressionTiers("xp_level"),
     }
   }
+
+  const progressionMode = isProgressionMode(rpg.progressionMode)
+    ? rpg.progressionMode
+    : ("xp_level" as ProgressionMode)
+  const progressionTiers = normalizeProgressionTiers(
+    rpg.progressionTiers,
+    progressionMode,
+  )
 
   if (rpg.ownerId === userId) {
     return {
@@ -208,6 +247,8 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
       useRaceBonuses: rpg.useRaceBonuses,
       useClassBonuses: rpg.useClassBonuses,
       useInventoryWeightLimit: rpg.useInventoryWeightLimit,
+      progressionMode,
+      progressionTiers,
     }
   }
 
@@ -229,6 +270,8 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
     useRaceBonuses: rpg.useRaceBonuses,
     useClassBonuses: rpg.useClassBonuses,
     useInventoryWeightLimit: rpg.useInventoryWeightLimit,
+    progressionMode,
+    progressionTiers,
   }
 }
 
@@ -462,6 +505,18 @@ function validateMaxCarryWeight(value: unknown) {
   return { ok: true as const, value }
 }
 
+function validateProgressionCurrent(value: unknown) {
+  if (value === undefined || value === null) {
+    return { ok: true as const, value: 0 }
+  }
+
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    return { ok: false as const, message: "Valor atual de progressao invalido." }
+  }
+
+  return { ok: true as const, value: Math.floor(value) }
+}
+
 function normalizeOptionalText(value: unknown) {
   if (typeof value !== "string") {
     return null
@@ -469,6 +524,42 @@ function normalizeOptionalText(value: unknown) {
 
   const trimmed = value.trim()
   return trimmed.length > 0 ? trimmed : null
+}
+
+function resolveCharacterProgression(
+  mode: ProgressionMode,
+  tiers: ProgressionTier[],
+  labelInput: unknown,
+  requiredInput: unknown,
+) {
+  const fallback = tiers[0] ?? getDefaultProgressionTiers(mode)[0]
+  const hasLabel = typeof labelInput === "string"
+  const hasRequired = typeof requiredInput === "number"
+
+  if (!hasLabel && !hasRequired) {
+    return { ok: true as const, value: fallback }
+  }
+
+  const label = hasLabel ? labelInput.trim() : ""
+  const required =
+    typeof requiredInput === "number" && Number.isFinite(requiredInput) && requiredInput >= 0
+      ? Math.floor(requiredInput)
+      : Number.NaN
+
+  if (!hasLabel || !hasRequired || label.length === 0 || Number.isNaN(required)) {
+    return { ok: false as const, message: "Progressao invalida." }
+  }
+
+  if (mode === "custom") {
+    return { ok: true as const, value: { label, required } }
+  }
+
+  const matched = tiers.find((item) => item.label === label && item.required === required)
+  if (!matched) {
+    return { ok: false as const, message: "Progressao fora do padrao do RPG." }
+  }
+
+  return { ok: true as const, value: matched }
 }
 
 function getDefaultStatusTemplate(): StatusTemplateRow[] {
@@ -523,6 +614,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
           character_type AS "characterType",
           visibility,
           max_carry_weight AS "maxCarryWeight",
+          COALESCE(progression_mode, 'xp_level') AS "progressionMode",
+          COALESCE(progression_label, 'Level 1') AS "progressionLabel",
+          COALESCE(progression_required, 0) AS "progressionRequired",
+          COALESCE(progression_current, 0) AS "progressionCurrent",
           created_by_user_id AS "createdByUserId",
           life,
           defense,
@@ -556,7 +651,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
           error.message.includes('column "max_carry_weight" does not exist') ||
           error.message.includes('column "current_statuses" does not exist') ||
           error.message.includes('column "identity" does not exist') ||
-          error.message.includes('column "characteristics" does not exist'))
+          error.message.includes('column "characteristics" does not exist') ||
+          error.message.includes('column "progression_mode" does not exist') ||
+          error.message.includes('column "progression_label" does not exist') ||
+          error.message.includes('column "progression_required" does not exist') ||
+          error.message.includes('column "progression_current" does not exist'))
       ) {
         characters = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
           SELECT
@@ -569,6 +668,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
             character_type AS "characterType",
             visibility,
             null::double precision AS "maxCarryWeight",
+            'xp_level'::text AS "progressionMode",
+            'Level 1'::text AS "progressionLabel",
+            0::integer AS "progressionRequired",
+            0::integer AS "progressionCurrent",
             created_by_user_id AS "createdByUserId",
             life,
             defense,
@@ -606,6 +709,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
         useRaceBonuses: access.useRaceBonuses,
         useClassBonuses: access.useClassBonuses,
         useInventoryWeightLimit: access.useInventoryWeightLimit,
+        progressionMode: access.progressionMode,
+        progressionTiers: access.progressionTiers,
       },
       { status: 200 },
     )
@@ -623,6 +728,18 @@ export async function GET(request: NextRequest, context: RouteContext) {
       )
     }
     if (error instanceof Error && error.message.includes('column "image" of relation "rpg_characters" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (
+      error instanceof Error &&
+      (error.message.includes('column "progression_mode" of relation "rpg_characters" does not exist') ||
+        error.message.includes('column "progression_label" of relation "rpg_characters" does not exist') ||
+        error.message.includes('column "progression_required" of relation "rpg_characters" does not exist') ||
+        error.message.includes('column "progression_current" of relation "rpg_characters" does not exist'))
+    ) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
         { status: 500 },
@@ -661,6 +778,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
       characteristics?: Record<string, string>
       raceKey?: string
       classKey?: string
+      progressionLabel?: string
+      progressionRequired?: number
+      progressionCurrent?: number
     }
 
     const name = body.name?.trim() ?? ""
@@ -704,6 +824,19 @@ export async function POST(request: NextRequest, context: RouteContext) {
       access.useInventoryWeightLimit && body.characterType === "player"
         ? parsedMaxCarryWeight.value
         : null
+    const parsedProgression = resolveCharacterProgression(
+      access.progressionMode,
+      access.progressionTiers,
+      body.progressionLabel,
+      body.progressionRequired,
+    )
+    if (!parsedProgression.ok) {
+      return NextResponse.json({ message: parsedProgression.message }, { status: 400 })
+    }
+    const parsedProgressionCurrent = validateProgressionCurrent(body.progressionCurrent)
+    if (!parsedProgressionCurrent.ok) {
+      return NextResponse.json({ message: parsedProgressionCurrent.message }, { status: 400 })
+    }
 
     if (!access.isOwner) {
       const creationRequest = await prisma.$queryRaw<CharacterCreationRequestRow[]>(Prisma.sql`
@@ -953,7 +1086,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     const created = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
       INSERT INTO rpg_characters (
-        id, rpg_id, name, image, race_key, class_key, character_type, visibility, max_carry_weight, created_by_user_id, life, defense, mana, stamina, sanity, statuses, current_statuses, attributes, skills, identity, characteristics
+        id, rpg_id, name, image, race_key, class_key, character_type, visibility, max_carry_weight, progression_mode, progression_label, progression_required, progression_current, created_by_user_id, life, defense, mana, stamina, sanity, statuses, current_statuses, attributes, skills, identity, characteristics
       )
       VALUES (
         ${crypto.randomUUID()},
@@ -965,6 +1098,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
         ${body.characterType}::"RpgCharacterType",
         'public'::"RpgVisibility",
         ${maxCarryWeight},
+        ${access.progressionMode},
+        ${parsedProgression.value.label},
+        ${parsedProgression.value.required},
+        ${parsedProgressionCurrent.value},
         ${createdByUserId},
         ${life.value},
         ${defense.value},
@@ -988,6 +1125,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
         character_type AS "characterType",
         visibility,
         max_carry_weight AS "maxCarryWeight",
+        COALESCE(progression_mode, 'xp_level') AS "progressionMode",
+        COALESCE(progression_label, 'Level 1') AS "progressionLabel",
+        COALESCE(progression_required, 0) AS "progressionRequired",
+        COALESCE(progression_current, 0) AS "progressionCurrent",
         created_by_user_id AS "createdByUserId",
         life,
         defense,
@@ -1063,6 +1204,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (
       error instanceof Error &&
       error.message.includes('column "use_inventory_weight_limit" does not exist')
+    ) {
+      return NextResponse.json(
+        { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (
+      error instanceof Error &&
+      (error.message.includes('column "progression_mode" does not exist') ||
+        error.message.includes('column "progression_tiers" does not exist'))
     ) {
       return NextResponse.json(
         { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },

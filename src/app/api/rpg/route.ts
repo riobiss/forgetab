@@ -4,6 +4,12 @@ import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { createRpgSchema } from "@/lib/validators/rpg"
 import { Prisma } from "../../../../generated/prisma/client.js"
+import {
+  enforceXpLevelPattern,
+  getDefaultProgressionTiers,
+  isProgressionMode,
+  type ProgressionMode,
+} from "@/lib/rpg/progression"
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,6 +51,8 @@ export async function POST(request: NextRequest) {
       useClassBonuses,
       useClassRaceBonuses,
       useInventoryWeightLimit,
+      progressionMode,
+      progressionTiers,
     } = parsed.data
     const resolvedImage = image?.trim() || null
     const resolvedCostsEnabled = Boolean(costsEnabled)
@@ -57,6 +65,23 @@ export async function POST(request: NextRequest) {
       typeof useClassBonuses === "boolean"
         ? useClassBonuses
         : Boolean(useClassRaceBonuses)
+    const resolvedProgressionMode = isProgressionMode(progressionMode)
+      ? progressionMode
+      : ("xp_level" as ProgressionMode)
+    const resolvedProgressionTiers =
+      progressionTiers && progressionTiers.length > 0
+        ? resolvedProgressionMode === "xp_level"
+          ? enforceXpLevelPattern(
+              progressionTiers.map((item) => ({
+                label: item.label.trim(),
+                required: Math.max(0, Math.floor(item.required)),
+              })),
+            )
+          : progressionTiers.map((item) => ({
+              label: item.label.trim(),
+              required: Math.max(0, Math.floor(item.required)),
+            }))
+        : getDefaultProgressionTiers(resolvedProgressionMode)
     const created = await prisma.rpg.create({
       data: {
         ownerId: authPayload.userId,
@@ -76,14 +101,18 @@ export async function POST(request: NextRequest) {
           use_race_bonuses = ${resolvedUseRaceBonuses},
           use_class_bonuses = ${resolvedUseClassBonuses},
           use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
-          use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
+          use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
+          progression_mode = ${resolvedProgressionMode},
+          progression_tiers = ${JSON.stringify(resolvedProgressionTiers)}::jsonb
         WHERE id = ${created.id}
       `)
     } catch (error) {
       if (
         error instanceof Error &&
         (error.message.includes('column "use_race_bonuses" does not exist') ||
-          error.message.includes('column "use_class_bonuses" does not exist'))
+          error.message.includes('column "use_class_bonuses" does not exist') ||
+          error.message.includes('column "progression_mode" does not exist') ||
+          error.message.includes('column "progression_tiers" does not exist'))
       ) {
         try {
           await prisma.$executeRaw(Prisma.sql`
@@ -139,6 +168,8 @@ export async function POST(request: NextRequest) {
           useClassBonuses: resolvedUseClassBonuses,
           useClassRaceBonuses: resolvedUseRaceBonuses || resolvedUseClassBonuses,
           useInventoryWeightLimit: Boolean(useInventoryWeightLimit),
+          progressionMode: resolvedProgressionMode,
+          progressionTiers: resolvedProgressionTiers,
           createdAt: created.createdAt,
         },
       },
@@ -166,6 +197,8 @@ export async function POST(request: NextRequest) {
         error.message.includes('relation "rpgs" does not exist') ||
         error.message.includes('column "costs_enabled" does not exist') ||
         error.message.includes('column "cost_resource_name" does not exist') ||
+        error.message.includes('column "progression_mode" does not exist') ||
+        error.message.includes('column "progression_tiers" does not exist') ||
         error.message.includes("Could not find the table")
       ) {
         return NextResponse.json(

@@ -92,6 +92,8 @@ model Rpg {
   useClassBonuses    Boolean                @default(false) @map("use_class_bonuses")
   useClassRaceBonuses Boolean               @default(false) @map("use_class_race_bonuses")
   useInventoryWeightLimit Boolean           @default(false) @map("use_inventory_weight_limit")
+  progressionMode    String                 @default("xp_level") @map("progression_mode")
+  progressionTiers   Json                   @default("[{\"label\":\"Level 1\",\"required\":0},{\"label\":\"Level 2\",\"required\":100}]") @map("progression_tiers")
   createdAt          DateTime               @default(now()) @map("created_at")
   baseItems          BaseItem[]
   attributeTemplates RpgAttributeTemplate[]
@@ -207,6 +209,10 @@ model RpgCharacter {
   characterType RpgCharacterType @default(player) @map("character_type")
   visibility    RpgVisibility    @default(public)
   maxCarryWeight Float?          @map("max_carry_weight")
+  progressionMode String         @default("xp_level") @map("progression_mode")
+  progressionLabel String        @default("Level 1") @map("progression_label")
+  progressionRequired Int        @default(0) @map("progression_required")
+  progressionCurrent Int         @default(0) @map("progression_current")
   life          Int              @default(0)
   defense       Int              @default(0)
   mana          Int              @default(0)

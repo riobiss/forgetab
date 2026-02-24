@@ -26,6 +26,10 @@ type DbCharacterRow = {
   costResourceName: string
   characterType: "player" | "npc" | "monster"
   visibility: "private" | "public"
+  progressionMode: string
+  progressionLabel: string
+  progressionRequired: number
+  progressionCurrent: number
   createdByUserId: string | null
   life: number
   defense: number
@@ -198,6 +202,10 @@ export default async function CharactersPage({ params }: Params) {
             COALESCE(NULLIF(TRIM(r.cost_resource_name), ''), 'Skill Points') AS "costResourceName",
             c.character_type AS "characterType",
             c.visibility,
+            COALESCE(c.progression_mode, 'xp_level') AS "progressionMode",
+            COALESCE(c.progression_label, 'Level 1') AS "progressionLabel",
+            COALESCE(c.progression_required, 0) AS "progressionRequired",
+            COALESCE(c.progression_current, 0) AS "progressionCurrent",
             c.created_by_user_id AS "createdByUserId",
             c.life,
             c.defense,
@@ -221,7 +229,11 @@ export default async function CharactersPage({ params }: Params) {
         if (
           error instanceof Error &&
           (error.message.includes('column "skill_points" does not exist') ||
-            error.message.includes('column "cost_resource_name" does not exist'))
+            error.message.includes('column "cost_resource_name" does not exist') ||
+            error.message.includes('column "progression_mode" does not exist') ||
+            error.message.includes('column "progression_label" does not exist') ||
+            error.message.includes('column "progression_required" does not exist') ||
+            error.message.includes('column "progression_current" does not exist'))
         ) {
           dbCharacter = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
             SELECT
@@ -234,6 +246,10 @@ export default async function CharactersPage({ params }: Params) {
               'Skill Points' AS "costResourceName",
               c.character_type AS "characterType",
               c.visibility,
+              'xp_level'::text AS "progressionMode",
+              'Level 1'::text AS "progressionLabel",
+              0::integer AS "progressionRequired",
+              0::integer AS "progressionCurrent",
               c.created_by_user_id AS "createdByUserId",
               c.life,
               c.defense,
@@ -496,6 +512,10 @@ export default async function CharactersPage({ params }: Params) {
                   : row.characterType === "npc"
                     ? "NPC"
                     : "Monstro"}
+              </p>
+              <p className={styles.kingdom}>
+                Progressao: {row.progressionLabel} (atual {row.progressionCurrent} / required{" "}
+                {row.progressionRequired})
               </p>
             </div>
           </div>

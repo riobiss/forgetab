@@ -122,6 +122,17 @@
   font-size: 0.93rem;
 }
 
+.progressionPickerButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 9px;
+  padding: 0.56rem 0.7rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  font-size: 0.93rem;
+  text-align: left;
+  cursor: pointer;
+}
+
 .fileUploadInput {
   position: absolute;
   opacity: 0;
@@ -258,6 +269,70 @@
   margin: 0;
   color: var(--color-status-danger-contrast);
   font-size: 0.9rem;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, #000 42%, transparent);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modalCard {
+  width: min(520px, 100%);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: var(--color-bg-surface);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.62rem;
+}
+
+.modalCard h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.modalCard p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.progressionOptions {
+  display: grid;
+  gap: 0.45rem;
+  max-height: min(56vh, 420px);
+  overflow: auto;
+}
+
+.progressionOption {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 9px;
+  padding: 0.56rem 0.7rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.progressionOptionActive {
+  border-color: var(--color-border-brand);
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+}
+
+.modalCloseButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 9px;
+  padding: 0.52rem 0.72rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  justify-self: end;
+  cursor: pointer;
 }
 
 @media (max-width: 760px) {

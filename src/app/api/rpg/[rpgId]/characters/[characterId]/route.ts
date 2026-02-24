@@ -6,6 +6,13 @@ import {
   DEFAULT_STATUS_KEYS,
   STATUS_CATALOG,
 } from "@/lib/rpg/statusCatalog"
+import {
+  getDefaultProgressionTiers,
+  isProgressionMode,
+  normalizeProgressionTiers,
+  type ProgressionMode,
+  type ProgressionTier,
+} from "@/lib/rpg/progression"
 
 type RouteContext = {
   params: Promise<{
@@ -388,6 +395,18 @@ function validateMaxCarryWeight(value: unknown) {
   return { ok: true as const, value }
 }
 
+function validateProgressionCurrent(value: unknown) {
+  if (value === undefined || value === null) {
+    return { ok: true as const, value: null as number | null }
+  }
+
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    return { ok: false as const, message: "Valor atual de progressao invalido." }
+  }
+
+  return { ok: true as const, value: Math.floor(value) }
+}
+
 function normalizeOptionalText(value: unknown) {
   if (typeof value !== "string") {
     return null
@@ -395,6 +414,42 @@ function normalizeOptionalText(value: unknown) {
 
   const trimmed = value.trim()
   return trimmed.length > 0 ? trimmed : null
+}
+
+function resolveCharacterProgression(
+  mode: ProgressionMode,
+  tiers: ProgressionTier[],
+  labelInput: unknown,
+  requiredInput: unknown,
+) {
+  const fallback = tiers[0] ?? getDefaultProgressionTiers(mode)[0]
+  const hasLabel = typeof labelInput === "string"
+  const hasRequired = typeof requiredInput === "number"
+
+  if (!hasLabel && !hasRequired) {
+    return { ok: true as const, value: fallback }
+  }
+
+  const label = hasLabel ? labelInput.trim() : ""
+  const required =
+    typeof requiredInput === "number" && Number.isFinite(requiredInput) && requiredInput >= 0
+      ? Math.floor(requiredInput)
+      : Number.NaN
+
+  if (!hasLabel || !hasRequired || label.length === 0 || Number.isNaN(required)) {
+    return { ok: false as const, message: "Progressao invalida." }
+  }
+
+  if (mode === "custom") {
+    return { ok: true as const, value: { label, required } }
+  }
+
+  const matched = tiers.find((item) => item.label === label && item.required === required)
+  if (!matched) {
+    return { ok: false as const, message: "Progressao fora do padrao do RPG." }
+  }
+
+  return { ok: true as const, value: matched }
 }
 
 function isValidVisibility(value: unknown): value is "private" | "public" {
@@ -416,6 +471,8 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     id: string
     ownerId: string
     useInventoryWeightLimit: boolean
+    progressionMode: string
+    progressionTiers: Prisma.JsonValue
   }> = []
   try {
     rpgRows = await prisma.$queryRaw<
@@ -423,12 +480,16 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
         id: string
         ownerId: string
         useInventoryWeightLimit: boolean
+        progressionMode: string
+        progressionTiers: Prisma.JsonValue
       }>
     >(Prisma.sql`
       SELECT
         id,
         owner_id AS "ownerId",
-        COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit"
+        COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit",
+        COALESCE(progression_mode, 'xp_level') AS "progressionMode",
+        COALESCE(progression_tiers, '[{"label":"Level 1","required":0}]'::jsonb) AS "progressionTiers"
       FROM rpgs
       WHERE id = ${rpgId}
       LIMIT 1
@@ -436,7 +497,9 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
   } catch (error) {
     if (
       !(error instanceof Error) ||
-      !error.message.includes('column "use_inventory_weight_limit" does not exist')
+      (!error.message.includes('column "use_inventory_weight_limit" does not exist') &&
+        !error.message.includes('column "progression_mode" does not exist') &&
+        !error.message.includes('column "progression_tiers" does not exist'))
     ) {
       throw error
     }
@@ -446,18 +509,29 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
         id: string
         ownerId: string
         useInventoryWeightLimit: boolean
+        progressionMode: string
+        progressionTiers: Prisma.JsonValue
       }>
     >(Prisma.sql`
       SELECT
         id,
         owner_id AS "ownerId",
-        false AS "useInventoryWeightLimit"
+        false AS "useInventoryWeightLimit",
+        'xp_level'::text AS "progressionMode",
+        '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
       FROM rpgs
       WHERE id = ${rpgId}
       LIMIT 1
     `)
   }
   const rpg = rpgRows[0]
+  const progressionMode = isProgressionMode(rpg?.progressionMode)
+    ? rpg.progressionMode
+    : ("xp_level" as ProgressionMode)
+  const progressionTiers = normalizeProgressionTiers(
+    rpg?.progressionTiers,
+    progressionMode,
+  )
 
   if (!rpg) {
     return { ok: false as const, status: 404, message: "RPG nao encontrado." }
@@ -492,6 +566,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     currentStatuses: Prisma.JsonValue
     identity: Prisma.JsonValue
     characteristics: Prisma.JsonValue
+    progressionCurrent: number
   }> = []
   try {
     character = await prisma.$queryRaw<
@@ -503,6 +578,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
         currentStatuses: Prisma.JsonValue
         identity: Prisma.JsonValue
         characteristics: Prisma.JsonValue
+        progressionCurrent: number
       }>
     >(Prisma.sql`
       SELECT
@@ -512,7 +588,8 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
         skills,
         COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",
         COALESCE(identity, '{}'::jsonb) AS identity,
-        COALESCE(characteristics, '{}'::jsonb) AS characteristics
+        COALESCE(characteristics, '{}'::jsonb) AS characteristics,
+        COALESCE(progression_current, 0) AS "progressionCurrent"
       FROM rpg_characters
       WHERE id = ${characterId}
         AND rpg_id = ${rpgId}
@@ -523,7 +600,8 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
       !(error instanceof Error) ||
       (!error.message.includes('column "identity" does not exist') &&
         !error.message.includes('column "characteristics" does not exist') &&
-        !error.message.includes('column "current_statuses" does not exist'))
+        !error.message.includes('column "current_statuses" does not exist') &&
+        !error.message.includes('column "progression_current" does not exist'))
     ) {
       throw error
     }
@@ -537,6 +615,7 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
         currentStatuses: Prisma.JsonValue
         identity: Prisma.JsonValue
         characteristics: Prisma.JsonValue
+        progressionCurrent: number
       }>
     >(Prisma.sql`
       SELECT
@@ -546,7 +625,8 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
         skills,
         '{}'::jsonb AS "currentStatuses",
         '{}'::jsonb AS identity,
-        '{}'::jsonb AS characteristics
+        '{}'::jsonb AS characteristics,
+        0::integer AS "progressionCurrent"
       FROM rpg_characters
       WHERE id = ${characterId}
         AND rpg_id = ${rpgId}
@@ -568,11 +648,14 @@ async function canManageCharacter(rpgId: string, characterId: string, userId: st
     rpgOwnerId: rpg.ownerId,
     characterCreatedByUserId: character[0].createdByUserId,
     useInventoryWeightLimit: rpg.useInventoryWeightLimit,
+    progressionMode,
+    progressionTiers,
     characterType: character[0].characterType,
     currentSkills: character[0].skills,
     currentCurrentStatuses: character[0].currentStatuses,
     currentIdentity: character[0].identity,
     currentCharacteristics: character[0].characteristics,
+    currentProgressionCurrent: character[0].progressionCurrent,
   }
 }
 
@@ -601,6 +684,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       visibility?: "private" | "public"
       raceKey?: string
       classKey?: string
+      progressionLabel?: string
+      progressionRequired?: number
+      progressionCurrent?: number
     }
 
     if (body.raceKey !== undefined || body.classKey !== undefined) {
@@ -641,6 +727,23 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       permission.useInventoryWeightLimit && permission.characterType === "player"
         ? parsedMaxCarryWeight.value
         : null
+    const parsedProgression = resolveCharacterProgression(
+      permission.progressionMode,
+      permission.progressionTiers,
+      body.progressionLabel,
+      body.progressionRequired,
+    )
+    if (!parsedProgression.ok) {
+      return NextResponse.json({ message: parsedProgression.message }, { status: 400 })
+    }
+    const parsedProgressionCurrent = validateProgressionCurrent(body.progressionCurrent)
+    if (!parsedProgressionCurrent.ok) {
+      return NextResponse.json({ message: parsedProgressionCurrent.message }, { status: 400 })
+    }
+    const resolvedProgressionCurrent =
+      parsedProgressionCurrent.value === null
+        ? permission.currentProgressionCurrent
+        : parsedProgressionCurrent.value
 
     if (hasImageInBody) {
       const currentRows = await prisma.$queryRaw<Array<{ image: string | null }>>(Prisma.sql`
@@ -860,6 +963,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           WHEN ${hasMaxCarryWeightInBody} THEN ${resolvedMaxCarryWeight}
           ELSE max_carry_weight
         END,
+        progression_mode = ${permission.progressionMode},
+        progression_label = ${parsedProgression.value.label},
+        progression_required = ${parsedProgression.value.required},
+        progression_current = ${resolvedProgressionCurrent},
         life = ${life.value},
         defense = ${defense.value},
         mana = ${mana.value},
@@ -929,6 +1036,18 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         { status: 500 },
       )
     }
+    if (
+      error instanceof Error &&
+      (error.message.includes('column "progression_mode" of relation "rpg_characters" does not exist') ||
+        error.message.includes('column "progression_label" of relation "rpg_characters" does not exist') ||
+        error.message.includes('column "progression_required" of relation "rpg_characters" does not exist') ||
+        error.message.includes('column "progression_current" of relation "rpg_characters" does not exist'))
+    ) {
+      return NextResponse.json(
+        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
     if (error instanceof Error && error.message.includes('column "identity" of relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
@@ -954,6 +1073,16 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       )
     }
     if (error instanceof Error && error.message.includes('column "use_inventory_weight_limit" does not exist')) {
+      return NextResponse.json(
+        { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (
+      error instanceof Error &&
+      (error.message.includes('column "progression_mode" does not exist') ||
+        error.message.includes('column "progression_tiers" does not exist'))
+    ) {
       return NextResponse.json(
         { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },
         { status: 500 },

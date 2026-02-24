@@ -1,5 +1,10 @@
 import { z } from "zod"
 
+const progressionTierSchema = z.object({
+  label: z.string().trim().min(1, "Nome da progressao e obrigatorio."),
+  required: z.number().int().min(0, "Required deve ser zero ou maior."),
+})
+
 export const createRpgSchema = z.object({
   title: z.string().trim().min(3, "Titulo deve ter pelo menos 3 caracteres."),
   description: z
@@ -22,6 +27,8 @@ export const createRpgSchema = z.object({
   useClassBonuses: z.boolean().optional(),
   useClassRaceBonuses: z.boolean().optional(),
   useInventoryWeightLimit: z.boolean().optional(),
+  progressionMode: z.enum(["xp_level", "rank", "custom"]).optional(),
+  progressionTiers: z.array(progressionTierSchema).min(1).optional(),
 })
 
 export type CreateRpgInput = z.infer<typeof createRpgSchema>
