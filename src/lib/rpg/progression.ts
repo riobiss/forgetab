@@ -81,3 +81,25 @@ export function getProgressionModeLabel(mode: ProgressionMode) {
   if (mode === "custom") return "Customizavel"
   return "XP e Level"
 }
+
+export function resolveProgressionTierByCurrent(
+  mode: ProgressionMode,
+  tiers: ProgressionTier[],
+  current: number,
+): ProgressionTier {
+  const source = tiers.length > 0 ? tiers : getDefaultProgressionTiers(mode)
+  const sorted = [...source].sort((left, right) => left.required - right.required)
+  const normalizedCurrent =
+    Number.isFinite(current) && current >= 0 ? Math.floor(current) : 0
+
+  let resolved = sorted[0]
+  for (const tier of sorted) {
+    if (tier.required <= normalizedCurrent) {
+      resolved = tier
+      continue
+    }
+    break
+  }
+
+  return resolved
+}

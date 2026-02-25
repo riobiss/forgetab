@@ -6,6 +6,14 @@ import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import {
+  getDefaultProgressionTiers,
+  isProgressionMode,
+  normalizeProgressionTiers,
+  type ProgressionMode,
+  type ProgressionTier,
+} from "@/lib/rpg/progression"
 import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 import StatusTracker from "./StatusTracker"
 
@@ -150,6 +158,11 @@ function normalizeLegacyStatusKeys(record: Record<string, number>) {
   return normalized
 }
 
+function getProgressionLevelDisplay(label: string) {
+  const match = label.match(/\d+/)
+  return match ? match[0] : label
+}
+
 export default async function CharactersPage({ params }: Params) {
   const { rpgId, characterId } = await params
   let dbCharacter: DbCharacterRow[] = []
@@ -163,23 +176,110 @@ export default async function CharactersPage({ params }: Params) {
   let characteristicsTemplateFields: CharacterCharacteristicTemplateLabelRow[] = []
   let userId: string | null = null
   let isOwner = false
+  let canManageRpg = false
+  let usersCanManageOwnXp = true
+  let rpgProgressionMode: ProgressionMode = "xp_level"
+  let rpgProgressionTiers: ProgressionTier[] = getDefaultProgressionTiers("xp_level")
 
     try {
-      const dbRpg = await prisma.rpg.findUnique({
-        where: { id: rpgId },
-        select: {
-          id: true,
-          ownerId: true,
-          visibility: true,
-        },
-      })
+      let dbRpg:
+        | {
+            id: string
+            ownerId: string
+            visibility: "private" | "public"
+            usersCanManageOwnXp: boolean
+          }
+        | null = null
+      try {
+        const rpgRows = await prisma.$queryRaw<
+          Array<{
+            id: string
+            ownerId: string
+            visibility: "private" | "public"
+            usersCanManageOwnXp: boolean
+          }>
+        >(Prisma.sql`
+          SELECT
+            id,
+            owner_id AS "ownerId",
+            visibility,
+            COALESCE(users_can_manage_own_xp, true) AS "usersCanManageOwnXp"
+          FROM rpgs
+          WHERE id = ${rpgId}
+          LIMIT 1
+        `)
+        dbRpg = rpgRows[0] ?? null
+      } catch (error) {
+        if (
+          !(error instanceof Error) ||
+          !error.message.includes('column "users_can_manage_own_xp" does not exist')
+        ) {
+          throw error
+        }
+        const rpgRows = await prisma.$queryRaw<
+          Array<{
+            id: string
+            ownerId: string
+            visibility: "private" | "public"
+            usersCanManageOwnXp: boolean
+          }>
+        >(Prisma.sql`
+          SELECT
+            id,
+            owner_id AS "ownerId",
+            visibility,
+            true AS "usersCanManageOwnXp"
+          FROM rpgs
+          WHERE id = ${rpgId}
+          LIMIT 1
+        `)
+        dbRpg = rpgRows[0] ?? null
+      }
 
       if (!dbRpg) {
         notFound()
       }
 
       userId = await getUserIdFromCookieStore()
-      isOwner = userId === dbRpg.ownerId
+      usersCanManageOwnXp = Boolean(dbRpg.usersCanManageOwnXp)
+      try {
+        const progressionRows = await prisma.$queryRaw<
+          Array<{ progressionMode: string; progressionTiers: Prisma.JsonValue }>
+        >(Prisma.sql`
+          SELECT
+            COALESCE(progression_mode, 'xp_level') AS "progressionMode",
+            COALESCE(progression_tiers, '[{"label":"Level 1","required":0},{"label":"Level 2","required":100}]'::jsonb) AS "progressionTiers"
+          FROM rpgs
+          WHERE id = ${rpgId}
+          LIMIT 1
+        `)
+        const mode = isProgressionMode(progressionRows[0]?.progressionMode)
+          ? progressionRows[0].progressionMode
+          : ("xp_level" as ProgressionMode)
+        rpgProgressionMode = mode
+        rpgProgressionTiers = normalizeProgressionTiers(
+          progressionRows[0]?.progressionTiers,
+          mode,
+        )
+      } catch (error) {
+        if (
+          !(error instanceof Error) ||
+          (!error.message.includes('column "progression_mode" does not exist') &&
+            !error.message.includes('column "progression_tiers" does not exist'))
+        ) {
+          throw error
+        }
+        rpgProgressionMode = "xp_level"
+        rpgProgressionTiers = getDefaultProgressionTiers("xp_level")
+      }
+      if (userId) {
+        const permission = await getRpgPermission(rpgId, userId)
+        isOwner = permission.isOwner
+        canManageRpg = permission.canManage
+      } else {
+        isOwner = false
+        canManageRpg = false
+      }
       let isAcceptedMember = false
 
       if (userId && !isOwner) {
@@ -365,6 +465,14 @@ export default async function CharactersPage({ params }: Params) {
       ([key, value]) => attributeLabelByKey.has(key) && Number(value) > 0,
     )
     const displayName = getIdentityDisplayName(identity)
+    const progressionMode = isProgressionMode(row.progressionMode)
+      ? row.progressionMode
+      : rpgProgressionMode
+    const progressionTiers = normalizeProgressionTiers(rpgProgressionTiers, progressionMode)
+    const nextProgressionTier =
+      [...progressionTiers]
+        .sort((left, right) => left.required - right.required)
+        .find((item) => item.required > row.progressionCurrent) ?? null
     const coreStatusConfig = [
       { key: "life", label: statusTemplateLabelByKey.get("life") ?? statusLabelByKey.life ?? "Vida" },
       { key: "mana", label: statusTemplateLabelByKey.get("mana") ?? statusLabelByKey.mana ?? "Mana" },
@@ -513,10 +621,6 @@ export default async function CharactersPage({ params }: Params) {
                     ? "NPC"
                     : "Monstro"}
               </p>
-              <p className={styles.kingdom}>
-                Progressao: {row.progressionLabel} (atual {row.progressionCurrent} / required{" "}
-                {row.progressionRequired})
-              </p>
             </div>
           </div>
 
@@ -565,6 +669,20 @@ export default async function CharactersPage({ params }: Params) {
           ) : null}
 
           <div className={styles.grid}>
+            <div>
+              <h4>Progressao</h4>
+              <p>Level: {getProgressionLevelDisplay(row.progressionLabel)}</p>
+              <p>XP: {row.progressionCurrent}</p>
+              {usersCanManageOwnXp ? (
+                <p>
+                  Proximo level:{" "}
+                  {nextProgressionTier
+                    ? `${nextProgressionTier.label} (${nextProgressionTier.required})`
+                    : "Maximo"}
+                </p>
+              ) : null}
+            </div>
+
             {identityItemsWithRaceClass.length > 0 ? (
               <div>
                 <h4>Identidade</h4>

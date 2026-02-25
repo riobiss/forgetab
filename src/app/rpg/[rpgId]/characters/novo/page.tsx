@@ -12,6 +12,7 @@ import {
   getProgressionModeLabel,
   isProgressionMode,
   normalizeProgressionTiers,
+  resolveProgressionTierByCurrent,
   type ProgressionMode,
   type ProgressionTier,
 } from "@/lib/rpg/progression"
@@ -57,6 +58,7 @@ type RpgConfigPayload = {
     useInventoryWeightLimit?: boolean
     progressionMode?: ProgressionMode
     progressionTiers?: ProgressionTier[]
+    canDelete?: boolean
   }
   message?: string
 }
@@ -180,12 +182,11 @@ export default function NewCharacterPage() {
   const [useRaceBonuses, setUseRaceBonuses] = useState(false)
   const [useClassBonuses, setUseClassBonuses] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
+  const [isRpgOwner, setIsRpgOwner] = useState(false)
   const [progressionMode, setProgressionMode] = useState<ProgressionMode>("xp_level")
   const [progressionTiers, setProgressionTiers] = useState<ProgressionTier[]>(
     getDefaultProgressionTiers("xp_level"),
   )
-  const [selectedProgressionKey, setSelectedProgressionKey] = useState("")
-  const [isProgressionModalOpen, setIsProgressionModalOpen] = useState(false)
   const [progressionCurrent, setProgressionCurrent] = useState("0")
   const [raceTemplates, setRaceTemplates] = useState<IdentityTemplate[]>([])
   const [classTemplates, setClassTemplates] = useState<IdentityTemplate[]>([])
@@ -230,16 +231,22 @@ export default function NewCharacterPage() {
 
     return ""
   }, [image, selectedImageName])
-
-  useEffect(() => {
-    if (progressionTiers.length === 0) return
-    const hasSelected = progressionTiers.some(
-      (item) => toProgressionKey(item) === selectedProgressionKey,
-    )
-    if (!hasSelected) {
-      setSelectedProgressionKey(toProgressionKey(progressionTiers[0]))
+  const normalizedProgressionCurrent = useMemo(() => {
+    const parsed = Number(progressionCurrent || 0)
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return 0
     }
-  }, [progressionTiers, selectedProgressionKey])
+    return Math.floor(parsed)
+  }, [progressionCurrent])
+  const resolvedProgressionTier = useMemo(
+    () =>
+      resolveProgressionTierByCurrent(
+        progressionMode,
+        progressionTiers,
+        normalizedProgressionCurrent,
+      ),
+    [normalizedProgressionCurrent, progressionMode, progressionTiers],
+  )
 
   useEffect(() => {
     async function loadTemplate() {
@@ -349,6 +356,7 @@ export default function NewCharacterPage() {
             : legacyClassRaceFlag,
         )
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg?.useInventoryWeightLimit))
+        setIsRpgOwner(Boolean(rpgPayload.rpg?.canDelete))
         const loadedProgressionMode = isProgressionMode(rpgPayload.rpg?.progressionMode)
           ? rpgPayload.rpg.progressionMode
           : ("xp_level" as ProgressionMode)
@@ -409,27 +417,6 @@ export default function NewCharacterPage() {
             : String(editTarget.maxCarryWeight),
         )
         setCharacterVisibility(editTarget?.visibility ?? "public")
-        const editProgressionLabel =
-          typeof editTarget?.progressionLabel === "string"
-            ? editTarget.progressionLabel
-            : loadedProgressionTiers[0]?.label
-        const editProgressionRequired =
-          typeof editTarget?.progressionRequired === "number"
-            ? editTarget.progressionRequired
-            : loadedProgressionTiers[0]?.required
-        const matchedProgression = loadedProgressionTiers.find(
-          (item) => item.label === editProgressionLabel && item.required === editProgressionRequired,
-        )
-        if (matchedProgression) {
-          setSelectedProgressionKey(toProgressionKey(matchedProgression))
-        } else {
-          setSelectedProgressionKey(
-            toProgressionKey({
-              label: editProgressionLabel ?? "Etapa",
-              required: Number(editProgressionRequired ?? 0),
-            }),
-          )
-        }
         setProgressionCurrent(
           typeof editTarget?.progressionCurrent === "number"
             ? String(editTarget.progressionCurrent)
@@ -471,10 +458,6 @@ export default function NewCharacterPage() {
             ? null
             : Number(maxCarryWeight)
           : null
-      const selectedProgressionTier =
-        progressionTiers.find((item) => toProgressionKey(item) === selectedProgressionKey) ??
-        progressionTiers[0] ??
-        getDefaultProgressionTiers(progressionMode)[0]
       const parsedProgressionCurrent = Number(progressionCurrent || 0)
       let submittedImage = image
       let uploadedImageUrl = ""
@@ -520,10 +503,10 @@ export default function NewCharacterPage() {
             ? { maxCarryWeight: parsedMaxCarryWeight }
             : {}),
           ...(isEditing ? { visibility: characterVisibility } : {}),
-          progressionLabel: selectedProgressionTier.label,
-          progressionRequired: selectedProgressionTier.required,
-          progressionCurrent: Number.isFinite(parsedProgressionCurrent)
-            ? Math.max(0, Math.floor(parsedProgressionCurrent))
+          progressionCurrent: isEditing
+            ? Number.isFinite(parsedProgressionCurrent)
+              ? Math.max(0, Math.floor(parsedProgressionCurrent))
+              : 0
             : 0,
           statuses: normalizeNumericValues(statusValues),
           attributes: normalizeNumericValues(values),
@@ -811,25 +794,45 @@ export default function NewCharacterPage() {
               </label>
 
               <label className={styles.field}>
-                <span>Progressao ({getProgressionModeLabel(progressionMode)})</span>
-                <button
-                  type="button"
-                  className={styles.progressionPickerButton}
-                  onClick={() => setIsProgressionModalOpen(true)}
-                >
-                  {(progressionTiers.find((item) => toProgressionKey(item) === selectedProgressionKey) ??
-                    progressionTiers[0])?.label ?? "Selecionar"}
-                </button>
+                <span>Nivel atual ({getProgressionModeLabel(progressionMode)})</span>
+                <input
+                  type="text"
+                  readOnly
+                  value={`${resolvedProgressionTier.label} (requisito ${resolvedProgressionTier.required})`}
+                />
               </label>
 
+              {isRpgOwner && editingCharacterId ? (
+                <label className={styles.field}>
+                  <span>Selecionar nivel (Owner)</span>
+                  <NativeSelectField
+                    value={toProgressionKey(resolvedProgressionTier)}
+                    onChange={(event) => {
+                      const selected = progressionTiers.find(
+                        (item) => toProgressionKey(item) === event.target.value,
+                      )
+                      if (!selected) return
+                      setProgressionCurrent(String(selected.required))
+                    }}
+                  >
+                    {progressionTiers.map((item) => (
+                      <option key={toProgressionKey(item)} value={toProgressionKey(item)}>
+                        {item.label} (requisito {item.required})
+                      </option>
+                    ))}
+                  </NativeSelectField>
+                </label>
+              ) : null}
+
               <label className={styles.field}>
-                <span>Atual</span>
+                <span>XP atual</span>
                 <input
                   type="number"
                   onWheel={(event) => event.currentTarget.blur()}
                   min={0}
                   value={progressionCurrent}
                   onChange={(event) => setProgressionCurrent(event.target.value)}
+                  readOnly={!editingCharacterId}
                 />
               </label>
 
@@ -998,55 +1001,6 @@ export default function NewCharacterPage() {
           ) : null}
 
           {error ? <p className={styles.error}>{error}</p> : null}
-
-          {isProgressionModalOpen ? (
-            <div
-              className={styles.modalOverlay}
-              onClick={() => setIsProgressionModalOpen(false)}
-              role="presentation"
-            >
-              <div
-                className={styles.modalCard}
-                role="dialog"
-                aria-modal="true"
-                aria-label="Selecionar progressao"
-                onClick={(event) => event.stopPropagation()}
-              >
-                <h3>Selecionar progressao</h3>
-                <p>Escolha apenas uma opcao.</p>
-                <div className={styles.progressionOptions}>
-                  {progressionTiers.map((item) => {
-                    const key = toProgressionKey(item)
-                    const isActive = key === selectedProgressionKey
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        className={
-                          isActive
-                            ? `${styles.progressionOption} ${styles.progressionOptionActive}`
-                            : styles.progressionOption
-                        }
-                        onClick={() => {
-                          setSelectedProgressionKey(key)
-                          setIsProgressionModalOpen(false)
-                        }}
-                      >
-                        {item.label} - required {item.required}
-                      </button>
-                    )
-                  })}
-                </div>
-                <button
-                  type="button"
-                  className={styles.modalCloseButton}
-                  onClick={() => setIsProgressionModalOpen(false)}
-                >
-                  Fechar
-                </button>
-              </div>
-            </div>
-          ) : null}
 
           <div className={styles.actions}>
             <button

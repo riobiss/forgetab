@@ -34,6 +34,8 @@ export function useEditRpgState() {
   const [useRaceBonuses, setUseRaceBonuses] = useState(false)
   const [useClassBonuses, setUseClassBonuses] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
+  const [usersCanManageOwnXp, setUsersCanManageOwnXp] = useState(true)
+  const [allowSkillPointDistribution, setAllowSkillPointDistribution] = useState(true)
   const [costsEnabled, setCostsEnabled] = useState(false)
   const [costResourceName, setCostResourceName] = useState("Skill Points")
   const [progressionMode, setProgressionMode] = useState<ProgressionMode>("xp_level")
@@ -287,6 +289,10 @@ export function useEditRpgState() {
     setUseClassBonuses,
     useInventoryWeightLimit,
     setUseInventoryWeightLimit,
+    usersCanManageOwnXp,
+    setUsersCanManageOwnXp,
+    allowSkillPointDistribution,
+    setAllowSkillPointDistribution,
     costsEnabled,
     setCostsEnabled,
     costResourceName,

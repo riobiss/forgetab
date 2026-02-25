@@ -51,6 +51,8 @@ export async function POST(request: NextRequest) {
       useClassBonuses,
       useClassRaceBonuses,
       useInventoryWeightLimit,
+      usersCanManageOwnXp,
+      allowSkillPointDistribution,
       progressionMode,
       progressionTiers,
     } = parsed.data
@@ -65,6 +67,8 @@ export async function POST(request: NextRequest) {
       typeof useClassBonuses === "boolean"
         ? useClassBonuses
         : Boolean(useClassRaceBonuses)
+    const resolvedUsersCanManageOwnXp = Boolean(usersCanManageOwnXp ?? true)
+    const resolvedAllowSkillPointDistribution = Boolean(allowSkillPointDistribution ?? true)
     const resolvedProgressionMode = isProgressionMode(progressionMode)
       ? progressionMode
       : ("xp_level" as ProgressionMode)
@@ -102,6 +106,8 @@ export async function POST(request: NextRequest) {
           use_class_bonuses = ${resolvedUseClassBonuses},
           use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
           use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
+          users_can_manage_own_xp = ${resolvedUsersCanManageOwnXp},
+          allow_skill_point_distribution = ${resolvedAllowSkillPointDistribution},
           progression_mode = ${resolvedProgressionMode},
           progression_tiers = ${JSON.stringify(resolvedProgressionTiers)}::jsonb
         WHERE id = ${created.id}
@@ -111,6 +117,8 @@ export async function POST(request: NextRequest) {
         error instanceof Error &&
         (error.message.includes('column "use_race_bonuses" does not exist') ||
           error.message.includes('column "use_class_bonuses" does not exist') ||
+          error.message.includes('column "users_can_manage_own_xp" does not exist') ||
+          error.message.includes('column "allow_skill_point_distribution" does not exist') ||
           error.message.includes('column "progression_mode" does not exist') ||
           error.message.includes('column "progression_tiers" does not exist'))
       ) {
@@ -122,7 +130,9 @@ export async function POST(request: NextRequest) {
               cost_resource_name = ${resolvedCostResourceName},
               use_mundi_map = ${Boolean(useMundiMap)},
               use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
-              use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
+              use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
+              users_can_manage_own_xp = ${resolvedUsersCanManageOwnXp},
+              allow_skill_point_distribution = ${resolvedAllowSkillPointDistribution}
             WHERE id = ${created.id}
           `)
         } catch {
@@ -168,6 +178,8 @@ export async function POST(request: NextRequest) {
           useClassBonuses: resolvedUseClassBonuses,
           useClassRaceBonuses: resolvedUseRaceBonuses || resolvedUseClassBonuses,
           useInventoryWeightLimit: Boolean(useInventoryWeightLimit),
+          usersCanManageOwnXp: resolvedUsersCanManageOwnXp,
+          allowSkillPointDistribution: resolvedAllowSkillPointDistribution,
           progressionMode: resolvedProgressionMode,
           progressionTiers: resolvedProgressionTiers,
           createdAt: created.createdAt,
@@ -197,6 +209,8 @@ export async function POST(request: NextRequest) {
         error.message.includes('relation "rpgs" does not exist') ||
         error.message.includes('column "costs_enabled" does not exist') ||
         error.message.includes('column "cost_resource_name" does not exist') ||
+        error.message.includes('column "users_can_manage_own_xp" does not exist') ||
+        error.message.includes('column "allow_skill_point_distribution" does not exist') ||
         error.message.includes('column "progression_mode" does not exist') ||
         error.message.includes('column "progression_tiers" does not exist') ||
         error.message.includes("Could not find the table")

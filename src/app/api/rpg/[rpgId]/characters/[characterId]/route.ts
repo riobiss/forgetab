@@ -7,11 +7,10 @@ import {
   STATUS_CATALOG,
 } from "@/lib/rpg/statusCatalog"
 import {
-  getDefaultProgressionTiers,
   isProgressionMode,
   normalizeProgressionTiers,
+  resolveProgressionTierByCurrent,
   type ProgressionMode,
-  type ProgressionTier,
 } from "@/lib/rpg/progression"
 
 type RouteContext = {
@@ -416,42 +415,6 @@ function normalizeOptionalText(value: unknown) {
   return trimmed.length > 0 ? trimmed : null
 }
 
-function resolveCharacterProgression(
-  mode: ProgressionMode,
-  tiers: ProgressionTier[],
-  labelInput: unknown,
-  requiredInput: unknown,
-) {
-  const fallback = tiers[0] ?? getDefaultProgressionTiers(mode)[0]
-  const hasLabel = typeof labelInput === "string"
-  const hasRequired = typeof requiredInput === "number"
-
-  if (!hasLabel && !hasRequired) {
-    return { ok: true as const, value: fallback }
-  }
-
-  const label = hasLabel ? labelInput.trim() : ""
-  const required =
-    typeof requiredInput === "number" && Number.isFinite(requiredInput) && requiredInput >= 0
-      ? Math.floor(requiredInput)
-      : Number.NaN
-
-  if (!hasLabel || !hasRequired || label.length === 0 || Number.isNaN(required)) {
-    return { ok: false as const, message: "Progressao invalida." }
-  }
-
-  if (mode === "custom") {
-    return { ok: true as const, value: { label, required } }
-  }
-
-  const matched = tiers.find((item) => item.label === label && item.required === required)
-  if (!matched) {
-    return { ok: false as const, message: "Progressao fora do padrao do RPG." }
-  }
-
-  return { ok: true as const, value: matched }
-}
-
 function isValidVisibility(value: unknown): value is "private" | "public" {
   return value === "private" || value === "public"
 }
@@ -684,8 +647,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       visibility?: "private" | "public"
       raceKey?: string
       classKey?: string
-      progressionLabel?: string
-      progressionRequired?: number
       progressionCurrent?: number
     }
 
@@ -727,15 +688,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       permission.useInventoryWeightLimit && permission.characterType === "player"
         ? parsedMaxCarryWeight.value
         : null
-    const parsedProgression = resolveCharacterProgression(
-      permission.progressionMode,
-      permission.progressionTiers,
-      body.progressionLabel,
-      body.progressionRequired,
-    )
-    if (!parsedProgression.ok) {
-      return NextResponse.json({ message: parsedProgression.message }, { status: 400 })
-    }
     const parsedProgressionCurrent = validateProgressionCurrent(body.progressionCurrent)
     if (!parsedProgressionCurrent.ok) {
       return NextResponse.json({ message: parsedProgressionCurrent.message }, { status: 400 })
@@ -744,6 +696,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       parsedProgressionCurrent.value === null
         ? permission.currentProgressionCurrent
         : parsedProgressionCurrent.value
+    const resolvedProgression = resolveProgressionTierByCurrent(
+      permission.progressionMode,
+      permission.progressionTiers,
+      resolvedProgressionCurrent,
+    )
 
     if (hasImageInBody) {
       const currentRows = await prisma.$queryRaw<Array<{ image: string | null }>>(Prisma.sql`
@@ -964,8 +921,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           ELSE max_carry_weight
         END,
         progression_mode = ${permission.progressionMode},
-        progression_label = ${parsedProgression.value.label},
-        progression_required = ${parsedProgression.value.required},
+        progression_label = ${resolvedProgression.label},
+        progression_required = ${resolvedProgression.required},
         progression_current = ${resolvedProgressionCurrent},
         life = ${life.value},
         defense = ${defense.value},

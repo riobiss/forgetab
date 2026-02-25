@@ -35,6 +35,7 @@ type PendingCharacterRequestRow = {
 
 type AcceptedMemberRow = {
   id: string
+  userId: string
   userUsername: string
   userName: string
   role: "member" | "moderator"
@@ -52,6 +53,8 @@ type DbRpgRow = {
   description: string
   visibility: "private" | "public"
   useMundiMap: boolean
+  usersCanManageOwnXp: boolean
+  allowSkillPointDistribution: boolean
   createdAt: Date
 }
 
@@ -74,6 +77,8 @@ export default async function ViewInRpg({ params }: Params) {
         r.description,
         r.visibility,
         COALESCE(r.use_mundi_map, false) AS "useMundiMap",
+        COALESCE(r.users_can_manage_own_xp, true) AS "usersCanManageOwnXp",
+        COALESCE(r.allow_skill_point_distribution, true) AS "allowSkillPointDistribution",
         r.created_at AS "createdAt"
       FROM rpgs r
       LEFT JOIN users u ON u.id = r.owner_id
@@ -81,7 +86,12 @@ export default async function ViewInRpg({ params }: Params) {
       LIMIT 1
     `)
   } catch (error) {
-    if (error instanceof Error && error.message.includes('column "use_mundi_map" does not exist')) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('column "use_mundi_map" does not exist') ||
+        error.message.includes('column "users_can_manage_own_xp" does not exist') ||
+        error.message.includes('column "allow_skill_point_distribution" does not exist'))
+    ) {
       rows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
         SELECT
           r.id,
@@ -91,6 +101,8 @@ export default async function ViewInRpg({ params }: Params) {
           r.description,
           r.visibility,
           false AS "useMundiMap",
+          true AS "usersCanManageOwnXp",
+          true AS "allowSkillPointDistribution",
           r.created_at AS "createdAt"
         FROM rpgs r
         LEFT JOIN users u ON u.id = r.owner_id
@@ -151,6 +163,7 @@ export default async function ViewInRpg({ params }: Params) {
     acceptedMembers = await prisma.$queryRaw<AcceptedMemberRow[]>(Prisma.sql`
       SELECT
         m.id,
+        m.user_id AS "userId",
         u.username AS "userUsername",
         u.name AS "userName",
         m.role::text AS role
@@ -266,7 +279,13 @@ export default async function ViewInRpg({ params }: Params) {
         />
         {canManageRpg ? <QuickCreateMenu rpgId={dbRpg.id} /> : null}
         {canManageRpg ? (
-          <MembersList rpgId={dbRpg.id} members={acceptedMembers} compact />
+          <MembersList
+            rpgId={dbRpg.id}
+            members={acceptedMembers}
+            compact
+            usersCanManageOwnXp={dbRpg.usersCanManageOwnXp}
+            allowSkillPointDistribution={dbRpg.allowSkillPointDistribution}
+          />
         ) : null}
         <RpgInfoModalButton
           title={dbRpg.title}

@@ -2,7 +2,17 @@
 
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Eye, LayoutList, LoaderCircle, Plus, Save, Settings2, Trash2 } from "lucide-react"
+import {
+  ArrowLeft,
+  Eye,
+  LayoutList,
+  LoaderCircle,
+  Plus,
+  Save,
+  Settings2,
+  Shield,
+  Trash2,
+} from "lucide-react"
 import styles from "./page.module.css"
 import AttributeOptionsSection from "./components/attribute-options/AttributeOptionsSection"
 import EditRpgForm from "./components/edit-rpg-form/EditRpgForm"
@@ -34,7 +44,7 @@ export default function EditRpgPage() {
   const router = useRouter()
   const rpgId = params.rpgId
   const state = useEditRpgState()
-  const [activeStage, setActiveStage] = useState<"basic" | "advanced">("basic")
+  const [activeStage, setActiveStage] = useState<"basic" | "advanced" | "permissions">("basic")
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadError, setUploadError] = useState("")
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
@@ -53,6 +63,8 @@ export default function EditRpgPage() {
     useRaceBonuses: state.useRaceBonuses,
     useClassBonuses: state.useClassBonuses,
     useInventoryWeightLimit: state.useInventoryWeightLimit,
+    usersCanManageOwnXp: state.usersCanManageOwnXp,
+    allowSkillPointDistribution: state.allowSkillPointDistribution,
     progressionMode: state.progressionMode,
     progressionTiers: state.progressionTiers,
     attributeTemplates: state.attributeTemplates,
@@ -69,6 +81,8 @@ export default function EditRpgPage() {
     setUseRaceBonuses: state.setUseRaceBonuses,
     setUseClassBonuses: state.setUseClassBonuses,
     setUseInventoryWeightLimit: state.setUseInventoryWeightLimit,
+    setUsersCanManageOwnXp: state.setUsersCanManageOwnXp,
+    setAllowSkillPointDistribution: state.setAllowSkillPointDistribution,
     setProgressionMode: state.setProgressionMode,
     setProgressionTiers: state.setProgressionTiers,
     setCostsEnabled: state.setCostsEnabled,
@@ -251,6 +265,16 @@ export default function EditRpgPage() {
             <Settings2 size={15} />
             Avancado
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeStage === "permissions"}
+            className={`${styles.stageTab} ${activeStage === "permissions" ? styles.stageTabActive : ""}`}
+            onClick={() => setActiveStage("permissions")}
+          >
+            <Shield size={15} />
+            Permissoes
+          </button>
         </div>
 
         {activeStage === "basic" ? (
@@ -274,7 +298,7 @@ export default function EditRpgPage() {
             onSaveAll={handleSaveAll}
             onDeleteRpg={handleDeleteRpg}
           />
-        ) : (
+        ) : activeStage === "advanced" ? (
           <section className={styles.advancedStage}>
             <RadixSwitchField
               id="edit-rpg-mundi-map"
@@ -537,6 +561,34 @@ export default function EditRpgPage() {
 
             {data.error ? <p className={styles.error}>{data.error}</p> : null}
             {data.identitySuccess ? <p className={styles.success}>{data.identitySuccess}</p> : null}
+          </section>
+        ) : (
+          <section className={styles.advancedStage}>
+            <h2>Permissoes de Progressao e Membros</h2>
+
+            <RadixSwitchField
+              id="edit-rpg-users-can-manage-xp"
+              label="Usuarios podem ver os niveis"
+              description={
+                state.usersCanManageOwnXp
+                  ? "Ativo: jogadores podem ajustar XP do proprio personagem."
+                  : "Inativo: mestre/moderador controlam XP dos jogadores."
+              }
+              checked={state.usersCanManageOwnXp}
+              onCheckedChange={state.setUsersCanManageOwnXp}
+            />
+
+            <RadixSwitchField
+              id="edit-rpg-allow-skill-point-distribution"
+              label="Permitir distribuir pontos de habilidade"
+              description={
+                state.allowSkillPointDistribution
+                  ? "Ativo: menu de membros permite distribuir pontos de habilidade."
+                  : "Inativo: menu de distribuicao de pontos fica oculto."
+              }
+              checked={state.allowSkillPointDistribution}
+              onCheckedChange={state.setAllowSkillPointDistribution}
+            />
           </section>
         )}
       </section>

@@ -28,6 +28,8 @@ export const createRpgSchema = z.object({
   useClassBonuses: z.boolean().optional(),
   useClassRaceBonuses: z.boolean().optional(),
   useInventoryWeightLimit: z.boolean().optional(),
+  usersCanManageOwnXp: z.boolean().optional(),
+  allowSkillPointDistribution: z.boolean().optional(),
   progressionMode: z.enum(["xp_level", "rank", "custom"]).optional(),
   progressionTiers: z.array(progressionTierSchema).min(1).optional(),
 })

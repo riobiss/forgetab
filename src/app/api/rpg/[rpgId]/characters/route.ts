@@ -11,6 +11,7 @@ import {
   getDefaultProgressionTiers,
   isProgressionMode,
   normalizeProgressionTiers,
+  resolveProgressionTierByCurrent,
   type ProgressionMode,
   type ProgressionTier,
 } from "@/lib/rpg/progression"
@@ -526,42 +527,6 @@ function normalizeOptionalText(value: unknown) {
   return trimmed.length > 0 ? trimmed : null
 }
 
-function resolveCharacterProgression(
-  mode: ProgressionMode,
-  tiers: ProgressionTier[],
-  labelInput: unknown,
-  requiredInput: unknown,
-) {
-  const fallback = tiers[0] ?? getDefaultProgressionTiers(mode)[0]
-  const hasLabel = typeof labelInput === "string"
-  const hasRequired = typeof requiredInput === "number"
-
-  if (!hasLabel && !hasRequired) {
-    return { ok: true as const, value: fallback }
-  }
-
-  const label = hasLabel ? labelInput.trim() : ""
-  const required =
-    typeof requiredInput === "number" && Number.isFinite(requiredInput) && requiredInput >= 0
-      ? Math.floor(requiredInput)
-      : Number.NaN
-
-  if (!hasLabel || !hasRequired || label.length === 0 || Number.isNaN(required)) {
-    return { ok: false as const, message: "Progressao invalida." }
-  }
-
-  if (mode === "custom") {
-    return { ok: true as const, value: { label, required } }
-  }
-
-  const matched = tiers.find((item) => item.label === label && item.required === required)
-  if (!matched) {
-    return { ok: false as const, message: "Progressao fora do padrao do RPG." }
-  }
-
-  return { ok: true as const, value: matched }
-}
-
 function getDefaultStatusTemplate(): StatusTemplateRow[] {
   return STATUS_CATALOG.filter((item) => DEFAULT_STATUS_KEYS.includes(item.key)).map(
     (item, index) => ({
@@ -778,8 +743,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
       characteristics?: Record<string, string>
       raceKey?: string
       classKey?: string
-      progressionLabel?: string
-      progressionRequired?: number
       progressionCurrent?: number
     }
 
@@ -824,19 +787,15 @@ export async function POST(request: NextRequest, context: RouteContext) {
       access.useInventoryWeightLimit && body.characterType === "player"
         ? parsedMaxCarryWeight.value
         : null
-    const parsedProgression = resolveCharacterProgression(
-      access.progressionMode,
-      access.progressionTiers,
-      body.progressionLabel,
-      body.progressionRequired,
-    )
-    if (!parsedProgression.ok) {
-      return NextResponse.json({ message: parsedProgression.message }, { status: 400 })
-    }
-    const parsedProgressionCurrent = validateProgressionCurrent(body.progressionCurrent)
+    const parsedProgressionCurrent = validateProgressionCurrent(0)
     if (!parsedProgressionCurrent.ok) {
       return NextResponse.json({ message: parsedProgressionCurrent.message }, { status: 400 })
     }
+    const resolvedProgression = resolveProgressionTierByCurrent(
+      access.progressionMode,
+      access.progressionTiers,
+      parsedProgressionCurrent.value,
+    )
 
     if (!access.isOwner) {
       const creationRequest = await prisma.$queryRaw<CharacterCreationRequestRow[]>(Prisma.sql`
@@ -1099,8 +1058,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
         'public'::"RpgVisibility",
         ${maxCarryWeight},
         ${access.progressionMode},
-        ${parsedProgression.value.label},
-        ${parsedProgression.value.required},
+        ${resolvedProgression.label},
+        ${resolvedProgression.required},
         ${parsedProgressionCurrent.value},
         ${createdByUserId},
         ${life.value},

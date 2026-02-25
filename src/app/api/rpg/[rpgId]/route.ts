@@ -165,6 +165,8 @@ type RpgRow = {
   useClassBonuses: boolean
   useClassRaceBonuses: boolean
   useInventoryWeightLimit: boolean
+  usersCanManageOwnXp: boolean
+  allowSkillPointDistribution: boolean
   progressionMode: string
   progressionTiers: Prisma.JsonValue
 }
@@ -199,6 +201,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
           COALESCE(use_class_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useClassBonuses",
           COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
           COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit",
+          COALESCE(users_can_manage_own_xp, true) AS "usersCanManageOwnXp",
+          COALESCE(allow_skill_point_distribution, true) AS "allowSkillPointDistribution",
           COALESCE(progression_mode, 'xp_level') AS "progressionMode",
           COALESCE(progression_tiers, '[{"label":"Level 1","required":0}]'::jsonb) AS "progressionTiers"
         FROM rpgs
@@ -215,6 +219,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
           error.message.includes('column "use_class_bonuses" does not exist') ||
           error.message.includes('column "use_class_race_bonuses" does not exist') ||
           error.message.includes('column "use_inventory_weight_limit" does not exist') ||
+          error.message.includes('column "users_can_manage_own_xp" does not exist') ||
+          error.message.includes('column "allow_skill_point_distribution" does not exist') ||
           error.message.includes('column "use_mundi_map" does not exist') ||
           error.message.includes('column "progression_mode" does not exist') ||
           error.message.includes('column "progression_tiers" does not exist'))
@@ -235,6 +241,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
               COALESCE(use_class_race_bonuses, false) AS "useClassBonuses",
               COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
               false AS "useInventoryWeightLimit",
+              true AS "usersCanManageOwnXp",
+              true AS "allowSkillPointDistribution",
               'xp_level'::text AS "progressionMode",
               '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
             FROM rpgs
@@ -257,6 +265,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
               false AS "useClassBonuses",
               false AS "useClassRaceBonuses",
               false AS "useInventoryWeightLimit",
+              true AS "usersCanManageOwnXp",
+              true AS "allowSkillPointDistribution",
               'xp_level'::text AS "progressionMode",
               '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
             FROM rpgs
@@ -303,6 +313,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
           useClassBonuses: rpg.useClassBonuses,
           useClassRaceBonuses: rpg.useClassRaceBonuses,
           useInventoryWeightLimit: rpg.useInventoryWeightLimit,
+          usersCanManageOwnXp: rpg.usersCanManageOwnXp,
+          allowSkillPointDistribution: rpg.allowSkillPointDistribution,
           progressionMode: isProgressionMode(rpg.progressionMode)
             ? rpg.progressionMode
             : ("xp_level" as ProgressionMode),
@@ -379,6 +391,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       useClassBonuses,
       useClassRaceBonuses,
       useInventoryWeightLimit,
+      usersCanManageOwnXp,
+      allowSkillPointDistribution,
       progressionMode,
       progressionTiers,
     } = parsed.data
@@ -390,6 +404,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       typeof useClassBonuses === "boolean"
         ? useClassBonuses
         : Boolean(useClassRaceBonuses)
+    const resolvedUsersCanManageOwnXp = Boolean(usersCanManageOwnXp ?? true)
+    const resolvedAllowSkillPointDistribution = Boolean(allowSkillPointDistribution ?? true)
     const resolvedProgressionMode = isProgressionMode(progressionMode)
       ? progressionMode
       : ("xp_level" as ProgressionMode)
@@ -482,6 +498,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       typeof useClassBonuses === "boolean" ||
       typeof useClassRaceBonuses === "boolean" ||
       typeof useInventoryWeightLimit === "boolean" ||
+      typeof usersCanManageOwnXp === "boolean" ||
+      typeof allowSkillPointDistribution === "boolean" ||
       progressionMode !== undefined ||
       progressionTiers !== undefined
     ) {
@@ -494,6 +512,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
             use_class_bonuses = ${resolvedUseClassBonuses},
             use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
             use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
+            users_can_manage_own_xp = ${resolvedUsersCanManageOwnXp},
+            allow_skill_point_distribution = ${resolvedAllowSkillPointDistribution},
             progression_mode = ${resolvedProgressionMode},
             progression_tiers = ${JSON.stringify(resolvedProgressionTiers)}::jsonb
           WHERE id = ${rpgId}
@@ -503,6 +523,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           if (
             error.message.includes('column "use_race_bonuses" does not exist') ||
             error.message.includes('column "use_class_bonuses" does not exist') ||
+            error.message.includes('column "users_can_manage_own_xp" does not exist') ||
+            error.message.includes('column "allow_skill_point_distribution" does not exist') ||
             error.message.includes('column "progression_mode" does not exist') ||
             error.message.includes('column "progression_tiers" does not exist')
           ) {
@@ -512,7 +534,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
                 SET
                   use_mundi_map = ${Boolean(useMundiMap)},
                   use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
-                  use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)}
+                  use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
+                  users_can_manage_own_xp = ${resolvedUsersCanManageOwnXp},
+                  allow_skill_point_distribution = ${resolvedAllowSkillPointDistribution}
                 WHERE id = ${rpgId}
               `)
             } catch (innerError) {
@@ -520,6 +544,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
                 !(innerError instanceof Error) ||
                 (!innerError.message.includes('column "use_class_race_bonuses" does not exist') &&
                   !innerError.message.includes('column "use_inventory_weight_limit" does not exist') &&
+                  !innerError.message.includes('column "users_can_manage_own_xp" does not exist') &&
+                  !innerError.message.includes('column "allow_skill_point_distribution" does not exist') &&
                   !innerError.message.includes('column "use_mundi_map" does not exist') &&
                   !innerError.message.includes('column "progression_mode" does not exist') &&
                   !innerError.message.includes('column "progression_tiers" does not exist'))
@@ -530,6 +556,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           } else if (
             !error.message.includes('column "use_class_race_bonuses" does not exist') &&
             !error.message.includes('column "use_inventory_weight_limit" does not exist') &&
+            !error.message.includes('column "users_can_manage_own_xp" does not exist') &&
+            !error.message.includes('column "allow_skill_point_distribution" does not exist') &&
             !error.message.includes('column "use_mundi_map" does not exist') &&
             !error.message.includes('column "progression_mode" does not exist') &&
             !error.message.includes('column "progression_tiers" does not exist')
@@ -606,6 +634,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         error.message.includes('column "costs_enabled" does not exist') ||
         error.message.includes('column "cost_resource_name" does not exist') ||
         error.message.includes('column "image" does not exist') ||
+        error.message.includes('column "users_can_manage_own_xp" does not exist') ||
+        error.message.includes('column "allow_skill_point_distribution" does not exist') ||
         error.message.includes('column "progression_mode" does not exist') ||
         error.message.includes('column "progression_tiers" does not exist') ||
         error.message.includes("Could not find the table")

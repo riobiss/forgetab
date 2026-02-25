@@ -92,6 +92,8 @@ model Rpg {
   useClassBonuses    Boolean                @default(false) @map("use_class_bonuses")
   useClassRaceBonuses Boolean               @default(false) @map("use_class_race_bonuses")
   useInventoryWeightLimit Boolean           @default(false) @map("use_inventory_weight_limit")
+  usersCanManageOwnXp Boolean               @default(true) @map("users_can_manage_own_xp")
+  allowSkillPointDistribution Boolean       @default(true) @map("allow_skill_point_distribution")
   progressionMode    String                 @default("xp_level") @map("progression_mode")
   progressionTiers   Json                   @default("[{\"label\":\"Level 1\",\"required\":0},{\"label\":\"Level 2\",\"required\":100}]") @map("progression_tiers")
   createdAt          DateTime               @default(now()) @map("created_at")
