@@ -153,6 +153,7 @@ export default function NewRpgPage() {
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               minLength={10}
+              maxLength={400}
               rows={5}
               required
             />

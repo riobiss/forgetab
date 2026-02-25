@@ -32,4 +32,14 @@ describe("createRpgSchema", () => {
 
     expect(result.success).toBe(false)
   })
+
+  it("rejeita descricao com mais de 400 caracteres", () => {
+    const result = createRpgSchema.safeParse({
+      title: "Campanha Alpha",
+      description: "a".repeat(401),
+      visibility: "public",
+    })
+
+    expect(result.success).toBe(false)
+  })
 })

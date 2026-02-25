@@ -10,7 +10,8 @@ export const createRpgSchema = z.object({
   description: z
     .string()
     .trim()
-    .min(10, "Descricao deve ter pelo menos 10 caracteres."),
+    .min(10, "Descricao deve ter pelo menos 10 caracteres.")
+    .max(400, "Descricao deve ter no maximo 400 caracteres."),
   image: z
     .union([z.string().trim().url("Imagem do RPG deve ser uma URL valida."), z.null()])
     .optional(),

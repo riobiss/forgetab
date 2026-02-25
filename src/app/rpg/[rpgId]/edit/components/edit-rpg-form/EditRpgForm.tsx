@@ -138,6 +138,7 @@ export default function EditRpgForm({
             value={description}
             onChange={(event) => onDescriptionChange(event.target.value)}
             minLength={10}
+            maxLength={400}
             rows={5}
             required
           />
