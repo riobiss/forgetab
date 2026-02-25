@@ -3,9 +3,9 @@
 import { type ChangeEvent, type MutableRefObject, useEffect, useRef, useState } from "react"
 import Konva from "konva"
 import Image from "next/image"
-import styles from "./MundiMap.module.css"
+import styles from "./WorldMap.module.css"
 
-const DEFAULT_MAP_SRC = "/map/map-mundi.png"
+const DEFAULT_MAP_SRC = "/map/world-map.png"
 const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024
 const BRUSH_COLORS = ["#c4243b", "#ff7a18", "#f5e6c8", "#4f9cff", "#34c759"]
 

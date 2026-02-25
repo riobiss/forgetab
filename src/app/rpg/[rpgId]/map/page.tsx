@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
-import { MundiMap } from "./components/mundi-map/MundiMap"
+import { MundiMap } from "./components/world-map/WorldMap"
 import styles from "./page.module.css"
 
 type Params = {

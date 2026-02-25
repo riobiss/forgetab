@@ -350,7 +350,7 @@ export default async function ViewInRpg({ params }: Params) {
         {dbRpg.useMundiMap ? (
           <Link href={`/rpg/${dbRpg.id}/map`} className={styles.card}>
             <Image
-              src="/images/bg-regioes.jpg"
+              src="/images/bg-regions.jpg"
               alt="Mapa Mundi"
               fill
               className={styles.cardImage}
