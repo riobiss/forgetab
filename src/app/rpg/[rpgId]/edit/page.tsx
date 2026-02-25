@@ -577,18 +577,6 @@ export default function EditRpgPage() {
               checked={state.usersCanManageOwnXp}
               onCheckedChange={state.setUsersCanManageOwnXp}
             />
-
-            <RadixSwitchField
-              id="edit-rpg-allow-skill-point-distribution"
-              label="Permitir distribuir pontos de habilidade"
-              description={
-                state.allowSkillPointDistribution
-                  ? "Ativo: menu de membros permite distribuir pontos de habilidade."
-                  : "Inativo: menu de distribuicao de pontos fica oculto."
-              }
-              checked={state.allowSkillPointDistribution}
-              onCheckedChange={state.setAllowSkillPointDistribution}
-            />
           </section>
         )}
       </section>

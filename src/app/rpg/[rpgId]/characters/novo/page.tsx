@@ -159,10 +159,6 @@ const CHARACTER_TYPE_LABEL: Record<CharacterSummary["characterType"], string> = 
   monster: "Monstro",
 }
 
-function toProgressionKey(tier: ProgressionTier) {
-  return `${tier.label}::${tier.required}`
-}
-
 export default function NewCharacterPage() {
   const params = useParams<{ rpgId: string }>()
   const router = useRouter()
@@ -182,7 +178,6 @@ export default function NewCharacterPage() {
   const [useRaceBonuses, setUseRaceBonuses] = useState(false)
   const [useClassBonuses, setUseClassBonuses] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
-  const [isRpgOwner, setIsRpgOwner] = useState(false)
   const [progressionMode, setProgressionMode] = useState<ProgressionMode>("xp_level")
   const [progressionTiers, setProgressionTiers] = useState<ProgressionTier[]>(
     getDefaultProgressionTiers("xp_level"),
@@ -356,7 +351,6 @@ export default function NewCharacterPage() {
             : legacyClassRaceFlag,
         )
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg?.useInventoryWeightLimit))
-        setIsRpgOwner(Boolean(rpgPayload.rpg?.canDelete))
         const loadedProgressionMode = isProgressionMode(rpgPayload.rpg?.progressionMode)
           ? rpgPayload.rpg.progressionMode
           : ("xp_level" as ProgressionMode)
@@ -802,28 +796,6 @@ export default function NewCharacterPage() {
                 />
               </label>
 
-              {isRpgOwner && editingCharacterId ? (
-                <label className={styles.field}>
-                  <span>Selecionar nivel (Owner)</span>
-                  <NativeSelectField
-                    value={toProgressionKey(resolvedProgressionTier)}
-                    onChange={(event) => {
-                      const selected = progressionTiers.find(
-                        (item) => toProgressionKey(item) === event.target.value,
-                      )
-                      if (!selected) return
-                      setProgressionCurrent(String(selected.required))
-                    }}
-                  >
-                    {progressionTiers.map((item) => (
-                      <option key={toProgressionKey(item)} value={toProgressionKey(item)}>
-                        {item.label} (requisito {item.required})
-                      </option>
-                    ))}
-                  </NativeSelectField>
-                </label>
-              ) : null}
-
               <label className={styles.field}>
                 <span>XP atual</span>
                 <input
@@ -831,8 +803,7 @@ export default function NewCharacterPage() {
                   onWheel={(event) => event.currentTarget.blur()}
                   min={0}
                   value={progressionCurrent}
-                  onChange={(event) => setProgressionCurrent(event.target.value)}
-                  readOnly={!editingCharacterId}
+                  readOnly
                 />
               </label>
 
