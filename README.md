@@ -26,7 +26,7 @@ Plataforma web para criacao e gerenciamento de campanhas de RPG, com foco em:
 - Sessao via cookie `auth_token` (JWT HS256)
 - Protecao de rotas por proxy/middleware
 - Protecao CSRF para metodos mutaveis da API (`POST`, `PUT`, `PATCH`, `DELETE`)
-- Rate limit local para login/cadastro (com ponto de extensao para Upstash)
+- Rate limit local para login/register (com ponto de extensao para Upstash)
 
 ### 2) Campanhas (RPG)
 
@@ -191,9 +191,9 @@ O container `web` ja executa: install, `prisma migrate deploy`, `prisma generate
 
 - `/` Home
 - `/login` Login
-- `/cadastro` Cadastro
+- `/register` Cadastro
 - `/rpg` Listagem de campanhas
-- `/rpg/novo` Criacao de campanha
+- `/rpg/new` Criacao de campanha
 - `/rpg/[rpgId]` Hub da campanha
 - `/rpg/[rpgId]/edit` Configuracoes da campanha
 - `/rpg/[rpgId]/characters` Personagens

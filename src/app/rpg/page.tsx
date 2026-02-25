@@ -72,7 +72,7 @@ export default async function ViewRpg() {
     <div className={styles.container}>
       <div className={styles.topbar}>
         <h2 className={styles.title}>RPGs</h2>
-        <Link href="/rpg/novo" className={styles.createButton}>
+        <Link href="/rpg/new" className={styles.createButton}>
           <Plus size={16} />
           <span>Criar RPG</span>
         </Link>

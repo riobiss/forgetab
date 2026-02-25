@@ -582,7 +582,7 @@ export default async function CharactersPage({ params }: Params) {
               {canEditCharacter ? (
                 <Link
                   className={styles.editInlineButton}
-                  href={`/rpg/${rpgId}/characters/novo?characterId=${row.id}`}
+                  href={`/rpg/${rpgId}/characters/new?characterId=${row.id}`}
                 >
                   Editar
                 </Link>

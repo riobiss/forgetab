@@ -113,7 +113,7 @@ export default function CharacterCreationPermission({
       ) : canCreate || requestStatus === "accepted" ? (
         <>
           <p className={styles.permissionInfo}>Sua permissao foi aprovada pelo mestre.</p>
-          <Link className={styles.primaryAction} href={`/rpg/${rpgId}/characters/novo`}>
+          <Link className={styles.primaryAction} href={`/rpg/${rpgId}/characters/new`}>
             Criar personagem
           </Link>
         </>

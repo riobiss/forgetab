@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { Menu, User, X } from "lucide-react"
 import styles from "./Header.module.css"
 
-const HIDDEN_ROUTES = new Set(["/login", "/register", "/cadastro"])
+const HIDDEN_ROUTES = new Set(["/login", "/register", "/register"])
 
 export default function Header() {
   const pathname = usePathname()
@@ -97,7 +97,7 @@ export default function Header() {
 
             {openUserMenu ? (
               <div className={styles.dropdown}>
-                <Link href="/perfil" onClick={closeMenus}>
+                <Link href="/profile" onClick={closeMenus}>
                   Perfil
                 </Link>
                 <Link href="/login" onClick={closeMenus}>

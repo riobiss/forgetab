@@ -90,7 +90,7 @@ function LoginContent() {
 
         <p className={styles.switchAuth}>
           Nao possui conta?{" "}
-          <Link href={`/cadastro?next=${encodeURIComponent(nextPath)}`}>Criar conta</Link>
+          <Link href={`/register?next=${encodeURIComponent(nextPath)}`}>Criar conta</Link>
         </p>
       </section>
     </main>

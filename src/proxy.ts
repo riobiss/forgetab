@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server"
 import { jwtVerify } from "jose"
 import { TOKEN_COOKIE_NAME, jwtSecret } from "@/lib/auth/token"
 
-const authPages = new Set(["/login", "/cadastro"])
+const authPages = new Set(["/login", "/register"])
 const csrfProtectedMethods = new Set(["POST", "PUT", "PATCH", "DELETE"])
 
 function getRequestOrigin(request: NextRequest) {
