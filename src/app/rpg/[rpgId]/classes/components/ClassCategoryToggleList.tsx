@@ -58,15 +58,19 @@ export default function ClassCategoryToggleList({ groups, showEditActions = fals
 
                     {showEditActions && item.editHref ? (
                       <div className={styles.cardActions}>
-                        <Link className={styles.editButton} href={item.editHref}>
-                          Editar
-                        </Link>
+                        {item.editHref ? (
+                          <Link className={styles.editButton} href={item.editHref}>
+                            Editar
+                          </Link>
+                        ) : null}
                       </div>
                     ) : null}
                   </article>
                 ))}
               </div>
             ) : null}
+
+            {isOpen && group.items.length === 0 ? <p className={styles.emptyCategory}>Nenhuma classe nesta categoria.</p> : null}
           </section>
         )
       })}

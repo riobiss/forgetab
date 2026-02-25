@@ -64,15 +64,6 @@ export default async function ClassesPage({ params }: Params) {
     dbClasses = []
   }
 
-  const groupedClasses = dbClasses.reduce<Record<string, DbClassRow[]>>((acc, item) => {
-    const category = item.category?.trim() || "geral"
-    if (!acc[category]) {
-      acc[category] = []
-    }
-    acc[category].push(item)
-    return acc
-  }, {})
-
   const initialClasses = dbClasses.map((item) => ({
     id: item.id,
     key: item.key,
@@ -87,6 +78,15 @@ export default async function ClassesPage({ params }: Params) {
         ? (item.skillBonuses as Record<string, number>)
         : {},
   }))
+
+  const groupedClasses = dbClasses.reduce<Record<string, DbClassRow[]>>((acc, item) => {
+    const category = item.category?.trim() || "geral"
+    if (!acc[category]) {
+      acc[category] = []
+    }
+    acc[category].push(item)
+    return acc
+  }, {})
 
   const classGroups = Object.entries(groupedClasses).map(([category, items]) => ({
     category,
@@ -105,11 +105,13 @@ export default async function ClassesPage({ params }: Params) {
         <h1 className={styles.title}>Classes</h1>
       </div>
 
-      {isOwner ? <ClassCategoryManager rpgId={rpgId} initialClasses={initialClasses} /> : null}
+      {isOwner ? (
+        <ClassCategoryManager rpgId={rpgId} initialClasses={initialClasses} />
+      ) : (
+        <ClassCategoryToggleList groups={classGroups} />
+      )}
 
-      <ClassCategoryToggleList groups={classGroups} showEditActions={isOwner} />
-
-      {dbClasses.length === 0 ? <p>Nenhuma classe cadastrada.</p> : null}
+      {!isOwner && dbClasses.length === 0 ? <p>Nenhuma classe cadastrada.</p> : null}
     </main>
   )
 }
