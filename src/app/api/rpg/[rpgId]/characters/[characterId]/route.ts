@@ -650,10 +650,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       progressionCurrent?: number
     }
 
-    if (body.raceKey !== undefined || body.classKey !== undefined) {
+    const hasRaceKeyInBody = Object.prototype.hasOwnProperty.call(body, "raceKey")
+    const hasClassKeyInBody = Object.prototype.hasOwnProperty.call(body, "classKey")
+
+    if ((hasRaceKeyInBody || hasClassKeyInBody) && !permission.isOwner) {
       return NextResponse.json(
-        { message: "Raca e classe so podem ser definidas na criacao do personagem." },
-        { status: 400 },
+        { message: "Somente mestre ou moderador podem editar raca e classe de personagens." },
+        { status: 403 },
       )
     }
 
@@ -701,6 +704,64 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       permission.progressionTiers,
       resolvedProgressionCurrent,
     )
+    const selectedRaceKey = hasRaceKeyInBody ? normalizeOptionalText(body.raceKey) : null
+    const selectedClassKey = hasClassKeyInBody ? normalizeOptionalText(body.classKey) : null
+
+    if (hasRaceKeyInBody && selectedRaceKey) {
+      let raceRows: Array<{ key: string }> = []
+      try {
+        raceRows = await prisma.$queryRaw<Array<{ key: string }>>(Prisma.sql`
+          SELECT key
+          FROM rpg_race_templates
+          WHERE rpg_id = ${rpgId}
+            AND key = ${selectedRaceKey}
+          LIMIT 1
+        `)
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes('relation "rpg_race_templates" does not exist')
+        ) {
+          return NextResponse.json(
+            { message: "Estrutura de racas/classes nao existe no banco. Rode a migration." },
+            { status: 500 },
+          )
+        }
+        throw error
+      }
+
+      if (raceRows.length === 0) {
+        return NextResponse.json({ message: "Raca invalida para este RPG." }, { status: 400 })
+      }
+    }
+
+    if (hasClassKeyInBody && selectedClassKey) {
+      let classRows: Array<{ key: string }> = []
+      try {
+        classRows = await prisma.$queryRaw<Array<{ key: string }>>(Prisma.sql`
+          SELECT key
+          FROM rpg_class_templates
+          WHERE rpg_id = ${rpgId}
+            AND key = ${selectedClassKey}
+          LIMIT 1
+        `)
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes('relation "rpg_class_templates" does not exist')
+        ) {
+          return NextResponse.json(
+            { message: "Estrutura de racas/classes nao existe no banco. Rode a migration." },
+            { status: 500 },
+          )
+        }
+        throw error
+      }
+
+      if (classRows.length === 0) {
+        return NextResponse.json({ message: "Classe invalida para este RPG." }, { status: 400 })
+      }
+    }
 
     if (hasImageInBody) {
       const currentRows = await prisma.$queryRaw<Array<{ image: string | null }>>(Prisma.sql`
@@ -915,6 +976,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       SET
         name = ${name},
         image = CASE WHEN ${hasImageInBody} THEN ${image} ELSE image END,
+        race_key = CASE WHEN ${hasRaceKeyInBody} THEN ${selectedRaceKey} ELSE race_key END,
+        class_key = CASE WHEN ${hasClassKeyInBody} THEN ${selectedClassKey} ELSE class_key END,
         visibility = COALESCE(${visibility}::"RpgVisibility", visibility),
         max_carry_weight = CASE
           WHEN ${hasMaxCarryWeightInBody} THEN ${resolvedMaxCarryWeight}

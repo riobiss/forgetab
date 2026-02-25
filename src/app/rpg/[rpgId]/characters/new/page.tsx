@@ -490,7 +490,12 @@ export default function NewCharacterPage() {
           name: resolvedName,
           image: submittedImage,
           ...(isEditing
-            ? {}
+            ? canManageCharacters
+              ? {
+                ...(useRaceBonuses ? { raceKey } : {}),
+                ...(useClassBonuses ? { classKey } : {}),
+              }
+              : {}
             : {
               ...(useRaceBonuses && raceKey ? { raceKey } : {}),
               ...(useClassBonuses && classKey ? { classKey } : {}),
@@ -719,7 +724,7 @@ export default function NewCharacterPage() {
               {useRaceBonuses && raceTemplates.length > 0 ? (
                 <label className={styles.field}>
                   <span>Raca</span>
-                  {editingCharacterId ? (
+                  {editingCharacterId && !canManageCharacters ? (
                     <input
                       type="text"
                       value={
@@ -747,7 +752,7 @@ export default function NewCharacterPage() {
               {useClassBonuses && classTemplates.length > 0 ? (
                 <label className={styles.field}>
                   <span>Classe</span>
-                  {editingCharacterId ? (
+                  {editingCharacterId && !canManageCharacters ? (
                     <input
                       type="text"
                       value={

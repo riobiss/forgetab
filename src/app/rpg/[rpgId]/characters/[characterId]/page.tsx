@@ -442,11 +442,11 @@ export default async function CharactersPage({ params }: Params) {
     }
 
     const row = dbCharacter[0]
-    const canEditCharacter = Boolean(userId && (isOwner || row.createdByUserId === userId))
+    const canEditCharacter = Boolean(userId && (canManageRpg || row.createdByUserId === userId))
 
     if (
       row.visibility === "private" &&
-      !isOwner &&
+      !canManageRpg &&
       (!userId || row.createdByUserId !== userId)
     ) {
       notFound()
