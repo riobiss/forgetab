@@ -24,7 +24,7 @@ export default function Header() {
     { href: "/", label: "Início" },
     { href: "/rpg", label: "Campanhas" },
     { href: "/combat", label: "Combate" },
-    { href: "/dashboard/skills", label: "Habilidades" },
+    ...(routeRpgId ? [{ href: `/rpg/${routeRpgId}/skills`, label: "Habilidades" }] : []),
     { href: "/docs", label: "Guias" },
   ]
 

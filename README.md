@@ -202,7 +202,7 @@ O container `web` ja executa: install, `prisma migrate deploy`, `prisma generate
 - `/rpg/[rpgId]/items` Itens
 - `/rpg/[rpgId]/library` Biblioteca
 - `/rpg/[rpgId]/map` Mapa (quando habilitado)
-- `/dashboard/skills` Dashboard de habilidades
+- `/rpg/[rpgId]/skills` Dashboard de habilidades da campanha
 - `/combat` entrada atual do modulo de combate (placeholder)
 
 ## API (resumo)
