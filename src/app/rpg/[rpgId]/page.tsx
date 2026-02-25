@@ -9,6 +9,8 @@ import MembershipNotifications from "./components/MembershipNotifications"
 import MembersList from "./components/MembersList"
 import QuickCreateMenu from "./components/QuickCreateMenu"
 import RpgInfoModalButton from "./components/RpgInfoModalButton"
+import SpectatorVisionPanel from "./components/SpectatorVisionPanel"
+import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
@@ -45,6 +47,25 @@ type CountRow = {
   total: bigint | number
 }
 
+type SpectatorCharacterRow = {
+  id: string
+  name: string
+  characterType: "player" | "npc" | "monster"
+  life: number
+  mana: number
+  sanity: number
+  exhaustion: number
+  statuses: Prisma.JsonValue
+  currentStatuses: Prisma.JsonValue
+  attributes: Prisma.JsonValue
+  skills: Prisma.JsonValue
+}
+
+type TemplateLabelRow = {
+  key: string
+  label: string
+}
+
 type DbRpgRow = {
   id: string
   ownerId: string
@@ -62,6 +83,30 @@ function truncateText(text: string, limit: number) {
   if (text.length <= limit) return text
   return `${text.slice(0, limit).trimEnd()}...`
 }
+
+function normalizeNumericRecord(value: Prisma.JsonValue): Record<string, number> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {}
+  }
+
+  const record = value as Record<string, unknown>
+  return Object.fromEntries(
+    Object.entries(record).map(([key, rawValue]) => [key, Number(rawValue) || 0]),
+  )
+}
+
+function normalizeLegacyStatusKeys(record: Record<string, number>) {
+  const normalized = { ...record }
+  if (typeof normalized.stamina === "number" && typeof normalized.exhaustion !== "number") {
+    normalized.exhaustion = normalized.stamina
+  }
+  delete normalized.stamina
+  return normalized
+}
+
+const statusLabelByKey: Record<string, string> = Object.fromEntries(
+  STATUS_CATALOG.map((item) => [item.key, item.label]),
+)
 
 export default async function ViewInRpg({ params }: Params) {
   const { rpgId } = await params
@@ -145,6 +190,22 @@ export default async function ViewInRpg({ params }: Params) {
   let acceptedMembersCount = 0
   let hasRaces = false
   let hasClasses = false
+  let spectatorCharacters: Array<{
+    id: string
+    name: string
+    characterType: "player" | "npc" | "monster"
+    statusItems: Array<{
+      key: string
+      label: string
+      max: number
+      current: number
+    }>
+    attributes: Record<string, number>
+    skills: Record<string, number>
+  }> = []
+  let attributeLabels: Record<string, string> = {}
+  let skillLabels: Record<string, string> = {}
+  let statusLabels: Record<string, string> = {}
 
   if (canManageRpg) {
     pendingRequests = await prisma.$queryRaw<PendingRequestRow[]>(Prisma.sql`
@@ -214,6 +275,130 @@ export default async function ViewInRpg({ params }: Params) {
   } catch {
     hasRaces = false
     hasClasses = false
+  }
+
+  if (isOwner) {
+    try {
+      const [charactersRows, attributeTemplateRows, skillTemplateRows, statusTemplateRows] =
+        await Promise.all([
+        prisma.$queryRaw<SpectatorCharacterRow[]>(Prisma.sql`
+          SELECT
+            c.id,
+            c.name,
+            c.character_type AS "characterType",
+            c.life,
+            c.mana,
+            c.sanity,
+            c.stamina AS exhaustion,
+            COALESCE(c.statuses, '{}'::jsonb) AS statuses,
+            COALESCE(c.current_statuses, '{}'::jsonb) AS "currentStatuses",
+            COALESCE(c.attributes, '{}'::jsonb) AS attributes,
+            COALESCE(c.skills, '{}'::jsonb) AS skills
+          FROM rpg_characters c
+          WHERE c.rpg_id = ${rpgId}
+          ORDER BY c.created_at DESC
+        `),
+        prisma.$queryRaw<TemplateLabelRow[]>(Prisma.sql`
+          SELECT key, label
+          FROM rpg_attribute_templates
+          WHERE rpg_id = ${rpgId}
+          ORDER BY position ASC
+        `),
+        prisma.$queryRaw<TemplateLabelRow[]>(Prisma.sql`
+          SELECT key, label
+          FROM rpg_skill_templates
+          WHERE rpg_id = ${rpgId}
+          ORDER BY position ASC
+        `),
+        prisma.$queryRaw<TemplateLabelRow[]>(Prisma.sql`
+          SELECT key, label
+          FROM rpg_status_templates
+          WHERE rpg_id = ${rpgId}
+          ORDER BY position ASC
+        `),
+      ])
+
+      const statusTemplateLabelByKey = Object.fromEntries(
+        statusTemplateRows.map((item) => [item.key, item.label]),
+      )
+
+      spectatorCharacters = charactersRows.map((character) => {
+        const statuses = normalizeLegacyStatusKeys(normalizeNumericRecord(character.statuses))
+        const currentStatuses = normalizeLegacyStatusKeys(
+          normalizeNumericRecord(character.currentStatuses),
+        )
+        const coreStatusConfig = [
+          {
+            key: "life",
+            label: statusTemplateLabelByKey.life ?? "Vida",
+          },
+          {
+            key: "mana",
+            label: statusTemplateLabelByKey.mana ?? statusLabelByKey.mana ?? "Mana",
+          },
+          {
+            key: "sanity",
+            label:
+              statusTemplateLabelByKey.sanity ?? statusLabelByKey.sanity ?? "Sanidade",
+          },
+          {
+            key: "exhaustion",
+            label:
+              statusTemplateLabelByKey.exhaustion ??
+              statusTemplateLabelByKey.stamina ??
+              "Exaustão",
+          },
+        ]
+        const extraStatusEntries = Object.entries(statuses).filter(
+          ([key, value]) =>
+            !coreStatusConfig.some((item) => item.key === key) && Number(value) > 0,
+        )
+
+        const statusItems = [
+          ...coreStatusConfig.map((item) => ({
+            key: item.key,
+            label: item.label,
+            max: Number(statuses[item.key] ?? 0),
+            current:
+              item.key === "life"
+                ? Number(character.life ?? 0)
+                : item.key === "mana"
+                  ? Number(character.mana ?? 0)
+                  : item.key === "sanity"
+                    ? Number(character.sanity ?? 0)
+                    : Number(character.exhaustion ?? 0),
+          })),
+          ...extraStatusEntries.map(([key, value]) => ({
+            key,
+            label: statusTemplateLabelByKey[key] ?? statusLabelByKey[key] ?? key,
+            max: Number(value ?? 0),
+            current: Math.max(
+              0,
+              Math.min(Number(value ?? 0), Number(currentStatuses[key] ?? value ?? 0)),
+            ),
+          })),
+        ].filter((item) => item.max > 0)
+
+        return {
+          id: character.id,
+          name: character.name,
+          characterType: character.characterType,
+          statusItems,
+          attributes: normalizeNumericRecord(character.attributes),
+          skills: normalizeNumericRecord(character.skills),
+        }
+      })
+      attributeLabels = Object.fromEntries(
+        attributeTemplateRows.map((item) => [item.key, item.label]),
+      )
+      skillLabels = Object.fromEntries(skillTemplateRows.map((item) => [item.key, item.label]))
+      statusLabels = Object.fromEntries(statusTemplateRows.map((item) => [item.key, item.label]))
+    } catch {
+      spectatorCharacters = []
+      attributeLabels = {}
+      skillLabels = {}
+      statusLabels = {}
+    }
   }
 
   if (!canViewFullContent) {
@@ -309,6 +494,16 @@ export default async function ViewInRpg({ params }: Params) {
       <div className={styles.titleRow}>
         <h2 className={styles.title}>{dbRpg.title}</h2>
       </div>
+
+      {isOwner ? (
+        <SpectatorVisionPanel
+          rpgId={dbRpg.id}
+          characters={spectatorCharacters}
+          attributeLabels={attributeLabels}
+          skillLabels={skillLabels}
+          statusLabels={statusLabels}
+        />
+      ) : null}
 
       <h3 className={styles.sectionTitle}>Sessoes</h3>
 

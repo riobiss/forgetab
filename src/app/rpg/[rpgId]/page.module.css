@@ -822,6 +822,165 @@
   gap: 2rem;
 }
 
+.spectatorSection {
+  margin: 0 auto 2rem;
+  max-width: 820px;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.spectatorOpenButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.6rem 0.95rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-weight: 700;
+  justify-self: center;
+}
+
+.spectatorOpenButton:hover {
+  border-color: var(--color-brand-primary);
+}
+
+.spectatorPanel {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 0.9rem;
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  display: grid;
+  gap: 0.75rem;
+}
+
+.spectatorCategoryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.spectatorCategoryButton,
+.spectatorTabButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.spectatorCategoryButtonActive,
+.spectatorTabButtonActive {
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-primary);
+  background: var(--color-brand-soft);
+}
+
+.spectatorCharactersList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.5rem;
+}
+
+.spectatorCharacterButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.spectatorCharacterButtonActive {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-soft);
+  color: var(--color-text-primary);
+}
+
+.spectatorDetails {
+  border-top: 1px solid var(--color-border-soft);
+  padding-top: 0.75rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.spectatorSelectedName {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.spectatorTabRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.spectatorDetailsList {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--color-text-secondary);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.spectatorEmptyMessage {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.spectatorStatusList {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.spectatorStatusRow {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.spectatorStatusActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.spectatorStatusButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.spectatorStatusButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.spectatorStatusStepInput {
+  width: 54px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  padding: 0.28rem 0.35rem;
+}
+
 .card {
   position: relative;
   height: 190px;
