@@ -3,6 +3,7 @@ import styles from "./page.module.css"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 import ClassCategoryManager from "./components/ClassCategoryManager"
 import ClassCategoryToggleList from "./components/ClassCategoryToggleList"
 import { Prisma } from "../../../../../generated/prisma/client.js"
@@ -36,6 +37,8 @@ export default async function ClassesPage({ params }: Params) {
 
   const userId = await getUserIdFromCookieStore()
   const isOwner = userId === dbRpg.ownerId
+  const permission = userId ? await getRpgPermission(rpgId, userId) : null
+  const canManageRpg = permission?.canManage ?? false
   let isAcceptedMember = false
 
   if (userId && !isOwner) {
@@ -95,7 +98,7 @@ export default async function ClassesPage({ params }: Params) {
       title: item.label,
       subtitle: item.key,
       href: `/rpg/${rpgId}/classes/${item.id}`,
-      editHref: isOwner ? `/rpg/${rpgId}/edit/advanced/class/${item.key}` : undefined,
+      editHref: canManageRpg ? `/rpg/${rpgId}/edit/advanced/class/${item.key}` : undefined,
     })),
   }))
 
@@ -105,13 +108,13 @@ export default async function ClassesPage({ params }: Params) {
         <h1 className={styles.title}>Classes</h1>
       </div>
 
-      {isOwner ? (
+      {canManageRpg ? (
         <ClassCategoryManager rpgId={rpgId} initialClasses={initialClasses} />
       ) : (
         <ClassCategoryToggleList groups={classGroups} />
       )}
 
-      {!isOwner && dbClasses.length === 0 ? <p>Nenhuma classe cadastrada.</p> : null}
+      {!canManageRpg && dbClasses.length === 0 ? <p>Nenhuma classe cadastrada.</p> : null}
     </main>
   )
 }

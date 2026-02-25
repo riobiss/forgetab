@@ -58,6 +58,7 @@ type RpgConfigPayload = {
     useInventoryWeightLimit?: boolean
     progressionMode?: ProgressionMode
     progressionTiers?: ProgressionTier[]
+    canManage?: boolean
     canDelete?: boolean
   }
   message?: string
@@ -177,6 +178,7 @@ export default function NewCharacterPage() {
   const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null)
   const [useRaceBonuses, setUseRaceBonuses] = useState(false)
   const [useClassBonuses, setUseClassBonuses] = useState(false)
+  const [canManageCharacters, setCanManageCharacters] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
   const [progressionMode, setProgressionMode] = useState<ProgressionMode>("xp_level")
   const [progressionTiers, setProgressionTiers] = useState<ProgressionTier[]>(
@@ -350,6 +352,7 @@ export default function NewCharacterPage() {
             ? rpgPayload.rpg.useClassBonuses
             : legacyClassRaceFlag,
         )
+        setCanManageCharacters(Boolean(rpgPayload.rpg?.canManage))
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg?.useInventoryWeightLimit))
         const loadedProgressionMode = isProgressionMode(rpgPayload.rpg?.progressionMode)
           ? rpgPayload.rpg.progressionMode
@@ -506,7 +509,9 @@ export default function NewCharacterPage() {
           attributes: normalizeNumericValues(values),
           identity: identityValues,
           characteristics: characteristicsValues,
-          ...(!isEditing ? { skills: normalizeNumericValues(skillValues) } : {}),
+          ...(!isEditing || canManageCharacters
+            ? { skills: normalizeNumericValues(skillValues) }
+            : {}),
         }),
       })
 
@@ -940,7 +945,7 @@ export default function NewCharacterPage() {
             ) : null}
           </section>
 
-          {!editingCharacterId && skills.length > 0 ? (
+          {skills.length > 0 && (!editingCharacterId || canManageCharacters) ? (
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
                 <h2>Pericias</h2>
