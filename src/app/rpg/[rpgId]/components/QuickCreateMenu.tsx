@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Backpack,
   BookOpen,
-  ChevronDown,
   Minus,
   PackagePlus,
   Plus,

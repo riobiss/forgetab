@@ -8,6 +8,7 @@ import { Prisma } from "../../../../generated/prisma/client.js"
 import MembershipNotifications from "./components/MembershipNotifications"
 import MembersList from "./components/MembersList"
 import QuickCreateMenu from "./components/QuickCreateMenu"
+import RpgInfoModalButton from "./components/RpgInfoModalButton"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
@@ -46,12 +47,18 @@ type CountRow = {
 type DbRpgRow = {
   id: string
   ownerId: string
+  ownerName: string
   title: string
   description: string
   visibility: "private" | "public"
   useMundiMap: boolean
+  createdAt: Date
 }
 
+function truncateText(text: string, limit: number) {
+  if (text.length <= limit) return text
+  return `${text.slice(0, limit).trimEnd()}...`
+}
 
 export default async function ViewInRpg({ params }: Params) {
   const { rpgId } = await params
@@ -60,28 +67,34 @@ export default async function ViewInRpg({ params }: Params) {
   try {
     rows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
       SELECT
-        id,
-        owner_id AS "ownerId",
-        title,
-        description,
-        visibility,
-        COALESCE(use_mundi_map, false) AS "useMundiMap"
-      FROM rpgs
-      WHERE id = ${rpgId}
+        r.id,
+        r.owner_id AS "ownerId",
+        COALESCE(u.name, u.username, 'Mestre') AS "ownerName",
+        r.title,
+        r.description,
+        r.visibility,
+        COALESCE(r.use_mundi_map, false) AS "useMundiMap",
+        r.created_at AS "createdAt"
+      FROM rpgs r
+      LEFT JOIN users u ON u.id = r.owner_id
+      WHERE r.id = ${rpgId}
       LIMIT 1
     `)
   } catch (error) {
     if (error instanceof Error && error.message.includes('column "use_mundi_map" does not exist')) {
       rows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
         SELECT
-          id,
-          owner_id AS "ownerId",
-          title,
-          description,
-          visibility,
-          false AS "useMundiMap"
-        FROM rpgs
-        WHERE id = ${rpgId}
+          r.id,
+          r.owner_id AS "ownerId",
+          COALESCE(u.name, u.username, 'Mestre') AS "ownerName",
+          r.title,
+          r.description,
+          r.visibility,
+          false AS "useMundiMap",
+          r.created_at AS "createdAt"
+        FROM rpgs r
+        LEFT JOIN users u ON u.id = r.owner_id
+        WHERE r.id = ${rpgId}
         LIMIT 1
       `)
     } else {
@@ -117,6 +130,7 @@ export default async function ViewInRpg({ params }: Params) {
   let pendingRequests: PendingRequestRow[] = []
   let pendingCharacterRequests: PendingCharacterRequestRow[] = []
   let acceptedMembers: AcceptedMemberRow[] = []
+  let acceptedMembersCount = 0
   let hasRaces = false
   let hasClasses = false
 
@@ -146,6 +160,7 @@ export default async function ViewInRpg({ params }: Params) {
         AND m.status = 'accepted'::"public"."RpgMemberStatus"
       ORDER BY u.name ASC
     `)
+    acceptedMembersCount = acceptedMembers.length
 
     pendingCharacterRequests = await prisma.$queryRaw<PendingCharacterRequestRow[]>(Prisma.sql`
       SELECT
@@ -159,6 +174,14 @@ export default async function ViewInRpg({ params }: Params) {
         AND r.status = 'pending'::"public"."CharacterCreationRequestStatus"
       ORDER BY r.requested_at ASC
     `)
+  } else {
+    const acceptedCountRows = await prisma.$queryRaw<CountRow[]>(Prisma.sql`
+      SELECT COUNT(*) AS total
+      FROM rpg_members
+      WHERE rpg_id = ${rpgId}
+        AND status = 'accepted'::"public"."RpgMemberStatus"
+    `)
+    acceptedMembersCount = Number(acceptedCountRows[0]?.total ?? 0)
   }
 
   try {
@@ -181,12 +204,28 @@ export default async function ViewInRpg({ params }: Params) {
   }
 
   if (!canViewFullContent) {
+    const limitedDescription = truncateText(dbRpg.description, 400)
+    const createdAtLabel = new Intl.DateTimeFormat("pt-BR", {
+      dateStyle: "long",
+      timeZone: "America/Sao_Paulo",
+    }).format(dbRpg.createdAt)
+    const membersCount = 0
+
     return (
       <div className={styles.container}>
+        <div className={styles.topActions}>
+          <RpgInfoModalButton
+            title={dbRpg.title}
+            description={limitedDescription}
+            masterName={dbRpg.ownerName}
+            visibility={dbRpg.visibility}
+            createdAt={createdAtLabel}
+            membersCount={membersCount}
+          />
+        </div>
         <div className={styles.titleRow}>
           <h2 className={styles.title}>{dbRpg.title}</h2>
         </div>
-        <p className={styles.description}>{dbRpg.description}</p>
         <MembershipNotifications
           rpgId={dbRpg.id}
           isOwner={isOwner}
@@ -199,6 +238,13 @@ export default async function ViewInRpg({ params }: Params) {
       </div>
     )
   }
+
+  const limitedDescription = truncateText(dbRpg.description, 400)
+  const createdAtLabel = new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "long",
+    timeZone: "America/Sao_Paulo",
+  }).format(dbRpg.createdAt)
+  const membersCount = acceptedMembersCount
 
   return (
     <div className={styles.container}>
@@ -222,6 +268,14 @@ export default async function ViewInRpg({ params }: Params) {
         {canManageRpg ? (
           <MembersList rpgId={dbRpg.id} members={acceptedMembers} compact />
         ) : null}
+        <RpgInfoModalButton
+          title={dbRpg.title}
+          description={limitedDescription}
+          masterName={dbRpg.ownerName}
+          visibility={dbRpg.visibility}
+          createdAt={createdAtLabel}
+          membersCount={membersCount}
+        />
         {canManageRpg ? (
           <Link
             href={`/rpg/${dbRpg.id}/edit`}
@@ -236,7 +290,6 @@ export default async function ViewInRpg({ params }: Params) {
       <div className={styles.titleRow}>
         <h2 className={styles.title}>{dbRpg.title}</h2>
       </div>
-      <p className={styles.description}>{dbRpg.description}</p>
 
       <h3 className={styles.sectionTitle}>Sessoes</h3>
 
