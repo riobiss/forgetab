@@ -54,11 +54,11 @@ describe("PATCH /api/rpg/[rpgId]/characters/[characterId]", () => {
     expect(await response.json()).toEqual({ message: "Usuario nao autenticado." })
   })
 
-  it("retorna 400 ao tentar definir raca/classe via edicao", async () => {
+  it("retorna 403 quando jogador comum tenta definir raca/classe via edicao", async () => {
     mocks.queryRaw.mockResolvedValueOnce([
       {
         id: "rpg-1",
-        ownerId: "user-1",
+        ownerId: "owner-1",
         useInventoryWeightLimit: false,
         progressionMode: "xp_level",
         progressionTiers: [{ label: "Level 1", required: 0 }],
@@ -66,9 +66,15 @@ describe("PATCH /api/rpg/[rpgId]/characters/[characterId]", () => {
     ])
     mocks.queryRaw.mockResolvedValueOnce([
       {
+        status: "accepted",
+        role: "member",
+      },
+    ])
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
         id: "char-1",
         characterType: "player",
-        createdByUserId: null,
+        createdByUserId: "user-1",
         skills: {},
         currentStatuses: {},
         identity: {},
@@ -82,9 +88,9 @@ describe("PATCH /api/rpg/[rpgId]/characters/[characterId]", () => {
       makeContext(),
     )
 
-    expect(response.status).toBe(400)
+    expect(response.status).toBe(403)
     expect(await response.json()).toEqual({
-      message: "Raca e classe so podem ser definidas na criacao do personagem.",
+      message: "Somente mestre ou moderador podem editar raca e classe de personagens.",
     })
   })
 })
