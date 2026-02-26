@@ -105,6 +105,7 @@ type SkillLevel = {
   summary: string | null
   stats: Record<string, unknown> | null
   cost: Record<string, unknown> | null
+  requirement: Record<string, unknown> | null
   effects: unknown
 }
 
@@ -147,6 +148,7 @@ type LevelForm = {
   resourceCost: string
   costPoints: string
   costCustom: string
+  prerequisite: string
   effects: SkillEffect[]
 }
 
@@ -281,6 +283,7 @@ function mapSkillToMetaForm(skill: SkillDetail): MetaForm {
 function mapLevelToForm(level: SkillLevel): LevelForm {
   const stats = level.stats ?? {}
   const cost = level.cost ?? {}
+  const requirement = level.requirement ?? {}
   const statsNotesListRaw = Array.isArray(stats.notesList) ? stats.notesList : []
   const statsNotesList = statsNotesListRaw
     .map((item) => (typeof item === "string" ? item : ""))
@@ -301,6 +304,7 @@ function mapLevelToForm(level: SkillLevel): LevelForm {
     resourceCost: typeof stats.resourceCost === "string" ? stats.resourceCost : "",
     costPoints: typeof cost.points === "number" ? String(cost.points) : "",
     costCustom: typeof cost.custom === "string" ? cost.custom : "",
+    prerequisite: typeof requirement.notes === "string" ? requirement.notes : "",
     effects: parseEffects(level.effects),
   }
 }
@@ -346,6 +350,7 @@ function createInitialLevel(): LevelForm {
     resourceCost: "",
     costPoints: "",
     costCustom: "",
+    prerequisite: "",
     effects: [emptyEffect()],
   }
 }
@@ -726,6 +731,10 @@ export default function SkillsDashboardClient({
             points: toOptionalNumber(levelForm.costPoints),
             custom: toOptionalText(levelForm.costCustom),
           },
+          requirement: {
+            levelRequired: toOptionalNumber(levelForm.levelRequired),
+            notes: toOptionalText(levelForm.prerequisite),
+          },
           effects: levelForm.effects.map((effect) => buildEffectPayload(effect)),
         },
       }
@@ -888,6 +897,10 @@ export default function SkillsDashboardClient({
           cost: {
             points: toOptionalNumber(levelForm.costPoints),
             custom: toOptionalText(levelForm.costCustom),
+          },
+          requirement: {
+            levelRequired: toOptionalNumber(levelForm.levelRequired),
+            notes: toOptionalText(levelForm.prerequisite),
           },
           effects: levelForm.effects.map((effect) => buildEffectPayload(effect)),
         }),
@@ -1084,7 +1097,7 @@ export default function SkillsDashboardClient({
                     className={createStep === step ? styles.stepActive : styles.step}
                     onClick={() => setCreateStep(step)}
                   >
-                    {step === 1 ? "Basico" : step === 2 ? "Vinculos" : step === 3 ? "Avançado" : "Efeitos"}
+                    {step === 1 ? "Basico" : step === 2 ? "Requerimentos" : step === 3 ? "Avançado" : "Efeitos"}
                   </button>
                 ))}
               </div>
@@ -1139,7 +1152,7 @@ export default function SkillsDashboardClient({
                     </NativeSelectField>
                   </label>
                   <label className={styles.field}>
-                    <span>ActionType (Tipo da acao)</span>
+                    <span>Tipo da ação</span>
                     <NativeSelectField
                       value={metaForm.actionType}
                       onChange={(event) =>
@@ -1157,51 +1170,49 @@ export default function SkillsDashboardClient({
                       ))}
                     </NativeSelectField>
                   </label>
-                  <label className={styles.field}>
-                    <span>Level atual</span>
-                    <input
-                      type="number"
-                      onWheel={(event) => event.currentTarget.blur()}
-                      min={1}
-                      value={metaForm.currentLevel}
-                      onChange={(event) =>
-                        setMetaForm((prev) => ({ ...prev, currentLevel: event.target.value }))
-                      }
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span>Level requerido</span>
-                    <input
-                      type="number"
-                      onWheel={(event) => event.currentTarget.blur()}
-                      min={1}
-                      value={levelForm.levelRequired}
-                      onChange={(event) =>
-                        setLevelForm((prev) => ({ ...prev, levelRequired: event.target.value }))
-                      }
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span>Pontos necessarios para comprar</span>
-                    <input
-                      type="number"
-                      onWheel={(event) => event.currentTarget.blur()}
-                      min={0}
-                      step={1}
-                      value={levelForm.costPoints}
-                      onChange={(event) =>
-                        setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))
-                      }
-                    />
-                  </label>
                   <label className={`${styles.field} ${styles.spanTwo}`}>
-                    <span>Descricao</span>
+                    <span>Description</span>
                     <textarea
                       rows={3}
                       value={metaForm.description}
                       onChange={(event) =>
                         setMetaForm((prev) => ({ ...prev, description: event.target.value }))
                       }
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span>Dano</span>
+                    <input
+                      value={levelForm.damage}
+                      onChange={(event) => setLevelForm((prev) => ({ ...prev, damage: event.target.value }))}
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span>Alcance</span>
+                    <input
+                      value={levelForm.range}
+                      onChange={(event) => setLevelForm((prev) => ({ ...prev, range: event.target.value }))}
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span>Duracao</span>
+                    <input
+                      value={levelForm.duration}
+                      onChange={(event) => setLevelForm((prev) => ({ ...prev, duration: event.target.value }))}
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span>Recarga</span>
+                    <input
+                      value={levelForm.cooldown}
+                      onChange={(event) => setLevelForm((prev) => ({ ...prev, cooldown: event.target.value }))}
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span>Tempo de conjuracao</span>
+                    <input
+                      value={levelForm.castTime}
+                      onChange={(event) => setLevelForm((prev) => ({ ...prev, castTime: event.target.value }))}
                     />
                   </label>
                   {abilityCategoriesEnabled && enabledAbilityCategories.length === 0 ? (
@@ -1213,7 +1224,7 @@ export default function SkillsDashboardClient({
               {createStep === 2 ? (
                 <div className={styles.bindingGrid}>
                   <div className={styles.bindBox}>
-                    <h3>Classes (0..N)</h3>
+                    <h3>Classes permitidas</h3>
                     {classes.map((item) => (
                       <label key={item.id} className={styles.check}>
                         <input
@@ -1231,7 +1242,7 @@ export default function SkillsDashboardClient({
                     ))}
                   </div>
                   <div className={styles.bindBox}>
-                    <h3>Racas (0..N)</h3>
+                    <h3>Racas permitidas</h3>
                     {races.map((item) => (
                       <label key={item.id} className={styles.check}>
                         <input
@@ -1248,6 +1259,41 @@ export default function SkillsDashboardClient({
                       </label>
                     ))}
                   </div>
+                  <label className={styles.field}>
+                    <span>Nivel minimo</span>
+                    <input
+                      type="number"
+                      onWheel={(event) => event.currentTarget.blur()}
+                      min={1}
+                      value={levelForm.levelRequired}
+                      onChange={(event) =>
+                        setLevelForm((prev) => ({ ...prev, levelRequired: event.target.value }))
+                      }
+                    />
+                  </label>
+                  <label className={`${styles.field} ${styles.spanTwo}`}>
+                    <span>Pre-requisito</span>
+                    <textarea
+                      rows={2}
+                      value={levelForm.prerequisite}
+                      onChange={(event) =>
+                        setLevelForm((prev) => ({ ...prev, prerequisite: event.target.value }))
+                      }
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span>Pontos necessarios para compra</span>
+                    <input
+                      type="number"
+                      onWheel={(event) => event.currentTarget.blur()}
+                      min={0}
+                      step={1}
+                      value={levelForm.costPoints}
+                      onChange={(event) =>
+                        setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))
+                      }
+                    />
+                  </label>
                 </div>
               ) : null}
 
@@ -1323,41 +1369,6 @@ export default function SkillsDashboardClient({
                           Adicionar obs
                         </button>
                       </div>
-                    </label>
-                    <label className={styles.field}>
-                      <span>Dano</span>
-                      <input
-                        value={levelForm.damage}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, damage: event.target.value }))}
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Recarga</span>
-                      <input
-                        value={levelForm.cooldown}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, cooldown: event.target.value }))}
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Alcance</span>
-                      <input
-                        value={levelForm.range}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, range: event.target.value }))}
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Duracao</span>
-                      <input
-                        value={levelForm.duration}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, duration: event.target.value }))}
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Tempo de conjuracao</span>
-                      <input
-                        value={levelForm.castTime}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, castTime: event.target.value }))}
-                      />
                     </label>
                     <label className={styles.field}>
                       <span>Custo de recurso</span>
