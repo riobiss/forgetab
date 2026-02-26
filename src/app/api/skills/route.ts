@@ -3,6 +3,7 @@ import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import {
   canAccessOwnedRpg,
+  fetchRpgAbilityCategoryConfig,
   fetchSkillList,
   fetchSkillById,
   getUserIdFromRequest,
@@ -61,6 +62,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const abilityCategoryConfig = await fetchRpgAbilityCategoryConfig(rpgId)
+    if (abilityCategoryConfig.enabled && abilityCategoryConfig.categories.length === 0) {
+      return NextResponse.json({ message: "Ative pelo menos uma categoria" }, { status: 400 })
+    }
+    if (abilityCategoryConfig.enabled) {
+      if (!parsed.data.category) {
+        return NextResponse.json(
+          { message: "Categoria obrigatoria para criar habilidade." },
+          { status: 400 },
+        )
+      }
+      if (!abilityCategoryConfig.categories.includes(parsed.data.category)) {
+        return NextResponse.json(
+          { message: "Categoria desativada para este RPG." },
+          { status: 400 },
+        )
+      }
+    }
+
     const validatedLinks = await validateLinkIds({
       rpgId,
       classIds: parsed.data.classIds ?? [],
@@ -85,32 +105,67 @@ export async function POST(request: NextRequest) {
     const createdLevelId = crypto.randomUUID()
 
     await prisma.$transaction(async (tx) => {
-      await tx.$executeRaw(Prisma.sql`
-        INSERT INTO skills (
-          id,
-          owner_id,
-          rpg_id,
-          rpg_scope,
-          name,
-          slug,
-          category,
-          type,
-          description,
-          current_level
-        )
-        VALUES (
-          ${createdSkillId},
-          ${userId},
-          ${rpgId},
-          ${rpgScope},
-          ${parsed.data.name},
-          ${slug},
-          ${parsed.data.category},
-          ${parsed.data.type},
-          ${parsed.data.description},
-          ${parsed.data.currentLevel ?? 1}
-        )
-      `)
+      try {
+        await tx.$executeRaw(Prisma.sql`
+          INSERT INTO skills (
+            id,
+            owner_id,
+            rpg_id,
+            rpg_scope,
+            name,
+            slug,
+            category,
+            type,
+            action_type,
+            description,
+            current_level
+          )
+          VALUES (
+            ${createdSkillId},
+            ${userId},
+            ${rpgId},
+            ${rpgScope},
+            ${parsed.data.name},
+            ${slug},
+            ${parsed.data.category},
+            ${parsed.data.type},
+            ${parsed.data.actionType},
+            ${parsed.data.description},
+            ${parsed.data.currentLevel ?? 1}
+          )
+        `)
+      } catch (error) {
+        if (!(error instanceof Error) || !error.message.includes('column "action_type" does not exist')) {
+          throw error
+        }
+
+        await tx.$executeRaw(Prisma.sql`
+          INSERT INTO skills (
+            id,
+            owner_id,
+            rpg_id,
+            rpg_scope,
+            name,
+            slug,
+            category,
+            type,
+            description,
+            current_level
+          )
+          VALUES (
+            ${createdSkillId},
+            ${userId},
+            ${rpgId},
+            ${rpgScope},
+            ${parsed.data.name},
+            ${slug},
+            ${parsed.data.category},
+            ${parsed.data.type},
+            ${parsed.data.description},
+            ${parsed.data.currentLevel ?? 1}
+          )
+        `)
+      }
 
       await tx.$executeRaw(Prisma.sql`
         INSERT INTO skill_levels (

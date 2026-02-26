@@ -2,6 +2,7 @@ import { NextRequest } from "next/server"
 import { Prisma } from "../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { normalizeEnabledAbilityCategories } from "@/lib/rpg/abilityCategories"
 
 type SkillRow = {
   id: string
@@ -12,6 +13,7 @@ type SkillRow = {
   slug: string
   category: string | null
   type: string | null
+  actionType: string | null
   description: string | null
   currentLevel: number
   createdAt: Date
@@ -140,25 +142,54 @@ export async function validateLinkIds({
 }
 
 export async function fetchSkillById(skillId: string, ownerId: string) {
-  const skills = await prisma.$queryRaw<SkillRow[]>(Prisma.sql`
-    SELECT
-      id,
-      owner_id AS "ownerId",
-      rpg_id AS "rpgId",
-      rpg_scope AS "rpgScope",
-      name,
-      slug,
-      category,
-      type,
-      description,
-      current_level AS "currentLevel",
-      created_at AS "createdAt",
-      updated_at AS "updatedAt"
-    FROM skills
-    WHERE id = ${skillId}
-      AND owner_id = ${ownerId}
-    LIMIT 1
-  `)
+  let skills: SkillRow[] = []
+  try {
+    skills = await prisma.$queryRaw<SkillRow[]>(Prisma.sql`
+      SELECT
+        id,
+        owner_id AS "ownerId",
+        rpg_id AS "rpgId",
+        rpg_scope AS "rpgScope",
+        name,
+        slug,
+        category,
+        type,
+        action_type AS "actionType",
+        description,
+        current_level AS "currentLevel",
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+      FROM skills
+      WHERE id = ${skillId}
+        AND owner_id = ${ownerId}
+      LIMIT 1
+    `)
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.includes('column "action_type" does not exist')) {
+      throw error
+    }
+
+    skills = await prisma.$queryRaw<SkillRow[]>(Prisma.sql`
+      SELECT
+        id,
+        owner_id AS "ownerId",
+        rpg_id AS "rpgId",
+        rpg_scope AS "rpgScope",
+        name,
+        slug,
+        category,
+        type,
+        NULL::text AS "actionType",
+        description,
+        current_level AS "currentLevel",
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+      FROM skills
+      WHERE id = ${skillId}
+        AND owner_id = ${ownerId}
+      LIMIT 1
+    `)
+  }
 
   if (skills.length === 0) {
     return null
@@ -215,27 +246,97 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
 }
 
 export async function fetchSkillList(ownerId: string, rpgId?: string | null) {
-  const rows = await prisma.$queryRaw<SkillRow[]>(Prisma.sql`
-    SELECT
-      id,
-      owner_id AS "ownerId",
-      rpg_id AS "rpgId",
-      rpg_scope AS "rpgScope",
-      name,
-      slug,
-      category,
-      type,
-      description,
-      current_level AS "currentLevel",
-      created_at AS "createdAt",
-      updated_at AS "updatedAt"
-    FROM skills
-    WHERE owner_id = ${ownerId}
-      ${rpgId ? Prisma.sql`AND rpg_id = ${rpgId}` : Prisma.sql``}
-    ORDER BY updated_at DESC
-  `)
+  let rows: SkillRow[] = []
+  try {
+    rows = await prisma.$queryRaw<SkillRow[]>(Prisma.sql`
+      SELECT
+        id,
+        owner_id AS "ownerId",
+        rpg_id AS "rpgId",
+        rpg_scope AS "rpgScope",
+        name,
+        slug,
+        category,
+        type,
+        action_type AS "actionType",
+        description,
+        current_level AS "currentLevel",
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+      FROM skills
+      WHERE owner_id = ${ownerId}
+        ${rpgId ? Prisma.sql`AND rpg_id = ${rpgId}` : Prisma.sql``}
+      ORDER BY updated_at DESC
+    `)
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.includes('column "action_type" does not exist')) {
+      throw error
+    }
+
+    rows = await prisma.$queryRaw<SkillRow[]>(Prisma.sql`
+      SELECT
+        id,
+        owner_id AS "ownerId",
+        rpg_id AS "rpgId",
+        rpg_scope AS "rpgScope",
+        name,
+        slug,
+        category,
+        type,
+        NULL::text AS "actionType",
+        description,
+        current_level AS "currentLevel",
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+      FROM skills
+      WHERE owner_id = ${ownerId}
+        ${rpgId ? Prisma.sql`AND rpg_id = ${rpgId}` : Prisma.sql``}
+      ORDER BY updated_at DESC
+    `)
+  }
 
   return rows
+}
+
+export async function fetchRpgAbilityCategoryConfig(rpgId: string | null) {
+  if (!rpgId) {
+    return {
+      enabled: false,
+      categories: [] as string[],
+    }
+  }
+
+  try {
+    const rows = await prisma.$queryRaw<
+      Array<{ enabled: boolean; categories: string[] }>
+    >(Prisma.sql`
+      SELECT
+        COALESCE(ability_categories_enabled, false) AS enabled,
+        COALESCE(enabled_ability_categories, ARRAY[]::text[]) AS categories
+      FROM rpgs
+      WHERE id = ${rpgId}
+      LIMIT 1
+    `)
+
+    const row = rows[0]
+    return {
+      enabled: Boolean(row?.enabled),
+      categories: normalizeEnabledAbilityCategories(row?.categories),
+    }
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('column "ability_categories_enabled" does not exist') ||
+        error.message.includes('column "enabled_ability_categories" does not exist'))
+    ) {
+      return {
+        enabled: false,
+        categories: [] as string[],
+      }
+    }
+
+    throw error
+  }
 }
 
 export function toJsonOrNull(value: unknown) {
