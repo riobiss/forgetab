@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
       useClassBonuses,
       useClassRaceBonuses,
       useInventoryWeightLimit,
+      allowMultiplePlayerCharacters,
       usersCanManageOwnXp,
       allowSkillPointDistribution,
       abilityCategoriesEnabled,
@@ -70,12 +71,17 @@ export async function POST(request: NextRequest) {
       typeof useClassBonuses === "boolean"
         ? useClassBonuses
         : Boolean(useClassRaceBonuses)
+    const resolvedAllowMultiplePlayerCharacters = Boolean(allowMultiplePlayerCharacters ?? false)
     const resolvedUsersCanManageOwnXp = Boolean(usersCanManageOwnXp ?? true)
     const resolvedAllowSkillPointDistribution = Boolean(allowSkillPointDistribution ?? true)
     const resolvedAbilityCategoriesEnabled = Boolean(abilityCategoriesEnabled ?? false)
     const resolvedEnabledAbilityCategories = normalizeEnabledAbilityCategories(
       enabledAbilityCategories ?? [],
     )
+    const enabledAbilityCategoriesSql =
+      resolvedEnabledAbilityCategories.length > 0
+        ? Prisma.sql`ARRAY[${Prisma.join(resolvedEnabledAbilityCategories)}]::text[]`
+        : Prisma.sql`ARRAY[]::text[]`
     if (resolvedAbilityCategoriesEnabled && resolvedEnabledAbilityCategories.length === 0) {
       return NextResponse.json({ message: "Ative pelo menos uma categoria" }, { status: 400 })
     }
@@ -116,19 +122,21 @@ export async function POST(request: NextRequest) {
           use_class_bonuses = ${resolvedUseClassBonuses},
           use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
           use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
+          allow_multiple_player_characters = ${resolvedAllowMultiplePlayerCharacters},
           users_can_manage_own_xp = ${resolvedUsersCanManageOwnXp},
           allow_skill_point_distribution = ${resolvedAllowSkillPointDistribution},
           ability_categories_enabled = ${resolvedAbilityCategoriesEnabled},
-          enabled_ability_categories = ${Prisma.sql`ARRAY[${Prisma.join(resolvedEnabledAbilityCategories)}]::text[]`},
+          enabled_ability_categories = ${enabledAbilityCategoriesSql},
           progression_mode = ${resolvedProgressionMode},
           progression_tiers = ${JSON.stringify(resolvedProgressionTiers)}::jsonb
         WHERE id = ${created.id}
       `)
     } catch (error) {
       if (
-        error instanceof Error &&
-        (error.message.includes('column "use_race_bonuses" does not exist') ||
+          error instanceof Error &&
+          (error.message.includes('column "use_race_bonuses" does not exist') ||
           error.message.includes('column "use_class_bonuses" does not exist') ||
+          error.message.includes('column "allow_multiple_player_characters" does not exist') ||
           error.message.includes('column "users_can_manage_own_xp" does not exist') ||
           error.message.includes('column "allow_skill_point_distribution" does not exist') ||
           error.message.includes('column "ability_categories_enabled" does not exist') ||
@@ -145,10 +153,11 @@ export async function POST(request: NextRequest) {
               use_mundi_map = ${Boolean(useMundiMap)},
               use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
               use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
+              allow_multiple_player_characters = ${resolvedAllowMultiplePlayerCharacters},
               users_can_manage_own_xp = ${resolvedUsersCanManageOwnXp},
               allow_skill_point_distribution = ${resolvedAllowSkillPointDistribution},
               ability_categories_enabled = ${resolvedAbilityCategoriesEnabled},
-              enabled_ability_categories = ${Prisma.sql`ARRAY[${Prisma.join(resolvedEnabledAbilityCategories)}]::text[]`}
+              enabled_ability_categories = ${enabledAbilityCategoriesSql}
             WHERE id = ${created.id}
           `)
         } catch {
@@ -194,6 +203,7 @@ export async function POST(request: NextRequest) {
           useClassBonuses: resolvedUseClassBonuses,
           useClassRaceBonuses: resolvedUseRaceBonuses || resolvedUseClassBonuses,
           useInventoryWeightLimit: Boolean(useInventoryWeightLimit),
+          allowMultiplePlayerCharacters: resolvedAllowMultiplePlayerCharacters,
           usersCanManageOwnXp: resolvedUsersCanManageOwnXp,
           allowSkillPointDistribution: resolvedAllowSkillPointDistribution,
           abilityCategoriesEnabled: resolvedAbilityCategoriesEnabled,
@@ -227,6 +237,7 @@ export async function POST(request: NextRequest) {
         error.message.includes('relation "rpgs" does not exist') ||
         error.message.includes('column "costs_enabled" does not exist') ||
         error.message.includes('column "cost_resource_name" does not exist') ||
+        error.message.includes('column "allow_multiple_player_characters" does not exist') ||
         error.message.includes('column "users_can_manage_own_xp" does not exist') ||
         error.message.includes('column "allow_skill_point_distribution" does not exist') ||
         error.message.includes('column "ability_categories_enabled" does not exist') ||

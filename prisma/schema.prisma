@@ -92,6 +92,7 @@ model Rpg {
   useClassBonuses    Boolean                @default(false) @map("use_class_bonuses")
   useClassRaceBonuses Boolean               @default(false) @map("use_class_race_bonuses")
   useInventoryWeightLimit Boolean           @default(false) @map("use_inventory_weight_limit")
+  allowMultiplePlayerCharacters Boolean     @default(false) @map("allow_multiple_player_characters")
   usersCanManageOwnXp Boolean               @default(true) @map("users_can_manage_own_xp")
   allowSkillPointDistribution Boolean       @default(true) @map("allow_skill_point_distribution")
   abilityCategoriesEnabled Boolean          @default(false) @map("ability_categories_enabled")

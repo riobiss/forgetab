@@ -64,6 +64,7 @@ export default function EditRpgPage() {
     useRaceBonuses: state.useRaceBonuses,
     useClassBonuses: state.useClassBonuses,
     useInventoryWeightLimit: state.useInventoryWeightLimit,
+    allowMultiplePlayerCharacters: state.allowMultiplePlayerCharacters,
     usersCanManageOwnXp: state.usersCanManageOwnXp,
     allowSkillPointDistribution: state.allowSkillPointDistribution,
     abilityCategoriesEnabled: state.abilityCategoriesEnabled,
@@ -84,6 +85,7 @@ export default function EditRpgPage() {
     setUseRaceBonuses: state.setUseRaceBonuses,
     setUseClassBonuses: state.setUseClassBonuses,
     setUseInventoryWeightLimit: state.setUseInventoryWeightLimit,
+    setAllowMultiplePlayerCharacters: state.setAllowMultiplePlayerCharacters,
     setUsersCanManageOwnXp: state.setUsersCanManageOwnXp,
     setAllowSkillPointDistribution: state.setAllowSkillPointDistribution,
     setAbilityCategoriesEnabled: state.setAbilityCategoriesEnabled,
@@ -579,6 +581,18 @@ export default function EditRpgPage() {
         ) : (
           <section className={styles.advancedStage}>
             <h2>Permissoes de Progressao e Membros</h2>
+
+            <RadixSwitchField
+              id="edit-rpg-allow-multiple-player-characters"
+              label="Permitir mais de 1 personagem por player"
+              description={
+                state.allowMultiplePlayerCharacters
+                  ? "Ativo: players podem criar personagens adicionais."
+                  : "Inativo: cada player pode ter apenas 1 personagem."
+              }
+              checked={state.allowMultiplePlayerCharacters}
+              onCheckedChange={state.setAllowMultiplePlayerCharacters}
+            />
 
             <RadixSwitchField
               id="edit-rpg-users-can-manage-xp"

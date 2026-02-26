@@ -166,6 +166,7 @@ type RpgRow = {
   useClassBonuses: boolean
   useClassRaceBonuses: boolean
   useInventoryWeightLimit: boolean
+  allowMultiplePlayerCharacters: boolean
   usersCanManageOwnXp: boolean
   allowSkillPointDistribution: boolean
   abilityCategoriesEnabled: boolean
@@ -204,6 +205,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           COALESCE(use_class_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useClassBonuses",
           COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
           COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit",
+          COALESCE(allow_multiple_player_characters, false) AS "allowMultiplePlayerCharacters",
           COALESCE(users_can_manage_own_xp, true) AS "usersCanManageOwnXp",
           COALESCE(allow_skill_point_distribution, true) AS "allowSkillPointDistribution",
           COALESCE(ability_categories_enabled, false) AS "abilityCategoriesEnabled",
@@ -224,6 +226,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           error.message.includes('column "use_class_bonuses" does not exist') ||
           error.message.includes('column "use_class_race_bonuses" does not exist') ||
           error.message.includes('column "use_inventory_weight_limit" does not exist') ||
+          error.message.includes('column "allow_multiple_player_characters" does not exist') ||
           error.message.includes('column "users_can_manage_own_xp" does not exist') ||
           error.message.includes('column "allow_skill_point_distribution" does not exist') ||
           error.message.includes('column "ability_categories_enabled" does not exist') ||
@@ -248,6 +251,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
               COALESCE(use_class_race_bonuses, false) AS "useClassBonuses",
               COALESCE(use_class_race_bonuses, false) AS "useClassRaceBonuses",
               false AS "useInventoryWeightLimit",
+              false AS "allowMultiplePlayerCharacters",
               true AS "usersCanManageOwnXp",
               true AS "allowSkillPointDistribution",
               false AS "abilityCategoriesEnabled",
@@ -274,6 +278,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
               false AS "useClassBonuses",
               false AS "useClassRaceBonuses",
               false AS "useInventoryWeightLimit",
+              false AS "allowMultiplePlayerCharacters",
               true AS "usersCanManageOwnXp",
               true AS "allowSkillPointDistribution",
               false AS "abilityCategoriesEnabled",
@@ -324,6 +329,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           useClassBonuses: rpg.useClassBonuses,
           useClassRaceBonuses: rpg.useClassRaceBonuses,
           useInventoryWeightLimit: rpg.useInventoryWeightLimit,
+          allowMultiplePlayerCharacters: rpg.allowMultiplePlayerCharacters,
           usersCanManageOwnXp: rpg.usersCanManageOwnXp,
           allowSkillPointDistribution: rpg.allowSkillPointDistribution,
           abilityCategoriesEnabled: rpg.abilityCategoriesEnabled,
@@ -406,6 +412,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       useClassBonuses,
       useClassRaceBonuses,
       useInventoryWeightLimit,
+      allowMultiplePlayerCharacters,
       usersCanManageOwnXp,
       allowSkillPointDistribution,
       abilityCategoriesEnabled,
@@ -421,6 +428,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       typeof useClassBonuses === "boolean"
         ? useClassBonuses
         : Boolean(useClassRaceBonuses)
+    const resolvedAllowMultiplePlayerCharacters = Boolean(allowMultiplePlayerCharacters ?? false)
     const resolvedUsersCanManageOwnXp = Boolean(usersCanManageOwnXp ?? true)
     const resolvedAllowSkillPointDistribution = Boolean(allowSkillPointDistribution ?? true)
     const resolvedAbilityCategoriesEnabled = Boolean(abilityCategoriesEnabled ?? false)
@@ -525,6 +533,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       typeof useClassBonuses === "boolean" ||
       typeof useClassRaceBonuses === "boolean" ||
       typeof useInventoryWeightLimit === "boolean" ||
+      typeof allowMultiplePlayerCharacters === "boolean" ||
       typeof usersCanManageOwnXp === "boolean" ||
       typeof allowSkillPointDistribution === "boolean" ||
       typeof abilityCategoriesEnabled === "boolean" ||
@@ -541,6 +550,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
             use_class_bonuses = ${resolvedUseClassBonuses},
             use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
             use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
+            allow_multiple_player_characters = ${resolvedAllowMultiplePlayerCharacters},
             users_can_manage_own_xp = ${resolvedUsersCanManageOwnXp},
             allow_skill_point_distribution = ${resolvedAllowSkillPointDistribution},
             ability_categories_enabled = ${resolvedAbilityCategoriesEnabled},
@@ -554,6 +564,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           if (
             error.message.includes('column "use_race_bonuses" does not exist') ||
             error.message.includes('column "use_class_bonuses" does not exist') ||
+            error.message.includes('column "allow_multiple_player_characters" does not exist') ||
             error.message.includes('column "users_can_manage_own_xp" does not exist') ||
             error.message.includes('column "allow_skill_point_distribution" does not exist') ||
             error.message.includes('column "ability_categories_enabled" does not exist') ||
@@ -568,6 +579,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
                   use_mundi_map = ${Boolean(useMundiMap)},
                   use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
                   use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
+                  allow_multiple_player_characters = ${resolvedAllowMultiplePlayerCharacters},
                   users_can_manage_own_xp = ${resolvedUsersCanManageOwnXp},
                   allow_skill_point_distribution = ${resolvedAllowSkillPointDistribution},
                   ability_categories_enabled = ${resolvedAbilityCategoriesEnabled},
@@ -579,6 +591,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
                 !(innerError instanceof Error) ||
                 (!innerError.message.includes('column "use_class_race_bonuses" does not exist') &&
                   !innerError.message.includes('column "use_inventory_weight_limit" does not exist') &&
+                  !innerError.message.includes('column "allow_multiple_player_characters" does not exist') &&
                   !innerError.message.includes('column "users_can_manage_own_xp" does not exist') &&
                   !innerError.message.includes('column "allow_skill_point_distribution" does not exist') &&
                   !innerError.message.includes('column "ability_categories_enabled" does not exist') &&
@@ -593,6 +606,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           } else if (
             !error.message.includes('column "use_class_race_bonuses" does not exist') &&
             !error.message.includes('column "use_inventory_weight_limit" does not exist') &&
+            !error.message.includes('column "allow_multiple_player_characters" does not exist') &&
             !error.message.includes('column "users_can_manage_own_xp" does not exist') &&
             !error.message.includes('column "allow_skill_point_distribution" does not exist') &&
             !error.message.includes('column "ability_categories_enabled" does not exist') &&
@@ -673,6 +687,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         error.message.includes('column "costs_enabled" does not exist') ||
         error.message.includes('column "cost_resource_name" does not exist') ||
         error.message.includes('column "image" does not exist') ||
+        error.message.includes('column "allow_multiple_player_characters" does not exist') ||
         error.message.includes('column "users_can_manage_own_xp" does not exist') ||
         error.message.includes('column "allow_skill_point_distribution" does not exist') ||
         error.message.includes('column "ability_categories_enabled" does not exist') ||

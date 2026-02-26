@@ -39,6 +39,7 @@ export function useEditRpgState() {
   const [useRaceBonuses, setUseRaceBonuses] = useState(false)
   const [useClassBonuses, setUseClassBonuses] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
+  const [allowMultiplePlayerCharacters, setAllowMultiplePlayerCharacters] = useState(false)
   const [usersCanManageOwnXp, setUsersCanManageOwnXp] = useState(true)
   const [allowSkillPointDistribution, setAllowSkillPointDistribution] = useState(true)
   const [abilityCategoriesEnabled, setAbilityCategoriesEnabled] = useState(false)
@@ -311,6 +312,8 @@ export function useEditRpgState() {
     setUseClassBonuses,
     useInventoryWeightLimit,
     setUseInventoryWeightLimit,
+    allowMultiplePlayerCharacters,
+    setAllowMultiplePlayerCharacters,
     usersCanManageOwnXp,
     setUsersCanManageOwnXp,
     allowSkillPointDistribution,

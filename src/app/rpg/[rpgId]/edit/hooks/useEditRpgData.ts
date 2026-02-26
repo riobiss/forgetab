@@ -51,6 +51,7 @@ type RpgPayload = {
     useClassBonuses?: boolean
     useClassRaceBonuses?: boolean
     useInventoryWeightLimit?: boolean
+    allowMultiplePlayerCharacters?: boolean
     usersCanManageOwnXp?: boolean
     allowSkillPointDistribution?: boolean
     abilityCategoriesEnabled?: boolean
@@ -73,6 +74,7 @@ type UseEditRpgDataParams = {
   useRaceBonuses: boolean
   useClassBonuses: boolean
   useInventoryWeightLimit: boolean
+  allowMultiplePlayerCharacters: boolean
   usersCanManageOwnXp: boolean
   allowSkillPointDistribution: boolean
   abilityCategoriesEnabled: boolean
@@ -93,6 +95,7 @@ type UseEditRpgDataParams = {
   setUseRaceBonuses: (value: boolean) => void
   setUseClassBonuses: (value: boolean) => void
   setUseInventoryWeightLimit: (value: boolean) => void
+  setAllowMultiplePlayerCharacters: (value: boolean) => void
   setUsersCanManageOwnXp: (value: boolean) => void
   setAllowSkillPointDistribution: (value: boolean) => void
   setAbilityCategoriesEnabled: (value: boolean) => void
@@ -122,6 +125,7 @@ export function useEditRpgData({
   useRaceBonuses,
   useClassBonuses,
   useInventoryWeightLimit,
+  allowMultiplePlayerCharacters,
   usersCanManageOwnXp,
   allowSkillPointDistribution,
   abilityCategoriesEnabled,
@@ -142,6 +146,7 @@ export function useEditRpgData({
   setUseRaceBonuses,
   setUseClassBonuses,
   setUseInventoryWeightLimit,
+  setAllowMultiplePlayerCharacters,
   setUsersCanManageOwnXp,
   setAllowSkillPointDistribution,
   setAbilityCategoriesEnabled,
@@ -257,6 +262,7 @@ export function useEditRpgData({
             : legacyClassRaceFlag,
         )
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg.useInventoryWeightLimit))
+        setAllowMultiplePlayerCharacters(Boolean(rpgPayload.rpg.allowMultiplePlayerCharacters))
         setUsersCanManageOwnXp(Boolean(rpgPayload.rpg.usersCanManageOwnXp ?? true))
         setAllowSkillPointDistribution(Boolean(rpgPayload.rpg.allowSkillPointDistribution ?? true))
         setAbilityCategoriesEnabled(Boolean(rpgPayload.rpg.abilityCategoriesEnabled ?? false))
@@ -336,6 +342,7 @@ export function useEditRpgData({
     setUseRaceBonuses,
     setUseClassBonuses,
     setUseInventoryWeightLimit,
+    setAllowMultiplePlayerCharacters,
     setUsersCanManageOwnXp,
     setAllowSkillPointDistribution,
     setAbilityCategoriesEnabled,
@@ -367,6 +374,7 @@ export function useEditRpgData({
         useRaceBonuses,
         useClassBonuses,
         useInventoryWeightLimit,
+        allowMultiplePlayerCharacters,
         usersCanManageOwnXp,
         allowSkillPointDistribution,
         abilityCategoriesEnabled,

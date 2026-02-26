@@ -29,6 +29,7 @@ export const createRpgSchema = z.object({
   useClassBonuses: z.boolean().optional(),
   useClassRaceBonuses: z.boolean().optional(),
   useInventoryWeightLimit: z.boolean().optional(),
+  allowMultiplePlayerCharacters: z.boolean().optional(),
   usersCanManageOwnXp: z.boolean().optional(),
   allowSkillPointDistribution: z.boolean().optional(),
   abilityCategoriesEnabled: z.boolean().optional(),
