@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const mocks = vi.hoisted(() => ({
   getUserIdFromRequest: vi.fn(),
   fetchSkillList: vi.fn(),
-  canAccessOwnedRpg: vi.fn(),
+  getRpgPermission: vi.fn(),
   fetchRpgAbilityCategoryConfig: vi.fn(),
   validateLinkIds: vi.fn(),
   fetchSkillById: vi.fn(),
@@ -14,10 +14,12 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/server/skillBuilder", () => ({
   getUserIdFromRequest: mocks.getUserIdFromRequest,
   fetchSkillList: mocks.fetchSkillList,
-  canAccessOwnedRpg: mocks.canAccessOwnedRpg,
   fetchRpgAbilityCategoryConfig: mocks.fetchRpgAbilityCategoryConfig,
   validateLinkIds: mocks.validateLinkIds,
   fetchSkillById: mocks.fetchSkillById,
+}))
+vi.mock("@/lib/server/rpgPermissions", () => ({
+  getRpgPermission: mocks.getRpgPermission,
 }))
 
 vi.mock("@/lib/prisma", () => ({
@@ -71,7 +73,7 @@ describe("POST /api/skills", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.getUserIdFromRequest.mockResolvedValue("user-1")
-    mocks.canAccessOwnedRpg.mockResolvedValue(true)
+    mocks.getRpgPermission.mockResolvedValue({ canManage: true })
     mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({ enabled: false, categories: [] })
     mocks.validateLinkIds.mockResolvedValue({ ok: true })
     mocks.fetchSkillById.mockResolvedValue({
@@ -95,8 +97,8 @@ describe("POST /api/skills", () => {
     expect(typeof json.message).toBe("string")
   })
 
-  it("retorna 404 quando rpgId nao pertence ao usuario", async () => {
-    mocks.canAccessOwnedRpg.mockResolvedValue(false)
+  it("retorna 404 quando usuario nao pode gerenciar o rpg", async () => {
+    mocks.getRpgPermission.mockResolvedValue({ canManage: false })
 
     const response = await POST(
       makePostRequest({
@@ -107,6 +109,19 @@ describe("POST /api/skills", () => {
 
     expect(response.status).toBe(404)
     expect(await response.json()).toEqual({ message: "RPG nao encontrado." })
+  })
+
+  it("permite moderador criar skill no rpg", async () => {
+    mocks.getRpgPermission.mockResolvedValue({ canManage: true, isModerator: true })
+
+    const response = await POST(
+      makePostRequest({
+        name: "Golpe",
+        rpgId: "rpg-1",
+      }),
+    )
+
+    expect(response.status).toBe(201)
   })
 
   it("retorna 400 quando currentLevel inicial maior que 1", async () => {

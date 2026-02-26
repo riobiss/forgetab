@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import {
-  canAccessOwnedRpg,
   fetchRpgAbilityCategoryConfig,
   fetchSkillList,
   fetchSkillById,
   getUserIdFromRequest,
   validateLinkIds,
 } from "@/lib/server/skillBuilder"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
 import {
   buildSkillSlug,
   createRpgScope,
@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
 
     const rpgId = parsed.data.rpgId ?? null
     if (rpgId) {
-      const hasAccess = await canAccessOwnedRpg(rpgId, userId)
-      if (!hasAccess) {
+      const permission = await getRpgPermission(rpgId, userId)
+      if (!permission.canManage) {
         return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
       }
     }
