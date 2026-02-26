@@ -90,10 +90,6 @@ type IdentityTemplateRow = {
   skillBonuses: Prisma.JsonValue
 }
 
-type CharacterCreationRequestRow = {
-  status: "pending" | "accepted" | "rejected"
-}
-
 async function getUserIdFromToken(request: NextRequest) {
   const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
   if (!token) return null
@@ -113,6 +109,7 @@ type RpgAccess = {
   useRaceBonuses: boolean
   useClassBonuses: boolean
   useInventoryWeightLimit: boolean
+  allowMultiplePlayerCharacters: boolean
   progressionMode: ProgressionMode
   progressionTiers: ProgressionTier[]
 }
@@ -127,6 +124,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
     useRaceBonuses: boolean
     useClassBonuses: boolean
     useInventoryWeightLimit: boolean
+    allowMultiplePlayerCharacters: boolean
     progressionMode: string
     progressionTiers: Prisma.JsonValue
   }> = []
@@ -137,6 +135,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
         useRaceBonuses: boolean
         useClassBonuses: boolean
         useInventoryWeightLimit: boolean
+        allowMultiplePlayerCharacters: boolean
         progressionMode: string
         progressionTiers: Prisma.JsonValue
       }>
@@ -147,6 +146,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
           COALESCE(use_race_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useRaceBonuses",
           COALESCE(use_class_bonuses, COALESCE(use_class_race_bonuses, false)) AS "useClassBonuses",
           COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit",
+          COALESCE(allow_multiple_player_characters, false) AS "allowMultiplePlayerCharacters",
           COALESCE(progression_mode, 'xp_level') AS "progressionMode",
           COALESCE(progression_tiers, '[{"label":"Level 1","required":0}]'::jsonb) AS "progressionTiers"
         FROM rpgs
@@ -161,6 +161,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
         error.message.includes('column "use_class_bonuses" does not exist') ||
         error.message.includes('column "use_class_race_bonuses" does not exist') ||
         error.message.includes('column "use_inventory_weight_limit" does not exist') ||
+        error.message.includes('column "allow_multiple_player_characters" does not exist') ||
         error.message.includes('column "progression_mode" does not exist') ||
         error.message.includes('column "progression_tiers" does not exist'))
     ) {
@@ -171,6 +172,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
             useRaceBonuses: boolean
             useClassBonuses: boolean
             useInventoryWeightLimit: boolean
+            allowMultiplePlayerCharacters: boolean
             progressionMode: string
             progressionTiers: Prisma.JsonValue
           }>
@@ -181,6 +183,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
               COALESCE(use_class_race_bonuses, false) AS "useRaceBonuses",
               COALESCE(use_class_race_bonuses, false) AS "useClassBonuses",
               false AS "useInventoryWeightLimit",
+              false AS "allowMultiplePlayerCharacters",
               'xp_level'::text AS "progressionMode",
               '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
             FROM rpgs
@@ -195,6 +198,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
             useRaceBonuses: boolean
             useClassBonuses: boolean
             useInventoryWeightLimit: boolean
+            allowMultiplePlayerCharacters: boolean
             progressionMode: string
             progressionTiers: Prisma.JsonValue
           }>
@@ -205,6 +209,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
               false AS "useRaceBonuses",
               false AS "useClassBonuses",
               false AS "useInventoryWeightLimit",
+              false AS "allowMultiplePlayerCharacters",
               'xp_level'::text AS "progressionMode",
               '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
             FROM rpgs
@@ -227,6 +232,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
       useRaceBonuses: false,
       useClassBonuses: false,
       useInventoryWeightLimit: false,
+      allowMultiplePlayerCharacters: false,
       progressionMode: "xp_level",
       progressionTiers: getDefaultProgressionTiers("xp_level"),
     }
@@ -248,6 +254,7 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
       useRaceBonuses: rpg.useRaceBonuses,
       useClassBonuses: rpg.useClassBonuses,
       useInventoryWeightLimit: rpg.useInventoryWeightLimit,
+      allowMultiplePlayerCharacters: rpg.allowMultiplePlayerCharacters,
       progressionMode,
       progressionTiers,
     }
@@ -264,15 +271,16 @@ async function getRpgAccess(rpgId: string, userId: string): Promise<RpgAccess> {
   const isAcceptedMember = membership[0]?.status === "accepted"
   const isModerator = isAcceptedMember && membership[0]?.role === "moderator"
 
-  return {
-    exists: true,
-    canAccess: isAcceptedMember,
-    isOwner: isModerator,
-    useRaceBonuses: rpg.useRaceBonuses,
-    useClassBonuses: rpg.useClassBonuses,
-    useInventoryWeightLimit: rpg.useInventoryWeightLimit,
-    progressionMode,
-    progressionTiers,
+    return {
+      exists: true,
+      canAccess: isAcceptedMember,
+      isOwner: isModerator,
+      useRaceBonuses: rpg.useRaceBonuses,
+      useClassBonuses: rpg.useClassBonuses,
+      useInventoryWeightLimit: rpg.useInventoryWeightLimit,
+      allowMultiplePlayerCharacters: rpg.allowMultiplePlayerCharacters,
+      progressionMode,
+      progressionTiers,
   }
 }
 
@@ -672,10 +680,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
         characters,
         isOwner: access.isOwner,
         useRaceBonuses: access.useRaceBonuses,
-        useClassBonuses: access.useClassBonuses,
-        useInventoryWeightLimit: access.useInventoryWeightLimit,
-        progressionMode: access.progressionMode,
-        progressionTiers: access.progressionTiers,
+      useClassBonuses: access.useClassBonuses,
+      useInventoryWeightLimit: access.useInventoryWeightLimit,
+      allowMultiplePlayerCharacters: access.allowMultiplePlayerCharacters,
+      progressionMode: access.progressionMode,
+      progressionTiers: access.progressionTiers,
       },
       { status: 200 },
     )
@@ -798,36 +807,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
     )
 
     if (!access.isOwner) {
-      const creationRequest = await prisma.$queryRaw<CharacterCreationRequestRow[]>(Prisma.sql`
-        SELECT status
-        FROM rpg_character_creation_requests
-        WHERE rpg_id = ${rpgId}
-          AND user_id = ${userId}
-        LIMIT 1
-      `)
-
-      if (creationRequest[0]?.status !== "accepted") {
-        return NextResponse.json(
-          {
-            message:
-              "Voce precisa da permissao do mestre para criar personagem. Envie uma solicitacao.",
-          },
-          { status: 403 },
-        )
-      }
-    }
-
-    if (!access.isOwner) {
-      const existingPlayer = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
-        SELECT id
+      const existingPlayers = await prisma.$queryRaw<Array<{ total: number }>>(Prisma.sql`
+        SELECT COUNT(*)::int AS total
         FROM rpg_characters
         WHERE rpg_id = ${rpgId}
           AND character_type = 'player'::"RpgCharacterType"
           AND created_by_user_id = ${userId}
-        LIMIT 1
       `)
 
-      if (existingPlayer.length > 0) {
+      const totalPlayers = Number(existingPlayers[0]?.total ?? 0)
+      if (totalPlayers > 0 && !access.allowMultiplePlayerCharacters) {
         return NextResponse.json(
           { message: "Voce ja possui um personagem player neste RPG." },
           { status: 409 },
@@ -1112,18 +1101,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
         { status: 500 },
       )
     }
-    if (
-      error instanceof Error &&
-      error.message.includes('relation "rpg_character_creation_requests" does not exist')
-    ) {
-      return NextResponse.json(
-        {
-          message:
-            "Tabela de solicitacoes de criacao de personagem nao existe no banco. Rode a migration.",
-        },
-        { status: 500 },
-      )
-    }
     if (error instanceof Error && error.message.includes('column "created_by_user_id" of relation "rpg_characters" does not exist')) {
       return NextResponse.json(
         { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
@@ -1163,6 +1140,15 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (
       error instanceof Error &&
       error.message.includes('column "use_inventory_weight_limit" does not exist')
+    ) {
+      return NextResponse.json(
+        { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+    if (
+      error instanceof Error &&
+      error.message.includes('column "allow_multiple_player_characters" does not exist')
     ) {
       return NextResponse.json(
         { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },

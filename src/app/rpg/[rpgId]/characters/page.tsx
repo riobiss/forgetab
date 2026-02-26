@@ -25,6 +25,13 @@ type DbCharacterRow = {
   createdByUserId: string | null
 }
 
+type DbRpgRow = {
+  id: string
+  ownerId: string
+  visibility: "private" | "public"
+  allowMultiplePlayerCharacters: boolean
+}
+
 export default async function CharactersPage({ params, searchParams }: Params) {
   const { rpgId } = await params
   const resolvedSearchParams = await searchParams
@@ -36,22 +43,56 @@ export default async function CharactersPage({ params, searchParams }: Params) {
       : "all"
 
   let dbRpg:
-    | { id: string; ownerId: string; visibility: "private" | "public" }
+    | {
+        id: string
+        ownerId: string
+        visibility: "private" | "public"
+        allowMultiplePlayerCharacters: boolean
+      }
     | null = null
   let dbCharacters: DbCharacterRow[] = []
   let privateBlocked = false
   let canCreateCharacter = false
   let isOwner = false
   let isAcceptedMember = false
-  let ownCharacterId: string | null = null
+  let ownPlayerCount = 0
+  let allowMultiplePlayerCharacters = false
 
   const userId = await getUserIdFromCookieStore()
 
   try {
-    dbRpg = await prisma.rpg.findUnique({
-      where: { id: rpgId },
-      select: { id: true, ownerId: true, visibility: true },
-    })
+    let rpgRows: DbRpgRow[] = []
+    try {
+      rpgRows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
+        SELECT
+          id,
+          owner_id AS "ownerId",
+          visibility,
+          COALESCE(allow_multiple_player_characters, false) AS "allowMultiplePlayerCharacters"
+        FROM rpgs
+        WHERE id = ${rpgId}
+        LIMIT 1
+      `)
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.includes('column "allow_multiple_player_characters" does not exist')
+      ) {
+        rpgRows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
+          SELECT
+            id,
+            owner_id AS "ownerId",
+            visibility,
+            false AS "allowMultiplePlayerCharacters"
+          FROM rpgs
+          WHERE id = ${rpgId}
+          LIMIT 1
+        `)
+      } else {
+        throw error
+      }
+    }
+    dbRpg = rpgRows[0] ?? null
 
     if (dbRpg) {
       isOwner = userId === dbRpg.ownerId
@@ -63,6 +104,7 @@ export default async function CharactersPage({ params, searchParams }: Params) {
       if (dbRpg.visibility === "private" && !isOwner && !isAcceptedMember) {
         privateBlocked = true
       } else {
+        allowMultiplePlayerCharacters = Boolean(dbRpg.allowMultiplePlayerCharacters)
         canCreateCharacter = Boolean(userId && (isOwner || isAcceptedMember))
 
         dbCharacters = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
@@ -90,12 +132,11 @@ export default async function CharactersPage({ params, searchParams }: Params) {
         `)
 
         if (userId) {
-          const ownCharacter = dbCharacters.find(
+          ownPlayerCount = dbCharacters.filter(
             (character) =>
               character.characterType === "player" &&
               character.createdByUserId === userId,
-          )
-          ownCharacterId = ownCharacter?.id ?? null
+          ).length
         }
       }
     }
@@ -105,7 +146,8 @@ export default async function CharactersPage({ params, searchParams }: Params) {
     canCreateCharacter = false
     isOwner = false
     isAcceptedMember = false
-    ownCharacterId = null
+    ownPlayerCount = 0
+    allowMultiplePlayerCharacters = false
   }
 
   if (privateBlocked) {
@@ -162,7 +204,8 @@ export default async function CharactersPage({ params, searchParams }: Params) {
           rpgId={rpgId}
           isOwner={isOwner}
           isAcceptedMember={isAcceptedMember}
-          ownCharacterId={ownCharacterId}
+          ownPlayerCount={ownPlayerCount}
+          allowMultiplePlayerCharacters={allowMultiplePlayerCharacters}
         />
       ) : null}
 
