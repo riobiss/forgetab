@@ -101,3 +101,14 @@ export type CreateCharacterPayload = {
   classKey?: string
   progressionCurrent?: number
 }
+
+export type ListCharactersResult = {
+  characters: CharacterRow[]
+  isOwner: boolean
+  useRaceBonuses: boolean
+  useClassBonuses: boolean
+  useInventoryWeightLimit: boolean
+  allowMultiplePlayerCharacters: boolean
+  progressionMode: ProgressionMode
+  progressionTiers: ProgressionTier[]
+}

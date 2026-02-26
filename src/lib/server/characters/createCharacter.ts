@@ -1,5 +1,3 @@
-import { Prisma } from "../../../../generated/prisma/client.js"
-import { prisma } from "@/lib/prisma"
 import { addBonusToBase } from "@/lib/rpg/classRaceBonuses"
 import { resolveProgressionTierByCurrent } from "@/lib/rpg/progression"
 import {
@@ -17,16 +15,18 @@ import {
   validateStatusesPayload,
 } from "./validators"
 import type {
-  AttributeTemplateRow,
-  CharacterCharacteristicTemplateRow,
-  CharacterIdentityTemplateRow,
   CharacterRow,
   CreateCharacterPayload,
-  IdentityTemplateRow,
   RpgAccess,
-  SkillTemplateRow,
-  StatusTemplateRow,
 } from "./types"
+import {
+  prismaCharacterRepository,
+  type CharacterRepository,
+} from "./repositories/characterRepository"
+import {
+  prismaRpgTemplatesRepository,
+  type RpgTemplatesRepository,
+} from "./repositories/rpgTemplatesRepository"
 
 export class CreateCharacterError extends Error {
   constructor(
@@ -43,6 +43,8 @@ type CreateCharacterInput = {
   userId: string
   access: RpgAccess
   payload: CreateCharacterPayload
+  characterRepository?: CharacterRepository
+  rpgTemplatesRepository?: RpgTemplatesRepository
 }
 
 function fail(status: number, message: string): never {
@@ -50,7 +52,14 @@ function fail(status: number, message: string): never {
 }
 
 export async function createCharacter(input: CreateCharacterInput): Promise<CharacterRow> {
-  const { rpgId, userId, access, payload } = input
+  const {
+    rpgId,
+    userId,
+    access,
+    payload,
+    characterRepository = prismaCharacterRepository,
+    rpgTemplatesRepository = prismaRpgTemplatesRepository,
+  } = input
 
   try {
     const name = payload.name?.trim() ?? ""
@@ -96,52 +105,20 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
     )
 
     if (!access.isOwner) {
-      const existingPlayers = await prisma.$queryRaw<Array<{ total: number }>>(Prisma.sql`
-        SELECT COUNT(*)::int AS total
-        FROM rpg_characters
-        WHERE rpg_id = ${rpgId}
-          AND character_type = 'player'::"RpgCharacterType"
-          AND created_by_user_id = ${userId}
-      `)
-
-      const totalPlayers = Number(existingPlayers[0]?.total ?? 0)
+      const totalPlayers = await characterRepository.countPlayersByCreator(rpgId, userId)
       if (totalPlayers > 0 && !access.allowMultiplePlayerCharacters) {
         fail(409, "Voce ja possui um personagem player neste RPG.")
       }
     }
 
-    let dbAttributeTemplate: AttributeTemplateRow[] = []
-    try {
-      dbAttributeTemplate = await prisma.$queryRaw<AttributeTemplateRow[]>(Prisma.sql`
-        SELECT key, label, position
-        FROM rpg_attribute_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    } catch (error) {
-      if (!(error instanceof Error && error.message.includes('relation "rpg_attribute_templates" does not exist'))) {
-        throw error
-      }
-    }
+    const dbAttributeTemplate = await rpgTemplatesRepository.getAttributeTemplates(rpgId)
 
     const parsedAttributes = validateAttributesPayload(payload.attributes, dbAttributeTemplate)
     if (!parsedAttributes.ok) {
       fail(400, parsedAttributes.message)
     }
 
-    let dbStatusTemplate: StatusTemplateRow[] = []
-    try {
-      dbStatusTemplate = await prisma.$queryRaw<StatusTemplateRow[]>(Prisma.sql`
-        SELECT key, label, position
-        FROM rpg_status_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    } catch (error) {
-      if (!(error instanceof Error && error.message.includes('relation "rpg_status_templates" does not exist'))) {
-        throw error
-      }
-    }
+    const dbStatusTemplate = await rpgTemplatesRepository.getStatusTemplates(rpgId)
 
     const statusTemplate =
       dbStatusTemplate.length > 0 ? dbStatusTemplate : getDefaultStatusTemplate()
@@ -161,19 +138,7 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
     const sanity = validateStat("sanidade", parsedStatuses.value.sanity ?? 0)
     if (!sanity.ok) fail(400, sanity.message)
 
-    let dbSkillTemplate: SkillTemplateRow[] = []
-    try {
-      dbSkillTemplate = await prisma.$queryRaw<SkillTemplateRow[]>(Prisma.sql`
-        SELECT key, label, position
-        FROM rpg_skill_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    } catch (error) {
-      if (!(error instanceof Error && error.message.includes('relation "rpg_skill_templates" does not exist'))) {
-        throw error
-      }
-    }
+    const dbSkillTemplate = await rpgTemplatesRepository.getSkillTemplates(rpgId)
 
     const defaultSkills = dbSkillTemplate.reduce<Record<string, number>>((acc, item) => {
       acc[item.key] = 0
@@ -185,42 +150,15 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
       fail(400, parsedSkills.message)
     }
 
-    let identityTemplate: CharacterIdentityTemplateRow[] = []
-    try {
-      identityTemplate = await prisma.$queryRaw<CharacterIdentityTemplateRow[]>(Prisma.sql`
-        SELECT key, label, required, position
-        FROM rpg_character_identity_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    } catch (error) {
-      if (
-        !(error instanceof Error && error.message.includes('relation "rpg_character_identity_templates" does not exist'))
-      ) {
-        throw error
-      }
-    }
+    const identityTemplate = await rpgTemplatesRepository.getIdentityTemplates(rpgId)
 
     const parsedIdentity = validateIdentityPayload(payload.identity, identityTemplate)
     if (!parsedIdentity.ok) {
       fail(400, parsedIdentity.message)
     }
 
-    let characteristicsTemplate: CharacterCharacteristicTemplateRow[] = []
-    try {
-      characteristicsTemplate = await prisma.$queryRaw<CharacterCharacteristicTemplateRow[]>(Prisma.sql`
-        SELECT key, label, required, position
-        FROM rpg_character_characteristic_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    } catch (error) {
-      if (
-        !(error instanceof Error && error.message.includes('relation "rpg_character_characteristic_templates" does not exist'))
-      ) {
-        throw error
-      }
-    }
+    const characteristicsTemplate =
+      await rpgTemplatesRepository.getCharacteristicTemplates(rpgId)
 
     const parsedCharacteristics = validateCharacteristicsPayload(
       payload.characteristics,
@@ -236,20 +174,40 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
     let classAttributeBonuses: Record<string, number> = {}
     let raceSkillBonuses: Record<string, number> = {}
     let classSkillBonuses: Record<string, number> = {}
-    let raceTemplates: IdentityTemplateRow[] = []
-    let classTemplates: IdentityTemplateRow[] = []
-
     try {
-      raceTemplates = await prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
-        SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
-        FROM rpg_race_templates
-        WHERE rpg_id = ${rpgId}
-      `)
-      classTemplates = await prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
-        SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
-        FROM rpg_class_templates
-        WHERE rpg_id = ${rpgId}
-      `)
+      const [raceTemplates, classTemplates] = await Promise.all([
+        rpgTemplatesRepository.getRaceTemplates(rpgId),
+        rpgTemplatesRepository.getClassTemplates(rpgId),
+      ])
+
+      if (access.useRaceBonuses && raceTemplates.length > 0 && !selectedRaceKey) {
+        fail(400, "Selecione uma raca.")
+      }
+      if (access.useClassBonuses && classTemplates.length > 0 && !selectedClassKey) {
+        fail(400, "Selecione uma classe.")
+      }
+
+      if (selectedRaceKey) {
+        const race = raceTemplates.find((item) => item.key === selectedRaceKey)
+        if (!race) {
+          fail(400, "Raca invalida para este RPG.")
+        }
+        if (access.useRaceBonuses) {
+          raceAttributeBonuses = parseJsonBonusRecord(race.attributeBonuses)
+          raceSkillBonuses = parseJsonBonusRecord(race.skillBonuses)
+        }
+      }
+
+      if (selectedClassKey) {
+        const cls = classTemplates.find((item) => item.key === selectedClassKey)
+        if (!cls) {
+          fail(400, "Classe invalida para este RPG.")
+        }
+        if (access.useClassBonuses) {
+          classAttributeBonuses = parseJsonBonusRecord(cls.attributeBonuses)
+          classSkillBonuses = parseJsonBonusRecord(cls.skillBonuses)
+        }
+      }
     } catch (error) {
       if (
         error instanceof Error &&
@@ -259,35 +217,6 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
         fail(500, "Estrutura de racas/classes nao existe no banco. Rode a migration.")
       }
       throw error
-    }
-
-    if (access.useRaceBonuses && raceTemplates.length > 0 && !selectedRaceKey) {
-      fail(400, "Selecione uma raca.")
-    }
-    if (access.useClassBonuses && classTemplates.length > 0 && !selectedClassKey) {
-      fail(400, "Selecione uma classe.")
-    }
-
-    if (selectedRaceKey) {
-      const race = raceTemplates.find((item) => item.key === selectedRaceKey)
-      if (!race) {
-        fail(400, "Raca invalida para este RPG.")
-      }
-      if (access.useRaceBonuses) {
-        raceAttributeBonuses = parseJsonBonusRecord(race.attributeBonuses)
-        raceSkillBonuses = parseJsonBonusRecord(race.skillBonuses)
-      }
-    }
-
-    if (selectedClassKey) {
-      const cls = classTemplates.find((item) => item.key === selectedClassKey)
-      if (!cls) {
-        fail(400, "Classe invalida para este RPG.")
-      }
-      if (access.useClassBonuses) {
-        classAttributeBonuses = parseJsonBonusRecord(cls.attributeBonuses)
-        classSkillBonuses = parseJsonBonusRecord(cls.skillBonuses)
-      }
     }
 
     const finalAttributes = addBonusToBase(
@@ -302,68 +231,30 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
     )
 
     const createdByUserId = access.isOwner ? null : userId
-    const created = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
-      INSERT INTO rpg_characters (
-        id, rpg_id, name, image, race_key, class_key, character_type, visibility, max_carry_weight, progression_mode, progression_label, progression_required, progression_current, created_by_user_id, life, defense, mana, stamina, sanity, statuses, current_statuses, attributes, skills, identity, characteristics
-      )
-      VALUES (
-        ${crypto.randomUUID()},
-        ${rpgId},
-        ${name},
-        ${image},
-        ${selectedRaceKey},
-        ${selectedClassKey},
-        ${payload.characterType}::"RpgCharacterType",
-        'public'::"RpgVisibility",
-        ${maxCarryWeight},
-        ${access.progressionMode},
-        ${resolvedProgression.label},
-        ${resolvedProgression.required},
-        ${parsedProgressionCurrent.value},
-        ${createdByUserId},
-        ${life.value},
-        ${defense.value},
-        ${mana.value},
-        ${exhaustion.value},
-        ${sanity.value},
-        ${JSON.stringify(parsedStatuses.value)}::jsonb,
-        ${JSON.stringify(parsedStatuses.value)}::jsonb,
-        ${JSON.stringify(finalAttributes)}::jsonb,
-        ${JSON.stringify(finalSkills)}::jsonb,
-        ${JSON.stringify(parsedIdentity.value)}::jsonb,
-        ${JSON.stringify(parsedCharacteristics.value)}::jsonb
-      )
-      RETURNING
-        id,
-        rpg_id AS "rpgId",
-        name,
-        image,
-        race_key AS "raceKey",
-        class_key AS "classKey",
-        character_type AS "characterType",
-        visibility,
-        max_carry_weight AS "maxCarryWeight",
-        COALESCE(progression_mode, 'xp_level') AS "progressionMode",
-        COALESCE(progression_label, 'Level 1') AS "progressionLabel",
-        COALESCE(progression_required, 0) AS "progressionRequired",
-        COALESCE(progression_current, 0) AS "progressionCurrent",
-        created_by_user_id AS "createdByUserId",
-        life,
-        defense,
-        mana,
-        stamina AS exhaustion,
-        sanity,
-        statuses,
-        COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",
-        attributes,
-        skills,
-        identity,
-        characteristics,
-        created_at AS "createdAt",
-        updated_at AS "updatedAt"
-    `)
-
-    return created[0]
+    return characterRepository.create({
+      rpgId,
+      name,
+      image,
+      raceKey: selectedRaceKey,
+      classKey: selectedClassKey,
+      characterType: payload.characterType,
+      maxCarryWeight,
+      progressionMode: access.progressionMode,
+      progressionLabel: resolvedProgression.label,
+      progressionRequired: resolvedProgression.required,
+      progressionCurrent: parsedProgressionCurrent.value,
+      createdByUserId,
+      life: life.value,
+      defense: defense.value,
+      mana: mana.value,
+      exhaustion: exhaustion.value,
+      sanity: sanity.value,
+      statuses: parsedStatuses.value,
+      attributes: finalAttributes,
+      skills: finalSkills,
+      identity: parsedIdentity.value,
+      characteristics: parsedCharacteristics.value,
+    })
   } catch (error) {
     if (error instanceof CreateCharacterError) {
       throw error
@@ -398,19 +289,6 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
     if (error instanceof Error && error.message.includes('column "characteristics" of relation "rpg_characters" does not exist')) {
       fail(500, "Estrutura de personagens desatualizada. Rode a migration mais recente.")
     }
-    if (
-      error instanceof Error &&
-      error.message.includes('relation "rpg_character_identity_templates" does not exist')
-    ) {
-      fail(500, "Tabela de identidade de personagem nao existe no banco. Rode a migration.")
-    }
-    if (
-      error instanceof Error &&
-      error.message.includes('relation "rpg_character_characteristic_templates" does not exist')
-    ) {
-      fail(500, "Tabela de caracteristicas de personagem nao existe no banco. Rode a migration.")
-    }
-
     throw error
   }
 }
