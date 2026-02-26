@@ -1,3 +1,5 @@
+import { abilityCategoryKeys } from "@/lib/rpg/abilityCategories"
+
 export const effectTypeValues = [
   "damage",
   "heal",
@@ -21,8 +23,9 @@ export const targetStatValues = [
 ] as const
 
 export const valueModeValues = ["flat", "dice"] as const
-export const skillUsageTypeValues = ["action", "bonus", "reaction", "passive"] as const
-export const skillCategoryValues = [
+export const actionTypeValues = ["action", "bonus", "reaction", "passive"] as const
+export const skillCategoryValues = abilityCategoryKeys
+export const skillTypeValues = [
   "attack",
   "burst",
   "support",
@@ -39,8 +42,9 @@ export const skillCategoryValues = [
 export type EffectType = (typeof effectTypeValues)[number]
 export type TargetStat = (typeof targetStatValues)[number]
 export type ValueMode = (typeof valueModeValues)[number]
-export type SkillUsageType = (typeof skillUsageTypeValues)[number]
 export type SkillCategory = (typeof skillCategoryValues)[number]
+export type SkillType = (typeof skillTypeValues)[number]
+export type ActionType = (typeof actionTypeValues)[number]
 
 export type EffectValue = {
   mode: ValueMode
@@ -140,7 +144,8 @@ export type Skill = {
   name: string
   slug: string
   category?: SkillCategory | null
-  type?: SkillUsageType | null
+  type?: SkillType | null
+  actionType?: ActionType | null
   description?: string | null
   currentLevel: number
   classIds: string[]

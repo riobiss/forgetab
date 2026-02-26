@@ -1,8 +1,9 @@
 import { z } from "zod"
 import {
+  actionTypeValues,
   effectTypeValues,
   skillCategoryValues,
-  skillUsageTypeValues,
+  skillTypeValues,
   targetStatValues,
   valueModeValues,
 } from "@/types/skillBuilder"
@@ -30,8 +31,12 @@ const optionalPositiveInt = z
       : null,
   )
 
-const optionalSkillUsageType = z
-  .union([z.enum(skillUsageTypeValues), z.literal(""), z.null(), z.undefined()])
+const optionalSkillType = z
+  .union([z.enum(skillTypeValues), z.literal(""), z.null(), z.undefined()])
+  .transform((value) => (typeof value === "string" && value.length > 0 ? value : null))
+
+const optionalActionType = z
+  .union([z.enum(actionTypeValues), z.literal(""), z.null(), z.undefined()])
   .transform((value) => (typeof value === "string" && value.length > 0 ? value : null))
 
 const optionalSkillCategory = z
@@ -133,7 +138,8 @@ export const skillMetaCreateSchema = z.object({
   rpgId: z.string().trim().min(1).nullable().optional(),
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres."),
   category: optionalSkillCategory.optional(),
-  type: optionalSkillUsageType.optional(),
+  type: optionalSkillType.optional(),
+  actionType: optionalActionType.optional(),
   description: optionalTrimmedText.optional(),
   currentLevel: z.number().int().min(1).optional(),
   classIds: idListSchema.optional().default([]),
@@ -161,7 +167,8 @@ export const skillMetaCreateSchema = z.object({
 export const skillMetaPatchSchema = z.object({
   name: z.string().trim().min(2).optional(),
   category: optionalSkillCategory.optional(),
-  type: optionalSkillUsageType.optional(),
+  type: optionalSkillType.optional(),
+  actionType: optionalActionType.optional(),
   description: optionalTrimmedText.optional(),
   currentLevel: z.number().int().min(1).optional(),
   classIds: idListSchema.optional(),
