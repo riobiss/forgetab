@@ -86,3 +86,18 @@ export type RpgAccess = {
   progressionMode: ProgressionMode
   progressionTiers: ProgressionTier[]
 }
+
+export type CreateCharacterPayload = {
+  name?: string
+  image?: string
+  characterType?: CharacterRow["characterType"]
+  maxCarryWeight?: number | null
+  statuses?: Record<string, number>
+  attributes?: Record<string, number>
+  skills?: Record<string, number>
+  identity?: Record<string, string>
+  characteristics?: Record<string, string>
+  raceKey?: string
+  classKey?: string
+  progressionCurrent?: number
+}
