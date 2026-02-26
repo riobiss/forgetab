@@ -42,4 +42,18 @@ describe("createRpgSchema", () => {
 
     expect(result.success).toBe(false)
   })
+
+  it("normaliza categorias de habilidade sem duplicacao", () => {
+    const result = createRpgSchema.safeParse({
+      title: "Campanha Alpha",
+      description: "Descricao com tamanho minimo ok.",
+      visibility: "public",
+      abilityCategoriesEnabled: true,
+      enabledAbilityCategories: ["fisicas", "magicas", "fisicas"],
+    })
+
+    expect(result.success).toBe(true)
+    if (!result.success) return
+    expect(result.data.enabledAbilityCategories).toEqual(["fisicas", "magicas"])
+  })
 })

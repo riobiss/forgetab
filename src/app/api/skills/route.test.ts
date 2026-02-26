@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   getUserIdFromRequest: vi.fn(),
   fetchSkillList: vi.fn(),
   canAccessOwnedRpg: vi.fn(),
+  fetchRpgAbilityCategoryConfig: vi.fn(),
   validateLinkIds: vi.fn(),
   fetchSkillById: vi.fn(),
   transaction: vi.fn(),
@@ -14,6 +15,7 @@ vi.mock("@/lib/server/skillBuilder", () => ({
   getUserIdFromRequest: mocks.getUserIdFromRequest,
   fetchSkillList: mocks.fetchSkillList,
   canAccessOwnedRpg: mocks.canAccessOwnedRpg,
+  fetchRpgAbilityCategoryConfig: mocks.fetchRpgAbilityCategoryConfig,
   validateLinkIds: mocks.validateLinkIds,
   fetchSkillById: mocks.fetchSkillById,
 }))
@@ -70,6 +72,7 @@ describe("POST /api/skills", () => {
     vi.clearAllMocks()
     mocks.getUserIdFromRequest.mockResolvedValue("user-1")
     mocks.canAccessOwnedRpg.mockResolvedValue(true)
+    mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({ enabled: false, categories: [] })
     mocks.validateLinkIds.mockResolvedValue({ ok: true })
     mocks.fetchSkillById.mockResolvedValue({
       id: "skill-1",
@@ -137,6 +140,62 @@ describe("POST /api/skills", () => {
     expect(response.status).toBe(400)
     expect(await response.json()).toEqual({
       message: "Uma ou mais classes informadas sao invalidas para este RPG.",
+    })
+  })
+
+  it("retorna 400 quando sistema de categoria esta ativo e nenhuma categoria foi habilitada", async () => {
+    mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({
+      enabled: true,
+      categories: [],
+    })
+
+    const response = await POST(
+      makePostRequest({
+        name: "Golpe",
+        rpgId: "rpg-1",
+      }),
+    )
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ message: "Ative pelo menos uma categoria" })
+  })
+
+  it("retorna 400 quando sistema de categoria esta ativo e categoria nao foi informada", async () => {
+    mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({
+      enabled: true,
+      categories: ["fisicas", "magicas"],
+    })
+
+    const response = await POST(
+      makePostRequest({
+        name: "Golpe",
+        rpgId: "rpg-1",
+      }),
+    )
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      message: "Categoria obrigatoria para criar habilidade.",
+    })
+  })
+
+  it("retorna 400 quando categoria enviada nao esta habilitada no RPG", async () => {
+    mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({
+      enabled: true,
+      categories: ["magicas"],
+    })
+
+    const response = await POST(
+      makePostRequest({
+        name: "Golpe",
+        rpgId: "rpg-1",
+        category: "fisicas",
+      }),
+    )
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      message: "Categoria desativada para este RPG.",
     })
   })
 

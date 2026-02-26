@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const mocks = vi.hoisted(() => ({
   getUserIdFromRequest: vi.fn(),
   fetchSkillById: vi.fn(),
+  fetchRpgAbilityCategoryConfig: vi.fn(),
   validateLinkIds: vi.fn(),
   transaction: vi.fn(),
 }))
@@ -10,6 +11,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/server/skillBuilder", () => ({
   getUserIdFromRequest: mocks.getUserIdFromRequest,
   fetchSkillById: mocks.fetchSkillById,
+  fetchRpgAbilityCategoryConfig: mocks.fetchRpgAbilityCategoryConfig,
   validateLinkIds: mocks.validateLinkIds,
 }))
 
@@ -121,6 +123,7 @@ describe("PATCH /api/skills/[id]", () => {
     vi.clearAllMocks()
     mocks.getUserIdFromRequest.mockResolvedValue("user-1")
     mocks.fetchSkillById.mockResolvedValue(baseSkill)
+    mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({ enabled: false, categories: [] })
     mocks.validateLinkIds.mockResolvedValue({ ok: true })
     mocks.transaction.mockImplementation(async (callback: (tx: unknown) => unknown) =>
       callback({
@@ -164,6 +167,30 @@ describe("PATCH /api/skills/[id]", () => {
     expect(await response.json()).toEqual({
       message: "Slug ja utilizado neste escopo (owner + rpg).",
     })
+  })
+
+  it("retorna 400 quando sistema de categoria esta ativo sem categorias habilitadas", async () => {
+    mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({
+      enabled: true,
+      categories: [],
+    })
+
+    const response = await PATCH(makeRequest("PATCH", { category: "fisicas" }), makeContext())
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ message: "Ative pelo menos uma categoria" })
+  })
+
+  it("retorna 400 quando categoria enviada esta desativada no RPG", async () => {
+    mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({
+      enabled: true,
+      categories: ["magicas"],
+    })
+
+    const response = await PATCH(makeRequest("PATCH", { category: "fisicas" }), makeContext())
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ message: "Categoria desativada para este RPG." })
   })
 
   it("retorna 200 quando atualiza skill com sucesso", async () => {
