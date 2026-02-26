@@ -31,6 +31,7 @@ type DbSkillLevelRow = {
   skillDescription: string | null
   skillCategory: string | null
   skillType: string | null
+  skillActionType: string | null
   levelNumber: number
   levelRequired: number
   summary: string | null
@@ -80,6 +81,7 @@ type SkillView = {
   skillDescription: string | null
   skillCategory: string | null
   skillType: string | null
+  skillActionType: string | null
   levels: SkillLevelView[]
 }
 
@@ -171,6 +173,7 @@ export default async function ClassPage({ params }: Props) {
       s.description AS "skillDescription",
       s.category AS "skillCategory",
       s.type AS "skillType",
+      s.action_type AS "skillActionType",
       sl.level_number AS "levelNumber",
       sl.level_required AS "levelRequired",
       sl.summary,
@@ -260,6 +263,7 @@ export default async function ClassPage({ params }: Props) {
       skillDescription: row.skillDescription?.trim() || null,
       skillCategory: row.skillCategory?.trim() || null,
       skillType: row.skillType,
+      skillActionType: row.skillActionType,
       levels: [],
     }
 

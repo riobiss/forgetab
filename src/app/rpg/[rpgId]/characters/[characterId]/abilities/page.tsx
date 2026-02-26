@@ -38,6 +38,7 @@ type DbPurchasedSkillLevelRow = {
   skillDescription: string | null
   skillCategory: string | null
   skillType: string | null
+  skillActionType: string | null
   levelNumber: number
   levelRequired: number
   summary: string | null
@@ -60,6 +61,7 @@ type PurchasedAbilityView = {
   notesList: string[]
   skillCategory: string | null
   skillType: string | null
+  skillActionType: string | null
   levelRequired: number
   summary: string | null
   damage: string | null
@@ -158,6 +160,7 @@ export default async function AbilitiesPage({ params }: Params) {
             s.description AS "skillDescription",
             s.category AS "skillCategory",
             s.type AS "skillType",
+            s.action_type AS "skillActionType",
             sl.level_number AS "levelNumber",
             sl.level_required AS "levelRequired",
             sl.summary,
@@ -202,6 +205,7 @@ export default async function AbilitiesPage({ params }: Params) {
         notesList: statsNotesList.length > 0 ? statsNotesList : fallbackNote ? [fallbackNote] : [],
         skillCategory: toOptionalText(row.skillCategory),
         skillType: toOptionalText(row.skillType),
+        skillActionType: toOptionalText(row.skillActionType),
         levelRequired: row.levelRequired,
         summary: toOptionalText(row.summary),
         damage: toOptionalText(stats.damage),

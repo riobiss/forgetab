@@ -14,6 +14,7 @@ type PurchasedAbilityView = {
   notesList: string[]
   skillCategory: string | null
   skillType: string | null
+  skillActionType: string | null
   summary: string | null
   damage: string | null
   range: string | null
@@ -25,6 +26,25 @@ type PurchasedAbilityView = {
 }
 
 const SKILL_CATEGORY_LABEL: Record<string, string> = {
+  fisicas: "Fisicas",
+  magicas: "Magicas (Arcanas)",
+  espirituais: "Espirituais / Divinas",
+  elementais: "Elementais",
+  psiquicas: "Psiquicas / Mentais",
+  sombras: "Sombras / Ocultas",
+  naturais: "Naturais / Druidicas",
+  tecnologicas: "Tecnologicas / Mecanicas",
+  runicas: "Runicas / Selos",
+  sanguineas: "Sanguineas / Biologicas",
+  demoniacas: "Demoniacas / Infernais",
+  celestiais: "Celestiais / Sagradas",
+  temporais: "Temporais / Espaciais",
+  sonoras: "Sonoras / Musicais",
+  alquimicas: "Alquimicas",
+  bestiais: "Bestiais / Primitivas",
+}
+
+const SKILL_TYPE_LABEL: Record<string, string> = {
   attack: "Ataque",
   burst: "Explosao",
   support: "Suporte",
@@ -38,7 +58,7 @@ const SKILL_CATEGORY_LABEL: Record<string, string> = {
   resource: "Recurso",
 }
 
-const SKILL_TYPE_LABEL: Record<string, string> = {
+const SKILL_ACTION_TYPE_LABEL: Record<string, string> = {
   action: "Acao",
   bonus: "Bonus",
   reaction: "Reacao",
@@ -61,6 +81,11 @@ function toCategoryLabel(value: string | null) {
 function toTypeLabel(value: string | null) {
   if (!value) return null
   return SKILL_TYPE_LABEL[value] ?? value
+}
+
+function toActionTypeLabel(value: string | null) {
+  if (!value) return null
+  return SKILL_ACTION_TYPE_LABEL[value] ?? value
 }
 
 export default function AbilitiesFiltersClient({ abilities }: { abilities: PurchasedAbilityView[] }) {
@@ -222,6 +247,14 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
                   <div className={styles.detailItem}>
                     <span className={styles.detailLabelOrange}>TIPO</span>
                     <span className={styles.detailValue}>{toTypeLabel(ability.skillType)}</span>
+                  </div>
+                ) : null}
+                {hasText(ability.skillActionType) ? (
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabelOrange}>ACTION TYPE</span>
+                    <span className={styles.detailValue}>
+                      {toActionTypeLabel(ability.skillActionType)}
+                    </span>
                   </div>
                 ) : null}
                 {hasText(ability.damage) ? (

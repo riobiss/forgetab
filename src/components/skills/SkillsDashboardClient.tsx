@@ -3,16 +3,23 @@
 import { useEffect, useMemo, useState } from "react"
 import styles from "./page.module.css"
 import {
+  actionTypeValues,
   effectTypeValues,
   skillCategoryValues,
-  skillUsageTypeValues,
+  skillTypeValues,
   targetStatValues,
+  type ActionType,
   type EffectType,
   type SkillCategory,
-  type SkillUsageType,
+  type SkillType,
   type TargetStat,
 } from "@/types/skillBuilder"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
+import {
+  abilityCategoryDefinitions,
+  abilityCategoryLabelByKey,
+  normalizeEnabledAbilityCategories,
+} from "@/lib/rpg/abilityCategories"
 
 const effectTypeLabel: Record<EffectType, string> = {
   damage: "Dano",
@@ -36,14 +43,14 @@ const targetStatLabel: Record<TargetStat, string> = {
   attribute: "Atributo",
 }
 
-const skillUsageTypeLabel: Record<SkillUsageType, string> = {
+const actionTypeLabel: Record<ActionType, string> = {
   action: "Acao",
   bonus: "Bonus",
   reaction: "Reacao",
   passive: "Passiva",
 }
 
-const skillCategoryLabel: Record<SkillCategory, string> = {
+const skillTypeLabel: Record<SkillType, string> = {
   attack: "Ataque",
   burst: "Explosao",
   support: "Suporte",
@@ -59,6 +66,13 @@ const skillCategoryLabel: Record<SkillCategory, string> = {
 
 type OwnedRpg = { id: string; title: string }
 type TemplateOption = { id: string; label: string }
+type RpgSettingsPayload = {
+  rpg?: {
+    abilityCategoriesEnabled?: boolean
+    enabledAbilityCategories?: string[]
+  }
+  message?: string
+}
 
 type SkillListItem = {
   id: string
@@ -99,7 +113,8 @@ type SkillDetail = {
   name: string
   slug: string
   category: SkillCategory | null
-  type: SkillUsageType | null
+  type: SkillType | null
+  actionType: ActionType | null
   description: string | null
   currentLevel: number
   classIds: string[]
@@ -110,7 +125,8 @@ type SkillDetail = {
 type MetaForm = {
   name: string
   category: SkillCategory | ""
-  type: SkillUsageType | ""
+  type: SkillType | ""
+  actionType: ActionType | ""
   description: string
   currentLevel: string
   classIds: string[]
@@ -243,14 +259,18 @@ function mapSkillToMetaForm(skill: SkillDetail): MetaForm {
   const normalizedCategory = skillCategoryValues.includes(skill.category as SkillCategory)
     ? (skill.category as SkillCategory)
     : ""
-  const normalizedType = skillUsageTypeValues.includes(skill.type as SkillUsageType)
-    ? (skill.type as SkillUsageType)
+  const normalizedType = skillTypeValues.includes(skill.type as SkillType)
+    ? (skill.type as SkillType)
+    : ""
+  const normalizedActionType = actionTypeValues.includes(skill.actionType as ActionType)
+    ? (skill.actionType as ActionType)
     : ""
 
   return {
     name: skill.name,
     category: normalizedCategory,
     type: normalizedType,
+    actionType: normalizedActionType,
     description: skill.description ?? "",
     currentLevel: String(skill.currentLevel),
     classIds: skill.classIds,
@@ -303,6 +323,7 @@ function createInitialMeta(): MetaForm {
     name: "",
     category: "",
     type: "",
+    actionType: "",
     description: "",
     currentLevel: "1",
     classIds: [],
@@ -345,6 +366,10 @@ function moveEffect(list: SkillEffect[], from: number, to: number) {
   return next
 }
 
+function resolveCategoryLabel(value: string) {
+  return abilityCategoryLabelByKey[value as SkillCategory] ?? value
+}
+
 export default function SkillsDashboardClient({
   ownedRpgs,
   initialRpgId,
@@ -364,6 +389,8 @@ export default function SkillsDashboardClient({
   const [selectedLevelId, setSelectedLevelId] = useState("")
   const [metaForm, setMetaForm] = useState<MetaForm>(createInitialMeta())
   const [levelForm, setLevelForm] = useState<LevelForm>(createInitialLevel())
+  const [abilityCategoriesEnabled, setAbilityCategoriesEnabled] = useState(false)
+  const [enabledAbilityCategories, setEnabledAbilityCategories] = useState<SkillCategory[]>([])
   const [createOpen, setCreateOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [createStep, setCreateStep] = useState(1)
@@ -378,6 +405,30 @@ export default function SkillsDashboardClient({
     () => activeSkill?.levels.find((level) => level.id === selectedLevelId) ?? null,
     [activeSkill, selectedLevelId],
   )
+  const createCategoryOptions = useMemo(
+    () =>
+      abilityCategoryDefinitions.filter(
+        (option) =>
+          !abilityCategoriesEnabled ||
+          enabledAbilityCategories.includes(option.key as SkillCategory),
+      ),
+    [abilityCategoriesEnabled, enabledAbilityCategories],
+  )
+  const editCategoryOptions = useMemo(() => {
+    if (!metaForm.category) return createCategoryOptions
+    if (createCategoryOptions.some((option) => option.key === metaForm.category)) {
+      return createCategoryOptions
+    }
+
+    return [
+      ...createCategoryOptions,
+      {
+        key: metaForm.category,
+        label: `${resolveCategoryLabel(metaForm.category)} (indisponivel)`,
+        description: "",
+      },
+    ]
+  }, [createCategoryOptions, metaForm.category])
 
   useEffect(() => {
     if (!selectedRpgId) return
@@ -386,23 +437,30 @@ export default function SkillsDashboardClient({
       setLoading(true)
       setError("")
       try {
-        const [classRes, raceRes, skillRes] = await Promise.all([
+        const [classRes, raceRes, skillRes, rpgRes] = await Promise.all([
           fetch(`/api/rpg/${selectedRpgId}/classes`),
           fetch(`/api/rpg/${selectedRpgId}/races`),
           fetch(`/api/skills?rpgId=${selectedRpgId}`),
+          fetch(`/api/rpg/${selectedRpgId}`),
         ])
 
         const classPayload = (await classRes.json()) as { classes?: TemplateOption[]; message?: string }
         const racePayload = (await raceRes.json()) as { races?: TemplateOption[]; message?: string }
         const skillPayload = (await skillRes.json()) as { skills?: SkillListItem[]; message?: string }
+        const rpgPayload = (await rpgRes.json()) as RpgSettingsPayload
 
         if (!classRes.ok) throw new Error(classPayload.message ?? "Erro ao buscar classes.")
         if (!raceRes.ok) throw new Error(racePayload.message ?? "Erro ao buscar racas.")
         if (!skillRes.ok) throw new Error(skillPayload.message ?? "Erro ao buscar skills.")
+        if (!rpgRes.ok) throw new Error(rpgPayload.message ?? "Erro ao buscar configuracoes do RPG.")
 
         setClasses(classPayload.classes ?? [])
         setRaces(racePayload.races ?? [])
         setSkills(skillPayload.skills ?? [])
+        setAbilityCategoriesEnabled(Boolean(rpgPayload.rpg?.abilityCategoriesEnabled ?? false))
+        setEnabledAbilityCategories(
+          normalizeEnabledAbilityCategories(rpgPayload.rpg?.enabledAbilityCategories),
+        )
         setSelectedSkillId(skillPayload.skills?.[0]?.id ?? "")
         setEditOpen(false)
       } catch (cause) {
@@ -464,6 +522,21 @@ export default function SkillsDashboardClient({
     if (!selectedLevel) return
     setLevelForm(mapLevelToForm(selectedLevel))
   }, [selectedLevel, createOpen])
+
+  useEffect(() => {
+    if (!abilityCategoriesEnabled) {
+      setMetaForm((prev) => (prev.category ? { ...prev, category: "" } : prev))
+      return
+    }
+
+    if (
+      createOpen &&
+      metaForm.category &&
+      !enabledAbilityCategories.includes(metaForm.category)
+    ) {
+      setMetaForm((prev) => ({ ...prev, category: "" }))
+    }
+  }, [abilityCategoriesEnabled, createOpen, enabledAbilityCategories, metaForm.category])
 
   function EffectEditor({
     effects,
@@ -623,6 +696,13 @@ export default function SkillsDashboardClient({
     setError("")
     setSuccess("")
     try {
+      if (abilityCategoriesEnabled && enabledAbilityCategories.length === 0) {
+        throw new Error("Ative pelo menos uma categoria")
+      }
+      if (abilityCategoriesEnabled && !metaForm.category) {
+        throw new Error("Categoria obrigatoria para criar habilidade.")
+      }
+
       const payload = {
         rpgId: selectedRpgId,
         ...metaForm,
@@ -692,6 +772,13 @@ export default function SkillsDashboardClient({
       setSuccess("")
     }
     try {
+      if (abilityCategoriesEnabled && enabledAbilityCategories.length === 0) {
+        throw new Error("Ative pelo menos uma categoria")
+      }
+      if (abilityCategoriesEnabled && !metaForm.category) {
+        throw new Error("Categoria obrigatoria para salvar habilidade.")
+      }
+
       const response = await fetch(`/api/skills/${activeSkill.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -699,6 +786,7 @@ export default function SkillsDashboardClient({
           name: metaForm.name,
           category: metaForm.category,
           type: metaForm.type,
+          actionType: metaForm.actionType,
           description: metaForm.description,
           currentLevel: toOptionalNumber(metaForm.currentLevel) ?? 1,
         }),
@@ -1010,25 +1098,27 @@ export default function SkillsDashboardClient({
                       onChange={(event) => setMetaForm((prev) => ({ ...prev, name: event.target.value }))}
                     />
                   </label>
-                  <label className={styles.field}>
-                    <span>Categoria</span>
-                    <NativeSelectField
-                      value={metaForm.category}
-                      onChange={(event) =>
-                        setMetaForm((prev) => ({
-                          ...prev,
-                          category: event.target.value as SkillCategory | "",
-                        }))
-                      }
-                    >
-                      <option value="">Selecione</option>
-                      {skillCategoryValues.map((option) => (
-                        <option key={option} value={option}>
-                          {skillCategoryLabel[option]}
-                        </option>
-                      ))}
-                    </NativeSelectField>
-                  </label>
+                  {abilityCategoriesEnabled ? (
+                    <label className={styles.field}>
+                      <span>Categoria</span>
+                      <NativeSelectField
+                        value={metaForm.category}
+                        onChange={(event) =>
+                          setMetaForm((prev) => ({
+                            ...prev,
+                            category: event.target.value as SkillCategory | "",
+                          }))
+                        }
+                      >
+                        <option value="">Selecione</option>
+                        {createCategoryOptions.map((option) => (
+                          <option key={option.key} value={option.key}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </NativeSelectField>
+                    </label>
+                  ) : null}
                   <label className={styles.field}>
                     <span>Tipo</span>
                     <NativeSelectField
@@ -1036,14 +1126,33 @@ export default function SkillsDashboardClient({
                       onChange={(event) =>
                         setMetaForm((prev) => ({
                           ...prev,
-                          type: event.target.value as SkillUsageType | "",
+                          type: event.target.value as SkillType | "",
                         }))
                       }
                     >
                       <option value="">Selecione</option>
-                      {skillUsageTypeValues.map((option) => (
+                      {skillTypeValues.map((option) => (
                         <option key={option} value={option}>
-                          {skillUsageTypeLabel[option]}
+                          {skillTypeLabel[option]}
+                        </option>
+                      ))}
+                    </NativeSelectField>
+                  </label>
+                  <label className={styles.field}>
+                    <span>ActionType (Tipo da acao)</span>
+                    <NativeSelectField
+                      value={metaForm.actionType}
+                      onChange={(event) =>
+                        setMetaForm((prev) => ({
+                          ...prev,
+                          actionType: event.target.value as ActionType | "",
+                        }))
+                      }
+                    >
+                      <option value="">Selecione</option>
+                      {actionTypeValues.map((option) => (
+                        <option key={option} value={option}>
+                          {actionTypeLabel[option]}
                         </option>
                       ))}
                     </NativeSelectField>
@@ -1095,6 +1204,9 @@ export default function SkillsDashboardClient({
                       }
                     />
                   </label>
+                  {abilityCategoriesEnabled && enabledAbilityCategories.length === 0 ? (
+                    <p className={styles.error}>Ative pelo menos uma categoria</p>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -1364,25 +1476,27 @@ export default function SkillsDashboardClient({
                         }
                       />
                     </label>
-                    <label className={styles.field}>
-                      <span>Categoria</span>
-                      <NativeSelectField
-                        value={metaForm.category}
-                        onChange={(event) =>
-                          setMetaForm((prev) => ({
-                            ...prev,
-                            category: event.target.value as SkillCategory | "",
-                          }))
-                        }
-                      >
-                        <option value="">Selecione</option>
-                        {skillCategoryValues.map((option) => (
-                          <option key={option} value={option}>
-                            {skillCategoryLabel[option]}
-                          </option>
-                        ))}
-                      </NativeSelectField>
-                    </label>
+                    {abilityCategoriesEnabled ? (
+                      <label className={styles.field}>
+                        <span>Categoria</span>
+                        <NativeSelectField
+                          value={metaForm.category}
+                          onChange={(event) =>
+                            setMetaForm((prev) => ({
+                              ...prev,
+                              category: event.target.value as SkillCategory | "",
+                            }))
+                          }
+                        >
+                          <option value="">Selecione</option>
+                          {editCategoryOptions.map((option) => (
+                            <option key={option.key} value={option.key}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </NativeSelectField>
+                      </label>
+                    ) : null}
                     <label className={styles.field}>
                       <span>Tipo</span>
                       <NativeSelectField
@@ -1390,14 +1504,33 @@ export default function SkillsDashboardClient({
                         onChange={(event) =>
                           setMetaForm((prev) => ({
                             ...prev,
-                            type: event.target.value as SkillUsageType | "",
+                            type: event.target.value as SkillType | "",
                           }))
                         }
                       >
                         <option value="">Selecione</option>
-                        {skillUsageTypeValues.map((option) => (
+                        {skillTypeValues.map((option) => (
                           <option key={option} value={option}>
-                            {skillUsageTypeLabel[option]}
+                            {skillTypeLabel[option]}
+                          </option>
+                        ))}
+                      </NativeSelectField>
+                    </label>
+                    <label className={styles.field}>
+                      <span>ActionType (Tipo da acao)</span>
+                      <NativeSelectField
+                        value={metaForm.actionType}
+                        onChange={(event) =>
+                          setMetaForm((prev) => ({
+                            ...prev,
+                            actionType: event.target.value as ActionType | "",
+                          }))
+                        }
+                      >
+                        <option value="">Selecione</option>
+                        {actionTypeValues.map((option) => (
+                          <option key={option} value={option}>
+                            {actionTypeLabel[option]}
                           </option>
                         ))}
                       </NativeSelectField>
@@ -1412,6 +1545,9 @@ export default function SkillsDashboardClient({
                         }
                       />
                     </label>
+                    {abilityCategoriesEnabled && enabledAbilityCategories.length === 0 ? (
+                      <p className={styles.error}>Ative pelo menos uma categoria</p>
+                    ) : null}
                   </div>
 
                 </>

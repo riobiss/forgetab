@@ -4,6 +4,25 @@ import { useMemo, useState } from "react"
 import styles from "./page.module.css"
 
 const SKILL_CATEGORY_LABEL: Record<string, string> = {
+  fisicas: "Fisicas",
+  magicas: "Magicas (Arcanas)",
+  espirituais: "Espirituais / Divinas",
+  elementais: "Elementais",
+  psiquicas: "Psiquicas / Mentais",
+  sombras: "Sombras / Ocultas",
+  naturais: "Naturais / Druidicas",
+  tecnologicas: "Tecnologicas / Mecanicas",
+  runicas: "Runicas / Selos",
+  sanguineas: "Sanguineas / Biologicas",
+  demoniacas: "Demoniacas / Infernais",
+  celestiais: "Celestiais / Sagradas",
+  temporais: "Temporais / Espaciais",
+  sonoras: "Sonoras / Musicais",
+  alquimicas: "Alquimicas",
+  bestiais: "Bestiais / Primitivas",
+}
+
+const SKILL_TYPE_LABEL: Record<string, string> = {
   attack: "Ataque",
   burst: "Explosao",
   support: "Suporte",
@@ -17,7 +36,7 @@ const SKILL_CATEGORY_LABEL: Record<string, string> = {
   resource: "Recurso",
 }
 
-const SKILL_TYPE_LABEL: Record<string, string> = {
+const SKILL_ACTION_TYPE_LABEL: Record<string, string> = {
   action: "Acao",
   bonus: "Bonus",
   reaction: "Reacao",
@@ -55,6 +74,7 @@ type SkillView = {
   skillDescription: string | null
   skillCategory: string | null
   skillType: string | null
+  skillActionType: string | null
   levels: SkillLevelView[]
 }
 
@@ -94,6 +114,11 @@ function toCategoryLabel(value: string | null) {
 function toTypeLabel(value: string | null) {
   if (!value) return null
   return SKILL_TYPE_LABEL[value] ?? value
+}
+
+function toActionTypeLabel(value: string | null) {
+  if (!value) return null
+  return SKILL_ACTION_TYPE_LABEL[value] ?? value
 }
 
 export default function ClassSkillsClient({
@@ -273,6 +298,12 @@ export default function ClassSkillsClient({
                       <div className={styles.statItem}>
                         <strong>Tipo</strong>
                         {toTypeLabel(skill.skillType)}
+                      </div>
+                    ) : null}
+                    {hasText(skill.skillActionType) ? (
+                      <div className={styles.statItem}>
+                        <strong>ActionType</strong>
+                        {toActionTypeLabel(skill.skillActionType)}
                       </div>
                     ) : null}
                     {hasText(selectedLevel.damage) ? (
