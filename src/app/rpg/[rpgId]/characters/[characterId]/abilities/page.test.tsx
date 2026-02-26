@@ -106,7 +106,7 @@ describe("AbilitiesPage", () => {
           skillId: "s1",
           skillName: "Golpe",
           skillDescription: "Ataque corpo a corpo.",
-          skillCategory: "fisicas",
+          skillCategory: "tecnicas",
           skillType: "attack",
           skillActionType: "action",
           levelNumber: 1,
@@ -124,7 +124,7 @@ describe("AbilitiesPage", () => {
           skillId: "s2",
           skillName: "Raio Arcano",
           skillDescription: "Dano magico.",
-          skillCategory: "magicas",
+          skillCategory: "arcana",
           skillType: "burst",
           skillActionType: "action",
           levelNumber: 2,
@@ -149,7 +149,7 @@ describe("AbilitiesPage", () => {
     )
 
     expect(screen.getByRole("heading", { name: "Habilidades do Personagem" })).toBeInTheDocument()
-    expect(screen.getAllByText("Fisicas").length).toBeGreaterThan(0)
-    expect(screen.getAllByText("Magicas (Arcanas)").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Técnicas").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Arcana").length).toBeGreaterThan(0)
   })
 })

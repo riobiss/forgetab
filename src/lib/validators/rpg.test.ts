@@ -49,11 +49,11 @@ describe("createRpgSchema", () => {
       description: "Descricao com tamanho minimo ok.",
       visibility: "public",
       abilityCategoriesEnabled: true,
-      enabledAbilityCategories: ["fisicas", "magicas", "fisicas"],
+      enabledAbilityCategories: ["tecnicas", "arcana", "tecnicas"],
     })
 
     expect(result.success).toBe(true)
     if (!result.success) return
-    expect(result.data.enabledAbilityCategories).toEqual(["fisicas", "magicas"])
+    expect(result.data.enabledAbilityCategories).toEqual(["tecnicas", "arcana"])
   })
 })

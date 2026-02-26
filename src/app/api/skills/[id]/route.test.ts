@@ -175,7 +175,7 @@ describe("PATCH /api/skills/[id]", () => {
       categories: [],
     })
 
-    const response = await PATCH(makeRequest("PATCH", { category: "fisicas" }), makeContext())
+    const response = await PATCH(makeRequest("PATCH", { category: "tecnicas" }), makeContext())
 
     expect(response.status).toBe(400)
     expect(await response.json()).toEqual({ message: "Ative pelo menos uma categoria" })
@@ -184,10 +184,10 @@ describe("PATCH /api/skills/[id]", () => {
   it("retorna 400 quando categoria enviada esta desativada no RPG", async () => {
     mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({
       enabled: true,
-      categories: ["magicas"],
+      categories: ["arcana"],
     })
 
-    const response = await PATCH(makeRequest("PATCH", { category: "fisicas" }), makeContext())
+    const response = await PATCH(makeRequest("PATCH", { category: "tecnicas" }), makeContext())
 
     expect(response.status).toBe(400)
     expect(await response.json()).toEqual({ message: "Categoria desativada para este RPG." })

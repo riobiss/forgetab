@@ -1,20 +1,10 @@
 export const abilityCategoryKeys = [
-  "fisicas",
-  "magicas",
-  "espirituais",
-  "elementais",
-  "psiquicas",
-  "sombras",
-  "naturais",
-  "tecnologicas",
-  "runicas",
-  "sanguineas",
-  "demoniacas",
-  "celestiais",
-  "temporais",
-  "sonoras",
-  "alquimicas",
-  "bestiais",
+  "tecnicas",
+  "arcana",
+  "espiritual",
+  "mental",
+  "natural",
+  "tecnologica",
 ] as const
 
 export type AbilityCategoryKey = (typeof abilityCategoryKeys)[number]
@@ -27,84 +17,34 @@ type AbilityCategoryDefinition = {
 
 export const abilityCategoryDefinitions: readonly AbilityCategoryDefinition[] = [
   {
-    key: "fisicas",
-    label: "Fisicas",
+    key: "tecnicas",
+    label: "Técnicas",
     description: "Tecnicas de forca, combate corporal e destreza marcial.",
   },
   {
-    key: "magicas",
-    label: "Magicas (Arcanas)",
+    key: "arcana",
+    label: "Arcana",
     description: "Feiticos de origem arcana, estudo mistico e manipulacao de mana.",
   },
   {
-    key: "espirituais",
-    label: "Espirituais / Divinas",
+    key: "espiritual",
+    label: "Espiritual",
     description: "Poderes ligados a fe, espiritos e energia sagrada.",
   },
   {
-    key: "elementais",
-    label: "Elementais",
-    description: "Controle dos elementos como fogo, agua, terra e ar.",
-  },
-  {
-    key: "psiquicas",
-    label: "Psiquicas / Mentais",
+    key: "mental",
+    label: "Mental",
     description: "Influencias mentais, telepatia e foco psicologico.",
   },
   {
-    key: "sombras",
-    label: "Sombras / Ocultas",
-    description: "Tecnicas furtivas, obscuras e de manipulacao das sombras.",
-  },
-  {
-    key: "naturais",
-    label: "Naturais / Druidicas",
+    key: "natural",
+    label: "Natural",
     description: "Poderes da natureza, fauna, flora e ciclos naturais.",
   },
   {
-    key: "tecnologicas",
-    label: "Tecnologicas / Mecanicas",
+    key: "tecnologica",
+    label: "Tecnológica",
     description: "Dispositivos, engenharia e recursos tecnologicos.",
-  },
-  {
-    key: "runicas",
-    label: "Runicas / Selos",
-    description: "Inscricoes, selos e ativacoes por runas.",
-  },
-  {
-    key: "sanguineas",
-    label: "Sanguineas / Biologicas",
-    description: "Habilidades associadas a sangue, biologia e vitalidade.",
-  },
-  {
-    key: "demoniacas",
-    label: "Demoniacas / Infernais",
-    description: "Poderes de origem infernal, maldita ou abissal.",
-  },
-  {
-    key: "celestiais",
-    label: "Celestiais / Sagradas",
-    description: "Poderes de luz, protecao e energia celestial.",
-  },
-  {
-    key: "temporais",
-    label: "Temporais / Espaciais",
-    description: "Manipulacao de tempo, espaco, deslocamento e distorcoes.",
-  },
-  {
-    key: "sonoras",
-    label: "Sonoras / Musicais",
-    description: "Tecnicas baseadas em som, ritmo e harmonias.",
-  },
-  {
-    key: "alquimicas",
-    label: "Alquimicas",
-    description: "Preparos, transmutacoes e reacoes alquimicas.",
-  },
-  {
-    key: "bestiais",
-    label: "Bestiais / Primitivas",
-    description: "Instintos, ferocidade e poderes de origem selvagem.",
   },
 ]
 

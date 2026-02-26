@@ -26,22 +26,12 @@ type PurchasedAbilityView = {
 }
 
 const SKILL_CATEGORY_LABEL: Record<string, string> = {
-  fisicas: "Fisicas",
-  magicas: "Magicas (Arcanas)",
-  espirituais: "Espirituais / Divinas",
-  elementais: "Elementais",
-  psiquicas: "Psiquicas / Mentais",
-  sombras: "Sombras / Ocultas",
-  naturais: "Naturais / Druidicas",
-  tecnologicas: "Tecnologicas / Mecanicas",
-  runicas: "Runicas / Selos",
-  sanguineas: "Sanguineas / Biologicas",
-  demoniacas: "Demoniacas / Infernais",
-  celestiais: "Celestiais / Sagradas",
-  temporais: "Temporais / Espaciais",
-  sonoras: "Sonoras / Musicais",
-  alquimicas: "Alquimicas",
-  bestiais: "Bestiais / Primitivas",
+  tecnicas: "Técnicas",
+  arcana: "Arcana",
+  espiritual: "Espiritual",
+  mental: "Mental",
+  natural: "Natural",
+  tecnologica: "Tecnológica",
 }
 
 const SKILL_TYPE_LABEL: Record<string, string> = {

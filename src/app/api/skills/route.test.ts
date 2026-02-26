@@ -178,7 +178,7 @@ describe("POST /api/skills", () => {
   it("retorna 400 quando sistema de categoria esta ativo e categoria nao foi informada", async () => {
     mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({
       enabled: true,
-      categories: ["fisicas", "magicas"],
+      categories: ["tecnicas", "arcana"],
     })
 
     const response = await POST(
@@ -197,14 +197,14 @@ describe("POST /api/skills", () => {
   it("retorna 400 quando categoria enviada nao esta habilitada no RPG", async () => {
     mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({
       enabled: true,
-      categories: ["magicas"],
+      categories: ["arcana"],
     })
 
     const response = await POST(
       makePostRequest({
         name: "Golpe",
         rpgId: "rpg-1",
-        category: "fisicas",
+        category: "tecnicas",
       }),
     )
 
