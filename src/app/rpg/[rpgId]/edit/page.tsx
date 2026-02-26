@@ -20,6 +20,7 @@ import PlayerTemplateFieldsSection from "./components/player-template-fields/Pla
 import RaceClassOptionsSection from "./components/race-class-options/RaceClassOptionsSection"
 import SkillOptionsSection from "./components/skill-options/SkillOptionsSection"
 import StatusOptionsSection from "./components/status-options/StatusOptionsSection"
+import AbilityCategoriesSection from "./components/ability-categories/AbilityCategoriesSection"
 import type { CatalogOption } from "./components/shared/types"
 import { useEditRpgData } from "./hooks/useEditRpgData"
 import { useEditRpgState } from "./hooks/useEditRpgState"
@@ -65,6 +66,8 @@ export default function EditRpgPage() {
     useInventoryWeightLimit: state.useInventoryWeightLimit,
     usersCanManageOwnXp: state.usersCanManageOwnXp,
     allowSkillPointDistribution: state.allowSkillPointDistribution,
+    abilityCategoriesEnabled: state.abilityCategoriesEnabled,
+    enabledAbilityCategories: state.enabledAbilityCategories,
     progressionMode: state.progressionMode,
     progressionTiers: state.progressionTiers,
     attributeTemplates: state.attributeTemplates,
@@ -83,6 +86,8 @@ export default function EditRpgPage() {
     setUseInventoryWeightLimit: state.setUseInventoryWeightLimit,
     setUsersCanManageOwnXp: state.setUsersCanManageOwnXp,
     setAllowSkillPointDistribution: state.setAllowSkillPointDistribution,
+    setAbilityCategoriesEnabled: state.setAbilityCategoriesEnabled,
+    setEnabledAbilityCategories: state.setEnabledAbilityCategories,
     setProgressionMode: state.setProgressionMode,
     setProgressionTiers: state.setProgressionTiers,
     setCostsEnabled: state.setCostsEnabled,
@@ -485,6 +490,15 @@ export default function EditRpgPage() {
               onAddSkill={state.addSkill}
               skillTemplates={state.skillTemplates}
               onRemoveSkill={state.removeSkill}
+            />
+
+            <AbilityCategoriesSection
+              showList={state.showAbilityCategoriesList}
+              onToggleList={() => state.setShowAbilityCategoriesList((prev) => !prev)}
+              abilityCategoriesEnabled={state.abilityCategoriesEnabled}
+              enabledAbilityCategories={state.enabledAbilityCategories}
+              onAbilityCategoriesEnabledChange={state.setAbilityCategoriesEnabled}
+              onToggleCategory={state.toggleAbilityCategory}
             />
 
             <PlayerTemplateFieldsSection

@@ -16,6 +16,10 @@ import {
   type ProgressionMode,
   type ProgressionTier,
 } from "@/lib/rpg/progression"
+import {
+  normalizeEnabledAbilityCategories,
+  type AbilityCategoryKey,
+} from "@/lib/rpg/abilityCategories"
 
 function isLegacyFiveLevelDefault(tiers: ProgressionTier[]) {
   if (tiers.length !== 5) return false
@@ -49,6 +53,8 @@ type RpgPayload = {
     useInventoryWeightLimit?: boolean
     usersCanManageOwnXp?: boolean
     allowSkillPointDistribution?: boolean
+    abilityCategoriesEnabled?: boolean
+    enabledAbilityCategories?: string[]
     progressionMode?: ProgressionMode
     progressionTiers?: ProgressionTier[]
     canManage?: boolean
@@ -69,6 +75,8 @@ type UseEditRpgDataParams = {
   useInventoryWeightLimit: boolean
   usersCanManageOwnXp: boolean
   allowSkillPointDistribution: boolean
+  abilityCategoriesEnabled: boolean
+  enabledAbilityCategories: AbilityCategoryKey[]
   progressionMode: ProgressionMode
   progressionTiers: ProgressionTier[]
   attributeTemplates: AttributeTemplate[]
@@ -87,6 +95,8 @@ type UseEditRpgDataParams = {
   setUseInventoryWeightLimit: (value: boolean) => void
   setUsersCanManageOwnXp: (value: boolean) => void
   setAllowSkillPointDistribution: (value: boolean) => void
+  setAbilityCategoriesEnabled: (value: boolean) => void
+  setEnabledAbilityCategories: (value: AbilityCategoryKey[]) => void
   setProgressionMode: (value: ProgressionMode) => void
   setProgressionTiers: (value: ProgressionTier[]) => void
   setCostsEnabled: (value: boolean) => void
@@ -114,6 +124,8 @@ export function useEditRpgData({
   useInventoryWeightLimit,
   usersCanManageOwnXp,
   allowSkillPointDistribution,
+  abilityCategoriesEnabled,
+  enabledAbilityCategories,
   progressionMode,
   progressionTiers,
   attributeTemplates,
@@ -132,6 +144,8 @@ export function useEditRpgData({
   setUseInventoryWeightLimit,
   setUsersCanManageOwnXp,
   setAllowSkillPointDistribution,
+  setAbilityCategoriesEnabled,
+  setEnabledAbilityCategories,
   setProgressionMode,
   setProgressionTiers,
   setCostsEnabled,
@@ -245,6 +259,10 @@ export function useEditRpgData({
         setUseInventoryWeightLimit(Boolean(rpgPayload.rpg.useInventoryWeightLimit))
         setUsersCanManageOwnXp(Boolean(rpgPayload.rpg.usersCanManageOwnXp ?? true))
         setAllowSkillPointDistribution(Boolean(rpgPayload.rpg.allowSkillPointDistribution ?? true))
+        setAbilityCategoriesEnabled(Boolean(rpgPayload.rpg.abilityCategoriesEnabled ?? false))
+        setEnabledAbilityCategories(
+          normalizeEnabledAbilityCategories(rpgPayload.rpg.enabledAbilityCategories),
+        )
         const loadedProgressionMode = isProgressionMode(rpgPayload.rpg.progressionMode)
           ? rpgPayload.rpg.progressionMode
           : ("xp_level" as ProgressionMode)
@@ -320,6 +338,8 @@ export function useEditRpgData({
     setUseInventoryWeightLimit,
     setUsersCanManageOwnXp,
     setAllowSkillPointDistribution,
+    setAbilityCategoriesEnabled,
+    setEnabledAbilityCategories,
     setProgressionMode,
     setProgressionTiers,
     setCostsEnabled,
@@ -349,6 +369,8 @@ export function useEditRpgData({
         useInventoryWeightLimit,
         usersCanManageOwnXp,
         allowSkillPointDistribution,
+        abilityCategoriesEnabled,
+        enabledAbilityCategories,
         progressionMode,
         progressionTiers:
           progressionTiers.length > 0

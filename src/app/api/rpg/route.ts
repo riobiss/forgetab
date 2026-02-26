@@ -10,6 +10,7 @@ import {
   isProgressionMode,
   type ProgressionMode,
 } from "@/lib/rpg/progression"
+import { normalizeEnabledAbilityCategories } from "@/lib/rpg/abilityCategories"
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,6 +54,8 @@ export async function POST(request: NextRequest) {
       useInventoryWeightLimit,
       usersCanManageOwnXp,
       allowSkillPointDistribution,
+      abilityCategoriesEnabled,
+      enabledAbilityCategories,
       progressionMode,
       progressionTiers,
     } = parsed.data
@@ -69,6 +72,13 @@ export async function POST(request: NextRequest) {
         : Boolean(useClassRaceBonuses)
     const resolvedUsersCanManageOwnXp = Boolean(usersCanManageOwnXp ?? true)
     const resolvedAllowSkillPointDistribution = Boolean(allowSkillPointDistribution ?? true)
+    const resolvedAbilityCategoriesEnabled = Boolean(abilityCategoriesEnabled ?? false)
+    const resolvedEnabledAbilityCategories = normalizeEnabledAbilityCategories(
+      enabledAbilityCategories ?? [],
+    )
+    if (resolvedAbilityCategoriesEnabled && resolvedEnabledAbilityCategories.length === 0) {
+      return NextResponse.json({ message: "Ative pelo menos uma categoria" }, { status: 400 })
+    }
     const resolvedProgressionMode = isProgressionMode(progressionMode)
       ? progressionMode
       : ("xp_level" as ProgressionMode)
@@ -108,6 +118,8 @@ export async function POST(request: NextRequest) {
           use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
           users_can_manage_own_xp = ${resolvedUsersCanManageOwnXp},
           allow_skill_point_distribution = ${resolvedAllowSkillPointDistribution},
+          ability_categories_enabled = ${resolvedAbilityCategoriesEnabled},
+          enabled_ability_categories = ${Prisma.sql`ARRAY[${Prisma.join(resolvedEnabledAbilityCategories)}]::text[]`},
           progression_mode = ${resolvedProgressionMode},
           progression_tiers = ${JSON.stringify(resolvedProgressionTiers)}::jsonb
         WHERE id = ${created.id}
@@ -119,6 +131,8 @@ export async function POST(request: NextRequest) {
           error.message.includes('column "use_class_bonuses" does not exist') ||
           error.message.includes('column "users_can_manage_own_xp" does not exist') ||
           error.message.includes('column "allow_skill_point_distribution" does not exist') ||
+          error.message.includes('column "ability_categories_enabled" does not exist') ||
+          error.message.includes('column "enabled_ability_categories" does not exist') ||
           error.message.includes('column "progression_mode" does not exist') ||
           error.message.includes('column "progression_tiers" does not exist'))
       ) {
@@ -132,7 +146,9 @@ export async function POST(request: NextRequest) {
               use_class_race_bonuses = ${resolvedUseRaceBonuses || resolvedUseClassBonuses},
               use_inventory_weight_limit = ${Boolean(useInventoryWeightLimit)},
               users_can_manage_own_xp = ${resolvedUsersCanManageOwnXp},
-              allow_skill_point_distribution = ${resolvedAllowSkillPointDistribution}
+              allow_skill_point_distribution = ${resolvedAllowSkillPointDistribution},
+              ability_categories_enabled = ${resolvedAbilityCategoriesEnabled},
+              enabled_ability_categories = ${Prisma.sql`ARRAY[${Prisma.join(resolvedEnabledAbilityCategories)}]::text[]`}
             WHERE id = ${created.id}
           `)
         } catch {
@@ -180,6 +196,8 @@ export async function POST(request: NextRequest) {
           useInventoryWeightLimit: Boolean(useInventoryWeightLimit),
           usersCanManageOwnXp: resolvedUsersCanManageOwnXp,
           allowSkillPointDistribution: resolvedAllowSkillPointDistribution,
+          abilityCategoriesEnabled: resolvedAbilityCategoriesEnabled,
+          enabledAbilityCategories: resolvedEnabledAbilityCategories,
           progressionMode: resolvedProgressionMode,
           progressionTiers: resolvedProgressionTiers,
           createdAt: created.createdAt,
@@ -211,6 +229,8 @@ export async function POST(request: NextRequest) {
         error.message.includes('column "cost_resource_name" does not exist') ||
         error.message.includes('column "users_can_manage_own_xp" does not exist') ||
         error.message.includes('column "allow_skill_point_distribution" does not exist') ||
+        error.message.includes('column "ability_categories_enabled" does not exist') ||
+        error.message.includes('column "enabled_ability_categories" does not exist') ||
         error.message.includes('column "progression_mode" does not exist') ||
         error.message.includes('column "progression_tiers" does not exist') ||
         error.message.includes("Could not find the table")

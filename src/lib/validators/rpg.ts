@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { abilityCategoryKeys } from "@/lib/rpg/abilityCategories"
 
 const progressionTierSchema = z.object({
   label: z.string().trim().min(1, "Nome da progressao e obrigatorio."),
@@ -30,6 +31,11 @@ export const createRpgSchema = z.object({
   useInventoryWeightLimit: z.boolean().optional(),
   usersCanManageOwnXp: z.boolean().optional(),
   allowSkillPointDistribution: z.boolean().optional(),
+  abilityCategoriesEnabled: z.boolean().optional(),
+  enabledAbilityCategories: z
+    .array(z.enum(abilityCategoryKeys))
+    .optional()
+    .transform((value) => (value ? Array.from(new Set(value)) : undefined)),
   progressionMode: z.enum(["xp_level", "rank", "custom"]).optional(),
   progressionTiers: z.array(progressionTierSchema).min(1).optional(),
 })

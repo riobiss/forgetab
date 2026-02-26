@@ -94,6 +94,8 @@ model Rpg {
   useInventoryWeightLimit Boolean           @default(false) @map("use_inventory_weight_limit")
   usersCanManageOwnXp Boolean               @default(true) @map("users_can_manage_own_xp")
   allowSkillPointDistribution Boolean       @default(true) @map("allow_skill_point_distribution")
+  abilityCategoriesEnabled Boolean          @default(false) @map("ability_categories_enabled")
+  enabledAbilityCategories String[]         @default([]) @map("enabled_ability_categories")
   progressionMode    String                 @default("xp_level") @map("progression_mode")
   progressionTiers   Json                   @default("[{\"label\":\"Level 1\",\"required\":0},{\"label\":\"Level 2\",\"required\":100}]") @map("progression_tiers")
   createdAt          DateTime               @default(now()) @map("created_at")
@@ -407,6 +409,7 @@ model Skill {
   slug         String
   category     String?
   type         String?
+  actionType   String?          @map("action_type")
   description  String?
   currentLevel Int              @default(1) @map("current_level")
   createdAt    DateTime         @default(now()) @map("created_at")

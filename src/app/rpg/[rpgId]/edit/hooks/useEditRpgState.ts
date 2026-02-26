@@ -13,6 +13,11 @@ import {
   type ProgressionMode,
   type ProgressionTier,
 } from "@/lib/rpg/progression"
+import {
+  abilityCategoryKeys,
+  normalizeEnabledAbilityCategories,
+  type AbilityCategoryKey,
+} from "@/lib/rpg/abilityCategories"
 
 export type Visibility = "private" | "public"
 
@@ -36,6 +41,10 @@ export function useEditRpgState() {
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
   const [usersCanManageOwnXp, setUsersCanManageOwnXp] = useState(true)
   const [allowSkillPointDistribution, setAllowSkillPointDistribution] = useState(true)
+  const [abilityCategoriesEnabled, setAbilityCategoriesEnabled] = useState(false)
+  const [enabledAbilityCategories, setEnabledAbilityCategories] = useState<AbilityCategoryKey[]>(
+    [],
+  )
   const [costsEnabled, setCostsEnabled] = useState(false)
   const [costResourceName, setCostResourceName] = useState("Skill Points")
   const [progressionMode, setProgressionMode] = useState<ProgressionMode>("xp_level")
@@ -57,6 +66,7 @@ export function useEditRpgState() {
   const [showAttributeList, setShowAttributeList] = useState(false)
   const [showStatusList, setShowStatusList] = useState(false)
   const [showSkillList, setShowSkillList] = useState(false)
+  const [showAbilityCategoriesList, setShowAbilityCategoriesList] = useState(false)
   const [showRaceList, setShowRaceList] = useState(false)
   const [showClassList, setShowClassList] = useState(false)
   const [showCharacterIdentityList, setShowCharacterIdentityList] = useState(false)
@@ -272,6 +282,18 @@ export function useEditRpgState() {
     })
   }
 
+  function toggleAbilityCategory(category: AbilityCategoryKey) {
+    setEnabledAbilityCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((item) => item !== category)
+        : normalizeEnabledAbilityCategories([...prev, category]),
+    )
+  }
+
+  function resetAbilityCategoriesToAll() {
+    setEnabledAbilityCategories([...abilityCategoryKeys])
+  }
+
   return {
     title,
     setTitle,
@@ -293,6 +315,10 @@ export function useEditRpgState() {
     setUsersCanManageOwnXp,
     allowSkillPointDistribution,
     setAllowSkillPointDistribution,
+    abilityCategoriesEnabled,
+    setAbilityCategoriesEnabled,
+    enabledAbilityCategories,
+    setEnabledAbilityCategories,
     costsEnabled,
     setCostsEnabled,
     costResourceName,
@@ -325,6 +351,8 @@ export function useEditRpgState() {
     setShowStatusList,
     showSkillList,
     setShowSkillList,
+    showAbilityCategoriesList,
+    setShowAbilityCategoriesList,
     showRaceList,
     setShowRaceList,
     showClassList,
@@ -363,5 +391,7 @@ export function useEditRpgState() {
     updateProgressionTierLabel,
     updateProgressionTierRequired,
     removeProgressionTier,
+    toggleAbilityCategory,
+    resetAbilityCategoriesToAll,
   }
 }
