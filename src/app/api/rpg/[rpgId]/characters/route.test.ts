@@ -149,4 +149,103 @@ describe("POST /api/rpg/[rpgId]/characters", () => {
       message: "Tipo invalido. Use player, npc ou monster.",
     })
   })
+
+  it("retorna 409 quando jogador ja possui player e o RPG nao permite multiplos", async () => {
+    mocks.queryRaw.mockReset()
+    mocks.queryRaw
+      .mockResolvedValueOnce([
+        {
+          ownerId: "owner-1",
+          useRaceBonuses: false,
+          useClassBonuses: false,
+          useInventoryWeightLimit: false,
+          allowMultiplePlayerCharacters: false,
+          progressionMode: "xp_level",
+          progressionTiers: [{ label: "Level 1", required: 0 }],
+        },
+      ])
+      .mockResolvedValueOnce([{ status: "accepted", role: "player" }])
+      .mockResolvedValueOnce([{ total: 1 }])
+
+    const response = await POST(
+      makeRequest("POST", {
+        name: "Personagem 2",
+        characterType: "player",
+      }),
+      makeContext(),
+    )
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({
+      message: "Voce ja possui um personagem player neste RPG.",
+    })
+  })
+
+  it("retorna 201 quando jogador ja possui player mas o RPG permite multiplos", async () => {
+    mocks.queryRaw.mockReset()
+    mocks.queryRaw
+      .mockResolvedValueOnce([
+        {
+          ownerId: "owner-1",
+          useRaceBonuses: false,
+          useClassBonuses: false,
+          useInventoryWeightLimit: false,
+          allowMultiplePlayerCharacters: true,
+          progressionMode: "xp_level",
+          progressionTiers: [{ label: "Level 1", required: 0 }],
+        },
+      ])
+      .mockResolvedValueOnce([{ status: "accepted", role: "player" }])
+      .mockResolvedValueOnce([{ total: 1 }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          id: "char-1",
+          rpgId: "rpg-1",
+          name: "Personagem 2",
+          image: null,
+          raceKey: null,
+          classKey: null,
+          characterType: "player",
+          visibility: "public",
+          maxCarryWeight: null,
+          progressionMode: "xp_level",
+          progressionLabel: "Level 1",
+          progressionRequired: 0,
+          progressionCurrent: 0,
+          createdByUserId: "user-1",
+          life: 0,
+          defense: 0,
+          mana: 0,
+          exhaustion: 0,
+          sanity: 0,
+          statuses: {},
+          currentStatuses: {},
+          attributes: {},
+          skills: {},
+          identity: {},
+          characteristics: {},
+          createdAt: new Date("2026-02-26T00:00:00.000Z"),
+          updatedAt: new Date("2026-02-26T00:00:00.000Z"),
+        },
+      ])
+
+    const response = await POST(
+      makeRequest("POST", {
+        name: "Personagem 2",
+        characterType: "player",
+      }),
+      makeContext(),
+    )
+
+    expect(response.status).toBe(201)
+    const payload = (await response.json()) as { character?: { name?: string } }
+    expect(payload.character?.name).toBe("Personagem 2")
+  })
 })
