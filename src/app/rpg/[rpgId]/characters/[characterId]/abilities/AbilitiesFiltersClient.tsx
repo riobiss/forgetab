@@ -1,8 +1,10 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import type { CSSProperties } from "react"
 import styles from "./page.module.css"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
+import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 
 type PurchasedAbilityView = {
   skillId: string
@@ -15,6 +17,7 @@ type PurchasedAbilityView = {
   skillCategory: string | null
   skillType: string | null
   skillActionType: string | null
+  skillTags: string[]
   summary: string | null
   damage: string | null
   range: string | null
@@ -202,7 +205,28 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
       ) : (
         <div className={styles.cardGrid}>
           {filtered.map((ability) => (
-            <article key={`${ability.skillId}:${ability.levelNumber}`} className={styles.card}>
+            <article
+              key={`${ability.skillId}:${ability.levelNumber}`}
+              className={
+                ability.skillTags[0] && getSkillTagMeta(ability.skillTags[0])
+                  ? `${styles.card} ${styles.cardTagged}`
+                  : styles.card
+              }
+              style={
+                (() => {
+                  const meta = ability.skillTags[0] ? getSkillTagMeta(ability.skillTags[0]) : null
+                  if (!meta) return undefined
+
+                  return {
+                    "--tag-card-c1": meta.cardC1,
+                    "--tag-card-c2": meta.cardC2,
+                    "--tag-card-c3": meta.cardC3,
+                    "--tag-card-border": meta.cardBorder,
+                    "--tag-card-glow": meta.cardGlow,
+                  } as CSSProperties
+                })()
+              }
+            >
               <div className={styles.cardHeader}>
                 <h3 className={styles.cardTitle}>{ability.levelName ?? ability.skillName}</h3>
                 <span className={styles.levelBadge}>Level {ability.levelNumber}</span>
@@ -241,9 +265,20 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
                 ) : null}
                 {hasText(ability.skillActionType) ? (
                   <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>ACTION TYPE</span>
+                    <span className={styles.detailLabelOrange}>TIPO DA ACAO</span>
                     <span className={styles.detailValue}>
                       {toActionTypeLabel(ability.skillActionType)}
+                    </span>
+                  </div>
+                ) : null}
+                {ability.skillTags.length > 0 ? (
+                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
+                    <span className={styles.detailLabelOrange}>TAGS</span>
+                    <span className={styles.detailValue}>
+                      {ability.skillTags
+                        .map((tag) => getSkillTagMeta(tag)?.label)
+                        .filter((label): label is string => Boolean(label))
+                        .join(" | ")}
                     </span>
                   </div>
                 ) : null}

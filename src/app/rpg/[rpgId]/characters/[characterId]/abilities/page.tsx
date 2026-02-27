@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { parseCharacterAbilities, parseCostPoints } from "@/lib/server/costSystem"
+import { normalizeSkillTags } from "@/lib/rpg/skillTags"
 import AbilitiesFiltersClient from "./AbilitiesFiltersClient"
 import styles from "./page.module.css"
 
@@ -39,6 +40,7 @@ type DbPurchasedSkillLevelRow = {
   skillCategory: string | null
   skillType: string | null
   skillActionType: string | null
+  skillTags: string[]
   levelNumber: number
   levelRequired: number
   summary: string | null
@@ -62,6 +64,7 @@ type PurchasedAbilityView = {
   skillCategory: string | null
   skillType: string | null
   skillActionType: string | null
+  skillTags: string[]
   levelRequired: number
   summary: string | null
   damage: string | null
@@ -151,32 +154,68 @@ export default async function AbilitiesPage({ params }: Params) {
   const owned = parseCharacterAbilities(character.abilities)
   const ownedSkillIds = Array.from(new Set(owned.map((item) => item.skillId)))
 
-  const purchasedRows =
-    ownedSkillIds.length > 0
-      ? await prisma.$queryRaw<DbPurchasedSkillLevelRow[]>(Prisma.sql`
-          SELECT
-            s.id AS "skillId",
-            s.name AS "skillName",
-            s.description AS "skillDescription",
-            s.category AS "skillCategory",
-            s.type AS "skillType",
-            s.action_type AS "skillActionType",
-            sl.level_number AS "levelNumber",
-            sl.level_required AS "levelRequired",
-            sl.summary,
-            sl.stats,
-            sl.cost,
-            sl.target,
-            sl.area,
-            sl.scaling,
-            sl.requirement,
-            COALESCE(sl.effects, '[]'::jsonb) AS effects
-          FROM skills s
-          INNER JOIN skill_levels sl ON sl.skill_id = s.id
-          WHERE s.rpg_id = ${rpgId}
-            AND s.id IN (${Prisma.join(ownedSkillIds)})
-        `)
-      : []
+  let purchasedRows: DbPurchasedSkillLevelRow[] = []
+  if (ownedSkillIds.length > 0) {
+    try {
+      purchasedRows = await prisma.$queryRaw<DbPurchasedSkillLevelRow[]>(Prisma.sql`
+        SELECT
+          s.id AS "skillId",
+          s.name AS "skillName",
+          s.description AS "skillDescription",
+          s.category AS "skillCategory",
+          s.type AS "skillType",
+          s.action_type AS "skillActionType",
+          COALESCE(s.tags, ARRAY[]::text[]) AS "skillTags",
+          sl.level_number AS "levelNumber",
+          sl.level_required AS "levelRequired",
+          sl.summary,
+          sl.stats,
+          sl.cost,
+          sl.target,
+          sl.area,
+          sl.scaling,
+          sl.requirement,
+          COALESCE(sl.effects, '[]'::jsonb) AS effects
+        FROM skills s
+        INNER JOIN skill_levels sl ON sl.skill_id = s.id
+        WHERE s.rpg_id = ${rpgId}
+          AND s.id IN (${Prisma.join(ownedSkillIds)})
+      `)
+    } catch (error) {
+      if (
+        !(error instanceof Error) ||
+        (!error.message.includes('column "tags" does not exist') &&
+          !error.message.includes('column "action_type" does not exist'))
+      ) {
+        throw error
+      }
+
+      purchasedRows = await prisma.$queryRaw<DbPurchasedSkillLevelRow[]>(Prisma.sql`
+        SELECT
+          s.id AS "skillId",
+          s.name AS "skillName",
+          s.description AS "skillDescription",
+          s.category AS "skillCategory",
+          s.type AS "skillType",
+          NULL::text AS "skillActionType",
+          ARRAY[]::text[] AS "skillTags",
+          sl.level_number AS "levelNumber",
+          sl.level_required AS "levelRequired",
+          sl.summary,
+          sl.stats,
+          sl.cost,
+          sl.target,
+          sl.area,
+          sl.scaling,
+          sl.requirement,
+          COALESCE(sl.effects, '[]'::jsonb) AS effects
+        FROM skills s
+        INNER JOIN skill_levels sl ON sl.skill_id = s.id
+        WHERE s.rpg_id = ${rpgId}
+          AND s.id IN (${Prisma.join(ownedSkillIds)})
+      `)
+    }
+  }
 
   const levelBySkillAndLevel = new Map<string, DbPurchasedSkillLevelRow>()
   for (const row of purchasedRows) {
@@ -206,6 +245,7 @@ export default async function AbilitiesPage({ params }: Params) {
         skillCategory: toOptionalText(row.skillCategory),
         skillType: toOptionalText(row.skillType),
         skillActionType: toOptionalText(row.skillActionType),
+        skillTags: normalizeSkillTags(row.skillTags),
         levelRequired: row.levelRequired,
         summary: toOptionalText(row.summary),
         damage: toOptionalText(stats.damage),

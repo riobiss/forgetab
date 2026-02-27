@@ -1,7 +1,9 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import type { CSSProperties } from "react"
 import styles from "./page.module.css"
+import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 
 const SKILL_CATEGORY_LABEL: Record<string, string> = {
   tecnicas: "Técnicas",
@@ -65,6 +67,7 @@ type SkillView = {
   skillCategory: string | null
   skillType: string | null
   skillActionType: string | null
+  skillTags: string[]
   levels: SkillLevelView[]
 }
 
@@ -226,9 +229,25 @@ export default function ClassSkillsClient({
           const showLevelDescription =
             levelDescriptionNormalized.length > 0 && levelDescriptionNormalized !== baseDescription
           const selectorOpen = openLevelSelectorForSkill === skill.skillId
+          const primaryTag = skill.skillTags[0] ?? null
+          const tagMeta = primaryTag ? getSkillTagMeta(primaryTag) : null
 
           return (
-            <div key={skill.skillId} className={styles.abilityCard}>
+            <div
+              key={skill.skillId}
+              className={tagMeta ? `${styles.abilityCard} ${styles.abilityCardTagged}` : styles.abilityCard}
+              style={
+                tagMeta
+                  ? ({
+                      "--tag-card-c1": tagMeta.cardC1,
+                      "--tag-card-c2": tagMeta.cardC2,
+                      "--tag-card-c3": tagMeta.cardC3,
+                      "--tag-card-border": tagMeta.cardBorder,
+                      "--tag-card-glow": tagMeta.cardGlow,
+                    } as CSSProperties)
+                  : undefined
+              }
+            >
               <div className={styles.abilityHeader}>
                 <h3 className={styles.abilityName}>{levelDisplayName}</h3>
                 <div className={styles.levelSelector}>
@@ -292,8 +311,17 @@ export default function ClassSkillsClient({
                     ) : null}
                     {hasText(skill.skillActionType) ? (
                       <div className={styles.statItem}>
-                        <strong>ActionType</strong>
+                        <strong>Tipo da acao</strong>
                         {toActionTypeLabel(skill.skillActionType)}
+                      </div>
+                    ) : null}
+                    {skill.skillTags.length > 0 ? (
+                      <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                        <strong>Tags</strong>
+                        {skill.skillTags
+                          .map((tag) => getSkillTagMeta(tag)?.label)
+                          .filter((label): label is string => Boolean(label))
+                          .join(" | ")}
                       </div>
                     ) : null}
                     {hasText(selectedLevel.damage) ? (

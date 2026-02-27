@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { parseCharacterAbilities, parseCostPoints } from "@/lib/server/costSystem"
+import { normalizeSkillTags } from "@/lib/rpg/skillTags"
 import ClassSkillsClient from "./ClassSkillsClient"
 import styles from "./page.module.css"
 
@@ -32,6 +33,7 @@ type DbSkillLevelRow = {
   skillCategory: string | null
   skillType: string | null
   skillActionType: string | null
+  skillTags: string[]
   levelNumber: number
   levelRequired: number
   summary: string | null
@@ -82,6 +84,7 @@ type SkillView = {
   skillCategory: string | null
   skillType: string | null
   skillActionType: string | null
+  skillTags: string[]
   levels: SkillLevelView[]
 }
 
@@ -166,30 +169,68 @@ export default async function ClassPage({ params }: Props) {
     notFound()
   }
 
-  const levelRows = await prisma.$queryRaw<DbSkillLevelRow[]>(Prisma.sql`
-    SELECT
-      s.id AS "skillId",
-      s.name AS "skillName",
-      s.description AS "skillDescription",
-      s.category AS "skillCategory",
-      s.type AS "skillType",
-      s.action_type AS "skillActionType",
-      sl.level_number AS "levelNumber",
-      sl.level_required AS "levelRequired",
-      sl.summary,
-      sl.stats,
-      sl.cost,
-      sl.target,
-      sl.area,
-      sl.scaling,
-      sl.requirement,
-      COALESCE(sl.effects, '[]'::jsonb) AS effects
-    FROM skill_class_links scl
-    INNER JOIN skills s ON s.id = scl.skill_id
-    INNER JOIN skill_levels sl ON sl.skill_id = s.id
-    WHERE scl.class_template_id = ${classId}
-    ORDER BY s.name ASC, sl.level_number ASC
-  `)
+  let levelRows: DbSkillLevelRow[] = []
+  try {
+    levelRows = await prisma.$queryRaw<DbSkillLevelRow[]>(Prisma.sql`
+      SELECT
+        s.id AS "skillId",
+        s.name AS "skillName",
+        s.description AS "skillDescription",
+        s.category AS "skillCategory",
+        s.type AS "skillType",
+        s.action_type AS "skillActionType",
+        COALESCE(s.tags, ARRAY[]::text[]) AS "skillTags",
+        sl.level_number AS "levelNumber",
+        sl.level_required AS "levelRequired",
+        sl.summary,
+        sl.stats,
+        sl.cost,
+        sl.target,
+        sl.area,
+        sl.scaling,
+        sl.requirement,
+        COALESCE(sl.effects, '[]'::jsonb) AS effects
+      FROM skill_class_links scl
+      INNER JOIN skills s ON s.id = scl.skill_id
+      INNER JOIN skill_levels sl ON sl.skill_id = s.id
+      WHERE scl.class_template_id = ${classId}
+      ORDER BY s.name ASC, sl.level_number ASC
+    `)
+  } catch (error) {
+    if (
+      !(error instanceof Error) ||
+      (!error.message.includes('column "tags" does not exist') &&
+        !error.message.includes('column "action_type" does not exist'))
+    ) {
+      throw error
+    }
+
+    levelRows = await prisma.$queryRaw<DbSkillLevelRow[]>(Prisma.sql`
+      SELECT
+        s.id AS "skillId",
+        s.name AS "skillName",
+        s.description AS "skillDescription",
+        s.category AS "skillCategory",
+        s.type AS "skillType",
+        NULL::text AS "skillActionType",
+        ARRAY[]::text[] AS "skillTags",
+        sl.level_number AS "levelNumber",
+        sl.level_required AS "levelRequired",
+        sl.summary,
+        sl.stats,
+        sl.cost,
+        sl.target,
+        sl.area,
+        sl.scaling,
+        sl.requirement,
+        COALESCE(sl.effects, '[]'::jsonb) AS effects
+      FROM skill_class_links scl
+      INNER JOIN skills s ON s.id = scl.skill_id
+      INNER JOIN skill_levels sl ON sl.skill_id = s.id
+      WHERE scl.class_template_id = ${classId}
+      ORDER BY s.name ASC, sl.level_number ASC
+    `)
+  }
 
   let characterId: string | null = null
   let initialPoints = 0
@@ -264,6 +305,7 @@ export default async function ClassPage({ params }: Props) {
       skillCategory: row.skillCategory?.trim() || null,
       skillType: row.skillType,
       skillActionType: row.skillActionType,
+      skillTags: normalizeSkillTags(row.skillTags),
       levels: [],
     }
 

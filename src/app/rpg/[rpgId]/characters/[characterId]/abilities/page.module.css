@@ -124,11 +124,29 @@
   box-shadow: 0 4px 20px var(--color-bg-overlay-soft);
 }
 
+.cardTagged {
+  --tag-card-c1: #1a1d2a;
+  --tag-card-c2: #242a3b;
+  --tag-card-c3: #2e3548;
+  --tag-card-border: #4a5672;
+  --tag-card-glow: rgba(108, 135, 201, 0.26);
+  background: linear-gradient(135deg, var(--tag-card-c1) 0%, var(--tag-card-c2) 54%, var(--tag-card-c3) 100%);
+  border-color: var(--tag-card-border);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tag-card-border) 50%, transparent), 0 16px 36px var(--tag-card-glow);
+}
+
 .card:hover {
   border-color: var(--color-brand-primary);
   transform: translateY(-3px);
   background: var(--color-bg-hover);
   box-shadow: var(--shadow-elevation-md);
+}
+
+.cardTagged:hover {
+  border-color: var(--tag-card-border);
+  background: linear-gradient(135deg, var(--tag-card-c1) 0%, var(--tag-card-c2) 54%, var(--tag-card-c3) 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tag-card-border) 60%, transparent), 0 18px 40px var(--tag-card-glow);
 }
 
 /* HEADER CARD */
