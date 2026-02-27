@@ -71,10 +71,15 @@
 
 .filters {
   display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: end;
   gap: 0.8rem;
   margin-bottom: 1rem;
+}
+
+.filtersTopRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.8rem;
+  align-items: end;
 }
 
 .filterField {
@@ -101,7 +106,7 @@
 }
 
 .filterFieldSearch {
-  grid-column: 1 / -1;
+  min-width: 0;
 }
 
 .typesRow {
@@ -158,18 +163,40 @@
   color: var(--color-text-primary);
 }
 
-.filtersButton {
+.filtersIconButton {
+  position: relative;
   border: 1px solid var(--color-border-soft);
   border-radius: 8px;
-  padding: 0.5rem 0.8rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--color-bg-surface);
   color: var(--color-text-secondary);
   cursor: pointer;
   white-space: nowrap;
 }
 
-.filtersButton:hover {
+.filtersIconButton:hover {
   border-color: var(--color-brand-primary);
+}
+
+.filtersCount {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  padding: 0 0.2rem;
+  background: var(--color-text-brand);
+  color: var(--color-text-on-brand);
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .drawerBackdrop {
@@ -411,13 +438,6 @@
     gap: 0.6rem;
   }
 
-  .filters {
-    grid-template-columns: 1fr;
-  }
-
-  .filtersButton {
-    width: max-content;
-  }
 }
 
 .filterField select option {

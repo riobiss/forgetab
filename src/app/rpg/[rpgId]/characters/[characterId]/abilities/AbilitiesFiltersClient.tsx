@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import type { CSSProperties } from "react"
+import { Filter } from "lucide-react"
 import styles from "./page.module.css"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
@@ -150,7 +151,8 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
       new Set(
         abilities
           .map((item) => item.skillType?.trim())
-          .filter((item): item is string => Boolean(item) && !catalogTypes.includes(item)),
+          .filter((item): item is string => typeof item === "string" && item.length > 0)
+          .filter((item) => !catalogTypes.includes(item)),
       ),
     )
     return [...catalogTypes, ...customTypes]
@@ -173,17 +175,30 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
   return (
     <>
       <div className={styles.filters}>
-        <label className={`${styles.filterField} ${styles.filterFieldSearch}`}>
-          <span>Pesquisar</span>
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Nome, descricao, dano..."
-          />
-        </label>
+        <div className={styles.filtersTopRow}>
+          <label className={`${styles.filterField} ${styles.filterFieldSearch}`}>
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Buscar..."
+            />
+          </label>
+          <button
+            type="button"
+            className={styles.filtersIconButton}
+            onClick={() => setIsFiltersDrawerOpen(true)}
+            aria-label="Abrir filtros"
+            aria-haspopup="dialog"
+            aria-expanded={isFiltersDrawerOpen}
+            aria-controls="abilities-filters-drawer"
+            title="Filtros"
+          >
+            <Filter size={18} aria-hidden="true" />
+            {activeExtraFilters > 0 ? <span className={styles.filtersCount}>{activeExtraFilters}</span> : null}
+          </button>
+        </div>
         <div className={styles.typesRow}>
-          <span className={styles.typesLabel}>Tipo</span>
           <div className={`${styles.typeChips} ${styles.typeChipsScrollable}`}>
             <button
               type="button"
@@ -204,16 +219,6 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
             ))}
           </div>
         </div>
-        <button
-          type="button"
-          className={styles.filtersButton}
-          onClick={() => setIsFiltersDrawerOpen(true)}
-          aria-haspopup="dialog"
-          aria-expanded={isFiltersDrawerOpen}
-          aria-controls="abilities-filters-drawer"
-        >
-          Filtros{activeExtraFilters > 0 ? ` (${activeExtraFilters})` : ""}
-        </button>
       </div>
 
       {isFiltersDrawerOpen ? (
@@ -423,4 +428,3 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
     </>
   )
 }
-
