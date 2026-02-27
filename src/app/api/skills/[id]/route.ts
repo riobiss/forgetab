@@ -85,6 +85,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const nextType = parsed.data.type !== undefined ? parsed.data.type : existing.type
     const nextActionType =
       parsed.data.actionType !== undefined ? parsed.data.actionType : existing.actionType
+    const nextTags = parsed.data.tags ?? existing.tags
     const nextDescription =
       parsed.data.description !== undefined ? parsed.data.description : existing.description
     const abilityCategoryConfig = await fetchRpgAbilityCategoryConfig(existing.rpgId)
@@ -125,6 +126,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
             category = ${nextCategory},
             type = ${nextType},
             action_type = ${nextActionType},
+            tags = ${nextTags},
             description = ${nextDescription},
             current_level = ${nextCurrentLevel},
             updated_at = CURRENT_TIMESTAMP
@@ -132,7 +134,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
             AND owner_id = ${userId}
         `)
       } catch (error) {
-        if (!(error instanceof Error) || !error.message.includes('column "action_type" does not exist')) {
+        if (
+          !(error instanceof Error) ||
+          (!error.message.includes('column "action_type" does not exist') &&
+            !error.message.includes('column "tags" does not exist'))
+        ) {
           throw error
         }
 

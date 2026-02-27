@@ -14,6 +14,7 @@ type SkillRow = {
   category: string | null
   type: string | null
   actionType: string | null
+  tags: string[]
   description: string | null
   currentLevel: number
   createdAt: Date
@@ -155,6 +156,7 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
         category,
         type,
         action_type AS "actionType",
+        COALESCE(tags, ARRAY[]::text[]) AS tags,
         description,
         current_level AS "currentLevel",
         created_at AS "createdAt",
@@ -165,7 +167,11 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
       LIMIT 1
     `)
   } catch (error) {
-    if (!(error instanceof Error) || !error.message.includes('column "action_type" does not exist')) {
+    if (
+      !(error instanceof Error) ||
+      (!error.message.includes('column "action_type" does not exist') &&
+        !error.message.includes('column "tags" does not exist'))
+    ) {
       throw error
     }
 
@@ -180,6 +186,7 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
         category,
         type,
         NULL::text AS "actionType",
+        ARRAY[]::text[] AS tags,
         description,
         current_level AS "currentLevel",
         created_at AS "createdAt",
@@ -259,6 +266,7 @@ export async function fetchSkillList(ownerId: string, rpgId?: string | null) {
         category,
         type,
         action_type AS "actionType",
+        COALESCE(tags, ARRAY[]::text[]) AS tags,
         description,
         current_level AS "currentLevel",
         created_at AS "createdAt",
@@ -269,7 +277,11 @@ export async function fetchSkillList(ownerId: string, rpgId?: string | null) {
       ORDER BY updated_at DESC
     `)
   } catch (error) {
-    if (!(error instanceof Error) || !error.message.includes('column "action_type" does not exist')) {
+    if (
+      !(error instanceof Error) ||
+      (!error.message.includes('column "action_type" does not exist') &&
+        !error.message.includes('column "tags" does not exist'))
+    ) {
       throw error
     }
 
@@ -284,6 +296,7 @@ export async function fetchSkillList(ownerId: string, rpgId?: string | null) {
         category,
         type,
         NULL::text AS "actionType",
+        ARRAY[]::text[] AS tags,
         description,
         current_level AS "currentLevel",
         created_at AS "createdAt",

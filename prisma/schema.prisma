@@ -411,6 +411,7 @@ model Skill {
   category     String?
   type         String?
   actionType   String?          @map("action_type")
+  tags         String[]         @default([])
   description  String?
   currentLevel Int              @default(1) @map("current_level")
   createdAt    DateTime         @default(now()) @map("created_at")

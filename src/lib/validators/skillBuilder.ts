@@ -3,6 +3,7 @@ import {
   actionTypeValues,
   effectTypeValues,
   skillCategoryValues,
+  skillTagValues,
   skillTypeValues,
   targetStatValues,
   valueModeValues,
@@ -47,6 +48,11 @@ const idListSchema = z
   .array(z.string().trim().min(1))
   .max(100)
   .transform((list) => Array.from(new Set(list.map((item) => item.trim()))))
+
+const tagListSchema = z
+  .array(z.enum(skillTagValues))
+  .max(30)
+  .transform((list) => Array.from(new Set(list)))
 
 const effectValueSchema = z.object({
   mode: z.enum(valueModeValues),
@@ -140,6 +146,7 @@ export const skillMetaCreateSchema = z.object({
   category: optionalSkillCategory.optional(),
   type: optionalSkillType.optional(),
   actionType: optionalActionType.optional(),
+  tags: tagListSchema.optional().default([]),
   description: optionalTrimmedText.optional(),
   currentLevel: z.number().int().min(1).optional(),
   classIds: idListSchema.optional().default([]),
@@ -169,6 +176,7 @@ export const skillMetaPatchSchema = z.object({
   category: optionalSkillCategory.optional(),
   type: optionalSkillType.optional(),
   actionType: optionalActionType.optional(),
+  tags: tagListSchema.optional(),
   description: optionalTrimmedText.optional(),
   currentLevel: z.number().int().min(1).optional(),
   classIds: idListSchema.optional(),

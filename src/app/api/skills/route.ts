@@ -117,6 +117,7 @@ export async function POST(request: NextRequest) {
             category,
             type,
             action_type,
+            tags,
             description,
             current_level
           )
@@ -130,12 +131,17 @@ export async function POST(request: NextRequest) {
             ${parsed.data.category},
             ${parsed.data.type},
             ${parsed.data.actionType},
+            ${parsed.data.tags},
             ${parsed.data.description},
             ${parsed.data.currentLevel ?? 1}
           )
         `)
       } catch (error) {
-        if (!(error instanceof Error) || !error.message.includes('column "action_type" does not exist')) {
+        if (
+          !(error instanceof Error) ||
+          (!error.message.includes('column "action_type" does not exist') &&
+            !error.message.includes('column "tags" does not exist'))
+        ) {
           throw error
         }
 

@@ -38,12 +38,34 @@ export const skillTypeValues = [
   "utility",
   "resource",
 ] as const
+export const skillTagValues = [
+  "ice",
+  "water",
+  "wind",
+  "earth",
+  "light",
+  "dark",
+  "shadow",
+  "infernal",
+  "holy",
+  "poison",
+  "blood",
+  "psychic",
+  "time",
+  "sound",
+  "arcane",
+  "void",
+  "life",
+  "death",
+  "energy",
+] as const
 
 export type EffectType = (typeof effectTypeValues)[number]
 export type TargetStat = (typeof targetStatValues)[number]
 export type ValueMode = (typeof valueModeValues)[number]
 export type SkillCategory = (typeof skillCategoryValues)[number]
 export type SkillType = (typeof skillTypeValues)[number]
+export type SkillTag = (typeof skillTagValues)[number]
 export type ActionType = (typeof actionTypeValues)[number]
 
 export type EffectValue = {
@@ -146,6 +168,7 @@ export type Skill = {
   category?: SkillCategory | null
   type?: SkillType | null
   actionType?: ActionType | null
+  tags: SkillTag[]
   description?: string | null
   currentLevel: number
   classIds: string[]
