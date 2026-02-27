@@ -83,21 +83,10 @@ function toActionTypeLabel(value: string | null) {
 
 export default function AbilitiesFiltersClient({ abilities }: { abilities: PurchasedAbilityView[] }) {
   const [search, setSearch] = useState("")
-  const [selectedType, setSelectedType] = useState("")
+  const [selectedType, setSelectedType] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState("")
-  const [selectedRange, setSelectedRange] = useState("")
-
-  const typeOptions = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          abilities
-            .map((item) => item.skillType?.trim())
-            .filter((item): item is string => Boolean(item)),
-        ),
-      ),
-    [abilities],
-  )
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false)
 
   const categoryOptions = useMemo(
     () =>
@@ -111,25 +100,27 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
     [abilities],
   )
 
-  const rangeOptions = useMemo(
+  const tagOptions = useMemo(
     () =>
       Array.from(
         new Set(
           abilities
-            .map((item) => item.range?.trim())
-            .filter((item): item is string => Boolean(item)),
+            .flatMap((item) => item.skillTags)
+            .map((item) => item.trim())
+            .filter((item) => item.length > 0),
         ),
       ),
     [abilities],
   )
 
-  const filtered = useMemo(() => {
+  const activeExtraFilters = (selectedCategory ? 1 : 0) + selectedTags.length
+
+  const baseFiltered = useMemo(() => {
     const query = search.trim().toLowerCase()
 
     return abilities.filter((ability) => {
-      if (selectedType && ability.skillType !== selectedType) return false
       if (selectedCategory && ability.skillCategory !== selectedCategory) return false
-      if (selectedRange && ability.range !== selectedRange) return false
+      if (selectedTags.length > 0 && !selectedTags.some((tag) => ability.skillTags.includes(tag))) return false
 
       if (!query) return true
 
@@ -151,7 +142,33 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
 
       return target.includes(query)
     })
-  }, [abilities, search, selectedType, selectedCategory, selectedRange])
+  }, [abilities, search, selectedCategory, selectedTags])
+
+  const typeOptions = useMemo(() => {
+    const catalogTypes = Object.keys(SKILL_TYPE_LABEL)
+    const customTypes = Array.from(
+      new Set(
+        abilities
+          .map((item) => item.skillType?.trim())
+          .filter((item): item is string => Boolean(item) && !catalogTypes.includes(item)),
+      ),
+    )
+    return [...catalogTypes, ...customTypes]
+  }, [abilities])
+
+  const filtered = useMemo(
+    () => (selectedType ? baseFiltered.filter((ability) => ability.skillType === selectedType) : baseFiltered),
+    [baseFiltered, selectedType],
+  )
+
+  function toggleTag(tag: string) {
+    setSelectedTags((current) => (current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]))
+  }
+
+  function clearExtraFilters() {
+    setSelectedCategory("")
+    setSelectedTags([])
+  }
 
   return (
     <>
@@ -165,40 +182,108 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
             placeholder="Nome, descricao, dano..."
           />
         </label>
-        <label className={styles.filterField}>
-          <span>Tipo</span>
-          <NativeSelectField value={selectedType} onChange={(event) => setSelectedType(event.target.value)}>
-            <option value="">Todos</option>
+        <div className={styles.typesRow}>
+          <span className={styles.typesLabel}>Tipo</span>
+          <div className={`${styles.typeChips} ${styles.typeChipsScrollable}`}>
+            <button
+              type="button"
+              className={selectedType === null ? `${styles.typeChip} ${styles.typeChipActive}` : styles.typeChip}
+              onClick={() => setSelectedType(null)}
+            >
+              Todos
+            </button>
             {typeOptions.map((item) => (
-              <option key={item} value={item}>
+              <button
+                key={item}
+                type="button"
+                className={selectedType === item ? `${styles.typeChip} ${styles.typeChipActive}` : styles.typeChip}
+                onClick={() => setSelectedType(item)}
+              >
                 {toTypeLabel(item)}
-              </option>
+              </button>
             ))}
-          </NativeSelectField>
-        </label>
-        <label className={styles.filterField}>
-          <span>Categoria</span>
-          <NativeSelectField value={selectedCategory} onChange={(event) => setSelectedCategory(event.target.value)}>
-            <option value="">Todas</option>
-            {categoryOptions.map((item) => (
-              <option key={item} value={item}>
-                {toCategoryLabel(item)}
-              </option>
-            ))}
-          </NativeSelectField>
-        </label>
-        <label className={styles.filterField}>
-          <span>Alcance</span>
-          <NativeSelectField value={selectedRange} onChange={(event) => setSelectedRange(event.target.value)}>
-            <option value="">Todos</option>
-            {rangeOptions.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </NativeSelectField>
-        </label>
+          </div>
+        </div>
+        <button
+          type="button"
+          className={styles.filtersButton}
+          onClick={() => setIsFiltersDrawerOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={isFiltersDrawerOpen}
+          aria-controls="abilities-filters-drawer"
+        >
+          Filtros{activeExtraFilters > 0 ? ` (${activeExtraFilters})` : ""}
+        </button>
       </div>
+
+      {isFiltersDrawerOpen ? (
+        <>
+          <button
+            type="button"
+            className={styles.drawerBackdrop}
+            aria-label="Fechar filtros"
+            onClick={() => setIsFiltersDrawerOpen(false)}
+          />
+          <aside id="abilities-filters-drawer" className={styles.drawer} role="dialog" aria-modal="true">
+            <div className={styles.drawerHeader}>
+              <h3 className={styles.drawerTitle}>Filtros</h3>
+              <button
+                type="button"
+                className={styles.drawerClose}
+                onClick={() => setIsFiltersDrawerOpen(false)}
+                aria-label="Fechar"
+              >
+                Fechar
+              </button>
+            </div>
+
+            <label className={styles.filterField}>
+              <span>Categoria</span>
+              <NativeSelectField value={selectedCategory} onChange={(event) => setSelectedCategory(event.target.value)}>
+                <option value="">Todas</option>
+                {categoryOptions.map((item) => (
+                  <option key={item} value={item}>
+                    {toCategoryLabel(item)}
+                  </option>
+                ))}
+              </NativeSelectField>
+            </label>
+
+            <div className={styles.drawerTagsSection}>
+              <span className={styles.typesLabel}>Tags</span>
+              <div className={styles.typeChips}>
+                {tagOptions.length === 0 ? (
+                  <p className={styles.drawerEmptyText}>Nenhuma tag disponivel.</p>
+                ) : (
+                  tagOptions.map((tag) => {
+                    const meta = getSkillTagMeta(tag)
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        className={
+                          selectedTags.includes(tag)
+                            ? `${styles.typeChip} ${styles.typeChipActive}`
+                            : styles.typeChip
+                        }
+                        onClick={() => toggleTag(tag)}
+                      >
+                        {meta?.label ?? tag}
+                      </button>
+                    )
+                  })
+                )}
+              </div>
+            </div>
+
+            <div className={styles.drawerFooter}>
+              <button type="button" className={styles.drawerClear} onClick={clearExtraFilters}>
+                Limpar filtros
+              </button>
+            </div>
+          </aside>
+        </>
+      ) : null}
 
       {filtered.length === 0 ? (
         <p className={styles.emptyState}>Nenhuma habilidade encontrada com os filtros atuais.</p>
