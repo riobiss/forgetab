@@ -6,15 +6,18 @@ import {
   actionTypeValues,
   effectTypeValues,
   skillCategoryValues,
+  skillTagValues,
   skillTypeValues,
   targetStatValues,
   type ActionType,
   type EffectType,
   type SkillCategory,
+  type SkillTag,
   type SkillType,
   type TargetStat,
 } from "@/types/skillBuilder"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
+import { ReactSelectField, type ReactSelectOption } from "@/components/select/ReactSelectField"
 import {
   abilityCategoryDefinitions,
   abilityCategoryLabelByKey,
@@ -62,6 +65,28 @@ const skillTypeLabel: Record<SkillType, string> = {
   summon: "Invocacao",
   utility: "Utilidade",
   resource: "Recurso",
+}
+
+const skillTagLabel: Record<SkillTag, string> = {
+  ice: "Gelo",
+  water: "Agua",
+  wind: "Vento",
+  earth: "Terra",
+  light: "Luz",
+  dark: "Escuridao",
+  shadow: "Sombra",
+  infernal: "Infernal",
+  holy: "Sagrado",
+  poison: "Veneno",
+  blood: "Sangue",
+  psychic: "Psiquico",
+  time: "Tempo",
+  sound: "Som",
+  arcane: "Arcano",
+  void: "Vazio",
+  life: "Vida",
+  death: "Morte",
+  energy: "Energia",
 }
 
 type OwnedRpg = { id: string; title: string }
@@ -116,6 +141,7 @@ type SkillDetail = {
   category: SkillCategory | null
   type: SkillType | null
   actionType: ActionType | null
+  tags: SkillTag[]
   description: string | null
   currentLevel: number
   classIds: string[]
@@ -128,6 +154,7 @@ type MetaForm = {
   category: SkillCategory | ""
   type: SkillType | ""
   actionType: ActionType | ""
+  tags: SkillTag[]
   description: string
   currentLevel: string
   classIds: string[]
@@ -267,12 +294,16 @@ function mapSkillToMetaForm(skill: SkillDetail): MetaForm {
   const normalizedActionType = actionTypeValues.includes(skill.actionType as ActionType)
     ? (skill.actionType as ActionType)
     : ""
+  const normalizedTags = Array.isArray(skill.tags)
+    ? skill.tags.filter((item): item is SkillTag => skillTagValues.includes(item as SkillTag))
+    : []
 
   return {
     name: skill.name,
     category: normalizedCategory,
     type: normalizedType,
     actionType: normalizedActionType,
+    tags: Array.from(new Set(normalizedTags)),
     description: skill.description ?? "",
     currentLevel: String(skill.currentLevel),
     classIds: skill.classIds,
@@ -328,6 +359,7 @@ function createInitialMeta(): MetaForm {
     category: "",
     type: "",
     actionType: "",
+    tags: [],
     description: "",
     currentLevel: "1",
     classIds: [],
@@ -434,6 +466,14 @@ export default function SkillsDashboardClient({
       },
     ]
   }, [createCategoryOptions, metaForm.category])
+  const tagOptions = useMemo<ReactSelectOption[]>(
+    () =>
+      skillTagValues.map((tag) => ({
+        value: tag,
+        label: skillTagLabel[tag],
+      })),
+    [],
+  )
 
   useEffect(() => {
     if (!selectedRpgId) return
@@ -711,6 +751,7 @@ export default function SkillsDashboardClient({
       const payload = {
         rpgId: selectedRpgId,
         ...metaForm,
+        tags: metaForm.tags,
         currentLevel: toOptionalNumber(metaForm.currentLevel) ?? 1,
         level1: {
           levelRequired: toOptionalNumber(levelForm.levelRequired) ?? 1,
@@ -796,8 +837,11 @@ export default function SkillsDashboardClient({
           category: metaForm.category,
           type: metaForm.type,
           actionType: metaForm.actionType,
+          tags: metaForm.tags,
           description: metaForm.description,
           currentLevel: toOptionalNumber(metaForm.currentLevel) ?? 1,
+          classIds: metaForm.classIds,
+          raceIds: metaForm.raceIds,
         }),
       })
 
@@ -1167,14 +1211,33 @@ export default function SkillsDashboardClient({
                         <option key={option} value={option}>
                           {actionTypeLabel[option]}
                         </option>
-                      ))}
-                    </NativeSelectField>
-                  </label>
-                  <label className={`${styles.field} ${styles.spanTwo}`}>
-                    <span>Description</span>
-                    <textarea
-                      rows={3}
-                      value={metaForm.description}
+                        ))}
+                      </NativeSelectField>
+                    </label>
+                    <label className={`${styles.field} ${styles.spanTwo}`}>
+                      <span>Tags</span>
+                      <ReactSelectField
+                        classNames={{ container: () => styles.field }}
+                        options={tagOptions}
+                        value={tagOptions.find((option) => option.value === metaForm.tags[0]) ?? null}
+                        onChange={(option) =>
+                          setMetaForm((prev) => ({
+                            ...prev,
+                            tags:
+                              option && skillTagValues.includes(option.value as SkillTag)
+                                ? [option.value as SkillTag]
+                                : [],
+                          }))
+                        }
+                        placeholder="Selecione as tags..."
+                      />
+                      <small className={styles.muted}>Selecione uma tag.</small>
+                    </label>
+                    <label className={`${styles.field} ${styles.spanTwo}`}>
+                    <span>Descricao</span>
+                      <textarea
+                        rows={3}
+                        value={metaForm.description}
                       onChange={(event) =>
                         setMetaForm((prev) => ({ ...prev, description: event.target.value }))
                       }
@@ -1453,14 +1516,14 @@ export default function SkillsDashboardClient({
               </div>
               <p className={styles.muted}>{activeSkill.name}</p>
               <div className={styles.stepper}>
-                {[1, 2, 3].map((step) => (
+                {[1, 2, 3, 4].map((step) => (
                   <button
                     type="button"
                     key={step}
                     className={editStep === step ? styles.stepActive : styles.step}
                     onClick={() => setEditStep(step)}
                   >
-                    {step === 1 ? "Basico" : step === 2 ? "Avançado" : "Efeitos"}
+                    {step === 1 ? "Basico" : step === 2 ? "Requerimentos" : step === 3 ? "Avançado" : "Efeitos"}
                   </button>
                 ))}
               </div>
@@ -1528,7 +1591,7 @@ export default function SkillsDashboardClient({
                       </NativeSelectField>
                     </label>
                     <label className={styles.field}>
-                      <span>ActionType (Tipo da acao)</span>
+                      <span>Tipo da acao</span>
                       <NativeSelectField
                         value={metaForm.actionType}
                         onChange={(event) =>
@@ -1545,6 +1608,25 @@ export default function SkillsDashboardClient({
                           </option>
                         ))}
                       </NativeSelectField>
+                    </label>
+                    <label className={`${styles.field} ${styles.spanTwo}`}>
+                      <span>Tags</span>
+                      <ReactSelectField
+                        classNames={{ container: () => styles.field }}
+                        options={tagOptions}
+                        value={tagOptions.find((option) => option.value === metaForm.tags[0]) ?? null}
+                        onChange={(option) =>
+                          setMetaForm((prev) => ({
+                            ...prev,
+                            tags:
+                              option && skillTagValues.includes(option.value as SkillTag)
+                                ? [option.value as SkillTag]
+                                : [],
+                          }))
+                        }
+                        placeholder="Selecione as tags..."
+                      />
+                      <small className={styles.muted}>Selecione uma tag.</small>
                     </label>
                     <label className={`${styles.field} ${styles.spanTwo}`}>
                       <span>Descricao</span>
@@ -1588,6 +1670,82 @@ export default function SkillsDashboardClient({
               ) : null}
 
               {editStep === 2 ? (
+                <div className={styles.bindingGrid}>
+                  <div className={styles.bindBox}>
+                    <h3>Classes permitidas</h3>
+                    {classes.map((item) => (
+                      <label key={item.id} className={styles.check}>
+                        <input
+                          type="checkbox"
+                          checked={metaForm.classIds.includes(item.id)}
+                          onChange={() =>
+                            setMetaForm((prev) => ({
+                              ...prev,
+                              classIds: toggleId(prev.classIds, item.id),
+                            }))
+                          }
+                        />
+                        <span>{item.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className={styles.bindBox}>
+                    <h3>Racas permitidas</h3>
+                    {races.map((item) => (
+                      <label key={item.id} className={styles.check}>
+                        <input
+                          type="checkbox"
+                          checked={metaForm.raceIds.includes(item.id)}
+                          onChange={() =>
+                            setMetaForm((prev) => ({
+                              ...prev,
+                              raceIds: toggleId(prev.raceIds, item.id),
+                            }))
+                          }
+                        />
+                        <span>{item.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <label className={styles.field}>
+                    <span>Nivel minimo</span>
+                    <input
+                      type="number"
+                      onWheel={(event) => event.currentTarget.blur()}
+                      min={1}
+                      value={levelForm.levelRequired}
+                      onChange={(event) =>
+                        setLevelForm((prev) => ({ ...prev, levelRequired: event.target.value }))
+                      }
+                    />
+                  </label>
+                  <label className={`${styles.field} ${styles.spanTwo}`}>
+                    <span>Pre-requisito</span>
+                    <textarea
+                      rows={2}
+                      value={levelForm.prerequisite}
+                      onChange={(event) =>
+                        setLevelForm((prev) => ({ ...prev, prerequisite: event.target.value }))
+                      }
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span>Pontos necessarios para compra</span>
+                    <input
+                      type="number"
+                      onWheel={(event) => event.currentTarget.blur()}
+                      min={0}
+                      step={1}
+                      value={levelForm.costPoints}
+                      onChange={(event) =>
+                        setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))
+                      }
+                    />
+                  </label>
+                </div>
+              ) : null}
+
+              {editStep === 3 ? (
                 <div className={styles.levelBlock}>
                   <div className={styles.grid}>
                     <label className={styles.field}>
@@ -1651,17 +1809,6 @@ export default function SkillsDashboardClient({
                         onChange={(event) =>
                           setLevelForm((prev) => ({ ...prev, resourceCost: event.target.value }))
                         }
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Pontos necessarios para comprar</span>
-                      <input
-                        type="number"
-                        onWheel={(event) => event.currentTarget.blur()}
-                        min={0}
-                        step={1}
-                        value={levelForm.costPoints}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))}
                       />
                     </label>
                     <label className={styles.field}>
@@ -1739,7 +1886,7 @@ export default function SkillsDashboardClient({
                 </div>
               ) : null}
 
-              {editStep === 3 ? (
+              {editStep === 4 ? (
                 <div className={styles.levelBlock}>
                   <EffectEditor
                     effects={levelForm.effects}
@@ -1759,7 +1906,7 @@ export default function SkillsDashboardClient({
                     Voltar etapa
                   </button>
                 ) : null}
-                {editStep < 3 ? (
+                {editStep < 4 ? (
                   <button
                     type="button"
                     className={styles.primaryButton}
@@ -1768,7 +1915,7 @@ export default function SkillsDashboardClient({
                     Proxima etapa
                   </button>
                 ) : null}
-                {editStep === 3 ? (
+                {editStep === 4 ? (
                   <button type="button" className={styles.primaryButton} onClick={saveAll} disabled={saving}>
                     {saving ? "Salvando..." : "Salvar tudo"}
                   </button>
