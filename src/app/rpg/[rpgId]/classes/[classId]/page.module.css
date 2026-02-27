@@ -56,10 +56,9 @@
   color: color-mix(in srgb, var(--tag-card-border) 78%, white);
   font-weight: 900;
   letter-spacing: 0.09em;
-  text-shadow:
-    0 0 10px color-mix(in srgb, var(--tag-card-glow) 75%, transparent),
-    0 0 2px color-mix(in srgb, var(--tag-card-border) 35%, white);
+  text-shadow: 1px 1px 0px black
 }
+
 
 .abilityCardTagged .statItem {
   color: var(--color-text-primary);

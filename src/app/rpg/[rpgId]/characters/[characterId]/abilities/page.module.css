@@ -131,8 +131,8 @@
   --tag-card-border: #4a5672;
   --tag-card-glow: rgba(108, 135, 201, 0.26);
   background: linear-gradient(135deg, var(--tag-card-c1) 0%, var(--tag-card-c2) 54%, var(--tag-card-c3) 100%);
-  border-color: var(--tag-card-border);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tag-card-border) 50%, transparent), 0 16px 36px var(--tag-card-glow);
+  border-color: transparent;
+  box-shadow: 0 0 0 1px transparent;
 }
 
 .card:hover {
@@ -146,7 +146,10 @@
   border-color: var(--tag-card-border);
   background: linear-gradient(135deg, var(--tag-card-c1) 0%, var(--tag-card-c2) 54%, var(--tag-card-c3) 100%);
   transform: translateY(-3px);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tag-card-border) 60%, transparent), 0 18px 40px var(--tag-card-glow);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--tag-card-glow) 60%, transparent),
+    0 0 20px color-mix(in srgb, var(--tag-card-glow) 45%, transparent),
+    var(--shadow-elevation-md);
 }
 
 /* HEADER CARD */
@@ -224,6 +227,19 @@
   font-weight: bold;
   letter-spacing: 0.05em;
   margin-bottom: 2px;
+}
+
+.cardTagged .detailLabelOrange {
+  color: color-mix(in srgb, var(--tag-card-border) 78%, white);
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-shadow:
+    0 0 10px color-mix(in srgb, var(--tag-card-glow) 75%, transparent),
+    0 0 2px color-mix(in srgb, var(--tag-card-border) 35%, white);
+}
+
+.cardTagged .detailValue {
+  color: var(--color-text-primary);
 }
 
 /* Destaque para o Custo (ST/MN) */
