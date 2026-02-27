@@ -197,6 +197,7 @@
 }
 
 .cardImageFrame {
+  position: relative;
   width: 100%;
   height: 160px;
   min-width: 0;
