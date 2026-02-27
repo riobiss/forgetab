@@ -325,7 +325,7 @@ export default async function ClassPage({ params }: Props) {
       duration: toOptionalText(stats.duration),
       castTime: toOptionalText(stats.castTime),
       resourceCost: toOptionalText(stats.resourceCost),
-      pointsCost: parseCostPoints(row.cost),
+      pointsCost: parseCostPoints(row.cost) ?? 0,
       costCustom: toOptionalText(cost.custom),
       target: parseJsonObject(row.target),
       area: parseJsonObject(row.area),

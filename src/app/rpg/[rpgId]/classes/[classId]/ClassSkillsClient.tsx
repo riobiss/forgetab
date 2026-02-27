@@ -206,14 +206,13 @@ export default function ClassSkillsClient({
           const owned = ownedBySkill[skill.skillId]?.has(selectedLevel.levelNumber) ?? false
           const key = buildLevelKey(skill.skillId, selectedLevel.levelNumber)
           const loading = loadingKey === key
-          const cantAfford =
-            typeof selectedLevel.pointsCost === "number" ? points < selectedLevel.pointsCost : true
+          const pointsCost = selectedLevel.pointsCost ?? 0
+          const cantAfford = points < pointsCost
           const buyDisabled =
             Boolean(disabledReason) ||
             owned ||
             loading ||
-            cantAfford ||
-            selectedLevel.pointsCost === null
+            cantAfford
           const levelDescription = hasText(selectedLevel.levelDescription)
             ? selectedLevel.levelDescription
             : hasText(selectedLevel.summary)
@@ -382,7 +381,7 @@ export default function ClassSkillsClient({
                 <div className={styles.buyAction}>
                   {typeof selectedLevel.pointsCost === "number" ? (
                     <span className={styles.buyPrice}>
-                      Preco: {selectedLevel.pointsCost}
+                      Preco: {pointsCost}
                     </span>
                   ) : null}
                   <button

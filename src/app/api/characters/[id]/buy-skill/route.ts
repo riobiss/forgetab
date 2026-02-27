@@ -139,13 +139,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         }
       }
 
-      const costPoints = parseCostPoints(skillLevel.cost)
-      if (costPoints === null) {
-        return {
-          status: 400 as const,
-          message: "Level da habilidade sem custo de pontos configurado.",
-        }
-      }
+      const costPoints = parseCostPoints(skillLevel.cost) ?? 0
 
       const ownedAbilities = parseCharacterAbilities(character.abilities)
       const alreadyHasLevel = ownedAbilities.some(
