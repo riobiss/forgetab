@@ -43,7 +43,6 @@ type DbSkillLevelRow = {
   area: Prisma.JsonValue
   scaling: Prisma.JsonValue
   requirement: Prisma.JsonValue
-  effects: Prisma.JsonValue
 }
 
 type DbCharacterRow = {
@@ -56,6 +55,9 @@ type SkillLevelView = {
   levelNumber: number
   levelRequired: number
   upgradeFromLevelNumber: number | null
+  levelCategory: string | null
+  levelType: string | null
+  levelActionType: string | null
   levelName: string | null
   levelDescription: string | null
   notes: string | null
@@ -74,7 +76,6 @@ type SkillLevelView = {
   area: Record<string, unknown> | null
   scaling: Record<string, unknown> | null
   requirement: Record<string, unknown> | null
-  effects: unknown[]
 }
 
 type SkillView = {
@@ -94,10 +95,6 @@ function parseJsonObject(value: Prisma.JsonValue) {
   }
 
   return value as Record<string, unknown>
-}
-
-function parseJsonArray(value: Prisma.JsonValue) {
-  return Array.isArray(value) ? value : []
 }
 
 function toOptionalText(value: unknown) {
@@ -174,11 +171,11 @@ export default async function ClassPage({ params }: Props) {
     levelRows = await prisma.$queryRaw<DbSkillLevelRow[]>(Prisma.sql`
       SELECT
         s.id AS "skillId",
-        s.name AS "skillName",
-        s.description AS "skillDescription",
-        s.category AS "skillCategory",
-        s.type AS "skillType",
-        s.action_type AS "skillActionType",
+        s.slug AS "skillName",
+        NULL::text AS "skillDescription",
+        NULL::text AS "skillCategory",
+        NULL::text AS "skillType",
+        NULL::text AS "skillActionType",
         COALESCE(s.tags, ARRAY[]::text[]) AS "skillTags",
         sl.level_number AS "levelNumber",
         sl.level_required AS "levelRequired",
@@ -188,30 +185,25 @@ export default async function ClassPage({ params }: Props) {
         sl.target,
         sl.area,
         sl.scaling,
-        sl.requirement,
-        COALESCE(sl.effects, '[]'::jsonb) AS effects
+        sl.requirement
       FROM skill_class_links scl
       INNER JOIN skills s ON s.id = scl.skill_id
       INNER JOIN skill_levels sl ON sl.skill_id = s.id
       WHERE scl.class_template_id = ${classId}
-      ORDER BY s.name ASC, sl.level_number ASC
+      ORDER BY s.slug ASC, sl.level_number ASC
     `)
   } catch (error) {
-    if (
-      !(error instanceof Error) ||
-      (!error.message.includes('column "tags" does not exist') &&
-        !error.message.includes('column "action_type" does not exist'))
-    ) {
+    if (!(error instanceof Error) || !error.message.includes('column "tags" does not exist')) {
       throw error
     }
 
     levelRows = await prisma.$queryRaw<DbSkillLevelRow[]>(Prisma.sql`
       SELECT
         s.id AS "skillId",
-        s.name AS "skillName",
-        s.description AS "skillDescription",
-        s.category AS "skillCategory",
-        s.type AS "skillType",
+        s.slug AS "skillName",
+        NULL::text AS "skillDescription",
+        NULL::text AS "skillCategory",
+        NULL::text AS "skillType",
         NULL::text AS "skillActionType",
         ARRAY[]::text[] AS "skillTags",
         sl.level_number AS "levelNumber",
@@ -222,13 +214,12 @@ export default async function ClassPage({ params }: Props) {
         sl.target,
         sl.area,
         sl.scaling,
-        sl.requirement,
-        COALESCE(sl.effects, '[]'::jsonb) AS effects
+        sl.requirement
       FROM skill_class_links scl
       INNER JOIN skills s ON s.id = scl.skill_id
       INNER JOIN skill_levels sl ON sl.skill_id = s.id
       WHERE scl.class_template_id = ${classId}
-      ORDER BY s.name ASC, sl.level_number ASC
+      ORDER BY s.slug ASC, sl.level_number ASC
     `)
   }
 
@@ -313,6 +304,9 @@ export default async function ClassPage({ params }: Props) {
       levelNumber: row.levelNumber,
       levelRequired: row.levelRequired,
       upgradeFromLevelNumber,
+      levelCategory: toOptionalText(stats.category) ?? toOptionalText(row.skillCategory),
+      levelType: toOptionalText(stats.type) ?? toOptionalText(row.skillType),
+      levelActionType: toOptionalText(stats.actionType) ?? toOptionalText(row.skillActionType),
       levelName: toOptionalText(stats.name),
       levelDescription: toOptionalText(stats.description),
       notes: fallbackNote,
@@ -331,7 +325,6 @@ export default async function ClassPage({ params }: Props) {
       area: parseJsonObject(row.area),
       scaling: parseJsonObject(row.scaling),
       requirement,
-      effects: parseJsonArray(row.effects),
     })
 
     acc[row.skillId] = skill

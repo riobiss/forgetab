@@ -50,7 +50,16 @@ type DbPurchasedSkillLevelRow = {
   area: Prisma.JsonValue
   scaling: Prisma.JsonValue
   requirement: Prisma.JsonValue
-  effects: Prisma.JsonValue
+}
+
+type DbSkillClassLinkRow = {
+  skillId: string
+  classLabel: string
+}
+
+type DbSkillRaceLinkRow = {
+  skillId: string
+  raceLabel: string
 }
 
 type PurchasedAbilityView = {
@@ -73,6 +82,9 @@ type PurchasedAbilityView = {
   duration: string | null
   castTime: string | null
   resourceCost: string | null
+  prerequisite: string | null
+  allowedClasses: string[]
+  allowedRaces: string[]
   pointsCost: number | null
   costCustom: string | null
 }
@@ -160,11 +172,11 @@ export default async function AbilitiesPage({ params }: Params) {
       purchasedRows = await prisma.$queryRaw<DbPurchasedSkillLevelRow[]>(Prisma.sql`
         SELECT
           s.id AS "skillId",
-          s.name AS "skillName",
-          s.description AS "skillDescription",
-          s.category AS "skillCategory",
-          s.type AS "skillType",
-          s.action_type AS "skillActionType",
+          s.slug AS "skillName",
+          NULL::text AS "skillDescription",
+          NULL::text AS "skillCategory",
+          NULL::text AS "skillType",
+          NULL::text AS "skillActionType",
           COALESCE(s.tags, ARRAY[]::text[]) AS "skillTags",
           sl.level_number AS "levelNumber",
           sl.level_required AS "levelRequired",
@@ -174,29 +186,24 @@ export default async function AbilitiesPage({ params }: Params) {
           sl.target,
           sl.area,
           sl.scaling,
-          sl.requirement,
-          COALESCE(sl.effects, '[]'::jsonb) AS effects
+          sl.requirement
         FROM skills s
         INNER JOIN skill_levels sl ON sl.skill_id = s.id
         WHERE s.rpg_id = ${rpgId}
           AND s.id IN (${Prisma.join(ownedSkillIds)})
       `)
     } catch (error) {
-      if (
-        !(error instanceof Error) ||
-        (!error.message.includes('column "tags" does not exist') &&
-          !error.message.includes('column "action_type" does not exist'))
-      ) {
+      if (!(error instanceof Error) || !error.message.includes('column "tags" does not exist')) {
         throw error
       }
 
       purchasedRows = await prisma.$queryRaw<DbPurchasedSkillLevelRow[]>(Prisma.sql`
         SELECT
           s.id AS "skillId",
-          s.name AS "skillName",
-          s.description AS "skillDescription",
-          s.category AS "skillCategory",
-          s.type AS "skillType",
+          s.slug AS "skillName",
+          NULL::text AS "skillDescription",
+          NULL::text AS "skillCategory",
+          NULL::text AS "skillType",
           NULL::text AS "skillActionType",
           ARRAY[]::text[] AS "skillTags",
           sl.level_number AS "levelNumber",
@@ -207,8 +214,7 @@ export default async function AbilitiesPage({ params }: Params) {
           sl.target,
           sl.area,
           sl.scaling,
-          sl.requirement,
-          COALESCE(sl.effects, '[]'::jsonb) AS effects
+          sl.requirement
         FROM skills s
         INNER JOIN skill_levels sl ON sl.skill_id = s.id
         WHERE s.rpg_id = ${rpgId}
@@ -216,6 +222,42 @@ export default async function AbilitiesPage({ params }: Params) {
       `)
     }
   }
+
+  const classLinkRows =
+    ownedSkillIds.length > 0
+      ? await prisma.$queryRaw<DbSkillClassLinkRow[]>(Prisma.sql`
+          SELECT
+            scl.skill_id AS "skillId",
+            ct.label AS "classLabel"
+          FROM skill_class_links scl
+          INNER JOIN rpg_class_templates ct ON ct.id = scl.class_template_id
+          WHERE scl.skill_id IN (${Prisma.join(ownedSkillIds)})
+            AND ct.rpg_id = ${rpgId}
+        `)
+      : []
+  const raceLinkRows =
+    ownedSkillIds.length > 0
+      ? await prisma.$queryRaw<DbSkillRaceLinkRow[]>(Prisma.sql`
+          SELECT
+            srl.skill_id AS "skillId",
+            rt.label AS "raceLabel"
+          FROM skill_race_links srl
+          INNER JOIN rpg_race_templates rt ON rt.id = srl.race_template_id
+          WHERE srl.skill_id IN (${Prisma.join(ownedSkillIds)})
+            AND rt.rpg_id = ${rpgId}
+        `)
+      : []
+
+  const allowedClassMap = classLinkRows.reduce<Record<string, string[]>>((acc, row) => {
+    if (!acc[row.skillId]) acc[row.skillId] = []
+    acc[row.skillId].push(row.classLabel)
+    return acc
+  }, {})
+  const allowedRaceMap = raceLinkRows.reduce<Record<string, string[]>>((acc, row) => {
+    if (!acc[row.skillId]) acc[row.skillId] = []
+    acc[row.skillId].push(row.raceLabel)
+    return acc
+  }, {})
 
   const levelBySkillAndLevel = new Map<string, DbPurchasedSkillLevelRow>()
   for (const row of purchasedRows) {
@@ -228,6 +270,7 @@ export default async function AbilitiesPage({ params }: Params) {
 
       const stats = parseJsonObject(row.stats) ?? {}
       const cost = parseJsonObject(row.cost) ?? {}
+      const requirement = parseJsonObject(row.requirement) ?? {}
       const statsNotesListRaw = Array.isArray(stats.notesList) ? stats.notesList : []
       const statsNotesList = statsNotesListRaw
         .map((item) => (typeof item === "string" ? item.trim() : ""))
@@ -242,9 +285,9 @@ export default async function AbilitiesPage({ params }: Params) {
         skillDescription: toOptionalText(row.skillDescription),
         levelDescription: toOptionalText(stats.description),
         notesList: statsNotesList.length > 0 ? statsNotesList : fallbackNote ? [fallbackNote] : [],
-        skillCategory: toOptionalText(row.skillCategory),
-        skillType: toOptionalText(row.skillType),
-        skillActionType: toOptionalText(row.skillActionType),
+        skillCategory: toOptionalText(stats.category) ?? toOptionalText(row.skillCategory),
+        skillType: toOptionalText(stats.type) ?? toOptionalText(row.skillType),
+        skillActionType: toOptionalText(stats.actionType) ?? toOptionalText(row.skillActionType),
         skillTags: normalizeSkillTags(row.skillTags),
         levelRequired: row.levelRequired,
         summary: toOptionalText(row.summary),
@@ -254,6 +297,9 @@ export default async function AbilitiesPage({ params }: Params) {
         duration: toOptionalText(stats.duration),
         castTime: toOptionalText(stats.castTime),
         resourceCost: toOptionalText(stats.resourceCost),
+        prerequisite: toOptionalText(requirement.notes),
+        allowedClasses: allowedClassMap[row.skillId] ?? [],
+        allowedRaces: allowedRaceMap[row.skillId] ?? [],
         pointsCost: parseCostPoints(row.cost),
         costCustom: toOptionalText(cost.custom),
       })

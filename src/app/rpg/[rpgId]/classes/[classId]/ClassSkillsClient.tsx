@@ -39,6 +39,9 @@ type SkillLevelView = {
   levelNumber: number
   levelRequired: number
   upgradeFromLevelNumber: number | null
+  levelCategory: string | null
+  levelType: string | null
+  levelActionType: string | null
   levelName: string | null
   levelDescription: string | null
   notes: string | null
@@ -57,7 +60,6 @@ type SkillLevelView = {
   area: Record<string, unknown> | null
   scaling: Record<string, unknown> | null
   requirement: Record<string, unknown> | null
-  effects: unknown[]
 }
 
 type SkillView = {
@@ -296,22 +298,22 @@ export default function ClassSkillsClient({
                     <p className={styles.abilityDescription}>{levelDescription}</p>
                   ) : null}
                   <div className={styles.abilityStats}>
-                    {hasText(skill.skillCategory) ? (
+                    {hasText(selectedLevel.levelCategory ?? skill.skillCategory) ? (
                       <div className={styles.statItem}>
                         <strong>Categoria</strong>
-                        {toCategoryLabel(skill.skillCategory)}
+                        {toCategoryLabel(selectedLevel.levelCategory ?? skill.skillCategory)}
                       </div>
                     ) : null}
-                    {hasText(skill.skillType) ? (
+                    {hasText(selectedLevel.levelType ?? skill.skillType) ? (
                       <div className={styles.statItem}>
                         <strong>Tipo</strong>
-                        {toTypeLabel(skill.skillType)}
+                        {toTypeLabel(selectedLevel.levelType ?? skill.skillType)}
                       </div>
                     ) : null}
-                    {hasText(skill.skillActionType) ? (
+                    {hasText(selectedLevel.levelActionType ?? skill.skillActionType) ? (
                       <div className={styles.statItem}>
                         <strong>Tipo da acao</strong>
-                        {toActionTypeLabel(skill.skillActionType)}
+                        {toActionTypeLabel(selectedLevel.levelActionType ?? skill.skillActionType)}
                       </div>
                     ) : null}
                     {skill.skillTags.length > 0 ? (

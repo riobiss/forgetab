@@ -4,17 +4,13 @@ import { useEffect, useMemo, useState } from "react"
 import styles from "./page.module.css"
 import {
   actionTypeValues,
-  effectTypeValues,
   skillCategoryValues,
   skillTagValues,
   skillTypeValues,
-  targetStatValues,
   type ActionType,
-  type EffectType,
   type SkillCategory,
   type SkillTag,
   type SkillType,
-  type TargetStat,
 } from "@/types/skillBuilder"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
 import { ReactSelectField, type ReactSelectOption } from "@/components/select/ReactSelectField"
@@ -23,28 +19,6 @@ import {
   abilityCategoryLabelByKey,
   normalizeEnabledAbilityCategories,
 } from "@/lib/rpg/abilityCategories"
-
-const effectTypeLabel: Record<EffectType, string> = {
-  damage: "Dano",
-  heal: "Cura",
-  buff: "Buff",
-  debuff: "Debuff",
-  applyStatus: "Aplicar status",
-  removeStatus: "Remover status",
-  shield: "Escudo",
-  createZone: "Criar zona",
-  summon: "Invocar",
-  move: "Mover",
-}
-
-const targetStatLabel: Record<TargetStat, string> = {
-  hp: "Vida",
-  armor: "Armadura",
-  shield: "Escudo",
-  mana: "Mana",
-  sanity: "Sanidade",
-  attribute: "Atributo",
-}
 
 const actionTypeLabel: Record<ActionType, string> = {
   action: "Acao",
@@ -101,26 +75,8 @@ type RpgSettingsPayload = {
 
 type SkillListItem = {
   id: string
-  name: string
   slug: string
-  currentLevel: number
   updatedAt: string
-}
-
-type SkillEffect = {
-  id: string
-  type: EffectType
-  targetStat: TargetStat | ""
-  valueMode: "flat" | "dice"
-  valueFlat: string
-  diceCount: string
-  diceSides: string
-  diceBonus: string
-  damageType: string
-  duration: string
-  tickInterval: string
-  chance: string
-  stacks: string
 }
 
 type SkillLevel = {
@@ -131,19 +87,12 @@ type SkillLevel = {
   stats: Record<string, unknown> | null
   cost: Record<string, unknown> | null
   requirement: Record<string, unknown> | null
-  effects: unknown
 }
 
 type SkillDetail = {
   id: string
-  name: string
   slug: string
-  category: SkillCategory | null
-  type: SkillType | null
-  actionType: ActionType | null
   tags: SkillTag[]
-  description: string | null
-  currentLevel: number
   classIds: string[]
   raceIds: string[]
   levels: SkillLevel[]
@@ -156,7 +105,6 @@ type MetaForm = {
   actionType: ActionType | ""
   tags: SkillTag[]
   description: string
-  currentLevel: string
   classIds: string[]
   raceIds: string[]
 }
@@ -176,7 +124,9 @@ type LevelForm = {
   costPoints: string
   costCustom: string
   prerequisite: string
-  effects: SkillEffect[]
+  levelCategory: SkillCategory | ""
+  levelType: SkillType | ""
+  levelActionType: ActionType | ""
 }
 
 type Props = {
@@ -202,110 +152,18 @@ function normalizeObsList(values: string[]) {
   return values.map((item) => item.trim()).filter((item) => item.length > 0)
 }
 
-function emptyEffect(): SkillEffect {
-  return {
-    id: crypto.randomUUID(),
-    type: "damage",
-    targetStat: "hp",
-    valueMode: "flat",
-    valueFlat: "",
-    diceCount: "",
-    diceSides: "",
-    diceBonus: "",
-    damageType: "",
-    duration: "",
-    tickInterval: "",
-    chance: "",
-    stacks: "",
-  }
-}
-
-function parseEffects(input: unknown) {
-  if (!Array.isArray(input) || input.length === 0) {
-    return [emptyEffect()]
-  }
-
-  const effects = input
-    .map((raw): SkillEffect | null => {
-      if (!raw || typeof raw !== "object") return null
-      const effect = raw as Record<string, unknown>
-      const value = effect.value && typeof effect.value === "object"
-        ? (effect.value as Record<string, unknown>)
-        : {}
-      const mode = value.mode === "dice" ? "dice" : "flat"
-
-      return {
-        id: typeof effect.id === "string" ? effect.id : crypto.randomUUID(),
-        type: effectTypeValues.includes(effect.type as EffectType) ? (effect.type as EffectType) : "damage",
-        targetStat: targetStatValues.includes(effect.targetStat as TargetStat)
-          ? (effect.targetStat as TargetStat)
-          : "",
-        valueMode: mode,
-        valueFlat: typeof value.flat === "number" ? String(value.flat) : "",
-        diceCount: typeof value.diceCount === "number" ? String(value.diceCount) : "",
-        diceSides: typeof value.diceSides === "number" ? String(value.diceSides) : "",
-        diceBonus: typeof value.bonus === "number" ? String(value.bonus) : "",
-        damageType: typeof effect.damageType === "string" ? effect.damageType : "",
-        duration: typeof effect.duration === "string" ? effect.duration : "",
-        tickInterval: typeof effect.tickInterval === "string" ? effect.tickInterval : "",
-        chance: typeof effect.chance === "number" ? String(effect.chance) : "",
-        stacks: typeof effect.stacks === "number" ? String(effect.stacks) : "",
-      }
-    })
-    .filter((item): item is SkillEffect => item !== null)
-
-  return effects.length > 0 ? effects : [emptyEffect()]
-}
-
-function buildEffectPayload(effect: SkillEffect) {
-  const value =
-    effect.valueMode === "dice"
-      ? {
-          mode: "dice",
-          diceCount: toOptionalNumber(effect.diceCount),
-          diceSides: toOptionalNumber(effect.diceSides),
-          bonus: toOptionalNumber(effect.diceBonus),
-        }
-      : {
-          mode: "flat",
-          flat: toOptionalNumber(effect.valueFlat),
-        }
-
-  return {
-    id: effect.id,
-    type: effect.type,
-    targetStat: effect.targetStat || null,
-    value,
-    damageType: toOptionalText(effect.damageType),
-    duration: toOptionalText(effect.duration),
-    tickInterval: toOptionalText(effect.tickInterval),
-    chance: toOptionalNumber(effect.chance),
-    stacks: toOptionalNumber(effect.stacks),
-  }
-}
-
 function mapSkillToMetaForm(skill: SkillDetail): MetaForm {
-  const normalizedCategory = skillCategoryValues.includes(skill.category as SkillCategory)
-    ? (skill.category as SkillCategory)
-    : ""
-  const normalizedType = skillTypeValues.includes(skill.type as SkillType)
-    ? (skill.type as SkillType)
-    : ""
-  const normalizedActionType = actionTypeValues.includes(skill.actionType as ActionType)
-    ? (skill.actionType as ActionType)
-    : ""
   const normalizedTags = Array.isArray(skill.tags)
     ? skill.tags.filter((item): item is SkillTag => skillTagValues.includes(item as SkillTag))
     : []
 
   return {
-    name: skill.name,
-    category: normalizedCategory,
-    type: normalizedType,
-    actionType: normalizedActionType,
+    name: "",
+    category: "",
+    type: "",
+    actionType: "",
     tags: Array.from(new Set(normalizedTags)),
-    description: skill.description ?? "",
-    currentLevel: String(skill.currentLevel),
+    description: "",
     classIds: skill.classIds,
     raceIds: skill.raceIds,
   }
@@ -336,7 +194,13 @@ function mapLevelToForm(level: SkillLevel): LevelForm {
     costPoints: typeof cost.points === "number" ? String(cost.points) : "",
     costCustom: typeof cost.custom === "string" ? cost.custom : "",
     prerequisite: typeof requirement.notes === "string" ? requirement.notes : "",
-    effects: parseEffects(level.effects),
+    levelCategory: skillCategoryValues.includes(stats.category as SkillCategory)
+      ? (stats.category as SkillCategory)
+      : "",
+    levelType: skillTypeValues.includes(stats.type as SkillType) ? (stats.type as SkillType) : "",
+    levelActionType: actionTypeValues.includes(stats.actionType as ActionType)
+      ? (stats.actionType as ActionType)
+      : "",
   }
 }
 
@@ -361,7 +225,6 @@ function createInitialMeta(): MetaForm {
     actionType: "",
     tags: [],
     description: "",
-    currentLevel: "1",
     classIds: [],
     raceIds: [],
   }
@@ -383,24 +246,14 @@ function createInitialLevel(): LevelForm {
     costPoints: "",
     costCustom: "",
     prerequisite: "",
-    effects: [emptyEffect()],
+    levelCategory: "",
+    levelType: "",
+    levelActionType: "",
   }
 }
 
 function toggleId(list: string[], id: string) {
   return list.includes(id) ? list.filter((item) => item !== id) : [...list, id]
-}
-
-function updateEffect(list: SkillEffect[], index: number, patch: Partial<SkillEffect>) {
-  return list.map((effect, current) => (current === index ? { ...effect, ...patch } : effect))
-}
-
-function moveEffect(list: SkillEffect[], from: number, to: number) {
-  if (to < 0 || to >= list.length) return list
-  const next = [...list]
-  const [removed] = next.splice(from, 1)
-  next.splice(to, 0, removed)
-  return next
 }
 
 function resolveCategoryLabel(value: string) {
@@ -566,6 +419,19 @@ export default function SkillsDashboardClient({
     if (createOpen) return
     if (!selectedLevel) return
     setLevelForm(mapLevelToForm(selectedLevel))
+    const stats = (selectedLevel.stats ?? {}) as Record<string, unknown>
+    setMetaForm((prev) => ({
+      ...prev,
+      name: typeof stats.name === "string" ? stats.name : "",
+      description: typeof stats.description === "string" ? stats.description : "",
+      category: skillCategoryValues.includes(stats.category as SkillCategory)
+        ? (stats.category as SkillCategory)
+        : "",
+      type: skillTypeValues.includes(stats.type as SkillType) ? (stats.type as SkillType) : "",
+      actionType: actionTypeValues.includes(stats.actionType as ActionType)
+        ? (stats.actionType as ActionType)
+        : "",
+    }))
   }, [selectedLevel, createOpen])
 
   useEffect(() => {
@@ -583,159 +449,6 @@ export default function SkillsDashboardClient({
     }
   }, [abilityCategoriesEnabled, createOpen, enabledAbilityCategories, metaForm.category])
 
-  function EffectEditor({
-    effects,
-    onChange,
-  }: {
-    effects: SkillEffect[]
-    onChange: (next: SkillEffect[]) => void
-  }) {
-    return (
-      <div className={styles.effects}>
-        <h3>Efeitos</h3>
-        {effects.map((effect, index) => (
-          <article key={effect.id} className={styles.effectCard}>
-            <div className={styles.effectTop}>
-              <strong>Efeito {index + 1}</strong>
-              <div className={styles.effectActions}>
-                <button type="button" onClick={() => onChange(moveEffect(effects, index, index - 1))}>
-                  Subir
-                </button>
-                <button type="button" onClick={() => onChange(moveEffect(effects, index, index + 1))}>
-                  Descer
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    onChange(effects.length === 1 ? [emptyEffect()] : effects.filter((_, i) => i !== index))
-                  }
-                >
-                  Remover
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.grid}>
-              <label className={styles.field}>
-                <span>Tipo</span>
-                <NativeSelectField
-                  value={effect.type}
-                  onChange={(event) =>
-                    onChange(updateEffect(effects, index, { type: event.target.value as EffectType }))
-                  }
-                >
-                  {effectTypeValues.map((option) => (
-                    <option key={option} value={option}>
-                      {effectTypeLabel[option]}
-                    </option>
-                  ))}
-                </NativeSelectField>
-              </label>
-              <label className={styles.field}>
-                <span>Atributo alvo</span>
-                <NativeSelectField
-                  value={effect.targetStat}
-                  onChange={(event) =>
-                    onChange(updateEffect(effects, index, { targetStat: event.target.value as TargetStat | "" }))
-                  }
-                >
-                  <option value="">Nenhum</option>
-                  {targetStatValues.map((option) => (
-                    <option key={option} value={option}>
-                      {targetStatLabel[option]}
-                    </option>
-                  ))}
-                </NativeSelectField>
-              </label>
-              <label className={styles.field}>
-                <span>Modo do valor</span>
-                <NativeSelectField
-                  value={effect.valueMode}
-                  onChange={(event) =>
-                    onChange(updateEffect(effects, index, { valueMode: event.target.value as "flat" | "dice" }))
-                  }
-                >
-                  <option value="flat">Fixo</option>
-                  <option value="dice">Dado</option>
-                </NativeSelectField>
-              </label>
-              <label className={styles.field}>
-                <span>Valor fixo</span>
-                <input
-                  value={effect.valueFlat}
-                  onChange={(event) => onChange(updateEffect(effects, index, { valueFlat: event.target.value }))}
-                  disabled={effect.valueMode !== "flat"}
-                />
-              </label>
-              <label className={styles.field}>
-                <span>Qtd. de dados</span>
-                <input
-                  value={effect.diceCount}
-                  onChange={(event) => onChange(updateEffect(effects, index, { diceCount: event.target.value }))}
-                  disabled={effect.valueMode !== "dice"}
-                />
-              </label>
-              <label className={styles.field}>
-                <span>Lados do dado</span>
-                <input
-                  value={effect.diceSides}
-                  onChange={(event) => onChange(updateEffect(effects, index, { diceSides: event.target.value }))}
-                  disabled={effect.valueMode !== "dice"}
-                />
-              </label>
-              <label className={styles.field}>
-                <span>Bonus do dado</span>
-                <input
-                  value={effect.diceBonus}
-                  onChange={(event) => onChange(updateEffect(effects, index, { diceBonus: event.target.value }))}
-                  disabled={effect.valueMode !== "dice"}
-                />
-              </label>
-              <label className={styles.field}>
-                <span>Tipo de dano</span>
-                <input
-                  value={effect.damageType}
-                  onChange={(event) => onChange(updateEffect(effects, index, { damageType: event.target.value }))}
-                />
-              </label>
-              <label className={styles.field}>
-                <span>Duracao</span>
-                <input
-                  value={effect.duration}
-                  onChange={(event) => onChange(updateEffect(effects, index, { duration: event.target.value }))}
-                />
-              </label>
-              <label className={styles.field}>
-                <span>Intervalo de tick</span>
-                <input
-                  value={effect.tickInterval}
-                  onChange={(event) => onChange(updateEffect(effects, index, { tickInterval: event.target.value }))}
-                />
-              </label>
-              <label className={styles.field}>
-                <span>Chance</span>
-                <input
-                  value={effect.chance}
-                  onChange={(event) => onChange(updateEffect(effects, index, { chance: event.target.value }))}
-                />
-              </label>
-              <label className={styles.field}>
-                <span>Acumulos</span>
-                <input
-                  value={effect.stacks}
-                  onChange={(event) => onChange(updateEffect(effects, index, { stacks: event.target.value }))}
-                />
-              </label>
-            </div>
-          </article>
-        ))}
-        <button type="button" className={styles.ghostButton} onClick={() => onChange([...effects, emptyEffect()])}>
-          Adicionar efeito
-        </button>
-      </div>
-    )
-  }
-
   async function createSkill() {
     setSaving(true)
     setError("")
@@ -750,23 +463,26 @@ export default function SkillsDashboardClient({
 
       const payload = {
         rpgId: selectedRpgId,
-        ...metaForm,
         tags: metaForm.tags,
-        currentLevel: toOptionalNumber(metaForm.currentLevel) ?? 1,
+        classIds: metaForm.classIds,
+        raceIds: metaForm.raceIds,
         level1: {
           levelRequired: toOptionalNumber(levelForm.levelRequired) ?? 1,
           summary: toOptionalText(levelForm.summary),
           stats: {
-            name: toOptionalText(levelForm.levelName),
-            description: toOptionalText(levelForm.levelDescription),
-            notes: toOptionalText(levelForm.notesList[0] ?? ""),
-            notesList: normalizeObsList(levelForm.notesList),
+            name: toOptionalText(metaForm.name),
+            description: toOptionalText(metaForm.description),
+            notes: null,
+            notesList: [],
             damage: toOptionalText(levelForm.damage),
             cooldown: toOptionalText(levelForm.cooldown),
             range: toOptionalText(levelForm.range),
             duration: toOptionalText(levelForm.duration),
             castTime: toOptionalText(levelForm.castTime),
             resourceCost: toOptionalText(levelForm.resourceCost),
+            category: metaForm.category || null,
+            type: metaForm.type || null,
+            actionType: metaForm.actionType || null,
           },
           cost: {
             points: toOptionalNumber(levelForm.costPoints),
@@ -776,7 +492,6 @@ export default function SkillsDashboardClient({
             levelRequired: toOptionalNumber(levelForm.levelRequired),
             notes: toOptionalText(levelForm.prerequisite),
           },
-          effects: levelForm.effects.map((effect) => buildEffectPayload(effect)),
         },
       }
 
@@ -797,9 +512,7 @@ export default function SkillsDashboardClient({
       setSkills((prev) => [
         {
           id: createdSkill.id,
-          name: createdSkill.name,
           slug: createdSkill.slug,
-          currentLevel: createdSkill.currentLevel,
           updatedAt: new Date().toISOString(),
         },
         ...prev,
@@ -833,13 +546,7 @@ export default function SkillsDashboardClient({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: metaForm.name,
-          category: metaForm.category,
-          type: metaForm.type,
-          actionType: metaForm.actionType,
           tags: metaForm.tags,
-          description: metaForm.description,
-          currentLevel: toOptionalNumber(metaForm.currentLevel) ?? 1,
           classIds: metaForm.classIds,
           raceIds: metaForm.raceIds,
         }),
@@ -856,9 +563,7 @@ export default function SkillsDashboardClient({
           item.id === result.skill?.id
             ? {
                 ...item,
-                name: result.skill.name,
                 slug: result.skill.slug,
-                currentLevel: result.skill.currentLevel,
                 updatedAt: new Date().toISOString(),
               }
             : item,
@@ -894,7 +599,6 @@ export default function SkillsDashboardClient({
           item.id === result.skill?.id
             ? {
                 ...item,
-                currentLevel: result.skill.currentLevel,
                 updatedAt: new Date().toISOString(),
               }
             : item,
@@ -927,16 +631,19 @@ export default function SkillsDashboardClient({
           levelRequired: toOptionalNumber(levelForm.levelRequired) ?? selectedLevel.levelRequired,
           summary: toOptionalText(levelForm.summary),
           stats: {
-            name: toOptionalText(levelForm.levelName),
-            description: toOptionalText(levelForm.levelDescription),
-            notes: toOptionalText(levelForm.notesList[0] ?? ""),
-            notesList: normalizeObsList(levelForm.notesList),
+            name: toOptionalText(metaForm.name),
+            description: toOptionalText(metaForm.description),
+            notes: null,
+            notesList: [],
             damage: toOptionalText(levelForm.damage),
             cooldown: toOptionalText(levelForm.cooldown),
             range: toOptionalText(levelForm.range),
             duration: toOptionalText(levelForm.duration),
             castTime: toOptionalText(levelForm.castTime),
             resourceCost: toOptionalText(levelForm.resourceCost),
+            category: metaForm.category || null,
+            type: metaForm.type || null,
+            actionType: metaForm.actionType || null,
           },
           cost: {
             points: toOptionalNumber(levelForm.costPoints),
@@ -946,7 +653,6 @@ export default function SkillsDashboardClient({
             levelRequired: toOptionalNumber(levelForm.levelRequired),
             notes: toOptionalText(levelForm.prerequisite),
           },
-          effects: levelForm.effects.map((effect) => buildEffectPayload(effect)),
         }),
       })
 
@@ -1012,7 +718,6 @@ export default function SkillsDashboardClient({
           item.id === result.skill?.id
             ? {
                 ...item,
-                currentLevel: result.skill.currentLevel,
                 updatedAt: new Date().toISOString(),
               }
             : item,
@@ -1035,7 +740,7 @@ export default function SkillsDashboardClient({
     if (!activeSkill) return
 
     const shouldDelete = window.confirm(
-      `Deseja deletar a habilidade "${activeSkill.name}"? Essa acao nao pode ser desfeita.`,
+      `Deseja deletar a habilidade "${activeSkill.slug}"? Essa acao nao pode ser desfeita.`,
     )
     if (!shouldDelete) return
 
@@ -1104,8 +809,8 @@ export default function SkillsDashboardClient({
               key={skill.id}
               className={selectedSkillId === skill.id ? styles.skillCardActive : styles.skillCard}
             >
-              <strong>{skill.name}</strong>
-              <small>lvl atual: {skill.currentLevel}</small>
+              <strong>{skill.slug}</strong>
+              <small>{new Date(skill.updatedAt).toLocaleString("pt-BR")}</small>
               <div className={styles.actions}>
                 <button
                   type="button"
@@ -1134,14 +839,14 @@ export default function SkillsDashboardClient({
             <section className={styles.card}>
               <h2>Criar</h2>
               <div className={styles.stepper}>
-                {[1, 2, 3, 4].map((step) => (
+                {[1, 2, 3].map((step) => (
                   <button
                     type="button"
                     key={step}
                     className={createStep === step ? styles.stepActive : styles.step}
                     onClick={() => setCreateStep(step)}
                   >
-                    {step === 1 ? "Basico" : step === 2 ? "Requerimentos" : step === 3 ? "Avançado" : "Efeitos"}
+                    {step === 1 ? "Basico" : step === 2 ? "Requerimentos" : "Avançado"}
                   </button>
                 ))}
               </div>
@@ -1364,76 +1069,6 @@ export default function SkillsDashboardClient({
                 <div className={styles.levelBlock}>
                   <div className={styles.grid}>
                     <label className={styles.field}>
-                      <span>Nome do level</span>
-                      <input
-                        value={levelForm.levelName}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, levelName: event.target.value }))}
-                      />
-                    </label>
-                    <label className={`${styles.field} ${styles.spanTwo}`}>
-                      <span>Resumo do level</span>
-                      <textarea
-                        rows={2}
-                        value={levelForm.summary}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, summary: event.target.value }))}
-                      />
-                    </label>
-                    <label className={`${styles.field} ${styles.spanTwo}`}>
-                      <span>Descricao do level</span>
-                      <textarea
-                        rows={2}
-                        value={levelForm.levelDescription}
-                        onChange={(event) =>
-                          setLevelForm((prev) => ({ ...prev, levelDescription: event.target.value }))
-                        }
-                      />
-                    </label>
-                    <label className={`${styles.field} ${styles.spanTwo}`}>
-                      <span>Obs</span>
-                      <div className={styles.levelBlock}>
-                        {levelForm.notesList.map((item, index) => (
-                          <div key={`create-obs-${index}`} className={styles.actions}>
-                            <textarea
-                              rows={2}
-                              value={item}
-                              onChange={(event) =>
-                                setLevelForm((prev) => ({
-                                  ...prev,
-                                  notesList: prev.notesList.map((obs, obsIndex) =>
-                                    obsIndex === index ? event.target.value : obs,
-                                  ),
-                                }))
-                              }
-                            />
-                            <button
-                              type="button"
-                              className={styles.ghostButton}
-                              onClick={() =>
-                                setLevelForm((prev) => ({
-                                  ...prev,
-                                  notesList:
-                                    prev.notesList.length <= 1
-                                      ? [""]
-                                      : prev.notesList.filter((_, obsIndex) => obsIndex !== index),
-                                }))
-                              }
-                            >
-                              Remover obs
-                            </button>
-                          </div>
-                        ))}
-                        <button
-                          type="button"
-                          className={styles.ghostButton}
-                          onClick={() =>
-                            setLevelForm((prev) => ({ ...prev, notesList: [...prev.notesList, ""] }))
-                          }
-                        >
-                          Adicionar obs
-                        </button>
-                      </div>
-                    </label>
-                    <label className={styles.field}>
                       <span>Custo de recurso</span>
                       <input
                         value={levelForm.resourceCost}
@@ -1455,15 +1090,6 @@ export default function SkillsDashboardClient({
                 </div>
               ) : null}
 
-              {createStep === 4 ? (
-                <div className={styles.levelBlock}>
-                  <EffectEditor
-                    effects={levelForm.effects}
-                    onChange={(effects) => setLevelForm((prev) => ({ ...prev, effects }))}
-                  />
-                </div>
-              ) : null}
-
               <div className={styles.actions}>
                 {createStep > 1 ? (
                   <button
@@ -1471,22 +1097,21 @@ export default function SkillsDashboardClient({
                     className={styles.ghostButton}
                     onClick={() => setCreateStep((prev) => prev - 1)}
                   >
-                    Voltar etapa
+                    Voltar
                   </button>
                 ) : null}
-                {createStep < 4 ? (
+                {createStep < 3 ? (
                   <button
                     type="button"
                     className={styles.primaryButton}
                     onClick={() => setCreateStep((prev) => prev + 1)}
                   >
-                    Proxima etapa
+                    Proxima
                   </button>
-                ) : (
-                  <button type="button" className={styles.primaryButton} onClick={createSkill} disabled={saving}>
-                    {saving ? "Criando..." : "Criar habilidade"}
-                  </button>
-                )}
+                ) : null}
+                <button type="button" className={styles.primaryButton} onClick={createSkill} disabled={saving}>
+                  {saving ? "Criando..." : "Criar"}
+                </button>
               </div>
             </section>
           ) : null}
@@ -1494,7 +1119,21 @@ export default function SkillsDashboardClient({
           {!createOpen && editOpen && activeSkill ? (
             <section className={styles.card}>
               <div className={styles.levelHeader}>
-                <h2>Editar</h2>
+                <div className={styles.levelHeaderActions}>
+                  <h2>Editar</h2>
+                  {activeSkill.levels.length > 1 ? (
+                    <NativeSelectField
+                      value={selectedLevelId}
+                      onChange={(event) => setSelectedLevelId(event.target.value)}
+                    >
+                      {activeSkill.levels.map((level) => (
+                        <option key={level.id} value={level.id}>
+                          Level {level.levelNumber}
+                        </option>
+                      ))}
+                    </NativeSelectField>
+                  ) : null}
+                </div>
                 <div className={styles.levelHeaderActions}>
                   <button
                     type="button"
@@ -1514,16 +1153,15 @@ export default function SkillsDashboardClient({
                   </button>
                 </div>
               </div>
-              <p className={styles.muted}>{activeSkill.name}</p>
               <div className={styles.stepper}>
-                {[1, 2, 3, 4].map((step) => (
+                {[1, 2, 3].map((step) => (
                   <button
                     type="button"
                     key={step}
                     className={editStep === step ? styles.stepActive : styles.step}
                     onClick={() => setEditStep(step)}
                   >
-                    {step === 1 ? "Basico" : step === 2 ? "Requerimentos" : step === 3 ? "Avançado" : "Efeitos"}
+                    {step === 1 ? "Basico" : step === 2 ? "Requerimentos" : "Avançado"}
                   </button>
                 ))}
               </div>
@@ -1536,18 +1174,6 @@ export default function SkillsDashboardClient({
                       <input
                         value={metaForm.name}
                         onChange={(event) => setMetaForm((prev) => ({ ...prev, name: event.target.value }))}
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Level atual</span>
-                      <input
-                        type="number"
-                        onWheel={(event) => event.currentTarget.blur()}
-                        min={1}
-                        value={metaForm.currentLevel}
-                        onChange={(event) =>
-                          setMetaForm((prev) => ({ ...prev, currentLevel: event.target.value }))
-                        }
                       />
                     </label>
                     {abilityCategoriesEnabled ? (
@@ -1591,7 +1217,7 @@ export default function SkillsDashboardClient({
                       </NativeSelectField>
                     </label>
                     <label className={styles.field}>
-                      <span>Tipo da acao</span>
+                      <span>Tipo da ação</span>
                       <NativeSelectField
                         value={metaForm.actionType}
                         onChange={(event) =>
@@ -1631,11 +1257,46 @@ export default function SkillsDashboardClient({
                     <label className={`${styles.field} ${styles.spanTwo}`}>
                       <span>Descricao</span>
                       <textarea
-                        rows={2}
+                        rows={3}
                         value={metaForm.description}
                         onChange={(event) =>
                           setMetaForm((prev) => ({ ...prev, description: event.target.value }))
                         }
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Dano</span>
+                      <input
+                        value={levelForm.damage}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, damage: event.target.value }))}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Alcance</span>
+                      <input
+                        value={levelForm.range}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, range: event.target.value }))}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Duracao</span>
+                      <input
+                        value={levelForm.duration}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, duration: event.target.value }))}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Recarga</span>
+                      <input
+                        value={levelForm.cooldown}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, cooldown: event.target.value }))}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Tempo de conjuracao</span>
+                      <input
+                        value={levelForm.castTime}
+                        onChange={(event) => setLevelForm((prev) => ({ ...prev, castTime: event.target.value }))}
                       />
                     </label>
                     {abilityCategoriesEnabled && enabledAbilityCategories.length === 0 ? (
@@ -1650,13 +1311,6 @@ export default function SkillsDashboardClient({
                 <div className={styles.levelHeader}>
                   <h3>Editor de Levels</h3>
                   <div className={styles.levelHeaderActions}>
-                    <NativeSelectField value={selectedLevelId} onChange={(event) => setSelectedLevelId(event.target.value)}>
-                      {activeSkill.levels.map((level) => (
-                        <option key={level.id} value={level.id}>
-                          Level {level.levelNumber} (req {level.levelRequired} | pontos {getLevelCostPoints(level) ?? 0})
-                        </option>
-                      ))}
-                    </NativeSelectField>
                     <button
                       type="button"
                       className={styles.ghostButton}
@@ -1749,60 +1403,6 @@ export default function SkillsDashboardClient({
                 <div className={styles.levelBlock}>
                   <div className={styles.grid}>
                     <label className={styles.field}>
-                      <span>Nome do level</span>
-                      <input
-                        value={levelForm.levelName}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, levelName: event.target.value }))}
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Level requerido</span>
-                      <input
-                        type="number"
-                        onWheel={(event) => event.currentTarget.blur()}
-                        min={1}
-                        value={levelForm.levelRequired}
-                        onChange={(event) =>
-                          setLevelForm((prev) => ({ ...prev, levelRequired: event.target.value }))
-                        }
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Dano</span>
-                      <input
-                        value={levelForm.damage}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, damage: event.target.value }))}
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Recarga</span>
-                      <input
-                        value={levelForm.cooldown}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, cooldown: event.target.value }))}
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Alcance</span>
-                      <input
-                        value={levelForm.range}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, range: event.target.value }))}
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Duracao</span>
-                      <input
-                        value={levelForm.duration}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, duration: event.target.value }))}
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Tempo de conjuracao</span>
-                      <input
-                        value={levelForm.castTime}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, castTime: event.target.value }))}
-                      />
-                    </label>
-                    <label className={styles.field}>
                       <span>Custo de recurso</span>
                       <input
                         value={levelForm.resourceCost}
@@ -1818,80 +1418,7 @@ export default function SkillsDashboardClient({
                         onChange={(event) => setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))}
                       />
                     </label>
-                    <label className={`${styles.field} ${styles.spanTwo}`}>
-                      <span>Resumo do level</span>
-                      <textarea
-                        rows={2}
-                        value={levelForm.summary}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, summary: event.target.value }))}
-                      />
-                    </label>
-                    <label className={`${styles.field} ${styles.spanTwo}`}>
-                      <span>Descricao do level</span>
-                      <textarea
-                        rows={2}
-                        value={levelForm.levelDescription}
-                        onChange={(event) =>
-                          setLevelForm((prev) => ({ ...prev, levelDescription: event.target.value }))
-                        }
-                      />
-                    </label>
-                    <label className={`${styles.field} ${styles.spanTwo}`}>
-                      <span>Obs</span>
-                      <div className={styles.levelBlock}>
-                        {levelForm.notesList.map((item, index) => (
-                          <div key={`edit-obs-${index}`} className={styles.actions}>
-                            <textarea
-                              rows={2}
-                              value={item}
-                              onChange={(event) =>
-                                setLevelForm((prev) => ({
-                                  ...prev,
-                                  notesList: prev.notesList.map((obs, obsIndex) =>
-                                    obsIndex === index ? event.target.value : obs,
-                                  ),
-                                }))
-                              }
-                            />
-                            <button
-                              type="button"
-                              className={styles.ghostButton}
-                              onClick={() =>
-                                setLevelForm((prev) => ({
-                                  ...prev,
-                                  notesList:
-                                    prev.notesList.length <= 1
-                                      ? [""]
-                                      : prev.notesList.filter((_, obsIndex) => obsIndex !== index),
-                                }))
-                              }
-                            >
-                              Remover obs
-                            </button>
-                          </div>
-                        ))}
-                        <button
-                          type="button"
-                          className={styles.ghostButton}
-                          onClick={() =>
-                            setLevelForm((prev) => ({ ...prev, notesList: [...prev.notesList, ""] }))
-                          }
-                        >
-                          Adicionar obs
-                        </button>
-                      </div>
-                    </label>
                   </div>
-
-                </div>
-              ) : null}
-
-              {editStep === 4 ? (
-                <div className={styles.levelBlock}>
-                  <EffectEditor
-                    effects={levelForm.effects}
-                    onChange={(effects) => setLevelForm((prev) => ({ ...prev, effects }))}
-                  />
 
                 </div>
               ) : null}
@@ -1903,23 +1430,21 @@ export default function SkillsDashboardClient({
                     className={styles.ghostButton}
                     onClick={() => setEditStep((prev) => prev - 1)}
                   >
-                    Voltar etapa
+                    Voltar
                   </button>
                 ) : null}
-                {editStep < 4 ? (
+                {editStep < 3 ? (
                   <button
                     type="button"
                     className={styles.primaryButton}
                     onClick={() => setEditStep((prev) => prev + 1)}
                   >
-                    Proxima etapa
+                    Proxima
                   </button>
                 ) : null}
-                {editStep === 4 ? (
-                  <button type="button" className={styles.primaryButton} onClick={saveAll} disabled={saving}>
-                    {saving ? "Salvando..." : "Salvar tudo"}
-                  </button>
-                ) : null}
+                <button type="button" className={styles.primaryButton} onClick={saveAll} disabled={saving}>
+                  {saving ? "Salvando..." : "Salvar"}
+                </button>
               </div>
             </section>
           ) : null}

@@ -26,6 +26,11 @@ type PurchasedAbilityView = {
   duration: string | null
   castTime: string | null
   resourceCost: string | null
+  prerequisite: string | null
+  allowedClasses: string[]
+  allowedRaces: string[]
+  levelRequired: number
+  pointsCost: number | null
   costCustom: string | null
 }
 
@@ -134,7 +139,10 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
         ability.range,
         ability.cooldown,
         ability.resourceCost,
+        ability.prerequisite,
         ability.costCustom,
+        ability.allowedClasses.join(" "),
+        ability.allowedRaces.join(" "),
         ability.notesList.join(" "),
       ]
         .filter((item): item is string => hasText(item))
@@ -341,6 +349,10 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
               })()}
 
               <div className={styles.cardDetailsGrid}>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabelOrange}>ID</span>
+                  <span className={styles.detailValue}>{ability.skillId}</span>
+                </div>
                 {hasText(ability.skillCategory) ? (
                   <div className={styles.detailItem}>
                     <span className={styles.detailLabelOrange}>CATEGORIA</span>
@@ -408,10 +420,38 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
                     <span className={styles.detailValue}>{ability.resourceCost}</span>
                   </div>
                 ) : null}
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabelOrange}>LEVEL REQ.</span>
+                  <span className={styles.detailValue}>{ability.levelRequired}</span>
+                </div>
+                {ability.pointsCost !== null ? (
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabelOrange}>PRECO</span>
+                    <span className={styles.detailValue}>{ability.pointsCost}</span>
+                  </div>
+                ) : null}
                 {hasText(ability.costCustom) ? (
                   <div className={styles.detailItem}>
                     <span className={styles.detailLabelOrange}>CUSTO</span>
                     <span className={styles.detailValue}>{ability.costCustom}</span>
+                  </div>
+                ) : null}
+                {hasText(ability.prerequisite) ? (
+                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
+                    <span className={styles.detailLabelOrange}>PRE-REQUISITO</span>
+                    <span className={styles.detailValue}>{ability.prerequisite}</span>
+                  </div>
+                ) : null}
+                {ability.allowedClasses.length > 0 ? (
+                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
+                    <span className={styles.detailLabelOrange}>CLASSES PERMITIDAS</span>
+                    <span className={styles.detailValue}>{ability.allowedClasses.join(" | ")}</span>
+                  </div>
+                ) : null}
+                {ability.allowedRaces.length > 0 ? (
+                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
+                    <span className={styles.detailLabelOrange}>RACAS PERMITIDAS</span>
+                    <span className={styles.detailValue}>{ability.allowedRaces.join(" | ")}</span>
                   </div>
                 ) : null}
                 {ability.notesList.length > 0 ? (
