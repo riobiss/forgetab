@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { Filter, Plus, Search } from "lucide-react"
 import styles from "./page.module.css"
 import {
   actionTypeValues,
@@ -127,6 +128,7 @@ type LevelForm = {
   levelCategory: SkillCategory | ""
   levelType: SkillType | ""
   levelActionType: ActionType | ""
+  customFields: { id: string; name: string; value: string }[]
 }
 
 type Props = {
@@ -178,6 +180,18 @@ function mapLevelToForm(level: SkillLevel): LevelForm {
     .map((item) => (typeof item === "string" ? item : ""))
     .filter((item) => item.trim().length > 0)
   const fallbackNote = typeof stats.notes === "string" ? stats.notes : ""
+  const customFieldsRaw = Array.isArray(stats.customFields) ? stats.customFields : []
+  const customFields = customFieldsRaw
+    .map((item, index) => {
+      if (!item || typeof item !== "object" || Array.isArray(item)) return null
+      const record = item as Record<string, unknown>
+      const name = typeof record.name === "string" ? record.name.trim() : ""
+      if (!name) return null
+      const value = typeof record.value === "string" ? record.value : ""
+      const id = typeof record.id === "string" && record.id.trim() ? record.id : `custom-${index}`
+      return { id, name, value }
+    })
+    .filter((item): item is { id: string; name: string; value: string } => Boolean(item))
 
   return {
     levelName: typeof stats.name === "string" ? stats.name : "",
@@ -201,6 +215,7 @@ function mapLevelToForm(level: SkillLevel): LevelForm {
     levelActionType: actionTypeValues.includes(stats.actionType as ActionType)
       ? (stats.actionType as ActionType)
       : "",
+    customFields,
   }
 }
 
@@ -249,6 +264,7 @@ function createInitialLevel(): LevelForm {
     levelCategory: "",
     levelType: "",
     levelActionType: "",
+    customFields: [],
   }
 }
 
@@ -266,6 +282,8 @@ export default function SkillsDashboardClient({
   hideRpgSelector = false,
   title = "Construtor de Habilidades",
 }: Props) {
+  void hideRpgSelector
+  void title
   const initialSelection =
     initialRpgId && ownedRpgs.some((item) => item.id === initialRpgId)
       ? initialRpgId
@@ -274,6 +292,18 @@ export default function SkillsDashboardClient({
   const [classes, setClasses] = useState<TemplateOption[]>([])
   const [races, setRaces] = useState<TemplateOption[]>([])
   const [skills, setSkills] = useState<SkillListItem[]>([])
+  const [skillSearchOpen, setSkillSearchOpen] = useState(false)
+  const [skillSearch, setSkillSearch] = useState("")
+  const [skillSearchIndex, setSkillSearchIndex] = useState<Record<string, string>>({})
+  const [skillDisplayNameById, setSkillDisplayNameById] = useState<Record<string, string>>({})
+  const [skillFilterMetaById, setSkillFilterMetaById] = useState<
+    Record<string, { categories: string[]; types: string[]; actionTypes: string[]; tags: string[] }>
+  >({})
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [selectedCategoryFilters, setSelectedCategoryFilters] = useState<string[]>([])
+  const [selectedTypeFilters, setSelectedTypeFilters] = useState<string[]>([])
+  const [selectedActionTypeFilters, setSelectedActionTypeFilters] = useState<string[]>([])
+  const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([])
   const [selectedSkillId, setSelectedSkillId] = useState("")
   const [activeSkill, setActiveSkill] = useState<SkillDetail | null>(null)
   const [selectedLevelId, setSelectedLevelId] = useState("")
@@ -282,6 +312,9 @@ export default function SkillsDashboardClient({
   const [abilityCategoriesEnabled, setAbilityCategoriesEnabled] = useState(false)
   const [enabledAbilityCategories, setEnabledAbilityCategories] = useState<SkillCategory[]>([])
   const [createOpen, setCreateOpen] = useState(false)
+  const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false)
+  const [newCustomFieldName, setNewCustomFieldName] = useState("")
+  const [newCustomFieldValue, setNewCustomFieldValue] = useState("")
   const [editOpen, setEditOpen] = useState(false)
   const [createStep, setCreateStep] = useState(1)
   const [editStep, setEditStep] = useState(1)
@@ -327,6 +360,60 @@ export default function SkillsDashboardClient({
       })),
     [],
   )
+  const selectedRpgTitle = useMemo(
+    () => ownedRpgs.find((item) => item.id === selectedRpgId)?.title ?? "Habilidades",
+    [ownedRpgs, selectedRpgId],
+  )
+  const categoryFilterOptions = useMemo(() => [...skillCategoryValues], [])
+  const typeFilterOptions = useMemo(() => [...skillTypeValues], [])
+  const actionTypeFilterOptions = useMemo(() => [...actionTypeValues], [])
+  const tagFilterOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(Object.values(skillFilterMetaById).flatMap((item) => item.tags).filter((item) => item.length > 0)),
+      ),
+    [skillFilterMetaById],
+  )
+  const filteredSkills = useMemo(() => {
+    const query = skillSearch.trim().toLowerCase()
+
+    return skills.filter((skill) => {
+      const meta = skillFilterMetaById[skill.id] ?? {
+        categories: [],
+        types: [],
+        actionTypes: [],
+        tags: [],
+      }
+      if (
+        selectedCategoryFilters.length > 0 &&
+        !selectedCategoryFilters.some((item) => meta.categories.includes(item))
+      ) {
+        return false
+      }
+      if (selectedTypeFilters.length > 0 && !selectedTypeFilters.some((item) => meta.types.includes(item))) {
+        return false
+      }
+      if (
+        selectedActionTypeFilters.length > 0 &&
+        !selectedActionTypeFilters.some((item) => meta.actionTypes.includes(item))
+      ) {
+        return false
+      }
+      if (selectedTagFilters.length > 0 && !selectedTagFilters.some((tag) => meta.tags.includes(tag))) return false
+      if (!query) return true
+      const searchBlob = skillSearchIndex[skill.id] ?? ""
+      return searchBlob.includes(query)
+    })
+  }, [
+    selectedActionTypeFilters,
+    selectedCategoryFilters,
+    selectedTagFilters,
+    selectedTypeFilters,
+    skillSearch,
+    skillSearchIndex,
+    skills,
+    skillFilterMetaById,
+  ])
 
   useEffect(() => {
     if (!selectedRpgId) return
@@ -370,6 +457,130 @@ export default function SkillsDashboardClient({
 
     void loadData()
   }, [selectedRpgId])
+
+  useEffect(() => {
+    if (skills.length === 0) {
+      setSkillSearchIndex({})
+      setSkillDisplayNameById({})
+      setSkillFilterMetaById({})
+      return
+    }
+
+    let cancelled = false
+
+    async function buildSearchIndex() {
+      try {
+        const entries = await Promise.all(
+          skills.map(async (skill) => {
+            const response = await fetch(`/api/skills/${skill.id}`)
+            const payload = (await response.json()) as { skill?: SkillDetail }
+            const detail = payload.skill
+            if (!response.ok || !detail) {
+              return {
+                id: skill.id,
+                searchBlob: skill.slug.toLowerCase(),
+                displayName: skill.slug,
+                filters: {
+                  categories: [],
+                  types: [],
+                  actionTypes: [],
+                  tags: [],
+                },
+              } as const
+            }
+
+            const displayName = detail.levels
+              .map((level) => {
+                const stats = (level.stats ?? {}) as Record<string, unknown>
+                return typeof stats.name === "string" ? stats.name.trim() : ""
+              })
+              .find((name) => name.length > 0) ?? skill.slug
+
+            const merged = detail.levels
+              .map((level) => {
+                const stats = (level.stats ?? {}) as Record<string, unknown>
+                const name = typeof stats.name === "string" ? stats.name : ""
+                const description = typeof stats.description === "string" ? stats.description : ""
+                return `${name} ${description}`
+              })
+              .join(" ")
+              .toLowerCase()
+            const categories = Array.from(
+              new Set(
+                detail.levels
+                  .map((level) => {
+                    const stats = (level.stats ?? {}) as Record<string, unknown>
+                    return typeof stats.category === "string" ? stats.category.trim() : ""
+                  })
+                  .filter((item) => item.length > 0),
+              ),
+            )
+            const types = Array.from(
+              new Set(
+                detail.levels
+                  .map((level) => {
+                    const stats = (level.stats ?? {}) as Record<string, unknown>
+                    return typeof stats.type === "string" ? stats.type.trim() : ""
+                  })
+                  .filter((item) => item.length > 0),
+              ),
+            )
+            const actionTypes = Array.from(
+              new Set(
+                detail.levels
+                  .map((level) => {
+                    const stats = (level.stats ?? {}) as Record<string, unknown>
+                    return typeof stats.actionType === "string" ? stats.actionType.trim() : ""
+                  })
+                  .filter((item) => item.length > 0),
+              ),
+            )
+            const tags = Array.isArray(detail.tags)
+              ? Array.from(new Set(detail.tags.map((tag) => tag.trim()).filter((tag) => tag.length > 0)))
+              : []
+
+            return {
+              id: skill.id,
+              searchBlob: `${skill.slug} ${merged}`.trim(),
+              displayName,
+              filters: {
+                categories,
+                types,
+                actionTypes,
+                tags,
+              },
+            } as const
+          }),
+        )
+
+        if (cancelled) return
+        setSkillSearchIndex(Object.fromEntries(entries.map((item) => [item.id, item.searchBlob])))
+        setSkillDisplayNameById(Object.fromEntries(entries.map((item) => [item.id, item.displayName])))
+        setSkillFilterMetaById(Object.fromEntries(entries.map((item) => [item.id, item.filters])))
+      } catch {
+        if (cancelled) return
+        setSkillSearchIndex(
+          Object.fromEntries(skills.map((skill) => [skill.id, skill.slug.toLowerCase()] as const)),
+        )
+        setSkillDisplayNameById(
+          Object.fromEntries(skills.map((skill) => [skill.id, skill.slug] as const)),
+        )
+        setSkillFilterMetaById(
+          Object.fromEntries(
+            skills.map((skill) => [
+              skill.id,
+              { categories: [], types: [], actionTypes: [], tags: [] },
+            ] as const),
+          ),
+        )
+      }
+    }
+
+    void buildSearchIndex()
+    return () => {
+      cancelled = true
+    }
+  }, [skills])
 
   useEffect(() => {
     if (createOpen) return
@@ -449,6 +660,47 @@ export default function SkillsDashboardClient({
     }
   }, [abilityCategoriesEnabled, createOpen, enabledAbilityCategories, metaForm.category])
 
+  useEffect(() => {
+    if (!createOpen && !editOpen && !filtersOpen) return
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [createOpen, editOpen, filtersOpen])
+
+  useEffect(() => {
+    if (createOpen) return
+    setCustomFieldModalOpen(false)
+    setNewCustomFieldName("")
+    setNewCustomFieldValue("")
+  }, [createOpen])
+
+  function addCustomField() {
+    const trimmed = newCustomFieldName.trim()
+    if (!trimmed) {
+      setError("Informe o nome do novo campo.")
+      return
+    }
+
+    setLevelForm((prev) => ({
+      ...prev,
+      customFields: [
+        ...prev.customFields,
+        {
+          id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          name: trimmed,
+          value: newCustomFieldValue,
+        },
+      ],
+    }))
+    setNewCustomFieldName("")
+    setNewCustomFieldValue("")
+    setCustomFieldModalOpen(false)
+  }
+
   async function createSkill() {
     setSaving(true)
     setError("")
@@ -474,6 +726,11 @@ export default function SkillsDashboardClient({
             description: toOptionalText(metaForm.description),
             notes: null,
             notesList: [],
+            customFields: levelForm.customFields.map((field) => ({
+              id: field.id,
+              name: field.name,
+              value: field.value,
+            })),
             damage: toOptionalText(levelForm.damage),
             cooldown: toOptionalText(levelForm.cooldown),
             range: toOptionalText(levelForm.range),
@@ -635,6 +892,11 @@ export default function SkillsDashboardClient({
             description: toOptionalText(metaForm.description),
             notes: null,
             notesList: [],
+            customFields: levelForm.customFields.map((field) => ({
+              id: field.id,
+              name: field.name,
+              value: field.value,
+            })),
             damage: toOptionalText(levelForm.damage),
             cooldown: toOptionalText(levelForm.cooldown),
             range: toOptionalText(levelForm.range),
@@ -768,48 +1030,76 @@ export default function SkillsDashboardClient({
 
   return (
     <main className={styles.page}>
-      <section className={styles.hero}>
+      <div className={styles.header}>
         <div>
-          <h1>{title}</h1>
+          <p className={styles.kicker}>Habilidades</p>
+          <h1 className={styles.title}>{selectedRpgTitle}</h1>
         </div>
-        <div className={styles.heroActions}>
-          {!hideRpgSelector ? (
-            <label className={styles.field}>
-              <span>RPG ativo</span>
-              <NativeSelectField value={selectedRpgId} onChange={(event) => setSelectedRpgId(event.target.value)}>
-                {ownedRpgs.map((rpg) => (
-                  <option key={rpg.id} value={rpg.id}>
-                    {rpg.title}
-                  </option>
-                ))}
-              </NativeSelectField>
-            </label>
-          ) : null}
-          <button
-            type="button"
-            className={styles.primaryButton}
-            onClick={() => {
-              setCreateOpen(true)
-              setEditOpen(false)
-              setCreateStep(1)
-              setMetaForm(createInitialMeta())
-              setLevelForm(createInitialLevel())
-            }}
-          >
-            Criar habilidade
-          </button>
-        </div>
-      </section>
-
+        <span className={styles.badge}>
+          {skills.length} {skills.length === 1 ? "habilidade" : "habilidades"}
+        </span>
+      </div>
+      <section className={styles.section}>
       <section className={styles.workspace}>
         <aside className={styles.sidebar}>
-          <h2>Habilidades</h2>
-          {skills.map((skill) => (
+          <div className={styles.sidebarHeader}>
+            <h2>Habilidades</h2>
+            <div className={styles.sidebarTools}>
+              <button
+                type="button"
+                className={skillSearchOpen ? `${styles.iconButton} ${styles.iconButtonActive}` : styles.iconButton}
+                aria-label="Pesquisar habilidades"
+                title="Pesquisar habilidades"
+                onClick={() => {
+                  setSkillSearchOpen((prev) => !prev)
+                  if (skillSearchOpen) setSkillSearch("")
+                }}
+              >
+                <Search size={18} />
+              </button>
+              <button
+                type="button"
+                className={filtersOpen ? `${styles.iconButton} ${styles.iconButtonActive}` : styles.iconButton}
+                aria-label="Filtrar habilidades"
+                title="Filtrar habilidades"
+                onClick={() => setFiltersOpen(true)}
+              >
+                <Filter size={18} />
+              </button>
+              <button
+                type="button"
+                className={styles.iconButton}
+                aria-label="Criar habilidade"
+                title="Criar habilidade"
+                onClick={() => {
+                  setCreateOpen(true)
+                  setEditOpen(false)
+                  setCreateStep(1)
+                  setMetaForm(createInitialMeta())
+                  setLevelForm(createInitialLevel())
+                }}
+              >
+                <Plus size={18} />
+              </button>
+            </div>
+          </div>
+          {skillSearchOpen ? (
+            <label className={styles.searchBar}>
+              <span>Pesquisar</span>
+              <input
+                type="search"
+                placeholder="Nome ou description..."
+                value={skillSearch}
+                onChange={(event) => setSkillSearch(event.target.value)}
+              />
+            </label>
+          ) : null}
+          {filteredSkills.map((skill) => (
             <div
               key={skill.id}
               className={selectedSkillId === skill.id ? styles.skillCardActive : styles.skillCard}
             >
-              <strong>{skill.slug}</strong>
+              <strong>{skillDisplayNameById[skill.id] ?? skill.slug}</strong>
               <small>{new Date(skill.updatedAt).toLocaleString("pt-BR")}</small>
               <div className={styles.actions}>
                 <button
@@ -828,6 +1118,7 @@ export default function SkillsDashboardClient({
               </div>
             </div>
           ))}
+          {filteredSkills.length === 0 ? <p className={styles.muted}>Nenhuma habilidade encontrada.</p> : null}
         </aside>
 
         <div className={styles.editor}>
@@ -835,18 +1126,166 @@ export default function SkillsDashboardClient({
           {error ? <p className={styles.error}>{error}</p> : null}
           {success ? <p className={styles.success}>{success}</p> : null}
 
+          {filtersOpen ? (
+            <>
+              <button
+                type="button"
+                className={styles.drawerBackdrop}
+                aria-label="Fechar filtros"
+                onClick={() => setFiltersOpen(false)}
+              />
+              <aside className={styles.drawer} role="dialog" aria-modal="true" aria-label="Filtros de habilidades">
+                <div className={styles.drawerHeader}>
+                  <h3 className={styles.drawerTitle}>Filtros</h3>
+                  <button type="button" className={styles.drawerClose} onClick={() => setFiltersOpen(false)}>
+                    Fechar
+                  </button>
+                </div>
+                <div className={styles.drawerTagsSection}>
+                  <span className={styles.searchBarLabel}>Categoria</span>
+                  <div className={styles.chipsRow}>
+                    {categoryFilterOptions.map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        className={
+                          selectedCategoryFilters.includes(item)
+                            ? `${styles.chipButton} ${styles.chipButtonActive}`
+                            : styles.chipButton
+                        }
+                        onClick={() =>
+                          setSelectedCategoryFilters((prev) =>
+                            prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item],
+                          )
+                        }
+                      >
+                        {resolveCategoryLabel(item)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.drawerTagsSection}>
+                  <span className={styles.searchBarLabel}>Tipo</span>
+                  <div className={styles.chipsRow}>
+                    {typeFilterOptions.map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        className={
+                          selectedTypeFilters.includes(item)
+                            ? `${styles.chipButton} ${styles.chipButtonActive}`
+                            : styles.chipButton
+                        }
+                        onClick={() =>
+                          setSelectedTypeFilters((prev) =>
+                            prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item],
+                          )
+                        }
+                      >
+                        {skillTypeLabel[item as SkillType] ?? item}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.drawerTagsSection}>
+                  <span className={styles.searchBarLabel}>Tipo da ação</span>
+                  <div className={styles.chipsRow}>
+                    {actionTypeFilterOptions.map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        className={
+                          selectedActionTypeFilters.includes(item)
+                            ? `${styles.chipButton} ${styles.chipButtonActive}`
+                            : styles.chipButton
+                        }
+                        onClick={() =>
+                          setSelectedActionTypeFilters((prev) =>
+                            prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item],
+                          )
+                        }
+                      >
+                        {actionTypeLabel[item as ActionType] ?? item}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.drawerTagsSection}>
+                  <span className={styles.searchBarLabel}>Tags</span>
+                  <div className={styles.chipsRow}>
+                    {tagFilterOptions.map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        className={
+                          selectedTagFilters.includes(tag)
+                            ? `${styles.chipButton} ${styles.chipButtonActive}`
+                            : styles.chipButton
+                        }
+                        onClick={() =>
+                          setSelectedTagFilters((prev) =>
+                            prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag],
+                          )
+                        }
+                      >
+                        {skillTagLabel[tag as SkillTag] ?? tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className={styles.drawerClear}
+                  onClick={() => {
+                    setSelectedCategoryFilters([])
+                    setSelectedTypeFilters([])
+                    setSelectedActionTypeFilters([])
+                    setSelectedTagFilters([])
+                  }}
+                >
+                  Limpar filtros
+                </button>
+              </aside>
+            </>
+          ) : null}
+
           {createOpen ? (
-            <section className={styles.card}>
-              <h2>Criar</h2>
+            <div
+              className={styles.modalOverlay}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Criar habilidade"
+              onClick={() => setCreateOpen(false)}
+            >
+            <section className={`${styles.card} ${styles.modalCard}`} onClick={(event) => event.stopPropagation()}>
+              <div className={styles.modalHeader}>
+                <h2>Criar</h2>
+                <div className={styles.modalHeaderActions}>
+                  <button
+                    type="button"
+                    className={styles.ghostButton}
+                    onClick={() => setCustomFieldModalOpen(true)}
+                  >
+                    novo campo
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.ghostButton}
+                    onClick={() => setCreateOpen(false)}
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
               <div className={styles.stepper}>
-                {[1, 2, 3].map((step) => (
+                {[1, 2].map((step) => (
                   <button
                     type="button"
                     key={step}
                     className={createStep === step ? styles.stepActive : styles.step}
                     onClick={() => setCreateStep(step)}
                   >
-                    {step === 1 ? "Basico" : step === 2 ? "Requerimentos" : "Avançado"}
+                    {step === 1 ? "Basico" : "Requerimentos"}
                   </button>
                 ))}
               </div>
@@ -858,6 +1297,16 @@ export default function SkillsDashboardClient({
                     <input
                       value={metaForm.name}
                       onChange={(event) => setMetaForm((prev) => ({ ...prev, name: event.target.value }))}
+                    />
+                  </label>
+                  <label className={`${styles.field} ${styles.spanTwo}`}>
+                    <span>Descricao</span>
+                    <textarea
+                      rows={3}
+                      value={metaForm.description}
+                      onChange={(event) =>
+                        setMetaForm((prev) => ({ ...prev, description: event.target.value }))
+                      }
                     />
                   </label>
                   {abilityCategoriesEnabled ? (
@@ -938,16 +1387,6 @@ export default function SkillsDashboardClient({
                       />
                       <small className={styles.muted}>Selecione uma tag.</small>
                     </label>
-                    <label className={`${styles.field} ${styles.spanTwo}`}>
-                    <span>Descricao</span>
-                      <textarea
-                        rows={3}
-                        value={metaForm.description}
-                      onChange={(event) =>
-                        setMetaForm((prev) => ({ ...prev, description: event.target.value }))
-                      }
-                    />
-                  </label>
                   <label className={styles.field}>
                     <span>Dano</span>
                     <input
@@ -986,6 +1425,22 @@ export default function SkillsDashboardClient({
                   {abilityCategoriesEnabled && enabledAbilityCategories.length === 0 ? (
                     <p className={styles.error}>Ative pelo menos uma categoria</p>
                   ) : null}
+                  {levelForm.customFields.map((field) => (
+                    <label key={field.id} className={`${styles.field} ${styles.spanTwo}`}>
+                      <span>{field.name}</span>
+                      <input
+                        value={field.value}
+                        onChange={(event) =>
+                          setLevelForm((prev) => ({
+                            ...prev,
+                            customFields: prev.customFields.map((item) =>
+                              item.id === field.id ? { ...item, value: event.target.value } : item,
+                            ),
+                          }))
+                        }
+                      />
+                    </label>
+                  ))}
                 </div>
               ) : null}
 
@@ -1049,44 +1504,6 @@ export default function SkillsDashboardClient({
                       }
                     />
                   </label>
-                  <label className={styles.field}>
-                    <span>Pontos necessarios para compra</span>
-                    <input
-                      type="number"
-                      onWheel={(event) => event.currentTarget.blur()}
-                      min={0}
-                      step={1}
-                      value={levelForm.costPoints}
-                      onChange={(event) =>
-                        setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))
-                      }
-                    />
-                  </label>
-                </div>
-              ) : null}
-
-              {createStep === 3 ? (
-                <div className={styles.levelBlock}>
-                  <div className={styles.grid}>
-                    <label className={styles.field}>
-                      <span>Custo de recurso</span>
-                      <input
-                        value={levelForm.resourceCost}
-                        onChange={(event) =>
-                          setLevelForm((prev) => ({ ...prev, resourceCost: event.target.value }))
-                        }
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Custo personalizado</span>
-                      <input
-                        value={levelForm.costCustom}
-                        onChange={(event) =>
-                          setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))
-                        }
-                      />
-                    </label>
-                  </div>
                 </div>
               ) : null}
 
@@ -1100,7 +1517,7 @@ export default function SkillsDashboardClient({
                     Voltar
                   </button>
                 ) : null}
-                {createStep < 3 ? (
+                {createStep < 2 ? (
                   <button
                     type="button"
                     className={styles.primaryButton}
@@ -1113,14 +1530,77 @@ export default function SkillsDashboardClient({
                   {saving ? "Criando..." : "Criar"}
                 </button>
               </div>
+              {customFieldModalOpen ? (
+                <div
+                  className={styles.nestedModalOverlay}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Novo campo"
+                  onClick={() => setCustomFieldModalOpen(false)}
+                >
+                  <section
+                    className={`${styles.card} ${styles.nestedModalCard}`}
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <h3>Novo campo</h3>
+                    <label className={styles.field}>
+                      <span>Nome</span>
+                      <input
+                        value={newCustomFieldName}
+                        onChange={(event) => setNewCustomFieldName(event.target.value)}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>Valor</span>
+                      <input
+                        value={newCustomFieldValue}
+                        onChange={(event) => setNewCustomFieldValue(event.target.value)}
+                      />
+                    </label>
+                    <div className={styles.actions}>
+                      <button
+                        type="button"
+                        className={styles.ghostButton}
+                        onClick={() => {
+                          setCustomFieldModalOpen(false)
+                          setNewCustomFieldName("")
+                          setNewCustomFieldValue("")
+                        }}
+                      >
+                        Cancelar
+                      </button>
+                      <button type="button" className={styles.primaryButton} onClick={addCustomField}>
+                        Criar campo
+                      </button>
+                    </div>
+                  </section>
+                </div>
+              ) : null}
             </section>
+            </div>
           ) : null}
 
           {!createOpen && editOpen && activeSkill ? (
-            <section className={styles.card}>
+            <div
+              className={styles.modalOverlay}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Editar habilidade"
+              onClick={() => setEditOpen(false)}
+            >
+            <section className={`${styles.card} ${styles.modalCard}`} onClick={(event) => event.stopPropagation()}>
+              <div className={styles.modalHeader}>
+                <h2>Editar</h2>
+                <button
+                  type="button"
+                  className={styles.ghostButton}
+                  onClick={() => setEditOpen(false)}
+                >
+                  Fechar
+                </button>
+              </div>
               <div className={styles.levelHeader}>
                 <div className={styles.levelHeaderActions}>
-                  <h2>Editar</h2>
                   {activeSkill.levels.length > 1 ? (
                     <NativeSelectField
                       value={selectedLevelId}
@@ -1154,14 +1634,14 @@ export default function SkillsDashboardClient({
                 </div>
               </div>
               <div className={styles.stepper}>
-                {[1, 2, 3].map((step) => (
+                {[1, 2].map((step) => (
                   <button
                     type="button"
                     key={step}
                     className={editStep === step ? styles.stepActive : styles.step}
                     onClick={() => setEditStep(step)}
                   >
-                    {step === 1 ? "Basico" : step === 2 ? "Requerimentos" : "Avançado"}
+                    {step === 1 ? "Basico" : "Requerimentos"}
                   </button>
                 ))}
               </div>
@@ -1174,6 +1654,16 @@ export default function SkillsDashboardClient({
                       <input
                         value={metaForm.name}
                         onChange={(event) => setMetaForm((prev) => ({ ...prev, name: event.target.value }))}
+                      />
+                    </label>
+                    <label className={`${styles.field} ${styles.spanTwo}`}>
+                      <span>Descricao</span>
+                      <textarea
+                        rows={3}
+                        value={metaForm.description}
+                        onChange={(event) =>
+                          setMetaForm((prev) => ({ ...prev, description: event.target.value }))
+                        }
                       />
                     </label>
                     {abilityCategoriesEnabled ? (
@@ -1254,16 +1744,6 @@ export default function SkillsDashboardClient({
                       />
                       <small className={styles.muted}>Selecione uma tag.</small>
                     </label>
-                    <label className={`${styles.field} ${styles.spanTwo}`}>
-                      <span>Descricao</span>
-                      <textarea
-                        rows={3}
-                        value={metaForm.description}
-                        onChange={(event) =>
-                          setMetaForm((prev) => ({ ...prev, description: event.target.value }))
-                        }
-                      />
-                    </label>
                     <label className={styles.field}>
                       <span>Dano</span>
                       <input
@@ -1302,6 +1782,22 @@ export default function SkillsDashboardClient({
                     {abilityCategoriesEnabled && enabledAbilityCategories.length === 0 ? (
                       <p className={styles.error}>Ative pelo menos uma categoria</p>
                     ) : null}
+                    {levelForm.customFields.map((field) => (
+                      <label key={field.id} className={`${styles.field} ${styles.spanTwo}`}>
+                        <span>{field.name}</span>
+                        <input
+                          value={field.value}
+                          onChange={(event) =>
+                            setLevelForm((prev) => ({
+                              ...prev,
+                              customFields: prev.customFields.map((item) =>
+                                item.id === field.id ? { ...item, value: event.target.value } : item,
+                              ),
+                            }))
+                          }
+                        />
+                      </label>
+                    ))}
                   </div>
 
                 </>
@@ -1383,43 +1879,6 @@ export default function SkillsDashboardClient({
                       }
                     />
                   </label>
-                  <label className={styles.field}>
-                    <span>Pontos necessarios para compra</span>
-                    <input
-                      type="number"
-                      onWheel={(event) => event.currentTarget.blur()}
-                      min={0}
-                      step={1}
-                      value={levelForm.costPoints}
-                      onChange={(event) =>
-                        setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))
-                      }
-                    />
-                  </label>
-                </div>
-              ) : null}
-
-              {editStep === 3 ? (
-                <div className={styles.levelBlock}>
-                  <div className={styles.grid}>
-                    <label className={styles.field}>
-                      <span>Custo de recurso</span>
-                      <input
-                        value={levelForm.resourceCost}
-                        onChange={(event) =>
-                          setLevelForm((prev) => ({ ...prev, resourceCost: event.target.value }))
-                        }
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Custo personalizado</span>
-                      <input
-                        value={levelForm.costCustom}
-                        onChange={(event) => setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))}
-                      />
-                    </label>
-                  </div>
-
                 </div>
               ) : null}
 
@@ -1433,7 +1892,7 @@ export default function SkillsDashboardClient({
                     Voltar
                   </button>
                 ) : null}
-                {editStep < 3 ? (
+                {editStep < 2 ? (
                   <button
                     type="button"
                     className={styles.primaryButton}
@@ -1447,10 +1906,11 @@ export default function SkillsDashboardClient({
                 </button>
               </div>
             </section>
+            </div>
           ) : null}
 
-          {!createOpen && !editOpen ? <p className={styles.muted}>Clique em &quot;Editar&quot; em uma habilidade.</p> : null}
         </div>
+      </section>
       </section>
     </main>
   )

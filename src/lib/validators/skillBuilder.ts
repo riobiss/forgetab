@@ -109,6 +109,16 @@ const skillStatsSchema = z
     description: optionalTrimmedText,
     notes: optionalTrimmedText,
     notesList: z.array(optionalTrimmedText).max(20).optional(),
+    customFields: z
+      .array(
+        z.object({
+          id: z.string().trim().min(1).optional(),
+          name: z.string().trim().min(1),
+          value: z.string().optional().default(""),
+        }),
+      )
+      .max(50)
+      .optional(),
     damage: optionalTrimmedText,
     cooldown: optionalTrimmedText,
     range: optionalTrimmedText,
