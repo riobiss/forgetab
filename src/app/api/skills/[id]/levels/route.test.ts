@@ -4,8 +4,7 @@ const mocks = vi.hoisted(() => ({
   getUserIdFromRequest: vi.fn(),
   fetchSkillById: vi.fn(),
   deepCopyJson: vi.fn(),
-  transaction: vi.fn(),
-  txExecuteRaw: vi.fn(),
+  executeRaw: vi.fn(),
 }))
 
 vi.mock("@/lib/server/skillBuilder", () => ({
@@ -16,7 +15,7 @@ vi.mock("@/lib/server/skillBuilder", () => ({
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    $transaction: mocks.transaction,
+    $executeRaw: mocks.executeRaw,
   },
 }))
 
@@ -39,12 +38,8 @@ const skillWithOneLevel = {
   ownerId: "user-1",
   rpgId: "rpg-1",
   rpgScope: "rpg-1",
-  name: "Golpe",
   slug: "golpe",
-  category: null,
-  type: null,
-  description: null,
-  currentLevel: 1,
+  tags: [],
   classIds: [],
   raceIds: [],
   createdAt: "2026-01-01T00:00:00.000Z",
@@ -74,12 +69,7 @@ describe("POST /api/skills/[id]/levels", () => {
     mocks.deepCopyJson.mockImplementation((value: unknown) =>
       JSON.parse(JSON.stringify(value)),
     )
-    mocks.transaction.mockImplementation(async (callback: (tx: unknown) => unknown) =>
-      callback({
-        $executeRaw: mocks.txExecuteRaw,
-      }),
-    )
-    mocks.txExecuteRaw.mockResolvedValue(1)
+    mocks.executeRaw.mockResolvedValue(1)
   })
 
   it("retorna 401 para usuario nao autenticado", async () => {
@@ -129,11 +119,10 @@ describe("POST /api/skills/[id]/levels", () => {
     const response = await POST(makeRequest({}), makeContext())
 
     expect(response.status).toBe(201)
-    expect(mocks.transaction).toHaveBeenCalledTimes(1)
-    expect(mocks.txExecuteRaw).toHaveBeenCalledTimes(2)
+    expect(mocks.executeRaw).toHaveBeenCalledTimes(1)
     expect(mocks.deepCopyJson).toHaveBeenCalled()
 
-    const insertSqlArg = mocks.txExecuteRaw.mock.calls[0]?.[0]
+    const insertSqlArg = mocks.executeRaw.mock.calls[0]?.[0]
     const serializedInsert = JSON.stringify(insertSqlArg)
     expect(serializedInsert).toContain("upgradeFromSkillId")
     expect(serializedInsert).toContain("upgradeFromLevelId")

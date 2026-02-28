@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const mocks = vi.hoisted(() => ({
   getUserIdFromRequest: vi.fn(),
   fetchSkillById: vi.fn(),
-  fetchRpgAbilityCategoryConfig: vi.fn(),
   validateLinkIds: vi.fn(),
   transaction: vi.fn(),
 }))
@@ -11,7 +10,6 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/server/skillBuilder", () => ({
   getUserIdFromRequest: mocks.getUserIdFromRequest,
   fetchSkillById: mocks.fetchSkillById,
-  fetchRpgAbilityCategoryConfig: mocks.fetchRpgAbilityCategoryConfig,
   validateLinkIds: mocks.validateLinkIds,
 }))
 
@@ -40,12 +38,8 @@ const baseSkill = {
   ownerId: "user-1",
   rpgId: "rpg-1",
   rpgScope: "rpg-1",
-  name: "Golpe",
   slug: "golpe",
-  category: null,
-  type: null,
-  description: null,
-  currentLevel: 1,
+  tags: [],
   classIds: ["class-1"],
   raceIds: ["race-1"],
   createdAt: "2026-01-01T00:00:00.000Z",
@@ -121,7 +115,6 @@ describe("PATCH /api/skills/[id]", () => {
     vi.clearAllMocks()
     mocks.getUserIdFromRequest.mockResolvedValue("user-1")
     mocks.fetchSkillById.mockResolvedValue(baseSkill)
-    mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({ enabled: false, categories: [] })
     mocks.validateLinkIds.mockResolvedValue({ ok: true })
     mocks.transaction.mockImplementation(async (callback: (tx: unknown) => unknown) =>
       callback({
@@ -130,13 +123,11 @@ describe("PATCH /api/skills/[id]", () => {
     )
   })
 
-  it("retorna 400 quando currentLevel maior que maior level existente", async () => {
-    const response = await PATCH(makeRequest("PATCH", { currentLevel: 3 }), makeContext())
+  it("retorna 400 quando payload e invalido", async () => {
+    const response = await PATCH(makeRequest("PATCH", { slug: "a" }), makeContext())
 
     expect(response.status).toBe(400)
-    expect(await response.json()).toEqual({
-      message: "currentLevel nao pode ser maior que o maior level existente.",
-    })
+    expect(typeof (await response.json()).message).toBe("string")
   })
 
   it("retorna 400 quando validateLinkIds falha", async () => {
@@ -167,49 +158,22 @@ describe("PATCH /api/skills/[id]", () => {
     })
   })
 
-  it("retorna 400 quando sistema de categoria esta ativo sem categorias habilitadas", async () => {
-    mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({
-      enabled: true,
-      categories: [],
-    })
-
-    const response = await PATCH(makeRequest("PATCH", { category: "tecnicas" }), makeContext())
-
-    expect(response.status).toBe(400)
-    expect(await response.json()).toEqual({ message: "Ative pelo menos uma categoria" })
-  })
-
-  it("retorna 400 quando categoria enviada esta desativada no RPG", async () => {
-    mocks.fetchRpgAbilityCategoryConfig.mockResolvedValue({
-      enabled: true,
-      categories: ["arcana"],
-    })
-
-    const response = await PATCH(makeRequest("PATCH", { category: "tecnicas" }), makeContext())
-
-    expect(response.status).toBe(400)
-    expect(await response.json()).toEqual({ message: "Categoria desativada para este RPG." })
-  })
-
   it("retorna 200 quando atualiza skill com sucesso", async () => {
     mocks.fetchSkillById.mockResolvedValueOnce(baseSkill)
     mocks.fetchSkillById.mockResolvedValueOnce({
       ...baseSkill,
-      name: "Nome atualizado",
       slug: "nome-atualizado",
+      tags: ["arcane"],
     })
 
-    const response = await PATCH(
-      makeRequest("PATCH", { name: "Nome atualizado", currentLevel: 2 }),
-      makeContext(),
-    )
+    const response = await PATCH(makeRequest("PATCH", { slug: "nome-atualizado" }), makeContext())
 
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
       skill: {
         ...baseSkill,
-        name: "Nome atualizado",
         slug: "nome-atualizado",
+        tags: ["arcane"],
       },
     })
   })

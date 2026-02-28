@@ -20,17 +20,20 @@ describe("skillMetaCreateSchema", () => {
 
   it("normaliza campos opcionais e deduplica ids", () => {
     const result = skillMetaCreateSchema.parse({
-      name: "Corte Rapido",
-      category: "",
-      type: "",
-      description: "   ",
+      level1: {
+        stats: {
+          category: "",
+          type: "",
+          description: "   ",
+        },
+      },
       classIds: [" class-a ", "class-a", "class-b"],
       raceIds: [" race-1 ", "race-1"],
     })
 
-    expect(result.category).toBeNull()
-    expect(result.type).toBeNull()
-    expect(result.description).toBeNull()
+    expect(result.level1.stats?.category).toBeNull()
+    expect(result.level1.stats?.type).toBeNull()
+    expect(result.level1.stats?.description).toBeNull()
     expect(result.classIds).toEqual(["class-a", "class-b"])
     expect(result.raceIds).toEqual(["race-1"])
   })

@@ -90,7 +90,7 @@ describe("POST /api/skills", () => {
   })
 
   it("retorna 400 para payload invalido", async () => {
-    const response = await POST(makePostRequest({ name: "a" }))
+    const response = await POST(makePostRequest({ slug: "a" }))
 
     expect(response.status).toBe(400)
     const json = await response.json()
@@ -124,18 +124,15 @@ describe("POST /api/skills", () => {
     expect(response.status).toBe(201)
   })
 
-  it("retorna 400 quando currentLevel inicial maior que 1", async () => {
+  it("retorna 400 quando slug informado e invalido", async () => {
     const response = await POST(
       makePostRequest({
-        name: "Golpe",
-        currentLevel: 2,
+        slug: "a",
       }),
     )
 
     expect(response.status).toBe(400)
-    expect(await response.json()).toEqual({
-      message: "currentLevel inicial nao pode ser maior que 1 na criacao.",
-    })
+    expect(typeof (await response.json()).message).toBe("string")
   })
 
   it("retorna 400 quando validateLinkIds falha", async () => {
@@ -202,9 +199,12 @@ describe("POST /api/skills", () => {
 
     const response = await POST(
       makePostRequest({
-        name: "Golpe",
         rpgId: "rpg-1",
-        category: "tecnicas",
+        level1: {
+          stats: {
+            category: "tecnicas",
+          },
+        },
       }),
     )
 

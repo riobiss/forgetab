@@ -44,12 +44,8 @@ const baseSkill = {
   ownerId: "user-1",
   rpgId: "rpg-1",
   rpgScope: "rpg-1",
-  name: "Golpe",
   slug: "golpe",
-  category: null,
-  type: null,
-  description: null,
-  currentLevel: 2,
+  tags: [],
   classIds: [],
   raceIds: [],
   createdAt: "2026-01-01T00:00:00.000Z",
@@ -187,6 +183,6 @@ describe("DELETE /api/skills/[id]/levels/[levelId]", () => {
         levels: [baseSkill.levels[0]],
       },
     })
-    expect(mocks.transaction).toHaveBeenCalledTimes(1)
+    expect(mocks.executeRaw).toHaveBeenCalledTimes(1)
   })
 })
