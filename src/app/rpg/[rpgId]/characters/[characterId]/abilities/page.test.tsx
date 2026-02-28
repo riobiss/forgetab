@@ -118,7 +118,6 @@ describe("AbilitiesPage", () => {
           area: {},
           scaling: {},
           requirement: {},
-          effects: [],
         },
         {
           skillId: "s2",
@@ -136,8 +135,15 @@ describe("AbilitiesPage", () => {
           area: {},
           scaling: {},
           requirement: {},
-          effects: [],
         },
+      ])
+      .mockResolvedValueOnce([
+        { skillId: "s1", classLabel: "Guerreiro" },
+        { skillId: "s2", classLabel: "Mago" },
+      ])
+      .mockResolvedValueOnce([
+        { skillId: "s1", raceLabel: "Humano" },
+        { skillId: "s2", raceLabel: "Elfo" },
       ])
   })
 

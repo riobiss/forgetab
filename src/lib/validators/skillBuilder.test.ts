@@ -15,7 +15,7 @@ describe("skillMetaCreateSchema", () => {
     expect(result.classIds).toEqual([])
     expect(result.raceIds).toEqual([])
     expect(result.level1.levelRequired).toBe(1)
-    expect(result.level1.effects).toEqual([])
+    expect(result.level1.summary).toBeNull()
   })
 
   it("normaliza campos opcionais e deduplica ids", () => {
@@ -39,27 +39,16 @@ describe("skillMetaCreateSchema", () => {
 describe("skillLevelCreateSchema", () => {
   it("normaliza numeros opcionais para null/floor", () => {
     const result = skillLevelCreateSchema.parse({
-      effects: [
-        {
-          type: "damage",
-          value: {
-            mode: "dice",
-            diceCount: 2.9,
-            diceSides: -1,
-            bonus: 3.4,
-          },
-          chance: -1,
-          stacks: 1.8,
-        },
-      ],
+      cost: {
+        points: 2,
+      },
+      requirement: {
+        levelRequired: 3.9,
+      },
     })
 
-    const effect = result.effects?.[0]
-    expect(effect?.value?.diceCount).toBe(2)
-    expect(effect?.value?.diceSides).toBeNull()
-    expect(effect?.value?.bonus).toBe(3)
-    expect(effect?.chance).toBeNull()
-    expect(effect?.stacks).toBe(1)
+    expect(result.cost?.points).toBe(2)
+    expect(result.requirement?.levelRequired).toBe(3)
   })
 })
 
