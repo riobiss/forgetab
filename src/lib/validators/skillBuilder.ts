@@ -1,12 +1,9 @@
 import { z } from "zod"
 import {
   actionTypeValues,
-  effectTypeValues,
   skillCategoryValues,
   skillTagValues,
   skillTypeValues,
-  targetStatValues,
-  valueModeValues,
 } from "@/types/skillBuilder"
 import slugify from "@/utils/slugify"
 
@@ -53,28 +50,6 @@ const tagListSchema = z
   .array(z.enum(skillTagValues))
   .max(30)
   .transform((list) => Array.from(new Set(list)))
-
-const effectValueSchema = z.object({
-  mode: z.enum(valueModeValues),
-  flat: optionalPositiveNumber,
-  diceCount: optionalPositiveInt,
-  diceSides: optionalPositiveInt,
-  bonus: optionalPositiveInt,
-})
-
-const effectSchema = z.object({
-  id: z.string().trim().min(1).optional(),
-  type: z.enum(effectTypeValues),
-  targetStat: z.enum(targetStatValues).nullable().optional(),
-  attributeKey: optionalTrimmedText,
-  value: effectValueSchema.nullable().optional(),
-  damageType: optionalTrimmedText,
-  duration: optionalTrimmedText,
-  tickInterval: optionalTrimmedText,
-  chance: optionalPositiveNumber,
-  stacks: optionalPositiveInt,
-  notes: optionalTrimmedText,
-})
 
 const costSchema = z
   .object({
@@ -128,6 +103,9 @@ const requirementSchema = z
 const skillStatsSchema = z
   .object({
     name: optionalTrimmedText,
+    category: optionalSkillCategory,
+    type: optionalSkillType,
+    actionType: optionalActionType,
     description: optionalTrimmedText,
     notes: optionalTrimmedText,
     notesList: z.array(optionalTrimmedText).max(20).optional(),
@@ -142,13 +120,8 @@ const skillStatsSchema = z
 
 export const skillMetaCreateSchema = z.object({
   rpgId: z.string().trim().min(1).nullable().optional(),
-  name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres."),
-  category: optionalSkillCategory.optional(),
-  type: optionalSkillType.optional(),
-  actionType: optionalActionType.optional(),
+  slug: z.string().trim().min(2, "Slug deve ter pelo menos 2 caracteres.").optional(),
   tags: tagListSchema.optional().default([]),
-  description: optionalTrimmedText.optional(),
-  currentLevel: z.number().int().min(1).optional(),
   classIds: idListSchema.optional().default([]),
   raceIds: idListSchema.optional().default([]),
   level1: z
@@ -161,24 +134,17 @@ export const skillMetaCreateSchema = z.object({
       area: areaSchema.nullable().optional(),
       scaling: scalingSchema.nullable().optional(),
       requirement: requirementSchema.nullable().optional(),
-      effects: z.array(effectSchema).max(50).optional().default([]),
     })
     .optional()
     .default({
       levelRequired: 1,
       summary: null,
-      effects: [],
     }),
 })
 
 export const skillMetaPatchSchema = z.object({
-  name: z.string().trim().min(2).optional(),
-  category: optionalSkillCategory.optional(),
-  type: optionalSkillType.optional(),
-  actionType: optionalActionType.optional(),
+  slug: z.string().trim().min(2).optional(),
   tags: tagListSchema.optional(),
-  description: optionalTrimmedText.optional(),
-  currentLevel: z.number().int().min(1).optional(),
   classIds: idListSchema.optional(),
   raceIds: idListSchema.optional(),
 })
@@ -192,7 +158,6 @@ export const skillLevelCreateSchema = z.object({
   area: areaSchema.nullable().optional(),
   scaling: scalingSchema.nullable().optional(),
   requirement: requirementSchema.nullable().optional(),
-  effects: z.array(effectSchema).max(50).optional(),
 })
 
 export const skillLevelPatchSchema = z.object({
@@ -204,11 +169,10 @@ export const skillLevelPatchSchema = z.object({
   area: areaSchema.nullable().optional(),
   scaling: scalingSchema.nullable().optional(),
   requirement: requirementSchema.nullable().optional(),
-  effects: z.array(effectSchema).max(50).optional(),
 })
 
-export function buildSkillSlug(name: string) {
-  const normalized = slugify(name)
+export function buildSkillSlug(raw: string) {
+  const normalized = slugify(raw)
   return normalized || `skill-${crypto.randomUUID().slice(0, 8)}`
 }
 

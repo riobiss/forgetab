@@ -62,52 +62,37 @@ export async function POST(request: NextRequest, context: RouteContext) {
             upgradeFromLevelNumber: lastLevel.levelNumber,
           }
         : nextRequirement
-    const nextEffects =
-      payload.effects !== undefined ? payload.effects : deepCopyJson(lastLevel?.effects ?? [])
 
-    await prisma.$transaction(async (tx) => {
-      await tx.$executeRaw(Prisma.sql`
-        INSERT INTO skill_levels (
-          id,
-          skill_id,
-          level_number,
-          level_required,
-          summary,
-          stats,
-          cost,
-          target,
-          area,
-          scaling,
-          requirement,
-          effects
-        )
-        VALUES (
-          ${crypto.randomUUID()},
-          ${id},
-          ${nextLevelNumber},
-          ${nextLevelRequired},
-          ${nextSummary},
-          ${nextStats ? Prisma.sql`${JSON.stringify(nextStats)}::jsonb` : Prisma.sql`NULL`},
-          ${nextCost ? Prisma.sql`${JSON.stringify(nextCost)}::jsonb` : Prisma.sql`NULL`},
-          ${nextTarget ? Prisma.sql`${JSON.stringify(nextTarget)}::jsonb` : Prisma.sql`NULL`},
-          ${nextArea ? Prisma.sql`${JSON.stringify(nextArea)}::jsonb` : Prisma.sql`NULL`},
-          ${nextScaling ? Prisma.sql`${JSON.stringify(nextScaling)}::jsonb` : Prisma.sql`NULL`},
-          ${nextRequirementWithUpgrade
-            ? Prisma.sql`${JSON.stringify(nextRequirementWithUpgrade)}::jsonb`
-            : Prisma.sql`NULL`},
-          ${JSON.stringify(nextEffects)}::jsonb
-        )
-      `)
-
-      await tx.$executeRaw(Prisma.sql`
-        UPDATE skills
-        SET
-          current_level = GREATEST(current_level, ${nextLevelNumber}),
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = ${id}
-          AND owner_id = ${userId}
-      `)
-    })
+    await prisma.$executeRaw(Prisma.sql`
+      INSERT INTO skill_levels (
+        id,
+        skill_id,
+        level_number,
+        level_required,
+        summary,
+        stats,
+        cost,
+        target,
+        area,
+        scaling,
+        requirement
+      )
+      VALUES (
+        ${crypto.randomUUID()},
+        ${id},
+        ${nextLevelNumber},
+        ${nextLevelRequired},
+        ${nextSummary},
+        ${nextStats ? Prisma.sql`${JSON.stringify(nextStats)}::jsonb` : Prisma.sql`NULL`},
+        ${nextCost ? Prisma.sql`${JSON.stringify(nextCost)}::jsonb` : Prisma.sql`NULL`},
+        ${nextTarget ? Prisma.sql`${JSON.stringify(nextTarget)}::jsonb` : Prisma.sql`NULL`},
+        ${nextArea ? Prisma.sql`${JSON.stringify(nextArea)}::jsonb` : Prisma.sql`NULL`},
+        ${nextScaling ? Prisma.sql`${JSON.stringify(nextScaling)}::jsonb` : Prisma.sql`NULL`},
+        ${nextRequirementWithUpgrade
+          ? Prisma.sql`${JSON.stringify(nextRequirementWithUpgrade)}::jsonb`
+          : Prisma.sql`NULL`}
+      )
+    `)
 
     const updatedSkill = await fetchSkillById(id, userId)
     return NextResponse.json({ skill: updatedSkill }, { status: 201 })

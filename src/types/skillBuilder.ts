@@ -1,28 +1,5 @@
 import { abilityCategoryKeys } from "@/lib/rpg/abilityCategories"
 
-export const effectTypeValues = [
-  "damage",
-  "heal",
-  "buff",
-  "debuff",
-  "applyStatus",
-  "removeStatus",
-  "shield",
-  "createZone",
-  "summon",
-  "move",
-] as const
-
-export const targetStatValues = [
-  "hp",
-  "armor",
-  "shield",
-  "mana",
-  "sanity",
-  "attribute",
-] as const
-
-export const valueModeValues = ["flat", "dice"] as const
 export const actionTypeValues = ["action", "bonus", "reaction", "passive"] as const
 export const skillCategoryValues = abilityCategoryKeys
 export const skillTypeValues = [
@@ -60,35 +37,10 @@ export const skillTagValues = [
   "energy",
 ] as const
 
-export type EffectType = (typeof effectTypeValues)[number]
-export type TargetStat = (typeof targetStatValues)[number]
-export type ValueMode = (typeof valueModeValues)[number]
 export type SkillCategory = (typeof skillCategoryValues)[number]
 export type SkillType = (typeof skillTypeValues)[number]
 export type SkillTag = (typeof skillTagValues)[number]
 export type ActionType = (typeof actionTypeValues)[number]
-
-export type EffectValue = {
-  mode: ValueMode
-  flat?: number | null
-  diceCount?: number | null
-  diceSides?: number | null
-  bonus?: number | null
-}
-
-export type Effect = {
-  id: string
-  type: EffectType
-  targetStat?: TargetStat | null
-  attributeKey?: string | null
-  value?: EffectValue | null
-  damageType?: string | null
-  duration?: string | null
-  tickInterval?: string | null
-  chance?: number | null
-  stacks?: number | null
-  notes?: string | null
-}
 
 export type Cost = {
   mana?: number | null
@@ -131,6 +83,9 @@ export type Requirement = {
 
 export type SkillStats = {
   name?: string | null
+  category?: SkillCategory | null
+  type?: SkillType | null
+  actionType?: ActionType | null
   description?: string | null
   notes?: string | null
   notesList?: Array<string | null> | null
@@ -153,7 +108,6 @@ export type SkillLevel = {
   area?: Area | null
   scaling?: Scaling | null
   requirement?: Requirement | null
-  effects: Effect[]
   createdAt: string
   updatedAt: string
 }
@@ -163,14 +117,8 @@ export type Skill = {
   ownerId: string
   rpgId?: string | null
   rpgScope: string
-  name: string
   slug: string
-  category?: SkillCategory | null
-  type?: SkillType | null
-  actionType?: ActionType | null
   tags: SkillTag[]
-  description?: string | null
-  currentLevel: number
   classIds: string[]
   raceIds: string[]
   levels: SkillLevel[]

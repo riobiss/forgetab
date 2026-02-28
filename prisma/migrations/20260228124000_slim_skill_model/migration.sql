@@ -1,0 +1,7 @@
+ALTER TABLE "skills"
+DROP COLUMN IF EXISTS "name",
+DROP COLUMN IF EXISTS "category",
+DROP COLUMN IF EXISTS "type",
+DROP COLUMN IF EXISTS "action_type",
+DROP COLUMN IF EXISTS "description",
+DROP COLUMN IF EXISTS "current_level";

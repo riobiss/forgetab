@@ -66,14 +66,18 @@ export async function POST(request: NextRequest) {
     if (abilityCategoryConfig.enabled && abilityCategoryConfig.categories.length === 0) {
       return NextResponse.json({ message: "Ative pelo menos uma categoria" }, { status: 400 })
     }
+    const level1Category =
+      parsed.data.level1?.stats && typeof parsed.data.level1.stats === "object"
+        ? ((parsed.data.level1.stats as { category?: unknown }).category as string | null | undefined)
+        : null
     if (abilityCategoryConfig.enabled) {
-      if (!parsed.data.category) {
+      if (!level1Category) {
         return NextResponse.json(
           { message: "Categoria obrigatoria para criar habilidade." },
           { status: 400 },
         )
       }
-      if (!abilityCategoryConfig.categories.includes(parsed.data.category)) {
+      if (!abilityCategoryConfig.categories.includes(level1Category)) {
         return NextResponse.json(
           { message: "Categoria desativada para este RPG." },
           { status: 400 },
@@ -91,15 +95,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: validatedLinks.message }, { status: 400 })
     }
 
-    const slug = buildSkillSlug(parsed.data.name)
+    const level1Name =
+      parsed.data.level1?.stats && typeof parsed.data.level1.stats === "object"
+        ? ((parsed.data.level1.stats as { name?: unknown }).name as string | null | undefined)
+        : null
+    const slug = buildSkillSlug(parsed.data.slug ?? level1Name ?? "")
     const rpgScope = createRpgScope(rpgId)
     const level1 = parsed.data.level1
-    if ((parsed.data.currentLevel ?? 1) > 1) {
-      return NextResponse.json(
-        { message: "currentLevel inicial nao pode ser maior que 1 na criacao." },
-        { status: 400 },
-      )
-    }
 
     const createdSkillId = crypto.randomUUID()
     const createdLevelId = crypto.randomUUID()
@@ -112,36 +114,20 @@ export async function POST(request: NextRequest) {
             owner_id,
             rpg_id,
             rpg_scope,
-            name,
             slug,
-            category,
-            type,
-            action_type,
-            tags,
-            description,
-            current_level
+            tags
           )
           VALUES (
             ${createdSkillId},
             ${userId},
             ${rpgId},
             ${rpgScope},
-            ${parsed.data.name},
             ${slug},
-            ${parsed.data.category},
-            ${parsed.data.type},
-            ${parsed.data.actionType},
-            ${parsed.data.tags},
-            ${parsed.data.description},
-            ${parsed.data.currentLevel ?? 1}
+            ${parsed.data.tags}
           )
         `)
       } catch (error) {
-        if (
-          !(error instanceof Error) ||
-          (!error.message.includes('column "action_type" does not exist') &&
-            !error.message.includes('column "tags" does not exist'))
-        ) {
+        if (!(error instanceof Error) || !error.message.includes('column "tags" does not exist')) {
           throw error
         }
 
@@ -151,24 +137,14 @@ export async function POST(request: NextRequest) {
             owner_id,
             rpg_id,
             rpg_scope,
-            name,
-            slug,
-            category,
-            type,
-            description,
-            current_level
+            slug
           )
           VALUES (
             ${createdSkillId},
             ${userId},
             ${rpgId},
             ${rpgScope},
-            ${parsed.data.name},
-            ${slug},
-            ${parsed.data.category},
-            ${parsed.data.type},
-            ${parsed.data.description},
-            ${parsed.data.currentLevel ?? 1}
+            ${slug}
           )
         `)
       }
@@ -185,8 +161,7 @@ export async function POST(request: NextRequest) {
           target,
           area,
           scaling,
-          requirement,
-          effects
+          requirement
         )
         VALUES (
           ${createdLevelId},
@@ -201,8 +176,7 @@ export async function POST(request: NextRequest) {
           ${level1.scaling ? Prisma.sql`${JSON.stringify(level1.scaling)}::jsonb` : Prisma.sql`NULL`},
           ${level1.requirement
             ? Prisma.sql`${JSON.stringify(level1.requirement)}::jsonb`
-            : Prisma.sql`NULL`},
-          ${JSON.stringify(level1.effects ?? [])}::jsonb
+            : Prisma.sql`NULL`}
         )
       `)
 

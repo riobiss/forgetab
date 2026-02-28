@@ -9,14 +9,8 @@ type SkillRow = {
   ownerId: string
   rpgId: string | null
   rpgScope: string
-  name: string
   slug: string
-  category: string | null
-  type: string | null
-  actionType: string | null
   tags: string[]
-  description: string | null
-  currentLevel: number
   createdAt: Date
   updatedAt: Date
 }
@@ -33,7 +27,6 @@ type SkillLevelRow = {
   area: Prisma.JsonValue
   scaling: Prisma.JsonValue
   requirement: Prisma.JsonValue
-  effects: Prisma.JsonValue
   createdAt: Date
   updatedAt: Date
 }
@@ -41,14 +34,6 @@ type SkillLevelRow = {
 function normalizeJsonObject(value: Prisma.JsonValue) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return null
-  }
-
-  return value
-}
-
-function normalizeJsonArray(value: Prisma.JsonValue) {
-  if (!Array.isArray(value)) {
-    return []
   }
 
   return value
@@ -151,14 +136,8 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
         owner_id AS "ownerId",
         rpg_id AS "rpgId",
         rpg_scope AS "rpgScope",
-        name,
         slug,
-        category,
-        type,
-        action_type AS "actionType",
         COALESCE(tags, ARRAY[]::text[]) AS tags,
-        description,
-        current_level AS "currentLevel",
         created_at AS "createdAt",
         updated_at AS "updatedAt"
       FROM skills
@@ -167,11 +146,7 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
       LIMIT 1
     `)
   } catch (error) {
-    if (
-      !(error instanceof Error) ||
-      (!error.message.includes('column "action_type" does not exist') &&
-        !error.message.includes('column "tags" does not exist'))
-    ) {
+    if (!(error instanceof Error) || !error.message.includes('column "tags" does not exist')) {
       throw error
     }
 
@@ -181,14 +156,8 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
         owner_id AS "ownerId",
         rpg_id AS "rpgId",
         rpg_scope AS "rpgScope",
-        name,
         slug,
-        category,
-        type,
-        NULL::text AS "actionType",
         ARRAY[]::text[] AS tags,
-        description,
-        current_level AS "currentLevel",
         created_at AS "createdAt",
         updated_at AS "updatedAt"
       FROM skills
@@ -227,7 +196,6 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
       area,
       scaling,
       requirement,
-      effects,
       created_at AS "createdAt",
       updated_at AS "updatedAt"
     FROM skill_levels
@@ -247,7 +215,6 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
       area: normalizeJsonObject(level.area),
       scaling: normalizeJsonObject(level.scaling),
       requirement: normalizeJsonObject(level.requirement),
-      effects: normalizeJsonArray(level.effects),
     })),
   }
 }
@@ -261,14 +228,8 @@ export async function fetchSkillList(ownerId: string, rpgId?: string | null) {
         owner_id AS "ownerId",
         rpg_id AS "rpgId",
         rpg_scope AS "rpgScope",
-        name,
         slug,
-        category,
-        type,
-        action_type AS "actionType",
         COALESCE(tags, ARRAY[]::text[]) AS tags,
-        description,
-        current_level AS "currentLevel",
         created_at AS "createdAt",
         updated_at AS "updatedAt"
       FROM skills
@@ -277,11 +238,7 @@ export async function fetchSkillList(ownerId: string, rpgId?: string | null) {
       ORDER BY updated_at DESC
     `)
   } catch (error) {
-    if (
-      !(error instanceof Error) ||
-      (!error.message.includes('column "action_type" does not exist') &&
-        !error.message.includes('column "tags" does not exist'))
-    ) {
+    if (!(error instanceof Error) || !error.message.includes('column "tags" does not exist')) {
       throw error
     }
 
@@ -291,14 +248,8 @@ export async function fetchSkillList(ownerId: string, rpgId?: string | null) {
         owner_id AS "ownerId",
         rpg_id AS "rpgId",
         rpg_scope AS "rpgScope",
-        name,
         slug,
-        category,
-        type,
-        NULL::text AS "actionType",
         ARRAY[]::text[] AS tags,
-        description,
-        current_level AS "currentLevel",
         created_at AS "createdAt",
         updated_at AS "updatedAt"
       FROM skills

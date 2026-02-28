@@ -47,7 +47,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const nextScaling = parsed.data.scaling !== undefined ? parsed.data.scaling : level.scaling
     const nextRequirement =
       parsed.data.requirement !== undefined ? parsed.data.requirement : level.requirement
-    const nextEffects = parsed.data.effects !== undefined ? parsed.data.effects : level.effects
 
     await prisma.$executeRaw(Prisma.sql`
       UPDATE skill_levels
@@ -62,7 +61,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         requirement = ${nextRequirement
           ? Prisma.sql`${JSON.stringify(nextRequirement)}::jsonb`
           : Prisma.sql`NULL`},
-        effects = ${JSON.stringify(nextEffects)}::jsonb,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${levelId}
         AND skill_id = ${id}
@@ -107,29 +105,11 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       )
     }
 
-    const remainingLevels = skill.levels.filter((item) => item.id !== levelId)
-    const maxRemainingLevel = remainingLevels.reduce(
-      (max, item) => Math.max(max, item.levelNumber),
-      1,
-    )
-    const nextCurrentLevel = Math.min(skill.currentLevel, maxRemainingLevel)
-
-    await prisma.$transaction(async (tx) => {
-      await tx.$executeRaw(Prisma.sql`
-        DELETE FROM skill_levels
-        WHERE id = ${levelId}
-          AND skill_id = ${id}
-      `)
-
-      await tx.$executeRaw(Prisma.sql`
-        UPDATE skills
-        SET
-          current_level = ${nextCurrentLevel},
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = ${id}
-          AND owner_id = ${userId}
-      `)
-    })
+    await prisma.$executeRaw(Prisma.sql`
+      DELETE FROM skill_levels
+      WHERE id = ${levelId}
+        AND skill_id = ${id}
+    `)
 
     const updatedSkill = await fetchSkillById(id, userId)
     return NextResponse.json({ skill: updatedSkill }, { status: 200 })

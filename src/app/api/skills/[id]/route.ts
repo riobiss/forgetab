@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import {
-  fetchRpgAbilityCategoryConfig,
   fetchSkillById,
   getUserIdFromRequest,
   validateLinkIds,
@@ -74,83 +73,29 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: validatedLinks.message }, { status: 400 })
     }
 
-    const highestLevel = existing.levels.reduce(
-      (max, level) => Math.max(max, level.levelNumber),
-      1,
-    )
-    const nextCurrentLevel = parsed.data.currentLevel ?? existing.currentLevel
-    const nextName = parsed.data.name ?? existing.name
-    const nextCategory =
-      parsed.data.category !== undefined ? parsed.data.category : existing.category
-    const nextType = parsed.data.type !== undefined ? parsed.data.type : existing.type
-    const nextActionType =
-      parsed.data.actionType !== undefined ? parsed.data.actionType : existing.actionType
     const nextTags = parsed.data.tags ?? existing.tags
-    const nextDescription =
-      parsed.data.description !== undefined ? parsed.data.description : existing.description
-    const abilityCategoryConfig = await fetchRpgAbilityCategoryConfig(existing.rpgId)
-
-    if (nextCurrentLevel > highestLevel) {
-      return NextResponse.json(
-        { message: "currentLevel nao pode ser maior que o maior level existente." },
-        { status: 400 },
-      )
-    }
-    if (abilityCategoryConfig.enabled && abilityCategoryConfig.categories.length === 0) {
-      return NextResponse.json({ message: "Ative pelo menos uma categoria" }, { status: 400 })
-    }
-    if (abilityCategoryConfig.enabled && parsed.data.category !== undefined) {
-      if (!nextCategory) {
-        return NextResponse.json(
-          { message: "Categoria obrigatoria para salvar habilidade." },
-          { status: 400 },
-        )
-      }
-      if (!abilityCategoryConfig.categories.includes(nextCategory)) {
-        return NextResponse.json(
-          { message: "Categoria desativada para este RPG." },
-          { status: 400 },
-        )
-      }
-    }
-
-    const nextSlug = buildSkillSlug(nextName)
+    const nextSlug = buildSkillSlug(parsed.data.slug ?? existing.slug)
 
     await prisma.$transaction(async (tx) => {
       try {
         await tx.$executeRaw(Prisma.sql`
           UPDATE skills
           SET
-            name = ${nextName},
             slug = ${nextSlug},
-            category = ${nextCategory},
-            type = ${nextType},
-            action_type = ${nextActionType},
             tags = ${nextTags},
-            description = ${nextDescription},
-            current_level = ${nextCurrentLevel},
             updated_at = CURRENT_TIMESTAMP
           WHERE id = ${id}
             AND owner_id = ${userId}
         `)
       } catch (error) {
-        if (
-          !(error instanceof Error) ||
-          (!error.message.includes('column "action_type" does not exist') &&
-            !error.message.includes('column "tags" does not exist'))
-        ) {
+        if (!(error instanceof Error) || !error.message.includes('column "tags" does not exist')) {
           throw error
         }
 
         await tx.$executeRaw(Prisma.sql`
           UPDATE skills
           SET
-            name = ${nextName},
             slug = ${nextSlug},
-            category = ${nextCategory},
-            type = ${nextType},
-            description = ${nextDescription},
-            current_level = ${nextCurrentLevel},
             updated_at = CURRENT_TIMESTAMP
           WHERE id = ${id}
             AND owner_id = ${userId}
