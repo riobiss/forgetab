@@ -1088,7 +1088,7 @@ export default function SkillsDashboardClient({
               <span>Pesquisar</span>
               <input
                 type="search"
-                placeholder="Nome ou description..."
+                placeholder="Nome ou descrição..."
                 value={skillSearch}
                 onChange={(event) => setSkillSearch(event.target.value)}
               />
