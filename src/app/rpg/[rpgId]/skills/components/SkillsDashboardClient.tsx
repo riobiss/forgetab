@@ -1,11 +1,9 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
 import { Filter, Plus, Search } from "lucide-react"
-import styles from "./page.module.css"
+import styles from "./SkillsDashboardClient.module.css"
 import {
   actionTypeValues,
-  skillCategoryValues,
   skillTagValues,
   skillTypeValues,
   type ActionType,
@@ -14,1020 +12,94 @@ import {
   type SkillType,
 } from "@/types/skillBuilder"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
-import { ReactSelectField, type ReactSelectOption } from "@/components/select/ReactSelectField"
+import { ReactSelectField } from "@/components/select/ReactSelectField"
+import { actionTypeLabel, skillTagLabel, skillTypeLabel } from "./constants"
+import type { SkillsDashboardProps } from "./types"
 import {
-  abilityCategoryDefinitions,
-  abilityCategoryLabelByKey,
-  normalizeEnabledAbilityCategories,
-} from "@/lib/rpg/abilityCategories"
-
-const actionTypeLabel: Record<ActionType, string> = {
-  action: "Acao",
-  bonus: "Bonus",
-  reaction: "Reacao",
-  passive: "Passiva",
-}
-
-const skillTypeLabel: Record<SkillType, string> = {
-  attack: "Ataque",
-  burst: "Explosao",
-  support: "Suporte",
-  buff: "Buff",
-  debuff: "Debuff",
-  control: "Controle",
-  defense: "Defesa",
-  mobility: "Mobilidade",
-  summon: "Invocacao",
-  utility: "Utilidade",
-  resource: "Recurso",
-}
-
-const skillTagLabel: Record<SkillTag, string> = {
-  ice: "Gelo",
-  water: "Agua",
-  wind: "Vento",
-  earth: "Terra",
-  light: "Luz",
-  dark: "Escuridao",
-  shadow: "Sombra",
-  infernal: "Infernal",
-  holy: "Sagrado",
-  poison: "Veneno",
-  blood: "Sangue",
-  psychic: "Psiquico",
-  time: "Tempo",
-  sound: "Som",
-  arcane: "Arcano",
-  void: "Vazio",
-  life: "Vida",
-  death: "Morte",
-  energy: "Energia",
-}
-
-type OwnedRpg = { id: string; title: string }
-type TemplateOption = { id: string; label: string }
-type RpgSettingsPayload = {
-  rpg?: {
-    abilityCategoriesEnabled?: boolean
-    enabledAbilityCategories?: string[]
-  }
-  message?: string
-}
-
-type SkillListItem = {
-  id: string
-  slug: string
-  updatedAt: string
-}
-
-type SkillLevel = {
-  id: string
-  levelNumber: number
-  levelRequired: number
-  summary: string | null
-  stats: Record<string, unknown> | null
-  cost: Record<string, unknown> | null
-  requirement: Record<string, unknown> | null
-}
-
-type SkillDetail = {
-  id: string
-  slug: string
-  tags: SkillTag[]
-  classIds: string[]
-  raceIds: string[]
-  levels: SkillLevel[]
-}
-
-type MetaForm = {
-  name: string
-  category: SkillCategory | ""
-  type: SkillType | ""
-  actionType: ActionType | ""
-  tags: SkillTag[]
-  description: string
-  classIds: string[]
-  raceIds: string[]
-}
-
-type LevelForm = {
-  levelName: string
-  levelDescription: string
-  notesList: string[]
-  levelRequired: string
-  summary: string
-  damage: string
-  cooldown: string
-  range: string
-  duration: string
-  castTime: string
-  resourceCost: string
-  costPoints: string
-  costCustom: string
-  prerequisite: string
-  levelCategory: SkillCategory | ""
-  levelType: SkillType | ""
-  levelActionType: ActionType | ""
-  customFields: { id: string; name: string; value: string }[]
-}
-
-type Props = {
-  ownedRpgs: OwnedRpg[]
-  initialRpgId?: string
-  hideRpgSelector?: boolean
-  title?: string
-}
-
-function toOptionalText(value: string) {
-  const trimmed = value.trim()
-  return trimmed.length > 0 ? trimmed : null
-}
-
-function toOptionalNumber(value: string) {
-  const trimmed = value.trim()
-  if (!trimmed) return null
-  const parsed = Number(trimmed)
-  return Number.isFinite(parsed) ? parsed : null
-}
-
-function normalizeObsList(values: string[]) {
-  return values.map((item) => item.trim()).filter((item) => item.length > 0)
-}
-
-function mapSkillToMetaForm(skill: SkillDetail): MetaForm {
-  const normalizedTags = Array.isArray(skill.tags)
-    ? skill.tags.filter((item): item is SkillTag => skillTagValues.includes(item as SkillTag))
-    : []
-
-  return {
-    name: "",
-    category: "",
-    type: "",
-    actionType: "",
-    tags: Array.from(new Set(normalizedTags)),
-    description: "",
-    classIds: skill.classIds,
-    raceIds: skill.raceIds,
-  }
-}
-
-function mapLevelToForm(level: SkillLevel): LevelForm {
-  const stats = level.stats ?? {}
-  const cost = level.cost ?? {}
-  const requirement = level.requirement ?? {}
-  const statsNotesListRaw = Array.isArray(stats.notesList) ? stats.notesList : []
-  const statsNotesList = statsNotesListRaw
-    .map((item) => (typeof item === "string" ? item : ""))
-    .filter((item) => item.trim().length > 0)
-  const fallbackNote = typeof stats.notes === "string" ? stats.notes : ""
-  const customFieldsRaw = Array.isArray(stats.customFields) ? stats.customFields : []
-  const customFields = customFieldsRaw
-    .map((item, index) => {
-      if (!item || typeof item !== "object" || Array.isArray(item)) return null
-      const record = item as Record<string, unknown>
-      const name = typeof record.name === "string" ? record.name.trim() : ""
-      if (!name) return null
-      const value = typeof record.value === "string" ? record.value : ""
-      const id = typeof record.id === "string" && record.id.trim() ? record.id : `custom-${index}`
-      return { id, name, value }
-    })
-    .filter((item): item is { id: string; name: string; value: string } => Boolean(item))
-
-  return {
-    levelName: typeof stats.name === "string" ? stats.name : "",
-    levelDescription: typeof stats.description === "string" ? stats.description : "",
-    notesList: statsNotesList.length > 0 ? statsNotesList : fallbackNote ? [fallbackNote] : [""],
-    levelRequired: String(level.levelRequired),
-    summary: level.summary ?? "",
-    damage: typeof stats.damage === "string" ? stats.damage : "",
-    cooldown: typeof stats.cooldown === "string" ? stats.cooldown : "",
-    range: typeof stats.range === "string" ? stats.range : "",
-    duration: typeof stats.duration === "string" ? stats.duration : "",
-    castTime: typeof stats.castTime === "string" ? stats.castTime : "",
-    resourceCost: typeof stats.resourceCost === "string" ? stats.resourceCost : "",
-    costPoints: typeof cost.points === "number" ? String(cost.points) : "",
-    costCustom: typeof cost.custom === "string" ? cost.custom : "",
-    prerequisite: typeof requirement.notes === "string" ? requirement.notes : "",
-    levelCategory: skillCategoryValues.includes(stats.category as SkillCategory)
-      ? (stats.category as SkillCategory)
-      : "",
-    levelType: skillTypeValues.includes(stats.type as SkillType) ? (stats.type as SkillType) : "",
-    levelActionType: actionTypeValues.includes(stats.actionType as ActionType)
-      ? (stats.actionType as ActionType)
-      : "",
-    customFields,
-  }
-}
-
-function getLevelCostPoints(level: SkillLevel) {
-  if (!level.cost || typeof level.cost !== "object" || Array.isArray(level.cost)) {
-    return null
-  }
-
-  const value = (level.cost as Record<string, unknown>).points
-  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
-    return null
-  }
-
-  return Math.floor(value)
-}
-
-function createInitialMeta(): MetaForm {
-  return {
-    name: "",
-    category: "",
-    type: "",
-    actionType: "",
-    tags: [],
-    description: "",
-    classIds: [],
-    raceIds: [],
-  }
-}
-
-function createInitialLevel(): LevelForm {
-  return {
-    levelName: "",
-    levelDescription: "",
-    notesList: [""],
-    levelRequired: "1",
-    summary: "",
-    damage: "",
-    cooldown: "",
-    range: "",
-    duration: "",
-    castTime: "",
-    resourceCost: "",
-    costPoints: "",
-    costCustom: "",
-    prerequisite: "",
-    levelCategory: "",
-    levelType: "",
-    levelActionType: "",
-    customFields: [],
-  }
-}
-
-function toggleId(list: string[], id: string) {
-  return list.includes(id) ? list.filter((item) => item !== id) : [...list, id]
-}
-
-function resolveCategoryLabel(value: string) {
-  return abilityCategoryLabelByKey[value as SkillCategory] ?? value
-}
+  createInitialLevel,
+  createInitialMeta,
+  getLevelCostPoints,
+  normalizeObsList,
+  resolveCategoryLabel,
+  toggleId,
+} from "./utils"
+import { useSkillsDashboardState } from "./useSkillsDashboardState"
 
 export default function SkillsDashboardClient({
   ownedRpgs,
   initialRpgId,
   hideRpgSelector = false,
   title = "Construtor de Habilidades",
-}: Props) {
+}: SkillsDashboardProps) {
   void hideRpgSelector
   void title
-  const initialSelection =
-    initialRpgId && ownedRpgs.some((item) => item.id === initialRpgId)
-      ? initialRpgId
-      : (ownedRpgs[0]?.id ?? "")
-  const [selectedRpgId, setSelectedRpgId] = useState(initialSelection)
-  const [classes, setClasses] = useState<TemplateOption[]>([])
-  const [races, setRaces] = useState<TemplateOption[]>([])
-  const [skills, setSkills] = useState<SkillListItem[]>([])
-  const [skillSearchOpen, setSkillSearchOpen] = useState(false)
-  const [skillSearch, setSkillSearch] = useState("")
-  const [skillSearchIndex, setSkillSearchIndex] = useState<Record<string, string>>({})
-  const [skillDisplayNameById, setSkillDisplayNameById] = useState<Record<string, string>>({})
-  const [skillFilterMetaById, setSkillFilterMetaById] = useState<
-    Record<string, { categories: string[]; types: string[]; actionTypes: string[]; tags: string[] }>
-  >({})
-  const [filtersOpen, setFiltersOpen] = useState(false)
-  const [selectedCategoryFilters, setSelectedCategoryFilters] = useState<string[]>([])
-  const [selectedTypeFilters, setSelectedTypeFilters] = useState<string[]>([])
-  const [selectedActionTypeFilters, setSelectedActionTypeFilters] = useState<string[]>([])
-  const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([])
-  const [selectedSkillId, setSelectedSkillId] = useState("")
-  const [activeSkill, setActiveSkill] = useState<SkillDetail | null>(null)
-  const [selectedLevelId, setSelectedLevelId] = useState("")
-  const [metaForm, setMetaForm] = useState<MetaForm>(createInitialMeta())
-  const [levelForm, setLevelForm] = useState<LevelForm>(createInitialLevel())
-  const [abilityCategoriesEnabled, setAbilityCategoriesEnabled] = useState(false)
-  const [enabledAbilityCategories, setEnabledAbilityCategories] = useState<SkillCategory[]>([])
-  const [createOpen, setCreateOpen] = useState(false)
-  const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false)
-  const [newCustomFieldName, setNewCustomFieldName] = useState("")
-  const [newCustomFieldValue, setNewCustomFieldValue] = useState("")
-  const [editOpen, setEditOpen] = useState(false)
-  const [createStep, setCreateStep] = useState(1)
-  const [editStep, setEditStep] = useState(1)
-  const [editReloadKey, setEditReloadKey] = useState(0)
-  const [loading, setLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
 
-  const selectedLevel = useMemo(
-    () => activeSkill?.levels.find((level) => level.id === selectedLevelId) ?? null,
-    [activeSkill, selectedLevelId],
-  )
-  const createCategoryOptions = useMemo(
-    () =>
-      abilityCategoryDefinitions.filter(
-        (option) =>
-          !abilityCategoriesEnabled ||
-          enabledAbilityCategories.includes(option.key as SkillCategory),
-      ),
-    [abilityCategoriesEnabled, enabledAbilityCategories],
-  )
-  const editCategoryOptions = useMemo(() => {
-    if (!metaForm.category) return createCategoryOptions
-    if (createCategoryOptions.some((option) => option.key === metaForm.category)) {
-      return createCategoryOptions
-    }
-
-    return [
-      ...createCategoryOptions,
-      {
-        key: metaForm.category,
-        label: `${resolveCategoryLabel(metaForm.category)} (indisponivel)`,
-        description: "",
-      },
-    ]
-  }, [createCategoryOptions, metaForm.category])
-  const tagOptions = useMemo<ReactSelectOption[]>(
-    () =>
-      skillTagValues.map((tag) => ({
-        value: tag,
-        label: skillTagLabel[tag],
-      })),
-    [],
-  )
-  const selectedRpgTitle = useMemo(
-    () => ownedRpgs.find((item) => item.id === selectedRpgId)?.title ?? "Habilidades",
-    [ownedRpgs, selectedRpgId],
-  )
-  const categoryFilterOptions = useMemo(() => [...skillCategoryValues], [])
-  const typeFilterOptions = useMemo(() => [...skillTypeValues], [])
-  const actionTypeFilterOptions = useMemo(() => [...actionTypeValues], [])
-  const tagFilterOptions = useMemo(
-    () =>
-      Array.from(
-        new Set(Object.values(skillFilterMetaById).flatMap((item) => item.tags).filter((item) => item.length > 0)),
-      ),
-    [skillFilterMetaById],
-  )
-  const filteredSkills = useMemo(() => {
-    const query = skillSearch.trim().toLowerCase()
-
-    return skills.filter((skill) => {
-      const meta = skillFilterMetaById[skill.id] ?? {
-        categories: [],
-        types: [],
-        actionTypes: [],
-        tags: [],
-      }
-      if (
-        selectedCategoryFilters.length > 0 &&
-        !selectedCategoryFilters.some((item) => meta.categories.includes(item))
-      ) {
-        return false
-      }
-      if (selectedTypeFilters.length > 0 && !selectedTypeFilters.some((item) => meta.types.includes(item))) {
-        return false
-      }
-      if (
-        selectedActionTypeFilters.length > 0 &&
-        !selectedActionTypeFilters.some((item) => meta.actionTypes.includes(item))
-      ) {
-        return false
-      }
-      if (selectedTagFilters.length > 0 && !selectedTagFilters.some((tag) => meta.tags.includes(tag))) return false
-      if (!query) return true
-      const searchBlob = skillSearchIndex[skill.id] ?? ""
-      return searchBlob.includes(query)
-    })
-  }, [
-    selectedActionTypeFilters,
-    selectedCategoryFilters,
-    selectedTagFilters,
-    selectedTypeFilters,
-    skillSearch,
-    skillSearchIndex,
+  const {
+    classes,
+    races,
     skills,
-    skillFilterMetaById,
-  ])
-
-  useEffect(() => {
-    if (!selectedRpgId) return
-
-    async function loadData() {
-      setLoading(true)
-      setError("")
-      try {
-        const [classRes, raceRes, skillRes, rpgRes] = await Promise.all([
-          fetch(`/api/rpg/${selectedRpgId}/classes`),
-          fetch(`/api/rpg/${selectedRpgId}/races`),
-          fetch(`/api/skills?rpgId=${selectedRpgId}`),
-          fetch(`/api/rpg/${selectedRpgId}`),
-        ])
-
-        const classPayload = (await classRes.json()) as { classes?: TemplateOption[]; message?: string }
-        const racePayload = (await raceRes.json()) as { races?: TemplateOption[]; message?: string }
-        const skillPayload = (await skillRes.json()) as { skills?: SkillListItem[]; message?: string }
-        const rpgPayload = (await rpgRes.json()) as RpgSettingsPayload
-
-        if (!classRes.ok) throw new Error(classPayload.message ?? "Erro ao buscar classes.")
-        if (!raceRes.ok) throw new Error(racePayload.message ?? "Erro ao buscar racas.")
-        if (!skillRes.ok) throw new Error(skillPayload.message ?? "Erro ao buscar skills.")
-        if (!rpgRes.ok) throw new Error(rpgPayload.message ?? "Erro ao buscar configuracoes do RPG.")
-
-        setClasses(classPayload.classes ?? [])
-        setRaces(racePayload.races ?? [])
-        setSkills(skillPayload.skills ?? [])
-        setAbilityCategoriesEnabled(Boolean(rpgPayload.rpg?.abilityCategoriesEnabled ?? false))
-        setEnabledAbilityCategories(
-          normalizeEnabledAbilityCategories(rpgPayload.rpg?.enabledAbilityCategories),
-        )
-        setSelectedSkillId(skillPayload.skills?.[0]?.id ?? "")
-        setEditOpen(false)
-      } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "Erro ao carregar dashboard.")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    void loadData()
-  }, [selectedRpgId])
-
-  useEffect(() => {
-    if (skills.length === 0) {
-      setSkillSearchIndex({})
-      setSkillDisplayNameById({})
-      setSkillFilterMetaById({})
-      return
-    }
-
-    let cancelled = false
-
-    async function buildSearchIndex() {
-      try {
-        const entries = await Promise.all(
-          skills.map(async (skill) => {
-            const response = await fetch(`/api/skills/${skill.id}`)
-            const payload = (await response.json()) as { skill?: SkillDetail }
-            const detail = payload.skill
-            if (!response.ok || !detail) {
-              return {
-                id: skill.id,
-                searchBlob: skill.slug.toLowerCase(),
-                displayName: skill.slug,
-                filters: {
-                  categories: [],
-                  types: [],
-                  actionTypes: [],
-                  tags: [],
-                },
-              } as const
-            }
-
-            const displayName = detail.levels
-              .map((level) => {
-                const stats = (level.stats ?? {}) as Record<string, unknown>
-                return typeof stats.name === "string" ? stats.name.trim() : ""
-              })
-              .find((name) => name.length > 0) ?? skill.slug
-
-            const merged = detail.levels
-              .map((level) => {
-                const stats = (level.stats ?? {}) as Record<string, unknown>
-                const name = typeof stats.name === "string" ? stats.name : ""
-                const description = typeof stats.description === "string" ? stats.description : ""
-                return `${name} ${description}`
-              })
-              .join(" ")
-              .toLowerCase()
-            const categories = Array.from(
-              new Set(
-                detail.levels
-                  .map((level) => {
-                    const stats = (level.stats ?? {}) as Record<string, unknown>
-                    return typeof stats.category === "string" ? stats.category.trim() : ""
-                  })
-                  .filter((item) => item.length > 0),
-              ),
-            )
-            const types = Array.from(
-              new Set(
-                detail.levels
-                  .map((level) => {
-                    const stats = (level.stats ?? {}) as Record<string, unknown>
-                    return typeof stats.type === "string" ? stats.type.trim() : ""
-                  })
-                  .filter((item) => item.length > 0),
-              ),
-            )
-            const actionTypes = Array.from(
-              new Set(
-                detail.levels
-                  .map((level) => {
-                    const stats = (level.stats ?? {}) as Record<string, unknown>
-                    return typeof stats.actionType === "string" ? stats.actionType.trim() : ""
-                  })
-                  .filter((item) => item.length > 0),
-              ),
-            )
-            const tags = Array.isArray(detail.tags)
-              ? Array.from(new Set(detail.tags.map((tag) => tag.trim()).filter((tag) => tag.length > 0)))
-              : []
-
-            return {
-              id: skill.id,
-              searchBlob: `${skill.slug} ${merged}`.trim(),
-              displayName,
-              filters: {
-                categories,
-                types,
-                actionTypes,
-                tags,
-              },
-            } as const
-          }),
-        )
-
-        if (cancelled) return
-        setSkillSearchIndex(Object.fromEntries(entries.map((item) => [item.id, item.searchBlob])))
-        setSkillDisplayNameById(Object.fromEntries(entries.map((item) => [item.id, item.displayName])))
-        setSkillFilterMetaById(Object.fromEntries(entries.map((item) => [item.id, item.filters])))
-      } catch {
-        if (cancelled) return
-        setSkillSearchIndex(
-          Object.fromEntries(skills.map((skill) => [skill.id, skill.slug.toLowerCase()] as const)),
-        )
-        setSkillDisplayNameById(
-          Object.fromEntries(skills.map((skill) => [skill.id, skill.slug] as const)),
-        )
-        setSkillFilterMetaById(
-          Object.fromEntries(
-            skills.map((skill) => [
-              skill.id,
-              { categories: [], types: [], actionTypes: [], tags: [] },
-            ] as const),
-          ),
-        )
-      }
-    }
-
-    void buildSearchIndex()
-    return () => {
-      cancelled = true
-    }
-  }, [skills])
-
-  useEffect(() => {
-    if (createOpen) return
-
-    if (!selectedSkillId) {
-      setActiveSkill(null)
-      setSelectedLevelId("")
-      setMetaForm(createInitialMeta())
-      setLevelForm(createInitialLevel())
-      return
-    }
-
-    let cancelled = false
-
-    async function loadSkill() {
-      setLoading(true)
-      setError("")
-      try {
-        const response = await fetch(`/api/skills/${selectedSkillId}`)
-        const payload = (await response.json()) as { skill?: SkillDetail; message?: string }
-        if (!response.ok || !payload.skill) {
-          throw new Error(payload.message ?? "Erro ao carregar skill.")
-        }
-
-        if (cancelled) return
-        setActiveSkill(payload.skill)
-        setMetaForm(mapSkillToMetaForm(payload.skill))
-        const firstLevel = payload.skill.levels[0]
-        setSelectedLevelId(firstLevel?.id ?? "")
-        setLevelForm(firstLevel ? mapLevelToForm(firstLevel) : createInitialLevel())
-      } catch (cause) {
-        if (cancelled) return
-        setError(cause instanceof Error ? cause.message : "Erro ao carregar skill.")
-      } finally {
-        if (cancelled) return
-        setLoading(false)
-      }
-    }
-
-    void loadSkill()
-    return () => {
-      cancelled = true
-    }
-  }, [selectedSkillId, editReloadKey, createOpen])
-
-  useEffect(() => {
-    if (createOpen) return
-    if (!selectedLevel) return
-    setLevelForm(mapLevelToForm(selectedLevel))
-    const stats = (selectedLevel.stats ?? {}) as Record<string, unknown>
-    setMetaForm((prev) => ({
-      ...prev,
-      name: typeof stats.name === "string" ? stats.name : "",
-      description: typeof stats.description === "string" ? stats.description : "",
-      category: skillCategoryValues.includes(stats.category as SkillCategory)
-        ? (stats.category as SkillCategory)
-        : "",
-      type: skillTypeValues.includes(stats.type as SkillType) ? (stats.type as SkillType) : "",
-      actionType: actionTypeValues.includes(stats.actionType as ActionType)
-        ? (stats.actionType as ActionType)
-        : "",
-    }))
-  }, [selectedLevel, createOpen])
-
-  useEffect(() => {
-    if (!abilityCategoriesEnabled) {
-      setMetaForm((prev) => (prev.category ? { ...prev, category: "" } : prev))
-      return
-    }
-
-    if (
-      createOpen &&
-      metaForm.category &&
-      !enabledAbilityCategories.includes(metaForm.category)
-    ) {
-      setMetaForm((prev) => ({ ...prev, category: "" }))
-    }
-  }, [abilityCategoriesEnabled, createOpen, enabledAbilityCategories, metaForm.category])
-
-  useEffect(() => {
-    if (!createOpen && !editOpen && !filtersOpen) return
-
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = "hidden"
-
-    return () => {
-      document.body.style.overflow = previousOverflow
-    }
-  }, [createOpen, editOpen, filtersOpen])
-
-  useEffect(() => {
-    if (createOpen) return
-    setCustomFieldModalOpen(false)
-    setNewCustomFieldName("")
-    setNewCustomFieldValue("")
-  }, [createOpen])
-
-  function addCustomField() {
-    const trimmed = newCustomFieldName.trim()
-    if (!trimmed) {
-      setError("Informe o nome do novo campo.")
-      return
-    }
-
-    setLevelForm((prev) => ({
-      ...prev,
-      customFields: [
-        ...prev.customFields,
-        {
-          id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          name: trimmed,
-          value: newCustomFieldValue,
-        },
-      ],
-    }))
-    setNewCustomFieldName("")
-    setNewCustomFieldValue("")
-    setCustomFieldModalOpen(false)
-  }
-
-  async function createSkill() {
-    setSaving(true)
-    setError("")
-    setSuccess("")
-    try {
-      if (abilityCategoriesEnabled && enabledAbilityCategories.length === 0) {
-        throw new Error("Ative pelo menos uma categoria")
-      }
-      if (abilityCategoriesEnabled && !metaForm.category) {
-        throw new Error("Categoria obrigatoria para criar habilidade.")
-      }
-
-      const payload = {
-        rpgId: selectedRpgId,
-        tags: metaForm.tags,
-        classIds: metaForm.classIds,
-        raceIds: metaForm.raceIds,
-        level1: {
-          levelRequired: toOptionalNumber(levelForm.levelRequired) ?? 1,
-          summary: toOptionalText(levelForm.summary),
-          stats: {
-            name: toOptionalText(metaForm.name),
-            description: toOptionalText(metaForm.description),
-            notes: null,
-            notesList: [],
-            customFields: levelForm.customFields.map((field) => ({
-              id: field.id,
-              name: field.name,
-              value: field.value,
-            })),
-            damage: toOptionalText(levelForm.damage),
-            cooldown: toOptionalText(levelForm.cooldown),
-            range: toOptionalText(levelForm.range),
-            duration: toOptionalText(levelForm.duration),
-            castTime: toOptionalText(levelForm.castTime),
-            resourceCost: toOptionalText(levelForm.resourceCost),
-            category: metaForm.category || null,
-            type: metaForm.type || null,
-            actionType: metaForm.actionType || null,
-          },
-          cost: {
-            points: toOptionalNumber(levelForm.costPoints),
-            custom: toOptionalText(levelForm.costCustom),
-          },
-          requirement: {
-            levelRequired: toOptionalNumber(levelForm.levelRequired),
-            notes: toOptionalText(levelForm.prerequisite),
-          },
-        },
-      }
-
-      const response = await fetch("/api/skills", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-      const result = (await response.json()) as { skill?: SkillDetail; message?: string }
-      if (!response.ok || !result.skill) {
-        throw new Error(result.message ?? "Erro ao criar habilidade.")
-      }
-      const createdSkill = result.skill
-
-      setCreateOpen(false)
-      setEditStep(1)
-      setSelectedSkillId(createdSkill.id)
-      setSkills((prev) => [
-        {
-          id: createdSkill.id,
-          slug: createdSkill.slug,
-          updatedAt: new Date().toISOString(),
-        },
-        ...prev,
-      ])
-      setSuccess("Habilidade criada com sucesso.")
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao criar skill.")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  async function saveMeta(options?: { manageSaving?: boolean; showSuccess?: boolean }) {
-    if (!activeSkill) return null
-    const manageSaving = options?.manageSaving ?? true
-    const showSuccess = options?.showSuccess ?? true
-    if (manageSaving) {
-      setSaving(true)
-      setError("")
-      setSuccess("")
-    }
-    try {
-      if (abilityCategoriesEnabled && enabledAbilityCategories.length === 0) {
-        throw new Error("Ative pelo menos uma categoria")
-      }
-      if (abilityCategoriesEnabled && !metaForm.category) {
-        throw new Error("Categoria obrigatoria para salvar habilidade.")
-      }
-
-      const response = await fetch(`/api/skills/${activeSkill.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tags: metaForm.tags,
-          classIds: metaForm.classIds,
-          raceIds: metaForm.raceIds,
-        }),
-      })
-
-      const result = (await response.json()) as { skill?: SkillDetail; message?: string }
-      if (!response.ok || !result.skill) {
-        throw new Error(result.message ?? "Erro ao salvar meta.")
-      }
-
-      setActiveSkill(result.skill)
-      setSkills((prev) =>
-        prev.map((item) =>
-          item.id === result.skill?.id
-            ? {
-                ...item,
-                slug: result.skill.slug,
-                updatedAt: new Date().toISOString(),
-              }
-            : item,
-        ),
-      )
-      if (showSuccess) setSuccess("Meta da skill atualizada.")
-      return result.skill
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao salvar skill.")
-      return null
-    } finally {
-      if (manageSaving) setSaving(false)
-    }
-  }
-
-  async function createSnapshotLevel() {
-    if (!activeSkill) return
-    setSaving(true)
-    setError("")
-    setSuccess("")
-    try {
-      const response = await fetch(`/api/skills/${activeSkill.id}/levels`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      })
-      const result = (await response.json()) as { skill?: SkillDetail; message?: string }
-      if (!response.ok || !result.skill) throw new Error(result.message ?? "Erro ao criar level.")
-      setActiveSkill(result.skill)
-      setMetaForm(mapSkillToMetaForm(result.skill))
-      setSkills((prev) =>
-        prev.map((item) =>
-          item.id === result.skill?.id
-            ? {
-                ...item,
-                updatedAt: new Date().toISOString(),
-              }
-            : item,
-        ),
-      )
-      const newestLevel = result.skill.levels[result.skill.levels.length - 1]
-      setSelectedLevelId(newestLevel?.id ?? "")
-      setSuccess("Novo level criado com copia profunda do level anterior.")
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao criar novo level.")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  async function saveLevel(options?: { manageSaving?: boolean; showSuccess?: boolean }) {
-    if (!activeSkill || !selectedLevel) return null
-    const manageSaving = options?.manageSaving ?? true
-    const showSuccess = options?.showSuccess ?? true
-    if (manageSaving) {
-      setSaving(true)
-      setError("")
-      setSuccess("")
-    }
-    try {
-      const response = await fetch(`/api/skills/${activeSkill.id}/levels/${selectedLevel.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          levelRequired: toOptionalNumber(levelForm.levelRequired) ?? selectedLevel.levelRequired,
-          summary: toOptionalText(levelForm.summary),
-          stats: {
-            name: toOptionalText(metaForm.name),
-            description: toOptionalText(metaForm.description),
-            notes: null,
-            notesList: [],
-            customFields: levelForm.customFields.map((field) => ({
-              id: field.id,
-              name: field.name,
-              value: field.value,
-            })),
-            damage: toOptionalText(levelForm.damage),
-            cooldown: toOptionalText(levelForm.cooldown),
-            range: toOptionalText(levelForm.range),
-            duration: toOptionalText(levelForm.duration),
-            castTime: toOptionalText(levelForm.castTime),
-            resourceCost: toOptionalText(levelForm.resourceCost),
-            category: metaForm.category || null,
-            type: metaForm.type || null,
-            actionType: metaForm.actionType || null,
-          },
-          cost: {
-            points: toOptionalNumber(levelForm.costPoints),
-            custom: toOptionalText(levelForm.costCustom),
-          },
-          requirement: {
-            levelRequired: toOptionalNumber(levelForm.levelRequired),
-            notes: toOptionalText(levelForm.prerequisite),
-          },
-        }),
-      })
-
-      const result = (await response.json()) as { skill?: SkillDetail; message?: string }
-      if (!response.ok || !result.skill) throw new Error(result.message ?? "Erro ao salvar level.")
-      setActiveSkill(result.skill)
-      if (showSuccess) setSuccess(`Level ${selectedLevel.levelNumber} atualizado.`)
-      return result.skill
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao salvar level.")
-      return null
-    } finally {
-      if (manageSaving) setSaving(false)
-    }
-  }
-
-  async function saveAll() {
-    if (!activeSkill || !selectedLevel) return
-    setSaving(true)
-    setError("")
-    setSuccess("")
-    try {
-      const savedMeta = await saveMeta({ manageSaving: false, showSuccess: false })
-      if (!savedMeta) return
-
-      const savedLevel = await saveLevel({ manageSaving: false, showSuccess: false })
-      if (!savedLevel) return
-
-      setSuccess("Habilidade atualizada.")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  async function deleteSelectedLevel() {
-    if (!activeSkill || !selectedLevel) return
-    if (activeSkill.levels.length <= 1) {
-      setError("Nao e possivel remover o ultimo level da habilidade.")
-      return
-    }
-
-    const shouldDelete = window.confirm(
-      `Deseja deletar o level ${selectedLevel.levelNumber}? Essa acao nao pode ser desfeita.`,
-    )
-    if (!shouldDelete) return
-
-    setSaving(true)
-    setError("")
-    setSuccess("")
-    try {
-      const levelNumber = selectedLevel.levelNumber
-      const response = await fetch(`/api/skills/${activeSkill.id}/levels/${selectedLevel.id}`, {
-        method: "DELETE",
-      })
-
-      const result = (await response.json()) as { skill?: SkillDetail; message?: string }
-      if (!response.ok || !result.skill) throw new Error(result.message ?? "Erro ao remover level.")
-
-      setActiveSkill(result.skill)
-      setMetaForm(mapSkillToMetaForm(result.skill))
-      setSkills((prev) =>
-        prev.map((item) =>
-          item.id === result.skill?.id
-            ? {
-                ...item,
-                updatedAt: new Date().toISOString(),
-              }
-            : item,
-        ),
-      )
-
-      const fallbackLevel =
-        result.skill.levels.find((item) => item.levelNumber === levelNumber) ??
-        result.skill.levels[result.skill.levels.length - 1]
-      setSelectedLevelId(fallbackLevel?.id ?? "")
-      setSuccess(`Level ${levelNumber} removido.`)
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao remover level.")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  async function deleteActiveSkill() {
-    if (!activeSkill) return
-
-    const shouldDelete = window.confirm(
-      `Deseja deletar a habilidade "${activeSkill.slug}"? Essa acao nao pode ser desfeita.`,
-    )
-    if (!shouldDelete) return
-
-    setSaving(true)
-    setError("")
-    setSuccess("")
-    try {
-      const response = await fetch(`/api/skills/${activeSkill.id}`, {
-        method: "DELETE",
-      })
-      const result = (await response.json()) as { id?: string; message?: string }
-      if (!response.ok || !result.id) throw new Error(result.message ?? "Erro ao remover skill.")
-
-      const nextSkills = skills.filter((item) => item.id !== activeSkill.id)
-      setSkills(nextSkills)
-      setSelectedSkillId(nextSkills[0]?.id ?? "")
-      setEditOpen(nextSkills.length > 0)
-      setSuccess("Habilidade removida com sucesso.")
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao remover skill.")
-    } finally {
-      setSaving(false)
-    }
-  }
-
+    skillSearchOpen,
+    setSkillSearchOpen,
+    skillSearch,
+    setSkillSearch,
+    skillDisplayNameById,
+    filtersOpen,
+    setFiltersOpen,
+    selectedCategoryFilters,
+    setSelectedCategoryFilters,
+    selectedTypeFilters,
+    setSelectedTypeFilters,
+    selectedActionTypeFilters,
+    setSelectedActionTypeFilters,
+    selectedTagFilters,
+    setSelectedTagFilters,
+    selectedSkillId,
+    setSelectedSkillId,
+    activeSkill,
+    selectedLevelId,
+    setSelectedLevelId,
+    metaForm,
+    setMetaForm,
+    levelForm,
+    setLevelForm,
+    abilityCategoriesEnabled,
+    enabledAbilityCategories,
+    createOpen,
+    setCreateOpen,
+    customFieldModalOpen,
+    setCustomFieldModalOpen,
+    newCustomFieldName,
+    setNewCustomFieldName,
+    newCustomFieldValue,
+    setNewCustomFieldValue,
+    editOpen,
+    setEditOpen,
+    createStep,
+    setCreateStep,
+    editStep,
+    setEditStep,
+    setEditReloadKey,
+    loading,
+    saving,
+    error,
+    success,
+    selectedLevel,
+    createCategoryOptions,
+    editCategoryOptions,
+    tagOptions,
+    selectedRpgTitle,
+    categoryFilterOptions,
+    typeFilterOptions,
+    actionTypeFilterOptions,
+    tagFilterOptions,
+    filteredSkills,
+    addCustomField,
+    createSkill,
+    createSnapshotLevel,
+    saveAll,
+    deleteSelectedLevel,
+    deleteActiveSkill,
+  } = useSkillsDashboardState({ ownedRpgs, initialRpgId })
   return (
     <main className={styles.page}>
       <div className={styles.header}>
@@ -1915,5 +987,6 @@ export default function SkillsDashboardClient({
     </main>
   )
 }
+
 
 

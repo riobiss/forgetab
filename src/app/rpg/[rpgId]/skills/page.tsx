@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
-import SkillsDashboardClient from "@/components/skills/SkillsDashboardClient"
+import SkillsDashboardClient from "./components/SkillsDashboardClient"
 
 type PageProps = {
   params: Promise<{

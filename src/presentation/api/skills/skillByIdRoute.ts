@@ -23,18 +23,15 @@ function toErrorResponse(error: unknown, fallbackMessage: string) {
 async function getUserIdOr401(request: NextRequest) {
   const userId = await getUserIdFromRequest(request)
   if (!userId) {
-    return {
-      userId: null,
-      response: NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 }),
-    }
+    return { ok: false as const, response: NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 }) }
   }
 
-  return { userId, response: null }
+  return { ok: true as const, userId }
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
   const auth = await getUserIdOr401(request)
-  if (!auth.userId) {
+  if (!auth.ok) {
     return auth.response
   }
 
@@ -52,7 +49,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
   const auth = await getUserIdOr401(request)
-  if (!auth.userId) {
+  if (!auth.ok) {
     return auth.response
   }
 
@@ -71,7 +68,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   const auth = await getUserIdOr401(request)
-  if (!auth.userId) {
+  if (!auth.ok) {
     return auth.response
   }
 
