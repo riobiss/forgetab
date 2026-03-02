@@ -274,6 +274,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.15rem;
+  align-items: start;
 }
 
 /* CARD */
@@ -288,6 +289,7 @@
   background: var(--color-bg-surface);
   padding: 1.5rem;
   box-shadow: 0 4px 20px var(--color-bg-overlay-soft);
+  align-self: start;
 }
 
 .cardTagged {
