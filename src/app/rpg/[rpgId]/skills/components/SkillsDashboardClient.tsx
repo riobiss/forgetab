@@ -974,6 +974,19 @@ export default function SkillsDashboardClient({
                       }
                     />
                   </label>
+                  <label className={styles.field}>
+                    <span>Preço ({costResourceName})</span>
+                    <input
+                      type="number"
+                      onWheel={(event) => event.currentTarget.blur()}
+                      min={0}
+                      step={1}
+                      value={levelForm.costPoints}
+                      onChange={(event) =>
+                        setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))
+                      }
+                    />
+                  </label>
                 </div>
               ) : null}
 
