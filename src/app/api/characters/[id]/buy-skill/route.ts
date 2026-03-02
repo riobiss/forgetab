@@ -224,3 +224,140 @@ export async function POST(request: NextRequest, context: RouteContext) {
   }
 }
 
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  try {
+    const userId = await getUserIdFromRequest(request)
+    if (!userId) {
+      return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
+    }
+
+    const body = (await request.json()) as {
+      skillId?: unknown
+      level?: unknown
+    }
+    if (typeof body.skillId !== "string" || !body.skillId.trim()) {
+      return NextResponse.json({ message: "skillId e obrigatorio." }, { status: 400 })
+    }
+    const normalizedSkillId = body.skillId.trim()
+    if (typeof body.level !== "number" || !Number.isInteger(body.level) || body.level <= 0) {
+      return NextResponse.json(
+        { message: "level deve ser um inteiro positivo." },
+        { status: 400 },
+      )
+    }
+    const normalizedLevel = body.level
+
+    const { id } = await context.params
+    const result = await prisma.$transaction(async (tx) => {
+      const characterRows = await tx.$queryRaw<CharacterLockedRow[]>(Prisma.sql`
+        SELECT
+          c.id,
+          c.rpg_id AS "rpgId",
+          r.owner_id AS "ownerId",
+          c.created_by_user_id AS "createdByUserId",
+          c.class_key AS "classKey",
+          c.character_type AS "characterType",
+          c.skill_points AS "skillPoints",
+          c.abilities,
+          COALESCE(r.costs_enabled, false) AS "costsEnabled"
+        FROM rpg_characters c
+        INNER JOIN rpgs r ON r.id = c.rpg_id
+        WHERE c.id = ${id}
+        FOR UPDATE
+      `)
+
+      const character = characterRows[0]
+      if (!character) {
+        return { status: 404 as const, message: "Personagem nao encontrado." }
+      }
+      if (character.characterType !== "player") {
+        return {
+          status: 400 as const,
+          message: "Somente personagens do tipo player podem remover habilidades.",
+        }
+      }
+      const canManageCharacter =
+        character.createdByUserId === userId || character.ownerId === userId
+      if (!canManageCharacter) {
+        return {
+          status: 403 as const,
+          message: "Sem permissao para remover habilidades neste personagem.",
+        }
+      }
+
+      const ownedAbilities = parseCharacterAbilities(character.abilities)
+      const hasLevel = ownedAbilities.some(
+        (item) => item.skillId === normalizedSkillId && item.level === normalizedLevel,
+      )
+      if (!hasLevel) {
+        return {
+          status: 404 as const,
+          message: "Habilidade nao encontrada no personagem.",
+        }
+      }
+
+      const levelRows = await tx.$queryRaw<SkillLevelRow[]>(Prisma.sql`
+        SELECT
+          level_number AS "levelNumber",
+          cost
+        FROM skill_levels
+        WHERE skill_id = ${normalizedSkillId}
+          AND level_number = ${normalizedLevel}
+        LIMIT 1
+      `)
+      const skillLevel = levelRows[0]
+      if (!skillLevel) {
+        return {
+          status: 404 as const,
+          message: "Level da habilidade nao encontrado.",
+        }
+      }
+
+      const refundPoints = character.costsEnabled ? parseCostPoints(skillLevel.cost) ?? 0 : 0
+      const nextAbilities = ownedAbilities.filter(
+        (item) => !(item.skillId === normalizedSkillId && item.level === normalizedLevel),
+      )
+
+      const updated = await tx.rpgCharacter.update({
+        where: { id: character.id },
+        data: {
+          skillPoints: refundPoints > 0 ? { increment: refundPoints } : undefined,
+          abilities: nextAbilities as Prisma.InputJsonValue,
+          updatedAt: new Date(),
+        },
+        select: {
+          skillPoints: true,
+        },
+      })
+
+      return {
+        status: 200 as const,
+        success: true,
+        remainingPoints: updated.skillPoints ?? 0,
+      }
+    })
+
+    if ("success" in result) {
+      return NextResponse.json(result, { status: result.status })
+    }
+    return NextResponse.json({ message: result.message }, { status: result.status })
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('column "skill_points" does not exist') ||
+        error.message.includes('column "abilities" does not exist') ||
+        error.message.includes('column "costs_enabled" does not exist'))
+    ) {
+      return NextResponse.json(
+        { message: "Estrutura de custos desatualizada. Rode a migration mais recente." },
+        { status: 500 },
+      )
+    }
+
+    return NextResponse.json(
+      { message: "Erro interno ao remover habilidade." },
+      { status: 500 },
+    )
+  }
+}
+
