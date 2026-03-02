@@ -346,7 +346,7 @@ export default async function AbilitiesPage({ params }: Params) {
         {abilities.length === 0 ? (
           <p className={styles.emptyState}>Nenhuma habilidade comprada para este personagem.</p>
         ) : (
-          <AbilitiesFiltersClient abilities={abilities} />
+          <AbilitiesFiltersClient characterId={characterId} abilities={abilities} />
         )}
       </section>
     </div>

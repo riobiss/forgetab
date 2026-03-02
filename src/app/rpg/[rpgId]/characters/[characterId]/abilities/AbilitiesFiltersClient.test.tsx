@@ -83,7 +83,7 @@ const abilities = [
 
 describe("AbilitiesFiltersClient", () => {
   it("renderiza as habilidades iniciais", () => {
-    render(<AbilitiesFiltersClient abilities={abilities} />)
+    render(<AbilitiesFiltersClient characterId="char-1" abilities={abilities} />)
 
     expect(screen.getByText("Golpe Preciso")).toBeInTheDocument()
     expect(screen.getByText("Raio Maior")).toBeInTheDocument()
@@ -91,7 +91,7 @@ describe("AbilitiesFiltersClient", () => {
 
   it("filtra por categoria selecionada", async () => {
     const user = userEvent.setup()
-    render(<AbilitiesFiltersClient abilities={abilities} />)
+    render(<AbilitiesFiltersClient characterId="char-1" abilities={abilities} />)
 
     await user.click(screen.getByRole("button", { name: "Abrir filtros" }))
     const filtersDialog = screen.getByRole("dialog")
@@ -103,7 +103,7 @@ describe("AbilitiesFiltersClient", () => {
 
   it("exibe estado vazio quando busca nao encontra resultados", async () => {
     const user = userEvent.setup()
-    render(<AbilitiesFiltersClient abilities={abilities} />)
+    render(<AbilitiesFiltersClient characterId="char-1" abilities={abilities} />)
 
     await user.type(screen.getByPlaceholderText("Buscar..."), "inexistente")
 

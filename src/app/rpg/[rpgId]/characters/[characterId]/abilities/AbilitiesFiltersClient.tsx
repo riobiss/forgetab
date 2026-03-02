@@ -87,7 +87,14 @@ function toActionTypeLabel(value: string | null) {
   return SKILL_ACTION_TYPE_LABEL[value] ?? value
 }
 
-export default function AbilitiesFiltersClient({ abilities }: { abilities: PurchasedAbilityView[] }) {
+export default function AbilitiesFiltersClient({
+  characterId,
+  abilities,
+}: {
+  characterId: string
+  abilities: PurchasedAbilityView[]
+}) {
+  const [abilityItems, setAbilityItems] = useState<PurchasedAbilityView[]>(abilities)
   const [search, setSearch] = useState("")
   const [selectedCategoryFilters, setSelectedCategoryFilters] = useState<string[]>([])
   const [selectedTypeFilters, setSelectedTypeFilters] = useState<string[]>([])
@@ -95,30 +102,32 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false)
   const [selectedAbilityModal, setSelectedAbilityModal] = useState<PurchasedAbilityView | null>(null)
+  const [isRemovingAbility, setIsRemovingAbility] = useState(false)
+  const [removeAbilityError, setRemoveAbilityError] = useState("")
 
   const categoryOptions = useMemo(
     () =>
       Array.from(
         new Set(
-          abilities
+          abilityItems
             .map((item) => item.skillCategory?.trim())
             .filter((item): item is string => Boolean(item)),
         ),
       ),
-    [abilities],
+    [abilityItems],
   )
 
   const tagOptions = useMemo(
     () =>
       Array.from(
         new Set(
-          abilities
+          abilityItems
             .flatMap((item) => item.skillTags)
             .map((item) => item.trim())
             .filter((item) => item.length > 0),
         ),
       ),
-    [abilities],
+    [abilityItems],
   )
 
   const activeExtraFilters =
@@ -130,7 +139,7 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
   const baseFiltered = useMemo(() => {
     const query = search.trim().toLowerCase()
 
-    return abilities.filter((ability) => {
+    return abilityItems.filter((ability) => {
       if (
         selectedCategoryFilters.length > 0 &&
         !selectedCategoryFilters.includes(ability.skillCategory ?? "")
@@ -173,7 +182,7 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
       return target.includes(query)
     })
   }, [
-    abilities,
+    abilityItems,
     search,
     selectedActionTypeFilters,
     selectedCategoryFilters,
@@ -185,27 +194,65 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
     const catalogTypes = Object.keys(SKILL_TYPE_LABEL)
     const customTypes = Array.from(
       new Set(
-        abilities
+        abilityItems
           .map((item) => item.skillType?.trim())
           .filter((item): item is string => typeof item === "string" && item.length > 0)
           .filter((item) => !catalogTypes.includes(item)),
       ),
     )
     return [...catalogTypes, ...customTypes]
-  }, [abilities])
+  }, [abilityItems])
   const actionTypeOptions = useMemo(() => {
     const catalogActionTypes = Object.keys(SKILL_ACTION_TYPE_LABEL)
     const customActionTypes = Array.from(
       new Set(
-        abilities
+        abilityItems
           .map((item) => item.skillActionType?.trim())
           .filter((item): item is string => typeof item === "string" && item.length > 0)
           .filter((item) => !catalogActionTypes.includes(item)),
       ),
     )
     return [...catalogActionTypes, ...customActionTypes]
-  }, [abilities])
+  }, [abilityItems])
   const filtered = baseFiltered
+
+  async function handleRemoveAbility() {
+    if (!selectedAbilityModal || isRemovingAbility) return
+
+    setIsRemovingAbility(true)
+    setRemoveAbilityError("")
+
+    try {
+      const response = await fetch(`/api/characters/${characterId}/buy-skill`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          skillId: selectedAbilityModal.skillId,
+          level: selectedAbilityModal.levelNumber,
+        }),
+      })
+      const payload = (await response.json()) as { message?: string; success?: boolean }
+      if (!response.ok || !payload.success) {
+        setRemoveAbilityError(payload.message ?? "Nao foi possivel remover a habilidade.")
+        return
+      }
+
+      setAbilityItems((current) =>
+        current.filter(
+          (item) =>
+            !(
+              item.skillId === selectedAbilityModal.skillId &&
+              item.levelNumber === selectedAbilityModal.levelNumber
+            ),
+        ),
+      )
+      setSelectedAbilityModal(null)
+    } catch {
+      setRemoveAbilityError("Erro de conexao ao remover habilidade.")
+    } finally {
+      setIsRemovingAbility(false)
+    }
+  }
 
   function toggleTag(tag: string) {
     setSelectedTags((current) => (current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]))
@@ -418,7 +465,10 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
                   <button
                     type="button"
                     className={styles.skillTitleButton}
-                    onClick={() => setSelectedAbilityModal(ability)}
+                    onClick={() => {
+                      setRemoveAbilityError("")
+                      setSelectedAbilityModal(ability)
+                    }}
                   >
                     {ability.levelName ?? ability.skillName}
                   </button>
@@ -599,6 +649,17 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
                 ))}
               </div>
             ) : null}
+            {removeAbilityError ? <p className={styles.errorText}>{removeAbilityError}</p> : null}
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                className={styles.removeAbilityButton}
+                onClick={() => void handleRemoveAbility()}
+                disabled={isRemovingAbility}
+              >
+                {isRemovingAbility ? "Retirando..." : "Retirar habilidade"}
+              </button>
+            </div>
           </section>
         </div>
       ) : null}
