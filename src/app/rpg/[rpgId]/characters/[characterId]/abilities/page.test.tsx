@@ -147,7 +147,7 @@ describe("AbilitiesPage", () => {
       ])
   })
 
-  it("renderiza habilidades com categorias formatadas", async () => {
+  it("renderiza habilidades do personagem", async () => {
     render(
       await AbilitiesPage({
         params: Promise.resolve({ rpgId: "rpg-1", characterId: "char-1" }),
@@ -155,7 +155,7 @@ describe("AbilitiesPage", () => {
     )
 
     expect(screen.getByRole("heading", { name: "Habilidades do Personagem" })).toBeInTheDocument()
-    expect(screen.getAllByText("Técnicas").length).toBeGreaterThan(0)
-    expect(screen.getAllByText("Arcana").length).toBeGreaterThan(0)
+    expect(screen.getByText("Golpe Preciso")).toBeInTheDocument()
+    expect(screen.getByText("Raio Maior")).toBeInTheDocument()
   })
 })

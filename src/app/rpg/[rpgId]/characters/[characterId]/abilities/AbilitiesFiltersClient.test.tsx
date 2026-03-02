@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 import type { ReactNode } from "react"
@@ -50,6 +50,7 @@ const abilities = [
     levelRequired: 1,
     pointsCost: 1,
     costCustom: null,
+    customFields: [],
   },
   {
     skillId: "s2",
@@ -76,6 +77,7 @@ const abilities = [
     levelRequired: 2,
     pointsCost: 3,
     costCustom: null,
+    customFields: [],
   },
 ]
 
@@ -92,7 +94,8 @@ describe("AbilitiesFiltersClient", () => {
     render(<AbilitiesFiltersClient abilities={abilities} />)
 
     await user.click(screen.getByRole("button", { name: "Abrir filtros" }))
-    await user.selectOptions(screen.getByLabelText("Categoria"), "tecnicas")
+    const filtersDialog = screen.getByRole("dialog")
+    await user.click(within(filtersDialog).getByRole("button", { name: "Técnicas" }))
 
     expect(screen.getByText("Golpe Preciso")).toBeInTheDocument()
     expect(screen.queryByText("Raio Maior")).not.toBeInTheDocument()
