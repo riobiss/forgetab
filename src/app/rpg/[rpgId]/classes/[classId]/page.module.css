@@ -52,19 +52,6 @@
     var(--shadow-elevation-md);
 }
 
-.abilityCardTagged .statItem strong {
-  color: color-mix(in srgb, var(--tag-card-border) 78%, white);
-  font-weight: 900;
-  letter-spacing: 0.09em;
-  text-shadow:
-    0 0 10px color-mix(in srgb, var(--tag-card-glow) 75%, transparent),
-    0 0 2px color-mix(in srgb, var(--tag-card-border) 35%, white);
-}
-
-.abilityCardTagged .statItem {
-  color: var(--color-text-primary);
-}
-
 .abilityHeader {
   display: flex;
   justify-content: space-between;
@@ -84,18 +71,21 @@
   line-height: 1.6;
   margin-bottom: 1rem;
   font-style: italic;
+  white-space: pre-line;
 }
 
 .abilityStats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-auto-flow: dense;
   gap: 0.8rem;
   padding-top: 1rem;
 }
 
 .statItem {
   font-size: 0.85rem;
-  color: var(--color-text-muted);
+  color: var(--tag-card-value-text, var(--color-text-muted));
+  white-space: pre-line;
 }
 
 .statItemFull {
@@ -103,10 +93,18 @@
 }
 
 .statItem strong {
-  color: var(--color-brand-primary);
+  color: var(--tag-card-key-text, var(--color-brand-primary));
   display: block;
   text-transform: uppercase;
   font-size: 0.7rem;
+}
+
+.abilityCardTagged .statItem strong {
+  color: var(--tag-card-key-text, var(--color-brand-primary));
+}
+
+.abilityCardTagged .statItem {
+  color: var(--tag-card-value-text, var(--color-text-muted));
 }
 
 .jsonBlock {

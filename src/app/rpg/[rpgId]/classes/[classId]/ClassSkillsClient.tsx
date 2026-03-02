@@ -46,6 +46,7 @@ type SkillLevelView = {
   levelDescription: string | null
   notes: string | null
   notesList: string[]
+  customFields: Array<{ id: string; name: string; value: string | null }>
   description: string | null
   summary: string | null
   damage: string | null
@@ -240,13 +241,15 @@ export default function ClassSkillsClient({
               style={
                 tagMeta
                   ? ({
-                      "--tag-card-c1": tagMeta.cardC1,
-                      "--tag-card-c2": tagMeta.cardC2,
-                      "--tag-card-c3": tagMeta.cardC3,
-                      "--tag-card-border": tagMeta.cardBorder,
-                      "--tag-card-glow": tagMeta.cardGlow,
-                    } as CSSProperties)
-                  : undefined
+                    "--tag-card-c1": tagMeta.cardC1,
+                    "--tag-card-c2": tagMeta.cardC2,
+                    "--tag-card-c3": tagMeta.cardC3,
+                    "--tag-card-border": tagMeta.cardBorder,
+                    "--tag-card-glow": tagMeta.cardGlow,
+                    "--tag-card-key-text": tagMeta.cardKeyText,
+                    "--tag-card-value-text": tagMeta.cardValueText,
+                  } as CSSProperties)
+                : undefined
               }
             >
               <div className={styles.abilityHeader}>
@@ -298,6 +301,10 @@ export default function ClassSkillsClient({
                     <p className={styles.abilityDescription}>{levelDescription}</p>
                   ) : null}
                   <div className={styles.abilityStats}>
+                         <div className={styles.statItem}>
+                      <strong>Requisito</strong>
+                      Level {selectedLevel.levelRequired}
+                    </div>
                     {hasText(selectedLevel.levelCategory ?? skill.skillCategory) ? (
                       <div className={styles.statItem}>
                         <strong>Categoria</strong>
@@ -312,7 +319,7 @@ export default function ClassSkillsClient({
                     ) : null}
                     {hasText(selectedLevel.levelActionType ?? skill.skillActionType) ? (
                       <div className={styles.statItem}>
-                        <strong>Tipo da acao</strong>
+                        <strong>Ação</strong>
                         {toActionTypeLabel(selectedLevel.levelActionType ?? skill.skillActionType)}
                       </div>
                     ) : null}
@@ -367,16 +374,20 @@ export default function ClassSkillsClient({
                         {selectedLevel.notesList.join(" | ")}
                       </div>
                     ) : null}
-                    <div className={styles.statItem}>
-                      <strong>Requisito</strong>
-                      Level {selectedLevel.levelRequired}
-                    </div>
-                    {hasText(selectedLevel.costCustom) ? (
+                          {hasText(selectedLevel.costCustom) ? (
                       <div className={styles.statItem}>
-                        <strong>Custo custom</strong>
+                        <strong>Custo</strong>
                         {selectedLevel.costCustom}
                       </div>
                     ) : null}
+                    {selectedLevel.customFields.map((field) => (
+                      <div key={field.id} className={styles.statItem}>
+                        <strong>{field.name}</strong>
+                        {field.value ?? "-"}
+                      </div>
+                    ))}
+               
+              
                   </div>
                 </div>
 

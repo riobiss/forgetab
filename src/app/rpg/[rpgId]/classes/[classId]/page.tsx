@@ -62,6 +62,7 @@ type SkillLevelView = {
   levelDescription: string | null
   notes: string | null
   notesList: string[]
+  customFields: Array<{ id: string; name: string; value: string | null }>
   description: string | null
   summary: string | null
   damage: string | null
@@ -284,6 +285,24 @@ export default async function ClassPage({ params }: Props) {
       .map((item) => (typeof item === "string" ? item.trim() : ""))
       .filter((item) => item.length > 0)
     const fallbackNote = toOptionalText(stats.notes)
+    const statsCustomFieldsRaw = Array.isArray(stats.customFields) ? stats.customFields : []
+    const statsCustomFields = statsCustomFieldsRaw
+      .map((item, index) => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return null
+        const record = item as Record<string, unknown>
+        const name = typeof record.name === "string" ? record.name.trim() : ""
+        if (!name) return null
+        const id =
+          typeof record.id === "string" && record.id.trim().length > 0
+            ? record.id.trim()
+            : `custom-${index}`
+        return {
+          id,
+          name,
+          value: toOptionalText(record.value),
+        }
+      })
+      .filter((item): item is { id: string; name: string; value: string | null } => Boolean(item))
     const upgradeFromLevelNumberRaw = requirement.upgradeFromLevelNumber
     const upgradeFromLevelNumber =
       typeof upgradeFromLevelNumberRaw === "number" && Number.isFinite(upgradeFromLevelNumberRaw)
@@ -311,6 +330,7 @@ export default async function ClassPage({ params }: Props) {
       levelDescription: toOptionalText(stats.description),
       notes: fallbackNote,
       notesList: statsNotesList.length > 0 ? statsNotesList : fallbackNote ? [fallbackNote] : [],
+      customFields: statsCustomFields,
       description: row.skillDescription?.trim() || null,
       summary: row.summary?.trim() || null,
       damage: toOptionalText(stats.damage),
