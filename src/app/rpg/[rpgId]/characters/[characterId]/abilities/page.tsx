@@ -70,6 +70,7 @@ type PurchasedAbilityView = {
   skillDescription: string | null
   levelDescription: string | null
   notesList: string[]
+  customFields: Array<{ id: string; name: string; value: string | null }>
   skillCategory: string | null
   skillType: string | null
   skillActionType: string | null
@@ -276,6 +277,21 @@ export default async function AbilitiesPage({ params }: Params) {
         .map((item) => (typeof item === "string" ? item.trim() : ""))
         .filter((item) => item.length > 0)
       const fallbackNote = toOptionalText(stats.notes)
+      const statsCustomFieldsRaw = Array.isArray(stats.customFields) ? stats.customFields : []
+      const statsCustomFields = statsCustomFieldsRaw
+        .map((item, index) => {
+          if (!item || typeof item !== "object" || Array.isArray(item)) return null
+          const record = item as Record<string, unknown>
+          const name = typeof record.name === "string" ? record.name.trim() : ""
+          if (!name) return null
+          const id =
+            typeof record.id === "string" && record.id.trim().length > 0
+              ? record.id.trim()
+              : `custom-${index}`
+          const value = toOptionalText(record.value)
+          return { id, name, value }
+        })
+        .filter((item): item is { id: string; name: string; value: string | null } => Boolean(item))
 
       acc.push({
         skillId: row.skillId,
@@ -285,6 +301,7 @@ export default async function AbilitiesPage({ params }: Params) {
         skillDescription: toOptionalText(row.skillDescription),
         levelDescription: toOptionalText(stats.description),
         notesList: statsNotesList.length > 0 ? statsNotesList : fallbackNote ? [fallbackNote] : [],
+        customFields: statsCustomFields,
         skillCategory: toOptionalText(stats.category) ?? toOptionalText(row.skillCategory),
         skillType: toOptionalText(stats.type) ?? toOptionalText(row.skillType),
         skillActionType: toOptionalText(stats.actionType) ?? toOptionalText(row.skillActionType),

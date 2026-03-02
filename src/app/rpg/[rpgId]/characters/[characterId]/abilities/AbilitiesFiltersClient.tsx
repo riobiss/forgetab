@@ -1,10 +1,9 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import type { CSSProperties } from "react"
 import { Filter } from "lucide-react"
 import styles from "./page.module.css"
-import { NativeSelectField } from "@/components/select/NativeSelectField"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 
 type PurchasedAbilityView = {
@@ -15,6 +14,7 @@ type PurchasedAbilityView = {
   skillDescription: string | null
   levelDescription: string | null
   notesList: string[]
+  customFields: Array<{ id: string; name: string; value: string | null }>
   skillCategory: string | null
   skillType: string | null
   skillActionType: string | null
@@ -89,10 +89,12 @@ function toActionTypeLabel(value: string | null) {
 
 export default function AbilitiesFiltersClient({ abilities }: { abilities: PurchasedAbilityView[] }) {
   const [search, setSearch] = useState("")
-  const [selectedType, setSelectedType] = useState<string | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState("")
+  const [selectedCategoryFilters, setSelectedCategoryFilters] = useState<string[]>([])
+  const [selectedTypeFilters, setSelectedTypeFilters] = useState<string[]>([])
+  const [selectedActionTypeFilters, setSelectedActionTypeFilters] = useState<string[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false)
+  const [selectedAbilityModal, setSelectedAbilityModal] = useState<PurchasedAbilityView | null>(null)
 
   const categoryOptions = useMemo(
     () =>
@@ -119,13 +121,31 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
     [abilities],
   )
 
-  const activeExtraFilters = (selectedCategory ? 1 : 0) + selectedTags.length
+  const activeExtraFilters =
+    selectedCategoryFilters.length +
+    selectedTypeFilters.length +
+    selectedActionTypeFilters.length +
+    selectedTags.length
 
   const baseFiltered = useMemo(() => {
     const query = search.trim().toLowerCase()
 
     return abilities.filter((ability) => {
-      if (selectedCategory && ability.skillCategory !== selectedCategory) return false
+      if (
+        selectedCategoryFilters.length > 0 &&
+        !selectedCategoryFilters.includes(ability.skillCategory ?? "")
+      ) {
+        return false
+      }
+      if (selectedTypeFilters.length > 0 && !selectedTypeFilters.includes(ability.skillType ?? "")) {
+        return false
+      }
+      if (
+        selectedActionTypeFilters.length > 0 &&
+        !selectedActionTypeFilters.includes(ability.skillActionType ?? "")
+      ) {
+        return false
+      }
       if (selectedTags.length > 0 && !selectedTags.some((tag) => ability.skillTags.includes(tag))) return false
 
       if (!query) return true
@@ -144,6 +164,7 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
         ability.allowedClasses.join(" "),
         ability.allowedRaces.join(" "),
         ability.notesList.join(" "),
+        ability.customFields.map((field) => `${field.name} ${field.value ?? ""}`).join(" "),
       ]
         .filter((item): item is string => hasText(item))
         .join(" ")
@@ -151,7 +172,14 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
 
       return target.includes(query)
     })
-  }, [abilities, search, selectedCategory, selectedTags])
+  }, [
+    abilities,
+    search,
+    selectedActionTypeFilters,
+    selectedCategoryFilters,
+    selectedTags,
+    selectedTypeFilters,
+  ])
 
   const typeOptions = useMemo(() => {
     const catalogTypes = Object.keys(SKILL_TYPE_LABEL)
@@ -165,20 +193,39 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
     )
     return [...catalogTypes, ...customTypes]
   }, [abilities])
-
-  const filtered = useMemo(
-    () => (selectedType ? baseFiltered.filter((ability) => ability.skillType === selectedType) : baseFiltered),
-    [baseFiltered, selectedType],
-  )
+  const actionTypeOptions = useMemo(() => {
+    const catalogActionTypes = Object.keys(SKILL_ACTION_TYPE_LABEL)
+    const customActionTypes = Array.from(
+      new Set(
+        abilities
+          .map((item) => item.skillActionType?.trim())
+          .filter((item): item is string => typeof item === "string" && item.length > 0)
+          .filter((item) => !catalogActionTypes.includes(item)),
+      ),
+    )
+    return [...catalogActionTypes, ...customActionTypes]
+  }, [abilities])
+  const filtered = baseFiltered
 
   function toggleTag(tag: string) {
     setSelectedTags((current) => (current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]))
   }
 
   function clearExtraFilters() {
-    setSelectedCategory("")
+    setSelectedCategoryFilters([])
+    setSelectedTypeFilters([])
+    setSelectedActionTypeFilters([])
     setSelectedTags([])
   }
+
+  useEffect(() => {
+    if (!selectedAbilityModal) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [selectedAbilityModal])
 
   return (
     <>
@@ -206,27 +253,6 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
             {activeExtraFilters > 0 ? <span className={styles.filtersCount}>{activeExtraFilters}</span> : null}
           </button>
         </div>
-        <div className={styles.typesRow}>
-          <div className={`${styles.typeChips} ${styles.typeChipsScrollable}`}>
-            <button
-              type="button"
-              className={selectedType === null ? `${styles.typeChip} ${styles.typeChipActive}` : styles.typeChip}
-              onClick={() => setSelectedType(null)}
-            >
-              Todos
-            </button>
-            {typeOptions.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className={selectedType === item ? `${styles.typeChip} ${styles.typeChipActive}` : styles.typeChip}
-                onClick={() => setSelectedType(item)}
-              >
-                {toTypeLabel(item)}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {isFiltersDrawerOpen ? (
@@ -250,17 +276,77 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
               </button>
             </div>
 
-            <label className={styles.filterField}>
-              <span>Categoria</span>
-              <NativeSelectField value={selectedCategory} onChange={(event) => setSelectedCategory(event.target.value)}>
-                <option value="">Todas</option>
+            <div className={styles.drawerTagsSection}>
+              <span className={styles.typesLabel}>Categoria</span>
+              <div className={styles.typeChips}>
                 {categoryOptions.map((item) => (
-                  <option key={item} value={item}>
+                  <button
+                    key={item}
+                    type="button"
+                    className={
+                      selectedCategoryFilters.includes(item)
+                        ? `${styles.typeChip} ${styles.typeChipActive}`
+                        : styles.typeChip
+                    }
+                    onClick={() =>
+                      setSelectedCategoryFilters((current) =>
+                        current.includes(item) ? current.filter((value) => value !== item) : [...current, item],
+                      )
+                    }
+                  >
                     {toCategoryLabel(item)}
-                  </option>
+                  </button>
                 ))}
-              </NativeSelectField>
-            </label>
+              </div>
+            </div>
+
+            <div className={styles.drawerTagsSection}>
+              <span className={styles.typesLabel}>Tipo</span>
+              <div className={styles.typeChips}>
+                {typeOptions.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={
+                      selectedTypeFilters.includes(item)
+                        ? `${styles.typeChip} ${styles.typeChipActive}`
+                        : styles.typeChip
+                    }
+                    onClick={() =>
+                      setSelectedTypeFilters((current) =>
+                        current.includes(item) ? current.filter((value) => value !== item) : [...current, item],
+                      )
+                    }
+                  >
+                    {toTypeLabel(item)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.drawerTagsSection}>
+              <span className={styles.typesLabel}>Tipo da ação</span>
+              <div className={styles.typeChips}>
+                {actionTypeOptions.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={
+                      selectedActionTypeFilters.includes(item)
+                        ? `${styles.typeChip} ${styles.typeChipActive}`
+                        : styles.typeChip
+                    }
+                    onClick={() =>
+                      setSelectedActionTypeFilters((current) =>
+                        current.includes(item) ? current.filter((value) => value !== item) : [...current, item],
+                      )
+                    }
+                  >
+                    {toActionTypeLabel(item)}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div className={styles.drawerTagsSection}>
               <span className={styles.typesLabel}>Tags</span>
@@ -321,12 +407,22 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
                     "--tag-card-c3": meta.cardC3,
                     "--tag-card-border": meta.cardBorder,
                     "--tag-card-glow": meta.cardGlow,
+                    "--tag-card-key-text": meta.cardKeyText,
+                    "--tag-card-value-text": meta.cardValueText,
                   } as CSSProperties
                 })()
               }
             >
               <div className={styles.cardHeader}>
-                <h3 className={styles.cardTitle}>{ability.levelName ?? ability.skillName}</h3>
+                <h3 className={styles.cardTitle}>
+                  <button
+                    type="button"
+                    className={styles.skillTitleButton}
+                    onClick={() => setSelectedAbilityModal(ability)}
+                  >
+                    {ability.levelName ?? ability.skillName}
+                  </button>
+                </h3>
                 <span className={styles.levelBadge}>Level {ability.levelNumber}</span>
               </div>
 
@@ -349,38 +445,11 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
               })()}
 
               <div className={styles.cardDetailsGrid}>
-                <div className={styles.detailItem}>
-                  <span className={styles.detailLabelOrange}>ID</span>
-                  <span className={styles.detailValue}>{ability.skillId}</span>
-                </div>
-                {hasText(ability.skillCategory) ? (
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>CATEGORIA</span>
-                    <span className={styles.detailValue}>{toCategoryLabel(ability.skillCategory)}</span>
-                  </div>
-                ) : null}
-                {hasText(ability.skillType) ? (
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>TIPO</span>
-                    <span className={styles.detailValue}>{toTypeLabel(ability.skillType)}</span>
-                  </div>
-                ) : null}
                 {hasText(ability.skillActionType) ? (
                   <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>TIPO DA ACAO</span>
+                    <span className={styles.detailLabelOrange}>AÇÃO</span>
                     <span className={styles.detailValue}>
                       {toActionTypeLabel(ability.skillActionType)}
-                    </span>
-                  </div>
-                ) : null}
-                {ability.skillTags.length > 0 ? (
-                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
-                    <span className={styles.detailLabelOrange}>TAGS</span>
-                    <span className={styles.detailValue}>
-                      {ability.skillTags
-                        .map((tag) => getSkillTagMeta(tag)?.label)
-                        .filter((label): label is string => Boolean(label))
-                        .join(" | ")}
                     </span>
                   </div>
                 ) : null}
@@ -420,38 +489,10 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
                     <span className={styles.detailValue}>{ability.resourceCost}</span>
                   </div>
                 ) : null}
-                <div className={styles.detailItem}>
-                  <span className={styles.detailLabelOrange}>LEVEL REQ.</span>
-                  <span className={styles.detailValue}>{ability.levelRequired}</span>
-                </div>
-                {ability.pointsCost !== null ? (
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>PRECO</span>
-                    <span className={styles.detailValue}>{ability.pointsCost}</span>
-                  </div>
-                ) : null}
                 {hasText(ability.costCustom) ? (
                   <div className={styles.detailItem}>
                     <span className={styles.detailLabelOrange}>CUSTO</span>
                     <span className={styles.detailValue}>{ability.costCustom}</span>
-                  </div>
-                ) : null}
-                {hasText(ability.prerequisite) ? (
-                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
-                    <span className={styles.detailLabelOrange}>PRE-REQUISITO</span>
-                    <span className={styles.detailValue}>{ability.prerequisite}</span>
-                  </div>
-                ) : null}
-                {ability.allowedClasses.length > 0 ? (
-                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
-                    <span className={styles.detailLabelOrange}>CLASSES PERMITIDAS</span>
-                    <span className={styles.detailValue}>{ability.allowedClasses.join(" | ")}</span>
-                  </div>
-                ) : null}
-                {ability.allowedRaces.length > 0 ? (
-                  <div className={`${styles.detailItem} ${styles.detailFull}`}>
-                    <span className={styles.detailLabelOrange}>RACAS PERMITIDAS</span>
-                    <span className={styles.detailValue}>{ability.allowedRaces.join(" | ")}</span>
                   </div>
                 ) : null}
                 {ability.notesList.length > 0 ? (
@@ -460,11 +501,107 @@ export default function AbilitiesFiltersClient({ abilities }: { abilities: Purch
                     <span className={styles.detailValue}>{ability.notesList.join(" | ")}</span>
                   </div>
                 ) : null}
+                {ability.customFields.map((field) => (
+                  <div key={field.id} className={styles.detailItem}>
+                    <span className={styles.detailLabelOrange}>{field.name}</span>
+                    <span className={styles.detailValue}>{field.value ?? "-"}</span>
+                  </div>
+                ))}
               </div>
             </article>
           ))}
         </div>
       )}
+
+      {selectedAbilityModal ? (
+        <div
+          className={styles.modalOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Detalhes da habilidade"
+          onClick={() => setSelectedAbilityModal(null)}
+        >
+          <section className={styles.modalCard} onClick={(event) => event.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>{selectedAbilityModal.levelName ?? selectedAbilityModal.skillName}</h3>
+              <button type="button" className={styles.drawerClose} onClick={() => setSelectedAbilityModal(null)}>
+                Fechar
+              </button>
+            </div>
+
+            <div className={styles.modalSection}>
+              <span className={styles.detailLabelOrange}>Categoria</span>
+              <p className={styles.modalText}>
+                {toCategoryLabel(selectedAbilityModal.skillCategory) ?? "Nao informado"}
+              </p>
+            </div>
+
+            <div className={styles.modalSection}>
+              <span className={styles.detailLabelOrange}>Tipos</span>
+              <p className={styles.modalText}>
+                {toTypeLabel(selectedAbilityModal.skillType) ?? "Nao informado"}
+                {" | "}
+                {toActionTypeLabel(selectedAbilityModal.skillActionType) ?? "Nao informado"}
+              </p>
+            </div>
+
+            <div className={styles.modalSection}>
+              <span className={styles.detailLabelOrange}>Requirements</span>
+              <p className={styles.modalText}>Level requerido: {selectedAbilityModal.levelRequired}</p>
+              {hasText(selectedAbilityModal.prerequisite) ? (
+                <p className={styles.modalText}>Pre-requisito: {selectedAbilityModal.prerequisite}</p>
+              ) : null}
+              {selectedAbilityModal.allowedClasses.length > 0 ? (
+                <p className={styles.modalText}>
+                  Classes permitidas: {selectedAbilityModal.allowedClasses.join(" | ")}
+                </p>
+              ) : null}
+              {selectedAbilityModal.allowedRaces.length > 0 ? (
+                <p className={styles.modalText}>
+                  Racas permitidas: {selectedAbilityModal.allowedRaces.join(" | ")}
+                </p>
+              ) : null}
+            </div>
+
+            <div className={styles.modalSection}>
+              <span className={styles.detailLabelOrange}>Preço</span>
+              {selectedAbilityModal.pointsCost !== null ? (
+                <p className={styles.modalText}>{selectedAbilityModal.pointsCost}</p>
+              ) : (
+                <p className={styles.modalText}>Nao informado</p>
+              )}
+              {hasText(selectedAbilityModal.costCustom) ? (
+                <p className={styles.modalText}>Custo extra: {selectedAbilityModal.costCustom}</p>
+              ) : null}
+            </div>
+
+            <div className={styles.modalSection}>
+              <span className={styles.detailLabelOrange}>Tags</span>
+              {selectedAbilityModal.skillTags.length > 0 ? (
+                <div className={styles.typeChips}>
+                  {selectedAbilityModal.skillTags.map((tag) => (
+                    <span key={tag} className={styles.typeChip}>
+                      {getSkillTagMeta(tag)?.label ?? tag}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className={styles.modalText}>Sem tags</p>
+              )}
+            </div>
+            {selectedAbilityModal.customFields.length > 0 ? (
+              <div className={styles.modalSection}>
+                <span className={styles.detailLabelOrange}>Campos adicionais</span>
+                {selectedAbilityModal.customFields.map((field) => (
+                  <p key={field.id} className={styles.modalText}>
+                    {field.name}: {field.value ?? "-"}
+                  </p>
+                ))}
+              </div>
+            ) : null}
+          </section>
+        </div>
+      ) : null}
     </>
   )
 }
