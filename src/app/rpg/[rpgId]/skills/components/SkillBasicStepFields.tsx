@@ -93,7 +93,7 @@ export function SkillBasicStepFields({
         </NativeSelectField>
       </label>
       <label className={styles.field}>
-        <span>Tipo da ação</span>
+        <span>Ação</span>
         <NativeSelectField
           value={metaForm.actionType}
           onChange={(event) =>

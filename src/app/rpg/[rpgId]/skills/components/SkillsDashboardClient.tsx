@@ -14,6 +14,7 @@ import {
 import { NativeSelectField } from "@/components/select/NativeSelectField"
 import { ReactSelectField } from "@/components/select/ReactSelectField"
 import { actionTypeLabel, skillTagLabel, skillTypeLabel } from "./constants"
+import { SkillDeleteButton } from "./SkillDeleteButton"
 import type { SkillsDashboardProps } from "./types"
 import {
   createInitialLevel,
@@ -62,6 +63,7 @@ export default function SkillsDashboardClient({
     setMetaForm,
     levelForm,
     setLevelForm,
+    costResourceName,
     abilityCategoriesEnabled,
     enabledAbilityCategories,
     createOpen,
@@ -107,9 +109,6 @@ export default function SkillsDashboardClient({
           <p className={styles.kicker}>Habilidades</p>
           <h1 className={styles.title}>{selectedRpgTitle}</h1>
         </div>
-        <span className={styles.badge}>
-          {skills.length} {skills.length === 1 ? "habilidade" : "habilidades"}
-        </span>
       </div>
       <section className={styles.section}>
       <section className={styles.workspace}>
@@ -260,7 +259,7 @@ export default function SkillsDashboardClient({
                   </div>
                 </div>
                 <div className={styles.drawerTagsSection}>
-                  <span className={styles.searchBarLabel}>Tipo da ação</span>
+                  <span className={styles.searchBarLabel}>Ação</span>
                   <div className={styles.chipsRow}>
                     {actionTypeFilterOptions.map((item) => (
                       <button
@@ -374,7 +373,7 @@ export default function SkillsDashboardClient({
                   <label className={`${styles.field} ${styles.spanTwo}`}>
                     <span>Descricao</span>
                     <textarea
-                      rows={3}
+                      rows={5}
                       value={metaForm.description}
                       onChange={(event) =>
                         setMetaForm((prev) => ({ ...prev, description: event.target.value }))
@@ -422,7 +421,7 @@ export default function SkillsDashboardClient({
                     </NativeSelectField>
                   </label>
                   <label className={styles.field}>
-                    <span>Tipo da ação</span>
+                    <span>Ação</span>
                     <NativeSelectField
                       value={metaForm.actionType}
                       onChange={(event) =>
@@ -492,6 +491,15 @@ export default function SkillsDashboardClient({
                     <input
                       value={levelForm.castTime}
                       onChange={(event) => setLevelForm((prev) => ({ ...prev, castTime: event.target.value }))}
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span>Custo</span>
+                    <input
+                      value={levelForm.costCustom}
+                      onChange={(event) =>
+                        setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))
+                      }
                     />
                   </label>
                   {abilityCategoriesEnabled && enabledAbilityCategories.length === 0 ? (
@@ -573,6 +581,19 @@ export default function SkillsDashboardClient({
                       value={levelForm.prerequisite}
                       onChange={(event) =>
                         setLevelForm((prev) => ({ ...prev, prerequisite: event.target.value }))
+                      }
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span>Preço ({costResourceName})</span>
+                    <input
+                      type="number"
+                      onWheel={(event) => event.currentTarget.blur()}
+                      min={0}
+                      step={1}
+                      value={levelForm.costPoints}
+                      onChange={(event) =>
+                        setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))
                       }
                     />
                   </label>
@@ -663,13 +684,25 @@ export default function SkillsDashboardClient({
             <section className={`${styles.card} ${styles.modalCard}`} onClick={(event) => event.stopPropagation()}>
               <div className={styles.modalHeader}>
                 <h2>Editar</h2>
-                <button
-                  type="button"
-                  className={styles.ghostButton}
-                  onClick={() => setEditOpen(false)}
-                >
-                  Fechar
-                </button>
+                <div className={styles.modalHeaderActions}>
+                  <button
+                    type="button"
+                    className={styles.ghostButton}
+                    onClick={createSnapshotLevel}
+                    disabled={saving}
+                  >Level +1</button>
+                  <SkillDeleteButton
+                    onDelete={deleteActiveSkill}
+                    disabled={saving}
+                  />
+                  <button
+                    type="button"
+                    className={styles.ghostButton}
+                    onClick={() => setEditOpen(false)}
+                  >
+                    Fechar
+                  </button>
+                </div>
               </div>
               <div className={styles.levelHeader}>
                 <div className={styles.levelHeaderActions}>
@@ -685,23 +718,13 @@ export default function SkillsDashboardClient({
                       ))}
                     </NativeSelectField>
                   ) : null}
-                </div>
-                <div className={styles.levelHeaderActions}>
                   <button
                     type="button"
                     className={styles.ghostButton}
-                    onClick={createSnapshotLevel}
-                    disabled={saving}
+                    onClick={deleteSelectedLevel}
+                    disabled={saving || activeSkill.levels.length <= 1}
                   >
-                    Criar novo level
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.ghostButton}
-                    onClick={deleteActiveSkill}
-                    disabled={saving}
-                  >
-                    Deletar habilidade
+                    Deletar level
                   </button>
                 </div>
               </div>
@@ -731,7 +754,7 @@ export default function SkillsDashboardClient({
                     <label className={`${styles.field} ${styles.spanTwo}`}>
                       <span>Descricao</span>
                       <textarea
-                        rows={3}
+                        rows={5}
                         value={metaForm.description}
                         onChange={(event) =>
                           setMetaForm((prev) => ({ ...prev, description: event.target.value }))
@@ -779,7 +802,7 @@ export default function SkillsDashboardClient({
                       </NativeSelectField>
                     </label>
                     <label className={styles.field}>
-                      <span>Tipo da ação</span>
+                      <span>Ação</span>
                       <NativeSelectField
                         value={metaForm.actionType}
                         onChange={(event) =>
@@ -851,6 +874,15 @@ export default function SkillsDashboardClient({
                         onChange={(event) => setLevelForm((prev) => ({ ...prev, castTime: event.target.value }))}
                       />
                     </label>
+                    <label className={styles.field}>
+                      <span>Custo</span>
+                      <input
+                        value={levelForm.costCustom}
+                        onChange={(event) =>
+                          setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))
+                        }
+                      />
+                    </label>
                     {abilityCategoriesEnabled && enabledAbilityCategories.length === 0 ? (
                       <p className={styles.error}>Ative pelo menos uma categoria</p>
                     ) : null}
@@ -878,16 +910,7 @@ export default function SkillsDashboardClient({
               {editStep >= 2 ? (
                 <div className={styles.levelHeader}>
                   <h3>Editor de Levels</h3>
-                  <div className={styles.levelHeaderActions}>
-                    <button
-                      type="button"
-                      className={styles.ghostButton}
-                      onClick={deleteSelectedLevel}
-                      disabled={saving || activeSkill.levels.length <= 1}
-                    >
-                      Deletar level
-                    </button>
-                  </div>
+                  <div className={styles.levelHeaderActions} />
                 </div>
               ) : null}
 

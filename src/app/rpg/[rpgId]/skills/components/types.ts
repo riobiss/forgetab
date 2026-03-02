@@ -5,6 +5,7 @@ export type TemplateOption = { id: string; label: string }
 
 export type RpgSettingsPayload = {
   rpg?: {
+    costResourceName?: string
     abilityCategoriesEnabled?: boolean
     enabledAbilityCategories?: string[]
   }

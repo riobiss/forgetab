@@ -60,6 +60,7 @@ export function useSkillsDashboardState(params: Pick<SkillsDashboardProps, "owne
   const [selectedLevelId, setSelectedLevelId] = useState("")
   const [metaForm, setMetaForm] = useState<MetaForm>(createInitialMeta())
   const [levelForm, setLevelForm] = useState<LevelForm>(createInitialLevel())
+  const [costResourceName, setCostResourceName] = useState("Skill Points")
   const [abilityCategoriesEnabled, setAbilityCategoriesEnabled] = useState(false)
   const [enabledAbilityCategories, setEnabledAbilityCategories] = useState<SkillCategory[]>([])
   const [createOpen, setCreateOpen] = useState(false)
@@ -74,6 +75,13 @@ export function useSkillsDashboardState(params: Pick<SkillsDashboardProps, "owne
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    if (window.innerWidth > 760) {
+      setSkillSearchOpen(true)
+    }
+  }, [])
 
   const selectedLevel = useMemo(
     () => activeSkill?.levels.find((level) => level.id === selectedLevelId) ?? null,
@@ -193,6 +201,7 @@ export function useSkillsDashboardState(params: Pick<SkillsDashboardProps, "owne
         setClasses(classPayload.classes ?? [])
         setRaces(racePayload.races ?? [])
         setSkills(skillPayload.skills ?? [])
+        setCostResourceName((rpgPayload.rpg?.costResourceName ?? "Skill Points").trim() || "Skill Points")
         setAbilityCategoriesEnabled(Boolean(rpgPayload.rpg?.abilityCategoriesEnabled ?? false))
         setEnabledAbilityCategories(
           normalizeEnabledAbilityCategories(rpgPayload.rpg?.enabledAbilityCategories),
@@ -810,6 +819,7 @@ export function useSkillsDashboardState(params: Pick<SkillsDashboardProps, "owne
     setMetaForm,
     levelForm,
     setLevelForm,
+    costResourceName,
     abilityCategoriesEnabled,
     enabledAbilityCategories,
     createOpen,
