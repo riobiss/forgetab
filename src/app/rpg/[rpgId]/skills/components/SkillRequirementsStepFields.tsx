@@ -10,6 +10,7 @@ type SkillRequirementsStepFieldsProps = {
   setMetaForm: Dispatch<SetStateAction<MetaForm>>
   levelForm: LevelForm
   setLevelForm: Dispatch<SetStateAction<LevelForm>>
+  costResourceName?: string
 }
 
 export function SkillRequirementsStepFields({
@@ -19,6 +20,7 @@ export function SkillRequirementsStepFields({
   setMetaForm,
   levelForm,
   setLevelForm,
+  costResourceName = "Pontos",
 }: SkillRequirementsStepFieldsProps) {
   return (
     <div className={styles.bindingGrid}>
@@ -74,6 +76,17 @@ export function SkillRequirementsStepFields({
           rows={2}
           value={levelForm.prerequisite}
           onChange={(event) => setLevelForm((prev) => ({ ...prev, prerequisite: event.target.value }))}
+        />
+      </label>
+      <label className={styles.field}>
+        <span>Preco ({costResourceName})</span>
+        <input
+          type="number"
+          onWheel={(event) => event.currentTarget.blur()}
+          min={0}
+          step={1}
+          value={levelForm.costPoints}
+          onChange={(event) => setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))}
         />
       </label>
     </div>

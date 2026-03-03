@@ -47,7 +47,7 @@ export function SkillBasicStepFields({
       <label className={`${styles.field} ${styles.spanTwo}`}>
         <span>Descricao</span>
         <textarea
-          rows={3}
+          rows={5}
           value={metaForm.description}
           onChange={(event) => setMetaForm((prev) => ({ ...prev, description: event.target.value }))}
         />
@@ -160,6 +160,13 @@ export function SkillBasicStepFields({
         <input
           value={levelForm.castTime}
           onChange={(event) => setLevelForm((prev) => ({ ...prev, castTime: event.target.value }))}
+        />
+      </label>
+      <label className={styles.field}>
+        <span>Custo</span>
+        <input
+          value={levelForm.costCustom}
+          onChange={(event) => setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))}
         />
       </label>
       {abilityCategoriesEnabled && enabledAbilityCategories.length === 0 ? (
