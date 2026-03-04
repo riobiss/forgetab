@@ -1,5 +1,10 @@
 import type { Dispatch, SetStateAction } from "react"
 import {
+  mapCreateSkillPayload,
+  mapUpdateSkillLevelPayload,
+  mapUpdateSkillMetaPayload,
+} from "@/application/skillsDashboard/mappers/skillPayloadMappers"
+import {
   createSkillLevelSnapshotUseCase,
   createSkillUseCase,
   deleteSkillLevelUseCase,
@@ -10,7 +15,7 @@ import {
 import { httpSkillsDashboardGateway } from "@/infrastructure/skillsDashboard/gateways/httpSkillsDashboardGateway"
 import type { SkillCategory } from "@/types/skillBuilder"
 import type { LevelForm, MetaForm, SkillDetail, SkillLevel, SkillListItem } from "./types"
-import { mapSkillToMetaForm, toOptionalNumber, toOptionalText } from "./utils"
+import { mapSkillToMetaForm } from "./utils"
 
 const skillsDashboardDeps = { gateway: httpSkillsDashboardGateway }
 
@@ -75,11 +80,7 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
 
       const updatedSkill = (await updateSkillMetaUseCase(skillsDashboardDeps, {
         skillId: activeSkill.id,
-        payload: {
-          tags: metaForm.tags,
-          classIds: metaForm.classIds,
-          raceIds: metaForm.raceIds,
-        },
+        payload: mapUpdateSkillMetaPayload(metaForm),
       })) as SkillDetail
 
       setActiveSkill(updatedSkill)
@@ -127,38 +128,11 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
       const updatedSkill = (await updateSkillLevelUseCase(skillsDashboardDeps, {
         skillId: activeSkill.id,
         levelId: selectedLevel.id,
-        payload: {
-          levelRequired: toOptionalNumber(levelForm.levelRequired) ?? selectedLevel.levelRequired,
-          summary: toOptionalText(levelForm.summary),
-          stats: {
-            name: toOptionalText(metaForm.name),
-            description: toOptionalText(metaForm.description),
-            notes: null,
-            notesList: [],
-            customFields: levelForm.customFields.map((field) => ({
-              id: field.id,
-              name: field.name,
-              value: field.value,
-            })),
-            damage: toOptionalText(levelForm.damage),
-            cooldown: toOptionalText(levelForm.cooldown),
-            range: toOptionalText(levelForm.range),
-            duration: toOptionalText(levelForm.duration),
-            castTime: toOptionalText(levelForm.castTime),
-            resourceCost: toOptionalText(levelForm.resourceCost),
-            category: metaForm.category || null,
-            type: metaForm.type || null,
-            actionType: metaForm.actionType || null,
-          },
-          cost: {
-            points: toOptionalNumber(levelForm.costPoints),
-            custom: toOptionalText(levelForm.costCustom),
-          },
-          requirement: {
-            levelRequired: toOptionalNumber(levelForm.levelRequired),
-            notes: toOptionalText(levelForm.prerequisite),
-          },
-        },
+        payload: mapUpdateSkillLevelPayload({
+          meta: metaForm,
+          level: levelForm,
+          fallbackLevelRequired: selectedLevel.levelRequired,
+        }),
       })) as SkillDetail
 
       setActiveSkill(updatedSkill)
@@ -223,47 +197,12 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
         throw new Error("Categoria obrigatoria para criar habilidade.")
       }
 
-      const payload = {
-        rpgId: selectedRpgId,
-        tags: metaForm.tags,
-        classIds: metaForm.classIds,
-        raceIds: metaForm.raceIds,
-        level1: {
-          levelRequired: toOptionalNumber(levelForm.levelRequired) ?? 1,
-          summary: toOptionalText(levelForm.summary),
-          stats: {
-            name: toOptionalText(metaForm.name),
-            description: toOptionalText(metaForm.description),
-            notes: null,
-            notesList: [],
-            customFields: levelForm.customFields.map((field) => ({
-              id: field.id,
-              name: field.name,
-              value: field.value,
-            })),
-            damage: toOptionalText(levelForm.damage),
-            cooldown: toOptionalText(levelForm.cooldown),
-            range: toOptionalText(levelForm.range),
-            duration: toOptionalText(levelForm.duration),
-            castTime: toOptionalText(levelForm.castTime),
-            resourceCost: toOptionalText(levelForm.resourceCost),
-            category: metaForm.category || null,
-            type: metaForm.type || null,
-            actionType: metaForm.actionType || null,
-          },
-          cost: {
-            points: toOptionalNumber(levelForm.costPoints),
-            custom: toOptionalText(levelForm.costCustom),
-          },
-          requirement: {
-            levelRequired: toOptionalNumber(levelForm.levelRequired),
-            notes: toOptionalText(levelForm.prerequisite),
-          },
-        },
-      }
-
       const createdSkill = (await createSkillUseCase(skillsDashboardDeps, {
-        payload,
+        payload: mapCreateSkillPayload({
+          rpgId: selectedRpgId,
+          meta: metaForm,
+          level: levelForm,
+        }),
       })) as SkillDetail
 
       setCreateOpen(false)
