@@ -293,7 +293,10 @@ export function useSkillsDashboardState(
 
     async function buildSearchIndex() {
       try {
-        const index = await buildSkillsSearchIndex(deps, { skills })
+        const index = await buildSkillsSearchIndex(deps, {
+          skills,
+          rpgId: selectedRpgId,
+        })
         if (cancelled) return
         const parsed = parseSearchIndex(index)
         setSkillSearchIndex(parsed.skillSearchIndex)
@@ -322,7 +325,7 @@ export function useSkillsDashboardState(
     return () => {
       cancelled = true
     }
-  }, [deps, skills])
+  }, [deps, selectedRpgId, skills])
 
   useEffect(() => {
     if (createOpen) return

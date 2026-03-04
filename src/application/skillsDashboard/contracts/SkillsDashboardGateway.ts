@@ -12,7 +12,10 @@ export interface SkillsDashboardGateway {
   fetchClasses(rpgId: string): Promise<TemplateOptionDto[]>
   fetchRaces(rpgId: string): Promise<TemplateOptionDto[]>
   fetchSkills(rpgId: string): Promise<SkillListItemDto[]>
-  fetchSkillsSearchIndex(skillIds: string[]): Promise<Record<string, SkillSearchIndexItemDto>>
+  fetchSkillsSearchIndex(params: {
+    skillIds: string[]
+    rpgId?: string | null
+  }): Promise<Record<string, SkillSearchIndexItemDto>>
   fetchRpgSettings(rpgId: string): Promise<RpgSettingsDto>
   fetchSkillById(skillId: string): Promise<SkillDetailDto>
   createSkill(payload: CreateOrUpdateSkillPayloadDto): Promise<SkillDetailDto>

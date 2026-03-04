@@ -22,12 +22,15 @@ export async function loadDashboardData(deps: Dependencies, params: { rpgId: str
 
 export async function buildSkillsSearchIndex(
   deps: Dependencies,
-  params: { skills: SkillListItemDto[] },
+  params: { skills: SkillListItemDto[]; rpgId?: string | null },
 ): Promise<
   Record<string, SkillSearchIndexItemDto>
 > {
   const skillIds = params.skills.map((skill) => skill.id)
-  const fetchedIndex = await deps.gateway.fetchSkillsSearchIndex(skillIds)
+  const fetchedIndex = await deps.gateway.fetchSkillsSearchIndex({
+    skillIds,
+    rpgId: params.rpgId,
+  })
 
   return Object.fromEntries(
     params.skills.map((skill) => [

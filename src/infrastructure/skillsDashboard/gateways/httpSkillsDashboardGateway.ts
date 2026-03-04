@@ -36,12 +36,15 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
     return payload.skills ?? []
   },
 
-  async fetchSkillsSearchIndex(skillIds: string[]): Promise<Record<string, SkillSearchIndexItemDto>> {
-    if (skillIds.length === 0) return {}
+  async fetchSkillsSearchIndex(params: {
+    skillIds: string[]
+    rpgId?: string | null
+  }): Promise<Record<string, SkillSearchIndexItemDto>> {
+    if (params.skillIds.length === 0) return {}
     const response = await fetch("/api/skills/search-index", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ skillIds }),
+      body: JSON.stringify({ skillIds: params.skillIds, rpgId: params.rpgId }),
     })
     const payload = await parseJson<{ index?: Record<string, SkillSearchIndexItemDto> }>(response)
     return payload.index ?? {}

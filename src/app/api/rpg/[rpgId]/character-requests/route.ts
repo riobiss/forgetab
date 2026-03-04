@@ -60,7 +60,6 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     const permission = await getRpgPermission(rpgId, userId)
-    const isOwner = permission.canManage
     let isAcceptedMember = false
 
     if (!permission.canManage) {

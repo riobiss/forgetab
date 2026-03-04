@@ -87,7 +87,10 @@ describe("skillsDashboard use-cases", () => {
       },
     )
 
-    expect(gateway.fetchSkillsSearchIndex).toHaveBeenCalledWith(["s1", "s2"])
+    expect(gateway.fetchSkillsSearchIndex).toHaveBeenCalledWith({
+      skillIds: ["s1", "s2"],
+      rpgId: undefined,
+    })
     expect(index.s1.displayName).toBe("Bola de Fogo")
     expect(index.s1.searchBlob).toContain("fireball")
     expect(index.s1.searchBlob).toContain("explode")
