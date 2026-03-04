@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import styles from "./ItemEditorForm.module.css"
 import {
   baseItemRarityValues,
@@ -51,6 +51,7 @@ type UploadImagePayload = {
 }
 
 type Props = {
+  rpgId: string
   mode: "create" | "edit"
   itemId?: string
 }
@@ -109,9 +110,7 @@ function updateAt(
   )
 }
 
-export default function ItemEditorForm({ mode, itemId }: Props) {
-  const params = useParams<{ rpgId: string }>()
-  const rpgId = params.rpgId
+export default function ItemEditorForm({ rpgId, mode, itemId }: Props) {
   const router = useRouter()
   const isEditing = useMemo(() => mode === "edit", [mode])
 
