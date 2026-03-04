@@ -5,8 +5,8 @@ import {
   loadSkillDetail,
   parseSearchIndex,
 } from "@/application/skillsDashboard/use-cases/skillsDashboard"
+import type { SkillsDashboardDependencies } from "@/application/skillsDashboard/contracts/SkillsDashboardDependencies"
 import { type ReactSelectOption } from "@/components/select/ReactSelectField"
-import { httpSkillsDashboardGateway } from "@/infrastructure/skillsDashboard/gateways/httpSkillsDashboardGateway"
 import {
   abilityCategoryDefinitions,
   normalizeEnabledAbilityCategories,
@@ -37,8 +37,6 @@ import {
   mapSkillToMetaForm,
   resolveCategoryLabel,
 } from "./utils"
-
-const skillsDashboardReadDeps = { gateway: httpSkillsDashboardGateway }
 
 export type SkillsDashboardState = {
   classes: TemplateOption[]
@@ -111,9 +109,11 @@ export type SkillsDashboardState = {
 }
 
 export function useSkillsDashboardState(
-  params: Pick<SkillsDashboardProps, "ownedRpgs" | "initialRpgId">,
+  params: Pick<SkillsDashboardProps, "ownedRpgs" | "initialRpgId"> & {
+    deps: SkillsDashboardDependencies
+  },
 ): SkillsDashboardState {
-  const { ownedRpgs, initialRpgId } = params
+  const { ownedRpgs, initialRpgId, deps } = params
   const initialSelection =
     initialRpgId && ownedRpgs.some((item) => item.id === initialRpgId)
       ? initialRpgId
@@ -260,7 +260,7 @@ export function useSkillsDashboardState(
       setLoading(true)
       setError("")
       try {
-        const payload = await loadDashboardData(skillsDashboardReadDeps, { rpgId: selectedRpgId })
+        const payload = await loadDashboardData(deps, { rpgId: selectedRpgId })
         setClasses(payload.classes)
         setRaces(payload.races)
         setSkills(payload.skills)
@@ -279,7 +279,7 @@ export function useSkillsDashboardState(
     }
 
     void loadData()
-  }, [selectedRpgId])
+  }, [deps, selectedRpgId])
 
   useEffect(() => {
     if (skills.length === 0) {
@@ -293,7 +293,7 @@ export function useSkillsDashboardState(
 
     async function buildSearchIndex() {
       try {
-        const index = await buildSkillsSearchIndex(skillsDashboardReadDeps, { skills })
+        const index = await buildSkillsSearchIndex(deps, { skills })
         if (cancelled) return
         const parsed = parseSearchIndex(index)
         setSkillSearchIndex(parsed.skillSearchIndex)
@@ -322,7 +322,7 @@ export function useSkillsDashboardState(
     return () => {
       cancelled = true
     }
-  }, [skills])
+  }, [deps, skills])
 
   useEffect(() => {
     if (createOpen) return
@@ -341,7 +341,7 @@ export function useSkillsDashboardState(
       setLoading(true)
       setError("")
       try {
-        const skill = await loadSkillDetail(skillsDashboardReadDeps, { skillId: selectedSkillId })
+        const skill = await loadSkillDetail(deps, { skillId: selectedSkillId })
 
         if (cancelled) return
         setActiveSkill(skill as SkillDetail)
@@ -362,7 +362,7 @@ export function useSkillsDashboardState(
     return () => {
       cancelled = true
     }
-  }, [selectedSkillId, editReloadKey, createOpen])
+  }, [deps, selectedSkillId, editReloadKey, createOpen])
 
   useEffect(() => {
     if (createOpen) return
@@ -500,6 +500,7 @@ export function useSkillsDashboardState(
   }
 
   const actions = useSkillsDashboardActions({
+    deps,
     selectedRpgId,
     skills,
     activeSkill,

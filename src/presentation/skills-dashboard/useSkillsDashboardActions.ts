@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react"
+import type { SkillsDashboardDependencies } from "@/application/skillsDashboard/contracts/SkillsDashboardDependencies"
 import {
   mapCreateSkillPayload,
   mapUpdateSkillLevelPayload,
@@ -12,14 +13,12 @@ import {
   updateSkillLevelUseCase,
   updateSkillMetaUseCase,
 } from "@/application/skillsDashboard/use-cases/skillsDashboard"
-import { httpSkillsDashboardGateway } from "@/infrastructure/skillsDashboard/gateways/httpSkillsDashboardGateway"
 import type { SkillCategory } from "@/types/skillBuilder"
 import type { LevelForm, MetaForm, SkillDetail, SkillLevel, SkillListItem } from "./types"
 import { mapSkillToMetaForm } from "./utils"
 
-const skillsDashboardDeps = { gateway: httpSkillsDashboardGateway }
-
 type UseSkillsDashboardActionsParams = {
+  deps: SkillsDashboardDependencies
   selectedRpgId: string
   skills: SkillListItem[]
   activeSkill: SkillDetail | null
@@ -50,6 +49,8 @@ type UseSkillsDashboardActionsParams = {
 type SaveOptions = { manageSaving?: boolean; showSuccess?: boolean }
 
 export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParams) {
+  const { deps } = params
+
   async function saveMeta(options?: SaveOptions) {
     const {
       activeSkill,
@@ -78,7 +79,7 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
         throw new Error("Categoria obrigatoria para salvar habilidade.")
       }
 
-      const updatedSkill = (await updateSkillMetaUseCase(skillsDashboardDeps, {
+      const updatedSkill = (await updateSkillMetaUseCase(deps, {
         skillId: activeSkill.id,
         payload: mapUpdateSkillMetaPayload(metaForm),
       })) as SkillDetail
@@ -125,7 +126,7 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
       setSuccess("")
     }
     try {
-      const updatedSkill = (await updateSkillLevelUseCase(skillsDashboardDeps, {
+      const updatedSkill = (await updateSkillLevelUseCase(deps, {
         skillId: activeSkill.id,
         levelId: selectedLevel.id,
         payload: mapUpdateSkillLevelPayload({
@@ -197,7 +198,7 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
         throw new Error("Categoria obrigatoria para criar habilidade.")
       }
 
-      const createdSkill = (await createSkillUseCase(skillsDashboardDeps, {
+      const createdSkill = (await createSkillUseCase(deps, {
         payload: mapCreateSkillPayload({
           rpgId: selectedRpgId,
           meta: metaForm,
@@ -232,7 +233,7 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
     setError("")
     setSuccess("")
     try {
-      const updatedSkill = (await createSkillLevelSnapshotUseCase(skillsDashboardDeps, {
+      const updatedSkill = (await createSkillLevelSnapshotUseCase(deps, {
         skillId: activeSkill.id,
       })) as SkillDetail
       setActiveSkill(updatedSkill)
@@ -295,7 +296,7 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
     setSuccess("")
     try {
       const levelNumber = selectedLevel.levelNumber
-      const updatedSkill = (await deleteSkillLevelUseCase(skillsDashboardDeps, {
+      const updatedSkill = (await deleteSkillLevelUseCase(deps, {
         skillId: activeSkill.id,
         levelId: selectedLevel.id,
       })) as SkillDetail
@@ -339,7 +340,7 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
     setError("")
     setSuccess("")
     try {
-      await deleteSkillUseCase(skillsDashboardDeps, { skillId: activeSkill.id })
+      await deleteSkillUseCase(deps, { skillId: activeSkill.id })
 
       const nextSkills = skills.filter((item) => item.id !== activeSkill.id)
       setSkills(nextSkills)

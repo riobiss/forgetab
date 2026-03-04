@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
-import SkillsDashboardClient from "@/presentation/skills-dashboard/SkillsDashboardClient"
+import SkillsDashboardFeature from "@/presentation/skills-dashboard/SkillsDashboardFeature"
 
 type PageProps = {
   params: Promise<{
@@ -33,9 +33,10 @@ export default async function RpgSkillsBuilderPage({ params }: PageProps) {
   }
 
   return (
-    <SkillsDashboardClient
+    <SkillsDashboardFeature
       ownedRpgs={[{ id: rpg.id, title: rpg.title }]}
       initialRpgId={rpg.id}
+      gatewayFactory="http"
       hideRpgSelector
       title={`Habilidades - ${rpg.title}`}
     />

@@ -6,15 +6,21 @@ import { SkillEditModal } from "./SkillEditModal"
 import { SkillFiltersDrawer } from "./SkillFiltersDrawer"
 import { SkillsSidebar } from "./SkillsSidebar"
 import type { SkillsDashboardProps } from "./types"
+import type { SkillsDashboardDependencies } from "@/application/skillsDashboard/contracts/SkillsDashboardDependencies"
 import { resolveCategoryLabel } from "./utils"
 import { useSkillsDashboardState } from "./useSkillsDashboardState"
+
+type SkillsDashboardClientProps = SkillsDashboardProps & {
+  deps: SkillsDashboardDependencies
+}
 
 export default function SkillsDashboardClient({
   ownedRpgs,
   initialRpgId,
   hideRpgSelector = false,
   title = "Construtor de Habilidades",
-}: SkillsDashboardProps) {
+  deps,
+}: SkillsDashboardClientProps) {
   void hideRpgSelector
   void title
 
@@ -85,7 +91,7 @@ export default function SkillsDashboardClient({
     saveAll,
     deleteSelectedLevel,
     deleteActiveSkill,
-  } = useSkillsDashboardState({ ownedRpgs, initialRpgId })
+  } = useSkillsDashboardState({ ownedRpgs, initialRpgId, deps })
   return (
     <main className={styles.page}>
       <div className={styles.header}>
