@@ -1,4 +1,4 @@
-import type { SkillsDashboardGateway } from "@/application/skillsDashboard/contracts/SkillsDashboardGateway"
+import type { SkillsDashboardDependencies } from "@/application/skillsDashboard/contracts/SkillsDashboardDependencies"
 import type {
   CreateOrUpdateSkillPayloadDto,
   SkillDetailDto,
@@ -6,9 +6,7 @@ import type {
   UpdateSkillLevelPayloadDto,
 } from "@/application/skillsDashboard/types"
 
-type Dependencies = {
-  gateway: SkillsDashboardGateway
-}
+type Dependencies = SkillsDashboardDependencies
 
 export async function loadDashboardData(deps: Dependencies, params: { rpgId: string }) {
   const [classes, races, skills, rpgSettings] = await Promise.all([
