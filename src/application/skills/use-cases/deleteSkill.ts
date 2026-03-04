@@ -16,7 +16,7 @@ export async function deleteSkill(
     }
 
     await deps.repository.deleteSkill(params.skillId, params.userId)
-    return { id: params.skillId }
+    return { id: params.skillId, rpgId: existing.rpgId }
   } catch (error) {
     if (error instanceof AppError) {
       throw error

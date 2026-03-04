@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidateSkillsIndexTags } from "@/presentation/api/skills/cacheTags"
 import { deleteSkillLevel } from "@/application/skills/use-cases/deleteSkillLevel"
 import { updateSkillLevel } from "@/application/skills/use-cases/updateSkillLevel"
 import { prismaSkillRepository } from "@/infrastructure/skills/repositories/prismaSkillRepository"
@@ -33,6 +34,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       { repository: prismaSkillRepository },
       { skillId: id, levelId, userId, body },
     )
+    revalidateSkillsIndexTags({
+      userId,
+      rpgId: payload.skill?.rpgId ?? null,
+    })
     return NextResponse.json(payload, { status: 200 })
   } catch (error) {
     return toErrorResponse(error, "Erro interno ao atualizar level.")
@@ -51,6 +56,10 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       { repository: prismaSkillRepository },
       { skillId: id, levelId, userId },
     )
+    revalidateSkillsIndexTags({
+      userId,
+      rpgId: payload.skill?.rpgId ?? null,
+    })
     return NextResponse.json(payload, { status: 200 })
   } catch (error) {
     return toErrorResponse(error, "Erro interno ao remover level.")

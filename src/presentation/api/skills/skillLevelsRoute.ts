@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidateSkillsIndexTags } from "@/presentation/api/skills/cacheTags"
 import { createSkillLevel } from "@/application/skills/use-cases/createSkillLevel"
 import { prismaSkillRepository } from "@/infrastructure/skills/repositories/prismaSkillRepository"
 import { getUserIdFromRequest } from "@/lib/server/skillBuilder"
@@ -31,6 +32,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
       { repository: prismaSkillRepository },
       { skillId: id, userId, body },
     )
+    revalidateSkillsIndexTags({
+      userId,
+      rpgId: payload.skill?.rpgId ?? null,
+    })
     return NextResponse.json(payload, { status: 201 })
   } catch (error) {
     return toErrorResponse(error, "Erro interno ao criar level.")
