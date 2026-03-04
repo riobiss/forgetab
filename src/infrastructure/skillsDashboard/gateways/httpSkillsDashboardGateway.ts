@@ -3,6 +3,7 @@ import type {
   CreateOrUpdateSkillPayloadDto,
   RpgSettingsDto,
   SkillDetailDto,
+  SkillSearchIndexItemDto,
   SkillListItemDto,
   TemplateOptionDto,
   UpdateSkillLevelPayloadDto,
@@ -33,6 +34,17 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
     const response = await fetch(`/api/skills?rpgId=${rpgId}`)
     const payload = await parseJson<{ skills?: SkillListItemDto[] }>(response)
     return payload.skills ?? []
+  },
+
+  async fetchSkillsSearchIndex(skillIds: string[]): Promise<Record<string, SkillSearchIndexItemDto>> {
+    if (skillIds.length === 0) return {}
+    const response = await fetch("/api/skills/search-index", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skillIds }),
+    })
+    const payload = await parseJson<{ index?: Record<string, SkillSearchIndexItemDto> }>(response)
+    return payload.index ?? {}
   },
 
   async fetchRpgSettings(rpgId: string): Promise<RpgSettingsDto> {

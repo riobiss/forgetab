@@ -14,6 +14,17 @@ export type SkillListItemDto = {
   updatedAt: string
 }
 
+export type SkillSearchIndexItemDto = {
+  searchBlob: string
+  displayName: string
+  filters: {
+    categories: string[]
+    types: string[]
+    actionTypes: string[]
+    tags: string[]
+  }
+}
+
 export type SkillLevelDto = {
   id: string
   levelNumber: number

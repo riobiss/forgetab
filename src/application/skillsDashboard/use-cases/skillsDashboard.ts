@@ -2,6 +2,7 @@ import type { SkillsDashboardDependencies } from "@/application/skillsDashboard/
 import type {
   CreateOrUpdateSkillPayloadDto,
   SkillDetailDto,
+  SkillSearchIndexItemDto,
   SkillListItemDto,
   UpdateSkillLevelPayloadDto,
 } from "@/application/skillsDashboard/types"
@@ -23,97 +24,21 @@ export async function buildSkillsSearchIndex(
   deps: Dependencies,
   params: { skills: SkillListItemDto[] },
 ): Promise<
-  Record<
-    string,
-    {
-      searchBlob: string
-      displayName: string
-      filters: { categories: string[]; types: string[]; actionTypes: string[]; tags: string[] }
-    }
-  >
+  Record<string, SkillSearchIndexItemDto>
 > {
-  const entries = await Promise.all(
-    params.skills.map(async (skill) => {
-      try {
-        const detail = await deps.gateway.fetchSkillById(skill.id)
+  const skillIds = params.skills.map((skill) => skill.id)
+  const fetchedIndex = await deps.gateway.fetchSkillsSearchIndex(skillIds)
 
-        const displayName =
-          detail.levels
-            .map((level) => {
-              const stats = (level.stats ?? {}) as Record<string, unknown>
-              return typeof stats.name === "string" ? stats.name.trim() : ""
-            })
-            .find((name) => name.length > 0) ?? skill.slug
-
-        const merged = detail.levels
-          .map((level) => {
-            const stats = (level.stats ?? {}) as Record<string, unknown>
-            const name = typeof stats.name === "string" ? stats.name : ""
-            const description = typeof stats.description === "string" ? stats.description : ""
-            return `${name} ${description}`
-          })
-          .join(" ")
-          .toLowerCase()
-
-        const categories = Array.from(
-          new Set(
-            detail.levels
-              .map((level) => {
-                const stats = (level.stats ?? {}) as Record<string, unknown>
-                return typeof stats.category === "string" ? stats.category.trim() : ""
-              })
-              .filter((item) => item.length > 0),
-          ),
-        )
-
-        const types = Array.from(
-          new Set(
-            detail.levels
-              .map((level) => {
-                const stats = (level.stats ?? {}) as Record<string, unknown>
-                return typeof stats.type === "string" ? stats.type.trim() : ""
-              })
-              .filter((item) => item.length > 0),
-          ),
-        )
-
-        const actionTypes = Array.from(
-          new Set(
-            detail.levels
-              .map((level) => {
-                const stats = (level.stats ?? {}) as Record<string, unknown>
-                return typeof stats.actionType === "string" ? stats.actionType.trim() : ""
-              })
-              .filter((item) => item.length > 0),
-          ),
-        )
-
-        const tags = Array.isArray(detail.tags)
-          ? Array.from(new Set(detail.tags.map((tag) => tag.trim()).filter((tag) => tag.length > 0)))
-          : []
-
-        return {
-          id: skill.id,
-          searchBlob: `${skill.slug} ${merged}`.trim(),
-          displayName,
-          filters: { categories, types, actionTypes, tags },
-        }
-      } catch {
-        return {
-          id: skill.id,
-          searchBlob: skill.slug.toLowerCase(),
-          displayName: skill.slug,
-          filters: { categories: [], types: [], actionTypes: [], tags: [] },
-        }
-      }
-    }),
+  return Object.fromEntries(
+    params.skills.map((skill) => [
+      skill.id,
+      fetchedIndex[skill.id] ?? {
+        searchBlob: skill.slug.toLowerCase(),
+        displayName: skill.slug,
+        filters: { categories: [], types: [], actionTypes: [], tags: [] },
+      },
+    ]),
   )
-
-  return Object.fromEntries(entries.map((entry) => [entry.id, {
-    searchBlob: entry.searchBlob,
-    displayName: entry.displayName,
-    filters: entry.filters,
-  }]))
 }
 
 export function parseSearchIndex(index: Awaited<ReturnType<typeof buildSkillsSearchIndex>>) {
