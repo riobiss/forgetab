@@ -1,7 +1,10 @@
 import type { Dispatch, FormEvent, MutableRefObject, SetStateAction } from "react"
-import type { ApiGivePayload, BaseItem, CharacterSummary } from "./types"
+import type { ItemsDashboardDependencies } from "@/application/itemsDashboard/contracts/ItemsDashboardDependencies"
+import { deleteItemUseCase, giveItemUseCase } from "@/application/itemsDashboard/use-cases/itemsDashboard"
+import type { BaseItem, CharacterSummary } from "./types"
 
 type UseItemsDashboardActionsParams = {
+  deps: ItemsDashboardDependencies
   rpgId: string
   characters: CharacterSummary[]
   items: BaseItem[]
@@ -48,21 +51,11 @@ export function useItemsDashboardActions(params: UseItemsDashboardActionsParams)
       params.deletingRef.current = true
       params.setDeletingItemId(itemId)
       params.setLoadingError("")
-
-      const response = await fetch(`/api/rpg/${params.rpgId}/items/${itemId}`, {
-        method: "DELETE",
-      })
-
-      const payload = (await response.json()) as { message?: string }
-
-      if (!response.ok) {
-        params.setLoadingError(payload.message ?? "Nao foi possivel deletar o item.")
-        return
-      }
+      await deleteItemUseCase(params.deps, { rpgId: params.rpgId, itemId })
 
       params.setItems((prev) => prev.filter((item) => item.id !== itemId))
-    } catch {
-      params.setLoadingError("Erro de conexao ao deletar item.")
+    } catch (cause) {
+      params.setLoadingError(cause instanceof Error ? cause.message : "Erro de conexao ao deletar item.")
     } finally {
       params.setDeletingItemId(null)
       params.deletingRef.current = false
@@ -85,27 +78,18 @@ export function useItemsDashboardActions(params: UseItemsDashboardActionsParams)
     }
 
     try {
-      const response = await fetch(`/api/rpg/${params.rpgId}/items/give`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const result = await giveItemUseCase(params.deps, {
+        rpgId: params.rpgId,
+        payload: {
           baseItemId: params.selectedGiveItem.id,
           quantity: params.giveQuantity,
           characterIds: [params.selectedCharacterId],
-        }),
+        },
       })
-
-      const payload = (await response.json()) as ApiGivePayload
-
-      if (!response.ok) {
-        params.setGiveError(payload.message ?? "Nao foi possivel entregar o item.")
-        return
-      }
-
-      params.setGiveSuccess(payload.message ?? "Item entregue com sucesso.")
+      params.setGiveSuccess(result.message)
       setTimeout(() => closeGiveModal(), 700)
-    } catch {
-      params.setGiveError("Erro de conexao ao entregar item.")
+    } catch (cause) {
+      params.setGiveError(cause instanceof Error ? cause.message : "Erro de conexao ao entregar item.")
     } finally {
       params.setGiving(false)
       params.givingRef.current = false

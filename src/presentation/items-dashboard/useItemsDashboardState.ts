@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { loadItemsDashboardData } from "@/application/itemsDashboard/use-cases/itemsDashboard"
+import { httpItemsDashboardGateway } from "@/infrastructure/itemsDashboard/gateways/httpItemsDashboardGateway"
 import { baseItemTypeValues } from "@/lib/validators/baseItem"
 import type {
-  ApiCharactersPayload,
-  ApiListPayload,
   BaseItem,
   CharacterSummary,
   ItemType,
@@ -10,6 +10,7 @@ import type {
 import { useItemsDashboardActions } from "./useItemsDashboardActions"
 
 type Params = { rpgId: string }
+const itemsDashboardDeps = { gateway: httpItemsDashboardGateway }
 
 export function useItemsDashboardState({ rpgId }: Params) {
   const [items, setItems] = useState<BaseItem[]>([])
@@ -59,54 +60,29 @@ export function useItemsDashboardState({ rpgId }: Params) {
     [items, giveModalItemId],
   )
 
-  const loadItems = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true)
       setLoadingError("")
-
-      const response = await fetch(`/api/rpg/${rpgId}/items`)
-      const payload = (await response.json()) as ApiListPayload
-
-      if (!response.ok) {
-        setLoadingError(payload.message ?? "Nao foi possivel carregar os itens.")
-        setItems([])
-        return
-      }
-
-      setItems(payload.items ?? [])
-    } catch {
-      setLoadingError("Erro de conexao ao carregar itens.")
+      const payload = await loadItemsDashboardData(itemsDashboardDeps, { rpgId })
+      setItems(payload.items as BaseItem[])
+      setCharacters(payload.characters as CharacterSummary[])
+    } catch (cause) {
+      setLoadingError(cause instanceof Error ? cause.message : "Erro de conexao ao carregar dados.")
       setItems([])
+      setCharacters([])
     } finally {
       setLoading(false)
     }
   }, [rpgId])
 
-  const loadCharacters = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/rpg/${rpgId}/characters`)
-      const payload = (await response.json()) as ApiCharactersPayload
-
-      if (!response.ok) {
-        setLoadingError(payload.message ?? "Nao foi possivel carregar personagens.")
-        setCharacters([])
-        return
-      }
-
-      setCharacters(payload.characters ?? [])
-    } catch {
-      setLoadingError("Erro de conexao ao carregar personagens.")
-      setCharacters([])
-    }
-  }, [rpgId])
-
   useEffect(() => {
     if (!rpgId) return
-    void loadItems()
-    void loadCharacters()
-  }, [loadCharacters, loadItems, rpgId])
+    void loadData()
+  }, [loadData, rpgId])
 
   const actions = useItemsDashboardActions({
+    deps: itemsDashboardDeps,
     rpgId,
     characters,
     items,
