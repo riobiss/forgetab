@@ -4,12 +4,21 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import type { UpsertItemPayloadDto } from "@/application/itemsEditor/types"
+import {
+  createItemUseCase,
+  deleteItemImageByUrlUseCase,
+  loadItemDetailUseCase,
+  updateItemUseCase,
+  uploadItemImageUseCase,
+} from "@/application/itemsEditor/use-cases/itemsEditor"
 import styles from "./ItemEditorForm.module.css"
 import {
   baseItemRarityValues,
   baseItemTypeValues,
 } from "@/lib/validators/baseItem"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
+import { httpItemsEditorGateway } from "@/infrastructure/itemsEditor/gateways/httpItemsEditorGateway"
 
 type ItemType = (typeof baseItemTypeValues)[number]
 type ItemRarity = (typeof baseItemRarityValues)[number]
@@ -40,21 +49,13 @@ type BaseItem = {
   durability: number | null
 }
 
-type ApiItemPayload = {
-  item?: BaseItem
-  message?: string
-}
-
-type UploadImagePayload = {
-  message?: string
-  url?: string
-}
-
 type Props = {
   rpgId: string
   mode: "create" | "edit"
   itemId?: string
 }
+
+const itemsEditorDeps = { gateway: httpItemsEditorGateway }
 
 function toOptionalText(value: string) {
   const trimmed = value.trim()
@@ -161,16 +162,13 @@ export default function ItemEditorForm({ rpgId, mode, itemId }: Props) {
       setLoadingError("")
 
       try {
-        const response = await fetch(`/api/rpg/${rpgId}/items/${itemId}`)
-        const payload = (await response.json()) as ApiItemPayload
+        const item = (await loadItemDetailUseCase(itemsEditorDeps, {
+          rpgId,
+          itemId,
+        })) as BaseItem
 
-        if (!response.ok || !payload.item) {
-          setLoadingError(payload.message ?? "Nao foi possivel carregar o item.")
-          return
-        }
-
-        setName(payload.item.name)
-        setImage(payload.item.image ?? "")
+        setName(item.name)
+        setImage(item.image ?? "")
         setSelectedImageFile(null)
         setSelectedImagePreviewUrl((previousPreviewUrl) => {
           if (previousPreviewUrl) {
@@ -179,42 +177,42 @@ export default function ItemEditorForm({ rpgId, mode, itemId }: Props) {
           return ""
         })
         setPendingImageRemoval(false)
-        setDescription(payload.item.description ?? "")
-        setPreRequirement(payload.item.preRequirement ?? "")
-        setType(payload.item.type)
-        setRarity(payload.item.rarity)
-        setDamage(payload.item.damage ?? "")
-        setRange(payload.item.range ?? "")
-        setWeight(payload.item.weight !== null ? String(payload.item.weight) : "")
-        setDuration(payload.item.duration ?? "")
-        setDurability(payload.item.durability !== null ? String(payload.item.durability) : "")
+        setDescription(item.description ?? "")
+        setPreRequirement(item.preRequirement ?? "")
+        setType(item.type)
+        setRarity(item.rarity)
+        setDamage(item.damage ?? "")
+        setRange(item.range ?? "")
+        setWeight(item.weight !== null ? String(item.weight) : "")
+        setDuration(item.duration ?? "")
+        setDurability(item.durability !== null ? String(item.durability) : "")
 
-        const parsedAbilities = parseNamedDescriptionList(payload.item.abilities)
-        const parsedEffects = parseNamedDescriptionList(payload.item.effects)
+        const parsedAbilities = parseNamedDescriptionList(item.abilities)
+        const parsedEffects = parseNamedDescriptionList(item.effects)
 
         if (parsedAbilities.length > 0) {
           setAbilities(parsedAbilities)
-        } else if (payload.item.abilityName || payload.item.ability) {
+        } else if (item.abilityName || item.ability) {
           setAbilities([
             {
-              name: payload.item.abilityName ?? "",
-              description: payload.item.ability ?? "",
+              name: item.abilityName ?? "",
+              description: item.ability ?? "",
             },
           ])
         }
 
         if (parsedEffects.length > 0) {
           setEffects(parsedEffects)
-        } else if (payload.item.effectName || payload.item.effect) {
+        } else if (item.effectName || item.effect) {
           setEffects([
             {
-              name: payload.item.effectName ?? "",
-              description: payload.item.effect ?? "",
+              name: item.effectName ?? "",
+              description: item.effect ?? "",
             },
           ])
         }
-      } catch {
-        setLoadingError("Erro de conexao ao carregar o item.")
+      } catch (cause) {
+        setLoadingError(cause instanceof Error ? cause.message : "Erro de conexao ao carregar o item.")
       } finally {
         setLoading(false)
       }
@@ -251,34 +249,21 @@ export default function ItemEditorForm({ rpgId, mode, itemId }: Props) {
     if (selectedImageFile) {
       setUploadingImage(true)
       try {
-        const uploadPayload = new FormData()
-        uploadPayload.append("file", selectedImageFile)
-
-        const uploadResponse = await fetch("/api/uploads/item-image", {
-          method: "POST",
-          body: uploadPayload,
-        })
-        const uploadBody = (await uploadResponse.json()) as UploadImagePayload
-        if (!uploadResponse.ok || !uploadBody.url) {
-          const message = uploadBody.message ?? "Nao foi possivel enviar imagem."
-          setUploadError(message)
-          setSubmitError(message)
-          return
-        }
-
-        uploadedImageUrl = uploadBody.url.trim()
+        const upload = await uploadItemImageUseCase(itemsEditorDeps, { file: selectedImageFile })
+        uploadedImageUrl = upload.url
         hasFreshUpload = true
         submittedImage = uploadedImageUrl
-      } catch {
-        setUploadError("Erro de conexao ao enviar imagem.")
-        setSubmitError("Erro de conexao ao enviar imagem.")
+      } catch (cause) {
+        const message = cause instanceof Error ? cause.message : "Erro de conexao ao enviar imagem."
+        setUploadError(message)
+        setSubmitError(message)
         return
       } finally {
         setUploadingImage(false)
       }
     }
 
-    const payload = {
+    const payload: UpsertItemPayloadDto = {
       name,
       image: submittedImage,
       description: toOptionalText(description),
@@ -299,38 +284,23 @@ export default function ItemEditorForm({ rpgId, mode, itemId }: Props) {
     }
 
     try {
-      const endpoint = isEditing
-        ? `/api/rpg/${rpgId}/items/${itemId}`
-        : `/api/rpg/${rpgId}/items`
-      const method = isEditing ? "PATCH" : "POST"
-
-      const response = await fetch(endpoint, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-
-      const responsePayload = (await response.json()) as ApiItemPayload
-      if (!response.ok) {
-        if (hasFreshUpload && uploadedImageUrl) {
-          try {
-            await fetch("/api/uploads/item-image", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ url: uploadedImageUrl }),
-            })
-          } catch {
-            // Nao bloqueia a resposta de erro se a limpeza da imagem falhar.
-          }
-        }
-        setSubmitError(responsePayload.message ?? "Nao foi possivel salvar o item.")
-        return
+      if (isEditing && itemId) {
+        await updateItemUseCase(itemsEditorDeps, { rpgId, itemId, payload })
+      } else {
+        await createItemUseCase(itemsEditorDeps, { rpgId, payload })
       }
 
       router.push(`/rpg/${rpgId}/items`)
       router.refresh()
-    } catch {
-      setSubmitError("Erro de conexao ao salvar o item.")
+    } catch (cause) {
+      if (hasFreshUpload && uploadedImageUrl) {
+        try {
+          await deleteItemImageByUrlUseCase(itemsEditorDeps, { url: uploadedImageUrl })
+        } catch {
+          // Nao bloqueia a resposta de erro se a limpeza da imagem falhar.
+        }
+      }
+      setSubmitError(cause instanceof Error ? cause.message : "Erro de conexao ao salvar o item.")
     } finally {
       setSaving(false)
       savingRef.current = false
