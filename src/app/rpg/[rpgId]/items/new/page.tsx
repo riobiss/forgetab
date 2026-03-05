@@ -1,4 +1,4 @@
-import ItemEditorForm from "@/presentation/items-editor/ItemEditorForm"
+import ItemEditorFeature from "@/presentation/items-editor/ItemEditorFeature"
 
 type Props = {
   params: Promise<{
@@ -8,5 +8,5 @@ type Props = {
 
 export default async function NewItemPage({ params }: Props) {
   const { rpgId } = await params
-  return <ItemEditorForm rpgId={rpgId} mode="create" />
+  return <ItemEditorFeature rpgId={rpgId} mode="create" gatewayFactory="http" />
 }

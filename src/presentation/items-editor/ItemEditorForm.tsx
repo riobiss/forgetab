@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import type { ItemsEditorDependencies } from "@/application/itemsEditor/contracts/ItemsEditorDependencies"
 import type { UpsertItemPayloadDto } from "@/application/itemsEditor/types"
 import {
   createItemUseCase,
@@ -18,7 +19,6 @@ import {
   baseItemTypeValues,
 } from "@/lib/validators/baseItem"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
-import { httpItemsEditorGateway } from "@/infrastructure/itemsEditor/gateways/httpItemsEditorGateway"
 
 type ItemType = (typeof baseItemTypeValues)[number]
 type ItemRarity = (typeof baseItemRarityValues)[number]
@@ -53,9 +53,8 @@ type Props = {
   rpgId: string
   mode: "create" | "edit"
   itemId?: string
+  deps: ItemsEditorDependencies
 }
-
-const itemsEditorDeps = { gateway: httpItemsEditorGateway }
 
 function toOptionalText(value: string) {
   const trimmed = value.trim()
@@ -111,7 +110,7 @@ function updateAt(
   )
 }
 
-export default function ItemEditorForm({ rpgId, mode, itemId }: Props) {
+export default function ItemEditorForm({ rpgId, mode, itemId, deps }: Props) {
   const router = useRouter()
   const isEditing = useMemo(() => mode === "edit", [mode])
 
@@ -162,7 +161,7 @@ export default function ItemEditorForm({ rpgId, mode, itemId }: Props) {
       setLoadingError("")
 
       try {
-        const item = (await loadItemDetailUseCase(itemsEditorDeps, {
+        const item = (await loadItemDetailUseCase(deps, {
           rpgId,
           itemId,
         })) as BaseItem
@@ -219,7 +218,7 @@ export default function ItemEditorForm({ rpgId, mode, itemId }: Props) {
     }
 
     void loadItem()
-  }, [isEditing, itemId, rpgId])
+  }, [deps, isEditing, itemId, rpgId])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -249,7 +248,7 @@ export default function ItemEditorForm({ rpgId, mode, itemId }: Props) {
     if (selectedImageFile) {
       setUploadingImage(true)
       try {
-        const upload = await uploadItemImageUseCase(itemsEditorDeps, { file: selectedImageFile })
+        const upload = await uploadItemImageUseCase(deps, { file: selectedImageFile })
         uploadedImageUrl = upload.url
         hasFreshUpload = true
         submittedImage = uploadedImageUrl
@@ -285,9 +284,9 @@ export default function ItemEditorForm({ rpgId, mode, itemId }: Props) {
 
     try {
       if (isEditing && itemId) {
-        await updateItemUseCase(itemsEditorDeps, { rpgId, itemId, payload })
+        await updateItemUseCase(deps, { rpgId, itemId, payload })
       } else {
-        await createItemUseCase(itemsEditorDeps, { rpgId, payload })
+        await createItemUseCase(deps, { rpgId, payload })
       }
 
       router.push(`/rpg/${rpgId}/items`)
@@ -295,7 +294,7 @@ export default function ItemEditorForm({ rpgId, mode, itemId }: Props) {
     } catch (cause) {
       if (hasFreshUpload && uploadedImageUrl) {
         try {
-          await deleteItemImageByUrlUseCase(itemsEditorDeps, { url: uploadedImageUrl })
+          await deleteItemImageByUrlUseCase(deps, { url: uploadedImageUrl })
         } catch {
           // Nao bloqueia a resposta de erro se a limpeza da imagem falhar.
         }
