@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react"
 import styles from "./ItemsDashboardClient.module.css"
+import type { ItemsDashboardDependencies } from "@/application/itemsDashboard/contracts/ItemsDashboardDependencies"
 import { IconButton } from "@/components/button"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
 import { useItemsDashboardState } from "./useItemsDashboardState"
@@ -22,9 +23,10 @@ import { parseNamedDescriptionList } from "./utils"
 
 type ItemsDashboardClientProps = {
   rpgId: string
+  deps: ItemsDashboardDependencies
 }
 
-export default function ItemsDashboardClient({ rpgId }: ItemsDashboardClientProps) {
+export default function ItemsDashboardClient({ rpgId, deps }: ItemsDashboardClientProps) {
   const {
     baseItemTypeValues,
     items,
@@ -51,7 +53,7 @@ export default function ItemsDashboardClient({ rpgId }: ItemsDashboardClientProp
     closeGiveModal,
     handleDelete,
     handleGiveItem,
-  } = useItemsDashboardState({ rpgId })
+  } = useItemsDashboardState({ rpgId, deps })
 
   return (
     <main className={styles.page}>

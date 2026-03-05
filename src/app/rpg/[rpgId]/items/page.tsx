@@ -8,5 +8,5 @@ type Props = {
 
 export default async function ItemsPage({ params }: Props) {
   const { rpgId } = await params
-  return <ItemsDashboardFeature rpgId={rpgId} />
+  return <ItemsDashboardFeature rpgId={rpgId} gatewayFactory="http" />
 }
