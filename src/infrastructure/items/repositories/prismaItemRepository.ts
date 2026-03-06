@@ -2,6 +2,7 @@ import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type {
   GiveItemInput,
+  ItemCharacterSummary,
   ItemRecord,
   ItemRepository,
 } from "@/application/items/ports/ItemRepository"
@@ -32,6 +33,18 @@ export const prismaItemRepository: ItemRepository = {
         created_at AS "createdAt",
         updated_at AS "updatedAt"
       FROM baseitems
+      WHERE rpg_id = ${rpgId}
+      ORDER BY created_at DESC
+    `)
+  },
+
+  listCharacterSummaries(rpgId) {
+    return prisma.$queryRaw<ItemCharacterSummary[]>(Prisma.sql`
+      SELECT
+        id,
+        name,
+        character_type::text AS "characterType"
+      FROM rpg_characters
       WHERE rpg_id = ${rpgId}
       ORDER BY created_at DESC
     `)

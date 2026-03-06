@@ -65,8 +65,15 @@ export type GiveItemInput = {
   quantity: number
 }
 
+export type ItemCharacterSummary = {
+  id: string
+  name: string
+  characterType: "player" | "npc" | "monster"
+}
+
 export interface ItemRepository {
   listByRpg(rpgId: string): Promise<ItemRecord[]>
+  listCharacterSummaries(rpgId: string): Promise<ItemCharacterSummary[]>
   findById(rpgId: string, itemId: string): Promise<ItemRecord | null>
   create(rpgId: string, input: NormalizedBaseItemInput): Promise<ItemRecord>
   update(rpgId: string, itemId: string, input: NormalizedBaseItemInput): Promise<ItemRecord | null>
