@@ -5,7 +5,7 @@ import type {
 } from "@/application/media/ports/ScopedImageService"
 import { AppError } from "@/shared/errors/AppError"
 
-function getImageKitConfig() {
+function getImageKitConfig(): { privateKey: string; urlEndpoint: string } {
   const privateKey = process.env.IMAGEKIT_PRIVATE_KEY
   const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT
 
@@ -20,7 +20,10 @@ function getImageKitConfig() {
     )
   }
 
-  return { privateKey, urlEndpoint }
+  return {
+    privateKey: privateKey as string,
+    urlEndpoint: urlEndpoint as string,
+  }
 }
 
 function buildUserFolder(userId: string, folder: string) {
