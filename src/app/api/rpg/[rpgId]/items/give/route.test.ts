@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   queryRaw: vi.fn(),
   executeRaw: vi.fn(),
   transaction: vi.fn(),
+  revalidateTag: vi.fn(),
 }))
 
 vi.mock("@/lib/auth/token", () => ({
@@ -24,6 +25,10 @@ vi.mock("@/lib/prisma", () => ({
     $executeRaw: mocks.executeRaw,
     $transaction: mocks.transaction,
   },
+}))
+
+vi.mock("next/cache", () => ({
+  revalidateTag: mocks.revalidateTag,
 }))
 
 import { POST } from "./route"
@@ -98,5 +103,7 @@ describe("POST /api/rpg/[rpgId]/items/give", () => {
       message: "Item enviado para 1 personagem(ns).",
       affectedPlayers: 1,
     })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("items-list:user:user-1", "max")
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("items-list:user:user-1:rpg:rpg-1", "max")
   })
 })

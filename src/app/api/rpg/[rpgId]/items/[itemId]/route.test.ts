@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   verifyAuthToken: vi.fn(),
   getRpgPermission: vi.fn(),
   queryRaw: vi.fn(),
+  revalidateTag: vi.fn(),
 }))
 
 vi.mock("@/lib/auth/token", () => ({
@@ -20,6 +21,10 @@ vi.mock("@/lib/prisma", () => ({
   prisma: {
     $queryRaw: mocks.queryRaw,
   },
+}))
+
+vi.mock("next/cache", () => ({
+  revalidateTag: mocks.revalidateTag,
 }))
 
 import { DELETE, GET, PATCH } from "./route"
@@ -88,5 +93,23 @@ describe("DELETE /api/rpg/[rpgId]/items/[itemId]", () => {
     const response = await DELETE(makeRequest("DELETE"), makeContext())
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({ message: "Item deletado com sucesso." })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("items-list:user:user-1", "max")
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("items-list:user:user-1:rpg:rpg-1", "max")
+  })
+
+  it("invalida cache ao atualizar item", async () => {
+    mocks.queryRaw.mockResolvedValueOnce([{ image: null }])
+    mocks.queryRaw.mockResolvedValueOnce([
+      { id: "item-1", rpgId: "rpg-1", name: "Espada", createdAt: new Date(), updatedAt: new Date() },
+    ])
+
+    const response = await PATCH(
+      makeRequest("PATCH", { name: "Espada", type: "weapon", rarity: "common" }),
+      makeContext(),
+    )
+
+    expect(response.status).toBe(200)
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("items-list:user:user-1", "max")
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("items-list:user:user-1:rpg:rpg-1", "max")
   })
 })

@@ -5,6 +5,8 @@ const mocks = vi.hoisted(() => ({
   verifyAuthToken: vi.fn(),
   getRpgPermission: vi.fn(),
   queryRaw: vi.fn(),
+  unstableCache: vi.fn(),
+  revalidateTag: vi.fn(),
 }))
 
 vi.mock("@/lib/auth/token", () => ({
@@ -20,6 +22,11 @@ vi.mock("@/lib/prisma", () => ({
   prisma: {
     $queryRaw: mocks.queryRaw,
   },
+}))
+
+vi.mock("next/cache", () => ({
+  unstable_cache: mocks.unstableCache,
+  revalidateTag: mocks.revalidateTag,
 }))
 
 import { GET, POST } from "./route"
@@ -43,6 +50,7 @@ describe("GET /api/rpg/[rpgId]/items", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.verifyAuthToken.mockResolvedValue({ userId: "user-1" })
+    mocks.unstableCache.mockImplementation((callback: () => unknown) => callback)
   })
 
   it("retorna 401 sem autenticacao", async () => {
@@ -91,5 +99,7 @@ describe("POST /api/rpg/[rpgId]/items", () => {
     expect(response.status).toBe(201)
     const json = await response.json()
     expect(json.item.id).toBe("item-1")
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("items-list:user:user-1", "max")
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("items-list:user:user-1:rpg:rpg-1", "max")
   })
 })
