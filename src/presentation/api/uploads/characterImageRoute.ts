@@ -1,7 +1,7 @@
 import { createScopedImageHandlers } from "@/presentation/api/uploads/createScopedImageHandlers"
 
 export const { POST, DELETE } = createScopedImageHandlers({
-  folder: "items",
-  defaultFileName: "item-image.jpg",
+  folder: "characters",
+  defaultFileName: "character-image.jpg",
   allowDelete: true,
 })
