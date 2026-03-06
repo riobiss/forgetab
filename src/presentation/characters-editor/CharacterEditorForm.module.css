@@ -1,0 +1,358 @@
+.page {
+  min-height: calc(100vh - 80px);
+  display: grid;
+  place-items: start center;
+  padding: 1.25rem 1rem;
+}
+
+.card {
+  width: min(920px, 100%);
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  padding: 1.15rem;
+  box-shadow: var(--shadow-elevation-md);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.85rem;
+}
+
+.header h1 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 1.35rem;
+}
+
+.header p {
+  margin: 0.3rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.94rem;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.badges span {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  padding: 0.28rem 0.58rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-hover);
+}
+
+.form {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.section {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: var(--color-bg-app);
+  padding: 0.72rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.62rem;
+}
+
+.section h2 {
+  margin: 0;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.sectionToggleButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  padding: 0.34rem 0.62rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.identityGrid {
+  display: grid;
+  gap: 0.62rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.valuesGrid {
+  display: grid;
+  gap: 0.62rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.field span {
+  color: var(--color-text-secondary);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.field input,
+.field select {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 9px;
+  padding: 0.56rem 0.7rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  font-size: 0.93rem;
+}
+
+.progressionPickerButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 9px;
+  padding: 0.56rem 0.7rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  font-size: 0.93rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fileUploadInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+.fileUploadTrigger {
+  border: 1px dashed var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.62rem 0.72rem;
+  background: color-mix(in srgb, var(--color-bg-app) 90%, var(--color-bg-surface));
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.fileUploadTrigger:hover {
+  border-color: color-mix(in srgb, var(--color-border-brand) 70%, var(--color-border-soft));
+}
+
+.fileUploadActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fileRemoveButton {
+  border: 1px solid color-mix(in srgb, var(--color-status-danger) 65%, var(--color-border-soft));
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, transparent);
+  color: var(--color-status-danger-contrast);
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fileRemoveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fileUploadStatus {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
+.visibilityOptions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.44rem;
+}
+
+.visibilityOption {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 9px;
+  padding: 0.56rem 0.7rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  text-align: center;
+}
+
+.visibilityOptionActive {
+  border-color: var(--color-border-brand);
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+  box-shadow: var(--shadow-brand-glow);
+}
+
+.error {
+  margin: 0;
+  color: var(--color-brand-primary);
+  font-size: 0.9rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.actions button {
+  border: none;
+  border-radius: 9px;
+  padding: 0.54rem 0.82rem;
+  background: var(--color-brand-primary);
+  color: var(--color-bg-app);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dangerButton {
+  border: 1px solid color-mix(in srgb, var(--color-status-danger) 55%, var(--color-border-soft)) !important;
+  background: color-mix(in srgb, var(--color-status-danger) 35%, var(--color-bg-app)) !important;
+  color: var(--color-status-danger-contrast) !important;
+}
+
+.actions button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.actions a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.deleteNotice {
+  border: 1px solid color-mix(in srgb, var(--color-status-danger) 55%, var(--color-border-soft));
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--color-status-danger) 12%, var(--color-bg-app));
+  display: grid;
+  gap: 0.55rem;
+}
+
+.deleteNotice p {
+  margin: 0;
+  color: var(--color-status-danger-contrast);
+  font-size: 0.9rem;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, #000 42%, transparent);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modalCard {
+  width: min(520px, 100%);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: var(--color-bg-surface);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.62rem;
+}
+
+.modalCard h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.modalCard p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.progressionOptions {
+  display: grid;
+  gap: 0.45rem;
+  max-height: min(56vh, 420px);
+  overflow: auto;
+}
+
+.progressionOption {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 9px;
+  padding: 0.56rem 0.7rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.progressionOptionActive {
+  border-color: var(--color-border-brand);
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+}
+
+.modalCloseButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 9px;
+  padding: 0.52rem 0.72rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  justify-self: end;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .card {
+    padding: 0.92rem;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .badges {
+    justify-content: flex-start;
+  }
+
+  .identityGrid,
+  .valuesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
