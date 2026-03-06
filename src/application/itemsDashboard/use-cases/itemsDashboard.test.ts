@@ -8,8 +8,7 @@ import {
 
 function createGatewayMock(): ItemsDashboardGateway {
   return {
-    fetchItems: vi.fn(),
-    fetchCharacters: vi.fn(),
+    fetchDashboardData: vi.fn(),
     deleteItem: vi.fn(),
     giveItem: vi.fn(),
   }
@@ -18,40 +17,39 @@ function createGatewayMock(): ItemsDashboardGateway {
 describe("itemsDashboard use-cases", () => {
   it("loadItemsDashboardData agrega items e personagens", async () => {
     const gateway = createGatewayMock()
-    ;(gateway.fetchItems as ReturnType<typeof vi.fn>).mockResolvedValue([
-      {
-        id: "item-1",
-        rpgId: "rpg-1",
-        name: "Espada",
-        image: null,
-        preRequirement: null,
-        type: "weapon",
-        rarity: "common",
-        damage: "1d6",
-        range: null,
-        ability: null,
-        abilityName: null,
-        effect: null,
-        effectName: null,
-        abilities: [],
-        effects: [],
-        weight: 1,
-        duration: null,
-        durability: null,
-        createdAt: "2026-03-05T00:00:00.000Z",
-        updatedAt: "2026-03-05T00:00:00.000Z",
-      },
-    ])
-    ;(gateway.fetchCharacters as ReturnType<typeof vi.fn>).mockResolvedValue([
-      { id: "char-1", name: "Aria", characterType: "player" },
-    ])
+    ;(gateway.fetchDashboardData as ReturnType<typeof vi.fn>).mockResolvedValue({
+      items: [
+        {
+          id: "item-1",
+          rpgId: "rpg-1",
+          name: "Espada",
+          image: null,
+          preRequirement: null,
+          type: "weapon",
+          rarity: "common",
+          damage: "1d6",
+          range: null,
+          ability: null,
+          abilityName: null,
+          effect: null,
+          effectName: null,
+          abilities: [],
+          effects: [],
+          weight: 1,
+          duration: null,
+          durability: null,
+          createdAt: "2026-03-05T00:00:00.000Z",
+          updatedAt: "2026-03-05T00:00:00.000Z",
+        },
+      ],
+      characters: [{ id: "char-1", name: "Aria", characterType: "player" }],
+    })
 
     const result = await loadItemsDashboardData({ gateway }, { rpgId: "rpg-1" })
 
     expect(result.items).toHaveLength(1)
     expect(result.characters).toEqual([{ id: "char-1", name: "Aria", characterType: "player" }])
-    expect(gateway.fetchItems).toHaveBeenCalledWith("rpg-1")
-    expect(gateway.fetchCharacters).toHaveBeenCalledWith("rpg-1")
+    expect(gateway.fetchDashboardData).toHaveBeenCalledWith("rpg-1")
   })
 
   it("deleteItemUseCase delega para gateway", async () => {

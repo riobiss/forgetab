@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createItem } from "@/application/items/use-cases/createItem"
 import { deleteItem } from "@/application/items/use-cases/deleteItem"
+import { getItemsDashboardData } from "@/application/items/use-cases/getItemsDashboardData"
 import { getItemById } from "@/application/items/use-cases/getItemById"
 import { getItems } from "@/application/items/use-cases/getItems"
 import { giveItem } from "@/application/items/use-cases/giveItem"
@@ -9,6 +10,7 @@ import { AppError } from "@/shared/errors/AppError"
 
 const repository = {
   listByRpg: vi.fn(),
+  listCharacterSummaries: vi.fn(),
   findById: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),
@@ -42,6 +44,23 @@ describe("items use-cases", () => {
 
     expect(result).toEqual({ items: [{ id: "item-1" }] })
     expect(repository.listByRpg).toHaveBeenCalledWith("rpg-1")
+  })
+
+  it("getItemsDashboardData agrega itens e personagens", async () => {
+    repository.listByRpg.mockResolvedValue([{ id: "item-1" }])
+    repository.listCharacterSummaries.mockResolvedValue([
+      { id: "char-1", name: "Aria", characterType: "player" },
+    ])
+
+    const result = await getItemsDashboardData(
+      { repository, permissionService },
+      { rpgId: "rpg-1", userId: "user-1" },
+    )
+
+    expect(result).toEqual({
+      items: [{ id: "item-1" }],
+      characters: [{ id: "char-1", name: "Aria", characterType: "player" }],
+    })
   })
 
   it("createItem valida e delega criacao", async () => {
