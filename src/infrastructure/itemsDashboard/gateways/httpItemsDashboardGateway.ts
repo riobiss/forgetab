@@ -14,16 +14,18 @@ async function parseJson<T>(response: Response): Promise<T> {
 }
 
 export const httpItemsDashboardGateway: ItemsDashboardGateway = {
-  async fetchItems(rpgId: string): Promise<BaseItemDto[]> {
-    const response = await fetch(`/api/rpg/${rpgId}/items`)
-    const payload = await parseJson<{ items?: BaseItemDto[] }>(response)
-    return payload.items ?? []
-  },
-
-  async fetchCharacters(rpgId: string): Promise<CharacterSummaryDto[]> {
-    const response = await fetch(`/api/rpg/${rpgId}/characters`)
-    const payload = await parseJson<{ characters?: CharacterSummaryDto[] }>(response)
-    return payload.characters ?? []
+  async fetchDashboardData(
+    rpgId: string,
+  ): Promise<{ items: BaseItemDto[]; characters: CharacterSummaryDto[] }> {
+    const response = await fetch(`/api/rpg/${rpgId}/items/dashboard`)
+    const payload = await parseJson<{
+      items?: BaseItemDto[]
+      characters?: CharacterSummaryDto[]
+    }>(response)
+    return {
+      items: payload.items ?? [],
+      characters: payload.characters ?? [],
+    }
   },
 
   async deleteItem(rpgId: string, itemId: string): Promise<void> {

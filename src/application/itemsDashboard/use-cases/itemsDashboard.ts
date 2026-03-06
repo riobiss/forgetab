@@ -4,12 +4,7 @@ import type { GiveItemPayloadDto } from "@/application/itemsDashboard/types"
 type Dependencies = ItemsDashboardDependencies
 
 export async function loadItemsDashboardData(deps: Dependencies, params: { rpgId: string }) {
-  const [items, characters] = await Promise.all([
-    deps.gateway.fetchItems(params.rpgId),
-    deps.gateway.fetchCharacters(params.rpgId),
-  ])
-
-  return { items, characters }
+  return deps.gateway.fetchDashboardData(params.rpgId)
 }
 
 export async function deleteItemUseCase(
