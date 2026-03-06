@@ -6,7 +6,6 @@ import { getItemById } from "@/application/items/use-cases/getItemById"
 import { getItems } from "@/application/items/use-cases/getItems"
 import { giveItem } from "@/application/items/use-cases/giveItem"
 import { updateItem } from "@/application/items/use-cases/updateItem"
-import { AppError } from "@/shared/errors/AppError"
 
 const repository = {
   listByRpg: vi.fn(),
@@ -87,7 +86,7 @@ describe("items use-cases", () => {
         { repository, permissionService },
         { rpgId: "rpg-1", itemId: "item-1", userId: "user-1" },
       ),
-    ).rejects.toMatchObject<AppError>({ status: 404, message: "Item nao encontrado." })
+    ).rejects.toMatchObject({ status: 404, message: "Item nao encontrado." })
   })
 
   it("updateItem remove imagem anterior quando a URL muda", async () => {

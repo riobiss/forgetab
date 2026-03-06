@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { deleteScopedImage, uploadScopedImage } from "@/application/media/use-cases/scopedImages"
-import { AppError } from "@/shared/errors/AppError"
 
 const service = {
   upload: vi.fn(),
@@ -15,7 +14,7 @@ describe("scopedImages use-cases", () => {
   it("valida arquivo obrigatorio no upload", async () => {
     await expect(
       uploadScopedImage({ service }, { userId: "u1", folder: "items", fileName: "item.jpg", file: null }),
-    ).rejects.toMatchObject<AppError>({ status: 400, message: "Arquivo de imagem e obrigatorio." })
+    ).rejects.toMatchObject({ status: 400, message: "Arquivo de imagem e obrigatorio." })
   })
 
   it("delega upload com configuracao de escopo", async () => {
