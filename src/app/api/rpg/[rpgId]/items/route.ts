@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
+import { unstable_cache } from "next/cache"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { createBaseItemSchema } from "@/lib/validators/baseItem"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import {
+  buildItemsListTagList,
+  revalidateItemsListTags,
+} from "@/presentation/api/items/cacheTags"
 
 type RouteContext = {
   params: Promise<{
@@ -74,6 +79,36 @@ function normalizeNamedEntries(entries: NamedDescription[] | null | undefined) {
     .filter((entry) => entry.name.length > 0 && entry.description.length > 0)
 }
 
+async function queryBaseItems(rpgId: string) {
+  return prisma.$queryRaw<BaseItemRow[]>(Prisma.sql`
+    SELECT
+      id,
+      rpg_id AS "rpgId",
+      name,
+      image,
+      description,
+      pre_requirement AS "preRequirement",
+      type,
+      rarity,
+      damage,
+      "range" AS "range",
+      ability,
+      ability_name AS "abilityName",
+      effect,
+      effect_name AS "effectName",
+      abilities,
+      effects,
+      weight,
+      duration,
+      durability,
+      created_at AS "createdAt",
+      updated_at AS "updatedAt"
+    FROM baseitems
+    WHERE rpg_id = ${rpgId}
+    ORDER BY created_at DESC
+  `)
+}
+
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const userId = await getUserIdFromToken(request)
@@ -92,33 +127,18 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
     }
 
-    const baseItems = await prisma.$queryRaw<BaseItemRow[]>(Prisma.sql`
-      SELECT
-        id,
-        rpg_id AS "rpgId",
-        name,
-        image,
-        description,
-        pre_requirement AS "preRequirement",
-        type,
-        rarity,
-        damage,
-        "range" AS "range",
-        ability,
-        ability_name AS "abilityName",
-        effect,
-        effect_name AS "effectName",
-        abilities,
-        effects,
-        weight,
-        duration,
-        durability,
-        created_at AS "createdAt",
-        updated_at AS "updatedAt"
-      FROM baseitems
-      WHERE rpg_id = ${rpgId}
-      ORDER BY created_at DESC
-    `)
+    const cacheKey = ["items-list", userId, rpgId]
+    const tags = buildItemsListTagList({ userId, rpgId })
+    const getCachedBaseItems = unstable_cache(() => queryBaseItems(rpgId), cacheKey, {
+      revalidate: 60,
+      tags,
+    })
+    let baseItems: BaseItemRow[]
+    try {
+      baseItems = await getCachedBaseItems()
+    } catch {
+      baseItems = await queryBaseItems(rpgId)
+    }
 
     return NextResponse.json({ items: baseItems }, { status: 200 })
   } catch (error) {
@@ -284,6 +304,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
         created_at AS "createdAt",
         updated_at AS "updatedAt"
     `)
+
+    revalidateItemsListTags({ userId, rpgId })
 
     return NextResponse.json({ item: created[0] }, { status: 201 })
   } catch (error) {

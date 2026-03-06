@@ -3,6 +3,7 @@ import { Prisma } from "../../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import { revalidateItemsListTags } from "@/presentation/api/items/cacheTags"
 
 type RouteContext = {
   params: Promise<{
@@ -134,6 +135,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
         `),
       ),
     )
+
+    revalidateItemsListTags({ userId, rpgId })
 
     return NextResponse.json(
       {

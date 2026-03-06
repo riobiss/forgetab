@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { createBaseItemSchema } from "@/lib/validators/baseItem"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import { revalidateItemsListTags } from "@/presentation/api/items/cacheTags"
 
 type RouteContext = {
   params: Promise<{
@@ -429,6 +430,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       }
     }
 
+    revalidateItemsListTags({ userId, rpgId })
+
     return NextResponse.json({ item: updated[0] }, { status: 200 })
   } catch (error) {
     if (error instanceof Error) {
@@ -528,6 +531,8 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         // Nao bloqueia a exclusao do item caso a limpeza da imagem falhe.
       }
     }
+
+    revalidateItemsListTags({ userId, rpgId })
 
     return NextResponse.json(
       { message: "Item deletado com sucesso." },
