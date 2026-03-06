@@ -161,9 +161,14 @@ export default function ItemEditorForm({ rpgId, mode, itemId, deps }: Props) {
       setLoadingError("")
 
       try {
+        const currentItemId = itemId
+        if (!currentItemId) {
+          return
+        }
+
         const item = (await loadItemDetailUseCase(deps, {
           rpgId,
-          itemId,
+          itemId: currentItemId,
         })) as BaseItem
 
         setName(item.name)
