@@ -1,12 +1,12 @@
-import Image from "next/image"
-import styles from "./page.module.css"
-import Link from "next/link"
-import { prisma } from "@/lib/prisma"
-import { Prisma } from "../../../../../generated/prisma/client.js"
 import { notFound } from "next/navigation"
-import CharacterCreationPermission from "./components/CharacterCreationPermission"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
-import { getMembershipStatus } from "@/lib/server/rpgAccess"
+import { prismaRpgAccessRepository } from "@/infrastructure/characters/repositories/prismaRpgAccessRepository"
+import { prismaCharactersDashboardRepository } from "@/infrastructure/charactersDashboard/repositories/prismaCharactersDashboardRepository"
+import CharactersDashboardPage from "@/presentation/characters-dashboard/CharactersDashboardPage"
+import {
+  loadCharactersDashboardUseCase,
+} from "@/application/charactersDashboard/use-cases/loadCharactersDashboard"
+import type { CharactersDashboardFilterType } from "@/application/charactersDashboard/types"
 
 type Params = {
   params: Promise<{
@@ -17,225 +17,30 @@ type Params = {
   }>
 }
 
-type DbCharacterRow = {
-  id: string
-  name: string
-  image: string | null
-  characterType: "player" | "npc" | "monster"
-  createdByUserId: string | null
-}
-
-type DbRpgRow = {
-  id: string
-  ownerId: string
-  visibility: "private" | "public"
-  allowMultiplePlayerCharacters: boolean
+function normalizeFilterType(value?: string): CharactersDashboardFilterType {
+  return value === "player" || value === "npc" || value === "monster" ? value : "all"
 }
 
 export default async function CharactersPage({ params, searchParams }: Params) {
   const { rpgId } = await params
   const resolvedSearchParams = await searchParams
-  const filterType =
-    resolvedSearchParams?.type === "player" ||
-    resolvedSearchParams?.type === "npc" ||
-    resolvedSearchParams?.type === "monster"
-      ? resolvedSearchParams.type
-      : "all"
-
-  let dbRpg:
-    | {
-        id: string
-        ownerId: string
-        visibility: "private" | "public"
-        allowMultiplePlayerCharacters: boolean
-      }
-    | null = null
-  let dbCharacters: DbCharacterRow[] = []
-  let privateBlocked = false
-  let canCreateCharacter = false
-  let isOwner = false
-  let isAcceptedMember = false
-  let ownPlayerCount = 0
-  let allowMultiplePlayerCharacters = false
-
   const userId = await getUserIdFromCookieStore()
 
-  try {
-    let rpgRows: DbRpgRow[] = []
-    try {
-      rpgRows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
-        SELECT
-          id,
-          owner_id AS "ownerId",
-          visibility,
-          COALESCE(allow_multiple_player_characters, false) AS "allowMultiplePlayerCharacters"
-        FROM rpgs
-        WHERE id = ${rpgId}
-        LIMIT 1
-      `)
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message.includes('column "allow_multiple_player_characters" does not exist')
-      ) {
-        rpgRows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
-          SELECT
-            id,
-            owner_id AS "ownerId",
-            visibility,
-            false AS "allowMultiplePlayerCharacters"
-          FROM rpgs
-          WHERE id = ${rpgId}
-          LIMIT 1
-        `)
-      } else {
-        throw error
-      }
-    }
-    dbRpg = rpgRows[0] ?? null
-
-    if (dbRpg) {
-      isOwner = userId === dbRpg.ownerId
-
-      if (userId && !isOwner) {
-        isAcceptedMember = (await getMembershipStatus(rpgId, userId)) === "accepted"
-      }
-
-      if (dbRpg.visibility === "private" && !isOwner && !isAcceptedMember) {
-        privateBlocked = true
-      } else {
-        allowMultiplePlayerCharacters = Boolean(dbRpg.allowMultiplePlayerCharacters)
-        canCreateCharacter = Boolean(userId && (isOwner || isAcceptedMember))
-
-        dbCharacters = await prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
-          SELECT
-            id,
-            name,
-            image,
-            character_type AS "characterType",
-            created_by_user_id AS "createdByUserId"
-          FROM rpg_characters
-          WHERE rpg_id = ${rpgId}
-            ${
-              isOwner
-                ? Prisma.empty
-                : userId
-                  ? Prisma.sql`AND (visibility = 'public'::"RpgVisibility" OR created_by_user_id = ${userId})`
-                  : Prisma.sql`AND visibility = 'public'::"RpgVisibility"`
-            }
-            ${
-              filterType !== "all"
-                ? Prisma.sql`AND character_type = ${filterType}::"RpgCharacterType"`
-                : Prisma.empty
-            }
-          ORDER BY created_at DESC
-        `)
-
-        if (userId) {
-          ownPlayerCount = dbCharacters.filter(
-            (character) =>
-              character.characterType === "player" &&
-              character.createdByUserId === userId,
-          ).length
-        }
-      }
-    }
-  } catch {
-    dbRpg = null
-    dbCharacters = []
-    canCreateCharacter = false
-    isOwner = false
-    isAcceptedMember = false
-    ownPlayerCount = 0
-    allowMultiplePlayerCharacters = false
-  }
-
-  if (privateBlocked) {
-    notFound()
-  }
-
-  if (!dbRpg) {
-    notFound()
-  }
-
-  return (
-    <main className={styles.container}>
-      <div className={styles.topbar}>
-        <h1 className={styles.title}>Personagens</h1>
-
-        {canCreateCharacter && isOwner ? (
-          <div className={styles.topActions}>
-            <Link href={`/rpg/${rpgId}/characters/new`} className={styles.createButton}>
-              Criar personagem
-            </Link>
-          </div>
-        ) : null}
-      </div>
-
-      <div className={styles.filters}>
-        <Link
-          href={`/rpg/${rpgId}/characters`}
-          className={`${styles.filterButton} ${filterType === "all" ? styles.filterActive : ""}`}
-        >
-          Todos
-        </Link>
-        <Link
-          href={`/rpg/${rpgId}/characters?type=player`}
-          className={`${styles.filterButton} ${filterType === "player" ? styles.filterActive : ""}`}
-        >
-          Player
-        </Link>
-        <Link
-          href={`/rpg/${rpgId}/characters?type=npc`}
-          className={`${styles.filterButton} ${filterType === "npc" ? styles.filterActive : ""}`}
-        >
-          NPC
-        </Link>
-        <Link
-          href={`/rpg/${rpgId}/characters?type=monster`}
-          className={`${styles.filterButton} ${filterType === "monster" ? styles.filterActive : ""}`}
-        >
-          Monstro
-        </Link>
-      </div>
-
-      {canCreateCharacter ? (
-        <CharacterCreationPermission
-          rpgId={rpgId}
-          isOwner={isOwner}
-          isAcceptedMember={isAcceptedMember}
-          ownPlayerCount={ownPlayerCount}
-          allowMultiplePlayerCharacters={allowMultiplePlayerCharacters}
-        />
-      ) : null}
-
-      {dbCharacters.length > 0 ? (
-        <section className={styles.dbSection}>
-          <div className={styles.grid}>
-            {dbCharacters.map((character) => (
-              <article key={character.id} className={styles.card}>
-                <Link href={`/rpg/${rpgId}/characters/${character.id}`}>
-                  <Image
-                    src={character.image ?? "/images/bg-characters.jpg"}
-                    alt={`Imagem do personagem ${character.name}`}
-                    fill
-                    className={styles.image}
-                    priority
-                    sizes="(max-width: 1099px) 50vw, 33vw"
-                  />
-                  <div className={styles.overlay}>
-                    <h2 className={styles.name}>{character.name}</h2>
-                  </div>
-                </Link>
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {dbCharacters.length === 0 ? (
-        <p className={styles.emptyState}>Nenhum personagem encontrado.</p>
-      ) : null}
-    </main>
+  const result = await loadCharactersDashboardUseCase(
+    {
+      dashboardRepository: prismaCharactersDashboardRepository,
+      rpgAccessRepository: prismaRpgAccessRepository,
+    },
+    {
+      rpgId,
+      userId,
+      filterType: normalizeFilterType(resolvedSearchParams?.type),
+    },
   )
+
+  if (result.status === "not_found" || result.status === "private_blocked") {
+    notFound()
+  }
+
+  return <CharactersDashboardPage data={result.data} />
 }

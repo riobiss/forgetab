@@ -3,23 +3,29 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { ReactNode } from "react"
 
 const mocks = vi.hoisted(() => ({
-  queryRaw: vi.fn(),
   getUserIdFromCookieStore: vi.fn(),
-  getMembershipStatus: vi.fn(),
-}))
-
-vi.mock("@/lib/prisma", () => ({
-  prisma: {
-    $queryRaw: mocks.queryRaw,
-  },
+  getMembership: vi.fn(),
+  getRpg: vi.fn(),
+  listCharacters: vi.fn(),
+  countOwnPlayerCharacters: vi.fn(),
 }))
 
 vi.mock("@/lib/server/auth", () => ({
   getUserIdFromCookieStore: mocks.getUserIdFromCookieStore,
 }))
 
-vi.mock("@/lib/server/rpgAccess", () => ({
-  getMembershipStatus: mocks.getMembershipStatus,
+vi.mock("@/infrastructure/characters/repositories/prismaRpgAccessRepository", () => ({
+  prismaRpgAccessRepository: {
+    getMembership: mocks.getMembership,
+  },
+}))
+
+vi.mock("@/infrastructure/charactersDashboard/repositories/prismaCharactersDashboardRepository", () => ({
+  prismaCharactersDashboardRepository: {
+    getRpg: mocks.getRpg,
+    listCharacters: mocks.listCharacters,
+    countOwnPlayerCharacters: mocks.countOwnPlayerCharacters,
+  },
 }))
 
 vi.mock("next/link", () => ({
@@ -46,29 +52,26 @@ describe("CharactersPage", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.getUserIdFromCookieStore.mockResolvedValue("user-1")
-    mocks.getMembershipStatus.mockResolvedValue("accepted")
+    mocks.getMembership.mockResolvedValue({ status: "accepted", role: "player" })
+    mocks.getRpg.mockResolvedValue({
+      id: "rpg-1",
+      ownerId: "owner-1",
+      visibility: "public",
+      allowMultiplePlayerCharacters: false,
+    })
+    mocks.listCharacters.mockResolvedValue([
+      {
+        id: "c1",
+        name: "Player 1",
+        image: null,
+        characterType: "player",
+        createdByUserId: "user-1",
+      },
+    ])
+    mocks.countOwnPlayerCharacters.mockResolvedValue(1)
   })
 
   it("nao mostra criacao extra para membro com player existente quando multiplos estao desabilitados", async () => {
-    mocks.queryRaw
-      .mockResolvedValueOnce([
-        {
-          id: "rpg-1",
-          ownerId: "owner-1",
-          visibility: "public",
-          allowMultiplePlayerCharacters: false,
-        },
-      ])
-      .mockResolvedValueOnce([
-        {
-          id: "c1",
-          name: "Player 1",
-          image: null,
-          characterType: "player",
-          createdByUserId: "user-1",
-        },
-      ])
-
     render(
       await CharactersPage({
         params: Promise.resolve({ rpgId: "rpg-1" }),
@@ -83,24 +86,12 @@ describe("CharactersPage", () => {
   })
 
   it("mostra criacao extra para membro com player existente quando multiplos estao habilitados", async () => {
-    mocks.queryRaw
-      .mockResolvedValueOnce([
-        {
-          id: "rpg-1",
-          ownerId: "owner-1",
-          visibility: "public",
-          allowMultiplePlayerCharacters: true,
-        },
-      ])
-      .mockResolvedValueOnce([
-        {
-          id: "c1",
-          name: "Player 1",
-          image: null,
-          characterType: "player",
-          createdByUserId: "user-1",
-        },
-      ])
+    mocks.getRpg.mockResolvedValue({
+      id: "rpg-1",
+      ownerId: "owner-1",
+      visibility: "public",
+      allowMultiplePlayerCharacters: true,
+    })
 
     render(
       await CharactersPage({
