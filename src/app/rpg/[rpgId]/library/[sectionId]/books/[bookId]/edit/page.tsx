@@ -1,12 +1,14 @@
-import BookEditorClient from "../../BookEditorClient"
+import LibraryBookEditorFeature from "@/presentation/library/books/LibraryBookEditorFeature"
 
 type Params = {
   params: Promise<{
+    rpgId: string
+    sectionId: string
     bookId: string
   }>
 }
 
 export default async function EditLibraryBookPage({ params }: Params) {
-  const { bookId } = await params
-  return <BookEditorClient mode="edit" bookId={bookId} />
+  const { rpgId, sectionId, bookId } = await params
+  return <LibraryBookEditorFeature rpgId={rpgId} sectionId={sectionId} mode="edit" bookId={bookId} />
 }
