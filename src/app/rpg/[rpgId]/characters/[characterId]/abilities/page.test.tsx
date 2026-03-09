@@ -3,34 +3,44 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { ReactNode } from "react"
 
 const mocks = vi.hoisted(() => ({
-  findUnique: vi.fn(),
-  queryRaw: vi.fn(),
   getUserIdFromCookieStore: vi.fn(),
-  getMembershipStatus: vi.fn(),
+  getMembership: vi.fn(),
+  getRpg: vi.fn(),
+  getCharacter: vi.fn(),
+  getClassByKey: vi.fn(),
+  listPurchasedSkillLevels: vi.fn(),
+  listSkillClassLinks: vi.fn(),
+  listSkillRaceLinks: vi.fn(),
   parseCharacterAbilities: vi.fn(),
   parseCostPoints: vi.fn(),
-}))
-
-vi.mock("@/lib/prisma", () => ({
-  prisma: {
-    rpg: {
-      findUnique: mocks.findUnique,
-    },
-    $queryRaw: mocks.queryRaw,
-  },
 }))
 
 vi.mock("@/lib/server/auth", () => ({
   getUserIdFromCookieStore: mocks.getUserIdFromCookieStore,
 }))
 
-vi.mock("@/lib/server/rpgAccess", () => ({
-  getMembershipStatus: mocks.getMembershipStatus,
+vi.mock("@/infrastructure/characters/repositories/prismaRpgAccessRepository", () => ({
+  prismaRpgAccessRepository: {
+    getMembership: mocks.getMembership,
+  },
 }))
 
-vi.mock("@/lib/server/costSystem", () => ({
-  parseCharacterAbilities: mocks.parseCharacterAbilities,
-  parseCostPoints: mocks.parseCostPoints,
+vi.mock("@/infrastructure/characterAbilities/repositories/prismaCharacterAbilitiesRepository", () => ({
+  prismaCharacterAbilitiesRepository: {
+    getRpg: mocks.getRpg,
+    getCharacter: mocks.getCharacter,
+    getClassByKey: mocks.getClassByKey,
+    listPurchasedSkillLevels: mocks.listPurchasedSkillLevels,
+    listSkillClassLinks: mocks.listSkillClassLinks,
+    listSkillRaceLinks: mocks.listSkillRaceLinks,
+  },
+}))
+
+vi.mock("@/infrastructure/characterAbilities/services/legacyCharacterAbilitiesParserService", () => ({
+  legacyCharacterAbilitiesParserService: {
+    parseCharacterAbilities: mocks.parseCharacterAbilities,
+    parseCostPoints: mocks.parseCostPoints,
+  },
 }))
 
 vi.mock("next/navigation", () => ({
@@ -45,106 +55,83 @@ vi.mock("next/link", () => ({
   ),
 }))
 
-vi.mock("@/components/select/NativeSelectField", () => ({
-  NativeSelectField: ({
-    value,
-    onChange,
-    children,
-  }: {
-    value?: string
-    onChange?: (event: { target: { value: string } }) => void
-    children: ReactNode
-  }) => (
-    <select
-      value={value}
-      onChange={(event) => onChange?.({ target: { value: event.target.value } })}
-    >
-      {children}
-    </select>
-  ),
-}))
-
 import AbilitiesPage from "./page"
 
 describe("AbilitiesPage", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.getUserIdFromCookieStore.mockResolvedValue("user-1")
-    mocks.findUnique.mockResolvedValue({
+    mocks.getRpg.mockResolvedValue({
       id: "rpg-1",
       ownerId: "user-1",
       visibility: "public",
+    })
+    mocks.getCharacter.mockResolvedValue({
+      id: "char-1",
+      rpgId: "rpg-1",
+      name: "Arthas",
+      classKey: "warrior",
+      visibility: "public",
+      characterType: "player",
+      createdByUserId: "user-1",
+      abilities: [],
+    })
+    mocks.getClassByKey.mockResolvedValue({
+      id: "class-1",
+      key: "warrior",
+      label: "Guerreiro",
     })
     mocks.parseCharacterAbilities.mockReturnValue([
       { skillId: "s1", level: 1 },
       { skillId: "s2", level: 2 },
     ])
     mocks.parseCostPoints.mockReturnValue(null)
-
-    mocks.queryRaw
-      .mockResolvedValueOnce([
-        {
-          id: "char-1",
-          rpgId: "rpg-1",
-          name: "Arthas",
-          classKey: "warrior",
-          visibility: "public",
-          characterType: "player",
-          createdByUserId: "user-1",
-          abilities: [],
-        },
-      ])
-      .mockResolvedValueOnce([
-        {
-          id: "class-1",
-          key: "warrior",
-          label: "Guerreiro",
-        },
-      ])
-      .mockResolvedValueOnce([
-        {
-          skillId: "s1",
-          skillName: "Golpe",
-          skillDescription: "Ataque corpo a corpo.",
-          skillCategory: "tecnicas",
-          skillType: "attack",
-          skillActionType: "action",
-          levelNumber: 1,
-          levelRequired: 1,
-          summary: "Resumo",
-          stats: { name: "Golpe Preciso", damage: "1d8" },
-          cost: {},
-          target: {},
-          area: {},
-          scaling: {},
-          requirement: {},
-        },
-        {
-          skillId: "s2",
-          skillName: "Raio Arcano",
-          skillDescription: "Dano magico.",
-          skillCategory: "arcana",
-          skillType: "burst",
-          skillActionType: "action",
-          levelNumber: 2,
-          levelRequired: 2,
-          summary: "Resumo",
-          stats: { name: "Raio Maior", damage: "2d6" },
-          cost: {},
-          target: {},
-          area: {},
-          scaling: {},
-          requirement: {},
-        },
-      ])
-      .mockResolvedValueOnce([
-        { skillId: "s1", classLabel: "Guerreiro" },
-        { skillId: "s2", classLabel: "Mago" },
-      ])
-      .mockResolvedValueOnce([
-        { skillId: "s1", raceLabel: "Humano" },
-        { skillId: "s2", raceLabel: "Elfo" },
-      ])
+    mocks.listPurchasedSkillLevels.mockResolvedValue([
+      {
+        skillId: "s1",
+        skillName: "Golpe",
+        skillDescription: "Ataque corpo a corpo.",
+        skillCategory: "tecnicas",
+        skillType: "attack",
+        skillActionType: "action",
+        skillTags: [],
+        levelNumber: 1,
+        levelRequired: 1,
+        summary: "Resumo",
+        stats: { name: "Golpe Preciso", damage: "1d8" },
+        cost: {},
+        target: {},
+        area: {},
+        scaling: {},
+        requirement: {},
+      },
+      {
+        skillId: "s2",
+        skillName: "Raio Arcano",
+        skillDescription: "Dano magico.",
+        skillCategory: "arcana",
+        skillType: "burst",
+        skillActionType: "action",
+        skillTags: [],
+        levelNumber: 2,
+        levelRequired: 2,
+        summary: "Resumo",
+        stats: { name: "Raio Maior", damage: "2d6" },
+        cost: {},
+        target: {},
+        area: {},
+        scaling: {},
+        requirement: {},
+      },
+    ])
+    mocks.listSkillClassLinks.mockResolvedValue([
+      { skillId: "s1", classLabel: "Guerreiro" },
+      { skillId: "s2", classLabel: "Mago" },
+    ])
+    mocks.listSkillRaceLinks.mockResolvedValue([
+      { skillId: "s1", raceLabel: "Humano" },
+      { skillId: "s2", raceLabel: "Elfo" },
+    ])
   })
 
   it("renderiza habilidades do personagem", async () => {

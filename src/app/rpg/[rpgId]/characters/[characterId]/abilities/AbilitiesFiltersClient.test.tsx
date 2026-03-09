@@ -1,28 +1,14 @@
 import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-import type { ReactNode } from "react"
 
-vi.mock("@/components/select/NativeSelectField", () => ({
-  NativeSelectField: ({
-    value,
-    onChange,
-    children,
-  }: {
-    value?: string
-    onChange?: (event: { target: { value: string } }) => void
-    children: ReactNode
-  }) => (
-    <select
-      value={value}
-      onChange={(event) => onChange?.({ target: { value: event.target.value } })}
-    >
-      {children}
-    </select>
-  ),
+vi.mock("@/infrastructure/characterAbilities/gateways/httpCharacterAbilitiesGateway", () => ({
+  httpCharacterAbilitiesGateway: {
+    removeAbility: vi.fn().mockResolvedValue({ success: true }),
+  },
 }))
 
-import AbilitiesFiltersClient from "./AbilitiesFiltersClient"
+import AbilitiesFiltersClient from "@/presentation/character-abilities/AbilitiesFiltersClient"
 
 const abilities = [
   {
@@ -82,8 +68,14 @@ const abilities = [
 ]
 
 describe("AbilitiesFiltersClient", () => {
+  const deps = {
+    gateway: {
+      removeAbility: vi.fn().mockResolvedValue({ success: true }),
+    },
+  }
+
   it("renderiza as habilidades iniciais", () => {
-    render(<AbilitiesFiltersClient characterId="char-1" abilities={abilities} />)
+    render(<AbilitiesFiltersClient characterId="char-1" abilities={abilities} deps={deps} />)
 
     expect(screen.getByText("Golpe Preciso")).toBeInTheDocument()
     expect(screen.getByText("Raio Maior")).toBeInTheDocument()
@@ -91,7 +83,7 @@ describe("AbilitiesFiltersClient", () => {
 
   it("filtra por categoria selecionada", async () => {
     const user = userEvent.setup()
-    render(<AbilitiesFiltersClient characterId="char-1" abilities={abilities} />)
+    render(<AbilitiesFiltersClient characterId="char-1" abilities={abilities} deps={deps} />)
 
     await user.click(screen.getByRole("button", { name: "Abrir filtros" }))
     const filtersDialog = screen.getByRole("dialog")
@@ -103,7 +95,7 @@ describe("AbilitiesFiltersClient", () => {
 
   it("exibe estado vazio quando busca nao encontra resultados", async () => {
     const user = userEvent.setup()
-    render(<AbilitiesFiltersClient characterId="char-1" abilities={abilities} />)
+    render(<AbilitiesFiltersClient characterId="char-1" abilities={abilities} deps={deps} />)
 
     await user.type(screen.getByPlaceholderText("Buscar..."), "inexistente")
 
