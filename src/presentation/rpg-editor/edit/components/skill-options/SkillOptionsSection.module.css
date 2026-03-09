@@ -1,0 +1,73 @@
+.section {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 0.65rem;
+  background: color-mix(in srgb, var(--color-bg-surface) 80%, transparent);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.section h3 {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.headerActions button {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.48rem 0.75rem;
+  background: color-mix(in srgb, var(--color-bg-surface) 86%, transparent);
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.actions input {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  background: color-mix(in srgb, var(--color-bg-app) 88%, var(--color-bg-surface));
+  color: var(--color-text-secondary);
+  min-width: 190px;
+}
+
+.actions button {
+  border: 1px solid var(--color-border-brand);
+  border-radius: 10px;
+  padding: 0.56rem 0.8rem;
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, transparent);
+  color: var(--color-text-primary);
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.iconOnlyButton {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  padding: 0 !important;
+  justify-content: center;
+  gap: 0;
+}
+

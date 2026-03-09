@@ -4,9 +4,9 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import AdvancedIdentityEditor, {
   IdentityTemplateDraft,
-} from "../../../components/AdvancedIdentityEditor"
+} from "@/presentation/rpg-editor/edit/components/AdvancedIdentityEditor"
 import { createDefaultRaceLore, normalizeRaceLore, type RaceLore } from "@/lib/rpg/raceLore"
-import type { AttributeTemplate } from "@/app/rpg/[rpgId]/edit/components/shared/types"
+import type { AttributeTemplate } from "@/presentation/rpg-editor/edit/components/shared/types"
 import styles from "./page.module.css"
 
 type IdentityType = "race" | "class"

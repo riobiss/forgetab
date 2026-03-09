@@ -1,0 +1,115 @@
+.section {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 0.65rem;
+  background: color-mix(in srgb, var(--color-bg-surface) 80%, transparent);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.feedback {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.section h3 {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  background: var(--color-bg-app);
+}
+
+.option input {
+  width: 16px;
+  height: 16px;
+}
+
+.option span {
+  font-size: 0.87rem;
+  color: var(--color-text-secondary);
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.headerActions button {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.48rem 0.75rem;
+  background: color-mix(in srgb, var(--color-bg-surface) 86%, transparent);
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--color-text-secondary);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.itemActions {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.secondaryButton {
+  border-color: var(--color-border-soft) !important;
+  background: var(--color-bg-hover) !important;
+  color: var(--color-text-secondary) !important;
+  border-radius: 10px;
+  padding: 0.56rem 0.8rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+}
+
+.dangerButton {
+  border-color: color-mix(in srgb, var(--color-status-danger) 65%, var(--color-border-soft)) !important;
+  color: var(--color-status-danger-contrast) !important;
+}
+
+.dangerButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.iconOnlyButton {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  padding: 0 !important;
+  justify-content: center;
+  gap: 0;
+}
+
+

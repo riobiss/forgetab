@@ -1,0 +1,604 @@
+"use client"
+
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useParams, useRouter } from "next/navigation"
+import Link from "next/link"
+import {
+  ArrowLeft,
+  Eye,
+  LayoutList,
+  LoaderCircle,
+  Plus,
+  Save,
+  Settings2,
+  Shield,
+  Trash2,
+} from "lucide-react"
+import styles from "./page.module.css"
+import AttributeOptionsSection from "./components/attribute-options/AttributeOptionsSection"
+import EditRpgForm from "./components/edit-rpg-form/EditRpgForm"
+import PlayerTemplateFieldsSection from "./components/player-template-fields/PlayerTemplateFieldsSection"
+import RaceClassOptionsSection from "./components/race-class-options/RaceClassOptionsSection"
+import SkillOptionsSection from "./components/skill-options/SkillOptionsSection"
+import StatusOptionsSection from "./components/status-options/StatusOptionsSection"
+import AbilityCategoriesSection from "./components/ability-categories/AbilityCategoriesSection"
+import type { CatalogOption } from "./components/shared/types"
+import { useEditRpgState } from "./hooks/useEditRpgState"
+import RadixSwitchField from "./components/shared/RadixSwitchField"
+import {
+  deleteRpgImageByUrlUseCase,
+  uploadRpgImageUseCase,
+} from "@/application/rpgEditor/use-cases/rpgEditor"
+import { getProgressionModeLabel } from "@/lib/rpg/progression"
+import { createRpgEditorDependencies } from "@/presentation/rpg-editor/dependencies"
+import { useEditRpgData } from "@/presentation/rpg-editor/useEditRpgData"
+
+const CORE_STATUS_OPTIONS: CatalogOption[] = [
+  { key: "life", label: "Vida" },
+  { key: "mana", label: "Mana" },
+  { key: "sanity", label: "Sanidade" },
+  { key: "exhaustion", label: "Exaustão" },
+]
+
+export default function EditRpgFeature() {
+  const params = useParams<{ rpgId: string }>()
+  const router = useRouter()
+  const rpgId = params.rpgId
+  const state = useEditRpgState()
+  const deps = useMemo(() => createRpgEditorDependencies("http"), [])
+  const [activeStage, setActiveStage] = useState<"basic" | "advanced" | "permissions">("basic")
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadError, setUploadError] = useState("")
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
+  const [isProgressionLevelsModalOpen, setIsProgressionLevelsModalOpen] = useState(false)
+  const progressionLevelsModalRef = useRef<HTMLDivElement | null>(null)
+  const previousFocusedElementRef = useRef<HTMLElement | null>(null)
+
+  const data = useEditRpgData({
+    deps,
+    rpgId,
+    coreStatusOptions: CORE_STATUS_OPTIONS,
+    title: state.title,
+    description: state.description,
+    image: state.image,
+    visibility: state.visibility,
+    useMundiMap: state.useMundiMap,
+    useRaceBonuses: state.useRaceBonuses,
+    useClassBonuses: state.useClassBonuses,
+    useInventoryWeightLimit: state.useInventoryWeightLimit,
+    allowMultiplePlayerCharacters: state.allowMultiplePlayerCharacters,
+    usersCanManageOwnXp: state.usersCanManageOwnXp,
+    allowSkillPointDistribution: state.allowSkillPointDistribution,
+    abilityCategoriesEnabled: state.abilityCategoriesEnabled,
+    enabledAbilityCategories: state.enabledAbilityCategories,
+    progressionMode: state.progressionMode,
+    progressionTiers: state.progressionTiers,
+    attributeTemplates: state.attributeTemplates,
+    selectedStatusKeys: state.selectedStatusKeys,
+    statusLabelByKey: state.statusLabelByKey,
+    skillTemplates: state.skillTemplates,
+    characterIdentityTemplates: state.characterIdentityTemplates,
+    characterCharacteristicTemplates: state.characterCharacteristicTemplates,
+    setTitle: state.setTitle,
+    setDescription: state.setDescription,
+    setImage: state.setImage,
+    setVisibility: state.setVisibility,
+    setUseMundiMap: state.setUseMundiMap,
+    setUseRaceBonuses: state.setUseRaceBonuses,
+    setUseClassBonuses: state.setUseClassBonuses,
+    setUseInventoryWeightLimit: state.setUseInventoryWeightLimit,
+    setAllowMultiplePlayerCharacters: state.setAllowMultiplePlayerCharacters,
+    setUsersCanManageOwnXp: state.setUsersCanManageOwnXp,
+    setAllowSkillPointDistribution: state.setAllowSkillPointDistribution,
+    setAbilityCategoriesEnabled: state.setAbilityCategoriesEnabled,
+    setEnabledAbilityCategories: state.setEnabledAbilityCategories,
+    setProgressionMode: state.setProgressionMode,
+    setProgressionTiers: state.setProgressionTiers,
+    setCostsEnabled: state.setCostsEnabled,
+    setCostResourceName: state.setCostResourceName,
+    setAttributeTemplates: state.setAttributeTemplates,
+    setSelectedStatusKeys: state.setSelectedStatusKeys,
+    setStatusLabelByKey: state.setStatusLabelByKey,
+    setSkillTemplates: state.setSkillTemplates,
+    setRaceDrafts: state.setRaceDrafts,
+    setClassDrafts: state.setClassDrafts,
+    setCharacterIdentityTemplates: state.setCharacterIdentityTemplates,
+    setCharacterCharacteristicTemplates: state.setCharacterCharacteristicTemplates,
+  })
+
+  async function handleDeleteRpg() {
+    const confirmed = window.confirm(
+      "Tem certeza que deseja deletar este RPG? Esta acao nao pode ser desfeita.",
+    )
+    if (!confirmed) return
+
+    const result = await data.deleteRpg()
+    if (result.ok) {
+      router.push("/rpg")
+      router.refresh()
+    }
+  }
+
+  async function handleImageUpload(file: File) {
+    setSelectedImageFile(file)
+    setUploadError("")
+  }
+
+  function handleRemoveImage() {
+    setSelectedImageFile(null)
+    state.setImage("")
+    setUploadError("")
+  }
+
+  useEffect(() => {
+    const anyModalOpen = isProgressionLevelsModalOpen
+
+    if (anyModalOpen && !previousFocusedElementRef.current) {
+      const current = document.activeElement
+      if (current instanceof HTMLElement) {
+        previousFocusedElementRef.current = current
+      }
+    }
+
+    if (anyModalOpen) {
+      const previousOverflow = document.body.style.overflow
+      document.body.style.overflow = "hidden"
+      const target = progressionLevelsModalRef.current
+      const rafId = window.requestAnimationFrame(() => {
+        target?.focus()
+      })
+      return () => {
+        window.cancelAnimationFrame(rafId)
+        document.body.style.overflow = previousOverflow
+      }
+    }
+
+    if (!anyModalOpen && previousFocusedElementRef.current) {
+      previousFocusedElementRef.current.focus()
+      previousFocusedElementRef.current = null
+    }
+  }, [isProgressionLevelsModalOpen])
+
+  async function handleSaveAll() {
+    setUploadError("")
+    let uploadedImageUrl = ""
+    const previousImage = state.image.trim() || ""
+    let hasFreshUpload = false
+
+    try {
+      if (selectedImageFile) {
+        setUploadingImage(true)
+        try {
+          const upload = await uploadRpgImageUseCase(deps, { file: selectedImageFile })
+          uploadedImageUrl = upload.url
+          state.setImage(uploadedImageUrl)
+          hasFreshUpload = true
+        } catch (cause) {
+          setUploadError(
+            cause instanceof Error ? cause.message : "Nao foi possivel enviar imagem.",
+          )
+          return
+        } finally {
+          setUploadingImage(false)
+        }
+      }
+
+      const saved = await data.saveAll()
+      if (!saved && hasFreshUpload && uploadedImageUrl) {
+        try {
+          await deleteRpgImageByUrlUseCase(deps, { url: uploadedImageUrl })
+        } catch {
+          // Nao bloqueia erro de salvamento se a limpeza da imagem falhar.
+        }
+        state.setImage(previousImage)
+        return
+      }
+
+      if (saved) {
+        setSelectedImageFile(null)
+      }
+    } catch {
+      if (hasFreshUpload && uploadedImageUrl) {
+        try {
+          await deleteRpgImageByUrlUseCase(deps, { url: uploadedImageUrl })
+        } catch {
+          // Nao bloqueia erro de salvamento se a limpeza da imagem falhar.
+        }
+        state.setImage(previousImage)
+      }
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  if (data.loading) {
+    return (
+      <main className={styles.page}>
+        <section className={styles.card}>
+          <p>Carregando...</p>
+        </section>
+      </main>
+    )
+  }
+
+  if (!data.canEdit) {
+    return (
+      <main className={styles.page}>
+        <section className={styles.card}>
+          <h1>Edicao bloqueada</h1>
+          <p className={styles.error}>{data.error || "Voce nao pode editar este RPG."}</p>
+          <div className={styles.actions}>
+            <Link href="/rpg">
+              <ArrowLeft size={16} />
+              <span>Voltar para RPGs</span>
+            </Link>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
+  return (
+    <main className={styles.page}>
+      <section className={styles.card}>
+        <h1>Editar RPG</h1>
+        <div className={styles.stageTabs} role="tablist" aria-label="Etapas de edicao do RPG">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeStage === "basic"}
+            className={`${styles.stageTab} ${activeStage === "basic" ? styles.stageTabActive : ""}`}
+            onClick={() => setActiveStage("basic")}
+          >
+            <LayoutList size={15} />
+            Basico
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeStage === "advanced"}
+            className={`${styles.stageTab} ${activeStage === "advanced" ? styles.stageTabActive : ""}`}
+            onClick={() => setActiveStage("advanced")}
+          >
+            <Settings2 size={15} />
+            Avancado
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeStage === "permissions"}
+            className={`${styles.stageTab} ${activeStage === "permissions" ? styles.stageTabActive : ""}`}
+            onClick={() => setActiveStage("permissions")}
+          >
+            <Shield size={15} />
+            Permissoes
+          </button>
+        </div>
+
+        {activeStage === "basic" ? (
+          <EditRpgForm
+            title={state.title}
+            onTitleChange={state.setTitle}
+          description={state.description}
+          onDescriptionChange={state.setDescription}
+          image={state.image}
+          onImageUpload={handleImageUpload}
+          onRemoveImage={handleRemoveImage}
+            uploadingImage={uploadingImage}
+            uploadError={uploadError}
+            visibility={state.visibility}
+            onVisibilityChange={state.setVisibility}
+            error={data.error}
+            success={data.identitySuccess}
+            saving={data.saving}
+            deleting={data.deleting}
+            canDelete={data.canDelete}
+            onSaveAll={handleSaveAll}
+            onDeleteRpg={handleDeleteRpg}
+          />
+        ) : activeStage === "advanced" ? (
+          <section className={styles.advancedStage}>
+            <RadixSwitchField
+              id="edit-rpg-mundi-map"
+              label="Mapa mundi"
+              description={state.useMundiMap ? "Ativo no RPG" : "Desativado no RPG"}
+              checked={state.useMundiMap}
+              onCheckedChange={state.setUseMundiMap}
+            />
+
+            <RadixSwitchField
+              id="edit-rpg-weight-limit"
+              label="Controle de peso no inventario"
+              description={
+                state.useInventoryWeightLimit ? "Peso limitado habilitado" : "Sem limite de peso"
+              }
+              checked={state.useInventoryWeightLimit}
+              onCheckedChange={state.setUseInventoryWeightLimit}
+            />
+
+            <RadixSwitchField
+              id="edit-rpg-use-race"
+              label="Usar raca"
+              description={state.useRaceBonuses ? "Racas habilitadas" : "Racas desativadas"}
+              checked={state.useRaceBonuses}
+              onCheckedChange={state.setUseRaceBonuses}
+            />
+
+            <RadixSwitchField
+              id="edit-rpg-use-class"
+              label="Usar classe"
+              description={state.useClassBonuses ? "Classes habilitadas" : "Classes desativadas"}
+              checked={state.useClassBonuses}
+              onCheckedChange={state.setUseClassBonuses}
+            />
+
+            <div className={styles.field}>
+              <span>
+                <Eye size={14} />
+                Custos (somente leitura)
+              </span>
+              <input value={state.costsEnabled ? "Ativado" : "Desativado"} readOnly />
+              <input value={state.costResourceName} readOnly />
+              <p className={styles.error}>Configuracao disponivel apenas na criacao do RPG.</p>
+            </div>
+
+            <section className={styles.progressionSection}>
+              <h2>Progressao</h2>
+              <button
+                type="button"
+                className={styles.progressionModePickerButton}
+                disabled
+                title="Modo de progressao definido na criacao do RPG."
+              >
+                {getProgressionModeLabel(state.progressionMode)}
+              </button>
+              <button
+                type="button"
+                className={styles.progressionTableToggleButton}
+                onClick={() => setIsProgressionLevelsModalOpen(true)}
+              >
+                Editar etapas
+              </button>
+            </section>
+
+            {isProgressionLevelsModalOpen ? (
+              <div
+                className={styles.progressionModalOverlay}
+                onClick={() => setIsProgressionLevelsModalOpen(false)}
+                role="presentation"
+              >
+                <div
+                  className={`${styles.progressionModalCard} ${styles.progressionLevelsModalCard}`}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Editar etapas da progressao"
+                  tabIndex={-1}
+                  ref={progressionLevelsModalRef}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <h3>Editar etapas</h3>
+                  <p>Ajuste nome e required de cada etapa.</p>
+                  <div className={styles.progressionLevelsBody}>
+                    <div className={styles.progressionTable}>
+                      {state.progressionTiers.map((tier, index) => (
+                        <div key={`progression-tier-${index}`} className={styles.progressionRow}>
+                        <label className={styles.field}>
+                          <span>Nome</span>
+                          {state.progressionMode === "xp_level" ? (
+                            <div className={styles.readonlyTierLabel}>{`Level ${index + 1}`}</div>
+                          ) : (
+                            <input
+                              type="text"
+                              value={tier.label}
+                              onChange={(event) =>
+                                state.updateProgressionTierLabel(index, event.target.value)
+                              }
+                              placeholder={
+                                state.progressionMode === "rank"
+                                  ? `Novato ${index + 1}`
+                                  : `Etapa ${index + 1}`
+                              }
+                            />
+                          )}
+                        </label>
+                          <label className={styles.field}>
+                            <span>Required</span>
+                          <input
+                            type="number"
+                            onWheel={(event) => event.currentTarget.blur()}
+                            min={0}
+                            required
+                            value={tier.required === 0 ? "" : tier.required}
+                            placeholder="Digite um numero"
+                            onChange={(event) =>
+                              state.updateProgressionTierRequired(
+                                index,
+                                Number(event.target.value || 0),
+                              )
+                              }
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            className={styles.progressionDelete}
+                            onClick={() => state.removeProgressionTier(index)}
+                            disabled={state.progressionTiers.length <= 1}
+                            aria-label={`Remover etapa ${index + 1}`}
+                            title="Remover etapa"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.progressionAdd}
+                      onClick={state.addProgressionTier}
+                    >
+                      <Plus size={14} />
+                      Adicionar etapa
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.progressionModalCloseButton}
+                    onClick={() => setIsProgressionLevelsModalOpen(false)}
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            <AttributeOptionsSection
+              showList={state.showAttributeList}
+              onToggleList={() => state.setShowAttributeList((prev) => !prev)}
+              newAttributeLabel={state.newAttributeLabel}
+              onNewAttributeLabelChange={state.setNewAttributeLabel}
+              onAddAttribute={state.addAttribute}
+              attributeTemplates={state.attributeTemplates}
+              onRemoveAttribute={state.removeAttribute}
+            />
+
+            <StatusOptionsSection
+              showList={state.showStatusList}
+              onToggleList={() => state.setShowStatusList((prev) => !prev)}
+              coreStatusOptions={CORE_STATUS_OPTIONS}
+              selectedStatusKeys={state.selectedStatusKeys}
+              statusLabelByKey={state.statusLabelByKey}
+              newCustomStatusLabel={state.newCustomStatusLabel}
+              onNewCustomStatusLabelChange={state.setNewCustomStatusLabel}
+              onToggleStatus={state.toggleStatusKey}
+              onAddCustomStatus={state.addCustomStatus}
+              onUpdateCustomStatusLabel={state.updateCustomStatusLabel}
+              onRemoveCustomStatus={state.removeCustomStatus}
+            />
+
+            <SkillOptionsSection
+              showList={state.showSkillList}
+              onToggleList={() => state.setShowSkillList((prev) => !prev)}
+              newSkillLabel={state.newSkillLabel}
+              onNewSkillLabelChange={state.setNewSkillLabel}
+              onAddSkill={state.addSkill}
+              skillTemplates={state.skillTemplates}
+              onRemoveSkill={state.removeSkill}
+            />
+
+            <AbilityCategoriesSection
+              showList={state.showAbilityCategoriesList}
+              onToggleList={() => state.setShowAbilityCategoriesList((prev) => !prev)}
+              abilityCategoriesEnabled={state.abilityCategoriesEnabled}
+              enabledAbilityCategories={state.enabledAbilityCategories}
+              onAbilityCategoriesEnabledChange={state.setAbilityCategoriesEnabled}
+              onToggleCategory={state.toggleAbilityCategory}
+            />
+
+            <PlayerTemplateFieldsSection
+              title="Identidade do Player"
+              description="Defina os campos de identificacao que o Player precisa preencher."
+              showList={state.showCharacterIdentityList}
+              onToggleList={() => state.setShowCharacterIdentityList((prev) => !prev)}
+              toggleLabelOpen="Ocultar campos"
+              toggleLabelClosed="Mostrar campos"
+              newFieldLabel={state.newIdentityLabel}
+              onNewFieldLabelChange={state.setNewIdentityLabel}
+              addPlaceholder="Ex.: Sobrenome"
+              addAriaLabel="Adicionar campo de identidade"
+              addTitle="Adicionar campo de identidade"
+              onAddField={state.addIdentityField}
+              fields={state.characterIdentityTemplates}
+              onUpdateFieldLabel={state.updateIdentityFieldLabel}
+              onUpdateFieldRequired={state.updateIdentityFieldRequired}
+              onRemoveField={state.removeIdentityField}
+              removeLabelPrefix="Remover campo"
+            />
+
+            <PlayerTemplateFieldsSection
+              title="Caracteristicas do Player"
+              description="Defina os campos de caracteristicas que o Player precisa preencher."
+              showList={state.showCharacterCharacteristicsList}
+              onToggleList={() =>
+                state.setShowCharacterCharacteristicsList((prev) => !prev)
+              }
+              toggleLabelOpen="Ocultar campos"
+              toggleLabelClosed="Mostrar campos"
+              newFieldLabel={state.newCharacteristicLabel}
+              onNewFieldLabelChange={state.setNewCharacteristicLabel}
+              addPlaceholder="Ex.: Cicatriz no rosto"
+              addAriaLabel="Adicionar campo de caracteristica"
+              addTitle="Adicionar campo de caracteristica"
+              onAddField={state.addCharacteristicField}
+              fields={state.characterCharacteristicTemplates}
+              onUpdateFieldLabel={state.updateCharacteristicFieldLabel}
+              onUpdateFieldRequired={state.updateCharacteristicFieldRequired}
+              onRemoveField={state.removeCharacteristicField}
+              removeLabelPrefix="Remover caracteristica"
+            />
+
+            <RaceClassOptionsSection
+              rpgId={rpgId}
+              showRaceList={state.showRaceList}
+              onToggleRaceList={() => state.setShowRaceList((prev) => !prev)}
+              onCreateRace={() => router.push(`/rpg/${rpgId}/edit/advanced/race/new`)}
+              raceDrafts={state.raceDrafts}
+              onRaceDraftsChange={state.setRaceDrafts}
+              showClassList={state.showClassList}
+              onToggleClassList={() => state.setShowClassList((prev) => !prev)}
+              onCreateClass={() => router.push(`/rpg/${rpgId}/edit/advanced/class/new`)}
+              classDrafts={state.classDrafts}
+              onClassDraftsChange={state.setClassDrafts}
+            />
+
+            <div className={styles.actions}>
+              <button type="button" onClick={() => void handleSaveAll()} disabled={data.saving}>
+                {data.saving ? (
+                  <>
+                    <LoaderCircle size={16} className={styles.spin} />
+                    <span>Salvando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save size={16} />
+                    <span>Salvar tudo</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {data.error ? <p className={styles.error}>{data.error}</p> : null}
+            {data.identitySuccess ? <p className={styles.success}>{data.identitySuccess}</p> : null}
+          </section>
+        ) : (
+          <section className={styles.advancedStage}>
+            <h2>Permissoes de Progressao e Membros</h2>
+
+            <RadixSwitchField
+              id="edit-rpg-allow-multiple-player-characters"
+              label="Permitir mais de 1 personagem por player"
+              description={
+                state.allowMultiplePlayerCharacters
+                  ? "Ativo: players podem criar personagens adicionais."
+                  : "Inativo: cada player pode ter apenas 1 personagem."
+              }
+              checked={state.allowMultiplePlayerCharacters}
+              onCheckedChange={state.setAllowMultiplePlayerCharacters}
+            />
+
+            <RadixSwitchField
+              id="edit-rpg-users-can-manage-xp"
+              label="Usuarios podem ver os niveis"
+              description={
+                state.usersCanManageOwnXp
+                  ? "Ativo: jogadores podem ajustar XP do proprio personagem."
+                  : "Inativo: mestre/moderador controlam XP dos jogadores."
+              }
+              checked={state.usersCanManageOwnXp}
+              onCheckedChange={state.setUsersCanManageOwnXp}
+            />
+          </section>
+        )}
+      </section>
+    </main>
+  )
+}
