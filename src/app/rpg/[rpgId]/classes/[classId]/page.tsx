@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
+import { normalizeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { parseCharacterAbilities, parseCostPoints } from "@/lib/server/costSystem"
 import { normalizeSkillTags } from "@/lib/rpg/skillTags"
+import RichTextPreview from "@/presentation/entity-catalog/RichTextPreview"
 import ClassSkillsClient from "./ClassSkillsClient"
 import styles from "./page.module.css"
 
@@ -24,6 +26,7 @@ type DbClassRow = {
   visibility: "private" | "public"
   costsEnabled: boolean
   costResourceName: string
+  catalogMeta?: Prisma.JsonValue
 }
 
 type DbSkillLevelRow = {
@@ -114,9 +117,10 @@ export default async function ClassPage({ params }: Props) {
         c.label,
         c.rpg_id AS "rpgId",
         r.owner_id AS "ownerId",
-        r.visibility,
-        COALESCE(r.costs_enabled, false) AS "costsEnabled",
-        COALESCE(NULLIF(TRIM(r.cost_resource_name), ''), 'Skill Points') AS "costResourceName"
+          r.visibility,
+          COALESCE(r.costs_enabled, false) AS "costsEnabled",
+          COALESCE(NULLIF(TRIM(r.cost_resource_name), ''), 'Skill Points') AS "costResourceName",
+          c.catalog_meta AS "catalogMeta"
       FROM rpg_class_templates c
       INNER JOIN rpgs r ON r.id = c.rpg_id
       WHERE c.id = ${classId}
@@ -127,7 +131,8 @@ export default async function ClassPage({ params }: Props) {
     if (
       error instanceof Error &&
       (error.message.includes('column "costs_enabled" does not exist') ||
-        error.message.includes('column "cost_resource_name" does not exist'))
+        error.message.includes('column "cost_resource_name" does not exist') ||
+        error.message.includes('column "catalog_meta" does not exist'))
     ) {
       classRows = await prisma.$queryRaw<DbClassRow[]>(Prisma.sql`
         SELECT
@@ -138,7 +143,8 @@ export default async function ClassPage({ params }: Props) {
           r.owner_id AS "ownerId",
           r.visibility,
           false AS "costsEnabled",
-          'Skill Points' AS "costResourceName"
+          'Skill Points' AS "costResourceName",
+          NULL::jsonb AS "catalogMeta"
         FROM rpg_class_templates c
         INNER JOIN rpgs r ON r.id = c.rpg_id
         WHERE c.id = ${classId}
@@ -154,6 +160,12 @@ export default async function ClassPage({ params }: Props) {
   if (!dbClass) {
     notFound()
   }
+  const catalogMeta = normalizeEntityCatalogMeta(dbClass.catalogMeta)
+  const richSections = [
+    { key: "description", label: "Descricao" },
+    { key: "lore", label: "Lore" },
+    { key: "notes", label: "Observacoes" },
+  ].filter((section) => Boolean(catalogMeta.richText[section.key as "description" | "lore" | "notes"]))
 
   const userId = await getUserIdFromCookieStore()
   const isOwner = userId === dbClass.ownerId
@@ -356,6 +368,21 @@ export default async function ClassPage({ params }: Props) {
   return (
     <div className={styles.container}>
       <h1 className={styles.classTitle}>{dbClass.label}</h1>
+
+      {catalogMeta.shortDescription ? (
+        <p className={styles.abilityDescription}>{catalogMeta.shortDescription}</p>
+      ) : null}
+
+      {richSections.map((section) => (
+        <section key={section.key} style={{ marginBottom: "1.5rem" }}>
+          <h2 style={{ color: "var(--color-text-primary)" }}>{section.label}</h2>
+          <RichTextPreview
+            value={
+              catalogMeta.richText[section.key as "description" | "lore" | "notes"] as Record<string, unknown>
+            }
+          />
+        </section>
+      ))}
 
       <ClassSkillsClient
         characterId={characterId}

@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
+import { normalizeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { normalizeRaceLore } from "@/lib/rpg/raceLore"
+import RichTextPreview from "@/presentation/entity-catalog/RichTextPreview"
 import styles from "./page.module.css"
 
 type Params = {
@@ -16,7 +18,9 @@ type Params = {
 
 type RaceRow = {
   label: string
+  category: string | null
   lore?: Prisma.JsonValue
+  catalogMeta?: Prisma.JsonValue
 }
 
 function toList(items: string[]) {
@@ -60,18 +64,23 @@ export default async function RaceDetailsPage({ params }: Params) {
   let rows: RaceRow[] = []
   try {
     rows = await prisma.$queryRaw<RaceRow[]>`
-      SELECT label, lore
+      SELECT label, category, lore, catalog_meta AS "catalogMeta"
       FROM rpg_race_templates
       WHERE rpg_id = ${rpgId} AND key = ${raceKey}
       LIMIT 1
     `
   } catch (error) {
-    if (!(error instanceof Error) || !error.message.includes('column "lore" does not exist')) {
+    if (
+      !(error instanceof Error) ||
+      (!error.message.includes('column "lore" does not exist') &&
+        !error.message.includes('column "catalog_meta" does not exist') &&
+        !error.message.includes('column "category" does not exist'))
+    ) {
       throw error
     }
 
     rows = await prisma.$queryRaw<RaceRow[]>`
-      SELECT label
+      SELECT label, 'geral'::text AS category
       FROM rpg_race_templates
       WHERE rpg_id = ${rpgId} AND key = ${raceKey}
       LIMIT 1
@@ -84,6 +93,20 @@ export default async function RaceDetailsPage({ params }: Params) {
   }
 
   const lore = normalizeRaceLore(row.lore, row.label)
+  const catalogMeta = normalizeEntityCatalogMeta(row.catalogMeta)
+  const richSections = [
+    { key: "description", label: "Descricao" },
+    { key: "origin", label: "Origem" },
+    { key: "kingdoms", label: "Reinos" },
+    { key: "lore", label: "Lore" },
+    { key: "notes", label: "Observacoes" },
+  ].filter((section) =>
+    Boolean(
+      catalogMeta.richText[
+        section.key as "description" | "origin" | "kingdoms" | "lore" | "notes"
+      ],
+    ),
+  )
 
   return (
     <main className={styles.container}>
@@ -102,6 +125,26 @@ export default async function RaceDetailsPage({ params }: Params) {
       </header>
 
       <article>
+        {catalogMeta.shortDescription ? (
+          <section>
+            <h3>Descricao curta</h3>
+            <p>{catalogMeta.shortDescription}</p>
+          </section>
+        ) : null}
+
+        {richSections.map((section) => (
+          <section key={section.key}>
+            <h3>{section.label}</h3>
+            <RichTextPreview
+              value={
+                catalogMeta.richText[
+                  section.key as "description" | "origin" | "kingdoms" | "lore" | "notes"
+                ] as Record<string, unknown>
+              }
+            />
+          </section>
+        ))}
+
         <section>
           <h3>Resumo</h3>
           <p>{lore.summary}</p>
