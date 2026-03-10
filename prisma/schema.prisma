@@ -330,9 +330,11 @@ model RpgRaceTemplate {
   rpg              Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
   key              String
   label            String
+  category         String?  @default("geral")
   attributeBonuses Json     @map("attribute_bonuses")
   skillBonuses     Json     @map("skill_bonuses")
   lore             Json     @map("lore")
+  catalogMeta      Json     @default("{}") @map("catalog_meta")
   position         Int
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @default(now()) @map("updated_at")
@@ -352,6 +354,7 @@ model RpgClassTemplate {
   category         String?  @default("geral")
   attributeBonuses Json     @map("attribute_bonuses")
   skillBonuses     Json     @map("skill_bonuses")
+  catalogMeta      Json     @default("{}") @map("catalog_meta")
   position         Int
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @default(now()) @map("updated_at")
