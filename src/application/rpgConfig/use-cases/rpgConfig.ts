@@ -1,3 +1,4 @@
+import { normalizeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
 import { DEFAULT_STATUS_KEYS, STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 import { normalizeClassRaceTemplates } from "@/lib/rpg/classRaceBonuses"
 import { normalizeRaceLore } from "@/lib/rpg/raceLore"
@@ -261,10 +262,12 @@ export async function getRaceTemplates(
         id: item.id,
         key: item.key,
         label: item.label,
+        category: item.category ?? "geral",
         position: item.position,
         attributeBonuses: parseJsonRecord(item.attributeBonuses),
         skillBonuses: parseJsonRecord(item.skillBonuses),
         lore: normalizeRaceLore(item.lore, item.label),
+        catalogMeta: normalizeEntityCatalogMeta(item.catalogMeta),
       })),
     }
   } catch (error) {
@@ -298,9 +301,14 @@ export async function updateRaceTemplates(
       return {
         key: createUniqueKey(item.label, used, "raca"),
         label: item.label,
+        category: item.category,
         attributeBonuses: item.attributeBonuses,
         skillBonuses: item.skillBonuses,
         lore: normalizeRaceLore(sourceLore, item.label),
+        catalogMeta:
+          source && typeof source === "object" && !Array.isArray(source)
+            ? normalizeEntityCatalogMeta((source as { catalogMeta?: unknown }).catalogMeta)
+            : normalizeEntityCatalogMeta(undefined),
       }
     })
 
@@ -328,6 +336,7 @@ export async function getClassTemplates(
         position: item.position,
         attributeBonuses: parseJsonRecord(item.attributeBonuses),
         skillBonuses: parseJsonRecord(item.skillBonuses),
+        catalogMeta: normalizeEntityCatalogMeta(item.catalogMeta),
       })),
     }
   } catch (error) {
@@ -352,12 +361,20 @@ export async function updateClassTemplates(
     const used = new Set<string>()
     await repository.replaceClassTemplates(
       params.rpgId,
-      parsed.values.map((item) => ({
+      parsed.values.map((item, index) => ({
         key: createUniqueKey(item.label, used, "classe"),
         label: item.label,
         category: item.category,
         attributeBonuses: item.attributeBonuses,
         skillBonuses: item.skillBonuses,
+        catalogMeta:
+          params.classes &&
+          Array.isArray(params.classes) &&
+          params.classes[index] &&
+          typeof params.classes[index] === "object" &&
+          !Array.isArray(params.classes[index])
+            ? normalizeEntityCatalogMeta((params.classes[index] as { catalogMeta?: unknown }).catalogMeta)
+            : normalizeEntityCatalogMeta(undefined),
       })),
     )
 

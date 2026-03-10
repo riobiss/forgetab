@@ -38,15 +38,17 @@ export type ClassTemplate = {
   position: number
   attributeBonuses: Prisma.JsonValue
   skillBonuses: Prisma.JsonValue
+  catalogMeta?: Prisma.JsonValue
 }
 
 export type RaceTemplate = {
   id: string
   key: string
   label: string
+  category: string | null
   position: number
   attributeBonuses: Prisma.JsonValue
   skillBonuses: Prisma.JsonValue
   lore?: Prisma.JsonValue
+  catalogMeta?: Prisma.JsonValue
 }
-

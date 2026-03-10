@@ -6,6 +6,7 @@ import type {
   RaceTemplate,
   StatusTemplate,
 } from "@/application/rpgConfig/types"
+import type { EntityCatalogMeta } from "@/domain/entityCatalog/types"
 
 export interface RpgConfigRepository {
   listAttributeTemplates(rpgId: string): Promise<AttributeTemplate[]>
@@ -26,9 +27,11 @@ export interface RpgConfigRepository {
     items: Array<{
       key: string
       label: string
+      category: string
       attributeBonuses: Record<string, number>
       skillBonuses: Record<string, number>
       lore: unknown
+      catalogMeta: EntityCatalogMeta
     }>,
   ): Promise<void>
 
@@ -41,6 +44,7 @@ export interface RpgConfigRepository {
       category: string
       attributeBonuses: Record<string, number>
       skillBonuses: Record<string, number>
+      catalogMeta: EntityCatalogMeta
     }>,
   ): Promise<void>
 
@@ -59,4 +63,3 @@ export interface RpgConfigRepository {
   listAttributeKeys(rpgId: string): Promise<string[]>
   listSkillKeys(rpgId: string): Promise<string[]>
 }
-

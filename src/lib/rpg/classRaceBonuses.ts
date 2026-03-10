@@ -5,6 +5,7 @@ export type ClassRaceTemplateInput = {
   category?: string
   attributeBonuses?: Record<string, unknown>
   skillBonuses?: Record<string, unknown>
+  catalogMeta?: unknown
 }
 
 type NormalizedTemplate = {

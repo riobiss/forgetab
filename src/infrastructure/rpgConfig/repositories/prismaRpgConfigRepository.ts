@@ -1,4 +1,5 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
+import { serializeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
 import { prisma } from "@/lib/prisma"
 import type { RpgConfigRepository } from "@/application/rpgConfig/ports/RpgConfigRepository"
 
@@ -60,18 +61,23 @@ export const prismaRpgConfigRepository: RpgConfigRepository = {
   async listRaceTemplates(rpgId) {
     try {
       return await prisma.$queryRaw(Prisma.sql`
-        SELECT id, key, label, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses", lore
+        SELECT id, key, label, category, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses", lore, catalog_meta AS "catalogMeta"
         FROM rpg_race_templates
         WHERE rpg_id = ${rpgId}
         ORDER BY position ASC
       `)
     } catch (error) {
-      if (!(error instanceof Error) || !error.message.includes('column "lore" does not exist')) {
+      if (
+        !(error instanceof Error) ||
+        (!error.message.includes('column "lore" does not exist') &&
+          !error.message.includes('column "catalog_meta" does not exist') &&
+          !error.message.includes('column "category" does not exist'))
+      ) {
         throw error
       }
 
       return prisma.$queryRaw(Prisma.sql`
-        SELECT id, key, label, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
+        SELECT id, key, label, 'geral'::text AS category, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
         FROM rpg_race_templates
         WHERE rpg_id = ${rpgId}
         ORDER BY position ASC
@@ -93,26 +99,41 @@ export const prismaRpgConfigRepository: RpgConfigRepository = {
         ${rpgId},
         ${item.key},
         ${item.label},
+        ${item.category},
         ${JSON.stringify(item.attributeBonuses)}::jsonb,
         ${JSON.stringify(item.skillBonuses)}::jsonb,
         ${JSON.stringify(item.lore)}::jsonb,
+        ${JSON.stringify(serializeEntityCatalogMeta(item.catalogMeta))}::jsonb,
         ${index}
       )`,
     )
 
     await prisma.$executeRaw(Prisma.sql`
-      INSERT INTO rpg_race_templates (id, rpg_id, key, label, attribute_bonuses, skill_bonuses, lore, position)
+      INSERT INTO rpg_race_templates (id, rpg_id, key, label, category, attribute_bonuses, skill_bonuses, lore, catalog_meta, position)
       VALUES ${Prisma.join(rows)}
     `)
   },
 
   async listClassTemplates(rpgId) {
-    return prisma.$queryRaw(Prisma.sql`
-      SELECT id, key, label, category, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
-      FROM rpg_class_templates
-      WHERE rpg_id = ${rpgId}
-      ORDER BY position ASC
-    `)
+    try {
+      return await prisma.$queryRaw(Prisma.sql`
+        SELECT id, key, label, category, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses", catalog_meta AS "catalogMeta"
+        FROM rpg_class_templates
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `)
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.includes('column "catalog_meta" does not exist')) {
+        throw error
+      }
+
+      return prisma.$queryRaw(Prisma.sql`
+        SELECT id, key, label, category, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
+        FROM rpg_class_templates
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `)
+    }
   },
 
   async replaceClassTemplates(rpgId, items) {
@@ -132,12 +153,13 @@ export const prismaRpgConfigRepository: RpgConfigRepository = {
         ${item.category},
         ${JSON.stringify(item.attributeBonuses)}::jsonb,
         ${JSON.stringify(item.skillBonuses)}::jsonb,
+        ${JSON.stringify(serializeEntityCatalogMeta(item.catalogMeta))}::jsonb,
         ${index}
       )`,
     )
 
     await prisma.$executeRaw(Prisma.sql`
-      INSERT INTO rpg_class_templates (id, rpg_id, key, label, category, attribute_bonuses, skill_bonuses, position)
+      INSERT INTO rpg_class_templates (id, rpg_id, key, label, category, attribute_bonuses, skill_bonuses, catalog_meta, position)
       VALUES ${Prisma.join(rows)}
     `)
   },
@@ -230,4 +252,3 @@ export const prismaRpgConfigRepository: RpgConfigRepository = {
     }
   },
 }
-
