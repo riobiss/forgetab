@@ -1,10 +1,11 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { useState } from "react"
 import styles from "../RpgDashboardPage.module.css"
 import { formatDateInBrasilia } from "@/lib/date"
 import { Bell, ChevronDown } from "lucide-react"
+import { createRpgDashboardDependencies } from "@/presentation/rpg-dashboard/dependencies"
+import { useMembershipNotifications } from "@/presentation/rpg-dashboard/hooks/useMembershipNotifications"
 
 type PendingRequest = {
   id: string
@@ -31,6 +32,8 @@ type Props = {
   simpleJoin?: boolean
 }
 
+const dashboardDeps = createRpgDashboardDependencies()
+
 export default function MembershipNotifications({
   rpgId,
   isOwner,
@@ -41,101 +44,20 @@ export default function MembershipNotifications({
   compact = false,
   simpleJoin = false,
 }: Props) {
-  const router = useRouter()
-  const [loadingRequest, setLoadingRequest] = useState(false)
-  const [processingId, setProcessingId] = useState<string | null>(null)
-  const [message, setMessage] = useState("")
-  const [error, setError] = useState("")
   const [isOpen, setIsOpen] = useState(false)
+  const {
+    loadingRequest,
+    processingId,
+    message,
+    error,
+    requestToJoin,
+    processRequest,
+    processCharacterRequest,
+  } = useMembershipNotifications(dashboardDeps, { rpgId })
 
   const notificationsCount = isOwner
     ? pendingRequests.length + pendingCharacterRequests.length
     : 0
-
-  async function requestToJoin() {
-    if (loadingRequest) return
-    setLoadingRequest(true)
-    setMessage("")
-    setError("")
-
-    try {
-      const response = await fetch(`/api/rpg/${rpgId}/members`, {
-        method: "POST",
-      })
-
-      const payload = (await response.json()) as { message?: string }
-
-      if (!response.ok) {
-        setError(payload.message ?? "Nao foi possivel enviar a solicitacao.")
-        return
-      }
-
-      setMessage(payload.message ?? "Solicitacao enviada.")
-      router.refresh()
-    } catch {
-      setError("Erro de conexao ao solicitar participacao.")
-    } finally {
-      setLoadingRequest(false)
-    }
-  }
-
-  async function processRequest(memberId: string, action: "accept" | "reject") {
-    if (processingId) return
-    setProcessingId(memberId)
-    setMessage("")
-    setError("")
-
-    try {
-      const response = await fetch(`/api/rpg/${rpgId}/members/${memberId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      })
-
-      const payload = (await response.json()) as { message?: string }
-
-      if (!response.ok) {
-        setError(payload.message ?? "Nao foi possivel processar solicitacao.")
-        return
-      }
-
-      setMessage(payload.message ?? "Solicitacao processada.")
-      router.refresh()
-    } catch {
-      setError("Erro de conexao ao processar solicitacao.")
-    } finally {
-      setProcessingId(null)
-    }
-  }
-
-  async function processCharacterRequest(requestId: string, action: "accept" | "reject") {
-    if (processingId) return
-    setProcessingId(requestId)
-    setMessage("")
-    setError("")
-
-    try {
-      const response = await fetch(`/api/rpg/${rpgId}/character-requests/${requestId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      })
-
-      const payload = (await response.json()) as { message?: string }
-
-      if (!response.ok) {
-        setError(payload.message ?? "Nao foi possivel processar solicitacao de personagem.")
-        return
-      }
-
-      setMessage(payload.message ?? "Solicitacao de personagem processada.")
-      router.refresh()
-    } catch {
-      setError("Erro de conexao ao processar solicitacao de personagem.")
-    } finally {
-      setProcessingId(null)
-    }
-  }
 
   if (simpleJoin) {
     return (
