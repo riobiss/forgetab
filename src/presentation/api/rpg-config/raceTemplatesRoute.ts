@@ -1,11 +1,9 @@
-import { NextRequest, NextResponse } from "next/server"
-import { Prisma } from "../../../../generated/prisma/client.js"
-import { prisma } from "@/lib/prisma"
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
-import slugify from "@/utils/slugify"
-import { normalizeClassRaceTemplates } from "@/lib/rpg/classRaceBonuses"
-import { normalizeRaceLore } from "@/lib/rpg/raceLore"
-import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import { NextResponse, type NextRequest } from "next/server"
+import { getRaceTemplates, updateRaceTemplates } from "@/application/rpgConfig/use-cases/rpgConfig"
+import { prismaRpgConfigRepository } from "@/infrastructure/rpgConfig/repositories/prismaRpgConfigRepository"
+import { rpgConfigAccessService } from "@/infrastructure/rpgConfig/services/rpgConfigAccessService"
+import { getUserIdFromRequest } from "@/presentation/api/rpg-config/requestAuth"
+import { toErrorResponse } from "@/presentation/api/rpg-config/toErrorResponse"
 
 type RouteContext = {
   params: Promise<{
@@ -13,255 +11,42 @@ type RouteContext = {
   }>
 }
 
-type RaceTemplateRow = {
-  id: string
-  key: string
-  label: string
-  position: number
-  attributeBonuses: Prisma.JsonValue
-  skillBonuses: Prisma.JsonValue
-  lore?: Prisma.JsonValue
-}
-
-async function getUserIdFromToken(request: NextRequest) {
-  const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
-  if (!token) return null
-
-  try {
-    const payload = await verifyAuthToken(token)
-    return payload.userId
-  } catch {
-    return null
-  }
-}
-
-async function canAccessRpg(rpgId: string, userId: string) {
-  const permission = await getRpgPermission(rpgId, userId)
-  return permission.canManage
-}
-
-async function canReadRpgRaces(rpgId: string, userId: string) {
-  const rpg = await prisma.rpg.findUnique({
-    where: { id: rpgId },
-    select: { id: true, ownerId: true },
-  })
-
-  if (!rpg) return false
-  if (rpg.ownerId === userId) return true
-
-  const membership = await prisma.rpgMember.findUnique({
-    where: { rpgId_userId: { rpgId, userId } },
-    select: { status: true },
-  })
-
-  return membership?.status === "accepted"
-}
-
-function parseJsonRecord(value: Prisma.JsonValue) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return {}
-  }
-
-  const record = value as Record<string, unknown>
-  return Object.entries(record).reduce<Record<string, number>>((acc, [key, current]) => {
-    if (typeof current === "number" && Number.isFinite(current)) {
-      acc[key] = Math.floor(current)
-    }
-    return acc
-  }, {})
-}
-
-async function getAllowedAttributeKeys(rpgId: string) {
-  let rows: Array<{ key: string }> = []
-
-  try {
-    rows = await prisma.$queryRaw<Array<{ key: string }>>(Prisma.sql`
-      SELECT key
-      FROM rpg_attribute_templates
-      WHERE rpg_id = ${rpgId}
-      ORDER BY position ASC
-    `)
-  } catch (error) {
-    if (
-      !(
-        error instanceof Error &&
-        error.message.includes('relation "rpg_attribute_templates" does not exist')
-      )
-    ) {
-      throw error
-    }
-  }
-
-  return rows.map((item) => item.key)
-}
-
-async function getAllowedSkillKeys(rpgId: string) {
-  let rows: Array<{ key: string }> = []
-
-  try {
-    rows = await prisma.$queryRaw<Array<{ key: string }>>(Prisma.sql`
-      SELECT key
-      FROM rpg_skill_templates
-      WHERE rpg_id = ${rpgId}
-      ORDER BY position ASC
-    `)
-  } catch (error) {
-    if (
-      !(
-        error instanceof Error &&
-        error.message.includes('relation "rpg_skill_templates" does not exist')
-      )
-    ) {
-      throw error
-    }
-  }
-
-  return rows.map((item) => item.key)
-}
-
-function createUniqueKey(label: string, used: Set<string>) {
-  const base = slugify(label) || "raca"
-  let key = base
-  let suffix = 2
-
-  while (used.has(key)) {
-    key = `${base}-${suffix}`
-    suffix += 1
-  }
-  used.add(key)
-
-  return key
-}
-
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const userId = await getUserIdFromToken(request)
+    const userId = await getUserIdFromRequest(request)
     if (!userId) {
       return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
     }
 
     const { rpgId } = await context.params
-    const hasAccess = await canReadRpgRaces(rpgId, userId)
-    if (!hasAccess) {
-      return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
-    }
+    const payload = await getRaceTemplates(rpgConfigAccessService, prismaRpgConfigRepository, {
+      rpgId,
+      userId,
+    })
 
-    let rows: RaceTemplateRow[] = []
-    try {
-      rows = await prisma.$queryRaw<RaceTemplateRow[]>(Prisma.sql`
-        SELECT id, key, label, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses", lore
-        FROM rpg_race_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    } catch (error) {
-      if (!(error instanceof Error) || !error.message.includes('column "lore" does not exist')) {
-        throw error
-      }
-
-      rows = await prisma.$queryRaw<RaceTemplateRow[]>(Prisma.sql`
-        SELECT id, key, label, position, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
-        FROM rpg_race_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    }
-
-    const races = rows.map((item) => ({
-      id: item.id,
-      key: item.key,
-      label: item.label,
-      position: item.position,
-      attributeBonuses: parseJsonRecord(item.attributeBonuses),
-      skillBonuses: parseJsonRecord(item.skillBonuses),
-      lore: normalizeRaceLore(item.lore, item.label),
-    }))
-
-    return NextResponse.json({ races }, { status: 200 })
+    return NextResponse.json(payload, { status: 200 })
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes('relation "rpg_race_templates" does not exist') ||
-        error.message.includes('column "lore" of relation "rpg_race_templates" does not exist'))
-    ) {
-      return NextResponse.json(
-        { message: "Tabela de racas nao existe no banco. Rode a migration." },
-        { status: 500 },
-      )
-    }
-
-    return NextResponse.json({ message: "Erro interno ao buscar racas." }, { status: 500 })
+    return toErrorResponse(error, "Erro interno ao buscar racas.")
   }
 }
 
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const userId = await getUserIdFromToken(request)
+    const userId = await getUserIdFromRequest(request)
     if (!userId) {
       return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
     }
 
     const { rpgId } = await context.params
-    const hasAccess = await canAccessRpg(rpgId, userId)
-    if (!hasAccess) {
-      return NextResponse.json({ message: "RPG nao encontrado." }, { status: 404 })
-    }
-
-    const allowedAttributeKeys = await getAllowedAttributeKeys(rpgId)
-    const allowedSkillKeys = await getAllowedSkillKeys(rpgId)
     const body = (await request.json()) as { races?: unknown }
-    const incomingRaces = Array.isArray(body.races) ? body.races : []
-    const parsed = normalizeClassRaceTemplates(
-      incomingRaces,
-      allowedAttributeKeys,
-      allowedSkillKeys,
-    )
-    if (!parsed.ok) {
-      return NextResponse.json({ message: parsed.message }, { status: 400 })
-    }
+    const payload = await updateRaceTemplates(rpgConfigAccessService, prismaRpgConfigRepository, {
+      rpgId,
+      userId,
+      races: body.races,
+    })
 
-    await prisma.$executeRaw(Prisma.sql`
-      DELETE FROM rpg_race_templates
-      WHERE rpg_id = ${rpgId}
-    `)
-
-    if (parsed.values.length > 0) {
-      const used = new Set<string>()
-      const values = parsed.values.map((item, index) => {
-        const source = incomingRaces[index]
-        const sourceLore =
-          source && typeof source === "object" && !Array.isArray(source)
-            ? (source as { lore?: unknown }).lore
-            : undefined
-        const lore = normalizeRaceLore(sourceLore, item.label)
-
-        return Prisma.sql`(
-          ${crypto.randomUUID()},
-          ${rpgId},
-          ${createUniqueKey(item.label, used)},
-          ${item.label},
-          ${JSON.stringify(item.attributeBonuses)}::jsonb,
-          ${JSON.stringify(item.skillBonuses)}::jsonb,
-          ${JSON.stringify(lore)}::jsonb,
-          ${index}
-        )`
-      })
-
-      await prisma.$executeRaw(Prisma.sql`
-        INSERT INTO rpg_race_templates (id, rpg_id, key, label, attribute_bonuses, skill_bonuses, lore, position)
-        VALUES ${Prisma.join(values)}
-      `)
-    }
-
-    return NextResponse.json({ message: "Racas atualizadas com sucesso." }, { status: 200 })
+    return NextResponse.json(payload, { status: 200 })
   } catch (error) {
-    if (error instanceof Error && error.message.includes('relation "rpg_race_templates" does not exist')) {
-      return NextResponse.json(
-        { message: "Tabela de racas nao existe no banco. Rode a migration." },
-        { status: 500 },
-      )
-    }
-
-    return NextResponse.json({ message: "Erro interno ao salvar racas." }, { status: 500 })
+    return toErrorResponse(error, "Erro interno ao salvar racas.")
   }
 }
