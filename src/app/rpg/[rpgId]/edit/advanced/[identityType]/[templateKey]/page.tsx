@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import { normalizeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
 import AdvancedIdentityEditor, {
   IdentityTemplateDraft,
 } from "@/presentation/rpg-editor/edit/components/AdvancedIdentityEditor"
@@ -18,6 +19,7 @@ type IdentityTemplate = {
   attributeBonuses: Record<string, number>
   skillBonuses: Record<string, number>
   lore?: RaceLore
+  catalogMeta?: unknown
 }
 
 type SkillTemplate = {
@@ -110,7 +112,7 @@ export default function AdvancedIdentityPage() {
           setDraft({
             key: `draft-${crypto.randomUUID()}`,
             label: "",
-            ...(type === "class" ? { category: "geral" } : {}),
+            category: "geral",
           attributeBonuses: attributeKeys.reduce<Record<string, number>>((acc, key) => {
             acc[key] = 0
             return acc
@@ -120,6 +122,7 @@ export default function AdvancedIdentityPage() {
               return acc
             }, {}),
             ...(type === "race" ? { lore: createDefaultRaceLore() } : {}),
+            catalogMeta: normalizeEntityCatalogMeta(undefined),
           })
           return
         }
@@ -133,7 +136,7 @@ export default function AdvancedIdentityPage() {
         setDraft({
           key: current.key,
           label: current.label,
-          ...(type === "class" ? { category: current.category?.trim() || "geral" } : {}),
+          category: current.category?.trim() || "geral",
           attributeBonuses: attributeKeys.reduce<Record<string, number>>((acc, key) => {
             acc[key] = Number(current.attributeBonuses[key] ?? 0)
             return acc
@@ -145,6 +148,7 @@ export default function AdvancedIdentityPage() {
           ...(type === "race"
             ? { lore: normalizeRaceLore(current.lore, current.label) }
             : {}),
+          catalogMeta: normalizeEntityCatalogMeta(current.catalogMeta),
         })
       } catch {
         setError("Erro de conexao ao carregar editor avancado.")
@@ -188,10 +192,11 @@ export default function AdvancedIdentityPage() {
 
     const payloadTemplate = {
       label,
-      ...(type === "class" ? { category: draft.category?.trim() || "geral" } : {}),
+      category: draft.category?.trim() || "geral",
       attributeBonuses: parsedAttributes,
       skillBonuses: parsedSkills,
       ...(type === "race" ? { lore: normalizeRaceLore(draft.lore, label) } : {}),
+      catalogMeta: draft.catalogMeta,
     }
 
     const nextTemplates =
@@ -207,9 +212,11 @@ export default function AdvancedIdentityPage() {
         ? {
             races: nextTemplates.map((item) => ({
               label: item.label,
+              category: item.category?.trim() || "geral",
               attributeBonuses: item.attributeBonuses,
               skillBonuses: item.skillBonuses,
               lore: item.lore,
+              catalogMeta: item.catalogMeta,
             })),
           }
         : {
@@ -218,6 +225,7 @@ export default function AdvancedIdentityPage() {
               category: item.category?.trim() || "geral",
               attributeBonuses: item.attributeBonuses,
               skillBonuses: item.skillBonuses,
+              catalogMeta: item.catalogMeta,
             })),
           }
 

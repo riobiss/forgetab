@@ -1,7 +1,9 @@
 import styles from "./AdvancedIdentityEditor.module.css"
+import type { CatalogRichTextField, EntityCatalogMeta } from "@/domain/entityCatalog/types"
 import { createDefaultRaceLore, type RaceLore } from "@/lib/rpg/raceLore"
 import type { AttributeTemplate } from "./shared/types"
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
+import RichTextField from "./shared/RichTextField"
 
 type IdentityType = "race" | "class"
 
@@ -12,6 +14,7 @@ export type IdentityTemplateDraft = {
   attributeBonuses: Record<string, number>
   skillBonuses: Record<string, number>
   lore?: RaceLore
+  catalogMeta: EntityCatalogMeta
 }
 
 type SkillTemplate = {
@@ -49,6 +52,24 @@ export default function AdvancedIdentityEditor({
   const typeLabel = type === "race" ? "Raca" : "Classe"
   const title = mode === "create" ? `Criar ${typeLabel}` : `Editar ${typeLabel}`
   const raceLore = type === "race" ? (draft.lore ?? createDefaultRaceLore(draft.label)) : null
+  const richTextFields: Array<{
+    key: CatalogRichTextField
+    label: string
+    description: string
+  }> =
+    type === "race"
+      ? [
+          { key: "description", label: "Descricao", description: "Apresentacao principal da raca." },
+          { key: "origin", label: "Origem", description: "Contexto de origem com editor rico." },
+          { key: "kingdoms", label: "Reinos", description: "Texto rico para reinos, regioes e expansao politica." },
+          { key: "lore", label: "Lore", description: "Lore livre para aprofundamento narrativo." },
+          { key: "notes", label: "Observacoes", description: "Notas internas ou observacoes finais." },
+        ]
+      : [
+          { key: "description", label: "Descricao", description: "Apresentacao principal da classe." },
+          { key: "lore", label: "Lore", description: "Lore, identidade e estilo narrativo da classe." },
+          { key: "notes", label: "Observacoes", description: "Detalhes opcionais, restricoes e notas." },
+        ]
 
   function updateLabel(value: string) {
     if (type === "race") {
@@ -57,6 +78,20 @@ export default function AdvancedIdentityEditor({
     }
 
     onChange({ ...draft, label: value })
+  }
+
+  function updateCatalogMeta(nextMeta: EntityCatalogMeta) {
+    onChange({ ...draft, catalogMeta: nextMeta })
+  }
+
+  function updateRichTextField(field: CatalogRichTextField, value: Record<string, unknown>) {
+    updateCatalogMeta({
+      ...draft.catalogMeta,
+      richText: {
+        ...draft.catalogMeta.richText,
+        [field]: value,
+      },
+    })
   }
 
   function updateBonus(
@@ -195,6 +230,44 @@ export default function AdvancedIdentityEditor({
           placeholder={type === "race" ? "Nome da raca" : "Nome da classe"}
         />
       </label>
+
+      <label className={styles.field}>
+        <span>Categoria</span>
+        <input
+          type="text"
+          value={draft.category ?? "geral"}
+          onChange={(event) => onChange({ ...draft, category: event.target.value })}
+          placeholder={type === "race" ? "Ex.: ancestrais, humanoides..." : "Ex.: marcial, mistica..."}
+        />
+      </label>
+
+      <label className={styles.field}>
+        <span>Descricao curta</span>
+        <textarea
+          value={draft.catalogMeta.shortDescription ?? ""}
+          onChange={(event) =>
+            updateCatalogMeta({
+              ...draft.catalogMeta,
+              shortDescription: event.target.value.trim() || null,
+            })
+          }
+          rows={3}
+          placeholder="Texto curto para cards, busca e catalogo."
+        />
+      </label>
+
+      <section className={styles.section}>
+        <h2>Conteudo rico</h2>
+        {richTextFields.map((field) => (
+          <RichTextField
+            key={field.key}
+            label={field.label}
+            description={field.description}
+            value={draft.catalogMeta.richText[field.key] as Record<string, unknown> | null | undefined}
+            onChange={(value) => updateRichTextField(field.key, value as Record<string, unknown>)}
+          />
+        ))}
+      </section>
 
       {type === "race" && raceLore ? (
         <section className={styles.section}>
