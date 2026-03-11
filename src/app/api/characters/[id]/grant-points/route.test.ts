@@ -13,7 +13,7 @@ vi.mock("@/lib/prisma", () => ({
   },
 }))
 
-vi.mock("@/lib/server/auth", () => ({
+vi.mock("@/presentation/api/characters/requestAuth", () => ({
   getUserIdFromRequest: mocks.getUserIdFromRequest,
 }))
 
