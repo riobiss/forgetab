@@ -2,6 +2,7 @@ import type {
   ClassOptionDto,
   LibraryBookDto,
   LibrarySectionDto,
+  LibrarySectionsViewDto,
   RaceOptionDto,
   RpgUserOptionDto,
   UpsertLibraryBookPayloadDto,

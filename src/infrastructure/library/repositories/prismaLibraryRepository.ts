@@ -31,23 +31,15 @@ type LibraryBookRow = {
 
 function mapSection(row: LibrarySectionRow): LibrarySectionDto {
   return {
-    ...row,
-    ...(row.createdAt
-      ? {
-          createdAt:
-            row.createdAt instanceof Date
-              ? row.createdAt.toISOString()
-              : String(row.createdAt),
-        }
-      : {}),
-    ...(row.updatedAt
-      ? {
-          updatedAt:
-            row.updatedAt instanceof Date
-              ? row.updatedAt.toISOString()
-              : String(row.updatedAt),
-        }
-      : {}),
+    id: row.id,
+    rpgId: row.rpgId,
+    title: row.title,
+    description: row.description,
+    booksCount: row.booksCount,
+    createdAt:
+      row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
+    updatedAt:
+      row.updatedAt instanceof Date ? row.updatedAt.toISOString() : String(row.updatedAt),
   }
 }
 
@@ -58,27 +50,21 @@ function parseStringList(value: Prisma.JsonValue) {
 
 function mapBook(row: LibraryBookRow): LibraryBookDto {
   return {
-    ...row,
+    id: row.id,
+    rpgId: row.rpgId,
+    sectionId: row.sectionId,
+    createdByUserId: row.createdByUserId,
+    title: row.title,
+    description: row.description,
     content: (row.content ?? { type: "doc", content: [] }) as LibraryBookDto["content"],
+    visibility: row.visibility,
     allowedCharacterIds: parseStringList(row.allowedCharacterIds),
     allowedClassKeys: parseStringList(row.allowedClassKeys),
     allowedRaceKeys: parseStringList(row.allowedRaceKeys),
-    ...(row.createdAt
-      ? {
-          createdAt:
-            row.createdAt instanceof Date
-              ? row.createdAt.toISOString()
-              : String(row.createdAt),
-        }
-      : {}),
-    ...(row.updatedAt
-      ? {
-          updatedAt:
-            row.updatedAt instanceof Date
-              ? row.updatedAt.toISOString()
-              : String(row.updatedAt),
-        }
-      : {}),
+    createdAt:
+      row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
+    updatedAt:
+      row.updatedAt instanceof Date ? row.updatedAt.toISOString() : String(row.updatedAt),
   }
 }
 
