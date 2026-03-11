@@ -59,15 +59,18 @@ export default function NewRpgForm({ deps }: Props) {
     creatingRef.current = true
     setLoading(true)
     setError("")
+    let uploadedImageUrl = ""
+    let hasFreshUpload = false
 
     try {
-      let uploadedImageUrl = image.trim() || ""
+      uploadedImageUrl = image.trim() || ""
 
       if (selectedImageFile) {
         setUploadingImage(true)
         try {
           const upload = await uploadRpgImageUseCase(deps, { file: selectedImageFile })
           uploadedImageUrl = upload.url
+          hasFreshUpload = true
           setImage(uploadedImageUrl)
         } catch (cause) {
           const message = cause instanceof Error ? cause.message : "Nao foi possivel enviar imagem."

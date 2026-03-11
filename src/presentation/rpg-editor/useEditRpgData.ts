@@ -29,8 +29,8 @@ import type {
   CatalogOption,
   CharacterIdentityTemplate,
   IdentityTemplate,
-} from "@/app/rpg/[rpgId]/edit/components/shared/types"
-import type { Visibility } from "@/app/rpg/[rpgId]/edit/hooks/useEditRpgState"
+} from "@/presentation/rpg-editor/edit/components/shared/types"
+import type { Visibility } from "@/presentation/rpg-editor/edit/hooks/useEditRpgState"
 
 function isLegacyFiveLevelDefault(tiers: ProgressionTier[]) {
   if (tiers.length !== 5) return false
