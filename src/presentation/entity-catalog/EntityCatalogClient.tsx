@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { ArrowUpDown, ChevronDown, ChevronUp, Filter, Plus, Search, X } from "lucide-react"
+import { ArrowUpDown, ChevronDown, ChevronUp, Filter, Pencil, Plus, Search, Trash2, X } from "lucide-react"
 import { createRichTextDocumentFromText } from "@/domain/entityCatalog/catalogMeta"
 import slugify from "@/utils/slugify"
 import { getCatalogMetaExcerpt } from "@/domain/entityCatalog/catalogMeta"
@@ -18,6 +18,18 @@ type Props = {
   title: string
   canManage: boolean
   items: EntityCatalogItem[]
+}
+
+type CatalogTemplateRecord = Record<string, unknown> & {
+  id?: string
+  key?: string
+  label?: string
+  category?: string
+}
+
+type CategoryItemDraft = {
+  identity: string
+  label: string
 }
 
 const SORT_OPTIONS: Array<{ value: EntityCatalogSort; label: string }> = [
@@ -45,6 +57,13 @@ export default function EntityCatalogClient({
   const [createError, setCreateError] = useState("")
   const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false)
   const [sortModalOpen, setSortModalOpen] = useState(false)
+  const [manageCategoryOpen, setManageCategoryOpen] = useState(false)
+  const [manageCategoryName, setManageCategoryName] = useState("")
+  const [manageCategoryDraft, setManageCategoryDraft] = useState("")
+  const [manageCategoryItems, setManageCategoryItems] = useState<CategoryItemDraft[]>([])
+  const [manageCategoryCollection, setManageCategoryCollection] = useState<CatalogTemplateRecord[]>([])
+  const [manageCategorySaving, setManageCategorySaving] = useState(false)
+  const [manageCategoryError, setManageCategoryError] = useState("")
 
   async function openCreateModal() {
     if (!canManage) return
@@ -137,6 +156,137 @@ export default function EntityCatalogClient({
     }
   }
 
+  async function fetchCollection() {
+    const endpoint = entityType === "class" ? "classes" : "races"
+    const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`)
+    const payload = (await response.json()) as {
+      classes?: CatalogTemplateRecord[]
+      races?: CatalogTemplateRecord[]
+      message?: string
+    }
+
+    if (!response.ok) {
+      throw new Error(payload.message ?? "Nao foi possivel carregar a lista.")
+    }
+
+    return entityType === "class" ? payload.classes ?? [] : payload.races ?? []
+  }
+
+  async function saveCollection(nextCollection: CatalogTemplateRecord[]) {
+    const endpoint = entityType === "class" ? "classes" : "races"
+    const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(entityType === "class" ? { classes: nextCollection } : { races: nextCollection }),
+    })
+    const payload = (await response.json()) as { message?: string }
+    if (!response.ok) {
+      throw new Error(payload.message ?? "Nao foi possivel salvar.")
+    }
+  }
+
+  function getTemplateCategory(item: CatalogTemplateRecord) {
+    return typeof item.category === "string" && item.category.trim().length > 0
+      ? item.category.trim()
+      : "geral"
+  }
+
+  function getTemplateIdentity(item: CatalogTemplateRecord, index: number) {
+    if (typeof item.id === "string" && item.id.trim().length > 0) return `id:${item.id}`
+    if (typeof item.key === "string" && item.key.trim().length > 0) return `key:${item.key}`
+    return `index:${index}`
+  }
+
+  async function openManageCategory(categoryName: string) {
+    if (!canManage) return
+
+    setManageCategoryError("")
+    setManageCategorySaving(false)
+
+    try {
+      const collection = await fetchCollection()
+      const categoryItems = collection
+        .map((item, index) => ({
+          identity: getTemplateIdentity(item, index),
+          label: typeof item.label === "string" ? item.label : "",
+          category: getTemplateCategory(item),
+        }))
+        .filter((item) => item.category === categoryName)
+        .map(({ identity, label }) => ({ identity, label }))
+
+      setManageCategoryCollection(collection)
+      setManageCategoryName(categoryName)
+      setManageCategoryDraft(categoryName)
+      setManageCategoryItems(categoryItems)
+      setManageCategoryOpen(true)
+    } catch (cause) {
+      setManageCategoryError(cause instanceof Error ? cause.message : "Erro ao carregar categoria.")
+      setManageCategoryOpen(true)
+    }
+  }
+
+  async function handleSaveManagedCategory() {
+    if (manageCategorySaving) return
+
+    const nextCategoryName = manageCategoryDraft.trim() || manageCategoryName
+    const itemDraftMap = new Map(manageCategoryItems.map((item) => [item.identity, item]))
+
+    setManageCategorySaving(true)
+    setManageCategoryError("")
+
+    try {
+      const nextCollection = manageCategoryCollection.reduce<CatalogTemplateRecord[]>((acc, item, index) => {
+        const identity = getTemplateIdentity(item, index)
+        const category = getTemplateCategory(item)
+
+        if (category !== manageCategoryName) {
+          acc.push(item)
+          return acc
+        }
+
+        const draft = itemDraftMap.get(identity)
+        if (!draft) {
+          return acc
+        }
+
+        acc.push({
+          ...item,
+          label: draft.label.trim() || item.label,
+          category: nextCategoryName,
+        })
+        return acc
+      }, [])
+
+      await saveCollection(nextCollection)
+      setManageCategoryOpen(false)
+      router.refresh()
+    } catch (cause) {
+      setManageCategoryError(cause instanceof Error ? cause.message : "Erro ao salvar categoria.")
+    } finally {
+      setManageCategorySaving(false)
+    }
+  }
+
+  async function handleDeleteCategory() {
+    if (manageCategorySaving) return
+    setManageCategorySaving(true)
+    setManageCategoryError("")
+
+    try {
+      const nextCollection = manageCategoryCollection.filter(
+        (item) => getTemplateCategory(item) !== manageCategoryName,
+      )
+
+      await saveCollection(nextCollection)
+      setManageCategoryOpen(false)
+      router.refresh()
+    } catch (cause) {
+      setManageCategoryError(cause instanceof Error ? cause.message : "Erro ao deletar categoria.")
+    } finally {
+      setManageCategorySaving(false)
+    }
+  }
+
   return (
     <div className={styles.page}>
       <section className={styles.header}>
@@ -216,9 +366,26 @@ export default function EntityCatalogClient({
                     <h2 className={styles.groupTitle}>{group.label}</h2>
                   </div>
 
-                  <div className={styles.toolbar}>
+                  <div className={styles.groupHeaderActions}>
+                    <div className={styles.toolbar}>
                     <span className={styles.groupBadge}>{group.count}</span>
                     {collapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+                    </div>
+
+                    {canManage ? (
+                      <button
+                        type="button"
+                        className={styles.iconButton}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          void openManageCategory(group.label)
+                        }}
+                        aria-label={`Gerenciar categoria ${group.label}`}
+                        title="Gerenciar categoria"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                    ) : null}
                   </div>
                 </button>
 
@@ -406,6 +573,80 @@ export default function EntityCatalogClient({
                   {option.label}
                 </button>
               ))}
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {manageCategoryOpen ? (
+        <div className={styles.modalOverlay} role="dialog" aria-modal="true" onClick={() => setManageCategoryOpen(false)}>
+          <section className={styles.manageModal} onClick={(event) => event.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Gerenciar categoria</h2>
+              <button type="button" className={styles.drawerClose} onClick={() => setManageCategoryOpen(false)}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <label className={styles.field}>
+              <span>Nome da categoria</span>
+              <input
+                value={manageCategoryDraft}
+                onChange={(event) => setManageCategoryDraft(event.target.value)}
+                placeholder="Nome da categoria"
+              />
+            </label>
+
+            <div className={styles.manageItems}>
+              {manageCategoryItems.map((item) => (
+                <div key={item.identity} className={styles.manageItemRow}>
+                  <input
+                    value={item.label}
+                    onChange={(event) =>
+                      setManageCategoryItems((current) =>
+                        current.map((entry) =>
+                          entry.identity === item.identity ? { ...entry, label: event.target.value } : entry,
+                        ),
+                      )
+                    }
+                    placeholder="Nome do item"
+                  />
+                  <button
+                    type="button"
+                    className={styles.dangerButton}
+                    onClick={() =>
+                      setManageCategoryItems((current) =>
+                        current.filter((entry) => entry.identity !== item.identity),
+                      )
+                    }
+                    aria-label={`Excluir ${item.label}`}
+                    title="Excluir item"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {manageCategoryError ? <p className={styles.description}>{manageCategoryError}</p> : null}
+
+            <div className={styles.manageActions}>
+              <button
+                type="button"
+                className={styles.primaryButton}
+                onClick={() => void handleSaveManagedCategory()}
+                disabled={manageCategorySaving}
+              >
+                {manageCategorySaving ? "Salvando..." : "Salvar"}
+              </button>
+              <button
+                type="button"
+                className={styles.dangerTextButton}
+                onClick={() => void handleDeleteCategory()}
+                disabled={manageCategorySaving}
+              >
+                Deletar categoria
+              </button>
             </div>
           </section>
         </div>

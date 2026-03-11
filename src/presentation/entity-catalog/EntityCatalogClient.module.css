@@ -94,6 +94,16 @@
   padding: 0.62rem 0.9rem;
 }
 
+.dangerButton,
+.dangerTextButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
 .secondaryButton,
 .groupActionButton,
 .actionLink,
@@ -104,6 +114,22 @@
   background: rgba(255, 255, 255, 0.03);
   color: var(--color-text-primary);
   padding: 0.58rem 0.8rem;
+}
+
+.dangerButton {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
+  background: var(--color-status-danger-soft);
+  color: var(--color-status-danger-contrast);
+}
+
+.dangerTextButton {
+  border: 1px solid color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
+  background: transparent;
+  color: var(--color-status-danger);
+  padding: 0.62rem 0.9rem;
 }
 
 .iconButton {
@@ -212,19 +238,19 @@
   color: var(--color-text-secondary);
 }
 
-.statusDot {
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 999px;
-  background: var(--color-brand-primary);
-  box-shadow: 0 0 0 0.35rem rgba(245, 179, 59, 0.16);
-}
 
 .toolbar {
   display: flex;
   gap: 0.4rem;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.groupHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
 }
 
 .viewToggleActive {
@@ -429,6 +455,17 @@
   gap: 0.8rem;
 }
 
+.manageModal {
+  width: min(640px, 100%);
+  border-radius: 12px;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-elevation-md);
+  padding: 1rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
 .modalTitle {
   margin: 0;
   color: var(--color-text-primary);
@@ -437,6 +474,38 @@
 .sortOptions {
   display: grid;
   gap: 0.45rem;
+}
+
+.manageItems {
+  display: grid;
+  gap: 0.6rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.manageItemRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.manageItemRow input {
+  width: 100%;
+  min-width: 0;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text-primary);
+  padding: 0.68rem 0.82rem;
+  font: inherit;
+}
+
+.manageActions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .sortOption {

@@ -184,6 +184,7 @@ export default async function RaceDetailsPage({ params }: Params) {
       canManage={permission?.canManage ?? false}
       showCategoryField={false}
       current={{
+        id: row.id,
         key: row.key,
         label: row.label,
         category: row.category?.trim() || "geral",

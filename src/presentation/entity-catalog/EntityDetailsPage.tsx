@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import type { JSONContent } from "@tiptap/react"
 import { Keyboard } from "lucide-react"
 import { Save } from "lucide-react"
@@ -26,6 +27,7 @@ type TemplateOption = {
 }
 
 type IdentityTemplateRecord = {
+  id: string
   key: string
   label: string
   category: string
@@ -75,6 +77,7 @@ export default function EntityDetailsPage({
   players = [],
   abilityPurchase,
 }: Props) {
+  const router = useRouter()
   const [editorContent, setEditorContent] = useState<JSONContent>(
     current.content ?? (EMPTY_RICH_TEXT_DOCUMENT as JSONContent),
   )
@@ -134,8 +137,8 @@ export default function EntityDetailsPage({
     const endpoint = entityType === "class" ? "classes" : "races"
     const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`)
     const payload = (await response.json()) as {
-      classes?: IdentityTemplateRecord[]
-      races?: IdentityTemplateRecord[]
+      classes?: Array<Record<string, unknown>>
+      races?: Array<Record<string, unknown>>
       message?: string
     }
 
@@ -143,7 +146,7 @@ export default function EntityDetailsPage({
       throw new Error(payload.message ?? "Nao foi possivel carregar os templates.")
     }
 
-    return entityType === "class" ? payload.classes ?? [] : payload.races ?? []
+    return (entityType === "class" ? payload.classes ?? [] : payload.races ?? []) as IdentityTemplateRecord[]
   }
 
   async function saveTemplate(nextTemplate: IdentityTemplateRecord) {
@@ -206,6 +209,7 @@ export default function EntityDetailsPage({
       await saveTemplate(nextTemplate)
       toast.success(`${entityLabel} salva com sucesso.`)
       setConfigModalOpen(false)
+      router.refresh()
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : "Erro ao salvar.")
     } finally {
@@ -276,7 +280,7 @@ export default function EntityDetailsPage({
             className={`${styles.contentTab} ${activeTab === "content" ? styles.contentTabActive : ""}`}
             onClick={() => setActiveTab("content")}
           >
-            Conteudo
+            Sobre
           </button>
           {hasAbilities ? (
             <button
@@ -308,7 +312,7 @@ export default function EntityDetailsPage({
               className={`${styles.contentTab} ${activeTab === "players" ? styles.contentTabActive : ""}`}
               onClick={() => setActiveTab("players")}
             >
-              Jogadores
+              Players
             </button>
           ) : null}
         </div>

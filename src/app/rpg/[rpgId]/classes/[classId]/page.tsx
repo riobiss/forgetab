@@ -185,6 +185,7 @@ export default async function ClassPage({ params }: Props) {
       canManage={permission?.canManage ?? false}
       showCategoryField={false}
       current={{
+        id: dbClass.id,
         key: dbClass.key,
         label: dbClass.label,
         category: dbClass.category?.trim() || "geral",
