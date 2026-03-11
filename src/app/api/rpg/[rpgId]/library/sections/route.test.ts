@@ -20,6 +20,16 @@ vi.mock("@/lib/prisma", () => ({
 
 import { GET, POST } from "./route"
 
+const sectionRow = {
+  id: "s1",
+  rpgId: "rpg-1",
+  title: "Lore",
+  description: null,
+  booksCount: 0,
+  createdAt: new Date("2026-03-11T10:00:00.000Z"),
+  updatedAt: new Date("2026-03-11T10:00:00.000Z"),
+}
+
 function makeRequest(method: "GET" | "POST", body?: unknown) {
   return new NextRequest("http://localhost/api/rpg/rpg-1/library/sections", {
     method,
@@ -53,11 +63,17 @@ describe("GET /api/rpg/[rpgId]/library/sections", () => {
   it("retorna 200 com secoes", async () => {
     mocks.getUserIdFromRequestToken.mockResolvedValue("u1")
     mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canView: true, canManage: true })
-    mocks.queryRaw.mockResolvedValue([{ id: "s1", title: "Lore", booksCount: 0 }])
+    mocks.queryRaw.mockResolvedValue([sectionRow])
     const response = await GET(makeRequest("GET"), makeContext())
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
-      sections: [{ id: "s1", title: "Lore", booksCount: 0 }],
+      sections: [
+        {
+          ...sectionRow,
+          createdAt: sectionRow.createdAt.toISOString(),
+          updatedAt: sectionRow.updatedAt.toISOString(),
+        },
+      ],
       canManage: true,
     })
   })
@@ -80,7 +96,7 @@ describe("POST /api/rpg/[rpgId]/library/sections", () => {
 
   it("retorna 201 ao criar secao", async () => {
     mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canManage: true })
-    mocks.queryRaw.mockResolvedValue([{ id: "s1", title: "Lore", booksCount: 0 }])
+    mocks.queryRaw.mockResolvedValue([sectionRow])
     const response = await POST(
       makeRequest("POST", { title: "Lore", description: "Descricao qualquer" }),
       makeContext(),

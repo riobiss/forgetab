@@ -20,6 +20,16 @@ vi.mock("@/lib/prisma", () => ({
 
 import { DELETE, GET, PATCH } from "./route"
 
+const sectionRow = {
+  id: "s1",
+  rpgId: "rpg-1",
+  title: "Atualizada",
+  description: null,
+  booksCount: 0,
+  createdAt: new Date("2026-03-11T10:00:00.000Z"),
+  updatedAt: new Date("2026-03-11T10:00:00.000Z"),
+}
+
 function makeRequest(method: "GET" | "PATCH" | "DELETE", body?: unknown) {
   return new NextRequest("http://localhost/api/rpg/rpg-1/library/sections/s1", {
     method,
@@ -47,7 +57,7 @@ describe("section route", () => {
 
   it("PATCH retorna 200 ao atualizar secao", async () => {
     mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canManage: true })
-    mocks.queryRaw.mockResolvedValue([{ id: "s1", title: "Atualizada", booksCount: 0 }])
+    mocks.queryRaw.mockResolvedValue([sectionRow])
     const response = await PATCH(
       makeRequest("PATCH", { title: "Atualizada", description: "Descricao valida" }),
       makeContext(),

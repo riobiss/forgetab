@@ -29,6 +29,12 @@ type LibraryBookRow = {
   updatedAt: Date
 }
 
+function toIsoString(value: Date | string | null | undefined) {
+  if (value instanceof Date) return value.toISOString()
+  if (typeof value === "string") return value
+  return ""
+}
+
 function mapSection(row: LibrarySectionRow): LibrarySectionDto {
   return {
     id: row.id,
@@ -36,10 +42,8 @@ function mapSection(row: LibrarySectionRow): LibrarySectionDto {
     title: row.title,
     description: row.description,
     booksCount: row.booksCount,
-    createdAt:
-      row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
-    updatedAt:
-      row.updatedAt instanceof Date ? row.updatedAt.toISOString() : String(row.updatedAt),
+    createdAt: toIsoString(row.createdAt),
+    updatedAt: toIsoString(row.updatedAt),
   }
 }
 
@@ -61,10 +65,8 @@ function mapBook(row: LibraryBookRow): LibraryBookDto {
     allowedCharacterIds: parseStringList(row.allowedCharacterIds),
     allowedClassKeys: parseStringList(row.allowedClassKeys),
     allowedRaceKeys: parseStringList(row.allowedRaceKeys),
-    createdAt:
-      row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
-    updatedAt:
-      row.updatedAt instanceof Date ? row.updatedAt.toISOString() : String(row.updatedAt),
+    createdAt: toIsoString(row.createdAt),
+    updatedAt: toIsoString(row.updatedAt),
   }
 }
 
