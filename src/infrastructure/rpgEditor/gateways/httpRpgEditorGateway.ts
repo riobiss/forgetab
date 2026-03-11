@@ -3,6 +3,7 @@ import type {
   CreateRpgPayloadDto,
   CreatedRpgDto,
   RpgEditorBootstrapDto,
+  RpgEditorCatalogOptionDto,
   RpgEditorIdentityFieldDto,
   RpgEditorTemplateFieldDto,
   UpdateRpgPayloadDto,
@@ -117,6 +118,43 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ skills }),
+    })
+
+    await parseJson<{ message?: string }>(response)
+  },
+
+  async saveRaces(rpgId: string, races: RpgEditorCatalogOptionDto[]): Promise<void> {
+    const response = await fetch(`/api/rpg/${rpgId}/races`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        races: races.map((item) => ({
+          label: item.label,
+          category: item.category?.trim() || "geral",
+          attributeBonuses: item.attributeBonuses ?? {},
+          skillBonuses: item.skillBonuses ?? {},
+          lore: item.lore,
+          catalogMeta: item.catalogMeta,
+        })),
+      }),
+    })
+
+    await parseJson<{ message?: string }>(response)
+  },
+
+  async saveClasses(rpgId: string, classes: RpgEditorCatalogOptionDto[]): Promise<void> {
+    const response = await fetch(`/api/rpg/${rpgId}/classes`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        classes: classes.map((item) => ({
+          label: item.label,
+          category: item.category?.trim() || "geral",
+          attributeBonuses: item.attributeBonuses ?? {},
+          skillBonuses: item.skillBonuses ?? {},
+          catalogMeta: item.catalogMeta,
+        })),
+      }),
     })
 
     await parseJson<{ message?: string }>(response)

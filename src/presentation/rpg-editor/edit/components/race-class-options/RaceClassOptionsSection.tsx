@@ -3,10 +3,16 @@
 import { useState } from "react"
 import Link from "next/link"
 import { ChevronDown, ChevronUp, Plus, Settings2, Trash2 } from "lucide-react"
+import type { RpgEditorDependencies } from "@/application/rpgEditor/contracts/RpgEditorDependencies"
+import {
+  saveRpgClassesUseCase,
+  saveRpgRacesUseCase,
+} from "@/application/rpgEditor/use-cases/rpgEditor"
 import styles from "./RaceClassOptionsSection.module.css"
 import type { IdentityTemplate } from "../shared/types"
 
 type Props = {
+  deps: RpgEditorDependencies
   rpgId: string
   showRaceList: boolean
   onToggleRaceList: () => void
@@ -21,6 +27,7 @@ type Props = {
 }
 
 export default function RaceClassOptionsSection({
+  deps,
   rpgId,
   showRaceList,
   onToggleRaceList,
@@ -49,20 +56,23 @@ export default function RaceClassOptionsSection({
     setFeedback("")
 
     try {
-      const response = await fetch(`/api/rpg/${rpgId}/races`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ races: nextRaces }),
+      await saveRpgRacesUseCase(deps, {
+        rpgId,
+        races: nextRaces.map((item) => ({
+          key: item.key,
+          label: item.label,
+          category: item.category,
+          attributeBonuses: item.attributeBonuses,
+          skillBonuses: item.skillBonuses,
+          lore: item.lore,
+          catalogMeta: item.catalogMeta,
+          position: item.position,
+        })),
       })
-      const payload = (await response.json()) as { message?: string }
-      if (!response.ok) {
-        setFeedback(payload.message ?? "Erro ao excluir raca.")
-        return
-      }
       onRaceDraftsChange(nextRaces)
       setFeedback("Raca excluida com sucesso.")
-    } catch {
-      setFeedback("Erro de conexao ao excluir raca.")
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : "Erro de conexao ao excluir raca.")
     } finally {
       setDeletingRaceKey("")
     }
@@ -80,20 +90,22 @@ export default function RaceClassOptionsSection({
     setFeedback("")
 
     try {
-      const response = await fetch(`/api/rpg/${rpgId}/classes`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ classes: nextClasses }),
+      await saveRpgClassesUseCase(deps, {
+        rpgId,
+        classes: nextClasses.map((item) => ({
+          key: item.key,
+          label: item.label,
+          category: item.category,
+          attributeBonuses: item.attributeBonuses,
+          skillBonuses: item.skillBonuses,
+          catalogMeta: item.catalogMeta,
+          position: item.position,
+        })),
       })
-      const payload = (await response.json()) as { message?: string }
-      if (!response.ok) {
-        setFeedback(payload.message ?? "Erro ao excluir classe.")
-        return
-      }
       onClassDraftsChange(nextClasses)
       setFeedback("Classe excluida com sucesso.")
-    } catch {
-      setFeedback("Erro de conexao ao excluir classe.")
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : "Erro de conexao ao excluir classe.")
     } finally {
       setDeletingClassKey("")
     }

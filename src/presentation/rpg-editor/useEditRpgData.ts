@@ -238,6 +238,7 @@ export function useEditRpgData({
             attributeBonuses: item.attributeBonuses ?? {},
             skillBonuses: item.skillBonuses ?? {},
             lore: item.lore,
+            catalogMeta: item.catalogMeta,
           })),
         )
         setClassDrafts(
@@ -248,6 +249,7 @@ export function useEditRpgData({
             category: item.category,
             attributeBonuses: item.attributeBonuses ?? {},
             skillBonuses: item.skillBonuses ?? {},
+            catalogMeta: item.catalogMeta,
           })),
         )
         setCharacterIdentityTemplates(payload.identityFields ?? [])

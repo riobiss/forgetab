@@ -537,6 +537,7 @@ export default function EditRpgFeature() {
             />
 
             <RaceClassOptionsSection
+              deps={deps}
               rpgId={rpgId}
               showRaceList={state.showRaceList}
               onToggleRaceList={() => state.setShowRaceList((prev) => !prev)}

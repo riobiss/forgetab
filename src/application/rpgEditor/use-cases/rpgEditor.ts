@@ -1,6 +1,7 @@
 import type { RpgEditorDependencies } from "@/application/rpgEditor/contracts/RpgEditorDependencies"
 import type {
   CreateRpgPayloadDto,
+  RpgEditorCatalogOptionDto,
   RpgEditorIdentityFieldDto,
   RpgEditorTemplateFieldDto,
   UpdateRpgPayloadDto,
@@ -48,6 +49,20 @@ export async function saveRpgSkillsUseCase(
   params: { rpgId: string; skills: string[] },
 ) {
   return deps.gateway.saveSkills(params.rpgId, params.skills)
+}
+
+export async function saveRpgRacesUseCase(
+  deps: Dependencies,
+  params: { rpgId: string; races: RpgEditorCatalogOptionDto[] },
+) {
+  return deps.gateway.saveRaces(params.rpgId, params.races)
+}
+
+export async function saveRpgClassesUseCase(
+  deps: Dependencies,
+  params: { rpgId: string; classes: RpgEditorCatalogOptionDto[] },
+) {
+  return deps.gateway.saveClasses(params.rpgId, params.classes)
 }
 
 export async function saveRpgCharacterIdentityFieldsUseCase(

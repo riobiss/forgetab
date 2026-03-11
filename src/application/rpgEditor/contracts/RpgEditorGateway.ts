@@ -2,6 +2,7 @@ import type {
   CreateRpgPayloadDto,
   CreatedRpgDto,
   RpgEditorBootstrapDto,
+  RpgEditorCatalogOptionDto,
   RpgEditorIdentityFieldDto,
   RpgEditorTemplateFieldDto,
   UpdateRpgPayloadDto,
@@ -14,6 +15,8 @@ export interface RpgEditorGateway {
   saveAttributes(rpgId: string, attributes: RpgEditorTemplateFieldDto[]): Promise<void>
   saveStatuses(rpgId: string, statuses: RpgEditorTemplateFieldDto[]): Promise<void>
   saveSkills(rpgId: string, skills: string[]): Promise<void>
+  saveRaces(rpgId: string, races: RpgEditorCatalogOptionDto[]): Promise<void>
+  saveClasses(rpgId: string, classes: RpgEditorCatalogOptionDto[]): Promise<void>
   saveCharacterIdentityFields(rpgId: string, fields: RpgEditorIdentityFieldDto[]): Promise<void>
   saveCharacterCharacteristicFields(
     rpgId: string,

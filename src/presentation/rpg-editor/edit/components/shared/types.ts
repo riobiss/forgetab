@@ -6,6 +6,7 @@ export type IdentityTemplate = {
   attributeBonuses: Record<string, number>
   skillBonuses: Record<string, number>
   lore?: unknown
+  catalogMeta?: unknown
 }
 
 export type CharacterIdentityTemplate = {
