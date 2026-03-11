@@ -4,15 +4,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const mocks = vi.hoisted(() => ({
   getUserIdFromRequest: vi.fn(),
   getRpgPermission: vi.fn(),
+  getMembershipStatus: vi.fn(),
   queryRaw: vi.fn(),
 }))
 
-vi.mock("@/lib/server/auth", () => ({
+vi.mock("@/presentation/api/characters/requestAuth", () => ({
   getUserIdFromRequest: mocks.getUserIdFromRequest,
 }))
 
 vi.mock("@/lib/server/rpgPermissions", () => ({
   getRpgPermission: mocks.getRpgPermission,
+}))
+
+vi.mock("@/lib/server/rpgAccess", () => ({
+  getMembershipStatus: mocks.getMembershipStatus,
 }))
 
 vi.mock("@/lib/prisma", () => ({
@@ -39,6 +44,7 @@ describe("map route", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.getUserIdFromRequest.mockResolvedValue("u1")
+    mocks.getMembershipStatus.mockResolvedValue("pending")
   })
 
   it("retorna 401 sem autenticacao", async () => {
@@ -49,6 +55,14 @@ describe("map route", () => {
 
   it("retorna 403 sem permissao", async () => {
     mocks.getRpgPermission.mockResolvedValue({ exists: true, canManage: false })
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
+        id: "rpg-1",
+        visibility: "public",
+        useMundiMap: true,
+        mapImage: "https://img.com/map.png",
+      },
+    ])
     const response = await PATCH(makeRequest({ mapImage: "https://img.com/map.png" }), makeContext())
     expect(response.status).toBe(403)
   })
