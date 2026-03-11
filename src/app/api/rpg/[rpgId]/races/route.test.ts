@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   getRpgPermission: vi.fn(),
   queryRaw: vi.fn(),
   executeRaw: vi.fn(),
+  transaction: vi.fn(),
   rpgFindUnique: vi.fn(),
   memberFindUnique: vi.fn(),
 }))
@@ -23,6 +24,7 @@ vi.mock("@/lib/prisma", () => ({
   prisma: {
     $queryRaw: mocks.queryRaw,
     $executeRaw: mocks.executeRaw,
+    $transaction: mocks.transaction,
     rpg: { findUnique: mocks.rpgFindUnique },
     rpgMember: { findUnique: mocks.memberFindUnique },
   },
@@ -49,6 +51,12 @@ describe("races route", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.verifyAuthToken.mockResolvedValue({ userId: "u1" })
+    mocks.transaction.mockImplementation(async (callback: (tx: { $queryRaw: typeof mocks.queryRaw; $executeRaw: typeof mocks.executeRaw }) => unknown) =>
+      callback({
+        $queryRaw: mocks.queryRaw,
+        $executeRaw: mocks.executeRaw,
+      }),
+    )
   })
 
   it("GET retorna 200 com racas", async () => {

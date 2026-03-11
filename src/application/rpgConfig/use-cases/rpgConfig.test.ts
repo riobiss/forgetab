@@ -155,6 +155,7 @@ describe("rpgConfig use-cases", () => {
           position: 0,
           attributeBonuses: { str: 2 },
           skillBonuses: { fight: 1 },
+          catalogMeta: { shortDescription: null, richText: {} },
         },
       ],
     })
