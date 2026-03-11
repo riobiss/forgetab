@@ -13,7 +13,7 @@ import {
   normalizeProgressionTiers,
   type ProgressionMode,
 } from "@/lib/rpg/progression"
-import { Prisma } from "../../../../../generated/prisma/client.js"
+import { Prisma } from "../../../../generated/prisma/client.js"
 
 export const prismaCharacterDetailRepository: CharacterDetailRepository = {
   async getRpg(rpgId: string): Promise<CharacterDetailRpgDto | null> {
