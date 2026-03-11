@@ -1,11 +1,10 @@
-import { notFound } from "next/navigation"
-import { Prisma } from "../../../../../generated/prisma/client.js"
-import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
-import { getMembershipStatus } from "@/lib/server/rpgAccess"
-import { getRpgPermission } from "@/lib/server/rpgPermissions"
-import { MundiMap } from "./components/world-map/WorldMap"
-import styles from "./page.module.css"
+import { loadRpgMapView } from "@/application/rpgMap/use-cases/rpgMap"
+import { prismaRpgMapRepository } from "@/infrastructure/rpgMap/repositories/prismaRpgMapRepository"
+import { rpgMapAccessService } from "@/infrastructure/rpgMap/services/rpgMapAccessService"
+import { RpgMapPage } from "@/presentation/rpg-map/RpgMapPage"
+import { AppError } from "@/shared/errors/AppError"
+import { notFound } from "next/navigation"
 
 type Params = {
   params: Promise<{
@@ -13,87 +12,23 @@ type Params = {
   }>
 }
 
-type RpgMapRow = {
-  id: string
-  ownerId: string
-  visibility: "private" | "public"
-  useMundiMap: boolean
-  mapImage: string | null
-}
-
 export default async function MapPage({ params }: Params) {
   const { rpgId } = await params
-
-  let rows: RpgMapRow[] = []
-  try {
-    rows = await prisma.$queryRaw<RpgMapRow[]>(Prisma.sql`
-      SELECT
-        id,
-        owner_id AS "ownerId",
-        visibility,
-        COALESCE(use_mundi_map, false) AS "useMundiMap",
-        map_image AS "mapImage"
-      FROM rpgs
-      WHERE id = ${rpgId}
-      LIMIT 1
-    `)
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes('column "map_image" does not exist') ||
-        error.message.includes('column "use_mundi_map" does not exist'))
-    ) {
-      rows = await prisma.$queryRaw<RpgMapRow[]>(Prisma.sql`
-        SELECT
-          id,
-          owner_id AS "ownerId",
-          visibility,
-          false AS "useMundiMap",
-          null::text AS "mapImage"
-        FROM rpgs
-        WHERE id = ${rpgId}
-        LIMIT 1
-      `)
-    } else {
-      throw error
-    }
-  }
-
-  const dbRpg = rows[0]
-  if (!dbRpg) {
-    notFound()
-  }
-
   const userId = await getUserIdFromCookieStore()
-  const permission =
-    userId && userId.length > 0 ? await getRpgPermission(rpgId, userId) : null
-  const isOwner = permission?.canManage ?? false
-  let isAcceptedMember = false
+  let viewModel
 
-  if (userId && !isOwner) {
-    isAcceptedMember = (await getMembershipStatus(rpgId, userId)) === "accepted"
+  try {
+    viewModel = await loadRpgMapView(
+      prismaRpgMapRepository,
+      rpgMapAccessService,
+      { rpgId, userId },
+    )
+  } catch (error) {
+    if (error instanceof AppError && error.status === 404) {
+      notFound()
+    }
+    throw error
   }
 
-  if (dbRpg.visibility === "private" && !isOwner && !isAcceptedMember) {
-    notFound()
-  }
-
-  if (!dbRpg.useMundiMap) {
-    notFound()
-  }
-
-  return (
-    <div className={styles.page}>
-      <h1 className={styles.title}>Mapa Mundi</h1>
-      <MundiMap rpgId={rpgId} isOwner={isOwner} initialMapSrc={dbRpg.mapImage} />
-      <section className={styles.extraArea}>
-        <h2 className={styles.extraTitle}>Regioes</h2>
-        <p className={styles.extraText}>
-          {isOwner
-            ? "Voce pode enviar a imagem do mapa e ajustar no modo de mapa completo."
-            : "Somente mestre ou moderador podem alterar a imagem. Todos os membros podem visualizar o mapa."}
-        </p>
-      </section>
-    </div>
-  )
+  return <RpgMapPage viewModel={viewModel} />
 }
