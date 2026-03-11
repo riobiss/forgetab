@@ -86,32 +86,59 @@ export const prismaRpgConfigRepository: RpgConfigRepository = {
   },
 
   async replaceRaceTemplates(rpgId, items) {
-    await prisma.$executeRaw(Prisma.sql`
-      DELETE FROM rpg_race_templates
-      WHERE rpg_id = ${rpgId}
-    `)
+    await prisma.$transaction(async (tx) => {
+      const preservedIds = items
+        .map((item) => item.id?.trim())
+        .filter((item): item is string => Boolean(item))
 
-    if (items.length === 0) return
+      const preservedLinks =
+        preservedIds.length > 0
+          ? await tx.$queryRaw<Array<{ skillId: string; raceTemplateId: string }>>(Prisma.sql`
+              SELECT skill_id AS "skillId", race_template_id AS "raceTemplateId"
+              FROM skill_race_links
+              WHERE race_template_id IN (${Prisma.join(preservedIds)})
+            `)
+          : []
 
-    const rows = items.map((item, index) =>
-      Prisma.sql`(
-        ${item.id ?? crypto.randomUUID()},
-        ${rpgId},
-        ${item.key},
-        ${item.label},
-        ${item.category},
-        ${JSON.stringify(item.attributeBonuses)}::jsonb,
-        ${JSON.stringify(item.skillBonuses)}::jsonb,
-        ${JSON.stringify(item.lore)}::jsonb,
-        ${JSON.stringify(serializeEntityCatalogMeta(item.catalogMeta))}::jsonb,
-        ${index}
-      )`,
-    )
+      await tx.$executeRaw(Prisma.sql`
+        DELETE FROM rpg_race_templates
+        WHERE rpg_id = ${rpgId}
+      `)
 
-    await prisma.$executeRaw(Prisma.sql`
-      INSERT INTO rpg_race_templates (id, rpg_id, key, label, category, attribute_bonuses, skill_bonuses, lore, catalog_meta, position)
-      VALUES ${Prisma.join(rows)}
-    `)
+      if (items.length === 0) return
+
+      const rows = items.map((item, index) =>
+        Prisma.sql`(
+          ${item.id ?? crypto.randomUUID()},
+          ${rpgId},
+          ${item.key},
+          ${item.label},
+          ${item.category},
+          ${JSON.stringify(item.attributeBonuses)}::jsonb,
+          ${JSON.stringify(item.skillBonuses)}::jsonb,
+          ${JSON.stringify(item.lore)}::jsonb,
+          ${JSON.stringify(serializeEntityCatalogMeta(item.catalogMeta))}::jsonb,
+          ${index}
+        )`,
+      )
+
+      await tx.$executeRaw(Prisma.sql`
+        INSERT INTO rpg_race_templates (id, rpg_id, key, label, category, attribute_bonuses, skill_bonuses, lore, catalog_meta, position)
+        VALUES ${Prisma.join(rows)}
+      `)
+
+      if (preservedLinks.length > 0) {
+        const linkRows = preservedLinks.map((link) =>
+          Prisma.sql`(${link.skillId}, ${link.raceTemplateId})`,
+        )
+
+        await tx.$executeRaw(Prisma.sql`
+          INSERT INTO skill_race_links (skill_id, race_template_id)
+          VALUES ${Prisma.join(linkRows)}
+          ON CONFLICT DO NOTHING
+        `)
+      }
+    })
   },
 
   async listClassTemplates(rpgId) {
@@ -137,31 +164,58 @@ export const prismaRpgConfigRepository: RpgConfigRepository = {
   },
 
   async replaceClassTemplates(rpgId, items) {
-    await prisma.$executeRaw(Prisma.sql`
-      DELETE FROM rpg_class_templates
-      WHERE rpg_id = ${rpgId}
-    `)
+    await prisma.$transaction(async (tx) => {
+      const preservedIds = items
+        .map((item) => item.id?.trim())
+        .filter((item): item is string => Boolean(item))
 
-    if (items.length === 0) return
+      const preservedLinks =
+        preservedIds.length > 0
+          ? await tx.$queryRaw<Array<{ skillId: string; classTemplateId: string }>>(Prisma.sql`
+              SELECT skill_id AS "skillId", class_template_id AS "classTemplateId"
+              FROM skill_class_links
+              WHERE class_template_id IN (${Prisma.join(preservedIds)})
+            `)
+          : []
 
-    const rows = items.map((item, index) =>
-      Prisma.sql`(
-        ${item.id ?? crypto.randomUUID()},
-        ${rpgId},
-        ${item.key},
-        ${item.label},
-        ${item.category},
-        ${JSON.stringify(item.attributeBonuses)}::jsonb,
-        ${JSON.stringify(item.skillBonuses)}::jsonb,
-        ${JSON.stringify(serializeEntityCatalogMeta(item.catalogMeta))}::jsonb,
-        ${index}
-      )`,
-    )
+      await tx.$executeRaw(Prisma.sql`
+        DELETE FROM rpg_class_templates
+        WHERE rpg_id = ${rpgId}
+      `)
 
-    await prisma.$executeRaw(Prisma.sql`
-      INSERT INTO rpg_class_templates (id, rpg_id, key, label, category, attribute_bonuses, skill_bonuses, catalog_meta, position)
-      VALUES ${Prisma.join(rows)}
-    `)
+      if (items.length === 0) return
+
+      const rows = items.map((item, index) =>
+        Prisma.sql`(
+          ${item.id ?? crypto.randomUUID()},
+          ${rpgId},
+          ${item.key},
+          ${item.label},
+          ${item.category},
+          ${JSON.stringify(item.attributeBonuses)}::jsonb,
+          ${JSON.stringify(item.skillBonuses)}::jsonb,
+          ${JSON.stringify(serializeEntityCatalogMeta(item.catalogMeta))}::jsonb,
+          ${index}
+        )`,
+      )
+
+      await tx.$executeRaw(Prisma.sql`
+        INSERT INTO rpg_class_templates (id, rpg_id, key, label, category, attribute_bonuses, skill_bonuses, catalog_meta, position)
+        VALUES ${Prisma.join(rows)}
+      `)
+
+      if (preservedLinks.length > 0) {
+        const linkRows = preservedLinks.map((link) =>
+          Prisma.sql`(${link.skillId}, ${link.classTemplateId})`,
+        )
+
+        await tx.$executeRaw(Prisma.sql`
+          INSERT INTO skill_class_links (skill_id, class_template_id)
+          VALUES ${Prisma.join(linkRows)}
+          ON CONFLICT DO NOTHING
+        `)
+      }
+    })
   },
 
   async listIdentityTemplates(rpgId) {

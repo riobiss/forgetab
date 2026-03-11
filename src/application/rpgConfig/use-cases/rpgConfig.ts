@@ -54,6 +54,35 @@ function readOptionalTemplateId(value: unknown) {
   return typeof candidate === "string" && candidate.trim().length > 0 ? candidate.trim() : undefined
 }
 
+function readOptionalTemplateKey(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return undefined
+  }
+
+  const candidate = (value as { key?: unknown }).key
+  return typeof candidate === "string" && candidate.trim().length > 0 ? slugify(candidate.trim()) : undefined
+}
+
+function createStableTemplateKey(
+  source: unknown,
+  label: string,
+  used: Set<string>,
+  fallback: string,
+) {
+  const existingKey = readOptionalTemplateKey(source)
+  const base = existingKey || slugify(label) || fallback
+  let key = base
+  let suffix = 2
+
+  while (used.has(key)) {
+    key = `${base}-${suffix}`
+    suffix += 1
+  }
+
+  used.add(key)
+  return key
+}
+
 function normalizeAttributeTemplates(
   input: unknown,
 ): Array<{ key: string; label: string }> {
@@ -309,7 +338,7 @@ export async function updateRaceTemplates(
 
       return {
         id: readOptionalTemplateId(source),
-        key: createUniqueKey(item.label, used, "raca"),
+        key: createStableTemplateKey(source, item.label, used, "raca"),
         label: item.label,
         category: item.category,
         attributeBonuses: item.attributeBonuses,
@@ -377,7 +406,10 @@ export async function updateClassTemplates(
           Array.isArray(params.classes)
             ? readOptionalTemplateId(params.classes[index])
             : undefined,
-        key: createUniqueKey(item.label, used, "classe"),
+        key:
+          params.classes && Array.isArray(params.classes)
+            ? createStableTemplateKey(params.classes[index], item.label, used, "classe")
+            : createUniqueKey(item.label, used, "classe"),
         label: item.label,
         category: item.category,
         attributeBonuses: item.attributeBonuses,
