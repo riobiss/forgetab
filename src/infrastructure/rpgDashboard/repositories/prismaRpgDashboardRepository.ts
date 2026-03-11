@@ -1,13 +1,18 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
-import type { RpgDashboardRepository } from "@/application/rpgDashboard/ports/RpgDashboardRepository"
+import type {
+  DbRpgRow,
+  RpgDashboardRepository,
+  SpectatorCharacterRow,
+  TemplateLabelRow,
+} from "@/application/rpgDashboard/ports/RpgDashboardRepository"
 
 export const prismaRpgDashboardRepository: RpgDashboardRepository = {
   async getRpgById(rpgId) {
-    let rows = [] as Awaited<ReturnType<RpgDashboardRepository["getRpgById"]>>[]
+    let rows: DbRpgRow[] = []
 
     try {
-      rows = await prisma.$queryRaw(Prisma.sql`
+      rows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
         SELECT
           r.id,
           r.owner_id AS "ownerId",
@@ -31,7 +36,7 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
           error.message.includes('column "users_can_manage_own_xp" does not exist') ||
           error.message.includes('column "allow_skill_point_distribution" does not exist'))
       ) {
-        rows = await prisma.$queryRaw(Prisma.sql`
+        rows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
           SELECT
             r.id,
             r.owner_id AS "ownerId",
@@ -140,7 +145,7 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
   async getSpectatorVisionData(rpgId) {
     const [charactersRows, attributeTemplateRows, skillTemplateRows, statusTemplateRows] =
       await Promise.all([
-        prisma.$queryRaw(Prisma.sql`
+        prisma.$queryRaw<SpectatorCharacterRow[]>(Prisma.sql`
           SELECT
             c.id,
             c.name,
@@ -157,19 +162,19 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
           WHERE c.rpg_id = ${rpgId}
           ORDER BY c.created_at DESC
         `),
-        prisma.$queryRaw(Prisma.sql`
+        prisma.$queryRaw<TemplateLabelRow[]>(Prisma.sql`
           SELECT key, label
           FROM rpg_attribute_templates
           WHERE rpg_id = ${rpgId}
           ORDER BY position ASC
         `),
-        prisma.$queryRaw(Prisma.sql`
+        prisma.$queryRaw<TemplateLabelRow[]>(Prisma.sql`
           SELECT key, label
           FROM rpg_skill_templates
           WHERE rpg_id = ${rpgId}
           ORDER BY position ASC
         `),
-        prisma.$queryRaw(Prisma.sql`
+        prisma.$queryRaw<TemplateLabelRow[]>(Prisma.sql`
           SELECT key, label
           FROM rpg_status_templates
           WHERE rpg_id = ${rpgId}
@@ -185,4 +190,3 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
     }
   },
 }
-
