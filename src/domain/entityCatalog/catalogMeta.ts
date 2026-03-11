@@ -13,6 +13,21 @@ export const EMPTY_RICH_TEXT_DOCUMENT: RichTextDocument = {
   content: [],
 }
 
+export function createRichTextDocumentFromText(value: string): RichTextDocument {
+  const text = value.trim()
+  if (!text) return EMPTY_RICH_TEXT_DOCUMENT
+
+  return {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [{ type: "text", text }],
+      },
+    ],
+  }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value)
 }

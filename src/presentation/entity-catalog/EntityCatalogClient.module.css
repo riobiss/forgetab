@@ -1,77 +1,82 @@
 .page {
-  --catalog-panel-bg: linear-gradient(180deg, rgba(16, 16, 18, 0.96), rgba(10, 10, 12, 0.98));
-  --catalog-panel-border: color-mix(in srgb, var(--color-brand-primary) 18%, var(--color-border-soft));
-  --catalog-card-bg: linear-gradient(180deg, rgba(26, 26, 30, 0.96), rgba(17, 17, 20, 0.98));
-  --catalog-card-hover: linear-gradient(180deg, rgba(37, 37, 42, 0.98), rgba(19, 19, 22, 1));
-  display: grid;
-  gap: 1.5rem;
-}
-
-.hero {
-  position: relative;
-  overflow: hidden;
-  padding: clamp(1.4rem, 3vw, 2rem);
-  border: 1px solid var(--catalog-panel-border);
-  border-radius: 24px;
+  --catalog-panel-bg: rgba(14, 14, 16, 0.92);
+  --catalog-panel-border: color-mix(in srgb, var(--color-brand-primary) 14%, var(--color-border-soft));
+  --catalog-card-bg: rgba(22, 22, 25, 0.92);
+  --catalog-card-hover: rgba(29, 29, 33, 0.96);
   background:
-    radial-gradient(circle at top right, rgba(245, 179, 59, 0.18), transparent 32%),
-    radial-gradient(circle at bottom left, rgba(255, 214, 122, 0.1), transparent 36%),
-    var(--catalog-panel-bg);
-  box-shadow: var(--shadow-elevation-md);
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--color-brand-primary) 16%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 20% 30%,
+      color-mix(in srgb, var(--color-brand-contrast) 6%, transparent),
+      transparent 60%
+    );
+  display: grid;
+  gap: 1rem;
+  min-height: 100vh;
+  padding: 2.2rem 1.4rem 3.4rem;
+  color: var(--color-text-secondary);
+  align-content: start;
 }
 
-.heroRow {
+.header {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-start;
+  max-width: 920px;
+  width: 100%;
+  margin: 0 auto;
 }
 
-.heroText {
+.headerText {
   display: grid;
-  gap: 0.55rem;
-  max-width: 48rem;
+  gap: 0.2rem;
 }
 
-.eyebrow {
-  margin: 0;
-  font-size: 0.78rem;
+.kicker {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--color-brand-primary);
+  color: var(--color-text-muted);
+  margin: 0 0 0.25rem;
 }
 
 .title {
   margin: 0;
   color: var(--color-text-primary);
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
+  font-size: 2.05rem;
+  line-height: 1.05;
 }
 
 .subtitle {
   margin: 0;
+  font-size: 0.92rem;
   color: var(--color-text-secondary);
-  max-width: 42rem;
 }
 
-.heroActions {
+.headerActions {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .primaryButton,
 .secondaryButton,
-.viewButton,
-.groupButton,
 .groupActionButton,
-.actionLink {
+.actionLink,
+.iconAction,
+.viewToggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  border-radius: 12px;
+  gap: 0.4rem;
+  border-radius: 10px;
   font-weight: 700;
   transition:
     border-color 0.2s ease,
@@ -84,36 +89,43 @@
   border: 1px solid color-mix(in srgb, var(--color-brand-primary) 80%, white);
   background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-strong));
   color: var(--color-text-on-brand);
-  padding: 0.8rem 1rem;
+  padding: 0.62rem 0.9rem;
 }
 
 .secondaryButton,
 .groupActionButton,
-.actionLink {
+.actionLink,
+.iconAction,
+.viewToggle {
   border: 1px solid var(--color-border-soft);
   background: rgba(255, 255, 255, 0.03);
   color: var(--color-text-primary);
-  padding: 0.75rem 0.95rem;
+  padding: 0.58rem 0.8rem;
 }
 
 .controls {
   display: grid;
-  gap: 1rem;
-  padding: 1rem;
-  border: 1px solid var(--catalog-panel-border);
-  border-radius: 20px;
-  background: var(--catalog-panel-bg);
+  gap: 0.75rem;
+  max-width: 920px;
+  width: 100%;
+  margin: 0 auto;
 }
 
-.controlsGrid {
+.searchRow {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.filtersRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  align-items: end;
 }
 
 .field {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.35rem;
 }
 
 .field span {
@@ -125,27 +137,50 @@
 .field select {
   width: 100%;
   min-width: 0;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid var(--color-border-soft);
   background: rgba(255, 255, 255, 0.04);
   color: var(--color-text-primary);
-  padding: 0.85rem 0.95rem;
+  padding: 0.68rem 0.82rem;
   font: inherit;
+}
+
+.searchInputWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid var(--catalog-panel-border);
+  background: var(--catalog-panel-bg);
+  border-radius: 14px;
+  padding: 0.15rem 0.25rem 0.15rem 0.8rem;
+}
+
+.searchInputWrap input {
+  border: 0;
+  background: transparent;
+  padding: 0.72rem 0.2rem;
+}
+
+.searchInputWrap input:focus {
+  outline: none;
+}
+
+.searchIcon {
+  color: var(--color-brand-primary);
 }
 
 .controlsFooter {
   display: flex;
+  gap: 0.75rem;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
   flex-wrap: wrap;
 }
 
 .resultMeta {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.65rem;
   align-items: center;
-  flex-wrap: wrap;
   color: var(--color-text-secondary);
 }
 
@@ -159,19 +194,12 @@
 
 .toolbar {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   align-items: center;
   flex-wrap: wrap;
 }
 
-.viewButton {
-  border: 1px solid var(--color-border-soft);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--color-text-secondary);
-  padding: 0.7rem 0.9rem;
-}
-
-.viewButtonActive {
+.viewToggleActive {
   border-color: color-mix(in srgb, var(--color-brand-primary) 65%, white);
   background: rgba(245, 179, 59, 0.14);
   color: var(--color-text-primary);
@@ -179,22 +207,23 @@
 
 .groups {
   display: grid;
-  gap: 1rem;
+  gap: 0.8rem;
+  max-width: 920px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .group {
-  border: 1px solid var(--catalog-panel-border);
-  border-radius: 20px;
-  background: var(--catalog-panel-bg);
-  overflow: hidden;
+  border-top: 1px solid var(--catalog-panel-border);
+  padding-top: 0.8rem;
 }
 
 .groupHeader {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.8rem;
   align-items: center;
-  padding: 1rem 1.15rem;
+  padding: 0 0 0.75rem;
   border: 0;
   width: 100%;
   background: transparent;
@@ -205,19 +234,19 @@
 
 .groupHeaderInfo {
   display: grid;
-  gap: 0.22rem;
+  gap: 0.16rem;
 }
 
 .groupTitle {
   margin: 0;
   text-transform: capitalize;
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 .groupSubtitle {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.88rem;
+  font-size: 0.84rem;
 }
 
 .groupBadge {
@@ -233,69 +262,64 @@
 }
 
 .groupContent {
-  padding: 0 1rem 1rem;
+  padding: 0;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.85rem;
+  gap: 0.65rem;
 }
 
 .card {
   display: grid;
-  gap: 1rem;
+  gap: 0.8rem;
   min-width: 0;
-  padding: 1rem;
-  border-radius: 18px;
+  padding: 0.9rem;
+  border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--color-brand-primary) 10%, var(--color-border-soft));
-  background:
-    radial-gradient(circle at top right, rgba(245, 179, 59, 0.08), transparent 28%),
-    var(--catalog-card-bg);
-  box-shadow: var(--shadow-elevation-sm);
+  background: var(--catalog-card-bg);
 }
 
 .card:hover {
   border-color: color-mix(in srgb, var(--color-brand-primary) 44%, white);
-  background:
-    radial-gradient(circle at top right, rgba(245, 179, 59, 0.12), transparent 30%),
-    var(--catalog-card-hover);
+  background: var(--catalog-card-hover);
   transform: translateY(-1px);
 }
 
 .list .card {
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
+  align-items: start;
 }
 
 .cardBody {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.55rem;
   min-width: 0;
 }
 
 .cardHeader {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.3rem;
 }
 
 .cardHeaderTop {
   display: flex;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.6rem;
   align-items: flex-start;
 }
 
 .cardTitle {
   margin: 0;
   color: var(--color-text-primary);
-  font-size: 1.15rem;
+  font-size: 1.02rem;
 }
 
 .cardCategory {
@@ -312,29 +336,59 @@
 .slugLine {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: 0.84rem;
 }
 
 .description {
   margin: 0;
   color: var(--color-text-secondary);
-  line-height: 1.55;
+  line-height: 1.45;
+  font-size: 0.92rem;
 }
 
 .cardActions {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.4rem;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .emptyState {
-  padding: 1.4rem;
+  padding: 1.2rem;
   border: 1px dashed var(--color-border-soft);
-  border-radius: 20px;
+  border-radius: 16px;
   color: var(--color-text-muted);
   text-align: center;
   background: rgba(255, 255, 255, 0.03);
+  max-width: 920px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: color-mix(in srgb, #000 58%, transparent);
+}
+
+.modal {
+  width: min(520px, 100%);
+  border-radius: 12px;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-elevation-md);
+  padding: 1rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.modalTitle {
+  margin: 0;
+  color: var(--color-text-primary);
 }
 
 .compactPreview :global(.simple-editor-content) {
@@ -349,7 +403,7 @@
 }
 
 @media (max-width: 960px) {
-  .controlsGrid {
+  .filtersRow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -360,21 +414,25 @@
   .list .card {
     grid-template-columns: 1fr;
   }
+
+  .filtersRow > :last-child {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 640px) {
-  .heroRow,
+  .header,
   .controlsFooter {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .heroActions,
+  .headerActions,
   .toolbar {
     justify-content: flex-start;
   }
 
-  .controlsGrid {
+  .filtersRow {
     grid-template-columns: 1fr;
   }
 
@@ -386,14 +444,12 @@
 
   .primaryButton,
   .secondaryButton,
-  .viewButton,
   .groupActionButton,
   .actionLink {
-    width: 100%;
+    width: auto;
   }
 
   .cardActions {
     width: 100%;
   }
 }
-

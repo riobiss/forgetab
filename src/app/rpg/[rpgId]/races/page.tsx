@@ -24,12 +24,12 @@ export default async function RacesPage({ params }: Params) {
   }
 
   return (
-    <main style={{ padding: "2rem 1.5rem", maxWidth: "1240px", margin: "0 auto" }}>
+    <main>
       <EntityCatalogFeature
+        rpgId={rpgId}
         entityType="race"
         title="Racas"
-        subtitle="Catalogo administrativo de racas com a mesma base estrutural das classes, preparado para reuso futuro."
-        createHref={data.canManage ? `/rpg/${rpgId}/edit/advanced/race/new` : undefined}
+        subtitle="Gerencie as racas do sistema."
         data={data}
       />
     </main>

@@ -1,7 +1,6 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import Link from "next/link"
 import type { JSONContent } from "@tiptap/react"
 import { Keyboard } from "lucide-react"
 import { Save } from "lucide-react"
@@ -48,7 +47,7 @@ type Props = {
 }
 
 type ConfigStage = "basic" | "attributes" | "skills"
-type ContentTab = "content" | "abilities"
+type ContentTab = "content" | "abilities" | "bonuses"
 
 export default function EntityDetailsPage({
   rpgId,
@@ -90,6 +89,27 @@ export default function EntityDetailsPage({
   const hasAttributeTemplates = attributeTemplates.length > 0
   const hasSkillTemplates = skillTemplates.length > 0
   const hasAbilities = abilities.length > 0
+  const activeAttributeBonuses = useMemo(
+    () => attributeTemplates
+      .map((item) => ({
+        key: item.key,
+        label: item.label,
+        value: Number(attributeBonuses[item.key] ?? 0),
+      }))
+      .filter((item) => item.value !== 0),
+    [attributeBonuses, attributeTemplates],
+  )
+  const activeSkillBonuses = useMemo(
+    () => skillTemplates
+      .map((item) => ({
+        key: item.key,
+        label: item.label,
+        value: Number(skillBonuses[item.key] ?? 0),
+      }))
+      .filter((item) => item.value !== 0),
+    [skillBonuses, skillTemplates],
+  )
+  const hasBonuses = activeAttributeBonuses.length > 0 || activeSkillBonuses.length > 0
 
   function openBindingsModal() {
     setConfigStage("basic")
@@ -224,13 +244,7 @@ export default function EntityDetailsPage({
               <Save size={16} />
             </button>
           </div>
-        ) : (
-          <div className={styles.headerActions}>
-            <Link href={`/rpg/${rpgId}/${entityType === "class" ? "classes" : "races"}`} className={styles.ghostButton}>
-              Voltar
-            </Link>
-          </div>
-        )}
+        ) : null}
       </div>
 
       {status.error ? <p className={`${styles.status} ${styles.error}`}>{status.error}</p> : null}
@@ -258,6 +272,17 @@ export default function EntityDetailsPage({
               Habilidades
             </button>
           ) : null}
+          {hasBonuses ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "bonuses"}
+              className={`${styles.contentTab} ${activeTab === "bonuses" ? styles.contentTabActive : ""}`}
+              onClick={() => setActiveTab("bonuses")}
+            >
+              Bonus
+            </button>
+          ) : null}
         </div>
 
         {activeTab === "content" ? (
@@ -268,6 +293,44 @@ export default function EntityDetailsPage({
               disabled={!canManage || !contentEditing}
               className="library-book-editor"
             />
+          </section>
+        ) : activeTab === "bonuses" ? (
+          <section className={styles.abilitiesShell}>
+            <div className={styles.bonusGrid}>
+              {activeAttributeBonuses.length > 0 ? (
+                <section className={styles.bonusCard}>
+                  <header className={styles.bonusHeader}>
+                    <h2 className={styles.bonusTitle}>Atributos</h2>
+                    <span className={styles.bonusCount}>{activeAttributeBonuses.length}</span>
+                  </header>
+                  <div className={styles.bonusList}>
+                    {activeAttributeBonuses.map((item) => (
+                      <div key={item.key} className={styles.bonusItem}>
+                        <span>{item.label}</span>
+                        <strong>{item.value > 0 ? `+${item.value}` : item.value}</strong>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
+              {activeSkillBonuses.length > 0 ? (
+                <section className={styles.bonusCard}>
+                  <header className={styles.bonusHeader}>
+                    <h2 className={styles.bonusTitle}>Pericias</h2>
+                    <span className={styles.bonusCount}>{activeSkillBonuses.length}</span>
+                  </header>
+                  <div className={styles.bonusList}>
+                    {activeSkillBonuses.map((item) => (
+                      <div key={item.key} className={styles.bonusItem}>
+                        <span>{item.label}</span>
+                        <strong>{item.value > 0 ? `+${item.value}` : item.value}</strong>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+            </div>
           </section>
         ) : (
           <section className={styles.abilitiesShell}>

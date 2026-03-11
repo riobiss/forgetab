@@ -24,12 +24,12 @@ export default async function ClassesPage({ params }: Params) {
   }
 
   return (
-    <main style={{ padding: "2rem 1.5rem", maxWidth: "1240px", margin: "0 auto" }}>
+    <main>
       <EntityCatalogFeature
+        rpgId={rpgId}
         entityType="class"
         title="Classes"
-        subtitle="Catalogo administrativo de classes com busca, filtros, ordenacao e agrupamento reutilizavel."
-        createHref={data.canManage ? `/rpg/${rpgId}/edit/advanced/class/new` : undefined}
+        subtitle="Gerencie as classes do sistema."
         data={data}
       />
     </main>

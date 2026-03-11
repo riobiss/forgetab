@@ -3,26 +3,27 @@ import type { CatalogEntityType } from "@/domain/entityCatalog/types"
 import type { EntityCatalogPageData } from "@/application/entityCatalog/types"
 
 type Props = {
+  rpgId: string
   entityType: CatalogEntityType
   title: string
   subtitle: string
-  createHref?: string
   data: EntityCatalogPageData
 }
 
 export default function EntityCatalogFeature({
+  rpgId,
   entityType,
   title,
   subtitle,
-  createHref,
   data,
 }: Props) {
   return (
     <EntityCatalogClient
+      rpgId={rpgId}
       entityType={entityType}
       title={title}
       subtitle={subtitle}
-      createHref={createHref}
+      canManage={data.canManage}
       items={data.items}
     />
   )

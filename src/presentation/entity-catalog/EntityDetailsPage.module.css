@@ -15,6 +15,7 @@
   color: var(--color-text-secondary);
   display: grid;
   gap: 1rem;
+  align-content: start;
 }
 
 .header,
@@ -138,6 +139,66 @@
   background: var(--color-bg-surface);
   box-shadow: var(--shadow-elevation-sm);
   padding: 0.85rem;
+}
+
+.bonusGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem;
+}
+
+.bonusCard {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-bg-surface) 92%, transparent);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.bonusHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bonusTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+}
+
+.bonusCount {
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+  color: var(--color-brand-primary);
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.bonusList {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bonusItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  background: var(--color-bg-overlay-soft);
+  padding: 0.65rem 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.bonusItem strong {
+  color: var(--color-brand-primary);
+  font-size: 0.94rem;
 }
 
 .status {
