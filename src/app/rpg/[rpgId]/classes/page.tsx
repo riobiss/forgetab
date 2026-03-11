@@ -29,7 +29,6 @@ export default async function ClassesPage({ params }: Params) {
         rpgId={rpgId}
         entityType="class"
         title="Classes"
-        subtitle="Gerencie as classes do sistema."
         data={data}
       />
     </main>

@@ -6,7 +6,6 @@ type Props = {
   rpgId: string
   entityType: CatalogEntityType
   title: string
-  subtitle: string
   data: EntityCatalogPageData
 }
 
@@ -14,7 +13,6 @@ export default function EntityCatalogFeature({
   rpgId,
   entityType,
   title,
-  subtitle,
   data,
 }: Props) {
   return (
@@ -22,7 +20,6 @@ export default function EntityCatalogFeature({
       rpgId={rpgId}
       entityType={entityType}
       title={title}
-      subtitle={subtitle}
       canManage={data.canManage}
       items={data.items}
     />

@@ -182,6 +182,7 @@ export default async function RaceDetailsPage({ params }: Params) {
       title="Raca"
       entityLabel="Raca"
       canManage={permission?.canManage ?? false}
+      showCategoryField={false}
       current={{
         key: row.key,
         label: row.label,

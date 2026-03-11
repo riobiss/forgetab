@@ -57,7 +57,7 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
   useEffect(() => {
     setCollapsedGroups((current) =>
       groups.reduce<Record<string, boolean>>((acc, group) => {
-        acc[group.key] = current[group.key] ?? false
+        acc[group.key] = current[group.key] ?? true
         return acc
       }, {}),
     )

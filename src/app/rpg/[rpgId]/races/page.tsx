@@ -28,8 +28,7 @@ export default async function RacesPage({ params }: Params) {
       <EntityCatalogFeature
         rpgId={rpgId}
         entityType="race"
-        title="Racas"
-        subtitle="Gerencie as racas do sistema."
+        title="Raças"
         data={data}
       />
     </main>

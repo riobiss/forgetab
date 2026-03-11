@@ -16,7 +16,6 @@ type Props = {
   rpgId: string
   entityType: CatalogEntityType
   title: string
-  subtitle: string
   canManage: boolean
   items: EntityCatalogItem[]
 }
@@ -31,13 +30,11 @@ export default function EntityCatalogClient({
   rpgId,
   entityType,
   title,
-  subtitle,
   canManage,
   items,
 }: Props) {
   const router = useRouter()
   const state = useEntityCatalogState(items)
-  const totalCount = items.length
   const [createOpen, setCreateOpen] = useState(false)
   const [createName, setCreateName] = useState("")
   const [createCategory, setCreateCategory] = useState("geral")
@@ -144,9 +141,7 @@ export default function EntityCatalogClient({
     <div className={styles.page}>
       <section className={styles.header}>
         <div className={styles.headerText}>
-          <p className={styles.kicker}>{entityType === "class" ? "Classes" : "Racas"}</p>
           <h1 className={styles.title}>{title}</h1>
-          <p className={styles.subtitle}>{subtitle}</p>
         </div>
 
         <div className={styles.headerActions}>
@@ -196,10 +191,6 @@ export default function EntityCatalogClient({
 
         <div className={styles.controlsFooter}>
           <div className={styles.resultMeta}>
-            <span className={styles.statusDot} />
-            <span>
-              {state.visibleCount} de {totalCount} itens
-            </span>
             {state.isPending ? <span>Atualizando filtros...</span> : null}
           </div>
 
@@ -223,7 +214,6 @@ export default function EntityCatalogClient({
                 >
                   <div className={styles.groupHeaderInfo}>
                     <h2 className={styles.groupTitle}>{group.label}</h2>
-                    <p className={styles.groupSubtitle}>Itens agrupados por categoria</p>
                   </div>
 
                   <div className={styles.toolbar}>
@@ -243,7 +233,6 @@ export default function EntityCatalogClient({
                             <div className={styles.cardHeader}>
                               <div className={styles.cardHeaderTop}>
                                   <h3 className={styles.cardTitle}>{item.name}</h3>
-                                  <span className={styles.cardCategory}>{item.category}</span>
                                 </div>
                               </div>
 
