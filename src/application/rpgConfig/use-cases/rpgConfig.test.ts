@@ -12,7 +12,6 @@ import {
   updateRaceTemplates,
   updateStatusTemplates,
 } from "@/application/rpgConfig/use-cases/rpgConfig"
-import { AppError } from "@/shared/errors/AppError"
 
 function createAccessMock(): RpgConfigAccessService {
   return {
@@ -171,7 +170,7 @@ describe("rpgConfig use-cases", () => {
         userId: "u1",
         fields: [{ label: "A" }],
       }),
-    ).rejects.toMatchObject<AppError>({
+    ).rejects.toMatchObject({
       message: "Cada campo de identidade precisa ter nome com pelo menos 2 caracteres.",
       status: 400,
     })
@@ -203,7 +202,7 @@ describe("rpgConfig use-cases", () => {
         userId: "u1",
         classes: [{ label: "Mago", attributeBonuses: { agi: 1 } }],
       }),
-    ).rejects.toMatchObject<AppError>({
+    ).rejects.toMatchObject({
       message: "atributos fora do padrao: agi.",
       status: 400,
     })

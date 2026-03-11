@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { createCharacter, CreateCharacterError } from "./createCharacter"
+import { createCharacter } from "./createCharacter"
 import type { CharacterRepository } from "./repositories/characterRepository"
 import type { RpgTemplatesRepository } from "./repositories/rpgTemplatesRepository"
 import type { CreateCharacterPayload, RpgAccess } from "./types"
@@ -78,7 +78,7 @@ describe("createCharacter", () => {
         characterRepository,
         rpgTemplatesRepository,
       }),
-    ).rejects.toMatchObject<CreateCharacterError>({
+    ).rejects.toMatchObject({
       status: 400,
       message: "Nome deve ter pelo menos 2 caracteres.",
     })
@@ -97,7 +97,7 @@ describe("createCharacter", () => {
         characterRepository,
         rpgTemplatesRepository,
       }),
-    ).rejects.toMatchObject<CreateCharacterError>({
+    ).rejects.toMatchObject({
       status: 400,
       message: "Somente personagens do tipo player podem ser criados por jogadores.",
     })
@@ -117,7 +117,7 @@ describe("createCharacter", () => {
         characterRepository,
         rpgTemplatesRepository,
       }),
-    ).rejects.toMatchObject<CreateCharacterError>({
+    ).rejects.toMatchObject({
       status: 409,
       message: "Voce ja possui um personagem player neste RPG.",
     })

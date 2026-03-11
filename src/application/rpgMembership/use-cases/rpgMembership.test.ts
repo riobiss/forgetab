@@ -9,7 +9,6 @@ import {
   requestCharacterCreationUseCase,
   requestJoinRpgUseCase,
 } from "@/application/rpgMembership/use-cases/rpgMembership"
-import { AppError } from "@/shared/errors/AppError"
 
 function createAccessMock(): RpgMembershipAccessService {
   return {
@@ -96,7 +95,7 @@ describe("rpgMembership use-cases", () => {
         rpgId: "rpg-1",
         userId: "user-1",
       }),
-    ).rejects.toMatchObject<AppError>({
+    ).rejects.toMatchObject({
       message: "Voce ja possui uma solicitacao pendente.",
       status: 409,
     })

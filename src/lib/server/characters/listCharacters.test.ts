@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { listCharacters, ListCharactersError } from "./listCharacters"
+import { listCharacters } from "./listCharacters"
 import type { CharacterRepository } from "./repositories/characterRepository"
 import type { RpgAccess } from "./types"
 
@@ -83,7 +83,7 @@ describe("listCharacters", () => {
         access: baseAccess,
         characterRepository: repository,
       }),
-    ).rejects.toMatchObject<ListCharactersError>({
+    ).rejects.toMatchObject({
       status: 500,
       message: "Tabela de personagens nao existe no banco. Rode a migration.",
     })
