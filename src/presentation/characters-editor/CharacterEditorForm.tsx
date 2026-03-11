@@ -74,7 +74,7 @@ type CharacterEditorFormProps = {
 
 export default function CharacterEditorForm({
   rpgId,
-  characterId = null,
+  characterId,
   deps,
 }: CharacterEditorFormProps) {
   const router = useRouter()
@@ -612,7 +612,7 @@ export default function CharacterEditorForm({
                     value={characterType}
                     onChange={(event) =>
                       setCharacterType(
-                        event.target.value as CharacterSummary["characterType"],
+                        event.target.value as CharacterEditorCharacterTypeDto,
                       )
                     }
                   >
