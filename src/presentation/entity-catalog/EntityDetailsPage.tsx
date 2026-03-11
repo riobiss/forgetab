@@ -6,6 +6,7 @@ import type { JSONContent } from "@tiptap/react"
 import { Keyboard } from "lucide-react"
 import { Save } from "lucide-react"
 import { SlidersHorizontal } from "lucide-react"
+import { toast } from "react-hot-toast"
 import type { EntityCatalogAbilityView } from "@/application/entityCatalog/use-cases/entityCatalogAbilities"
 import type { EntityCatalogPlayerItem } from "@/application/entityCatalog/types"
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor"
@@ -15,6 +16,7 @@ import {
   EMPTY_RICH_TEXT_DOCUMENT,
 } from "@/domain/entityCatalog/catalogMeta"
 import type { CatalogEntityType, EntityCatalogMeta } from "@/domain/entityCatalog/types"
+import { dismissToast } from "@/lib/toast"
 import EntityAbilitiesPanel from "./EntityAbilitiesPanel"
 import styles from "./EntityDetailsPage.module.css"
 
@@ -83,20 +85,19 @@ export default function EntityDetailsPage({
   const [skillBonuses, setSkillBonuses] = useState(current.skillBonuses)
   const [configModalOpen, setConfigModalOpen] = useState(false)
   const [contentEditing, setContentEditing] = useState(false)
+  const [syncDescriptionToEditor, setSyncDescriptionToEditor] = useState(
+    !current.catalogMeta.richText.description,
+  )
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState<ContentTab>("content")
-  const [status, setStatus] = useState<{ error: string; success: string }>({
-    error: "",
-    success: "",
-  })
   const [configStage, setConfigStage] = useState<ConfigStage>("basic")
 
   const categoryOptions = useMemo(
     () =>
       Array.from(
-        new Set(["geral", current.category].filter(Boolean)),
+        new Set(["geral", category, current.category].filter(Boolean)),
       ),
-    [current.category],
+    [category, current.category],
   )
   const hasAttributeTemplates = attributeTemplates.length > 0
   const hasSkillTemplates = skillTemplates.length > 0
@@ -181,7 +182,7 @@ export default function EntityDetailsPage({
   async function handleSave() {
     if (!canManage || saving) return
     setSaving(true)
-    setStatus({ error: "", success: "" })
+    const loadingToastId = toast.loading("Salvando...")
 
     try {
       const nextTemplate: IdentityTemplateRecord = {
@@ -203,14 +204,12 @@ export default function EntityDetailsPage({
       }
 
       await saveTemplate(nextTemplate)
-      setStatus({ error: "", success: `${entityLabel} salva com sucesso.` })
+      toast.success(`${entityLabel} salva com sucesso.`)
       setConfigModalOpen(false)
     } catch (cause) {
-      setStatus({
-        error: cause instanceof Error ? cause.message : "Erro ao salvar.",
-        success: "",
-      })
+      toast.error(cause instanceof Error ? cause.message : "Erro ao salvar.")
     } finally {
+      dismissToast(loadingToastId)
       setSaving(false)
     }
   }
@@ -229,7 +228,15 @@ export default function EntityDetailsPage({
             <button
               type="button"
               className={contentEditing ? styles.primaryButton : styles.ghostButton}
-              onClick={() => setContentEditing((currentValue) => !currentValue)}
+              onClick={() =>
+                setContentEditing((currentValue) => {
+                  const nextValue = !currentValue
+                  if (nextValue) {
+                    setSyncDescriptionToEditor(false)
+                  }
+                  return nextValue
+                })
+              }
               aria-label={contentEditing ? "Parar edicao de conteudo" : "Editar conteudo"}
               title={contentEditing ? "Parar edicao" : "Digitar"}
             >
@@ -259,9 +266,6 @@ export default function EntityDetailsPage({
           </div>
         ) : null}
       </div>
-
-      {status.error ? <p className={`${styles.status} ${styles.error}`}>{status.error}</p> : null}
-      {status.success ? <p className={`${styles.status} ${styles.success}`}>{status.success}</p> : null}
 
       <section className={styles.contentShell}>
         <div className={styles.contentTabs} role="tablist" aria-label="Conteudo da entidade">
@@ -455,7 +459,7 @@ export default function EntityDetailsPage({
                     onChange={(event) => {
                       const nextValue = event.target.value
                       setShortDescription(nextValue)
-                      if (!current.catalogMeta.richText.description) {
+                      if (syncDescriptionToEditor) {
                         setEditorContent(createRichTextDocumentFromText(nextValue) as JSONContent)
                       }
                     }}

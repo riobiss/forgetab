@@ -8,10 +8,7 @@ import {
 } from "@/application/entityCatalog/use-cases/entityCatalog"
 import type { EntityCatalogFilters, EntityCatalogItem, EntityCatalogSort } from "@/application/entityCatalog/types"
 
-type ViewMode = "grouped" | "list"
-
 const DEFAULT_SORT: EntityCatalogSort = "name-asc"
-const DEFAULT_VIEW: ViewMode = "grouped"
 
 function normalizeSort(value: string | null): EntityCatalogSort {
   switch (value) {
@@ -26,10 +23,6 @@ function normalizeSort(value: string | null): EntityCatalogSort {
   }
 }
 
-function normalizeView(value: string | null): ViewMode {
-  return value === "list" ? "list" : DEFAULT_VIEW
-}
-
 export function useEntityCatalogState(items: EntityCatalogItem[]) {
   const router = useRouter()
   const pathname = usePathname()
@@ -40,7 +33,6 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
   const [search, setSearch] = useState(searchParams.get("q") ?? "")
   const [category, setCategory] = useState(searchParams.get("category") ?? "all")
   const [sort, setSort] = useState<EntityCatalogSort>(normalizeSort(searchParams.get("sort")))
-  const [view, setView] = useState<ViewMode>(normalizeView(searchParams.get("view")))
   const deferredSearch = useDeferredValue(search)
 
   const filters: EntityCatalogFilters = useMemo(
@@ -60,7 +52,6 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
     setSearch(searchParams.get("q") ?? "")
     setCategory(searchParams.get("category") ?? "all")
     setSort(normalizeSort(searchParams.get("sort")))
-    setView(normalizeView(searchParams.get("view")))
   }, [searchParams])
 
   useEffect(() => {
@@ -93,11 +84,7 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
       params.delete("sort")
     }
 
-    if (view !== DEFAULT_VIEW) {
-      params.set("view", view)
-    } else {
-      params.delete("view")
-    }
+    params.delete("view")
 
     const next = params.toString()
     if (next === currentSearchParams) {
@@ -107,7 +94,7 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
     startTransition(() => {
       router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false })
     })
-  }, [category, currentSearchParams, pathname, router, search, searchParams, sort, view])
+  }, [category, currentSearchParams, pathname, router, search, searchParams, sort])
 
   const visibleCount = groups.reduce((acc, group) => acc + group.items.length, 0)
 
@@ -118,8 +105,6 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
     setCategory,
     sort,
     setSort,
-    view,
-    setView,
     categoryOptions,
     groups,
     visibleCount,

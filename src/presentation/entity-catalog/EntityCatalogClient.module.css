@@ -71,7 +71,8 @@
 .groupActionButton,
 .actionLink,
 .iconAction,
-.viewToggle {
+.viewToggle,
+.iconButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -96,11 +97,25 @@
 .groupActionButton,
 .actionLink,
 .iconAction,
-.viewToggle {
+.viewToggle,
+.iconButton {
   border: 1px solid var(--color-border-soft);
   background: rgba(255, 255, 255, 0.03);
   color: var(--color-text-primary);
   padding: 0.58rem 0.8rem;
+}
+
+.iconButton {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 12px;
+}
+
+.iconButtonActive {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 65%, white);
+  background: rgba(245, 179, 59, 0.14);
+  color: var(--color-text-primary);
 }
 
 .controls {
@@ -117,8 +132,7 @@
 }
 
 .filtersRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+  display: flex;
   gap: 0.7rem;
   align-items: end;
 }
@@ -134,7 +148,8 @@
 }
 
 .field input,
-.field select {
+.field select,
+.field textarea {
   width: 100%;
   min-width: 0;
   border-radius: 10px;
@@ -143,6 +158,18 @@
   color: var(--color-text-primary);
   padding: 0.68rem 0.82rem;
   font: inherit;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 7rem;
+}
+
+.inlineRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.55rem;
+  align-items: center;
 }
 
 .searchInputWrap {
@@ -285,6 +312,7 @@
   border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--color-brand-primary) 10%, var(--color-border-soft));
   background: var(--catalog-card-bg);
+  text-decoration: none;
 }
 
 .card:hover {
@@ -333,24 +361,11 @@
   background: rgba(245, 179, 59, 0.14);
 }
 
-.slugLine {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.84rem;
-}
-
 .description {
   margin: 0;
   color: var(--color-text-secondary);
   line-height: 1.45;
   font-size: 0.92rem;
-}
-
-.cardActions {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  align-items: flex-start;
 }
 
 .emptyState {
@@ -386,9 +401,125 @@
   gap: 0.8rem;
 }
 
+.sortModal {
+  width: min(420px, 100%);
+  border-radius: 12px;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-elevation-md);
+  padding: 1rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
 .modalTitle {
   margin: 0;
   color: var(--color-text-primary);
+}
+
+.sortOptions {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sortOption {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sortOptionActive {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 65%, white);
+  background: rgba(245, 179, 59, 0.14);
+}
+
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  background: color-mix(in srgb, black 44%, transparent);
+  z-index: 88;
+}
+
+.drawer {
+  position: fixed;
+  top: 72px;
+  right: 0;
+  width: min(420px, 90vw);
+  height: calc(100vh - 72px);
+  background: var(--color-bg-surface);
+  border-left: 1px solid var(--color-border-soft);
+  z-index: 89;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  overflow-y: auto;
+}
+
+.drawerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.drawerTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.drawerClose {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drawerTagsSection {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.chipsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.chipButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  padding: 0.4rem 0.8rem;
+  background: var(--color-bg-overlay-soft);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.chipButtonActive {
+  border-color: var(--color-brand-primary);
+  background: color-mix(in srgb, var(--color-brand-primary) 24%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+}
+
+.drawerClear {
+  margin-top: auto;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.6rem 0.85rem;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
 }
 
 .compactPreview :global(.simple-editor-content) {
@@ -403,20 +534,12 @@
 }
 
 @media (max-width: 960px) {
-  .filtersRow {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .grid {
     grid-template-columns: 1fr;
   }
 
   .list .card {
     grid-template-columns: 1fr;
-  }
-
-  .filtersRow > :last-child {
-    grid-column: 1 / -1;
   }
 }
 
@@ -432,7 +555,15 @@
     justify-content: flex-start;
   }
 
+  .searchRow {
+    grid-template-columns: 1fr;
+  }
+
   .filtersRow {
+    justify-content: flex-start;
+  }
+
+  .inlineRow {
     grid-template-columns: 1fr;
   }
 

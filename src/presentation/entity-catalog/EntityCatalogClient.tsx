@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { ChevronDown, ChevronUp, LayoutGrid, List, Plus, Search, SlidersHorizontal } from "lucide-react"
+import { ArrowUpDown, ChevronDown, ChevronUp, Filter, Plus, Search, X } from "lucide-react"
 import { createRichTextDocumentFromText } from "@/domain/entityCatalog/catalogMeta"
 import slugify from "@/utils/slugify"
 import { getCatalogMetaExcerpt } from "@/domain/entityCatalog/catalogMeta"
@@ -24,8 +24,6 @@ type Props = {
 const SORT_OPTIONS: Array<{ value: EntityCatalogSort; label: string }> = [
   { value: "name-asc", label: "Nome A-Z" },
   { value: "name-desc", label: "Nome Z-A" },
-  { value: "slug-asc", label: "Slug A-Z" },
-  { value: "slug-desc", label: "Slug Z-A" },
   { value: "category-asc", label: "Categoria" },
 ]
 
@@ -43,9 +41,25 @@ export default function EntityCatalogClient({
   const [createOpen, setCreateOpen] = useState(false)
   const [createName, setCreateName] = useState("")
   const [createCategory, setCreateCategory] = useState("geral")
+  const [creatingCategory, setCreatingCategory] = useState(false)
+  const [newCategory, setNewCategory] = useState("")
   const [createDescription, setCreateDescription] = useState("")
   const [creating, setCreating] = useState(false)
   const [createError, setCreateError] = useState("")
+  const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false)
+  const [sortModalOpen, setSortModalOpen] = useState(false)
+
+  async function openCreateModal() {
+    if (!canManage) return
+
+    setCreateError("")
+    setCreateName("")
+    setCreateCategory("geral")
+    setCreateDescription("")
+    setCreatingCategory(false)
+    setNewCategory("")
+    setCreateOpen(true)
+  }
 
   async function handleCreate() {
     if (!canManage || creating) return
@@ -66,9 +80,13 @@ export default function EntityCatalogClient({
       }
 
       const collection = entityType === "class" ? currentPayload.classes ?? [] : currentPayload.races ?? []
+      const normalizedCategory =
+        creatingCategory && newCategory.trim().length > 0
+          ? newCategory.trim()
+          : createCategory.trim() || "geral"
       const nextEntry = {
         label: createName.trim(),
-        category: createCategory,
+        category: normalizedCategory,
         attributeBonuses: {},
         skillBonuses: {},
         catalogMeta: {
@@ -115,7 +133,8 @@ export default function EntityCatalogClient({
       }
       router.refresh()
     } catch (cause) {
-      setCreateError(cause instanceof Error ? cause.message : "Erro ao criar.")
+      const message = cause instanceof Error ? cause.message : "Erro ao criar."
+      setCreateError(message)
     } finally {
       setCreating(false)
     }
@@ -131,8 +150,28 @@ export default function EntityCatalogClient({
         </div>
 
         <div className={styles.headerActions}>
+          <button
+            type="button"
+            className={state.category !== "all" ? `${styles.iconButton} ${styles.iconButtonActive}` : styles.iconButton}
+            onClick={() => setCategoryDrawerOpen(true)}
+            aria-label="Filtrar por categoria"
+            title="Categorias"
+          >
+            <Filter size={16} />
+          </button>
+
+          <button
+            type="button"
+            className={sortModalOpen || state.sort !== "name-asc" ? `${styles.iconButton} ${styles.iconButtonActive}` : styles.iconButton}
+            onClick={() => setSortModalOpen(true)}
+            aria-label="Ordenar itens"
+            title="Ordenacao"
+          >
+            <ArrowUpDown size={16} />
+          </button>
+
           {canManage ? (
-            <button type="button" className={styles.primaryButton} onClick={() => setCreateOpen(true)}>
+            <button type="button" className={styles.primaryButton} onClick={() => void openCreateModal()}>
               <Plus size={16} />
               <span>Criar {entityType === "class" ? "classe" : "raca"}</span>
             </button>
@@ -143,78 +182,16 @@ export default function EntityCatalogClient({
       <section className={styles.controls}>
         <div className={styles.searchRow}>
           <label className={styles.field}>
-            <span>Busca</span>
             <div className={styles.searchInputWrap}>
               <Search size={16} className={styles.searchIcon} />
               <input
                 type="search"
                 value={state.search}
                 onChange={(event) => state.setSearch(event.target.value)}
-                placeholder="Nome, slug, categoria ou descricao curta"
+                placeholder="Buscar..."
               />
             </div>
           </label>
-        </div>
-
-        <div className={styles.filtersRow}>
-          <label className={styles.field}>
-            <span>Categoria</span>
-            <select
-              value={state.category}
-              onChange={(event) => state.setCategory(event.target.value)}
-            >
-              <option value="all">Todas</option>
-              {state.categoryOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className={styles.field}>
-            <span>Ordenacao</span>
-            <select
-              value={state.sort}
-              onChange={(event) => state.setSort(event.target.value as EntityCatalogSort)}
-            >
-              {SORT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <div className={styles.field}>
-            <span>Visualizacao</span>
-            <div className={styles.toolbar}>
-              <button
-                type="button"
-                className={
-                  state.view === "grouped"
-                    ? `${styles.viewToggle} ${styles.viewToggleActive}`
-                    : styles.viewToggle
-                }
-                onClick={() => state.setView("grouped")}
-              >
-                <LayoutGrid size={16} />
-                <span>Grupos</span>
-              </button>
-              <button
-                type="button"
-                className={
-                  state.view === "list"
-                    ? `${styles.viewToggle} ${styles.viewToggleActive}`
-                    : styles.viewToggle
-                }
-                onClick={() => state.setView("list")}
-              >
-                <List size={16} />
-                <span>Lista</span>
-              </button>
-            </div>
-          </div>
         </div>
 
         <div className={styles.controlsFooter}>
@@ -226,16 +203,6 @@ export default function EntityCatalogClient({
             {state.isPending ? <span>Atualizando filtros...</span> : null}
           </div>
 
-          <div className={styles.toolbar}>
-            <button type="button" className={styles.groupActionButton} onClick={state.expandAllGroups}>
-              <SlidersHorizontal size={16} />
-              <span>Expandir grupos</span>
-            </button>
-            <button type="button" className={styles.groupActionButton} onClick={state.collapseAllGroups}>
-              <Search size={16} />
-              <span>Recolher grupos</span>
-            </button>
-          </div>
         </div>
       </section>
 
@@ -267,36 +234,24 @@ export default function EntityCatalogClient({
 
                 {!collapsed ? (
                   <div className={styles.groupContent}>
-                    <div className={state.view === "grouped" ? styles.grid : styles.list}>
-                      {group.items.map((item) => {
-                        const excerpt = getCatalogMetaExcerpt(item.meta)
-                        return (
-                          <article key={item.id} className={styles.card}>
-                            <div className={styles.cardBody}>
-                              <div className={styles.cardHeader}>
-                                <div className={styles.cardHeaderTop}>
+                    <div className={styles.grid}>
+                    {group.items.map((item) => {
+                      const excerpt = getCatalogMetaExcerpt(item.meta)
+                      return (
+                        <Link key={item.id} href={item.href} className={styles.card}>
+                          <div className={styles.cardBody}>
+                            <div className={styles.cardHeader}>
+                              <div className={styles.cardHeaderTop}>
                                   <h3 className={styles.cardTitle}>{item.name}</h3>
                                   <span className={styles.cardCategory}>{item.category}</span>
                                 </div>
-                                <p className={styles.slugLine}>slug: {item.slug}</p>
                               </div>
 
-                              {excerpt ? <p className={styles.description}>{excerpt}</p> : null}
-                            </div>
-
-                            <div className={styles.cardActions}>
-                              <Link href={item.href} className={styles.actionLink}>
-                                Ver
-                              </Link>
-                              {canManage ? (
-                                <Link href={item.href} className={styles.secondaryButton}>
-                                  Abrir
-                                </Link>
-                              ) : null}
-                            </div>
-                          </article>
-                        )
-                      })}
+                            {excerpt ? <p className={styles.description}>{excerpt}</p> : null}
+                          </div>
+                        </Link>
+                      )
+                    })}
                     </div>
                   </div>
                 ) : null}
@@ -318,14 +273,43 @@ export default function EntityCatalogClient({
 
             <label className={styles.field}>
               <span>Categoria</span>
-              <select value={createCategory} onChange={(event) => setCreateCategory(event.target.value)}>
-                <option value="geral">geral</option>
-                {state.categoryOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+              {!creatingCategory ? (
+                <div className={styles.inlineRow}>
+                  <select value={createCategory} onChange={(event) => setCreateCategory(event.target.value)}>
+                    <option value="geral">geral</option>
+                    {state.categoryOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    onClick={() => setCreatingCategory(true)}
+                  >
+                    Nova categoria
+                  </button>
+                </div>
+              ) : (
+                <div className={styles.inlineRow}>
+                  <input
+                    value={newCategory}
+                    onChange={(event) => setNewCategory(event.target.value)}
+                    placeholder="Nome da categoria"
+                  />
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    onClick={() => {
+                      setCreatingCategory(false)
+                      setNewCategory("")
+                    }}
+                  >
+                    Usar existente
+                  </button>
+                </div>
+              )}
             </label>
 
             <label className={styles.field}>
@@ -346,6 +330,93 @@ export default function EntityCatalogClient({
               <button type="button" className={styles.secondaryButton} onClick={() => setCreateOpen(false)} disabled={creating}>
                 Cancelar
               </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {categoryDrawerOpen ? (
+        <>
+          <button
+            type="button"
+            className={styles.drawerBackdrop}
+            aria-label="Fechar categorias"
+            onClick={() => setCategoryDrawerOpen(false)}
+          />
+          <aside className={styles.drawer} role="dialog" aria-modal="true" aria-label="Categorias">
+            <div className={styles.drawerHeader}>
+              <h3 className={styles.drawerTitle}>Categorias</h3>
+              <button type="button" className={styles.drawerClose} onClick={() => setCategoryDrawerOpen(false)}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className={styles.drawerTagsSection}>
+              <div className={styles.chipsRow}>
+                <button
+                  type="button"
+                  className={state.category === "all" ? `${styles.chipButton} ${styles.chipButtonActive}` : styles.chipButton}
+                  onClick={() => {
+                    state.setCategory("all")
+                    setCategoryDrawerOpen(false)
+                  }}
+                >
+                  Todas
+                </button>
+                {state.categoryOptions.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    className={state.category === option ? `${styles.chipButton} ${styles.chipButtonActive}` : styles.chipButton}
+                    onClick={() => {
+                      state.setCategory(option)
+                      setCategoryDrawerOpen(false)
+                    }}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className={styles.drawerClear}
+              onClick={() => {
+                state.setCategory("all")
+                setCategoryDrawerOpen(false)
+              }}
+            >
+              Limpar filtro
+            </button>
+          </aside>
+        </>
+      ) : null}
+
+      {sortModalOpen ? (
+        <div className={styles.modalOverlay} role="dialog" aria-modal="true" onClick={() => setSortModalOpen(false)}>
+          <section className={styles.sortModal} onClick={(event) => event.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Ordenacao</h2>
+              <button type="button" className={styles.drawerClose} onClick={() => setSortModalOpen(false)}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className={styles.sortOptions}>
+              {SORT_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={state.sort === option.value ? `${styles.sortOption} ${styles.sortOptionActive}` : styles.sortOption}
+                  onClick={() => {
+                    state.setSort(option.value)
+                    setSortModalOpen(false)
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
             </div>
           </section>
         </div>

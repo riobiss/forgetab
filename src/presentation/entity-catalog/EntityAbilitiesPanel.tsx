@@ -2,7 +2,9 @@
 
 import { useMemo, useState } from "react"
 import type { CSSProperties } from "react"
+import { toast } from "react-hot-toast"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
+import { dismissToast } from "@/lib/toast"
 import type { EntityCatalogAbilityView } from "@/application/entityCatalog/use-cases/entityCatalogAbilities"
 import styles from "./EntityAbilitiesPanel.module.css"
 
@@ -93,12 +95,11 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
   const [points, setPoints] = useState(purchase?.initialPoints ?? 0)
   const [ownedBySkill, setOwnedBySkill] = useState(() => normalizeOwned(purchase?.initialOwnedBySkill ?? {}))
   const [loadingKey, setLoadingKey] = useState("")
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
 
   const disabledReason = useMemo(() => {
     if (!purchase) return ""
     if (!purchase.costsEnabled) return "Sistema de custos desativado neste RPG."
+    if (!purchase.characterId) return "Personagem compativel nao encontrado para compra."
     return ""
   }, [purchase])
 
@@ -112,8 +113,7 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
     const key = buildLevelKey(skillId, level)
     if (loadingKey) return
     setLoadingKey(key)
-    setError("")
-    setSuccess("")
+    const loadingToastId = toast.loading("Comprando habilidade...")
 
     try {
       const response = await fetch(`/api/characters/${purchase.characterId}/buy-skill`, {
@@ -128,7 +128,7 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
       }
 
       if (!response.ok || !payload.success) {
-        setError(payload.message ?? "Nao foi possivel comprar habilidade.")
+        toast.error(payload.message ?? "Nao foi possivel comprar habilidade.")
         return
       }
 
@@ -140,10 +140,11 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
         next[skillId] = existing
         return next
       })
-      setSuccess("Habilidade comprada com sucesso.")
+      toast.success("Habilidade comprada com sucesso.")
     } catch {
-      setError("Erro de conexao ao comprar habilidade.")
+      toast.error("Erro de conexao ao comprar habilidade.")
     } finally {
+      dismissToast(loadingToastId)
       setLoadingKey("")
     }
   }
@@ -157,8 +158,6 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
             <span>{points}</span>
           </section>
           {disabledReason ? <p className={styles.feedbackText}>{disabledReason}</p> : null}
-          {error ? <p className={`${styles.feedbackText} ${styles.errorText}`}>{error}</p> : null}
-          {success ? <p className={`${styles.feedbackText} ${styles.successText}`}>{success}</p> : null}
         </>
       ) : null}
 
