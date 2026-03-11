@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from "react"
 import type { CSSProperties } from "react"
+import { toast } from "react-hot-toast"
 import styles from "./page.module.css"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
+import { dismissToast } from "@/lib/toast"
 
 const SKILL_CATEGORY_LABEL: Record<string, string> = {
   tecnicas: "Técnicas",
@@ -136,8 +138,6 @@ export default function ClassSkillsClient({
   )
   const [openLevelSelectorForSkill, setOpenLevelSelectorForSkill] = useState("")
   const [loadingKey, setLoadingKey] = useState("")
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
 
   const disabledReason = useMemo(() => {
     if (!costsEnabled) return "Sistema de custos desativado neste RPG."
@@ -151,8 +151,7 @@ export default function ClassSkillsClient({
     const key = buildLevelKey(skillId, level)
     if (loadingKey) return
     setLoadingKey(key)
-    setError("")
-    setSuccess("")
+    const loadingToastId = toast.loading("Comprando habilidade...")
 
     try {
       const response = await fetch(`/api/characters/${characterId}/buy-skill`, {
@@ -167,7 +166,7 @@ export default function ClassSkillsClient({
       }
 
       if (!response.ok || !payload.success) {
-        setError(payload.message ?? "Nao foi possivel comprar habilidade.")
+        toast.error(payload.message ?? "Nao foi possivel comprar habilidade.")
         return
       }
 
@@ -179,10 +178,11 @@ export default function ClassSkillsClient({
         next[skillId] = existing
         return next
       })
-      setSuccess("Habilidade comprada com sucesso.")
+      toast.success("Habilidade comprada com sucesso.")
     } catch {
-      setError("Erro de conexao ao comprar habilidade.")
+      toast.error("Erro de conexao ao comprar habilidade.")
     } finally {
+      dismissToast(loadingToastId)
       setLoadingKey("")
     }
   }
@@ -195,8 +195,6 @@ export default function ClassSkillsClient({
       </section>
 
       {disabledReason ? <p className={styles.abilityDescription}>{disabledReason}</p> : null}
-      {error ? <p className={styles.errorText}>{error}</p> : null}
-      {success ? <p className={styles.successText}>{success}</p> : null}
 
       <div className={styles.abilityGrid}>
         {skills.map((skill) => {
