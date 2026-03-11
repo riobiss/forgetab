@@ -36,3 +36,10 @@ export type EntityCatalogPageData = {
   items: EntityCatalogItem[]
 }
 
+export type EntityCatalogPlayerItem = {
+  id: string
+  name: string
+  image: string | null
+  classKey: string | null
+  raceKey: string | null
+}

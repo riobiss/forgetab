@@ -2,6 +2,8 @@ import { notFound } from "next/navigation"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { normalizeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
 import { listClassCatalogAbilities } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogAbilitiesRepository"
+import { listClassCatalogPlayers } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogPlayersRepository"
+import { parseCharacterAbilities } from "@/lib/server/costSystem"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
@@ -21,6 +23,8 @@ type DbClassRow = {
   label: string
   ownerId: string
   visibility: "private" | "public"
+  costsEnabled: boolean
+  costResourceName: string
   category: string | null
   attributeBonuses: Prisma.JsonValue
   skillBonuses: Prisma.JsonValue
@@ -39,6 +43,8 @@ export default async function ClassPage({ params }: Props) {
         c.label,
         r.owner_id AS "ownerId",
         r.visibility,
+        COALESCE(r.costs_enabled, false) AS "costsEnabled",
+        COALESCE(NULLIF(TRIM(r.cost_resource_name), ''), 'Skill Points') AS "costResourceName",
         c.category,
         c.attribute_bonuses AS "attributeBonuses",
         c.skill_bonuses AS "skillBonuses",
@@ -50,7 +56,12 @@ export default async function ClassPage({ params }: Props) {
       LIMIT 1
     `)
   } catch (error) {
-    if (error instanceof Error && error.message.includes('column "catalog_meta" does not exist')) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('column "catalog_meta" does not exist') ||
+        error.message.includes('column "costs_enabled" does not exist') ||
+        error.message.includes('column "cost_resource_name" does not exist'))
+    ) {
       classRows = await prisma.$queryRaw<DbClassRow[]>(Prisma.sql`
         SELECT
           c.id,
@@ -58,6 +69,8 @@ export default async function ClassPage({ params }: Props) {
           c.label,
           r.owner_id AS "ownerId",
           r.visibility,
+          false AS "costsEnabled",
+          'Skill Points' AS "costResourceName",
           c.category,
           c.attribute_bonuses AS "attributeBonuses",
           c.skill_bonuses AS "skillBonuses",
@@ -91,7 +104,54 @@ export default async function ClassPage({ params }: Props) {
     notFound()
   }
 
-  const [attributeRows, skillRows, abilities] = await Promise.all([
+  let abilityPurchase = {
+    characterId: null as string | null,
+    costsEnabled: dbClass.costsEnabled,
+    costResourceName: dbClass.costResourceName,
+    initialPoints: 0,
+    initialOwnedBySkill: {} as Record<string, number[]>,
+  }
+
+  if (userId) {
+    try {
+      const playerRows = await prisma.$queryRaw<Array<{
+        id: string
+        skillPoints: number
+        abilities: Prisma.JsonValue
+      }>>(Prisma.sql`
+        SELECT
+          id,
+          COALESCE(skill_points, 0) AS "skillPoints",
+          COALESCE(abilities, '[]'::jsonb) AS abilities
+        FROM rpg_characters
+        WHERE rpg_id = ${rpgId}
+          AND created_by_user_id = ${userId}
+          AND character_type = 'player'::"RpgCharacterType"
+          AND class_key = ${dbClass.key}
+        LIMIT 1
+      `)
+
+      const player = playerRows[0]
+      if (player) {
+        abilityPurchase = {
+          ...abilityPurchase,
+          characterId: player.id,
+          initialPoints: player.skillPoints,
+          initialOwnedBySkill: parseCharacterAbilities(player.abilities).reduce<Record<string, number[]>>((acc, item) => {
+            if (!acc[item.skillId]) {
+              acc[item.skillId] = []
+            }
+            if (!acc[item.skillId].includes(item.level)) {
+              acc[item.skillId].push(item.level)
+            }
+            return acc
+          }, {}),
+        }
+      }
+    } catch {}
+  }
+
+  const [attributeRows, skillRows, abilities, players] = await Promise.all([
     prisma.$queryRaw<Array<{ key: string; label: string }>>(Prisma.sql`
       SELECT key, label
       FROM rpg_attribute_templates
@@ -105,6 +165,13 @@ export default async function ClassPage({ params }: Props) {
       ORDER BY position ASC
     `),
     listClassCatalogAbilities(dbClass.id),
+    listClassCatalogPlayers({
+      rpgId,
+      classKey: dbClass.key,
+      classId: dbClass.id,
+      userId,
+      isOwner,
+    }),
   ])
 
   const catalogMeta = normalizeEntityCatalogMeta(dbClass.catalogMeta)
@@ -140,6 +207,8 @@ export default async function ClassPage({ params }: Props) {
       attributeTemplates={attributeRows}
       skillTemplates={skillRows}
       abilities={abilities}
+      players={players}
+      abilityPurchase={abilityPurchase}
     />
   )
 }

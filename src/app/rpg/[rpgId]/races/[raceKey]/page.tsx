@@ -2,6 +2,8 @@ import { notFound } from "next/navigation"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { normalizeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
 import { listRaceCatalogAbilities } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogAbilitiesRepository"
+import { listRaceCatalogPlayers } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogPlayersRepository"
+import { parseCharacterAbilities } from "@/lib/server/costSystem"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
@@ -97,7 +99,61 @@ export default async function RaceDetailsPage({ params }: Params) {
 
   const catalogMeta = normalizeEntityCatalogMeta(row.catalogMeta)
   const permission = userId ? await getRpgPermission(rpgId, userId) : null
-  const [attributeRows, skillRows, abilities] = await Promise.all([
+
+  let abilityPurchase = {
+    characterId: null as string | null,
+    costsEnabled: false,
+    costResourceName: "Skill Points",
+    initialPoints: 0,
+    initialOwnedBySkill: {} as Record<string, number[]>,
+  }
+
+  if (userId) {
+    try {
+      const playerRows = await prisma.$queryRaw<Array<{
+        id: string
+        skillPoints: number
+        abilities: Prisma.JsonValue
+        costsEnabled: boolean
+        costResourceName: string
+      }>>(Prisma.sql`
+        SELECT
+          c.id,
+          COALESCE(c.skill_points, 0) AS "skillPoints",
+          COALESCE(c.abilities, '[]'::jsonb) AS abilities,
+          COALESCE(r.costs_enabled, false) AS "costsEnabled",
+          COALESCE(NULLIF(TRIM(r.cost_resource_name), ''), 'Skill Points') AS "costResourceName"
+        FROM rpg_characters c
+        INNER JOIN rpgs r ON r.id = c.rpg_id
+        WHERE c.rpg_id = ${rpgId}
+          AND c.created_by_user_id = ${userId}
+          AND c.character_type = 'player'::"RpgCharacterType"
+          AND c.race_key = ${row.key}
+        LIMIT 1
+      `)
+
+      const player = playerRows[0]
+      if (player) {
+        abilityPurchase = {
+          characterId: player.id,
+          costsEnabled: player.costsEnabled,
+          costResourceName: player.costResourceName,
+          initialPoints: player.skillPoints,
+          initialOwnedBySkill: parseCharacterAbilities(player.abilities).reduce<Record<string, number[]>>((acc, item) => {
+            if (!acc[item.skillId]) {
+              acc[item.skillId] = []
+            }
+            if (!acc[item.skillId].includes(item.level)) {
+              acc[item.skillId].push(item.level)
+            }
+            return acc
+          }, {}),
+        }
+      }
+    } catch {}
+  }
+
+  const [attributeRows, skillRows, abilities, players] = await Promise.all([
     prisma.$queryRaw<Array<{ key: string; label: string }>>(Prisma.sql`
       SELECT key, label
       FROM rpg_attribute_templates
@@ -111,6 +167,12 @@ export default async function RaceDetailsPage({ params }: Params) {
       ORDER BY position ASC
     `),
     listRaceCatalogAbilities(row.id),
+    listRaceCatalogPlayers({
+      rpgId,
+      raceKey: row.key,
+      userId,
+      isOwner,
+    }),
   ])
 
   return (
@@ -144,6 +206,8 @@ export default async function RaceDetailsPage({ params }: Params) {
       attributeTemplates={attributeRows}
       skillTemplates={skillRows}
       abilities={abilities}
+      players={players}
+      abilityPurchase={abilityPurchase}
     />
   )
 }

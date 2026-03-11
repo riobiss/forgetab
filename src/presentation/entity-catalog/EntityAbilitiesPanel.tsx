@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import type { CSSProperties } from "react"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 import type { EntityCatalogAbilityView } from "@/application/entityCatalog/use-cases/entityCatalogAbilities"
@@ -38,6 +38,13 @@ const SKILL_ACTION_TYPE_LABEL: Record<string, string> = {
 
 type Props = {
   skills: EntityCatalogAbilityView[]
+  purchase?: {
+    characterId: string | null
+    costsEnabled: boolean
+    costResourceName: string
+    initialPoints: number
+    initialOwnedBySkill: Record<string, number[]>
+  }
 }
 
 function hasText(value: string | null | undefined) {
@@ -63,11 +70,18 @@ function toActionTypeLabel(value: string | null) {
   return SKILL_ACTION_TYPE_LABEL[value] ?? value
 }
 
+function normalizeOwned(input: Record<string, number[]>) {
+  return Object.entries(input).reduce<Record<string, Set<number>>>((acc, [skillId, levels]) => {
+    acc[skillId] = new Set(levels)
+    return acc
+  }, {})
+}
+
 function buildLevelKey(skillId: string, level: number) {
   return `${skillId}:${level}`
 }
 
-export default function EntityAbilitiesPanel({ skills }: Props) {
+export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
   const [selectedLevelBySkill, setSelectedLevelBySkill] = useState<Record<string, number>>(() =>
     skills.reduce<Record<string, number>>((acc, skill) => {
       const firstLevel = skill.levels[0]
@@ -76,13 +90,79 @@ export default function EntityAbilitiesPanel({ skills }: Props) {
     }, {}),
   )
   const [openLevelSelectorForSkill, setOpenLevelSelectorForSkill] = useState("")
+  const [points, setPoints] = useState(purchase?.initialPoints ?? 0)
+  const [ownedBySkill, setOwnedBySkill] = useState(() => normalizeOwned(purchase?.initialOwnedBySkill ?? {}))
+  const [loadingKey, setLoadingKey] = useState("")
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+
+  const disabledReason = useMemo(() => {
+    if (!purchase) return ""
+    if (!purchase.costsEnabled) return "Sistema de custos desativado neste RPG."
+    return ""
+  }, [purchase])
 
   if (skills.length === 0) {
     return null
   }
 
+  async function handleBuy(skillId: string, level: number) {
+    if (!purchase?.characterId || !purchase.costsEnabled) return
+
+    const key = buildLevelKey(skillId, level)
+    if (loadingKey) return
+    setLoadingKey(key)
+    setError("")
+    setSuccess("")
+
+    try {
+      const response = await fetch(`/api/characters/${purchase.characterId}/buy-skill`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skillId, level }),
+      })
+      const payload = (await response.json()) as {
+        message?: string
+        success?: boolean
+        remainingPoints?: number
+      }
+
+      if (!response.ok || !payload.success) {
+        setError(payload.message ?? "Nao foi possivel comprar habilidade.")
+        return
+      }
+
+      setPoints(typeof payload.remainingPoints === "number" ? payload.remainingPoints : points)
+      setOwnedBySkill((prev) => {
+        const next = { ...prev }
+        const existing = next[skillId] ?? new Set<number>()
+        existing.add(level)
+        next[skillId] = existing
+        return next
+      })
+      setSuccess("Habilidade comprada com sucesso.")
+    } catch {
+      setError("Erro de conexao ao comprar habilidade.")
+    } finally {
+      setLoadingKey("")
+    }
+  }
+
   return (
-    <div className={styles.abilityGrid}>
+    <>
+      {purchase ? (
+        <>
+          <section className={styles.pointsCard}>
+            <strong>{purchase.costResourceName}</strong>
+            <span>{points}</span>
+          </section>
+          {disabledReason ? <p className={styles.feedbackText}>{disabledReason}</p> : null}
+          {error ? <p className={`${styles.feedbackText} ${styles.errorText}`}>{error}</p> : null}
+          {success ? <p className={`${styles.feedbackText} ${styles.successText}`}>{success}</p> : null}
+        </>
+      ) : null}
+
+      <div className={styles.abilityGrid}>
       {skills.map((skill) => {
         const selectedLevelNumber = selectedLevelBySkill[skill.skillId] ?? skill.levels[0]?.levelNumber
         const selectedLevel =
@@ -105,6 +185,12 @@ export default function EntityAbilitiesPanel({ skills }: Props) {
         const selectorOpen = openLevelSelectorForSkill === skill.skillId
         const primaryTag = skill.skillTags[0] ?? null
         const tagMeta = primaryTag ? getSkillTagMeta(primaryTag) : null
+        const owned = ownedBySkill[skill.skillId]?.has(selectedLevel.levelNumber) ?? false
+        const key = buildLevelKey(skill.skillId, selectedLevel.levelNumber)
+        const loading = loadingKey === key
+        const pointsCost = selectedLevel.pointsCost ?? 0
+        const cantAfford = purchase ? points < pointsCost : false
+        const buyDisabled = Boolean(disabledReason) || owned || loading || cantAfford
 
         return (
           <div
@@ -176,96 +262,114 @@ export default function EntityAbilitiesPanel({ skills }: Props) {
             {hasText(skill.skillDescription) ? <p className={styles.abilityDescription}>{skill.skillDescription}</p> : null}
             {showLevelDescription ? <p className={styles.abilityDescription}>{levelDescription}</p> : null}
 
-            <div className={styles.abilityStats}>
-              <div className={styles.statItem}>
-                <strong>Requisito</strong>
-                Level {selectedLevel.levelRequired}
+            <div className={styles.levelRow}>
+              <div className={styles.levelInfo}>
+                <div className={styles.abilityStats}>
+                  <div className={styles.statItem}>
+                    <strong>Requisito</strong>
+                    Level {selectedLevel.levelRequired}
+                  </div>
+                  {hasText(selectedLevel.levelCategory ?? skill.skillCategory) ? (
+                    <div className={styles.statItem}>
+                      <strong>Categoria</strong>
+                      {toCategoryLabel(selectedLevel.levelCategory ?? skill.skillCategory)}
+                    </div>
+                  ) : null}
+                  {hasText(selectedLevel.levelType ?? skill.skillType) ? (
+                    <div className={styles.statItem}>
+                      <strong>Tipo</strong>
+                      {toTypeLabel(selectedLevel.levelType ?? skill.skillType)}
+                    </div>
+                  ) : null}
+                  {hasText(selectedLevel.levelActionType ?? skill.skillActionType) ? (
+                    <div className={styles.statItem}>
+                      <strong>Acao</strong>
+                      {toActionTypeLabel(selectedLevel.levelActionType ?? skill.skillActionType)}
+                    </div>
+                  ) : null}
+                  {skill.skillTags.length > 0 ? (
+                    <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                      <strong>Tags</strong>
+                      {skill.skillTags
+                        .map((tag) => getSkillTagMeta(tag)?.label)
+                        .filter((label): label is string => Boolean(label))
+                        .join(" | ")}
+                    </div>
+                  ) : null}
+                  {hasText(selectedLevel.damage) ? (
+                    <div className={styles.statItem}>
+                      <strong>Dano</strong>
+                      {selectedLevel.damage}
+                    </div>
+                  ) : null}
+                  {hasText(selectedLevel.range) ? (
+                    <div className={styles.statItem}>
+                      <strong>Alcance</strong>
+                      {selectedLevel.range}
+                    </div>
+                  ) : null}
+                  {hasText(selectedLevel.cooldown) ? (
+                    <div className={styles.statItem}>
+                      <strong>Recarga</strong>
+                      {selectedLevel.cooldown}
+                    </div>
+                  ) : null}
+                  {hasText(selectedLevel.duration) ? (
+                    <div className={styles.statItem}>
+                      <strong>Duracao</strong>
+                      {selectedLevel.duration}
+                    </div>
+                  ) : null}
+                  {hasText(selectedLevel.castTime) ? (
+                    <div className={styles.statItem}>
+                      <strong>Conjuracao</strong>
+                      {selectedLevel.castTime}
+                    </div>
+                  ) : null}
+                  {hasText(selectedLevel.resourceCost) ? (
+                    <div className={styles.statItem}>
+                      <strong>Custo de recurso</strong>
+                      {selectedLevel.resourceCost}
+                    </div>
+                  ) : null}
+                  {selectedLevel.notesList.length > 0 ? (
+                    <div className={`${styles.statItem} ${styles.statItemFull}`}>
+                      <strong>Obs</strong>
+                      {selectedLevel.notesList.join(" | ")}
+                    </div>
+                  ) : null}
+                  {hasText(selectedLevel.costCustom) ? (
+                    <div className={styles.statItem}>
+                      <strong>Custo</strong>
+                      {selectedLevel.costCustom}
+                    </div>
+                  ) : null}
+                  {selectedLevel.customFields.map((field) => (
+                    <div key={field.id} className={styles.statItem}>
+                      <strong>{field.name}</strong>
+                      {field.value ?? "-"}
+                    </div>
+                  ))}
+                </div>
               </div>
-              {hasText(selectedLevel.levelCategory ?? skill.skillCategory) ? (
-                <div className={styles.statItem}>
-                  <strong>Categoria</strong>
-                  {toCategoryLabel(selectedLevel.levelCategory ?? skill.skillCategory)}
+
+              {purchase ? (
+                <div className={styles.buyAction}>
+                  <button
+                    type="button"
+                    className={styles.buyButton}
+                    disabled={buyDisabled}
+                    onClick={() => void handleBuy(skill.skillId, selectedLevel.levelNumber)}
+                  >
+                    {owned ? "Comprado" : loading ? "Comprando..." : "Comprar"}
+                  </button>
                 </div>
               ) : null}
-              {hasText(selectedLevel.levelType ?? skill.skillType) ? (
-                <div className={styles.statItem}>
-                  <strong>Tipo</strong>
-                  {toTypeLabel(selectedLevel.levelType ?? skill.skillType)}
-                </div>
-              ) : null}
-              {hasText(selectedLevel.levelActionType ?? skill.skillActionType) ? (
-                <div className={styles.statItem}>
-                  <strong>Acao</strong>
-                  {toActionTypeLabel(selectedLevel.levelActionType ?? skill.skillActionType)}
-                </div>
-              ) : null}
-              {skill.skillTags.length > 0 ? (
-                <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                  <strong>Tags</strong>
-                  {skill.skillTags
-                    .map((tag) => getSkillTagMeta(tag)?.label)
-                    .filter((label): label is string => Boolean(label))
-                    .join(" | ")}
-                </div>
-              ) : null}
-              {hasText(selectedLevel.damage) ? (
-                <div className={styles.statItem}>
-                  <strong>Dano</strong>
-                  {selectedLevel.damage}
-                </div>
-              ) : null}
-              {hasText(selectedLevel.range) ? (
-                <div className={styles.statItem}>
-                  <strong>Alcance</strong>
-                  {selectedLevel.range}
-                </div>
-              ) : null}
-              {hasText(selectedLevel.cooldown) ? (
-                <div className={styles.statItem}>
-                  <strong>Recarga</strong>
-                  {selectedLevel.cooldown}
-                </div>
-              ) : null}
-              {hasText(selectedLevel.duration) ? (
-                <div className={styles.statItem}>
-                  <strong>Duracao</strong>
-                  {selectedLevel.duration}
-                </div>
-              ) : null}
-              {hasText(selectedLevel.castTime) ? (
-                <div className={styles.statItem}>
-                  <strong>Conjuracao</strong>
-                  {selectedLevel.castTime}
-                </div>
-              ) : null}
-              {hasText(selectedLevel.resourceCost) ? (
-                <div className={styles.statItem}>
-                  <strong>Custo de recurso</strong>
-                  {selectedLevel.resourceCost}
-                </div>
-              ) : null}
-              {selectedLevel.notesList.length > 0 ? (
-                <div className={`${styles.statItem} ${styles.statItemFull}`}>
-                  <strong>Obs</strong>
-                  {selectedLevel.notesList.join(" | ")}
-                </div>
-              ) : null}
-              {hasText(selectedLevel.costCustom) ? (
-                <div className={styles.statItem}>
-                  <strong>Custo</strong>
-                  {selectedLevel.costCustom}
-                </div>
-              ) : null}
-              {selectedLevel.customFields.map((field) => (
-                <div key={field.id} className={styles.statItem}>
-                  <strong>{field.name}</strong>
-                  {field.value ?? "-"}
-                </div>
-              ))}
             </div>
           </div>
         )
       })}
-    </div>
+      </div>
+    </>
   )
 }

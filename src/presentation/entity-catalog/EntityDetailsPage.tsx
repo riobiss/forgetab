@@ -1,11 +1,13 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Link from "next/link"
 import type { JSONContent } from "@tiptap/react"
 import { Keyboard } from "lucide-react"
 import { Save } from "lucide-react"
 import { SlidersHorizontal } from "lucide-react"
 import type { EntityCatalogAbilityView } from "@/application/entityCatalog/use-cases/entityCatalogAbilities"
+import type { EntityCatalogPlayerItem } from "@/application/entityCatalog/types"
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor"
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
 import {
@@ -44,10 +46,18 @@ type Props = {
   attributeTemplates: TemplateOption[]
   skillTemplates: TemplateOption[]
   abilities?: EntityCatalogAbilityView[]
+  players?: EntityCatalogPlayerItem[]
+  abilityPurchase?: {
+    characterId: string | null
+    costsEnabled: boolean
+    costResourceName: string
+    initialPoints: number
+    initialOwnedBySkill: Record<string, number[]>
+  }
 }
 
 type ConfigStage = "basic" | "attributes" | "skills"
-type ContentTab = "content" | "abilities" | "bonuses"
+type ContentTab = "content" | "abilities" | "bonuses" | "players"
 
 export default function EntityDetailsPage({
   rpgId,
@@ -60,6 +70,8 @@ export default function EntityDetailsPage({
   attributeTemplates,
   skillTemplates,
   abilities = [],
+  players = [],
+  abilityPurchase,
 }: Props) {
   const [editorContent, setEditorContent] = useState<JSONContent>(
     current.content ?? (EMPTY_RICH_TEXT_DOCUMENT as JSONContent),
@@ -89,6 +101,7 @@ export default function EntityDetailsPage({
   const hasAttributeTemplates = attributeTemplates.length > 0
   const hasSkillTemplates = skillTemplates.length > 0
   const hasAbilities = abilities.length > 0
+  const hasPlayers = players.length > 0
   const activeAttributeBonuses = useMemo(
     () => attributeTemplates
       .map((item) => ({
@@ -283,6 +296,17 @@ export default function EntityDetailsPage({
               Bonus
             </button>
           ) : null}
+          {hasPlayers ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "players"}
+              className={`${styles.contentTab} ${activeTab === "players" ? styles.contentTabActive : ""}`}
+              onClick={() => setActiveTab("players")}
+            >
+              Jogadores
+            </button>
+          ) : null}
         </div>
 
         {activeTab === "content" ? (
@@ -332,9 +356,34 @@ export default function EntityDetailsPage({
               ) : null}
             </div>
           </section>
+        ) : activeTab === "players" ? (
+          <section className={styles.abilitiesShell}>
+            <div className={styles.playerGrid}>
+              {players.map((player) => (
+                <Link
+                  key={player.id}
+                  href={`/rpg/${rpgId}/characters/${player.id}`}
+                  className={styles.playerCard}
+                >
+                  <div className={styles.playerAvatar}>
+                    {player.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={player.image} alt={player.name} />
+                    ) : (
+                      <span>{player.name.slice(0, 1).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <div className={styles.playerMeta}>
+                    <strong>{player.name}</strong>
+                    <span>Player</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
         ) : (
           <section className={styles.abilitiesShell}>
-            <EntityAbilitiesPanel skills={abilities} />
+            <EntityAbilitiesPanel skills={abilities} purchase={abilityPurchase} />
           </section>
         )}
       </section>
