@@ -45,6 +45,15 @@ function createUniqueKey(label: string, used: Set<string>, fallback: string) {
   return key
 }
 
+function readOptionalTemplateId(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return undefined
+  }
+
+  const candidate = (value as { id?: unknown }).id
+  return typeof candidate === "string" && candidate.trim().length > 0 ? candidate.trim() : undefined
+}
+
 function normalizeAttributeTemplates(
   input: unknown,
 ): Array<{ key: string; label: string }> {
@@ -299,6 +308,7 @@ export async function updateRaceTemplates(
           : undefined
 
       return {
+        id: readOptionalTemplateId(source),
         key: createUniqueKey(item.label, used, "raca"),
         label: item.label,
         category: item.category,
@@ -362,6 +372,11 @@ export async function updateClassTemplates(
     await repository.replaceClassTemplates(
       params.rpgId,
       parsed.values.map((item, index) => ({
+        id:
+          params.classes &&
+          Array.isArray(params.classes)
+            ? readOptionalTemplateId(params.classes[index])
+            : undefined,
         key: createUniqueKey(item.label, used, "classe"),
         label: item.label,
         category: item.category,

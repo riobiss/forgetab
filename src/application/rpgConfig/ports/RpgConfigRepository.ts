@@ -25,6 +25,7 @@ export interface RpgConfigRepository {
   replaceRaceTemplates(
     rpgId: string,
     items: Array<{
+      id?: string
       key: string
       label: string
       category: string
@@ -39,6 +40,7 @@ export interface RpgConfigRepository {
   replaceClassTemplates(
     rpgId: string,
     items: Array<{
+      id?: string
       key: string
       label: string
       category: string

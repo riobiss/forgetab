@@ -95,7 +95,7 @@ export const prismaRpgConfigRepository: RpgConfigRepository = {
 
     const rows = items.map((item, index) =>
       Prisma.sql`(
-        ${crypto.randomUUID()},
+        ${item.id ?? crypto.randomUUID()},
         ${rpgId},
         ${item.key},
         ${item.label},
@@ -146,7 +146,7 @@ export const prismaRpgConfigRepository: RpgConfigRepository = {
 
     const rows = items.map((item, index) =>
       Prisma.sql`(
-        ${crypto.randomUUID()},
+        ${item.id ?? crypto.randomUUID()},
         ${rpgId},
         ${item.key},
         ${item.label},
