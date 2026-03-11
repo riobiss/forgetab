@@ -1,13 +1,12 @@
 import { notFound } from "next/navigation"
-import Link from "next/link"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { normalizeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
+import { listRaceCatalogAbilities } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogAbilitiesRepository"
 import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
-import { normalizeRaceLore } from "@/lib/rpg/raceLore"
-import RichTextPreview from "@/presentation/entity-catalog/RichTextPreview"
-import styles from "./page.module.css"
+import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import EntityDetailsPage from "@/presentation/entity-catalog/EntityDetailsPage"
 
 type Params = {
   params: Promise<{
@@ -17,24 +16,14 @@ type Params = {
 }
 
 type RaceRow = {
+  id: string
+  key: string
   label: string
   category: string | null
+  attributeBonuses: Prisma.JsonValue
+  skillBonuses: Prisma.JsonValue
   lore?: Prisma.JsonValue
   catalogMeta?: Prisma.JsonValue
-}
-
-function toList(items: string[]) {
-  if (items.length === 0) {
-    return <p className={styles.empty}>Sem dados.</p>
-  }
-
-  return (
-    <ul className={styles.list}>
-      {items.map((item, index) => (
-        <li key={`${item}-${index}`}>{item}</li>
-      ))}
-    </ul>
-  )
 }
 
 export default async function RaceDetailsPage({ params }: Params) {
@@ -64,7 +53,15 @@ export default async function RaceDetailsPage({ params }: Params) {
   let rows: RaceRow[] = []
   try {
     rows = await prisma.$queryRaw<RaceRow[]>`
-      SELECT label, category, lore, catalog_meta AS "catalogMeta"
+      SELECT
+        key,
+        id,
+        label,
+        category,
+        attribute_bonuses AS "attributeBonuses",
+        skill_bonuses AS "skillBonuses",
+        lore,
+        catalog_meta AS "catalogMeta"
       FROM rpg_race_templates
       WHERE rpg_id = ${rpgId} AND key = ${raceKey}
       LIMIT 1
@@ -80,7 +77,13 @@ export default async function RaceDetailsPage({ params }: Params) {
     }
 
     rows = await prisma.$queryRaw<RaceRow[]>`
-      SELECT label, 'geral'::text AS category
+      SELECT
+        key,
+        id,
+        label,
+        'geral'::text AS category,
+        attribute_bonuses AS "attributeBonuses",
+        skill_bonuses AS "skillBonuses"
       FROM rpg_race_templates
       WHERE rpg_id = ${rpgId} AND key = ${raceKey}
       LIMIT 1
@@ -92,121 +95,55 @@ export default async function RaceDetailsPage({ params }: Params) {
     notFound()
   }
 
-  const lore = normalizeRaceLore(row.lore, row.label)
   const catalogMeta = normalizeEntityCatalogMeta(row.catalogMeta)
-  const richSections = [
-    { key: "description", label: "Descricao" },
-    { key: "origin", label: "Origem" },
-    { key: "kingdoms", label: "Reinos" },
-    { key: "lore", label: "Lore" },
-    { key: "notes", label: "Observacoes" },
-  ].filter((section) =>
-    Boolean(
-      catalogMeta.richText[
-        section.key as "description" | "origin" | "kingdoms" | "lore" | "notes"
-      ],
-    ),
-  )
+  const permission = userId ? await getRpgPermission(rpgId, userId) : null
+  const [attributeRows, skillRows, abilities] = await Promise.all([
+    prisma.$queryRaw<Array<{ key: string; label: string }>>(Prisma.sql`
+      SELECT key, label
+      FROM rpg_attribute_templates
+      WHERE rpg_id = ${rpgId}
+      ORDER BY position ASC
+    `),
+    prisma.$queryRaw<Array<{ key: string; label: string }>>(Prisma.sql`
+      SELECT key, label
+      FROM rpg_skill_templates
+      WHERE rpg_id = ${rpgId}
+      ORDER BY position ASC
+    `),
+    listRaceCatalogAbilities(row.id),
+  ])
 
   return (
-    <main className={styles.container}>
-      <header className={styles.header}>
-        <h2>{row.label}</h2>
-        <div className={styles.actions}>
-          <Link href={`/rpg/${rpgId}/races`} className={styles.backLink}>
-            Voltar para racas
-          </Link>
-          {isOwner ? (
-            <Link href={`/rpg/${rpgId}/edit/advanced/race/${raceKey}`} className={styles.editLink}>
-              Editar raca
-            </Link>
-          ) : null}
-        </div>
-      </header>
-
-      <article>
-        {catalogMeta.shortDescription ? (
-          <section>
-            <h3>Descricao curta</h3>
-            <p>{catalogMeta.shortDescription}</p>
-          </section>
-        ) : null}
-
-        {richSections.map((section) => (
-          <section key={section.key}>
-            <h3>{section.label}</h3>
-            <RichTextPreview
-              value={
-                catalogMeta.richText[
-                  section.key as "description" | "origin" | "kingdoms" | "lore" | "notes"
-                ] as Record<string, unknown>
-              }
-            />
-          </section>
-        ))}
-
-        <section>
-          <h3>Resumo</h3>
-          <p>{lore.summary}</p>
-        </section>
-
-        <section>
-          <h3>Origem</h3>
-          <p>{lore.origin}</p>
-        </section>
-
-        <section>
-          <h3>O que alguns pensam</h3>
-          {toList(lore.thoughts)}
-        </section>
-
-        <section>
-          <h3>Reinos</h3>
-          {lore.kingdoms.length === 0 ? <p className={styles.empty}>Sem dados.</p> : null}
-          {lore.kingdoms.map((kingdom, index) => (
-            <article key={`${kingdom.name}-${index}`} className={styles.kingdom}>
-              <h3>{kingdom.name || `Reino ${index + 1}`}</h3>
-              {kingdom.description ? <p>{kingdom.description}</p> : <p className={styles.empty}>Sem descricao.</p>}
-              <h4>Cultura</h4>
-              {toList(kingdom.culture)}
-              <h4>Caracteristicas fisicas</h4>
-              {toList(kingdom.physicalTraits)}
-              <h4>Vestuario</h4>
-              {toList(kingdom.clothing)}
-              <h4>Nomes comuns</h4>
-              {toList(kingdom.commonNames)}
-            </article>
-          ))}
-        </section>
-
-        <section>
-          <h3>Figuras marcantes</h3>
-          {toList(lore.notableFigures)}
-        </section>
-
-        <section>
-          <h3>Tracos raciais</h3>
-          {toList(lore.racialTraits)}
-        </section>
-
-        <section>
-          <h3>Classes comuns</h3>
-          {toList(lore.commonClasses)}
-        </section>
-
-        <section>
-          <h3>Variacoes</h3>
-          {lore.variations.length === 0 ? <p className={styles.empty}>Sem dados.</p> : null}
-          {lore.variations.map((variation, index) => (
-            <article className={styles.variation} key={`${variation.name}-${index}`}>
-              <h3>{variation.name || `Variacao ${index + 1}`}</h3>
-              {variation.description ? <p>{variation.description}</p> : <p className={styles.empty}>Sem descricao.</p>}
-              <h4>Tracos</h4>
-              {toList(variation.traits)}
-            </article>
-          ))}
-        </section>
-      </article>
-    </main>
+    <EntityDetailsPage
+      rpgId={rpgId}
+      entityType="race"
+      title="Raca"
+      entityLabel="Raca"
+      canManage={permission?.canManage ?? false}
+      current={{
+        key: row.key,
+        label: row.label,
+        category: row.category?.trim() || "geral",
+        shortDescription: catalogMeta.shortDescription,
+        content:
+          (catalogMeta.richText.description as Record<string, unknown>) ?? {
+            type: "doc",
+            content: [],
+          },
+        attributeBonuses:
+          row.attributeBonuses && typeof row.attributeBonuses === "object" && !Array.isArray(row.attributeBonuses)
+            ? (row.attributeBonuses as Record<string, number>)
+            : {},
+        skillBonuses:
+          row.skillBonuses && typeof row.skillBonuses === "object" && !Array.isArray(row.skillBonuses)
+            ? (row.skillBonuses as Record<string, number>)
+            : {},
+        catalogMeta,
+        lore: row.lore,
+      }}
+      attributeTemplates={attributeRows}
+      skillTemplates={skillRows}
+      abilities={abilities}
+    />
   )
 }
