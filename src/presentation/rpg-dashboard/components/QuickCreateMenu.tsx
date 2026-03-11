@@ -64,7 +64,7 @@ export default function QuickCreateMenu({ rpgId }: Props) {
           </Link>
           <Link href={`/rpg/${rpgId}/edit`} onClick={() => setIsOpen(false)}>
             <Users size={15} />
-            Criar Raca
+            Criar
           </Link>
           <Link href={`/rpg/${rpgId}/skills`} onClick={() => setIsOpen(false)}>
             <Sparkles size={15} />
