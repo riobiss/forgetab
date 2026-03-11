@@ -59,15 +59,15 @@ export const prismaRpgMembershipRepository: RpgMembershipRepository = {
     `)
   },
 
-  createPendingMembership(rpgId, userId) {
-    return prisma.$executeRaw(Prisma.sql`
+  async createPendingMembership(rpgId, userId) {
+    await prisma.$executeRaw(Prisma.sql`
       INSERT INTO rpg_members (id, rpg_id, user_id, status)
       VALUES (${crypto.randomUUID()}, ${rpgId}, ${userId}, 'pending'::"public"."RpgMemberStatus")
     `)
   },
 
-  resendMembershipRequest(membershipId) {
-    return prisma.$executeRaw(Prisma.sql`
+  async resendMembershipRequest(membershipId) {
+    await prisma.$executeRaw(Prisma.sql`
       UPDATE rpg_members
       SET
         status = 'pending'::"public"."RpgMemberStatus",
@@ -150,8 +150,8 @@ export const prismaRpgMembershipRepository: RpgMembershipRepository = {
     return rows[0] ?? null
   },
 
-  createPendingCharacterRequest(rpgId, userId) {
-    return prisma.$executeRaw(Prisma.sql`
+  async createPendingCharacterRequest(rpgId, userId) {
+    await prisma.$executeRaw(Prisma.sql`
       INSERT INTO rpg_character_creation_requests (id, rpg_id, user_id, status)
       VALUES (
         ${crypto.randomUUID()},
@@ -162,8 +162,8 @@ export const prismaRpgMembershipRepository: RpgMembershipRepository = {
     `)
   },
 
-  resendCharacterRequest(requestId) {
-    return prisma.$executeRaw(Prisma.sql`
+  async resendCharacterRequest(requestId) {
+    await prisma.$executeRaw(Prisma.sql`
       UPDATE rpg_character_creation_requests
       SET
         status = 'pending'::"public"."CharacterCreationRequestStatus",
