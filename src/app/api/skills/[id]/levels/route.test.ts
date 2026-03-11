@@ -1,3 +1,4 @@
+import { NextRequest } from "next/server"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
@@ -22,7 +23,7 @@ vi.mock("@/lib/prisma", () => ({
 import { POST } from "./route"
 
 function makeRequest(body: unknown) {
-  return new Request("http://localhost/api/skills/skill-1/levels", {
+  return new NextRequest("http://localhost/api/skills/skill-1/levels", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),

@@ -1,3 +1,4 @@
+import { NextRequest } from "next/server"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
@@ -22,7 +23,7 @@ vi.mock("@/lib/prisma", () => ({
 import { DELETE, PATCH } from "./route"
 
 function makePatchRequest(body: unknown) {
-  return new Request("http://localhost/api/skills/skill-1/levels/level-1", {
+  return new NextRequest("http://localhost/api/skills/skill-1/levels/level-1", {
     method: "PATCH",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
@@ -30,7 +31,7 @@ function makePatchRequest(body: unknown) {
 }
 
 function makeDeleteRequest() {
-  return new Request("http://localhost/api/skills/skill-1/levels/level-1", {
+  return new NextRequest("http://localhost/api/skills/skill-1/levels/level-1", {
     method: "DELETE",
   })
 }

@@ -1,3 +1,4 @@
+import { NextRequest } from "next/server"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
@@ -22,7 +23,7 @@ vi.mock("@/lib/prisma", () => ({
 import { DELETE, GET, PATCH } from "./route"
 
 function makeRequest(method: "GET" | "PATCH" | "DELETE", body?: unknown) {
-  return new Request("http://localhost/api/skills/skill-1", {
+  return new NextRequest("http://localhost/api/skills/skill-1", {
     method,
     headers: body ? { "content-type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,
