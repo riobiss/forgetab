@@ -1,4 +1,4 @@
-import type { Prisma } from "../../../../generated/prisma/client.js"
+import type { Prisma } from "../../../generated/prisma/client.js"
 import type { ProgressionMode, ProgressionTier } from "@/lib/rpg/progression"
 
 export type CharacterDetailRowDto = {
