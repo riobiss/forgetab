@@ -1,7 +1,7 @@
-import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { loadRpgDashboard } from "@/application/rpgDashboard/use-cases/loadRpgDashboard"
 import { prismaRpgDashboardRepository } from "@/infrastructure/rpgDashboard/repositories/prismaRpgDashboardRepository"
 import { rpgDashboardAccessService } from "@/infrastructure/rpgDashboard/services/rpgDashboardAccessService"
+import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
 import { RpgDashboardPage } from "@/presentation/rpg-dashboard/RpgDashboardPage"
 
 type Params = {
@@ -12,7 +12,7 @@ type Params = {
 
 export default async function ViewInRpg({ params }: Params) {
   const { rpgId } = await params
-  const userId = await getUserIdFromCookieStore()
+  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
 
   const viewModel = await loadRpgDashboard(
     prismaRpgDashboardRepository,

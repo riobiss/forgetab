@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
-import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { loadSkillsPageUseCase } from "@/application/skillsPage/use-cases/loadSkillsPage"
 import { prismaSkillsPageRepository } from "@/infrastructure/skillsPage/repositories/prismaSkillsPageRepository"
+import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
 import { skillsPageAccessService } from "@/infrastructure/skillsPage/services/skillsPageAccessService"
 import SkillsDashboardFeature from "@/presentation/skills-dashboard/SkillsDashboardFeature"
 
@@ -13,7 +13,7 @@ type PageProps = {
 
 export default async function RpgSkillsBuilderPage({ params }: PageProps) {
   const { rpgId } = await params
-  const userId = await getUserIdFromCookieStore()
+  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
 
   if (!userId) {
     notFound()

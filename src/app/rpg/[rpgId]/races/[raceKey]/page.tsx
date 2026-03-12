@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { loadEntityCatalogDetailUseCase } from "@/application/entityCatalog/use-cases/loadEntityCatalogDetail"
 import { prismaEntityCatalogDetailRepository } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogDetailRepository"
 import { entityCatalogDetailAccessService } from "@/infrastructure/entityCatalog/services/entityCatalogDetailAccessService"
-import { getUserIdFromCookieStore } from "@/lib/server/auth"
+import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
 import EntityDetailsFeature from "@/presentation/entity-catalog/EntityDetailsFeature"
 
 type Params = {
@@ -14,7 +14,7 @@ type Params = {
 
 export default async function RaceDetailsPage({ params }: Params) {
   const { rpgId, raceKey } = await params
-  const userId = await getUserIdFromCookieStore()
+  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
   const data = await loadEntityCatalogDetailUseCase(
     {
       repository: prismaEntityCatalogDetailRepository,

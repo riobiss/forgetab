@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation"
 import { loadEntityCatalogPageData } from "@/application/entityCatalog/use-cases/entityCatalog"
 import { prismaEntityCatalogRepository } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogRepository"
+import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
 import EntityCatalogFeature from "@/presentation/entity-catalog/EntityCatalogFeature"
-import { getUserIdFromCookieStore } from "@/lib/server/auth"
 
 type Params = {
   params: Promise<{
@@ -12,7 +12,7 @@ type Params = {
 
 export default async function RacesPage({ params }: Params) {
   const { rpgId } = await params
-  const userId = await getUserIdFromCookieStore()
+  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
   const data = await loadEntityCatalogPageData(prismaEntityCatalogRepository, {
     rpgId,
     userId,
@@ -34,4 +34,3 @@ export default async function RacesPage({ params }: Params) {
     </main>
   )
 }
-

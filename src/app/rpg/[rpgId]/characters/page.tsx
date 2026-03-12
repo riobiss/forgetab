@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
-import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { prismaRpgAccessRepository } from "@/infrastructure/characters/repositories/prismaRpgAccessRepository"
 import { prismaCharactersDashboardRepository } from "@/infrastructure/charactersDashboard/repositories/prismaCharactersDashboardRepository"
+import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
 import CharactersDashboardPage from "@/presentation/characters-dashboard/CharactersDashboardPage"
 import {
   loadCharactersDashboardUseCase,
@@ -24,7 +24,7 @@ function normalizeFilterType(value?: string): CharactersDashboardFilterType {
 export default async function CharactersPage({ params, searchParams }: Params) {
   const { rpgId } = await params
   const resolvedSearchParams = await searchParams
-  const userId = await getUserIdFromCookieStore()
+  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
 
   const result = await loadCharactersDashboardUseCase(
     {

@@ -1,7 +1,7 @@
-import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { loadRpgMapView } from "@/application/rpgMap/use-cases/rpgMap"
 import { prismaRpgMapRepository } from "@/infrastructure/rpgMap/repositories/prismaRpgMapRepository"
 import { rpgMapAccessService } from "@/infrastructure/rpgMap/services/rpgMapAccessService"
+import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
 import { RpgMapPage } from "@/presentation/rpg-map/RpgMapPage"
 import { AppError } from "@/shared/errors/AppError"
 import { notFound } from "next/navigation"
@@ -14,7 +14,7 @@ type Params = {
 
 export default async function MapPage({ params }: Params) {
   const { rpgId } = await params
-  const userId = await getUserIdFromCookieStore()
+  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
   let viewModel
 
   try {
