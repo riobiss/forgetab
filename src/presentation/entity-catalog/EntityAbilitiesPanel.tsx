@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react"
 import type { CSSProperties } from "react"
-import { toast } from "react-hot-toast"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
-import { dismissToast } from "@/lib/toast"
+import type { EntityCatalogDependencies } from "@/application/entityCatalog/contracts/EntityCatalogDependencies"
 import type { EntityCatalogAbilityView } from "@/application/entityCatalog/use-cases/entityCatalogAbilities"
+import { useEntityAbilityPurchase } from "@/presentation/entity-catalog/useEntityAbilityPurchase"
 import styles from "./EntityAbilitiesPanel.module.css"
 
 const SKILL_CATEGORY_LABEL: Record<string, string> = {
@@ -39,6 +39,7 @@ const SKILL_ACTION_TYPE_LABEL: Record<string, string> = {
 }
 
 type Props = {
+  deps: EntityCatalogDependencies
   skills: EntityCatalogAbilityView[]
   purchase?: {
     characterId: string | null
@@ -83,7 +84,7 @@ function buildLevelKey(skillId: string, level: number) {
   return `${skillId}:${level}`
 }
 
-export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
+export default function EntityAbilitiesPanel({ deps, skills, purchase }: Props) {
   const [selectedLevelBySkill, setSelectedLevelBySkill] = useState<Record<string, number>>(() =>
     skills.reduce<Record<string, number>>((acc, skill) => {
       const firstLevel = skill.levels[0]
@@ -92,9 +93,8 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
     }, {}),
   )
   const [openLevelSelectorForSkill, setOpenLevelSelectorForSkill] = useState("")
-  const [points, setPoints] = useState(purchase?.initialPoints ?? 0)
   const [ownedBySkill, setOwnedBySkill] = useState(() => normalizeOwned(purchase?.initialOwnedBySkill ?? {}))
-  const [loadingKey, setLoadingKey] = useState("")
+  const purchaseActions = useEntityAbilityPurchase({ deps, purchase })
 
   const disabledReason = useMemo(() => {
     if (!purchase) return ""
@@ -111,28 +111,14 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
     if (!purchase?.characterId || !purchase.costsEnabled) return
 
     const key = buildLevelKey(skillId, level)
-    if (loadingKey) return
-    setLoadingKey(key)
-    const loadingToastId = toast.loading("Comprando habilidade...")
+    if (purchaseActions.loadingKey) return
 
     try {
-      const response = await fetch(`/api/characters/${purchase.characterId}/buy-skill`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skillId, level }),
-      })
-      const payload = (await response.json()) as {
-        message?: string
-        success?: boolean
-        remainingPoints?: number
-      }
-
-      if (!response.ok || !payload.success) {
-        toast.error(payload.message ?? "Nao foi possivel comprar habilidade.")
+      const result = await purchaseActions.buySkill(skillId, level, key)
+      if (!result) {
         return
       }
 
-      setPoints(typeof payload.remainingPoints === "number" ? payload.remainingPoints : points)
       setOwnedBySkill((prev) => {
         const next = { ...prev }
         const existing = next[skillId] ?? new Set<number>()
@@ -140,13 +126,7 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
         next[skillId] = existing
         return next
       })
-      toast.success("Habilidade comprada com sucesso.")
-    } catch {
-      toast.error("Erro de conexao ao comprar habilidade.")
-    } finally {
-      dismissToast(loadingToastId)
-      setLoadingKey("")
-    }
+    } catch {}
   }
 
   return (
@@ -155,7 +135,7 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
         <>
           <section className={styles.pointsCard}>
             <strong>{purchase.costResourceName}</strong>
-            <span>{points}</span>
+            <span>{purchaseActions.points}</span>
           </section>
           {disabledReason ? <p className={styles.feedbackText}>{disabledReason}</p> : null}
         </>
@@ -186,9 +166,9 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
         const tagMeta = primaryTag ? getSkillTagMeta(primaryTag) : null
         const owned = ownedBySkill[skill.skillId]?.has(selectedLevel.levelNumber) ?? false
         const key = buildLevelKey(skill.skillId, selectedLevel.levelNumber)
-        const loading = loadingKey === key
+        const loading = purchaseActions.loadingKey === key
         const pointsCost = selectedLevel.pointsCost ?? 0
-        const cantAfford = purchase ? points < pointsCost : false
+        const cantAfford = purchase ? purchaseActions.points < pointsCost : false
         const buyDisabled = Boolean(disabledReason) || owned || loading || cantAfford
 
         return (

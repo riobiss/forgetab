@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
-import EntityDetailsPage from "@/presentation/entity-catalog/EntityDetailsPage"
+import EntityDetailsFeature from "@/presentation/entity-catalog/EntityDetailsFeature"
 
 type Params = {
   params: Promise<{
@@ -176,7 +176,7 @@ export default async function RaceDetailsPage({ params }: Params) {
   ])
 
   return (
-    <EntityDetailsPage
+    <EntityDetailsFeature
       rpgId={rpgId}
       entityType="race"
       title="Raca"

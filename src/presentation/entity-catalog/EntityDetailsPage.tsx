@@ -9,6 +9,7 @@ import { Save } from "lucide-react"
 import { SlidersHorizontal } from "lucide-react"
 import { toast } from "react-hot-toast"
 import type { EntityCatalogAbilityView } from "@/application/entityCatalog/use-cases/entityCatalogAbilities"
+import type { EntityCatalogDependencies } from "@/application/entityCatalog/contracts/EntityCatalogDependencies"
 import type { EntityCatalogPlayerItem } from "@/application/entityCatalog/types"
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor"
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
@@ -18,6 +19,7 @@ import {
 } from "@/domain/entityCatalog/catalogMeta"
 import type { CatalogEntityType, EntityCatalogMeta } from "@/domain/entityCatalog/types"
 import { dismissToast } from "@/lib/toast"
+import { useEntityDetailsActions } from "@/presentation/entity-catalog/useEntityDetailsActions"
 import EntityAbilitiesPanel from "./EntityAbilitiesPanel"
 import styles from "./EntityDetailsPage.module.css"
 
@@ -40,6 +42,7 @@ type IdentityTemplateRecord = {
 }
 
 type Props = {
+  deps: EntityCatalogDependencies
   rpgId: string
   entityType: CatalogEntityType
   title: string
@@ -64,6 +67,7 @@ type ConfigStage = "basic" | "attributes" | "skills"
 type ContentTab = "content" | "abilities" | "bonuses" | "players"
 
 export default function EntityDetailsPage({
+  deps,
   rpgId,
   entityType,
   title,
@@ -78,6 +82,12 @@ export default function EntityDetailsPage({
   abilityPurchase,
 }: Props) {
   const router = useRouter()
+  const actions = useEntityDetailsActions({
+    deps,
+    rpgId,
+    entityType,
+    templateKey: current.key,
+  })
   const [editorContent, setEditorContent] = useState<JSONContent>(
     current.content ?? (EMPTY_RICH_TEXT_DOCUMENT as JSONContent),
   )
@@ -133,53 +143,8 @@ export default function EntityDetailsPage({
     setConfigModalOpen(true)
   }
 
-  async function loadAllTemplates() {
-    const endpoint = entityType === "class" ? "classes" : "races"
-    const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`)
-    const payload = (await response.json()) as {
-      classes?: Array<Record<string, unknown>>
-      races?: Array<Record<string, unknown>>
-      message?: string
-    }
-
-    if (!response.ok) {
-      throw new Error(payload.message ?? "Nao foi possivel carregar os templates.")
-    }
-
-    return (entityType === "class" ? payload.classes ?? [] : payload.races ?? []) as IdentityTemplateRecord[]
-  }
-
   async function saveTemplate(nextTemplate: IdentityTemplateRecord) {
-    const allTemplates = await loadAllTemplates()
-    const endpoint = entityType === "class" ? "classes" : "races"
-    const nextTemplates = allTemplates.map((item) =>
-      item.key === current.key
-        ? {
-            ...item,
-            label: nextTemplate.label,
-            category: nextTemplate.category,
-            attributeBonuses: nextTemplate.attributeBonuses,
-            skillBonuses: nextTemplate.skillBonuses,
-            catalogMeta: nextTemplate.catalogMeta,
-            ...(entityType === "race" ? { lore: nextTemplate.lore ?? item.lore } : {}),
-          }
-        : item,
-    )
-
-    const body =
-      entityType === "class"
-        ? { classes: nextTemplates }
-        : { races: nextTemplates }
-
-    const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
-    const payload = (await response.json()) as { message?: string }
-    if (!response.ok) {
-      throw new Error(payload.message ?? "Nao foi possivel salvar.")
-    }
+    await actions.saveTemplate(nextTemplate)
   }
 
   async function handleSave() {
@@ -391,7 +356,7 @@ export default function EntityDetailsPage({
           </section>
         ) : (
           <section className={styles.abilitiesShell}>
-            <EntityAbilitiesPanel skills={abilities} purchase={abilityPurchase} />
+            <EntityAbilitiesPanel deps={deps} skills={abilities} purchase={abilityPurchase} />
           </section>
         )}
       </section>

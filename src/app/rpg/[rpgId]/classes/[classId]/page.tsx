@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
-import EntityDetailsPage from "@/presentation/entity-catalog/EntityDetailsPage"
+import EntityDetailsFeature from "@/presentation/entity-catalog/EntityDetailsFeature"
 
 type Props = {
   params: Promise<{
@@ -177,7 +177,7 @@ export default async function ClassPage({ params }: Props) {
   const catalogMeta = normalizeEntityCatalogMeta(dbClass.catalogMeta)
 
   return (
-    <EntityDetailsPage
+    <EntityDetailsFeature
       rpgId={rpgId}
       entityType="class"
       title="Classe"

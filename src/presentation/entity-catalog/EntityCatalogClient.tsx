@@ -1,30 +1,25 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ArrowUpDown, ChevronDown, ChevronUp, Filter, Pencil, Plus, Search, Trash2, X } from "lucide-react"
-import { createRichTextDocumentFromText } from "@/domain/entityCatalog/catalogMeta"
-import slugify from "@/utils/slugify"
 import { getCatalogMetaExcerpt } from "@/domain/entityCatalog/catalogMeta"
 import type { CatalogEntityType } from "@/domain/entityCatalog/types"
-import type { EntityCatalogItem, EntityCatalogSort } from "@/application/entityCatalog/types"
+import type {
+  EntityCatalogDependencies,
+} from "@/application/entityCatalog/contracts/EntityCatalogDependencies"
+import type { EntityCatalogItem, EntityCatalogSort, EntityCatalogTemplateRecord } from "@/application/entityCatalog/types"
 import { useEntityCatalogState } from "@/presentation/entity-catalog/useEntityCatalogState"
+import { useEntityCatalogActions } from "@/presentation/entity-catalog/useEntityCatalogActions"
 import styles from "./EntityCatalogClient.module.css"
 
 type Props = {
+  deps: EntityCatalogDependencies
   rpgId: string
   entityType: CatalogEntityType
   title: string
   canManage: boolean
   items: EntityCatalogItem[]
-}
-
-type CatalogTemplateRecord = Record<string, unknown> & {
-  id?: string
-  key?: string
-  label?: string
-  category?: string
 }
 
 type CategoryItemDraft = {
@@ -39,14 +34,15 @@ const SORT_OPTIONS: Array<{ value: EntityCatalogSort; label: string }> = [
 ]
 
 export default function EntityCatalogClient({
+  deps,
   rpgId,
   entityType,
   title,
   canManage,
   items,
 }: Props) {
-  const router = useRouter()
   const state = useEntityCatalogState(items)
+  const actions = useEntityCatalogActions({ deps, rpgId, entityType, canManage })
   const [createOpen, setCreateOpen] = useState(false)
   const [createName, setCreateName] = useState("")
   const [createCategory, setCreateCategory] = useState("geral")
@@ -61,7 +57,7 @@ export default function EntityCatalogClient({
   const [manageCategoryName, setManageCategoryName] = useState("")
   const [manageCategoryDraft, setManageCategoryDraft] = useState("")
   const [manageCategoryItems, setManageCategoryItems] = useState<CategoryItemDraft[]>([])
-  const [manageCategoryCollection, setManageCategoryCollection] = useState<CatalogTemplateRecord[]>([])
+  const [manageCategoryCollection, setManageCategoryCollection] = useState<EntityCatalogTemplateRecord[]>([])
   const [manageCategorySaving, setManageCategorySaving] = useState(false)
   const [manageCategoryError, setManageCategoryError] = useState("")
 
@@ -83,71 +79,16 @@ export default function EntityCatalogClient({
     setCreateError("")
 
     try {
-      const endpoint = entityType === "class" ? "classes" : "races"
-      const getResponse = await fetch(`/api/rpg/${rpgId}/${endpoint}`)
-      const currentPayload = (await getResponse.json()) as {
-        classes?: Array<Record<string, unknown>>
-        races?: Array<Record<string, unknown>>
-        message?: string
-      }
-
-      if (!getResponse.ok) {
-        throw new Error(currentPayload.message ?? "Nao foi possivel carregar a lista atual.")
-      }
-
-      const collection = entityType === "class" ? currentPayload.classes ?? [] : currentPayload.races ?? []
       const normalizedCategory =
         creatingCategory && newCategory.trim().length > 0
           ? newCategory.trim()
           : createCategory.trim() || "geral"
-      const nextEntry = {
-        label: createName.trim(),
+
+      await actions.createEntry({
+        name: createName,
         category: normalizedCategory,
-        attributeBonuses: {},
-        skillBonuses: {},
-        catalogMeta: {
-          shortDescription: createDescription.trim() || null,
-          richText: {
-            description: createRichTextDocumentFromText(createDescription),
-          },
-        },
-      }
-
-      const putResponse = await fetch(`/api/rpg/${rpgId}/${endpoint}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          entityType === "class"
-            ? { classes: [...collection, nextEntry] }
-            : { races: [...collection, nextEntry] },
-        ),
+        description: createDescription,
       })
-      const putPayload = (await putResponse.json()) as { message?: string }
-      if (!putResponse.ok) {
-        throw new Error(putPayload.message ?? "Nao foi possivel criar.")
-      }
-
-      const refreshResponse = await fetch(`/api/rpg/${rpgId}/${endpoint}`)
-      const refreshPayload = (await refreshResponse.json()) as {
-        classes?: Array<{ id: string; key: string; label: string }>
-        races?: Array<{ key: string; label: string }>
-        message?: string
-      }
-      if (!refreshResponse.ok) {
-        throw new Error(refreshPayload.message ?? "Nao foi possivel localizar o item criado.")
-      }
-
-      const expectedKey = slugify(createName.trim())
-      if (entityType === "class") {
-        const created = (refreshPayload.classes ?? []).find((item) => item.key === expectedKey)
-        if (!created) throw new Error("Classe criada, mas nao localizada.")
-        router.push(`/rpg/${rpgId}/classes/${created.id}`)
-      } else {
-        const created = (refreshPayload.races ?? []).find((item) => item.key === expectedKey)
-        if (!created) throw new Error("Raca criada, mas nao localizada.")
-        router.push(`/rpg/${rpgId}/races/${created.key}`)
-      }
-      router.refresh()
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Erro ao criar."
       setCreateError(message)
@@ -156,42 +97,13 @@ export default function EntityCatalogClient({
     }
   }
 
-  async function fetchCollection() {
-    const endpoint = entityType === "class" ? "classes" : "races"
-    const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`)
-    const payload = (await response.json()) as {
-      classes?: CatalogTemplateRecord[]
-      races?: CatalogTemplateRecord[]
-      message?: string
-    }
-
-    if (!response.ok) {
-      throw new Error(payload.message ?? "Nao foi possivel carregar a lista.")
-    }
-
-    return entityType === "class" ? payload.classes ?? [] : payload.races ?? []
-  }
-
-  async function saveCollection(nextCollection: CatalogTemplateRecord[]) {
-    const endpoint = entityType === "class" ? "classes" : "races"
-    const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(entityType === "class" ? { classes: nextCollection } : { races: nextCollection }),
-    })
-    const payload = (await response.json()) as { message?: string }
-    if (!response.ok) {
-      throw new Error(payload.message ?? "Nao foi possivel salvar.")
-    }
-  }
-
-  function getTemplateCategory(item: CatalogTemplateRecord) {
+  function getTemplateCategory(item: EntityCatalogTemplateRecord) {
     return typeof item.category === "string" && item.category.trim().length > 0
       ? item.category.trim()
       : "geral"
   }
 
-  function getTemplateIdentity(item: CatalogTemplateRecord, index: number) {
+  function getTemplateIdentity(item: EntityCatalogTemplateRecord, index: number) {
     if (typeof item.id === "string" && item.id.trim().length > 0) return `id:${item.id}`
     if (typeof item.key === "string" && item.key.trim().length > 0) return `key:${item.key}`
     return `index:${index}`
@@ -204,7 +116,7 @@ export default function EntityCatalogClient({
     setManageCategorySaving(false)
 
     try {
-      const collection = await fetchCollection()
+      const collection = await actions.fetchCollection()
       const categoryItems = collection
         .map((item, index) => ({
           identity: getTemplateIdentity(item, index),
@@ -235,7 +147,7 @@ export default function EntityCatalogClient({
     setManageCategoryError("")
 
     try {
-      const nextCollection = manageCategoryCollection.reduce<CatalogTemplateRecord[]>((acc, item, index) => {
+      const nextCollection = manageCategoryCollection.reduce<EntityCatalogTemplateRecord[]>((acc, item, index) => {
         const identity = getTemplateIdentity(item, index)
         const category = getTemplateCategory(item)
 
@@ -257,9 +169,8 @@ export default function EntityCatalogClient({
         return acc
       }, [])
 
-      await saveCollection(nextCollection)
+      await actions.saveCollection(nextCollection)
       setManageCategoryOpen(false)
-      router.refresh()
     } catch (cause) {
       setManageCategoryError(cause instanceof Error ? cause.message : "Erro ao salvar categoria.")
     } finally {
@@ -277,9 +188,8 @@ export default function EntityCatalogClient({
         (item) => getTemplateCategory(item) !== manageCategoryName,
       )
 
-      await saveCollection(nextCollection)
+      await actions.saveCollection(nextCollection)
       setManageCategoryOpen(false)
-      router.refresh()
     } catch (cause) {
       setManageCategoryError(cause instanceof Error ? cause.message : "Erro ao deletar categoria.")
     } finally {
