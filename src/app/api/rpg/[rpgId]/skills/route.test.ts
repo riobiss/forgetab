@@ -53,21 +53,33 @@ describe("skills template route", () => {
 
   it("GET retorna 404 sem acesso", async () => {
     mocks.rpgFindUnique.mockResolvedValue(null)
+
     const response = await GET(makeRequest("GET"), makeContext())
+
     expect(response.status).toBe(404)
+    expect(await response.json()).toEqual({ message: "RPG nao encontrado." })
   })
 
   it("GET retorna 200 com lista", async () => {
     mocks.rpgFindUnique.mockResolvedValue({ id: "rpg-1", ownerId: "u1" })
     mocks.queryRaw.mockResolvedValue([{ id: "s1", key: "furtividade", label: "Furtividade", position: 0 }])
+
     const response = await GET(makeRequest("GET"), makeContext())
+
     expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({
+      skills: [{ id: "s1", key: "furtividade", label: "Furtividade", position: 0 }],
+      isDefault: false,
+    })
   })
 
   it("PUT retorna 200 ao atualizar", async () => {
     mocks.getRpgPermission.mockResolvedValue({ canManage: true })
     mocks.executeRaw.mockResolvedValue(1)
+
     const response = await PUT(makeRequest("PUT", { skills: ["Furtividade"] }), makeContext())
+
     expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ message: "Padrao de pericias atualizado." })
   })
 })

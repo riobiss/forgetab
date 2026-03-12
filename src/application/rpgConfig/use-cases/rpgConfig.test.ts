@@ -4,12 +4,14 @@ import type { RpgConfigRepository } from "@/application/rpgConfig/ports/RpgConfi
 import {
   getAttributeTemplates,
   getClassTemplates,
+  getSkillTemplates,
   getStatusTemplates,
   updateAttributeTemplates,
   updateCharacteristicTemplates,
   updateClassTemplates,
   updateIdentityTemplates,
   updateRaceTemplates,
+  updateSkillTemplates,
   updateStatusTemplates,
 } from "@/application/rpgConfig/use-cases/rpgConfig"
 
@@ -26,6 +28,8 @@ function createRepositoryMock(): RpgConfigRepository {
     replaceAttributeTemplates: vi.fn().mockResolvedValue(undefined),
     listStatusTemplates: vi.fn().mockResolvedValue([]),
     replaceStatusTemplates: vi.fn().mockResolvedValue(undefined),
+    listSkillTemplates: vi.fn().mockResolvedValue([]),
+    replaceSkillTemplates: vi.fn().mockResolvedValue(undefined),
     listRaceTemplates: vi.fn().mockResolvedValue([]),
     replaceRaceTemplates: vi.fn().mockResolvedValue(undefined),
     listClassTemplates: vi.fn().mockResolvedValue([]),
@@ -93,6 +97,33 @@ describe("rpgConfig use-cases", () => {
 
     expect(repository.replaceStatusTemplates).toHaveBeenCalledWith("rpg-1", [
       { key: "exhaustion", label: "Exaustão" },
+    ])
+  })
+
+  it("getSkillTemplates retorna isDefault quando vazio", async () => {
+    const access = createAccessMock()
+    const repository = createRepositoryMock()
+
+    const result = await getSkillTemplates(access, repository, {
+      rpgId: "rpg-1",
+      userId: "u1",
+    })
+
+    expect(result).toEqual({ skills: [], isDefault: true })
+  })
+
+  it("updateSkillTemplates remove labels duplicados", async () => {
+    const access = createAccessMock()
+    const repository = createRepositoryMock()
+
+    await updateSkillTemplates(access, repository, {
+      rpgId: "rpg-1",
+      userId: "u1",
+      skills: ["Furtividade", "Furtividade"],
+    })
+
+    expect(repository.replaceSkillTemplates).toHaveBeenCalledWith("rpg-1", [
+      { key: "furtividade", label: "Furtividade" },
     ])
   })
 

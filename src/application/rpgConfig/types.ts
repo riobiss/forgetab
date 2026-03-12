@@ -14,6 +14,13 @@ export type StatusTemplate = {
   position: number
 }
 
+export type SkillTemplate = {
+  id: string
+  key: string
+  label: string
+  position: number
+}
+
 export type IdentityTemplate = {
   id: string
   key: string

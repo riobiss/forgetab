@@ -58,6 +58,33 @@ export const prismaRpgConfigRepository: RpgConfigRepository = {
     `)
   },
 
+  async listSkillTemplates(rpgId) {
+    return prisma.$queryRaw(Prisma.sql`
+      SELECT id, key, label, position
+      FROM rpg_skill_templates
+      WHERE rpg_id = ${rpgId}
+      ORDER BY position ASC
+    `)
+  },
+
+  async replaceSkillTemplates(rpgId, items) {
+    await prisma.$executeRaw(Prisma.sql`
+      DELETE FROM rpg_skill_templates
+      WHERE rpg_id = ${rpgId}
+    `)
+
+    if (items.length === 0) return
+
+    const rows = items.map((item, index) =>
+      Prisma.sql`(${crypto.randomUUID()}, ${rpgId}, ${item.key}, ${item.label}, ${index})`,
+    )
+
+    await prisma.$executeRaw(Prisma.sql`
+      INSERT INTO rpg_skill_templates (id, rpg_id, key, label, position)
+      VALUES ${Prisma.join(rows)}
+    `)
+  },
+
   async listRaceTemplates(rpgId) {
     try {
       return await prisma.$queryRaw(Prisma.sql`

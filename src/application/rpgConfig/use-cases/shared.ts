@@ -46,6 +46,14 @@ export function wrapStatusError(error: unknown, fallbackMessage: string): never 
   throw new AppError(fallbackMessage, 500)
 }
 
+export function wrapSkillError(error: unknown, fallbackMessage: string): never {
+  if (error instanceof AppError) throw error
+  if (isSchemaError(error, SKILL_SCHEMA_ERRORS)) {
+    throw new AppError("Tabela de templates de pericias nao existe no banco. Rode a migration.", 500)
+  }
+  throw new AppError(fallbackMessage, 500)
+}
+
 export function wrapRaceError(error: unknown, fallbackMessage: string): never {
   if (error instanceof AppError) throw error
   if (isSchemaError(error, RACE_SCHEMA_ERRORS)) {
@@ -86,4 +94,3 @@ export function wrapCharacteristicError(error: unknown, fallbackMessage: string)
   }
   throw new AppError(fallbackMessage, 500)
 }
-

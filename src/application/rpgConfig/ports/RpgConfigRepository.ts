@@ -4,6 +4,7 @@ import type {
   ClassTemplate,
   IdentityTemplate,
   RaceTemplate,
+  SkillTemplate,
   StatusTemplate,
 } from "@/application/rpgConfig/types"
 import type { EntityCatalogMeta } from "@/domain/entityCatalog/types"
@@ -17,6 +18,12 @@ export interface RpgConfigRepository {
 
   listStatusTemplates(rpgId: string): Promise<StatusTemplate[]>
   replaceStatusTemplates(
+    rpgId: string,
+    items: Array<{ key: string; label: string }>,
+  ): Promise<void>
+
+  listSkillTemplates(rpgId: string): Promise<SkillTemplate[]>
+  replaceSkillTemplates(
     rpgId: string,
     items: Array<{ key: string; label: string }>,
   ): Promise<void>

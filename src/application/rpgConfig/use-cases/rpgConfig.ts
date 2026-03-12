@@ -13,6 +13,7 @@ import {
   wrapClassError,
   wrapIdentityError,
   wrapRaceError,
+  wrapSkillError,
   wrapStatusError,
 } from "@/application/rpgConfig/use-cases/shared"
 import { AppError } from "@/shared/errors/AppError"
@@ -180,6 +181,39 @@ function normalizeStatusTemplates(input: unknown) {
   return normalized
 }
 
+function normalizeSkillTemplates(input: unknown) {
+  const entries = Array.isArray(input) ? input : []
+  const labels = entries
+    .map((item) => {
+      if (typeof item === "string") {
+        return item.trim()
+      }
+
+      if (item && typeof item === "object" && "label" in item) {
+        const candidate = (item as { label?: unknown }).label
+        return typeof candidate === "string" ? candidate.trim() : ""
+      }
+
+      return ""
+    })
+    .filter((label) => label.length > 0)
+
+  const unique = Array.from(new Set(labels.map((label) => label.toLocaleLowerCase("pt-BR"))))
+    .map((lowerLabel) => labels.find((label) => label.toLocaleLowerCase("pt-BR") === lowerLabel) ?? "")
+    .filter((label) => label.length > 0)
+
+  const invalid = unique.find((label) => label.length < 2)
+  if (invalid) {
+    throw new AppError(`Pericia invalida: ${invalid}.`, 400)
+  }
+
+  const usedKeys = new Set<string>()
+  return unique.map((label, index) => ({
+    key: createUniqueKey(label, usedKeys, `pericia-${index + 1}`),
+    label,
+  }))
+}
+
 function normalizeTemplateFields(
   input: unknown,
   invalidMessage: string,
@@ -284,6 +318,34 @@ export async function updateStatusTemplates(
     return { message: "Padrao de status atualizado." }
   } catch (error) {
     wrapStatusError(error, "Erro interno ao atualizar status.")
+  }
+}
+
+export async function getSkillTemplates(
+  access: RpgConfigAccessService,
+  repository: RpgConfigRepository,
+  params: { rpgId: string; userId: string },
+) {
+  try {
+    assertCanReadRpg(await access.canReadRpg(params.rpgId, params.userId))
+    const skills = await repository.listSkillTemplates(params.rpgId)
+    return { skills, isDefault: skills.length === 0 }
+  } catch (error) {
+    wrapSkillError(error, "Erro interno ao buscar pericias.")
+  }
+}
+
+export async function updateSkillTemplates(
+  access: RpgConfigAccessService,
+  repository: RpgConfigRepository,
+  params: { rpgId: string; userId: string; skills: unknown },
+) {
+  try {
+    assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
+    await repository.replaceSkillTemplates(params.rpgId, normalizeSkillTemplates(params.skills))
+    return { message: "Padrao de pericias atualizado." }
+  } catch (error) {
+    wrapSkillError(error, "Erro interno ao atualizar pericias.")
   }
 }
 
