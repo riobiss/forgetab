@@ -1,12 +1,14 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { toast } from "react-hot-toast"
 import {
   deleteRpgMapImageByUrlUseCase,
   persistRpgMapImageUseCase,
   uploadRpgMapImageUseCase,
 } from "@/application/rpgMap/use-cases/rpgMap"
 import { httpRpgMapGateway } from "@/infrastructure/rpgMap/gateways/httpRpgMapGateway"
+import { dismissToast } from "@/lib/toast"
 
 const DEFAULT_MAP_SRC = "/map/world-map.png"
 const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024
@@ -39,6 +41,7 @@ export function useRpgMapImageActions(params: {
 
     setIsUploading(true)
     setUploadMessage(null)
+    const loadingToastId = toast.loading("Atualizando mapa...")
 
     try {
       const uploadPayload = await uploadRpgMapImageUseCase(gateway, {
@@ -53,9 +56,13 @@ export function useRpgMapImageActions(params: {
 
       params.setMapSrc(uploadPayload.url)
       setUploadMessage("Mapa atualizado com sucesso.")
+      toast.success("Mapa atualizado com sucesso.")
     } catch (error) {
-      setUploadMessage(error instanceof Error ? error.message : "Erro ao atualizar mapa.")
+      const message = error instanceof Error ? error.message : "Erro ao atualizar mapa."
+      setUploadMessage(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setIsUploading(false)
     }
   }
@@ -67,6 +74,7 @@ export function useRpgMapImageActions(params: {
 
     setIsUploading(true)
     setUploadMessage(null)
+    const loadingToastId = toast.loading("Removendo imagem do mapa...")
 
     try {
       if (params.mapSrc !== DEFAULT_MAP_SRC) {
@@ -80,9 +88,13 @@ export function useRpgMapImageActions(params: {
 
       params.setMapSrc(DEFAULT_MAP_SRC)
       setUploadMessage("Imagem do mapa removida com sucesso.")
+      toast.success("Imagem do mapa removida com sucesso.")
     } catch (error) {
-      setUploadMessage(error instanceof Error ? error.message : "Erro ao restaurar mapa.")
+      const message = error instanceof Error ? error.message : "Erro ao restaurar mapa."
+      setUploadMessage(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setIsUploading(false)
     }
   }
