@@ -18,6 +18,7 @@ vi.mock("@/lib/prisma", () => ({
 
 vi.mock("@/lib/auth/password", () => ({
   comparePassword: mocks.comparePassword,
+  hashPassword: vi.fn(),
 }))
 
 vi.mock("@/lib/auth/token", () => ({
