@@ -134,14 +134,14 @@ describe("AbilitiesPage", () => {
     ])
   })
 
-  it("renderiza habilidades do personagem", async () => {
+  it("renderiza habilidades sem titulo estatico", async () => {
     render(
       await AbilitiesPage({
         params: Promise.resolve({ rpgId: "rpg-1", characterId: "char-1" }),
       }),
     )
 
-    expect(screen.getByRole("heading", { name: "Habilidades do Personagem" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Arthas" })).toBeInTheDocument()
     expect(screen.getByText("Golpe Preciso")).toBeInTheDocument()
     expect(screen.getByText("Raio Maior")).toBeInTheDocument()
   })

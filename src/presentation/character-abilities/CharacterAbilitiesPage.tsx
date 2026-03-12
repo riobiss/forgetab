@@ -26,7 +26,6 @@ export default function CharacterAbilitiesPage({ data }: CharacterAbilitiesPageP
       </div>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Habilidades do Personagem</h2>
         {data.abilities.length === 0 ? (
           <p className={styles.emptyState}>Nenhuma habilidade comprada para este personagem.</p>
         ) : (
