@@ -2,12 +2,13 @@
 
 import { useState } from "react"
 import { toast } from "react-hot-toast"
-import type { EntityCatalogDependencies } from "@/application/entityCatalog/contracts/EntityCatalogDependencies"
 import { buyEntityCatalogSkillUseCase } from "@/application/entityCatalog/use-cases/entityCatalogClient"
 import { dismissToast } from "@/lib/toast"
+import { createEntityCatalogDependencies } from "@/presentation/entity-catalog/dependencies"
+
+const entityCatalogDeps = createEntityCatalogDependencies()
 
 export function useEntityAbilityPurchase(params: {
-  deps: EntityCatalogDependencies
   purchase?: {
     characterId: string | null
     costsEnabled: boolean
@@ -26,7 +27,7 @@ export function useEntityAbilityPurchase(params: {
     const loadingToastId = toast.loading("Comprando habilidade...")
 
     try {
-      const result = await buyEntityCatalogSkillUseCase(params.deps, {
+      const result = await buyEntityCatalogSkillUseCase(entityCatalogDeps, {
         characterId: params.purchase.characterId,
         skillId,
         level,

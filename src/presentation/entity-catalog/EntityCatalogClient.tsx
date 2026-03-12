@@ -5,16 +5,12 @@ import { useState } from "react"
 import { ArrowUpDown, ChevronDown, ChevronUp, Filter, Pencil, Plus, Search, Trash2, X } from "lucide-react"
 import { getCatalogMetaExcerpt } from "@/domain/entityCatalog/catalogMeta"
 import type { CatalogEntityType } from "@/domain/entityCatalog/types"
-import type {
-  EntityCatalogDependencies,
-} from "@/application/entityCatalog/contracts/EntityCatalogDependencies"
 import type { EntityCatalogItem, EntityCatalogSort, EntityCatalogTemplateRecord } from "@/application/entityCatalog/types"
 import { useEntityCatalogState } from "@/presentation/entity-catalog/useEntityCatalogState"
 import { useEntityCatalogActions } from "@/presentation/entity-catalog/useEntityCatalogActions"
 import styles from "./EntityCatalogClient.module.css"
 
 type Props = {
-  deps: EntityCatalogDependencies
   rpgId: string
   entityType: CatalogEntityType
   title: string
@@ -34,7 +30,6 @@ const SORT_OPTIONS: Array<{ value: EntityCatalogSort; label: string }> = [
 ]
 
 export default function EntityCatalogClient({
-  deps,
   rpgId,
   entityType,
   title,
@@ -42,7 +37,7 @@ export default function EntityCatalogClient({
   items,
 }: Props) {
   const state = useEntityCatalogState(items)
-  const actions = useEntityCatalogActions({ deps, rpgId, entityType, canManage })
+  const actions = useEntityCatalogActions({ rpgId, entityType, canManage })
   const [createOpen, setCreateOpen] = useState(false)
   const [createName, setCreateName] = useState("")
   const [createCategory, setCreateCategory] = useState("geral")

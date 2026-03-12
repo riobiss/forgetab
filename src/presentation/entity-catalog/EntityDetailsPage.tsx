@@ -9,7 +9,6 @@ import { Save } from "lucide-react"
 import { SlidersHorizontal } from "lucide-react"
 import { toast } from "react-hot-toast"
 import type { EntityCatalogAbilityView } from "@/application/entityCatalog/use-cases/entityCatalogAbilities"
-import type { EntityCatalogDependencies } from "@/application/entityCatalog/contracts/EntityCatalogDependencies"
 import type { EntityCatalogPlayerItem } from "@/application/entityCatalog/types"
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor"
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
@@ -42,7 +41,6 @@ type IdentityTemplateRecord = {
 }
 
 type Props = {
-  deps: EntityCatalogDependencies
   rpgId: string
   entityType: CatalogEntityType
   title: string
@@ -67,7 +65,6 @@ type ConfigStage = "basic" | "attributes" | "skills"
 type ContentTab = "content" | "abilities" | "bonuses" | "players"
 
 export default function EntityDetailsPage({
-  deps,
   rpgId,
   entityType,
   title,
@@ -83,7 +80,6 @@ export default function EntityDetailsPage({
 }: Props) {
   const router = useRouter()
   const actions = useEntityDetailsActions({
-    deps,
     rpgId,
     entityType,
     templateKey: current.key,
@@ -356,7 +352,7 @@ export default function EntityDetailsPage({
           </section>
         ) : (
           <section className={styles.abilitiesShell}>
-            <EntityAbilitiesPanel deps={deps} skills={abilities} purchase={abilityPurchase} />
+            <EntityAbilitiesPanel skills={abilities} purchase={abilityPurchase} />
           </section>
         )}
       </section>

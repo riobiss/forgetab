@@ -3,18 +3,19 @@
 import { useRouter } from "next/navigation"
 import { createRichTextDocumentFromText } from "@/domain/entityCatalog/catalogMeta"
 import type { CatalogEntityType } from "@/domain/entityCatalog/types"
-import type { EntityCatalogDependencies } from "@/application/entityCatalog/contracts/EntityCatalogDependencies"
 import type { EntityCatalogTemplateRecord } from "@/application/entityCatalog/types"
 import { createEntityCatalogEntryUseCase, loadEntityCatalogCollectionUseCase, saveEntityCatalogCollectionUseCase } from "@/application/entityCatalog/use-cases/entityCatalogClient"
+import { createEntityCatalogDependencies } from "@/presentation/entity-catalog/dependencies"
+
+const entityCatalogDeps = createEntityCatalogDependencies()
 
 type Params = {
-  deps: EntityCatalogDependencies
   rpgId: string
   entityType: CatalogEntityType
   canManage: boolean
 }
 
-export function useEntityCatalogActions({ deps, rpgId, entityType, canManage }: Params) {
+export function useEntityCatalogActions({ rpgId, entityType, canManage }: Params) {
   const router = useRouter()
 
   async function createEntry(input: {
@@ -37,7 +38,7 @@ export function useEntityCatalogActions({ deps, rpgId, entityType, canManage }: 
       },
     }
 
-    const result = await createEntityCatalogEntryUseCase(deps, {
+    const result = await createEntityCatalogEntryUseCase(entityCatalogDeps, {
       rpgId,
       entityType,
       entry: nextEntry,
@@ -48,11 +49,11 @@ export function useEntityCatalogActions({ deps, rpgId, entityType, canManage }: 
   }
 
   async function fetchCollection() {
-    return loadEntityCatalogCollectionUseCase(deps, { rpgId, entityType })
+    return loadEntityCatalogCollectionUseCase(entityCatalogDeps, { rpgId, entityType })
   }
 
   async function saveCollection(collection: EntityCatalogTemplateRecord[]) {
-    await saveEntityCatalogCollectionUseCase(deps, {
+    await saveEntityCatalogCollectionUseCase(entityCatalogDeps, {
       rpgId,
       entityType,
       collection,

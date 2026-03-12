@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react"
 import type { CSSProperties } from "react"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
-import type { EntityCatalogDependencies } from "@/application/entityCatalog/contracts/EntityCatalogDependencies"
 import type { EntityCatalogAbilityView } from "@/application/entityCatalog/use-cases/entityCatalogAbilities"
 import { useEntityAbilityPurchase } from "@/presentation/entity-catalog/useEntityAbilityPurchase"
 import styles from "./EntityAbilitiesPanel.module.css"
@@ -39,7 +38,6 @@ const SKILL_ACTION_TYPE_LABEL: Record<string, string> = {
 }
 
 type Props = {
-  deps: EntityCatalogDependencies
   skills: EntityCatalogAbilityView[]
   purchase?: {
     characterId: string | null
@@ -84,7 +82,7 @@ function buildLevelKey(skillId: string, level: number) {
   return `${skillId}:${level}`
 }
 
-export default function EntityAbilitiesPanel({ deps, skills, purchase }: Props) {
+export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
   const [selectedLevelBySkill, setSelectedLevelBySkill] = useState<Record<string, number>>(() =>
     skills.reduce<Record<string, number>>((acc, skill) => {
       const firstLevel = skill.levels[0]
@@ -94,7 +92,7 @@ export default function EntityAbilitiesPanel({ deps, skills, purchase }: Props) 
   )
   const [openLevelSelectorForSkill, setOpenLevelSelectorForSkill] = useState("")
   const [ownedBySkill, setOwnedBySkill] = useState(() => normalizeOwned(purchase?.initialOwnedBySkill ?? {}))
-  const purchaseActions = useEntityAbilityPurchase({ deps, purchase })
+  const purchaseActions = useEntityAbilityPurchase({ purchase })
 
   const disabledReason = useMemo(() => {
     if (!purchase) return ""
