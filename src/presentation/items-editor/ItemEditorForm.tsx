@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { toast } from "react-hot-toast"
 import type { ItemsEditorDependencies } from "@/application/itemsEditor/contracts/ItemsEditorDependencies"
 import type { UpsertItemPayloadDto } from "@/application/itemsEditor/types"
 import {
@@ -19,6 +20,7 @@ import {
   baseItemTypeValues,
 } from "@/lib/validators/baseItem"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
+import { dismissToast } from "@/lib/toast"
 
 type ItemType = (typeof baseItemTypeValues)[number]
 type ItemRarity = (typeof baseItemRarityValues)[number]
@@ -231,6 +233,7 @@ export default function ItemEditorForm({ rpgId, mode, itemId, deps }: Props) {
     savingRef.current = true
     setSubmitError("")
     setSaving(true)
+    const loadingToastId = toast.loading(isEditing ? "Salvando item..." : "Criando item...")
 
     const normalizedAbilities = abilities
       .map((entry) => ({
@@ -257,12 +260,13 @@ export default function ItemEditorForm({ rpgId, mode, itemId, deps }: Props) {
         uploadedImageUrl = upload.url
         hasFreshUpload = true
         submittedImage = uploadedImageUrl
-      } catch (cause) {
-        const message = cause instanceof Error ? cause.message : "Erro de conexao ao enviar imagem."
-        setUploadError(message)
-        setSubmitError(message)
-        return
-      } finally {
+        } catch (cause) {
+          const message = cause instanceof Error ? cause.message : "Erro de conexao ao enviar imagem."
+          setUploadError(message)
+          setSubmitError(message)
+          toast.error(message)
+          return
+        } finally {
         setUploadingImage(false)
       }
     }
@@ -294,6 +298,7 @@ export default function ItemEditorForm({ rpgId, mode, itemId, deps }: Props) {
         await createItemUseCase(deps, { rpgId, payload })
       }
 
+      toast.success(isEditing ? "Item salvo com sucesso." : "Item criado com sucesso.")
       router.push(`/rpg/${rpgId}/items`)
       router.refresh()
     } catch (cause) {
@@ -304,8 +309,11 @@ export default function ItemEditorForm({ rpgId, mode, itemId, deps }: Props) {
           // Nao bloqueia a resposta de erro se a limpeza da imagem falhar.
         }
       }
-      setSubmitError(cause instanceof Error ? cause.message : "Erro de conexao ao salvar o item.")
+      const message = cause instanceof Error ? cause.message : "Erro de conexao ao salvar o item."
+      setSubmitError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setSaving(false)
       savingRef.current = false
     }
