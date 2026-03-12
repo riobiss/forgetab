@@ -3,6 +3,7 @@
 import { FormEvent, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { toast } from "react-hot-toast"
 import type { RpgEditorDependencies } from "@/application/rpgEditor/contracts/RpgEditorDependencies"
 import {
   createRpgUseCase,
@@ -16,6 +17,7 @@ import {
   getProgressionModeLabel,
   type ProgressionMode,
 } from "@/lib/rpg/progression"
+import { dismissToast } from "@/lib/toast"
 
 type Props = {
   deps: RpgEditorDependencies
@@ -59,6 +61,7 @@ export default function NewRpgForm({ deps }: Props) {
     creatingRef.current = true
     setLoading(true)
     setError("")
+    const loadingToastId = toast.loading("Criando RPG...")
     let uploadedImageUrl = ""
     let hasFreshUpload = false
 
@@ -76,6 +79,7 @@ export default function NewRpgForm({ deps }: Props) {
           const message = cause instanceof Error ? cause.message : "Nao foi possivel enviar imagem."
           setUploadError(message)
           setError(message)
+          toast.error(message)
           return
         } finally {
           setUploadingImage(false)
@@ -98,6 +102,7 @@ export default function NewRpgForm({ deps }: Props) {
       })
 
       setSelectedImageFile(null)
+      toast.success("RPG criado com sucesso.")
       router.push("/rpg")
       router.refresh()
     } catch (cause) {
@@ -108,8 +113,11 @@ export default function NewRpgForm({ deps }: Props) {
           // Nao bloqueia a resposta de erro se a limpeza da imagem falhar.
         }
       }
-      setError(cause instanceof Error ? cause.message : "Erro de conexao ao criar RPG.")
+      const message = cause instanceof Error ? cause.message : "Erro de conexao ao criar RPG."
+      setError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setUploadingImage(false)
       setLoading(false)
       creatingRef.current = false

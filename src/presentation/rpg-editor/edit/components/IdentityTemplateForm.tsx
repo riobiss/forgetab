@@ -1,8 +1,10 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { toast } from "react-hot-toast"
 import styles from "../page.module.css"
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
+import { dismissToast } from "@/lib/toast"
 
 type IdentityTemplateDraft = {
   key: string
@@ -65,9 +67,14 @@ export default function IdentityTemplateForm({
 
   async function handleSave() {
     setSaving(true)
+    const loadingToastId = toast.loading("Salvando template...")
     try {
       await onSave(draft)
+      toast.success(`${type === "race" ? "Raca" : "Classe"} salva com sucesso.`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Nao foi possivel salvar template.")
     } finally {
+      dismissToast(loadingToastId)
       setSaving(false)
     }
   }

@@ -3,10 +3,12 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { toast } from "react-hot-toast"
 import { FolderOpen, LoaderCircle, Pencil, Trash2 } from "lucide-react"
 import { IconButton } from "@/components/button"
 import type { RpgCatalogDependencies } from "@/application/rpgCatalog/contracts/RpgCatalogDependencies"
 import { deleteRpgUseCase } from "@/application/rpgCatalog/use-cases/rpgCatalog"
+import { dismissToast } from "@/lib/toast"
 import styles from "../RpgCatalogPage.module.css"
 
 type Props = {
@@ -25,11 +27,14 @@ export default function OwnedRpgActions({ deps, rpgId }: Props) {
 
     try {
       setDeleting(true)
+      const loadingToastId = toast.loading("Deletando RPG...")
       await deleteRpgUseCase(deps, { rpgId })
+      dismissToast(loadingToastId)
+      toast.success("RPG deletado com sucesso.")
       router.refresh()
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Nao foi possivel deletar o RPG."
-      window.alert(message)
+      toast.error(message)
     } finally {
       setDeleting(false)
     }

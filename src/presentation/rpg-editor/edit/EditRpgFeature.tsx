@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
+import { toast } from "react-hot-toast"
 import {
   ArrowLeft,
   Eye,
@@ -32,6 +33,7 @@ import {
 import { getProgressionModeLabel } from "@/lib/rpg/progression"
 import { createRpgEditorDependencies } from "@/presentation/rpg-editor/dependencies"
 import { useEditRpgData } from "@/presentation/rpg-editor/useEditRpgData"
+import { dismissToast } from "@/lib/toast"
 
 const CORE_STATUS_OPTIONS: CatalogOption[] = [
   { key: "life", label: "Vida" },
@@ -112,10 +114,15 @@ export default function EditRpgFeature() {
     )
     if (!confirmed) return
 
+    const loadingToastId = toast.loading("Deletando RPG...")
     const result = await data.deleteRpg()
+    dismissToast(loadingToastId)
     if (result.ok) {
+      toast.success("RPG deletado com sucesso.")
       router.push("/rpg")
       router.refresh()
+    } else {
+      toast.error("Nao foi possivel deletar o RPG.")
     }
   }
 
@@ -161,6 +168,7 @@ export default function EditRpgFeature() {
 
   async function handleSaveAll() {
     setUploadError("")
+    const loadingToastId = toast.loading("Salvando RPG...")
     let uploadedImageUrl = ""
     const previousImage = state.image.trim() || ""
     let hasFreshUpload = false
@@ -174,9 +182,9 @@ export default function EditRpgFeature() {
           state.setImage(uploadedImageUrl)
           hasFreshUpload = true
         } catch (cause) {
-          setUploadError(
-            cause instanceof Error ? cause.message : "Nao foi possivel enviar imagem.",
-          )
+          const message = cause instanceof Error ? cause.message : "Nao foi possivel enviar imagem."
+          setUploadError(message)
+          toast.error(message)
           return
         } finally {
           setUploadingImage(false)
@@ -191,11 +199,13 @@ export default function EditRpgFeature() {
           // Nao bloqueia erro de salvamento se a limpeza da imagem falhar.
         }
         state.setImage(previousImage)
+        toast.error(data.error || "Nao foi possivel salvar o RPG.")
         return
       }
 
       if (saved) {
         setSelectedImageFile(null)
+        toast.success("RPG salvo com sucesso.")
       }
     } catch {
       if (hasFreshUpload && uploadedImageUrl) {
@@ -206,7 +216,9 @@ export default function EditRpgFeature() {
         }
         state.setImage(previousImage)
       }
+      toast.error("Nao foi possivel salvar o RPG.")
     } finally {
+      dismissToast(loadingToastId)
       setUploadingImage(false)
     }
   }

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { toast } from "react-hot-toast"
 import { ChevronDown, ChevronUp, Plus, Settings2, Trash2 } from "lucide-react"
 import type { RpgEditorDependencies } from "@/application/rpgEditor/contracts/RpgEditorDependencies"
 import {
@@ -71,8 +72,11 @@ export default function RaceClassOptionsSection({
       })
       onRaceDraftsChange(nextRaces)
       setFeedback("Raca excluida com sucesso.")
+      toast.success("Raca excluida com sucesso.")
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Erro de conexao ao excluir raca.")
+      const message = error instanceof Error ? error.message : "Erro de conexao ao excluir raca."
+      setFeedback(message)
+      toast.error(message)
     } finally {
       setDeletingRaceKey("")
     }
@@ -104,8 +108,11 @@ export default function RaceClassOptionsSection({
       })
       onClassDraftsChange(nextClasses)
       setFeedback("Classe excluida com sucesso.")
+      toast.success("Classe excluida com sucesso.")
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Erro de conexao ao excluir classe.")
+      const message = error instanceof Error ? error.message : "Erro de conexao ao excluir classe."
+      setFeedback(message)
+      toast.error(message)
     } finally {
       setDeletingClassKey("")
     }

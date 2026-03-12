@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "react-hot-toast"
 import { normalizeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
 import { createDefaultRaceLore, normalizeRaceLore, type RaceLore } from "@/lib/rpg/raceLore"
 import {
@@ -198,10 +199,13 @@ export function useAdvancedIdentityEditor(params: {
       }
 
       setSuccess(`${params.type === "race" ? "Raca" : "Classe"} salva com sucesso.`)
+      toast.success(`${params.type === "race" ? "Raca" : "Classe"} salva com sucesso.`)
       router.push(`/rpg/${params.rpgId}/edit`)
       router.refresh()
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Nao foi possivel salvar.")
+      const message = cause instanceof Error ? cause.message : "Nao foi possivel salvar."
+      setError(message)
+      toast.error(message)
     } finally {
       setSaving(false)
     }
