@@ -43,3 +43,17 @@ export type EntityCatalogPlayerItem = {
   classKey: string | null
   raceKey: string | null
 }
+
+export type EntityCatalogTemplateRecord = Record<string, unknown> & {
+  id?: string
+  key?: string
+  label?: string
+  category?: string
+  catalogMeta?: EntityCatalogMeta | Record<string, unknown> | null
+}
+
+export type EntityCatalogAbilityPurchaseResult = {
+  success: boolean
+  message: string
+  remainingPoints: number | null
+}
