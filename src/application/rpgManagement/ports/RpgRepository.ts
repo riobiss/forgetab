@@ -6,7 +6,7 @@ import type {
   RpgCreateSettingsInput,
   RpgCoreUpdateInput,
   RpgRow,
-} from "@/modules/rpg/domain/types"
+} from "@/application/rpgManagement/types"
 
 export interface RpgRepository {
   createBase(data: RpgCreateBaseInput): Promise<RpgCreateBaseResult>

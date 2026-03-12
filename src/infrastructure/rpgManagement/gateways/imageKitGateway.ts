@@ -1,4 +1,4 @@
-import type { ImageGateway } from "@/modules/rpg/contracts/ImageGateway"
+import type { ImageGateway } from "@/application/rpgManagement/ports/ImageGateway"
 
 function getImageKitConfig() {
   const privateKey = process.env.IMAGEKIT_PRIVATE_KEY

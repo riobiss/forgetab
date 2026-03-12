@@ -1,14 +1,14 @@
-import { Prisma } from "../../../../../generated/prisma/client.js"
+import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { ProgressionMode } from "@/lib/rpg/progression"
-import type { RpgRepository } from "@/modules/rpg/contracts/RpgRepository"
+import type { RpgRepository } from "@/application/rpgManagement/ports/RpgRepository"
 import type {
   RpgAdvancedSettingsInput,
   RpgCoreUpdateInput,
   RpgCreateBaseInput,
   RpgCreateSettingsInput,
   RpgRow,
-} from "@/modules/rpg/domain/types"
+} from "@/application/rpgManagement/types"
 
 function isMissingColumn(error: unknown, column: string) {
   return error instanceof Error && error.message.includes(`column "${column}" does not exist`)
@@ -108,7 +108,7 @@ export const prismaRpgRepository: RpgRepository = {
           COALESCE(ability_categories_enabled, false) AS "abilityCategoriesEnabled",
           COALESCE(enabled_ability_categories, ARRAY[]::text[]) AS "enabledAbilityCategories",
           COALESCE(progression_mode, 'xp_level') AS "progressionMode",
-          COALESCE(progression_tiers, '[{"label":"Level 1","required":0}]'::jsonb) AS "progressionTiers"
+          COALESCE(progression_tiers, '[{\"label\":\"Level 1\",\"required\":0}]'::jsonb) AS "progressionTiers"
         FROM rpgs
         WHERE id = ${rpgId}
         LIMIT 1
@@ -154,7 +154,7 @@ export const prismaRpgRepository: RpgRepository = {
               false AS "abilityCategoriesEnabled",
               ARRAY[]::text[] AS "enabledAbilityCategories",
               'xp_level'::text AS "progressionMode",
-              '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
+              '[{\"label\":\"Level 1\",\"required\":0}]'::jsonb AS "progressionTiers"
             FROM rpgs
             WHERE id = ${rpgId}
             LIMIT 1
@@ -181,7 +181,7 @@ export const prismaRpgRepository: RpgRepository = {
               false AS "abilityCategoriesEnabled",
               ARRAY[]::text[] AS "enabledAbilityCategories",
               'xp_level'::text AS "progressionMode",
-              '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
+              '[{\"label\":\"Level 1\",\"required\":0}]'::jsonb AS "progressionTiers"
             FROM rpgs
             WHERE id = ${rpgId}
             LIMIT 1

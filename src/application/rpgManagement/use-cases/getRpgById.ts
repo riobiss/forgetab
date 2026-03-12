@@ -4,9 +4,9 @@ import {
   normalizeProgressionTiers,
   type ProgressionMode,
 } from "@/lib/rpg/progression"
-import type { RpgPermissionService } from "@/modules/rpg/contracts/RpgPermissionService"
-import type { RpgRepository } from "@/modules/rpg/contracts/RpgRepository"
-import { AppError } from "@/modules/rpg/domain/errors"
+import type { RpgPermissionService } from "@/application/rpgManagement/ports/RpgPermissionService"
+import type { RpgRepository } from "@/application/rpgManagement/ports/RpgRepository"
+import { AppError } from "@/shared/errors/AppError"
 
 type GetRpgByIdDependencies = {
   repository: RpgRepository

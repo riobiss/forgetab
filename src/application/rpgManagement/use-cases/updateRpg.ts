@@ -1,4 +1,5 @@
-import { Prisma } from "../../../../../generated/prisma/client.js"
+import { Prisma } from "../../../../generated/prisma/client.js"
+import { createRpgSchema } from "@/lib/validators/rpg"
 import { normalizeEnabledAbilityCategories } from "@/lib/rpg/abilityCategories"
 import {
   enforceXpLevelPattern,
@@ -6,12 +7,24 @@ import {
   isProgressionMode,
   type ProgressionMode,
 } from "@/lib/rpg/progression"
-import { createRpgSchema } from "@/lib/validators/rpg"
-import type { RpgRepository } from "@/modules/rpg/contracts/RpgRepository"
-import { AppError } from "@/modules/rpg/domain/errors"
+import type { ImageGateway } from "@/application/rpgManagement/ports/ImageGateway"
+import type { RpgPermissionService } from "@/application/rpgManagement/ports/RpgPermissionService"
+import type { RpgRepository } from "@/application/rpgManagement/ports/RpgRepository"
+import { AppError } from "@/shared/errors/AppError"
 
-type CreateRpgDependencies = {
+type UpdateRpgDependencies = {
   repository: RpgRepository
+  permissionService: RpgPermissionService
+  imageGateway: ImageGateway
+}
+
+function normalizeOptionalText(value: unknown) {
+  if (typeof value !== "string") {
+    return null
+  }
+
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : null
 }
 
 function isSchemaOutdatedError(error: unknown) {
@@ -23,6 +36,7 @@ function isSchemaOutdatedError(error: unknown) {
     error.message.includes('relation "rpgs" does not exist') ||
     error.message.includes('column "costs_enabled" does not exist') ||
     error.message.includes('column "cost_resource_name" does not exist') ||
+    error.message.includes('column "image" does not exist') ||
     error.message.includes('column "allow_multiple_player_characters" does not exist') ||
     error.message.includes('column "users_can_manage_own_xp" does not exist') ||
     error.message.includes('column "allow_skill_point_distribution" does not exist') ||
@@ -34,14 +48,37 @@ function isSchemaOutdatedError(error: unknown) {
   )
 }
 
-export async function createRpg(
-  deps: CreateRpgDependencies,
-  params: { userId: string; body: unknown },
+export async function updateRpg(
+  deps: UpdateRpgDependencies,
+  params: { rpgId: string; userId: string; body: unknown },
 ) {
   try {
+    const safeBody =
+      params.body && typeof params.body === "object" && !Array.isArray(params.body)
+        ? (params.body as Record<string, unknown>)
+        : {}
+
+    const requestedCostsUpdate =
+      Object.prototype.hasOwnProperty.call(safeBody, "costsEnabled") ||
+      Object.prototype.hasOwnProperty.call(safeBody, "costResourceName")
+
+    if (requestedCostsUpdate) {
+      throw new AppError("Configuracao de custos disponivel apenas na criacao do RPG.", 400)
+    }
+
+    const hasImageInBody = Object.prototype.hasOwnProperty.call(safeBody, "image")
     const parsed = createRpgSchema.safeParse(params.body)
+
     if (!parsed.success) {
       throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
+    }
+
+    const permission = await deps.permissionService.getPermission(params.rpgId, params.userId)
+    if (!permission.exists) {
+      throw new AppError("RPG nao encontrado.", 404)
+    }
+    if (!permission.canManage) {
+      throw new AppError("Voce nao pode editar este RPG.", 403)
     }
 
     const {
@@ -49,8 +86,6 @@ export async function createRpg(
       description,
       image,
       visibility,
-      costsEnabled,
-      costResourceName,
       useMundiMap,
       useRaceBonuses,
       useClassBonuses,
@@ -65,9 +100,6 @@ export async function createRpg(
       progressionTiers,
     } = parsed.data
 
-    const resolvedImage = image?.trim() || null
-    const resolvedCostsEnabled = Boolean(costsEnabled)
-    const resolvedCostResourceName = (costResourceName?.trim() || "Skill Points").slice(0, 60)
     const resolvedUseRaceBonuses =
       typeof useRaceBonuses === "boolean" ? useRaceBonuses : Boolean(useClassRaceBonuses)
     const resolvedUseClassBonuses =
@@ -87,6 +119,7 @@ export async function createRpg(
     const resolvedProgressionMode = isProgressionMode(progressionMode)
       ? progressionMode
       : ("xp_level" as ProgressionMode)
+
     const resolvedProgressionTiers =
       progressionTiers && progressionTiers.length > 0
         ? resolvedProgressionMode === "xp_level"
@@ -102,32 +135,15 @@ export async function createRpg(
             }))
         : getDefaultProgressionTiers(resolvedProgressionMode)
 
-    const created = await deps.repository.createBase({
-      ownerId: params.userId,
-      title,
-      description,
-      visibility,
-    })
+    const currentProgressionMode = await deps.repository.getCurrentProgressionMode(params.rpgId)
+    if (progressionMode !== undefined && resolvedProgressionMode !== currentProgressionMode) {
+      throw new AppError("Modo de progressao nao pode ser alterado apos a criacao do RPG.", 400)
+    }
 
-    await deps.repository.applyCreateSettings(created.id, {
-      costsEnabled: resolvedCostsEnabled,
-      costResourceName: resolvedCostResourceName,
-      useMundiMap: Boolean(useMundiMap),
-      useRaceBonuses: resolvedUseRaceBonuses,
-      useClassBonuses: resolvedUseClassBonuses,
-      useInventoryWeightLimit: Boolean(useInventoryWeightLimit),
-      allowMultiplePlayerCharacters: resolvedAllowMultiplePlayerCharacters,
-      usersCanManageOwnXp: resolvedUsersCanManageOwnXp,
-      allowSkillPointDistribution: resolvedAllowSkillPointDistribution,
-      abilityCategoriesEnabled: resolvedAbilityCategoriesEnabled,
-      enabledAbilityCategories: resolvedEnabledAbilityCategories,
-      progressionMode: resolvedProgressionMode,
-      progressionTiers: resolvedProgressionTiers,
-    })
-
-    if (resolvedImage) {
+    let previousImage: string | null = null
+    if (hasImageInBody) {
       try {
-        await deps.repository.updateImage(created.id, resolvedImage)
+        previousImage = await deps.repository.getImageById(params.rpgId)
       } catch (error) {
         if (error instanceof Error && error.message.includes('column "image" does not exist')) {
           throw new AppError(
@@ -135,25 +151,33 @@ export async function createRpg(
             500,
           )
         }
-
         throw error
       }
     }
 
-    return {
-      rpg: {
-        id: created.id,
-        ownerId: created.ownerId,
-        title: created.title,
-        description: created.description,
-        image: resolvedImage,
-        visibility: created.visibility,
-        costsEnabled: resolvedCostsEnabled,
-        costResourceName: resolvedCostResourceName,
+    const updated = await deps.repository.updateCore(params.rpgId, { title, description, visibility })
+    if (!updated) {
+      throw new AppError("RPG nao encontrado.", 404)
+    }
+
+    if (
+      typeof useMundiMap === "boolean" ||
+      typeof useRaceBonuses === "boolean" ||
+      typeof useClassBonuses === "boolean" ||
+      typeof useClassRaceBonuses === "boolean" ||
+      typeof useInventoryWeightLimit === "boolean" ||
+      typeof allowMultiplePlayerCharacters === "boolean" ||
+      typeof usersCanManageOwnXp === "boolean" ||
+      typeof allowSkillPointDistribution === "boolean" ||
+      typeof abilityCategoriesEnabled === "boolean" ||
+      enabledAbilityCategories !== undefined ||
+      progressionMode !== undefined ||
+      progressionTiers !== undefined
+    ) {
+      await deps.repository.updateAdvanced(params.rpgId, {
         useMundiMap: Boolean(useMundiMap),
         useRaceBonuses: resolvedUseRaceBonuses,
         useClassBonuses: resolvedUseClassBonuses,
-        useClassRaceBonuses: resolvedUseRaceBonuses || resolvedUseClassBonuses,
         useInventoryWeightLimit: Boolean(useInventoryWeightLimit),
         allowMultiplePlayerCharacters: resolvedAllowMultiplePlayerCharacters,
         usersCanManageOwnXp: resolvedUsersCanManageOwnXp,
@@ -162,28 +186,55 @@ export async function createRpg(
         enabledAbilityCategories: resolvedEnabledAbilityCategories,
         progressionMode: resolvedProgressionMode,
         progressionTiers: resolvedProgressionTiers,
-        createdAt: created.createdAt,
-      },
+      })
     }
+
+    const normalizedImage = normalizeOptionalText(image)
+    if (hasImageInBody) {
+      try {
+        const imageUpdated = await deps.repository.updateImage(params.rpgId, normalizedImage)
+        if (!imageUpdated) {
+          throw new AppError("RPG nao encontrado.", 404)
+        }
+      } catch (error) {
+        if (error instanceof AppError) {
+          throw error
+        }
+        if (error instanceof Error && error.message.includes('column "image" does not exist')) {
+          throw new AppError(
+            "Estrutura de RPG desatualizada. Rode a migration mais recente.",
+            500,
+          )
+        }
+        throw error
+      }
+
+      if (previousImage && previousImage !== normalizedImage) {
+        try {
+          await deps.imageGateway.deleteRpgImageByUrl({
+            ownerId: permission.ownerId ?? params.userId,
+            imageUrl: previousImage,
+          })
+        } catch {
+          // Nao bloqueia a atualizacao do RPG caso a limpeza da imagem falhe.
+        }
+      }
+    }
+
+    return { message: "RPG atualizado com sucesso." }
   } catch (error) {
     if (error instanceof AppError) {
       throw error
     }
 
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2021") {
-        throw new AppError("Tabela de RPG nao existe no banco. Rode a migration.", 500)
-      }
-
-      if (error.code === "P2003") {
-        throw new AppError("Usuario do token nao existe no banco atual.", 409)
-      }
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") {
+      throw new AppError("Tabela de RPG nao existe no banco. Rode a migration.", 500)
     }
 
     if (isSchemaOutdatedError(error)) {
       throw new AppError("Tabela de RPG nao existe no banco. Rode a migration.", 500)
     }
 
-    throw new AppError("Erro interno ao criar RPG.", 500)
+    throw new AppError("Erro interno ao atualizar RPG.", 500)
   }
 }

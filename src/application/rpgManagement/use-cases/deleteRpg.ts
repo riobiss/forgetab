@@ -1,7 +1,7 @@
-import { Prisma } from "../../../../../generated/prisma/client.js"
-import type { ImageGateway } from "@/modules/rpg/contracts/ImageGateway"
-import type { RpgRepository } from "@/modules/rpg/contracts/RpgRepository"
-import { AppError } from "@/modules/rpg/domain/errors"
+import { Prisma } from "../../../../generated/prisma/client.js"
+import type { ImageGateway } from "@/application/rpgManagement/ports/ImageGateway"
+import type { RpgRepository } from "@/application/rpgManagement/ports/RpgRepository"
+import { AppError } from "@/shared/errors/AppError"
 
 type DeleteRpgDependencies = {
   repository: RpgRepository
