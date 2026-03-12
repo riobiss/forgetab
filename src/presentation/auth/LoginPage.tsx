@@ -3,8 +3,10 @@
 import Link from "next/link"
 import { FormEvent, Suspense, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { toast } from "react-hot-toast"
 import { loginClientUseCase } from "@/application/auth/use-cases/authClient"
 import { httpAuthClientGateway } from "@/infrastructure/auth/gateways/httpAuthClientGateway"
+import { dismissToast } from "@/lib/toast"
 import styles from "@/presentation/auth/AuthPage.module.css"
 
 function LoginContent() {
@@ -29,21 +31,25 @@ function LoginContent() {
     submittingRef.current = true
     setLoading(true)
     setError("")
+    const loadingToastId = toast.loading("Entrando...")
 
     try {
       await loginClientUseCase(
         { gateway: httpAuthClientGateway },
         { email, password },
       )
+      toast.success("Login realizado com sucesso.")
       router.replace(nextPath)
       router.refresh()
     } catch (submissionError) {
-      setError(
+      const message =
         submissionError instanceof Error
           ? submissionError.message
-          : "Nao foi possivel autenticar.",
-      )
+          : "Nao foi possivel autenticar."
+      setError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setLoading(false)
       submittingRef.current = false
     }

@@ -3,8 +3,10 @@
 import Link from "next/link"
 import { FormEvent, Suspense, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { toast } from "react-hot-toast"
 import { registerClientUseCase } from "@/application/auth/use-cases/authClient"
 import { httpAuthClientGateway } from "@/infrastructure/auth/gateways/httpAuthClientGateway"
+import { dismissToast } from "@/lib/toast"
 import styles from "@/presentation/auth/AuthPage.module.css"
 
 function RegisterContent() {
@@ -34,26 +36,31 @@ function RegisterContent() {
 
     if (password !== confirmPassword) {
       setError("As senhas nao coincidem.")
+      toast.error("As senhas nao coincidem.")
       submittingRef.current = false
       return
     }
 
     setLoading(true)
+    const loadingToastId = toast.loading("Criando conta...")
 
     try {
       await registerClientUseCase(
         { gateway: httpAuthClientGateway },
         { name, username, email, password },
       )
+      toast.success("Conta criada com sucesso.")
       router.replace(nextPath)
       router.refresh()
     } catch (submissionError) {
-      setError(
+      const message =
         submissionError instanceof Error
           ? submissionError.message
-          : "Nao foi possivel cadastrar.",
-      )
+          : "Nao foi possivel cadastrar."
+      setError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setLoading(false)
       submittingRef.current = false
     }
