@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "react-hot-toast"
 import type { LibraryDependencies } from "@/application/library/contracts/LibraryDependencies"
 import {
   createLibrarySectionUseCase,
@@ -11,6 +12,7 @@ import {
   updateLibrarySectionUseCase,
 } from "@/application/library/use-cases/library"
 import type { LibrarySectionDto } from "@/application/library/types"
+import { dismissToast } from "@/lib/toast"
 import styles from "./LibrarySectionsPage.module.css"
 
 type Props = {
@@ -95,6 +97,7 @@ export default function LibrarySectionsPage({ rpgId, deps }: Props) {
     savingRef.current = true
     setSaving(true)
     setSubmitError("")
+    const loadingToastId = toast.loading(editingId ? "Salvando secao..." : "Criando secao...")
 
     try {
       const payload = {
@@ -114,12 +117,14 @@ export default function LibrarySectionsPage({ rpgId, deps }: Props) {
       } else {
         setSections((prev) => [section, ...prev])
       }
+      toast.success(editingId ? "Secao atualizada com sucesso." : "Secao criada com sucesso.")
       closeModal()
     } catch (cause) {
-      setSubmitError(
-        cause instanceof Error ? cause.message : "Erro de conexao ao salvar secao.",
-      )
+      const message = cause instanceof Error ? cause.message : "Erro de conexao ao salvar secao."
+      setSubmitError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setSaving(false)
       savingRef.current = false
     }
@@ -132,13 +137,16 @@ export default function LibrarySectionsPage({ rpgId, deps }: Props) {
 
     try {
       setDeletingId(sectionId)
+      const loadingToastId = toast.loading("Apagando secao...")
       await deleteLibrarySectionUseCase(deps, { rpgId, sectionId })
       setSections((prev) => prev.filter((item) => item.id !== sectionId))
       if (editingId === sectionId) resetForm()
+      dismissToast(loadingToastId)
+      toast.success("Secao apagada com sucesso.")
     } catch (cause) {
-      setLoadingError(
-        cause instanceof Error ? cause.message : "Erro de conexao ao remover secao.",
-      )
+      const message = cause instanceof Error ? cause.message : "Erro de conexao ao remover secao."
+      setLoadingError(message)
+      toast.error(message)
     } finally {
       setDeletingId(null)
     }

@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "react-hot-toast"
 import type { ReactSelectOption } from "@/components/select/ReactSelectField"
 import { ReactMultiSelectField } from "@/components/select/ReactMultiSelectField"
 import type { LibraryDependencies } from "@/application/library/contracts/LibraryDependencies"
@@ -12,6 +13,7 @@ import {
   updateLibraryBookUseCase,
 } from "@/application/library/use-cases/library"
 import type { LibraryBookDto, LibrarySectionDto } from "@/application/library/types"
+import { dismissToast } from "@/lib/toast"
 import styles from "./LibrarySectionBooksPage.module.css"
 
 function formatDate(value: string) {
@@ -95,10 +97,15 @@ export default function LibrarySectionBooksPage({ rpgId, sectionId, deps }: Prop
 
     try {
       setDeletingId(bookId)
+      const loadingToastId = toast.loading("Apagando livro...")
       await deleteLibraryBookUseCase(deps, { rpgId, bookId })
       setBooks((prev) => prev.filter((book) => book.id !== bookId))
+      dismissToast(loadingToastId)
+      toast.success("Livro apagado com sucesso.")
     } catch (cause) {
-      setLoadingError(cause instanceof Error ? cause.message : "Erro de conexao ao apagar livro.")
+      const message = cause instanceof Error ? cause.message : "Erro de conexao ao apagar livro."
+      setLoadingError(message)
+      toast.error(message)
     } finally {
       setDeletingId(null)
     }
@@ -131,6 +138,7 @@ export default function LibrarySectionBooksPage({ rpgId, sectionId, deps }: Prop
     if (!editingBook || savingEdit) return
     setSavingEdit(true)
     setEditError("")
+    const loadingToastId = toast.loading("Salvando livro...")
 
     try {
       const book = await updateLibraryBookUseCase(deps, {
@@ -148,13 +156,16 @@ export default function LibrarySectionBooksPage({ rpgId, sectionId, deps }: Prop
       })
       setBooks((prev) => prev.map((item) => (item.id === book.id ? book : item)))
       closeEditModal(true)
+      toast.success("Livro atualizado com sucesso.")
     } catch (cause) {
-      setEditError(
+      const message =
         cause instanceof Error
           ? cause.message
-          : "Erro de conexao ao salvar configuracoes do livro.",
-      )
+          : "Erro de conexao ao salvar configuracoes do livro."
+      setEditError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setSavingEdit(false)
     }
   }

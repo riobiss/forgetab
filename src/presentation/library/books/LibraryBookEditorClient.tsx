@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import type { JSONContent } from "@tiptap/react"
+import { toast } from "react-hot-toast"
 import type { LibraryDependencies } from "@/application/library/contracts/LibraryDependencies"
 import {
   createLibraryBookUseCase,
@@ -9,6 +10,7 @@ import {
   updateLibraryBookUseCase,
 } from "@/application/library/use-cases/library"
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor"
+import { dismissToast } from "@/lib/toast"
 import styles from "./LibraryBookEditorClient.module.css"
 
 type Props = {
@@ -76,6 +78,7 @@ export default function LibraryBookEditorClient({
     if (saving || !canEdit) return
     setSaving(true)
     setError("")
+    const loadingToastId = toast.loading(currentBookId ? "Salvando livro..." : "Criando livro...")
 
     try {
       const payload = {
@@ -100,9 +103,13 @@ export default function LibraryBookEditorClient({
           })
 
       if (!currentBookId) setCurrentBookId(book.id)
+      toast.success(currentBookId ? "Livro salvo com sucesso." : "Livro criado com sucesso.")
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro de conexao ao salvar.")
+      const message = cause instanceof Error ? cause.message : "Erro de conexao ao salvar."
+      setError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setSaving(false)
     }
   }
