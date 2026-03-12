@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { toast } from "react-hot-toast"
 import type { CatalogEntityType } from "@/domain/entityCatalog/types"
 import type { EntityCatalogTemplateRecord } from "@/application/entityCatalog/types"
 import { updateEntityCatalogTemplateUseCase } from "@/application/entityCatalog/use-cases/entityCatalogClient"
@@ -24,6 +25,7 @@ export function useEntityDetailsActions({ rpgId, entityType, templateKey }: Para
       templateKey,
       nextTemplate,
     })
+    toast.success(`${entityType === "class" ? "Classe" : "Raca"} salva com sucesso.`)
     router.refresh()
   }
 

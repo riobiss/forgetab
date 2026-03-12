@@ -2,12 +2,14 @@
 
 import Link from "next/link"
 import { useState } from "react"
+import { toast } from "react-hot-toast"
 import { ArrowUpDown, ChevronDown, ChevronUp, Filter, Pencil, Plus, Search, Trash2, X } from "lucide-react"
 import { getCatalogMetaExcerpt } from "@/domain/entityCatalog/catalogMeta"
 import type { CatalogEntityType } from "@/domain/entityCatalog/types"
 import type { EntityCatalogItem, EntityCatalogSort, EntityCatalogTemplateRecord } from "@/application/entityCatalog/types"
 import { useEntityCatalogState } from "@/presentation/entity-catalog/useEntityCatalogState"
 import { useEntityCatalogActions } from "@/presentation/entity-catalog/useEntityCatalogActions"
+import { dismissToast } from "@/lib/toast"
 import styles from "./EntityCatalogClient.module.css"
 
 type Props = {
@@ -72,6 +74,7 @@ export default function EntityCatalogClient({
     if (!canManage || creating) return
     setCreating(true)
     setCreateError("")
+    const loadingToastId = toast.loading(`Criando ${entityType === "class" ? "classe" : "raca"}...`)
 
     try {
       const normalizedCategory =
@@ -87,7 +90,9 @@ export default function EntityCatalogClient({
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Erro ao criar."
       setCreateError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setCreating(false)
     }
   }
@@ -140,6 +145,7 @@ export default function EntityCatalogClient({
 
     setManageCategorySaving(true)
     setManageCategoryError("")
+    const loadingToastId = toast.loading("Salvando categoria...")
 
     try {
       const nextCollection = manageCategoryCollection.reduce<EntityCatalogTemplateRecord[]>((acc, item, index) => {
@@ -166,9 +172,13 @@ export default function EntityCatalogClient({
 
       await actions.saveCollection(nextCollection)
       setManageCategoryOpen(false)
+      toast.success("Categoria salva com sucesso.")
     } catch (cause) {
-      setManageCategoryError(cause instanceof Error ? cause.message : "Erro ao salvar categoria.")
+      const message = cause instanceof Error ? cause.message : "Erro ao salvar categoria."
+      setManageCategoryError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setManageCategorySaving(false)
     }
   }
@@ -177,6 +187,7 @@ export default function EntityCatalogClient({
     if (manageCategorySaving) return
     setManageCategorySaving(true)
     setManageCategoryError("")
+    const loadingToastId = toast.loading("Deletando categoria...")
 
     try {
       const nextCollection = manageCategoryCollection.filter(
@@ -185,9 +196,13 @@ export default function EntityCatalogClient({
 
       await actions.saveCollection(nextCollection)
       setManageCategoryOpen(false)
+      toast.success("Categoria deletada com sucesso.")
     } catch (cause) {
-      setManageCategoryError(cause instanceof Error ? cause.message : "Erro ao deletar categoria.")
+      const message = cause instanceof Error ? cause.message : "Erro ao deletar categoria."
+      setManageCategoryError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setManageCategorySaving(false)
     }
   }

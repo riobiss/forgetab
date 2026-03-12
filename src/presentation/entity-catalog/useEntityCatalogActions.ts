@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { toast } from "react-hot-toast"
 import { createRichTextDocumentFromText } from "@/domain/entityCatalog/catalogMeta"
 import type { CatalogEntityType } from "@/domain/entityCatalog/types"
 import type { EntityCatalogTemplateRecord } from "@/application/entityCatalog/types"
@@ -44,6 +45,7 @@ export function useEntityCatalogActions({ rpgId, entityType, canManage }: Params
       entry: nextEntry,
     })
 
+    toast.success(`${entityType === "class" ? "Classe" : "Raca"} criada com sucesso.`)
     router.push(result.href)
     router.refresh()
   }
@@ -58,6 +60,7 @@ export function useEntityCatalogActions({ rpgId, entityType, canManage }: Params
       entityType,
       collection,
     })
+    toast.success("Colecao salva com sucesso.")
     router.refresh()
   }
 
