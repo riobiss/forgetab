@@ -26,6 +26,7 @@ describe("manageCharacterInventory use-cases", () => {
     vi.mocked(repository.getRpg).mockResolvedValue({ id: "rpg-1", ownerId: "user-1" })
     vi.mocked(repository.getCharacter).mockResolvedValue({
       id: "char-1",
+      name: "Arthas",
       characterType: "player",
       createdByUserId: "user-2",
     })
@@ -41,6 +42,7 @@ describe("manageCharacterInventory use-cases", () => {
     )
 
     expect(result).toEqual({
+      characterName: "Arthas",
       inventory: [],
       isOwner: true,
       useInventoryWeightLimit: true,
@@ -53,6 +55,7 @@ describe("manageCharacterInventory use-cases", () => {
     vi.mocked(repository.getRpg).mockResolvedValue({ id: "rpg-1", ownerId: "user-1" })
     vi.mocked(repository.getCharacter).mockResolvedValue({
       id: "char-1",
+      name: "Arthas",
       characterType: "player",
       createdByUserId: "user-1",
     })
@@ -76,6 +79,7 @@ describe("manageCharacterInventory use-cases", () => {
     vi.mocked(repository.getRpg).mockResolvedValue({ id: "rpg-1", ownerId: "user-1" })
     vi.mocked(repository.getCharacter).mockResolvedValue({
       id: "char-1",
+      name: "Arthas",
       characterType: "player",
       createdByUserId: "user-1",
     })
@@ -109,6 +113,7 @@ describe("manageCharacterInventory use-cases", () => {
     vi.mocked(repository.getRpg).mockResolvedValue({ id: "rpg-1", ownerId: "user-1" })
     vi.mocked(repository.getCharacter).mockResolvedValue({
       id: "char-1",
+      name: "Arthas",
       characterType: "player",
       createdByUserId: "user-1",
     })

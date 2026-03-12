@@ -42,6 +42,7 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository = 
     const rows = await prisma.$queryRaw<CharacterInventoryCharacterRow[]>(Prisma.sql`
       SELECT
         id,
+        name,
         character_type AS "characterType",
         created_by_user_id AS "createdByUserId"
       FROM rpg_characters

@@ -27,7 +27,7 @@ export default function InventoryCards({
   return (
     <div className={styles.cardGrid}>
       {items.map((item) => (
-        <div key={item.id} className={`${styles.card} ${styles[item.rarityClass]}`}>
+        <div key={item.id} className={styles.card}>
           <div className={styles.cardTop}>
             {item.imageUrl ? (
               <div className={styles.cardImageFrame}>

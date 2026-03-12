@@ -62,7 +62,7 @@ describe("GET /api/rpg/[rpgId]/characters/[characterId]/inventory", () => {
     mocks.rpgFindUnique.mockResolvedValue({ id: "rpg-1", ownerId: "other-owner" })
     mocks.queryRaw.mockResolvedValueOnce([{ status: "accepted", role: "member" }])
     mocks.queryRaw.mockResolvedValueOnce([
-      { id: "char-1", characterType: "player", createdByUserId: "another-user" },
+      { id: "char-1", name: "Arthas", characterType: "player", createdByUserId: "another-user" },
     ])
 
     const response = await GET(makeRequest("GET"), makeContext())
@@ -75,7 +75,7 @@ describe("GET /api/rpg/[rpgId]/characters/[characterId]/inventory", () => {
 
   it("retorna 200 com inventario", async () => {
     mocks.queryRaw.mockResolvedValueOnce([
-      { id: "char-1", characterType: "player", createdByUserId: null },
+      { id: "char-1", name: "Arthas", characterType: "player", createdByUserId: null },
     ])
     mocks.queryRaw.mockResolvedValueOnce([
       { useInventoryWeightLimit: false, maxCarryWeight: null },
@@ -86,6 +86,7 @@ describe("GET /api/rpg/[rpgId]/characters/[characterId]/inventory", () => {
 
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
+      characterName: "Arthas",
       inventory: [],
       isOwner: true,
       useInventoryWeightLimit: false,
@@ -114,7 +115,7 @@ describe("DELETE /api/rpg/[rpgId]/characters/[characterId]/inventory", () => {
 
   it("retorna 400 sem inventoryItemId", async () => {
     mocks.queryRaw.mockResolvedValueOnce([
-      { id: "char-1", characterType: "player", createdByUserId: null },
+      { id: "char-1", name: "Arthas", characterType: "player", createdByUserId: null },
     ])
 
     const response = await DELETE(makeRequest("DELETE", {}), makeContext())
@@ -127,7 +128,7 @@ describe("DELETE /api/rpg/[rpgId]/characters/[characterId]/inventory", () => {
 
   it("retorna 200 removendo item por completo", async () => {
     mocks.queryRaw.mockResolvedValueOnce([
-      { id: "char-1", characterType: "player", createdByUserId: null },
+      { id: "char-1", name: "Arthas", characterType: "player", createdByUserId: null },
     ])
     mocks.queryRaw.mockResolvedValueOnce([{ id: "inv-1", quantity: 2 }])
     mocks.executeRaw.mockResolvedValue(1)

@@ -35,6 +35,7 @@ async function getAccessContext(
   const canViewInventory = canManageAsMaster || character.createdByUserId === params.userId
 
   return {
+    characterName: character.name,
     isOwner: canManageAsMaster,
     canViewInventory,
   }
@@ -56,6 +57,7 @@ export async function getCharacterInventoryUseCase(
   ])
 
   return {
+    characterName: access.characterName,
     inventory,
     isOwner: access.isOwner,
     useInventoryWeightLimit: weightContext.useInventoryWeightLimit,

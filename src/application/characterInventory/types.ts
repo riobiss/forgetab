@@ -31,6 +31,7 @@ export type CharacterInventoryItemDto = {
 }
 
 export type CharacterInventoryDataDto = {
+  characterName: string
   inventory: CharacterInventoryItemDto[]
   useInventoryWeightLimit: boolean
   maxCarryWeight: number | null

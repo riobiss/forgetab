@@ -9,6 +9,7 @@ describe("characterInventory use-cases", () => {
   it("delegates inventory loading to gateway", async () => {
     const gateway: CharacterInventoryGateway = {
       fetchInventory: vi.fn().mockResolvedValue({
+        characterName: "Arthas",
         inventory: [],
         useInventoryWeightLimit: false,
         maxCarryWeight: null,
@@ -23,6 +24,7 @@ describe("characterInventory use-cases", () => {
 
     expect(gateway.fetchInventory).toHaveBeenCalledWith("rpg-1", "char-1")
     expect(result).toEqual({
+      characterName: "Arthas",
       inventory: [],
       useInventoryWeightLimit: false,
       maxCarryWeight: null,

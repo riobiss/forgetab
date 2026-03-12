@@ -13,12 +13,14 @@ export const httpCharacterInventoryGateway: CharacterInventoryGateway = {
   async fetchInventory(rpgId: string, characterId: string): Promise<CharacterInventoryDataDto> {
     const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}/inventory`)
     const payload = await parseJson<{
+      characterName?: string
       inventory?: CharacterInventoryItemDto[]
       useInventoryWeightLimit?: boolean
       maxCarryWeight?: number | null
     }>(response)
 
     return {
+      characterName: payload.characterName ?? "Personagem",
       inventory: payload.inventory ?? [],
       useInventoryWeightLimit: Boolean(payload.useInventoryWeightLimit),
       maxCarryWeight: payload.maxCarryWeight ?? null,

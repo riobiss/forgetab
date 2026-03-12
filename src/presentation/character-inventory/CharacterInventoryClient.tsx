@@ -1,6 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import Link from "next/link"
+import { Filter } from "lucide-react"
 import type { CharacterInventoryDependencies } from "@/application/characterInventory/contracts/CharacterInventoryDependencies"
 import type { CharacterInventoryItemDto, CharacterInventoryRarityDto } from "@/application/characterInventory/types"
 import {
@@ -28,6 +30,7 @@ const rarityLabel: Record<CharacterInventoryRarityDto, string> = {
 
 export default function CharacterInventoryClient({ rpgId, characterId, deps }: Props) {
   const [inventory, setInventory] = useState<CharacterInventoryItemDto[]>([])
+  const [characterName, setCharacterName] = useState("Personagem")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [removingItemId, setRemovingItemId] = useState<string | null>(null)
@@ -35,6 +38,7 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
   const [selectedCategory, setSelectedCategory] = useState<
     (typeof baseItemTypeValues)[number] | "all"
   >("all")
+  const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
   const [maxCarryWeight, setMaxCarryWeight] = useState<number | null>(null)
 
@@ -77,6 +81,7 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
   )
   const isOverWeight =
     useInventoryWeightLimit && maxCarryWeight !== null && totalWeight > maxCarryWeight
+  const activeExtraFilters = selectedCategory === "all" ? 0 : 1
   const filteredInventory = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
     return inventory.filter((item) => {
@@ -185,11 +190,13 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
       setError("")
 
       const payload = await loadCharacterInventoryUseCase(deps, { rpgId, characterId })
+      setCharacterName(payload.characterName)
       setInventory(payload.inventory)
       setUseInventoryWeightLimit(payload.useInventoryWeightLimit)
       setMaxCarryWeight(payload.maxCarryWeight)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Erro de conexao ao carregar inventario.")
+      setCharacterName("Personagem")
       setInventory([])
       setUseInventoryWeightLimit(false)
       setMaxCarryWeight(null)
@@ -238,71 +245,139 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
   }, [loadInventory])
 
   return (
-    <div className={styles.section}>
-      <h2 className={styles.sectionTitle}>Itens do Personagem</h2>
-      {useInventoryWeightLimit ? (
-        <p className={isOverWeight ? styles.weightSummaryDanger : styles.weightSummary}>
-          Peso total: {totalWeight.toFixed(1)} kg / {maxCarryWeight?.toFixed(1) ?? "0.0"} kg
-        </p>
-      ) : null}
-      <div className={styles.filters}>
-        <label className={styles.searchField}>
-          <span>Buscar item</span>
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Nome, tipo, raridade, pre-requisito, habilidade ou efeito"
-          />
-        </label>
-
-        <div className={styles.categories}>
-          <button
-            type="button"
-            className={
-              selectedCategory === "all"
-                ? `${styles.categoryButton} ${styles.categoryButtonActive}`
-                : styles.categoryButton
-            }
-            onClick={() => setSelectedCategory("all")}
-          >
-            Todas
-          </button>
-          {baseItemTypeValues.map((category) => (
-            <button
-              key={category}
-              type="button"
-              className={
-                selectedCategory === category
-                  ? `${styles.categoryButton} ${styles.categoryButtonActive}`
-                  : styles.categoryButton
-              }
-              onClick={() => setSelectedCategory(category)}
+    <>
+      <div className={styles.header}>
+        <div>
+          <p className={styles.kicker}>Inventario</p>
+          <h1 className={styles.title}>
+            <Link
+              href={`/rpg/${rpgId}/characters/${characterId}`}
+              className={styles.titleLink}
             >
-              {category}
-            </button>
-          ))}
+              {characterName}
+            </Link>
+          </h1>
+        </div>
+        <div className={styles.badge}>
+          {useInventoryWeightLimit
+            ? `${totalWeight.toFixed(1)} / ${maxCarryWeight?.toFixed(1) ?? "0.0"} kg`
+            : `${inventory.length} itens`}
         </div>
       </div>
 
-      {loading ? <p className={styles.emptyState}>Carregando inventario...</p> : null}
-      {error ? <p className={styles.error}>{error}</p> : null}
+      <section className={styles.section}>
+        <div className={styles.filters}>
+          <div className={styles.filtersTopRow}>
+            <label className={`${styles.filterField} ${styles.filterFieldSearch}`}>
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Buscar..."
+              />
+            </label>
+            <button
+              type="button"
+              className={styles.filtersIconButton}
+              onClick={() => setIsFiltersDrawerOpen(true)}
+              aria-label="Abrir filtros"
+              aria-haspopup="dialog"
+              aria-expanded={isFiltersDrawerOpen}
+              aria-controls="inventory-filters-drawer"
+              title="Filtros"
+            >
+              <Filter size={18} aria-hidden="true" />
+              {activeExtraFilters > 0 ? (
+                <span className={styles.filtersCount}>{activeExtraFilters}</span>
+              ) : null}
+            </button>
+          </div>
+        </div>
 
-      {!loading && !error && !hasInventory ? (
-        <p className={styles.emptyState}>Nenhum item no inventario.</p>
-      ) : null}
-      {!loading && !error && hasInventory && cardItems.length === 0 ? (
-        <p className={styles.emptyState}>Nenhum item encontrado nos filtros atuais.</p>
-      ) : null}
+        {isFiltersDrawerOpen ? (
+          <>
+            <button
+              type="button"
+              className={styles.drawerBackdrop}
+              aria-label="Fechar filtros"
+              onClick={() => setIsFiltersDrawerOpen(false)}
+            />
+            <aside id="inventory-filters-drawer" className={styles.drawer} role="dialog" aria-modal="true">
+              <div className={styles.drawerHeader}>
+                <h3 className={styles.drawerTitle}>Filtros</h3>
+                <button
+                  type="button"
+                  className={styles.drawerClose}
+                  onClick={() => setIsFiltersDrawerOpen(false)}
+                  aria-label="Fechar"
+                >
+                  Fechar
+                </button>
+              </div>
 
-      {!loading && !error && hasInventory && cardItems.length > 0 ? (
-        <InventoryCards
-          items={cardItems}
-          emptyMessage="Nenhum item no inventario."
-          onRemoveItem={handleRemoveItem}
-          removingItemId={removingItemId}
-        />
-      ) : null}
-    </div>
+              <div className={styles.drawerTagsSection}>
+                <span className={styles.typesLabel}>Categoria</span>
+                <div className={styles.typeChips}>
+                  <button
+                    type="button"
+                    className={
+                      selectedCategory === "all"
+                        ? `${styles.typeChip} ${styles.typeChipActive}`
+                        : styles.typeChip
+                    }
+                    onClick={() => setSelectedCategory("all")}
+                  >
+                    Todas
+                  </button>
+                  {baseItemTypeValues.map((category) => (
+                    <button
+                      key={category}
+                      type="button"
+                      className={
+                        selectedCategory === category
+                          ? `${styles.typeChip} ${styles.typeChipActive}`
+                          : styles.typeChip
+                      }
+                      onClick={() => setSelectedCategory(category)}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.drawerFooter}>
+                <button
+                  type="button"
+                  className={styles.drawerClear}
+                  onClick={() => setSelectedCategory("all")}
+                >
+                  Limpar filtros
+                </button>
+              </div>
+            </aside>
+          </>
+        ) : null}
+
+        {loading ? <p className={styles.emptyState}>Carregando inventario...</p> : null}
+        {error ? <p className={styles.errorText}>{error}</p> : null}
+
+        {!loading && !error && !hasInventory ? (
+          <p className={styles.emptyState}>Nenhum item no inventario.</p>
+        ) : null}
+        {!loading && !error && hasInventory && cardItems.length === 0 ? (
+          <p className={styles.emptyState}>Nenhum item encontrado com os filtros atuais.</p>
+        ) : null}
+
+        {!loading && !error && hasInventory && cardItems.length > 0 ? (
+          <InventoryCards
+            items={cardItems}
+            emptyMessage="Nenhum item no inventario."
+            onRemoveItem={handleRemoveItem}
+            removingItemId={removingItemId}
+          />
+        ) : null}
+      </section>
+    </>
   )
 }
