@@ -1,71 +1,18 @@
-import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
-import { prisma } from "@/lib/prisma"
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
-import styles from "./page.module.css"
-import { formatDateInBrasilia } from "@/lib/date"
+import { loadProfilePageUseCase } from "@/application/profile/use-cases/loadProfilePage"
+import { prismaProfileRepository } from "@/infrastructure/profile/repositories/prismaProfileRepository"
+import { cookieProfileSessionService } from "@/infrastructure/profile/services/cookieProfileSessionService"
+import ProfilePage from "@/presentation/profile/ProfilePage"
 
 export default async function PerfilPage() {
-  const cookieStore = await cookies()
-  const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value
-
-  if (!token) {
-    redirect("/login")
-  }
-
-  let userId = ""
-  let email = ""
-
-  try {
-    const payload = await verifyAuthToken(token)
-    userId = payload.userId
-    email = payload.email
-  } catch {
-    redirect("/login")
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      name: true,
-      username: true,
-      email: true,
-      createdAt: true,
-    },
+  const result = await loadProfilePageUseCase({
+    repository: prismaProfileRepository,
+    sessionService: cookieProfileSessionService,
   })
 
-  return (
-    <main className={styles.page}>
-      <section className={styles.card}>
-        <h1>Perfil</h1>
-        <p>Informacoes da sua conta.</p>
+  if (result.status === "unauthenticated") {
+    redirect("/login")
+  }
 
-        <div className={styles.infoGrid}>
-          <div>
-            <span>Nome</span>
-            <strong>{user?.name ?? "-"}</strong>
-          </div>
-
-          <div>
-            <span>Username</span>
-            <strong>{user?.username ? `@${user.username}` : "-"}</strong>
-          </div>
-
-          <div>
-            <span>Email</span>
-            <strong>{user?.email ?? email}</strong>
-          </div>
-
-          <div>
-            <span>Criado em</span>
-            <strong>
-              {user?.createdAt
-                ? formatDateInBrasilia(user.createdAt)
-                : "-"}
-            </strong>
-          </div>
-        </div>
-      </section>
-    </main>
-  )
+  return <ProfilePage data={result.data} />
 }
