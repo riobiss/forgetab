@@ -1,3 +1,6 @@
+"use client"
+
+import { useMemo } from "react"
 import EntityCatalogClient from "@/presentation/entity-catalog/EntityCatalogClient"
 import type { CatalogEntityType } from "@/domain/entityCatalog/types"
 import type { EntityCatalogPageData } from "@/application/entityCatalog/types"
@@ -18,7 +21,10 @@ export default function EntityCatalogFeature({
   data,
   gatewayFactory = "http",
 }: Props) {
-  const deps = createEntityCatalogDependencies(gatewayFactory)
+  const deps = useMemo(
+    () => createEntityCatalogDependencies(gatewayFactory),
+    [gatewayFactory],
+  )
 
   return (
     <EntityCatalogClient
