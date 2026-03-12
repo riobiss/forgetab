@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
   rpgDeleteMany: vi.fn(),
 }))
 
-vi.mock("@/lib/server/auth", () => ({
+vi.mock("@/presentation/api/shared/requestAuth", () => ({
   getUserIdFromRequest: mocks.getUserIdFromRequest,
 }))
 
