@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation"
 import type { ReactNode } from "react"
-import { getUserIdFromCookieStore } from "@/lib/server/auth"
-import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import { ensureItemsLayoutAccessUseCase } from "@/application/itemsLayout/use-cases/ensureItemsLayoutAccess"
+import { rpgPermissionService } from "@/infrastructure/items/services/rpgPermissionService"
+import { cookieItemsLayoutSessionService } from "@/infrastructure/itemsLayout/services/cookieItemsLayoutSessionService"
 
 type Props = {
   children: ReactNode
@@ -12,14 +13,15 @@ type Props = {
 
 export default async function ItemsLayout({ children, params }: Props) {
   const { rpgId } = await params
-  const userId = await getUserIdFromCookieStore()
+  const access = await ensureItemsLayoutAccessUseCase(
+    {
+      sessionService: cookieItemsLayoutSessionService,
+      permissionService: rpgPermissionService,
+    },
+    { rpgId },
+  )
 
-  if (!userId) {
-    notFound()
-  }
-
-  const permission = await getRpgPermission(rpgId, userId)
-  if (!permission.canManage) {
+  if (!access.allowed) {
     notFound()
   }
 
