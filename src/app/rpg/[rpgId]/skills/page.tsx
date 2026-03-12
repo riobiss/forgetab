@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation"
-import { prisma } from "@/lib/prisma"
 import { getUserIdFromCookieStore } from "@/lib/server/auth"
-import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import { loadSkillsPageUseCase } from "@/application/skillsPage/use-cases/loadSkillsPage"
+import { prismaSkillsPageRepository } from "@/infrastructure/skillsPage/repositories/prismaSkillsPageRepository"
+import { skillsPageAccessService } from "@/infrastructure/skillsPage/services/skillsPageAccessService"
 import SkillsDashboardFeature from "@/presentation/skills-dashboard/SkillsDashboardFeature"
 
 type PageProps = {
@@ -18,27 +19,23 @@ export default async function RpgSkillsBuilderPage({ params }: PageProps) {
     notFound()
   }
 
-  const rpg = await prisma.rpg.findUnique({
-    where: { id: rpgId },
-    select: { id: true, title: true, ownerId: true },
-  })
+  const data = await loadSkillsPageUseCase(
+    prismaSkillsPageRepository,
+    skillsPageAccessService,
+    { rpgId, userId },
+  )
 
-  if (!rpg) {
-    notFound()
-  }
-
-  const permission = await getRpgPermission(rpgId, userId)
-  if (!permission.canManage) {
+  if (!data) {
     notFound()
   }
 
   return (
     <SkillsDashboardFeature
-      ownedRpgs={[{ id: rpg.id, title: rpg.title }]}
-      initialRpgId={rpg.id}
+      ownedRpgs={[{ id: data.rpg.id, title: data.rpg.title }]}
+      initialRpgId={data.rpg.id}
       gatewayFactory="http"
       hideRpgSelector
-      title={`Habilidades - ${rpg.title}`}
+      title={`Habilidades - ${data.rpg.title}`}
     />
   )
 }
