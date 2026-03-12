@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getUserIdFromRequest } from "@/lib/server/auth"
-import { getRpgById } from "@/modules/rpg/application/useCases/getRpgById"
-import { updateRpg } from "@/modules/rpg/application/useCases/updateRpg"
-import { deleteRpg } from "@/modules/rpg/application/useCases/deleteRpg"
-import { AppError } from "@/modules/rpg/domain/errors"
-import { imageKitGateway } from "@/modules/rpg/infrastructure/gateways/imageKitGateway"
-import { prismaRpgRepository } from "@/modules/rpg/infrastructure/repositories/prismaRpgRepository"
-import { legacyRpgPermissionService } from "@/modules/rpg/infrastructure/services/legacyRpgPermissionService"
+import { getUserIdFromRequest } from "@/presentation/api/shared/requestAuth"
+import { deleteRpg } from "@/application/rpgManagement/use-cases/deleteRpg"
+import { getRpgById } from "@/application/rpgManagement/use-cases/getRpgById"
+import { updateRpg } from "@/application/rpgManagement/use-cases/updateRpg"
+import { imageKitGateway } from "@/infrastructure/rpgManagement/gateways/imageKitGateway"
+import { prismaRpgRepository } from "@/infrastructure/rpgManagement/repositories/prismaRpgRepository"
+import { legacyRpgPermissionService } from "@/infrastructure/rpgManagement/services/legacyRpgPermissionService"
+import { toErrorResponse } from "@/presentation/api/shared/toErrorResponse"
 
 type RouteContext = {
   params: Promise<{
@@ -22,14 +22,6 @@ const dependencies = {
 
 function unauthorized() {
   return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-}
-
-function toErrorResponse(error: unknown, fallbackMessage: string) {
-  if (error instanceof AppError) {
-    return NextResponse.json({ message: error.message }, { status: error.status })
-  }
-
-  return NextResponse.json({ message: fallbackMessage }, { status: 500 })
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {

@@ -1,1 +1,1 @@
-export { POST } from "@/modules/rpg/presentation/api/rpgCollectionRoute"
+export { POST } from "@/presentation/api/rpg/rpgCollectionRoute"

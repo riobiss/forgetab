@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
-import { createRpg } from "@/modules/rpg/application/useCases/createRpg"
-import { AppError } from "@/modules/rpg/domain/errors"
-import { prismaRpgRepository } from "@/modules/rpg/infrastructure/repositories/prismaRpgRepository"
-
-function toErrorResponse(error: unknown, fallbackMessage: string) {
-  if (error instanceof AppError) {
-    return NextResponse.json({ message: error.message }, { status: error.status })
-  }
-
-  return NextResponse.json({ message: fallbackMessage }, { status: 500 })
-}
+import { createRpg } from "@/application/rpgManagement/use-cases/createRpg"
+import { prismaRpgRepository } from "@/infrastructure/rpgManagement/repositories/prismaRpgRepository"
+import { AppError } from "@/shared/errors/AppError"
+import { toErrorResponse } from "@/presentation/api/shared/toErrorResponse"
 
 export async function POST(request: NextRequest) {
   const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
@@ -33,6 +26,9 @@ export async function POST(request: NextRequest) {
     )
     return NextResponse.json(payload, { status: 201 })
   } catch (error) {
+    if (error instanceof AppError) {
+      return toErrorResponse(error, "Erro interno ao criar RPG.")
+    }
     return toErrorResponse(error, "Erro interno ao criar RPG.")
   }
 }

@@ -1,1 +1,1 @@
-export { GET, PATCH, DELETE } from "@/modules/rpg/presentation/api/rpgByIdRoute"
+export { GET, PATCH, DELETE } from "@/presentation/api/rpg/rpgByIdRoute"
