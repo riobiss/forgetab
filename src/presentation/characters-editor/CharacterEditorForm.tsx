@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ImagePlus, Paperclip, Trash2 } from "lucide-react"
+import { toast } from "react-hot-toast"
 import type { CharactersEditorDependencies } from "@/application/charactersEditor/contracts/CharactersEditorDependencies"
 import type {
   CharacterEditorCharacterTypeDto,
@@ -32,6 +33,7 @@ import {
   type ProgressionMode,
   type ProgressionTier,
 } from "@/lib/rpg/progression"
+import { dismissToast } from "@/lib/toast"
 
 type NumericInputValue = number | ""
 
@@ -285,6 +287,7 @@ export default function CharacterEditorForm({
 
     setSaving(true)
     setError("")
+    const loadingToastId = toast.loading(editingCharacterId ? "Salvando personagem..." : "Criando personagem...")
 
     try {
       const isEditing = Boolean(editingCharacterId)
@@ -311,6 +314,7 @@ export default function CharacterEditorForm({
           const message = cause instanceof Error ? cause.message : "Nao foi possivel enviar imagem."
           setUploadError(message)
           setError(message)
+          toast.error(message)
           return
         }
         submittedImage = uploadedImageUrl
@@ -380,15 +384,18 @@ export default function CharacterEditorForm({
 
       setSelectedImageFile(null)
       setSelectedImageName("")
+      toast.success(editingCharacterId ? "Personagem salvo com sucesso." : "Personagem criado com sucesso.")
       router.push(`/rpg/${rpgId}/characters`)
       router.refresh()
     } catch {
-      setError(
+      const message =
         editingCharacterId
           ? "Erro de conexao ao atualizar personagem."
-          : "Erro de conexao ao criar personagem.",
-      )
+          : "Erro de conexao ao criar personagem."
+      setError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setUploadingImage(false)
       setSaving(false)
       savingRef.current = false
@@ -451,14 +458,19 @@ export default function CharacterEditorForm({
     deletingRef.current = true
     setDeleting(true)
     setError("")
+    const loadingToastId = toast.loading("Deletando personagem...")
 
     try {
       await deleteCharacterUseCase(deps, { rpgId, characterId: editingCharacterId })
+      toast.success("Personagem deletado com sucesso.")
       router.push(`/rpg/${rpgId}/characters`)
       router.refresh()
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro de conexao ao deletar personagem.")
+      const message = cause instanceof Error ? cause.message : "Erro de conexao ao deletar personagem."
+      setError(message)
+      toast.error(message)
     } finally {
+      dismissToast(loadingToastId)
       setDeleting(false)
       setShowDeleteConfirm(false)
       deletingRef.current = false
