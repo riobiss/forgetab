@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
   queryRaw: vi.fn(),
 }))
 
-vi.mock("@/lib/server/skillBuilder", () => ({
+vi.mock("@/presentation/api/skills/requestAuth", () => ({
   getUserIdFromRequest: mocks.getUserIdFromRequest,
 }))
 
