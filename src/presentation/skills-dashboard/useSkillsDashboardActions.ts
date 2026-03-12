@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react"
+import { toast } from "react-hot-toast"
 import type { SkillsDashboardDependencies } from "@/application/skillsDashboard/contracts/SkillsDashboardDependencies"
 import {
   mapCreateSkillPayload,
@@ -96,10 +97,15 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
             : item,
         ),
       )
-      if (showSuccess) setSuccess("Meta da skill atualizada.")
+      if (showSuccess) {
+        setSuccess("Meta da skill atualizada.")
+        toast.success("Meta da skill atualizada.")
+      }
       return updatedSkill
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao salvar skill.")
+      const message = cause instanceof Error ? cause.message : "Erro ao salvar skill."
+      setError(message)
+      toast.error(message)
       return null
     } finally {
       if (manageSaving) setSaving(false)
@@ -137,10 +143,15 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
       })) as SkillDetail
 
       setActiveSkill(updatedSkill)
-      if (showSuccess) setSuccess(`Level ${selectedLevel.levelNumber} atualizado.`)
+      if (showSuccess) {
+        setSuccess(`Level ${selectedLevel.levelNumber} atualizado.`)
+        toast.success(`Level ${selectedLevel.levelNumber} atualizado.`)
+      }
       return updatedSkill
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao salvar level.")
+      const message = cause instanceof Error ? cause.message : "Erro ao salvar level."
+      setError(message)
+      toast.error(message)
       return null
     } finally {
       if (manageSaving) setSaving(false)
@@ -218,8 +229,11 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
         ...prev,
       ])
       setSuccess("Habilidade criada com sucesso.")
+      toast.success("Habilidade criada com sucesso.")
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao criar skill.")
+      const message = cause instanceof Error ? cause.message : "Erro ao criar skill."
+      setError(message)
+      toast.error(message)
     } finally {
       setSaving(false)
     }
@@ -251,8 +265,11 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
       const newestLevel = updatedSkill.levels[updatedSkill.levels.length - 1]
       setSelectedLevelId(newestLevel?.id ?? "")
       setSuccess("Novo level criado com copia profunda do level anterior.")
+      toast.success("Novo level criado com copia profunda do level anterior.")
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao criar novo level.")
+      const message = cause instanceof Error ? cause.message : "Erro ao criar novo level."
+      setError(message)
+      toast.error(message)
     } finally {
       setSaving(false)
     }
@@ -272,6 +289,7 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
       if (!savedLevel) return
 
       setSuccess("Habilidade atualizada.")
+      toast.success("Habilidade atualizada.")
     } finally {
       setSaving(false)
     }
@@ -319,8 +337,11 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
         updatedSkill.levels[updatedSkill.levels.length - 1]
       setSelectedLevelId(fallbackLevel?.id ?? "")
       setSuccess(`Level ${levelNumber} removido.`)
+      toast.success(`Level ${levelNumber} removido.`)
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao remover level.")
+      const message = cause instanceof Error ? cause.message : "Erro ao remover level."
+      setError(message)
+      toast.error(message)
     } finally {
       setSaving(false)
     }
@@ -347,8 +368,11 @@ export function useSkillsDashboardActions(params: UseSkillsDashboardActionsParam
       setSelectedSkillId(nextSkills[0]?.id ?? "")
       setEditOpen(nextSkills.length > 0)
       setSuccess("Habilidade removida com sucesso.")
+      toast.success("Habilidade removida com sucesso.")
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro ao remover skill.")
+      const message = cause instanceof Error ? cause.message : "Erro ao remover skill."
+      setError(message)
+      toast.error(message)
     } finally {
       setSaving(false)
     }
