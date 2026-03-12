@@ -67,11 +67,6 @@
   border-color: var(--color-border-brand);
 }
 
-.cardLink {
-  display: block;
-  text-decoration: none;
-}
-
 .createdCard h4 {
   margin: 0 0 0.5rem;
   color: var(--color-text-secondary);
@@ -102,61 +97,6 @@
 
 .createdCard small {
   color: var(--color-text-muted);
-}
-
-.createdActions {
-  display: flex;
-  gap: 0.6rem;
-  margin-top: 0.9rem;
-  flex-wrap: wrap;
-}
-
-.createdActions a {
-  text-decoration: none;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 9px;
-  padding: 0.45rem 0.7rem;
-  color: var(--color-text-secondary);
-  font-size: 0.82rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.createdActions a:nth-child(2) {
-  background: var(--color-brand-primary);
-  color: var(--color-bg-app);
-  border-color: transparent;
-}
-
-.deleteButton {
-  border: 1px solid var(--color-status-danger);
-  border-radius: 9px;
-  padding: 0.45rem 0.7rem;
-  background: var(--color-status-danger-soft);
-  color: var(--color-status-danger-contrast);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.deleteButton:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.spin {
-  animation: spin 0.9s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .containerMain {
