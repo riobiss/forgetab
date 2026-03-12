@@ -1,3 +1,6 @@
+"use client"
+
+import { useMemo } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Plus } from "lucide-react"
@@ -13,7 +16,7 @@ type Props = {
 }
 
 export default function RpgCatalogPage({ data, gatewayFactory = "http" }: Props) {
-  const deps = createRpgCatalogDependencies(gatewayFactory)
+  const deps = useMemo(() => createRpgCatalogDependencies(gatewayFactory), [gatewayFactory])
 
   return (
     <div className={styles.container}>

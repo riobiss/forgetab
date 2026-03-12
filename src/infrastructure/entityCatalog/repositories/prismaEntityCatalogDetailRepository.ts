@@ -58,6 +58,10 @@ function toOwnedBySkill(value: Prisma.JsonValue) {
   }, {})
 }
 
+function hasMissingColumn(error: unknown, columnName: string) {
+  return error instanceof Error && error.message.includes(columnName)
+}
+
 async function queryAttributeTemplates(rpgId: string) {
   return prisma.$queryRaw<Array<{ key: string; label: string }>>(Prisma.sql`
     SELECT key, label
@@ -101,10 +105,11 @@ export const prismaEntityCatalogDetailRepository: EntityCatalogDetailRepository 
       `)
     } catch (error) {
       if (
-        !(error instanceof Error) ||
-        (!error.message.includes('column "catalog_meta" does not exist') &&
-          !error.message.includes('column "costs_enabled" does not exist') &&
-          !error.message.includes('column "cost_resource_name" does not exist'))
+        !(
+          hasMissingColumn(error, "catalog_meta") ||
+          hasMissingColumn(error, "costs_enabled") ||
+          hasMissingColumn(error, "cost_resource_name")
+        )
       ) {
         throw error
       }
@@ -185,12 +190,13 @@ export const prismaEntityCatalogDetailRepository: EntityCatalogDetailRepository 
       `)
     } catch (error) {
       if (
-        !(error instanceof Error) ||
-        (!error.message.includes('column "lore" does not exist') &&
-          !error.message.includes('column "catalog_meta" does not exist') &&
-          !error.message.includes('column "category" does not exist') &&
-          !error.message.includes('column "costs_enabled" does not exist') &&
-          !error.message.includes('column "cost_resource_name" does not exist'))
+        !(
+          hasMissingColumn(error, "lore") ||
+          hasMissingColumn(error, "catalog_meta") ||
+          hasMissingColumn(error, "category") ||
+          hasMissingColumn(error, "costs_enabled") ||
+          hasMissingColumn(error, "cost_resource_name")
+        )
       ) {
         throw error
       }
