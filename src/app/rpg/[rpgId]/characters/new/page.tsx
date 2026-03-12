@@ -1,10 +1,15 @@
 "use client"
 
-import { useParams, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import CharacterEditorFeature from "@/presentation/characters-editor/CharacterEditorFeature"
 
-export default function NewCharacterPage() {
-  const params = useParams<{ rpgId: string }>()
+type Props = {
+  params: {
+    rpgId: string
+  }
+}
+
+export default function NewCharacterPage({ params }: Props) {
   const searchParams = useSearchParams()
 
   return (

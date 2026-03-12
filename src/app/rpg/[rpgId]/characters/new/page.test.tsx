@@ -169,7 +169,7 @@ describe("NewCharacterPage", () => {
   it("cria personagem e redireciona para a lista", async () => {
     const user = userEvent.setup()
 
-    render(<NewCharacterPage />)
+    render(<NewCharacterPage params={{ rpgId: "rpg-1" }} />)
 
     const submitButton = await screen.findByRole("button", { name: "Criar personagem" })
     await waitFor(() => expect(submitButton).toBeEnabled())
@@ -194,7 +194,7 @@ describe("NewCharacterPage", () => {
     shouldFailCreate = true
     const user = userEvent.setup()
 
-    render(<NewCharacterPage />)
+    render(<NewCharacterPage params={{ rpgId: "rpg-1" }} />)
 
     const submitButton = await screen.findByRole("button", { name: "Criar personagem" })
     await waitFor(() => expect(submitButton).toBeEnabled())
@@ -212,7 +212,7 @@ describe("NewCharacterPage", () => {
     mocks.searchCharacterId = "c1"
     const user = userEvent.setup()
 
-    render(<NewCharacterPage />)
+    render(<NewCharacterPage params={{ rpgId: "rpg-1" }} />)
 
     expect(await screen.findByRole("heading", { name: "Editar Personagem" })).toBeInTheDocument()
 
@@ -238,7 +238,7 @@ describe("NewCharacterPage", () => {
     rpgCanManage = true
     const user = userEvent.setup()
 
-    render(<NewCharacterPage />)
+    render(<NewCharacterPage params={{ rpgId: "rpg-1" }} />)
 
     expect(await screen.findByRole("heading", { name: "Editar Personagem" })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Pericias" })).toBeInTheDocument()
@@ -272,7 +272,7 @@ describe("NewCharacterPage", () => {
     classTemplates = [{ key: "guerreiro", label: "Guerreiro", position: 1 }, { key: "mago", label: "Mago", position: 2 }]
     const user = userEvent.setup()
 
-    render(<NewCharacterPage />)
+    render(<NewCharacterPage params={{ rpgId: "rpg-1" }} />)
 
     expect(await screen.findByRole("heading", { name: "Editar Personagem" })).toBeInTheDocument()
     await user.selectOptions(screen.getByLabelText("Raca"), "elfo")
@@ -298,7 +298,7 @@ describe("NewCharacterPage", () => {
   it("faz upload de imagem antes de criar personagem", async () => {
     const user = userEvent.setup()
 
-    render(<NewCharacterPage />)
+    render(<NewCharacterPage params={{ rpgId: "rpg-1" }} />)
 
     const submitButton = await screen.findByRole("button", { name: "Criar personagem" })
     await waitFor(() => expect(submitButton).toBeEnabled())
@@ -333,7 +333,7 @@ describe("NewCharacterPage", () => {
     shouldFailUpload = true
     const user = userEvent.setup()
 
-    render(<NewCharacterPage />)
+    render(<NewCharacterPage params={{ rpgId: "rpg-1" }} />)
 
     const submitButton = await screen.findByRole("button", { name: "Criar personagem" })
     await waitFor(() => expect(submitButton).toBeEnabled())
