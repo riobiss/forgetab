@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type CSSProperties } from "react"
 import { EditorContent, EditorContext, type JSONContent, useEditor } from "@tiptap/react"
 
 // --- Tiptap Core Extensions ---
@@ -217,10 +217,11 @@ export function SimpleEditor({
   className = "",
 }: SimpleEditorProps) {
   const isMobile = useIsBreakpoint()
-  const { height } = useWindowSize()
+  const { height, offsetTop } = useWindowSize()
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
     "main"
   )
+  const [toolbarHeight, setToolbarHeight] = useState(56)
   const toolbarRef = useRef<HTMLDivElement>(null)
 
   const editor = useEditor({
@@ -267,9 +268,14 @@ export function SimpleEditor({
     },
   })
 
-  const rect = useCursorVisibility({
+  const keyboardOffset =
+    typeof window !== "undefined" && height > 0
+      ? Math.max(0, window.innerHeight - height - offsetTop)
+      : 0
+
+  useCursorVisibility({
     editor,
-    overlayHeight: toolbarRef.current?.getBoundingClientRect().height ?? 0,
+    overlayHeight: toolbarHeight + keyboardOffset,
   })
 
   useEffect(() => {
@@ -283,31 +289,47 @@ export function SimpleEditor({
     editor.setEditable(!disabled)
   }, [disabled, editor])
 
+  useEffect(() => {
+    const toolbar = toolbarRef.current
+    if (!toolbar || typeof ResizeObserver === "undefined") return
+
+    const updateToolbarHeight = () => {
+      const nextHeight = Math.ceil(toolbar.getBoundingClientRect().height)
+      setToolbarHeight((currentHeight) =>
+        currentHeight === nextHeight ? currentHeight : nextHeight
+      )
+    }
+
+    updateToolbarHeight()
+
+    const observer = new ResizeObserver(updateToolbarHeight)
+    observer.observe(toolbar)
+
+    return () => observer.disconnect()
+  }, [disabled, isMobile, mobileView, onSave])
+
+  const wrapperStyle = {
+    "--simple-editor-toolbar-height": `${disabled ? 0 : toolbarHeight}px`,
+    "--simple-editor-toolbar-offset": `${disabled ? 0 : keyboardOffset}px`,
+  } as CSSProperties
+
   return (
     <div
       className={`simple-editor-wrapper dark ${disabled ? "is-readonly" : ""} ${className}`.trim()}
+      style={wrapperStyle}
     >
       <EditorContext.Provider value={{ editor }}>
         {!disabled ? (
-          <Toolbar
-            ref={toolbarRef}
-            style={{
-              ...(isMobile
-                ? {
-                    bottom: `calc(100% - ${height - rect.y}px)`,
-                  }
-                : {}),
-            }}
-          >
+          <Toolbar ref={toolbarRef} className="simple-editor-toolbar">
             {mobileView === "main" ? (
-            <MainToolbarContent
-              onHighlighterClick={() => setMobileView("highlighter")}
-              onLinkClick={() => setMobileView("link")}
-              isMobile={isMobile}
-              onSave={onSave}
-              canSave={canSave}
-              isSaving={isSaving}
-            />
+              <MainToolbarContent
+                onHighlighterClick={() => setMobileView("highlighter")}
+                onLinkClick={() => setMobileView("link")}
+                isMobile={isMobile}
+                onSave={onSave}
+                canSave={canSave}
+                isSaving={isSaving}
+              />
             ) : (
               <MobileToolbarContent
                 type={mobileView === "highlighter" ? "highlighter" : "link"}
