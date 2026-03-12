@@ -1,12 +1,18 @@
-import { useParams } from "next/navigation"
 import LibrarySectionBooksFeature from "@/presentation/library/LibrarySectionBooksFeature"
 
-export default function LibraryBooksPage() {
-  const params = useParams<{ rpgId: string; sectionId: string }>()
+type Params = {
+  params: Promise<{
+    rpgId: string
+    sectionId: string
+  }>
+}
+
+export default async function LibraryBooksPage({ params }: Params) {
+  const { rpgId, sectionId } = await params
   return (
     <LibrarySectionBooksFeature
-      rpgId={params.rpgId}
-      sectionId={params.sectionId}
+      rpgId={rpgId}
+      sectionId={sectionId}
       gatewayFactory="http"
     />
   )
