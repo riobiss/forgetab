@@ -9,6 +9,11 @@ import {
 function createGatewayMock(): ItemsDashboardGateway {
   return {
     fetchDashboardData: vi.fn(),
+    fetchItem: vi.fn(),
+    createItem: vi.fn(),
+    updateItem: vi.fn(),
+    uploadItemImage: vi.fn(),
+    deleteItemImageByUrl: vi.fn(),
     deleteItem: vi.fn(),
     giveItem: vi.fn(),
   }
@@ -24,8 +29,9 @@ describe("itemsDashboard use-cases", () => {
           rpgId: "rpg-1",
           name: "Espada",
           image: null,
+          description: null,
           preRequirement: null,
-          type: "weapon",
+          type: "equipment",
           rarity: "common",
           damage: "1d6",
           range: null,
@@ -35,6 +41,7 @@ describe("itemsDashboard use-cases", () => {
           effectName: null,
           abilities: [],
           effects: [],
+          customFields: [],
           weight: 1,
           duration: null,
           durability: null,

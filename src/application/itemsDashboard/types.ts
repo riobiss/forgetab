@@ -1,18 +1,17 @@
 export type ItemTypeDto =
-  | "weapon"
-  | "armor"
+  | "equipment"
   | "consumable"
-  | "accessory"
   | "material"
   | "tool"
   | "quest"
-  | "other"
+  | "special"
 
 export type BaseItemDto = {
   id: string
   rpgId: string
   name: string
   image: string | null
+  description: string | null
   preRequirement: string | null
   type: ItemTypeDto
   rarity: string
@@ -24,6 +23,7 @@ export type BaseItemDto = {
   effectName: string | null
   abilities: unknown
   effects: unknown
+  customFields: unknown
   weight: number | null
   duration: string | null
   durability: number | null

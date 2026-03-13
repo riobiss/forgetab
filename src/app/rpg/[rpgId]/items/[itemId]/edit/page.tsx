@@ -1,4 +1,4 @@
-import ItemEditorFeature from "@/presentation/items-editor/ItemEditorFeature"
+import { redirect } from "next/navigation"
 
 type Props = {
   params: Promise<{
@@ -8,13 +8,6 @@ type Props = {
 }
 
 export default async function EditItemPage({ params }: Props) {
-  const { rpgId, itemId } = await params
-  return (
-    <ItemEditorFeature
-      rpgId={rpgId}
-      mode="edit"
-      itemId={itemId}
-      gatewayFactory="http"
-    />
-  )
+  const { rpgId } = await params
+  redirect(`/rpg/${rpgId}/items`)
 }

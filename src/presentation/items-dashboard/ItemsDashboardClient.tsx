@@ -1,25 +1,23 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import {
-  ArrowLeft,
   Check,
-  Funnel,
-  FunnelX,
+  Filter,
   Gift,
   LoaderCircle,
   Pencil,
   Plus,
-  Trash2,
+  Search,
   X,
 } from "lucide-react"
 import styles from "./ItemsDashboardClient.module.css"
 import type { ItemsDashboardDependencies } from "@/application/itemsDashboard/contracts/ItemsDashboardDependencies"
 import { IconButton } from "@/components/button"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
+import { ItemUpsertModal } from "./ItemUpsertModal"
+import { itemRarityLabel, itemTypeLabel } from "./constants"
 import { useItemsDashboardState } from "./useItemsDashboardState"
-import { parseNamedDescriptionList } from "./utils"
 
 type ItemsDashboardClientProps = {
   rpgId: string
@@ -35,8 +33,12 @@ export default function ItemsDashboardClient({ rpgId, deps }: ItemsDashboardClie
     loadingError,
     search,
     setSearch,
+    searchOpen,
+    setSearchOpen,
     selectedCategory,
     setSelectedCategory,
+    selectedRarity,
+    setSelectedRarity,
     showCategories,
     setShowCategories,
     deletingItemId,
@@ -49,184 +51,136 @@ export default function ItemsDashboardClient({ rpgId, deps }: ItemsDashboardClie
     giveSuccess,
     visibleItems,
     selectedGiveItem,
+    editorOpen,
+    editorMode,
+    editingItemId,
+    editorTab,
+    setEditorTab,
+    editorLoading,
+    editorSaving,
+    editorError,
+    name,
+    setName,
+    image,
+    description,
+    setDescription,
+    preRequirement,
+    setPreRequirement,
+    type,
+    setType,
+    rarity,
+    setRarity,
+    damage,
+    setDamage,
+    range,
+    setRange,
+    weight,
+    setWeight,
+    duration,
+    setDuration,
+    durability,
+    setDurability,
+    abilities,
+    setAbilities,
+    effects,
+    setEffects,
+    customFields,
+    setCustomFields,
+    customFieldModalOpen,
+    setCustomFieldModalOpen,
+    newCustomFieldName,
+    setNewCustomFieldName,
+    newCustomFieldValue,
+    setNewCustomFieldValue,
+    baseItemRarityValues,
+    uploadingImage,
+    uploadError,
+    selectedImageFile,
+    selectedImagePreviewUrl,
+    openCreateModal,
+    openEditModal,
+    closeEditorModal,
     openGiveModal,
     closeGiveModal,
     handleDelete,
     handleGiveItem,
+    handleSaveItem,
+    handleImageUpload,
+    handleRemoveImage,
+    addCustomField,
+    updateNamedEntry,
+    createEmptyNamedDescription,
   } = useItemsDashboardState({ rpgId, deps })
 
   return (
     <main className={styles.page}>
       <div className={styles.header}>
         <div>
-          <p className={styles.kicker}>Sessao avancada</p>
+          <p className={styles.kicker}>Itens</p>
           <h1 className={styles.title}>Itens do RPG</h1>
-          <p className={styles.subtitle}>
-            Gerencie itens e entregue para personagens com quantidade.
-          </p>
-        </div>
-        <div className={styles.headerActions}>
-          <Link href={`/rpg/${rpgId}/items/new`} className={styles.primaryButton}>
-            <Plus size={16} />
-            <span>Criar item</span>
-          </Link>
-          <Link href={`/rpg/${rpgId}/edit`} className={styles.backLink}>
-            <ArrowLeft size={16} />
-            <span>Voltar para edicao</span>
-          </Link>
         </div>
       </div>
 
       <section className={styles.section}>
-        <div className={styles.sectionTopbar}>
-          <h2 className={styles.sectionTitle}>Listagem de itens</h2>
-          <button
-            type="button"
-            className={styles.ghostButton}
-            onClick={() => setShowCategories((prev) => !prev)}
-          >
-            {showCategories ? (
-              <>
-                <FunnelX size={16} />
-                <span>Ocultar categorias</span>
-              </>
-            ) : (
-              <>
-                <Funnel size={16} />
-                <span>Mostrar categorias</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        <div className={styles.filters}>
-          <label className={styles.searchField}>
-            <span>Buscar item</span>
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Nome, tipo, raridade ou habilidade"
-            />
-          </label>
-
-          {showCategories ? (
-            <div className={styles.categories}>
-              <button
-                type="button"
-                className={
-                  selectedCategory === "all"
-                    ? `${styles.categoryButton} ${styles.categoryButtonActive}`
-                    : styles.categoryButton
-                }
-                onClick={() => setSelectedCategory("all")}
-              >
-                Todas
-              </button>
-              {baseItemTypeValues.map((category) => (
+        <section className={styles.workspace}>
+          <aside className={styles.sidebar}>
+            <div className={styles.sidebarHeader}>
+              <h2>Itens</h2>
+              <div className={styles.sidebarTools}>
                 <button
-                  key={category}
                   type="button"
-                  className={
-                    selectedCategory === category
-                      ? `${styles.categoryButton} ${styles.categoryButtonActive}`
-                      : styles.categoryButton
-                  }
-                  onClick={() => setSelectedCategory(category)}
+                  className={searchOpen ? `${styles.iconButton} ${styles.iconButtonActive}` : styles.iconButton}
+                  aria-label="Pesquisar itens"
+                  title="Pesquisar itens"
+                  onClick={() => setSearchOpen((prev) => !prev)}
                 >
-                  {category}
+                  <Search size={18} />
                 </button>
-              ))}
+                <button
+                  type="button"
+                  className={showCategories ? `${styles.iconButton} ${styles.iconButtonActive}` : styles.iconButton}
+                  aria-label="Filtrar itens"
+                  title="Filtrar itens"
+                  onClick={() => setShowCategories((prev) => !prev)}
+                >
+                  <Filter size={18} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  aria-label="Criar item"
+                  title="Criar item"
+                  onClick={openCreateModal}
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
             </div>
-          ) : null}
-        </div>
 
-        {loading ? <p className={styles.feedback}>Carregando itens...</p> : null}
-        {loadingError ? <p className={styles.error}>{loadingError}</p> : null}
-        {!loading && !loadingError && items.length === 0 ? (
-          <p className={styles.feedback}>Nenhum item cadastrado para este RPG.</p>
-        ) : null}
-        {!loading &&
-        !loadingError &&
-        items.length > 0 &&
-        visibleItems.length === 0 ? (
-          <p className={styles.feedback}>Nenhum item encontrado nos filtros atuais.</p>
-        ) : null}
+            {searchOpen ? (
+              <label className={styles.searchBar}>
+                <span>Pesquisar</span>
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Nome, raridade ou habilidade..."
+                />
+              </label>
+            ) : null}
 
-        {!loading && !loadingError && visibleItems.length > 0 ? (
-          <div className={styles.grid}>
+            {loading ? <p className={styles.muted}>Carregando...</p> : null}
+            {loadingError ? <p className={styles.error}>{loadingError}</p> : null}
+
             {visibleItems.map((item) => (
-              <article key={item.id} className={styles.card}>
-                {(() => {
-                  const abilities = parseNamedDescriptionList(item.abilities)
-                  const effects = parseNamedDescriptionList(item.effects)
-                  const hasLegacyAbility = item.ability || item.abilityName
-                  const hasLegacyEffect = item.effect || item.effectName
-
-                  return (
-                    <>
-                {item.image ? (
-                  <div className={styles.cardImageFrame}>
-                    <Image
-                      src={item.image}
-                      alt={`Imagem de ${item.name}`}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 280px"
-                      unoptimized
-                      className={styles.cardImage}
-                    />
-                  </div>
-                ) : null}
-                <div className={styles.cardHeader}>
-                  <h3>{item.name}</h3>
-                  <span>{item.type}</span>
-                </div>
-
-                <p className={styles.rarityLine}>Raridade: {item.rarity}</p>
-                {item.damage !== null ? (
-                  <p className={styles.metaLine}>Dano: {item.damage}</p>
-                ) : null}
-                {item.range !== null ? (
-                  <p className={styles.metaLine}>Alcance: {item.range}</p>
-                ) : null}
-                {item.weight !== null ? (
-                  <p className={styles.metaLine}>Peso: {item.weight}</p>
-                ) : null}
-                {item.durability !== null ? (
-                  <p className={styles.metaLine}>Durabilidade: {item.durability}</p>
-                ) : null}
-                {item.duration !== null ? (
-                  <p className={styles.metaLine}>Duracao: {item.duration}</p>
-                ) : null}
-                {item.preRequirement !== null ? (
-                  <p className={styles.metaLine}>Pre-Requisito: {item.preRequirement}</p>
-                ) : null}
-                {abilities.length > 0
-                  ? abilities.map((ability, index) => (
-                      <p key={`${item.id}-ability-${index}`} className={styles.metaLine}>
-                        Habilidade ({ability.name}): {ability.description}
-                      </p>
-                    ))
-                  : null}
-                {effects.length > 0
-                  ? effects.map((effect, index) => (
-                      <p key={`${item.id}-effect-${index}`} className={styles.metaLine}>
-                        Efeito ({effect.name}): {effect.description}
-                      </p>
-                    ))
-                  : null}
-                {abilities.length === 0 && hasLegacyAbility ? (
-                  <p className={styles.metaLine}>
-                    Habilidade ({item.abilityName ?? "sem nome"}): {item.ability ?? "-"}
-                  </p>
-                ) : null}
-                {effects.length === 0 && hasLegacyEffect ? (
-                  <p className={styles.metaLine}>
-                    Efeito ({item.effectName ?? "sem nome"}): {item.effect ?? "-"}
-                  </p>
-                ) : null}
-
-                <div className={styles.cardActions}>
+              <div key={item.id} className={styles.skillCard}>
+                <strong>{item.name}</strong>
+                <small>
+                  {new Date(item.updatedAt).getTime() > new Date(item.createdAt).getTime()
+                    ? new Date(item.updatedAt).toLocaleString("pt-BR")
+                    : new Date(item.createdAt).toLocaleString("pt-BR")}
+                </small>
+                <div className={styles.actions}>
                   <button
                     type="button"
                     className={styles.primaryButton}
@@ -235,31 +189,122 @@ export default function ItemsDashboardClient({ rpgId, deps }: ItemsDashboardClie
                     <Gift size={16} />
                     <span>Entregar</span>
                   </button>
-                  <Link
-                    href={`/rpg/${rpgId}/items/${item.id}/edit`}
+                  <button
+                    type="button"
                     className={styles.ghostButton}
+                    onClick={() => void openEditModal(item.id)}
                   >
                     <Pencil size={16} />
                     <span>Editar</span>
-                  </Link>
-                  <IconButton
-                    type="button"
-                    className={styles.dangerButton}
-                    onClick={() => handleDelete(item.id)}
-                    disabled={deletingItemId === item.id}
-                    icon={<Trash2 size={16} />}
-                    loading={deletingItemId === item.id}
-                    loadingIcon={<LoaderCircle size={16} className={styles.iconSpin} />}
-                  >
-                    {deletingItemId === item.id ? "Deletando..." : "Deletar"}
-                  </IconButton>
+                  </button>
                 </div>
-                    </>
-                  )
-                })()}
-              </article>
+              </div>
             ))}
-          </div>
+
+            {!loading && !loadingError && items.length === 0 ? (
+              <p className={styles.muted}>Nenhum item cadastrado para este RPG.</p>
+            ) : null}
+            {!loading && !loadingError && items.length > 0 && visibleItems.length === 0 ? (
+              <p className={styles.muted}>Nenhum item encontrado nos filtros atuais.</p>
+            ) : null}
+          </aside>
+
+        </section>
+
+        {showCategories ? (
+          <>
+            <button
+              type="button"
+              className={styles.drawerBackdrop}
+              aria-label="Fechar filtros"
+              onClick={() => setShowCategories(false)}
+            />
+            <aside className={styles.drawer} role="dialog" aria-modal="true">
+              <div className={styles.drawerHeader}>
+                <h3 className={styles.drawerTitle}>Filtros</h3>
+                <button
+                  type="button"
+                  className={styles.drawerClose}
+                  onClick={() => setShowCategories(false)}
+                >
+                  Fechar
+                </button>
+              </div>
+
+              <div className={styles.drawerTagsSection}>
+                <span className={styles.searchBarLabel}>Categoria</span>
+                <div className={styles.chipsRow}>
+                  <button
+                    type="button"
+                    className={
+                      selectedCategory === "all"
+                        ? `${styles.chipButton} ${styles.chipButtonActive}`
+                        : styles.chipButton
+                    }
+                    onClick={() => setSelectedCategory("all")}
+                  >
+                    Todas
+                  </button>
+                  {baseItemTypeValues.map((category) => (
+                    <button
+                      key={category}
+                      type="button"
+                      className={
+                        selectedCategory === category
+                          ? `${styles.chipButton} ${styles.chipButtonActive}`
+                          : styles.chipButton
+                      }
+                      onClick={() => setSelectedCategory(category)}
+                    >
+                      {itemTypeLabel[category]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.drawerTagsSection}>
+                <span className={styles.searchBarLabel}>Raridade</span>
+                <div className={styles.chipsRow}>
+                  <button
+                    type="button"
+                    className={
+                      selectedRarity === "all"
+                        ? `${styles.chipButton} ${styles.chipButtonActive}`
+                        : styles.chipButton
+                    }
+                    onClick={() => setSelectedRarity("all")}
+                  >
+                    Todas
+                  </button>
+                  {baseItemRarityValues.map((rarity) => (
+                    <button
+                      key={rarity}
+                      type="button"
+                      className={
+                        selectedRarity === rarity
+                          ? `${styles.chipButton} ${styles.chipButtonActive}`
+                          : styles.chipButton
+                      }
+                      onClick={() => setSelectedRarity(rarity)}
+                    >
+                      {itemRarityLabel[rarity]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className={styles.drawerClear}
+                onClick={() => {
+                  setSelectedCategory("all")
+                  setSelectedRarity("all")
+                }}
+              >
+                Limpar filtros
+              </button>
+            </aside>
+          </>
         ) : null}
       </section>
 
@@ -332,6 +377,67 @@ export default function ItemsDashboardClient({ rpgId, deps }: ItemsDashboardClie
           </form>
         </div>
       ) : null}
+
+      <ItemUpsertModal
+        open={editorOpen}
+        mode={editorMode}
+        tab={editorTab}
+        setTab={setEditorTab}
+        loading={editorLoading}
+        saving={editorSaving}
+        error={editorError}
+        uploadError={uploadError}
+        name={name}
+        setName={setName}
+        description={description}
+        setDescription={setDescription}
+        preRequirement={preRequirement}
+        setPreRequirement={setPreRequirement}
+        type={type}
+        setType={(value) => setType(value as typeof type)}
+        rarity={rarity}
+        setRarity={(value) => setRarity(value as typeof rarity)}
+        damage={damage}
+        setDamage={setDamage}
+        range={range}
+        setRange={setRange}
+        weight={weight}
+        setWeight={setWeight}
+        duration={duration}
+        setDuration={setDuration}
+        durability={durability}
+        setDurability={setDurability}
+        abilities={abilities}
+        setAbilities={setAbilities}
+        effects={effects}
+        setEffects={setEffects}
+        customFields={customFields}
+        setCustomFields={setCustomFields}
+        image={image}
+        selectedImageFile={selectedImageFile}
+        selectedImagePreviewUrl={selectedImagePreviewUrl}
+        uploadingImage={uploadingImage}
+        customFieldModalOpen={customFieldModalOpen}
+        setCustomFieldModalOpen={setCustomFieldModalOpen}
+        newCustomFieldName={newCustomFieldName}
+        setNewCustomFieldName={setNewCustomFieldName}
+        newCustomFieldValue={newCustomFieldValue}
+        setNewCustomFieldValue={setNewCustomFieldValue}
+        baseItemTypeValues={baseItemTypeValues}
+        baseItemRarityValues={baseItemRarityValues}
+        onClose={closeEditorModal}
+        onSave={() => void handleSaveItem()}
+        onDelete={() => {
+          if (editorMode === "edit" && editingItemId) {
+            void handleDelete(editingItemId)
+          }
+        }}
+        onImageUpload={handleImageUpload}
+        onRemoveImage={handleRemoveImage}
+        onAddCustomField={addCustomField}
+        updateNamedEntry={updateNamedEntry}
+        createEmptyNamedDescription={createEmptyNamedDescription}
+      />
     </main>
   )
 }

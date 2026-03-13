@@ -7,6 +7,7 @@ export type BaseItem = {
   rpgId: string
   name: string
   image: string | null
+  description: string | null
   preRequirement: string | null
   type: ItemType
   rarity: string
@@ -18,6 +19,7 @@ export type BaseItem = {
   effectName: string | null
   abilities: unknown
   effects: unknown
+  customFields: unknown
   weight: number | null
   duration: string | null
   durability: number | null
