@@ -73,7 +73,7 @@ describe("PATCH /api/rpg/[rpgId]/items/[itemId]", () => {
   it("retorna 404 quando item nao existe", async () => {
     mocks.queryRaw.mockResolvedValueOnce([])
     const response = await PATCH(
-      makeRequest("PATCH", { name: "Espada", type: "weapon", rarity: "common" }),
+      makeRequest("PATCH", { name: "Espada", type: "equipment", rarity: "common" }),
       makeContext(),
     )
     expect(response.status).toBe(404)
@@ -104,7 +104,7 @@ describe("DELETE /api/rpg/[rpgId]/items/[itemId]", () => {
     ])
 
     const response = await PATCH(
-      makeRequest("PATCH", { name: "Espada", type: "weapon", rarity: "common" }),
+      makeRequest("PATCH", { name: "Espada", type: "equipment", rarity: "common" }),
       makeContext(),
     )
 

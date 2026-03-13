@@ -5,7 +5,7 @@ describe("createBaseItemSchema", () => {
   it("valida item base minimo", () => {
     const result = createBaseItemSchema.safeParse({
       name: "Espada Longa",
-      type: "weapon",
+      type: "equipment",
       rarity: "common",
     })
 
@@ -25,7 +25,7 @@ describe("createBaseItemSchema", () => {
   it("rejeita peso negativo", () => {
     const result = createBaseItemSchema.safeParse({
       name: "Armadura",
-      type: "armor",
+      type: "equipment",
       rarity: "rare",
       weight: -1,
     })

@@ -17,6 +17,7 @@ export type ItemRecord = {
   effectName: string | null
   abilities: unknown
   effects: unknown
+  customFields: unknown
   weight: number | null
   duration: string | null
   durability: number | null
@@ -27,6 +28,11 @@ export type ItemRecord = {
 export type NormalizedNamedDescription = {
   name: string
   description: string
+}
+
+export type NormalizedCustomField = {
+  name: string
+  value: string | null
 }
 
 export type NormalizedBaseItemInput = Omit<
@@ -56,6 +62,7 @@ export type NormalizedBaseItemInput = Omit<
   duration: string | null
   abilities: NormalizedNamedDescription[]
   effects: NormalizedNamedDescription[]
+  customFields: NormalizedCustomField[]
 }
 
 export type GiveItemInput = {

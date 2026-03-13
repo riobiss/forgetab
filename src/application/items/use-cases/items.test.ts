@@ -70,7 +70,7 @@ describe("items use-cases", () => {
       {
         rpgId: "rpg-1",
         userId: "user-1",
-        body: { name: "Espada", type: "weapon", rarity: "common" },
+        body: { name: "Espada", type: "equipment", rarity: "common" },
       },
     )
 
@@ -102,7 +102,7 @@ describe("items use-cases", () => {
         body: {
           name: "Espada",
           image: "https://cdn/new.png",
-          type: "weapon",
+          type: "equipment",
           rarity: "common",
         },
       },

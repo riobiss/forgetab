@@ -8,6 +8,11 @@ export type ItemEditorNamedDescriptionDto = {
   description: string
 }
 
+export type ItemEditorCustomFieldDto = {
+  name: string
+  value: string | null
+}
+
 export type ItemEditorDetailDto = {
   id: string
   name: string
@@ -24,6 +29,7 @@ export type ItemEditorDetailDto = {
   effectName: string | null
   abilities: unknown
   effects: unknown
+  customFields: unknown
   weight: number | null
   duration: string | null
   durability: number | null
@@ -44,6 +50,7 @@ export type UpsertItemPayloadDto = {
   effect: string | null
   abilities: ItemEditorNamedDescriptionDto[]
   effects: ItemEditorNamedDescriptionDto[]
+  customFields: ItemEditorCustomFieldDto[]
   weight: number | null
   duration: string | null
   durability: number | null

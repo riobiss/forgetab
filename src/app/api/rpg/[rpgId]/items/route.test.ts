@@ -92,7 +92,7 @@ describe("POST /api/rpg/[rpgId]/items", () => {
     ])
 
     const response = await POST(
-      makeRequest("POST", { name: "Espada", type: "weapon", rarity: "common" }),
+      makeRequest("POST", { name: "Espada", type: "equipment", rarity: "common" }),
       makeContext(),
     )
 

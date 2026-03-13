@@ -3,6 +3,7 @@ import {
   type CreateBaseItemInput,
 } from "@/lib/validators/baseItem"
 import type {
+  NormalizedCustomField,
   NormalizedBaseItemInput,
   NormalizedNamedDescription,
 } from "@/application/items/ports/ItemRepository"
@@ -21,7 +22,19 @@ function normalizeNamedEntries(entries: CreateBaseItemInput["abilities"] | Creat
     }))
     .filter(
       (entry): entry is NormalizedNamedDescription =>
-        entry.name.length > 0 && entry.description.length > 0,
+        entry.description.length > 0,
+    )
+}
+
+function normalizeCustomFields(entries: CreateBaseItemInput["customFields"]) {
+  return (entries ?? [])
+    .map((entry) => ({
+      name: entry.name.trim(),
+      value: normalizeOptionalText(entry.value),
+    }))
+    .filter(
+      (entry): entry is NormalizedCustomField =>
+        entry.name.length > 0,
     )
 }
 
@@ -41,6 +54,7 @@ export function parseAndNormalizeBaseItem(body: unknown): NormalizedBaseItemInpu
   const durability = parsed.data.durability ?? null
   const abilities = normalizeNamedEntries(parsed.data.abilities)
   const effects = normalizeNamedEntries(parsed.data.effects)
+  const customFields = normalizeCustomFields(parsed.data.customFields)
   const abilityName = normalizeOptionalText(parsed.data.abilityName) ?? abilities[0]?.name ?? null
   const ability = normalizeOptionalText(parsed.data.ability) ?? abilities[0]?.description ?? null
   const effectName = normalizeOptionalText(parsed.data.effectName) ?? effects[0]?.name ?? null
@@ -59,6 +73,7 @@ export function parseAndNormalizeBaseItem(body: unknown): NormalizedBaseItemInpu
     effectName,
     abilities,
     effects,
+    customFields,
     weight,
     duration,
     durability,
@@ -89,6 +104,7 @@ export function mapBaseItemsError(error: unknown, fallbackMessage: string): neve
       'column "duration" does not exist',
       'column "range" does not exist',
       'column "image" does not exist',
+      'column "custom_fields" does not exist',
     ].some((message) => error.message.includes(message))
   ) {
     throw new AppError("Estrutura de itens desatualizada. Rode a migration mais recente.", 500)

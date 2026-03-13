@@ -37,12 +37,12 @@ enum RpgVisibility {
 }
 
 enum BaseItemType {
-  weapon
-  armor
+  equipment
   consumable
-  accessory
   material
+  tool
   quest
+  special
 }
 
 enum BaseItemRarity {
@@ -175,6 +175,7 @@ model BaseItem {
   effectName String?       @map("effect_name")
   abilities Json?
   effects   Json?
+  customFields Json?       @map("custom_fields")
   weight    Float?
   duration  String?
   durability Int?

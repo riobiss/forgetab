@@ -46,6 +46,7 @@ type BaseItem = {
   effectName: string | null
   abilities: unknown
   effects: unknown
+  customFields: unknown
   weight: number | null
   duration: string | null
   durability: number | null
@@ -126,7 +127,7 @@ export default function ItemEditorForm({ rpgId, mode, itemId, deps }: Props) {
   const [image, setImage] = useState("")
   const [description, setDescription] = useState("")
   const [preRequirement, setPreRequirement] = useState("")
-  const [type, setType] = useState<ItemType>("weapon")
+  const [type, setType] = useState<ItemType>("equipment")
   const [rarity, setRarity] = useState<ItemRarity>("common")
   const [damage, setDamage] = useState("")
   const [range, setRange] = useState("")
@@ -286,6 +287,7 @@ export default function ItemEditorForm({ rpgId, mode, itemId, deps }: Props) {
       effect: normalizedEffects[0]?.description ?? null,
       abilities: normalizedAbilities,
       effects: normalizedEffects,
+      customFields: [],
       weight: toOptionalNumber(weight, Number.parseFloat),
       duration: toOptionalText(duration),
       durability: toOptionalNumber(durability, (raw) => Number.parseInt(raw, 10)),

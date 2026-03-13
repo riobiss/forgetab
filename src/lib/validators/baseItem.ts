@@ -1,12 +1,12 @@
 import { z } from "zod"
 
 export const baseItemTypeValues = [
-  "weapon",
-  "armor",
+  "equipment",
   "consumable",
-  "accessory",
   "material",
+  "tool",
   "quest",
+  "special",
 ] as const
 
 export const baseItemRarityValues = [
@@ -21,13 +21,26 @@ const namedDescriptionSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Nome e obrigatorio.")
     .max(120, "Nome deve ter no maximo 120 caracteres."),
   description: z
     .string()
     .trim()
     .min(1, "Descricao e obrigatoria.")
     .max(500, "Descricao deve ter no maximo 500 caracteres."),
+})
+
+const customFieldSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Nome e obrigatorio.")
+    .max(120, "Nome deve ter no maximo 120 caracteres."),
+  value: z
+    .string()
+    .trim()
+    .max(500, "Valor deve ter no maximo 500 caracteres.")
+    .nullable()
+    .optional(),
 })
 
 export const createBaseItemSchema = z.object({
@@ -90,6 +103,7 @@ export const createBaseItemSchema = z.object({
     .optional(),
   abilities: z.array(namedDescriptionSchema).max(20).nullable().optional(),
   effects: z.array(namedDescriptionSchema).max(20).nullable().optional(),
+  customFields: z.array(customFieldSchema).max(20).nullable().optional(),
   weight: z.number().min(0, "Peso deve ser maior ou igual a 0.").nullable().optional(),
   duration: z
     .string()
