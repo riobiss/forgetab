@@ -1,4 +1,5 @@
 .page {
+  --skills-content-width: 920px;
   background:
     radial-gradient(
       circle at top left,
@@ -19,13 +20,15 @@
 }
 
 .header {
+  max-width: var(--skills-content-width);
   width: 100%;
   display: flex;
   align-items: center;
+  margin: 0 auto;
 }
 
 .section {
-  max-width: 920px;
+  max-width: var(--skills-content-width);
   width: 100%;
   margin: 0 auto;
 }
@@ -60,10 +63,9 @@
 
 .workspace {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 1fr;
   gap: 1.15rem;
   min-height: 0;
-  grid-template-columns: 1fr;
 }
 
 .sidebar {
