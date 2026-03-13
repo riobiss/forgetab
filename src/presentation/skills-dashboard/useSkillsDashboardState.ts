@@ -1,16 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
-import {
-  buildSkillsSearchIndex,
-  loadDashboardData,
-  loadSkillDetail,
-  parseSearchIndex,
-} from "@/application/skillsDashboard/use-cases/skillsDashboard"
 import type { SkillsDashboardDependencies } from "@/application/skillsDashboard/contracts/SkillsDashboardDependencies"
 import { type ReactSelectOption } from "@/components/select/ReactSelectField"
-import {
-  abilityCategoryDefinitions,
-  normalizeEnabledAbilityCategories,
-} from "@/lib/rpg/abilityCategories"
+import { abilityCategoryDefinitions } from "@/lib/rpg/abilityCategories"
 import {
   actionTypeValues,
   skillCategoryValues,
@@ -29,12 +20,14 @@ import type {
   SkillsDashboardProps,
   TemplateOption,
 } from "./types"
+import { useSkillsDataController } from "./useSkillsDataController"
+import { useSkillsFilters } from "./useSkillsFilters"
+import { useSkillsModalController } from "./useSkillsModalController"
 import { useSkillsDashboardActions } from "./useSkillsDashboardActions"
 import {
   createInitialLevel,
-  createInitialMeta,
   mapLevelToForm,
-  mapSkillToMetaForm,
+  createInitialMeta,
   resolveCategoryLabel,
 } from "./utils"
 
@@ -122,18 +115,11 @@ export function useSkillsDashboardState(
   const [classes, setClasses] = useState<TemplateOption[]>([])
   const [races, setRaces] = useState<TemplateOption[]>([])
   const [skills, setSkills] = useState<SkillListItem[]>([])
-  const [skillSearchOpen, setSkillSearchOpen] = useState(false)
-  const [skillSearch, setSkillSearch] = useState("")
   const [skillSearchIndex, setSkillSearchIndex] = useState<Record<string, string>>({})
   const [skillDisplayNameById, setSkillDisplayNameById] = useState<Record<string, string>>({})
   const [skillFilterMetaById, setSkillFilterMetaById] = useState<
     Record<string, { categories: string[]; types: string[]; actionTypes: string[]; tags: string[] }>
   >({})
-  const [filtersOpen, setFiltersOpen] = useState(false)
-  const [selectedCategoryFilters, setSelectedCategoryFilters] = useState<string[]>([])
-  const [selectedTypeFilters, setSelectedTypeFilters] = useState<string[]>([])
-  const [selectedActionTypeFilters, setSelectedActionTypeFilters] = useState<string[]>([])
-  const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([])
   const [selectedSkillId, setSelectedSkillId] = useState("")
   const [activeSkill, setActiveSkill] = useState<SkillDetail | null>(null)
   const [selectedLevelId, setSelectedLevelId] = useState("")
@@ -142,25 +128,58 @@ export function useSkillsDashboardState(
   const [costResourceName, setCostResourceName] = useState("Skill Points")
   const [abilityCategoriesEnabled, setAbilityCategoriesEnabled] = useState(false)
   const [enabledAbilityCategories, setEnabledAbilityCategories] = useState<SkillCategory[]>([])
-  const [createOpen, setCreateOpen] = useState(false)
-  const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false)
-  const [newCustomFieldName, setNewCustomFieldName] = useState("")
-  const [newCustomFieldValue, setNewCustomFieldValue] = useState("")
-  const [editOpen, setEditOpen] = useState(false)
-  const [createStep, setCreateStep] = useState(1)
-  const [editStep, setEditStep] = useState(1)
-  const [editReloadKey, setEditReloadKey] = useState(0)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
-
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    if (window.innerWidth > 760) {
-      setSkillSearchOpen(true)
-    }
-  }, [])
+  const {
+    skillSearchOpen,
+    skillSearch,
+    setSkillSearch,
+    filtersOpen,
+    selectedCategoryFilters,
+    selectedTypeFilters,
+    selectedActionTypeFilters,
+    selectedTagFilters,
+    filteredSkills,
+    toggleSkillSearch,
+    openFilters,
+    closeFilters,
+    clearFilters,
+    toggleCategoryFilter,
+    toggleTypeFilter,
+    toggleActionTypeFilter,
+    toggleTagFilter,
+  } = useSkillsFilters({ skills, skillSearchIndex, skillFilterMetaById })
+  const {
+    createOpen,
+    setCreateOpen,
+    customFieldModalOpen,
+    setCustomFieldModalOpen,
+    newCustomFieldName,
+    setNewCustomFieldName,
+    newCustomFieldValue,
+    setNewCustomFieldValue,
+    editOpen,
+    setEditOpen,
+    createStep,
+    setCreateStep,
+    editStep,
+    setEditStep,
+    editReloadKey,
+    openCreateModal,
+    closeCreateModal,
+    openEditModal,
+    closeEditModal,
+    openCustomFieldModal,
+    closeCustomFieldModal,
+  } = useSkillsModalController({
+    setMetaForm,
+    setLevelForm,
+    createInitialMeta,
+    createInitialLevel,
+    filtersOpen,
+  })
 
   const selectedLevel = useMemo(
     () => activeSkill?.levels.find((level) => level.id === selectedLevelId) ?? null,
@@ -212,160 +231,31 @@ export function useSkillsDashboardState(
       ),
     [skillFilterMetaById],
   )
-  const filteredSkills = useMemo(() => {
-    const query = skillSearch.trim().toLowerCase()
-
-    return skills.filter((skill) => {
-      const meta = skillFilterMetaById[skill.id] ?? {
-        categories: [],
-        types: [],
-        actionTypes: [],
-        tags: [],
-      }
-      if (
-        selectedCategoryFilters.length > 0 &&
-        !selectedCategoryFilters.some((item) => meta.categories.includes(item))
-      ) {
-        return false
-      }
-      if (selectedTypeFilters.length > 0 && !selectedTypeFilters.some((item) => meta.types.includes(item))) {
-        return false
-      }
-      if (
-        selectedActionTypeFilters.length > 0 &&
-        !selectedActionTypeFilters.some((item) => meta.actionTypes.includes(item))
-      ) {
-        return false
-      }
-      if (selectedTagFilters.length > 0 && !selectedTagFilters.some((tag) => meta.tags.includes(tag))) return false
-      if (!query) return true
-      const searchBlob = skillSearchIndex[skill.id] ?? ""
-      return searchBlob.includes(query)
-    })
-  }, [
-    selectedActionTypeFilters,
-    selectedCategoryFilters,
-    selectedTagFilters,
-    selectedTypeFilters,
-    skillSearch,
-    skillSearchIndex,
+  useSkillsDataController({
+    deps,
+    selectedRpgId,
     skills,
-    skillFilterMetaById,
-  ])
-
-  useEffect(() => {
-    if (!selectedRpgId) return
-
-    async function loadData() {
-      setLoading(true)
-      setError("")
-      try {
-        const payload = await loadDashboardData(deps, { rpgId: selectedRpgId })
-        setClasses(payload.classes)
-        setRaces(payload.races)
-        setSkills(payload.skills)
-        setCostResourceName((payload.rpgSettings.costResourceName ?? "Skill Points").trim() || "Skill Points")
-        setAbilityCategoriesEnabled(Boolean(payload.rpgSettings.abilityCategoriesEnabled ?? false))
-        setEnabledAbilityCategories(
-          normalizeEnabledAbilityCategories(payload.rpgSettings.enabledAbilityCategories),
-        )
-        setSelectedSkillId(payload.skills[0]?.id ?? "")
-        setEditOpen(false)
-      } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "Erro ao carregar dashboard.")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    void loadData()
-  }, [deps, selectedRpgId])
-
-  useEffect(() => {
-    if (skills.length === 0) {
-      setSkillSearchIndex({})
-      setSkillDisplayNameById({})
-      setSkillFilterMetaById({})
-      return
-    }
-
-    let cancelled = false
-
-    async function buildSearchIndex() {
-      try {
-        const index = await buildSkillsSearchIndex(deps, {
-          skills,
-          rpgId: selectedRpgId,
-        })
-        if (cancelled) return
-        const parsed = parseSearchIndex(index)
-        setSkillSearchIndex(parsed.skillSearchIndex)
-        setSkillDisplayNameById(parsed.skillDisplayNameById)
-        setSkillFilterMetaById(parsed.skillFilterMetaById)
-      } catch {
-        if (cancelled) return
-        setSkillSearchIndex(
-          Object.fromEntries(skills.map((skill) => [skill.id, skill.slug.toLowerCase()])),
-        )
-        setSkillDisplayNameById(
-          Object.fromEntries(skills.map((skill) => [skill.id, skill.slug])),
-        )
-        setSkillFilterMetaById(
-          Object.fromEntries(
-            skills.map((skill) => [
-              skill.id,
-              { categories: [], types: [], actionTypes: [], tags: [] },
-            ]),
-          ),
-        )
-      }
-    }
-
-    void buildSearchIndex()
-    return () => {
-      cancelled = true
-    }
-  }, [deps, selectedRpgId, skills])
-
-  useEffect(() => {
-    if (createOpen) return
-
-    if (!selectedSkillId) {
-      setActiveSkill(null)
-      setSelectedLevelId("")
-      setMetaForm(createInitialMeta())
-      setLevelForm(createInitialLevel())
-      return
-    }
-
-    let cancelled = false
-
-    async function loadSkill() {
-      setLoading(true)
-      setError("")
-      try {
-        const skill = await loadSkillDetail(deps, { skillId: selectedSkillId })
-
-        if (cancelled) return
-        setActiveSkill(skill as SkillDetail)
-        setMetaForm(mapSkillToMetaForm(skill as SkillDetail))
-        const firstLevel = skill.levels[0]
-        setSelectedLevelId(firstLevel?.id ?? "")
-        setLevelForm(firstLevel ? mapLevelToForm(firstLevel) : createInitialLevel())
-      } catch (cause) {
-        if (cancelled) return
-        setError(cause instanceof Error ? cause.message : "Erro ao carregar skill.")
-      } finally {
-        if (cancelled) return
-        setLoading(false)
-      }
-    }
-
-    void loadSkill()
-    return () => {
-      cancelled = true
-    }
-  }, [deps, selectedSkillId, editReloadKey, createOpen])
+    selectedSkillId,
+    editReloadKey,
+    createOpen,
+    setClasses,
+    setRaces,
+    setSkills,
+    setSkillSearchIndex,
+    setSkillDisplayNameById,
+    setSkillFilterMetaById,
+    setSelectedSkillId,
+    setActiveSkill,
+    setSelectedLevelId,
+    setMetaForm,
+    setLevelForm,
+    setCostResourceName,
+    setAbilityCategoriesEnabled,
+    setEnabledAbilityCategories,
+    setEditOpen,
+    setLoading,
+    setError,
+  })
 
   useEffect(() => {
     if (createOpen) return
@@ -401,107 +291,6 @@ export function useSkillsDashboardState(
     }
   }, [abilityCategoriesEnabled, createOpen, enabledAbilityCategories, metaForm.category])
 
-  useEffect(() => {
-    if (!createOpen && !editOpen && !filtersOpen) return
-
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = "hidden"
-
-    return () => {
-      document.body.style.overflow = previousOverflow
-    }
-  }, [createOpen, editOpen, filtersOpen])
-
-  useEffect(() => {
-    if (createOpen) return
-    setCustomFieldModalOpen(false)
-    setNewCustomFieldName("")
-    setNewCustomFieldValue("")
-  }, [createOpen])
-
-  function toggleSkillSearch() {
-    setSkillSearchOpen((prev) => {
-      const next = !prev
-      if (!next) {
-        setSkillSearch("")
-      }
-      return next
-    })
-  }
-
-  function openFilters() {
-    setFiltersOpen(true)
-  }
-
-  function closeFilters() {
-    setFiltersOpen(false)
-  }
-
-  function clearFilters() {
-    setSelectedCategoryFilters([])
-    setSelectedTypeFilters([])
-    setSelectedActionTypeFilters([])
-    setSelectedTagFilters([])
-  }
-
-  function toggleCategoryFilter(item: string) {
-    setSelectedCategoryFilters((prev) =>
-      prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item],
-    )
-  }
-
-  function toggleTypeFilter(item: string) {
-    setSelectedTypeFilters((prev) =>
-      prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item],
-    )
-  }
-
-  function toggleActionTypeFilter(item: string) {
-    setSelectedActionTypeFilters((prev) =>
-      prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item],
-    )
-  }
-
-  function toggleTagFilter(tag: string) {
-    setSelectedTagFilters((prev) =>
-      prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag],
-    )
-  }
-
-  function openCreateModal() {
-    setCreateOpen(true)
-    setEditOpen(false)
-    setCreateStep(1)
-    setMetaForm(createInitialMeta())
-    setLevelForm(createInitialLevel())
-  }
-
-  function closeCreateModal() {
-    setCreateOpen(false)
-  }
-
-  function openEditModal(skillId: string) {
-    setCreateOpen(false)
-    setEditOpen(true)
-    setEditStep(1)
-    setSelectedSkillId(skillId)
-    setEditReloadKey((prev) => prev + 1)
-  }
-
-  function closeEditModal() {
-    setEditOpen(false)
-  }
-
-  function openCustomFieldModal() {
-    setCustomFieldModalOpen(true)
-  }
-
-  function closeCustomFieldModal() {
-    setCustomFieldModalOpen(false)
-    setNewCustomFieldName("")
-    setNewCustomFieldValue("")
-  }
-
   const actions = useSkillsDashboardActions({
     deps,
     selectedRpgId,
@@ -530,8 +319,6 @@ export function useSkillsDashboardState(
     setNewCustomFieldValue,
     setCustomFieldModalOpen,
   })
-
-
 
   return {
     classes,
@@ -576,7 +363,7 @@ export function useSkillsDashboardState(
     newCustomFieldValue,
     setNewCustomFieldValue,
     editOpen,
-    openEditModal,
+    openEditModal: (skillId: string) => openEditModal(skillId, setSelectedSkillId),
     closeEditModal,
     createStep,
     setCreateStep,
