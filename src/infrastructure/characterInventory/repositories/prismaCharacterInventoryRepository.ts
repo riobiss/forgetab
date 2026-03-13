@@ -105,6 +105,7 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository = 
         b.effect_name AS "itemEffectName",
         b.abilities AS "itemAbilities",
         b.effects AS "itemEffects",
+        b.custom_fields AS "itemCustomFields",
         b.weight AS "itemWeight",
         b.duration AS "itemDuration",
         b.durability AS "itemDurability"

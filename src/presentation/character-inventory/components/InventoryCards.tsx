@@ -19,6 +19,13 @@ export default function InventoryCards({
   removingItemId,
 }: Props) {
   const [confirmingItemId, setConfirmingItemId] = useState<string | null>(null)
+  const rarityClassNameByValue = {
+    common: styles.rarityCommon,
+    uncommon: styles.rarityUncommon,
+    rare: styles.rarityRare,
+    epic: styles.rarityEpic,
+    legendary: styles.rarityLegendary,
+  } as const
 
   if (items.length === 0) {
     return <p className={styles.emptyState}>{emptyMessage}</p>
@@ -27,8 +34,23 @@ export default function InventoryCards({
   return (
     <div className={styles.cardGrid}>
       {items.map((item) => (
-        <div key={item.id} className={styles.card}>
+        <div
+          key={item.id}
+          className={`${styles.card} ${rarityClassNameByValue[item.rarityClass]}`}
+        >
           <div className={styles.cardTop}>
+            <div className={styles.cardMetaHeader}>
+              {item.secondaryLine ? (
+                <span className={styles.quantity}>{item.secondaryLine}</span>
+              ) : (
+                <span />
+              )}
+              <span
+                className={`${styles.rarityBadge} ${rarityClassNameByValue[item.rarityClass]}`}
+              >
+                {item.rarityLabel}
+              </span>
+            </div>
             {item.imageUrl ? (
               <div className={styles.cardImageFrame}>
                 <Image
@@ -46,7 +68,6 @@ export default function InventoryCards({
                 <h3 className={styles.cardTitle}>{item.title}</h3>
                 <span className={styles.inlineQuantity}>X.{item.quantity}</span>
               </div>
-              <span className={styles.rarityBadge}>{item.rarityLabel}</span>
             </div>
 
             {item.description ? (
@@ -91,17 +112,9 @@ export default function InventoryCards({
                 </div>
               </div>
             ) : null}
-            {item.metaLines?.map((line, index) => (
-              <p key={`${item.id}-meta-${index}`} className={styles.minorInfo}>
-                {line}
-              </p>
-            ))}
           </div>
 
           <div className={styles.cardFooter}>
-            {item.secondaryLine ? (
-              <span className={styles.quantity}>Tipo: {item.secondaryLine}</span>
-            ) : null}
             {onRemoveItem ? (
               <div className={styles.removeRow}>
                 {confirmingItemId === item.id ? (

@@ -12,20 +12,13 @@ import {
 import styles from "./CharacterInventoryPage.module.css"
 import InventoryCards from "./components/InventoryCards"
 import { InventoryCardItem } from "./types"
-import { baseItemTypeValues } from "@/lib/validators/baseItem"
+import { baseItemRarityValues, baseItemTypeValues } from "@/lib/validators/baseItem"
+import { itemRarityLabel, itemTypeLabel } from "@/presentation/items-dashboard/constants"
 
 type Props = {
   rpgId: string
   characterId: string
   deps: CharacterInventoryDependencies
-}
-
-const rarityLabel: Record<CharacterInventoryRarityDto, string> = {
-  common: "Comum",
-  uncommon: "Incomum",
-  rare: "Raro",
-  epic: "Epico",
-  legendary: "Lendario",
 }
 
 export default function CharacterInventoryClient({ rpgId, characterId, deps }: Props) {
@@ -38,6 +31,7 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
   const [selectedCategory, setSelectedCategory] = useState<
     (typeof baseItemTypeValues)[number] | "all"
   >("all")
+  const [selectedRarity, setSelectedRarity] = useState<CharacterInventoryRarityDto | "all">("all")
   const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
   const [maxCarryWeight, setMaxCarryWeight] = useState<number | null>(null)
@@ -53,21 +47,51 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
           return null
         }
 
-        const maybeName = (entry as { name?: unknown }).name
-        const maybeDescription = (entry as { description?: unknown }).description
-        if (typeof maybeName !== "string" || typeof maybeDescription !== "string") {
-          return null
-        }
+      const maybeName = (entry as { name?: unknown }).name
+      const maybeDescription = (entry as { description?: unknown }).description
+      if (typeof maybeName !== "string" || typeof maybeDescription !== "string") {
+        return null
+      }
 
-        const name = maybeName.trim()
-        const description = maybeDescription.trim()
-        if (!name || !description) {
-          return null
-        }
+      const name = maybeName.trim()
+      const description = maybeDescription.trim()
+      if (!description) {
+        return null
+      }
 
         return { name, description }
       })
       .filter((entry): entry is { name: string; description: string } => entry !== null)
+  }
+
+  function parseCustomFieldList(value: unknown) {
+    if (!Array.isArray(value)) {
+      return []
+    }
+
+    return value
+      .map((entry) => {
+        if (!entry || typeof entry !== "object") {
+          return null
+        }
+
+        const maybeName = (entry as { name?: unknown }).name
+        const maybeValue = (entry as { value?: unknown }).value
+        if (typeof maybeName !== "string") {
+          return null
+        }
+
+        const name = maybeName.trim()
+        if (!name) {
+          return null
+        }
+
+        return {
+          name,
+          value: typeof maybeValue === "string" ? maybeValue.trim() : "",
+        }
+      })
+      .filter((entry): entry is { name: string; value: string } => entry !== null)
   }
 
   const hasInventory = inventory.length > 0
@@ -81,14 +105,17 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
   )
   const isOverWeight =
     useInventoryWeightLimit && maxCarryWeight !== null && totalWeight > maxCarryWeight
-  const activeExtraFilters = selectedCategory === "all" ? 0 : 1
+  const activeExtraFilters =
+    (selectedCategory === "all" ? 0 : 1) + (selectedRarity === "all" ? 0 : 1)
   const filteredInventory = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
     return inventory.filter((item) => {
       const itemTypeNormalized = item.itemType.toLowerCase()
       const matchesCategory =
         selectedCategory === "all" ? true : itemTypeNormalized === selectedCategory
-      if (!matchesCategory) {
+      const matchesRarity =
+        selectedRarity === "all" ? true : item.itemRarity === selectedRarity
+      if (!matchesCategory || !matchesRarity) {
         return false
       }
 
@@ -123,15 +150,15 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
         )
       )
     })
-  }, [inventory, search, selectedCategory])
+  }, [inventory, search, selectedCategory, selectedRarity])
 
   const cardItems: InventoryCardItem[] = filteredInventory.map((item) => {
     const abilities = parseNamedDescriptionList(item.itemAbilities)
     const effects = parseNamedDescriptionList(item.itemEffects)
-    const metaLines: string[] = []
     const coreStats: Array<{ label: string; value: string }> = []
     const abilityEntries: Array<{ name: string; description: string }> = []
     const effectEntries: Array<{ name: string; description: string }> = []
+    const customFields = parseCustomFieldList(item.itemCustomFields)
 
     if (item.itemDamage) {
       coreStats.push({ label: "Dano", value: item.itemDamage })
@@ -167,20 +194,24 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
         description: item.itemEffect ?? "-",
       })
     }
+    if (customFields.length > 0) {
+      customFields.forEach((field) =>
+        coreStats.push({ label: field.name, value: field.value || "-" }),
+      )
+    }
 
     return {
       id: item.id,
       title: item.itemName,
       imageUrl: item.itemImage ?? undefined,
-      rarityLabel: rarityLabel[item.itemRarity],
+      rarityLabel: itemRarityLabel[item.itemRarity],
       rarityClass: item.itemRarity,
       quantity: item.quantity,
       description: item.itemDescription ?? undefined,
-      secondaryLine: item.itemType,
+      secondaryLine: itemTypeLabel[item.itemType as keyof typeof itemTypeLabel] ?? item.itemType,
       coreStats,
       abilityEntries,
       effectEntries,
-      metaLines,
     }
   })
 
@@ -340,7 +371,38 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
                       }
                       onClick={() => setSelectedCategory(category)}
                     >
-                      {category}
+                      {itemTypeLabel[category]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.drawerTagsSection}>
+                <span className={styles.typesLabel}>Raridade</span>
+                <div className={styles.typeChips}>
+                  <button
+                    type="button"
+                    className={
+                      selectedRarity === "all"
+                        ? `${styles.typeChip} ${styles.typeChipActive}`
+                        : styles.typeChip
+                    }
+                    onClick={() => setSelectedRarity("all")}
+                  >
+                    Todas
+                  </button>
+                  {baseItemRarityValues.map((rarity) => (
+                    <button
+                      key={rarity}
+                      type="button"
+                      className={
+                        selectedRarity === rarity
+                          ? `${styles.typeChip} ${styles.typeChipActive}`
+                          : styles.typeChip
+                      }
+                      onClick={() => setSelectedRarity(rarity)}
+                    >
+                      {itemRarityLabel[rarity]}
                     </button>
                   ))}
                 </div>
@@ -350,7 +412,10 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
                 <button
                   type="button"
                   className={styles.drawerClear}
-                  onClick={() => setSelectedCategory("all")}
+                  onClick={() => {
+                    setSelectedCategory("all")
+                    setSelectedRarity("all")
+                  }}
                 >
                   Limpar filtros
                 </button>

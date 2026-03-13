@@ -25,6 +25,7 @@ export type CharacterInventoryItemDto = {
   itemEffectName: string | null
   itemAbilities: unknown
   itemEffects: unknown
+  itemCustomFields: unknown
   itemWeight: number | null
   itemDuration: string | null
   itemDurability: number | null
