@@ -178,6 +178,7 @@ export default function SkillsDashboardClient({
               editStep={editStep}
               setEditStep={setEditStep}
               onClose={closeEditModal}
+              onOpenCustomFieldModal={openCustomFieldModal}
               onCreateSnapshotLevel={createSnapshotLevel}
               onDeleteSkill={deleteActiveSkill}
               onDeleteLevel={deleteSelectedLevel}
@@ -193,6 +194,13 @@ export default function SkillsDashboardClient({
               editCategoryOptions={editCategoryOptions}
               tagOptions={tagOptions}
               costResourceName={costResourceName}
+              customFieldModalOpen={customFieldModalOpen}
+              newCustomFieldName={newCustomFieldName}
+              setNewCustomFieldName={setNewCustomFieldName}
+              newCustomFieldValue={newCustomFieldValue}
+              setNewCustomFieldValue={setNewCustomFieldValue}
+              onAddCustomField={addCustomField}
+              onCloseCustomFieldModal={closeCustomFieldModal}
             />
           ) : null}
 

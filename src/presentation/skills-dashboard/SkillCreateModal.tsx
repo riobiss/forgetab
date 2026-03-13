@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react"
+import { Plus, X } from "lucide-react"
 import styles from "./SkillsDashboardClient.module.css"
 import { SkillBasicStepFields } from "./SkillBasicStepFields"
 import { SkillRequirementsStepFields } from "./SkillRequirementsStepFields"
@@ -75,11 +76,23 @@ export function SkillCreateModal({
         <div className={styles.modalHeader}>
           <h2>Criar</h2>
           <div className={styles.modalHeaderActions}>
-            <button type="button" className={styles.ghostButton} onClick={onOpenCustomFieldModal}>
-              novo campo
+            <button
+              type="button"
+              className={styles.modalIconButton}
+              onClick={onOpenCustomFieldModal}
+              aria-label="Novo campo"
+              title="Novo campo"
+            >
+              <Plus size={18} />
             </button>
-            <button type="button" className={styles.ghostButton} onClick={onClose}>
-              Fechar
+            <button
+              type="button"
+              className={styles.modalIconButton}
+              onClick={onClose}
+              aria-label="Fechar"
+              title="Fechar"
+            >
+              <X size={18} />
             </button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 "use client"
 
+import { Trash2 } from "lucide-react"
 import styles from "./SkillsDashboardClient.module.css"
 
 type SkillDeleteButtonProps = {
@@ -11,12 +12,13 @@ export function SkillDeleteButton({ onDelete, disabled = false }: SkillDeleteBut
   return (
     <button
       type="button"
-      className={styles.ghostButton}
+      className={styles.modalDangerIconButton}
       onClick={onDelete}
       disabled={disabled}
+      aria-label="Deletar"
+      title="Deletar"
     >
-      Deletar
+      <Trash2 size={18} />
     </button>
   )
 }
-

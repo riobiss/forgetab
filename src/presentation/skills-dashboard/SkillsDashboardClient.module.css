@@ -335,6 +335,42 @@
   gap: 0.5rem;
 }
 
+.modalIconButton {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.modalIconButton:hover {
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+}
+
+.modalDangerIconButton {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--color-status-danger) 55%, var(--color-border-soft));
+  background: color-mix(in srgb, var(--color-status-danger) 12%, transparent);
+  color: var(--color-status-danger);
+  cursor: pointer;
+}
+
+.modalDangerIconButton:hover {
+  border-color: var(--color-status-danger);
+  background: color-mix(in srgb, var(--color-status-danger) 18%, transparent);
+}
+
 .card h2,
 .card h3 {
   margin: 0;
@@ -392,6 +428,13 @@
 
 .field textarea {
   resize: vertical;
+}
+
+.customFieldRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .spanTwo {
@@ -532,6 +575,10 @@
   }
 
   .bindingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .customFieldRow {
     grid-template-columns: 1fr;
   }
 

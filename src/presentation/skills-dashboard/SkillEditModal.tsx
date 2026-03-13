@@ -1,4 +1,5 @@
 import { NativeSelectField } from "@/components/select/NativeSelectField"
+import { Plus, X } from "lucide-react"
 import type { Dispatch, SetStateAction } from "react"
 import type { SkillCategory } from "@/types/skillBuilder"
 import type { ReactSelectOption } from "@/components/select/ReactSelectField"
@@ -17,6 +18,7 @@ type SkillEditModalProps = {
   editStep: number
   setEditStep: Dispatch<SetStateAction<number>>
   onClose: () => void
+  onOpenCustomFieldModal: () => void
   onCreateSnapshotLevel: () => void
   onDeleteSkill: () => void
   onDeleteLevel: () => void
@@ -32,6 +34,13 @@ type SkillEditModalProps = {
   editCategoryOptions: Array<{ key: string; label: string }>
   tagOptions: ReactSelectOption[]
   costResourceName: string
+  customFieldModalOpen: boolean
+  newCustomFieldName: string
+  setNewCustomFieldName: Dispatch<SetStateAction<string>>
+  newCustomFieldValue: string
+  setNewCustomFieldValue: Dispatch<SetStateAction<string>>
+  onAddCustomField: () => void
+  onCloseCustomFieldModal: () => void
 }
 
 export function SkillEditModal({
@@ -43,6 +52,7 @@ export function SkillEditModal({
   editStep,
   setEditStep,
   onClose,
+  onOpenCustomFieldModal,
   onCreateSnapshotLevel,
   onDeleteSkill,
   onDeleteLevel,
@@ -58,6 +68,13 @@ export function SkillEditModal({
   editCategoryOptions,
   tagOptions,
   costResourceName,
+  customFieldModalOpen,
+  newCustomFieldName,
+  setNewCustomFieldName,
+  newCustomFieldValue,
+  setNewCustomFieldValue,
+  onAddCustomField,
+  onCloseCustomFieldModal,
 }: SkillEditModalProps) {
   if (!open) return null
 
@@ -76,9 +93,23 @@ export function SkillEditModal({
             <button type="button" className={styles.ghostButton} onClick={onCreateSnapshotLevel} disabled={saving}>
               Level +1
             </button>
-            <SkillDeleteButton onDelete={onDeleteSkill} disabled={saving} />
-            <button type="button" className={styles.ghostButton} onClick={onClose}>
-              Fechar
+            <button
+              type="button"
+              className={styles.modalIconButton}
+              onClick={onOpenCustomFieldModal}
+              aria-label="Novo campo"
+              title="Novo campo"
+            >
+              <Plus size={18} />
+            </button>
+            <button
+              type="button"
+              className={styles.modalIconButton}
+              onClick={onClose}
+              aria-label="Fechar"
+              title="Fechar"
+            >
+              <X size={18} />
             </button>
           </div>
         </div>
@@ -160,10 +191,41 @@ export function SkillEditModal({
               Proxima
             </button>
           ) : null}
+          <SkillDeleteButton onDelete={onDeleteSkill} disabled={saving} />
           <button type="button" className={styles.primaryButton} onClick={onSaveAll} disabled={saving}>
             {saving ? "Salvando..." : "Salvar"}
           </button>
         </div>
+
+        {customFieldModalOpen ? (
+          <div
+            className={styles.nestedModalOverlay}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Novo campo"
+            onClick={onCloseCustomFieldModal}
+          >
+            <section className={`${styles.card} ${styles.nestedModalCard}`} onClick={(event) => event.stopPropagation()}>
+              <h3>Novo campo</h3>
+              <label className={styles.field}>
+                <span>Nome</span>
+                <input value={newCustomFieldName} onChange={(event) => setNewCustomFieldName(event.target.value)} />
+              </label>
+              <label className={styles.field}>
+                <span>Valor</span>
+                <input value={newCustomFieldValue} onChange={(event) => setNewCustomFieldValue(event.target.value)} />
+              </label>
+              <div className={styles.actions}>
+                <button type="button" className={styles.ghostButton} onClick={onCloseCustomFieldModal}>
+                  Cancelar
+                </button>
+                <button type="button" className={styles.primaryButton} onClick={onAddCustomField}>
+                  Criar campo
+                </button>
+              </div>
+            </section>
+          </div>
+        ) : null}
       </section>
     </div>
   )

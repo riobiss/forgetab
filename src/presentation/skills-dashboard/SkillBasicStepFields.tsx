@@ -175,17 +175,31 @@ export function SkillBasicStepFields({
       {levelForm.customFields.map((field) => (
         <label key={field.id} className={`${styles.field} ${styles.spanTwo}`}>
           <span>{field.name}</span>
-          <input
-            value={field.value}
-            onChange={(event) =>
-              setLevelForm((prev) => ({
-                ...prev,
-                customFields: prev.customFields.map((item) =>
-                  item.id === field.id ? { ...item, value: event.target.value } : item,
-                ),
-              }))
-            }
-          />
+          <div className={styles.customFieldRow}>
+            <input
+              value={field.value}
+              onChange={(event) =>
+                setLevelForm((prev) => ({
+                  ...prev,
+                  customFields: prev.customFields.map((item) =>
+                    item.id === field.id ? { ...item, value: event.target.value } : item,
+                  ),
+                }))
+              }
+            />
+            <button
+              type="button"
+              className={styles.ghostButton}
+              onClick={() =>
+                setLevelForm((prev) => ({
+                  ...prev,
+                  customFields: prev.customFields.filter((item) => item.id !== field.id),
+                }))
+              }
+            >
+              Remover
+            </button>
+          </div>
         </label>
       ))}
     </div>
