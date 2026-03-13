@@ -70,7 +70,7 @@ export default function QuickCreateMenu({ rpgId }: Props) {
             <Sparkles size={15} />
             Criar Habilidade
           </Link>
-          <Link href={`/rpg/${rpgId}/items/new`} onClick={() => setIsOpen(false)}>
+          <Link href={`/rpg/${rpgId}/items`} onClick={() => setIsOpen(false)}>
             <PackagePlus size={15} />
             Criar Item
           </Link>

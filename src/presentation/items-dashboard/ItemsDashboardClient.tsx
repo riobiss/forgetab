@@ -15,8 +15,8 @@ import styles from "./ItemsDashboardClient.module.css"
 import type { ItemsDashboardDependencies } from "@/application/itemsDashboard/contracts/ItemsDashboardDependencies"
 import { IconButton } from "@/components/button"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
+import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
 import { ItemUpsertModal } from "./ItemUpsertModal"
-import { itemRarityLabel, itemTypeLabel } from "./constants"
 import { useItemsDashboardState } from "./useItemsDashboardState"
 
 type ItemsDashboardClientProps = {

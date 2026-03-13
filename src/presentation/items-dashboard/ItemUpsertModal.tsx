@@ -4,7 +4,7 @@ import Image from "next/image"
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react"
 import { LoaderCircle, Plus, X } from "lucide-react"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
-import { itemRarityLabel, itemTypeLabel } from "./constants"
+import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
 import styles from "./ItemsDashboardClient.module.css"
 
 type NamedDescription = {
