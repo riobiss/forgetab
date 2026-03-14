@@ -13,6 +13,7 @@ import {
   normalizeProgressionTiers,
   type ProgressionMode,
 } from "@/lib/rpg/progression"
+import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
 import { Prisma } from "../../../../generated/prisma/client.js"
 
 export const prismaCharacterDetailRepository: CharacterDetailRepository = {
@@ -108,6 +109,7 @@ export const prismaCharacterDetailRepository: CharacterDetailRepository = {
 
     return {
       ...rpgRow,
+      visibility: normalizeRpgVisibility(rpgRow.visibility),
       progressionMode,
       progressionTiers,
     }
@@ -198,8 +200,10 @@ export const prismaCharacterDetailRepository: CharacterDetailRepository = {
         throw error
       }
     }
-
-    return rows[0] ?? null
+    const row = rows[0]
+    return row
+      ? { ...row, visibility: normalizeRpgVisibility(row.visibility) }
+      : null
   },
 
   listSkillLabels(rpgId: string): Promise<CharacterDetailLabelDto[]> {

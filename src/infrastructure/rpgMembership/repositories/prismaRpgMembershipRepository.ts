@@ -1,6 +1,7 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { RpgMembershipRepository } from "@/application/rpgMembership/ports/RpgMembershipRepository"
+import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
 
 export const prismaRpgMembershipRepository: RpgMembershipRepository = {
   async getRpgSummary(rpgId) {
@@ -10,7 +11,7 @@ export const prismaRpgMembershipRepository: RpgMembershipRepository = {
     })
     if (rpg !== undefined) {
       return rpg
-        ? { id: rpg.id, ownerId: rpg.ownerId, visibility: rpg.visibility }
+        ? { id: rpg.id, ownerId: rpg.ownerId, visibility: normalizeRpgVisibility(rpg.visibility) }
         : null
     }
 
@@ -23,8 +24,10 @@ export const prismaRpgMembershipRepository: RpgMembershipRepository = {
       WHERE id = ${rpgId}
       LIMIT 1
     `)
-
-    return rows[0] ?? null
+    const row = rows[0]
+    return row
+      ? { ...row, visibility: normalizeRpgVisibility(row.visibility) }
+      : null
   },
 
   async getMembership(rpgId, userId) {

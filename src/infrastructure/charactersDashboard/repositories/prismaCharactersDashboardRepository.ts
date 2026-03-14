@@ -4,6 +4,7 @@ import type {
   CharactersDashboardRpgDto,
 } from "@/application/charactersDashboard/types"
 import { prisma } from "@/lib/prisma"
+import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
 import { Prisma } from "../../../../generated/prisma"
 
 type DbRpgRow = CharactersDashboardRpgDto
@@ -45,8 +46,10 @@ export const prismaCharactersDashboardRepository: CharactersDashboardRepository 
         throw error
       }
     }
-
-    return rpgRows[0] ?? null
+    const row = rpgRows[0]
+    return row
+      ? { ...row, visibility: normalizeRpgVisibility(row.visibility) }
+      : null
   },
 
   async listCharacters({

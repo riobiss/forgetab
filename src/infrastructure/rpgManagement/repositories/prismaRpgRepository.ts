@@ -2,6 +2,7 @@ import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { ProgressionMode } from "@/lib/rpg/progression"
 import type { RpgRepository } from "@/application/rpgManagement/ports/RpgRepository"
+import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
 import type {
   RpgAdvancedSettingsInput,
   RpgCoreUpdateInput,
@@ -16,7 +17,11 @@ function isMissingColumn(error: unknown, column: string) {
 
 export const prismaRpgRepository: RpgRepository = {
   async createBase(data: RpgCreateBaseInput) {
-    return prisma.rpg.create({ data })
+    const row = await prisma.rpg.create({ data })
+    return {
+      ...row,
+      visibility: normalizeRpgVisibility(row.visibility),
+    }
   },
 
   async applyCreateSettings(rpgId, data: RpgCreateSettingsInput) {
@@ -191,8 +196,10 @@ export const prismaRpgRepository: RpgRepository = {
         throw error
       }
     }
-
-    return rows[0] ?? null
+    const row = rows[0]
+    return row
+      ? { ...row, visibility: normalizeRpgVisibility(row.visibility) }
+      : null
   },
 
   async getCurrentProgressionMode(rpgId) {

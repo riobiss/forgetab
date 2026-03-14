@@ -4,6 +4,7 @@ import type { EntityCatalogDetailRepository, EntityCatalogDetailSnapshot } from 
 import type { EntityCatalogAbilityPurchaseState, EntityCatalogTemplateOption } from "@/application/entityCatalog/types"
 import { parseCharacterAbilities } from "@/lib/server/costSystem"
 import { prisma } from "@/lib/prisma"
+import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
 import { listClassCatalogAbilities, listRaceCatalogAbilities } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogAbilitiesRepository"
 import { listClassCatalogPlayers, listRaceCatalogPlayers } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogPlayersRepository"
 
@@ -144,7 +145,7 @@ export const prismaEntityCatalogDetailRepository: EntityCatalogDetailRepository 
       id: row.id,
       key: row.key,
       ownerId: row.ownerId,
-      visibility: row.visibility,
+      visibility: normalizeRpgVisibility(row.visibility),
       costsEnabled: row.costsEnabled,
       costResourceName: row.costResourceName,
       current: {
@@ -232,7 +233,7 @@ export const prismaEntityCatalogDetailRepository: EntityCatalogDetailRepository 
       id: row.id,
       key: row.key,
       ownerId: row.ownerId,
-      visibility: row.visibility,
+      visibility: normalizeRpgVisibility(row.visibility),
       costsEnabled: row.costsEnabled,
       costResourceName: row.costResourceName,
       current: {

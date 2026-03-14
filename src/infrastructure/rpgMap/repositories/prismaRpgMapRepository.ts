@@ -1,6 +1,7 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { RpgMapRepository, RpgMapSummary } from "@/application/rpgMap/ports/RpgMapRepository"
+import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
 
 type RpgMapRow = RpgMapSummary
 
@@ -17,7 +18,10 @@ export const prismaRpgMapRepository: RpgMapRepository = {
         WHERE id = ${rpgId}
         LIMIT 1
       `)
-      return rows[0] ?? null
+      const row = rows[0]
+      return row
+        ? { ...row, visibility: normalizeRpgVisibility(row.visibility) }
+        : null
     } catch (error) {
       if (
         error instanceof Error &&
@@ -34,7 +38,10 @@ export const prismaRpgMapRepository: RpgMapRepository = {
           WHERE id = ${rpgId}
           LIMIT 1
         `)
-        return rows[0] ?? null
+        const row = rows[0]
+        return row
+          ? { ...row, visibility: normalizeRpgVisibility(row.visibility) }
+          : null
       }
       throw error
     }

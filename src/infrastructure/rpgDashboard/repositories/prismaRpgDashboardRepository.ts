@@ -1,5 +1,6 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
+import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
 import type {
   DbRpgRow,
   RpgDashboardRepository,
@@ -57,8 +58,10 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
         throw error
       }
     }
-
-    return rows[0] ?? null
+    const row = rows[0]
+    return row
+      ? { ...row, visibility: normalizeRpgVisibility(row.visibility) }
+      : null
   },
 
   listPendingRequests(rpgId) {
