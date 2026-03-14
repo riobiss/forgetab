@@ -5,6 +5,7 @@ import "@/styles/_variables.scss"
 import "@/styles/_keyframe-animations.scss"
 import Header from "@/components/header/Header"
 import PerformanceMeasureGuard from "@/components/dev/PerformanceMeasureGuard"
+import ScrollToTop from "@/components/ScrollToTop"
 import ToastProvider from "@/components/providers/ToastProvider"
 
 const geistSans = Geist({
@@ -42,6 +43,7 @@ export default function RootLayout({
     <html lang="pt-br">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <PerformanceMeasureGuard />
+        <ScrollToTop />
         <ToastProvider />
         <Header />
         {children}
