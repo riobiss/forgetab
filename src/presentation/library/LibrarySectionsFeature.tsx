@@ -6,13 +6,15 @@ import { createLibraryDependencies, type LibraryGatewayFactory } from "./depende
 
 type Props = {
   rpgId: string
+  rpgTitle: string
   gatewayFactory?: LibraryGatewayFactory
 }
 
 export default function LibrarySectionsFeature({
   rpgId,
+  rpgTitle,
   gatewayFactory = "http",
 }: Props) {
   const deps = useMemo(() => createLibraryDependencies(gatewayFactory), [gatewayFactory])
-  return <LibrarySectionsPage rpgId={rpgId} deps={deps} />
+  return <LibrarySectionsPage rpgId={rpgId} rpgTitle={rpgTitle} deps={deps} />
 }
