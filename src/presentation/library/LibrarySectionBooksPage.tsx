@@ -38,7 +38,7 @@ export default function LibrarySectionBooksPage({ rpgId, sectionId, deps }: Prop
   const router = useRouter()
   const [section, setSection] = useState<LibrarySectionDto | null>(null)
   const [books, setBooks] = useState<LibraryBookDto[]>([])
-  const [canManage, setCanManage] = useState(false)
+  const [canCreate, setCanCreate] = useState(false)
   const [loading, setLoading] = useState(true)
   const [loadingError, setLoadingError] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -91,7 +91,7 @@ export default function LibrarySectionBooksPage({ rpgId, sectionId, deps }: Prop
       const payload = await loadLibrarySectionBooksUseCase(deps, { rpgId, sectionId })
       setSection(payload.section)
       setBooks(payload.books)
-      setCanManage(payload.canManage)
+      setCanCreate(payload.canCreate)
       setPlayerOptions(
         payload.players.map((item) => ({
           value: item.id,
@@ -114,7 +114,6 @@ export default function LibrarySectionBooksPage({ rpgId, sectionId, deps }: Prop
   }, [loadData, rpgId, sectionId])
 
   async function handleDelete(bookId: string) {
-    if (!canManage) return
     const confirmed = window.confirm("Tem certeza que deseja apagar este livro?")
     if (!confirmed) return
 
@@ -260,7 +259,7 @@ export default function LibrarySectionBooksPage({ rpgId, sectionId, deps }: Prop
           <h1 className={styles.title}>{section?.title ?? "Biblioteca"}</h1>
         </div>
         <div className={styles.headerActions}>
-          {canManage ? (
+          {canCreate ? (
             <button className={styles.primaryButton} type="button" onClick={openCreateModal}>
               <Plus size={16} />
               <span>Novo livro</span>
@@ -329,7 +328,7 @@ export default function LibrarySectionBooksPage({ rpgId, sectionId, deps }: Prop
                   {book.canEdit ? (
                     <div className={styles.cardFooter}>
                       <div className={styles.cardActions}>
-                        {canManage && book.canEdit ? (
+                        {book.canEdit ? (
                           <>
                           <button
                             type="button"

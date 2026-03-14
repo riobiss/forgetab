@@ -30,10 +30,12 @@ export async function loadCharactersDashboardUseCase(
 
   const isOwner = params.userId === rpg.ownerId
   let isAcceptedMember = false
+  let isModerator = false
 
   if (params.userId && !isOwner) {
     const membership = await deps.rpgAccessRepository.getMembership(params.rpgId, params.userId)
     isAcceptedMember = membership?.status === "accepted"
+    isModerator = isAcceptedMember && membership?.role === "moderator"
   }
 
   if (rpg.visibility === "private" && !isOwner && !isAcceptedMember) {
@@ -63,6 +65,7 @@ export async function loadCharactersDashboardUseCase(
       selectedCharacterDetail: params.selectedCharacterDetail ?? null,
       canCreateCharacter: Boolean(params.userId && (isOwner || isAcceptedMember)),
       isOwner,
+      canManageNpcMonster: isOwner || isModerator,
       isAcceptedMember,
       ownPlayerCount,
       allowMultiplePlayerCharacters: Boolean(rpg.allowMultiplePlayerCharacters),

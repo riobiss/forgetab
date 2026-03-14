@@ -28,6 +28,7 @@ export type CharactersDashboardViewModel = {
   selectedCharacterDetail: CharacterDetailViewModel | null
   canCreateCharacter: boolean
   isOwner: boolean
+  canManageNpcMonster: boolean
   isAcceptedMember: boolean
   ownPlayerCount: number
   allowMultiplePlayerCharacters: boolean

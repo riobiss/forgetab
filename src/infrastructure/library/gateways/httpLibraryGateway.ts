@@ -64,10 +64,14 @@ export const httpLibraryGateway: LibraryGateway = {
   },
 
   async fetchSectionBooks(rpgId, sectionId) {
-    const payload = await parseJson<{ books?: LibraryBookDto[]; canManage?: boolean }>(
+    const payload = await parseJson<{ books?: LibraryBookDto[]; canManage?: boolean; canCreate?: boolean }>(
       await fetch(`/api/rpg/${rpgId}/library/sections/${sectionId}/books`),
     )
-    return { books: payload.books ?? [], canManage: Boolean(payload.canManage) }
+    return {
+      books: payload.books ?? [],
+      canManage: Boolean(payload.canManage),
+      canCreate: payload.canCreate !== false,
+    }
   },
 
   async fetchVisibilityOptions(rpgId) {

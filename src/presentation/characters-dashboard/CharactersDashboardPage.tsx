@@ -33,7 +33,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
 
   const isNpcOrMonsterFilter = data.filterType === "npc" || data.filterType === "monster"
   const canShowCreateButton =
-    isNpcOrMonsterFilter ? data.canCreateCharacter && data.isOwner : data.canCreateCharacter
+    isNpcOrMonsterFilter ? data.canCreateCharacter && data.canManageNpcMonster : data.canCreateCharacter
   const modal = searchParams.get("modal")
   const editor = searchParams.get("editor")
   const viewer = searchParams.get("viewer")
@@ -273,7 +273,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
                 >
                   <Star size={16} fill={favoriteIdSet.has(character.id) ? "currentColor" : "none"} />
                 </button>
-                {data.isOwner ? (
+                {data.canManageNpcMonster ? (
                   character.characterType === "npc" || character.characterType === "monster" ? (
                     <button
                       type="button"

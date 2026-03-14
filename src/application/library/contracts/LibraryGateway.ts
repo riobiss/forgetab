@@ -19,7 +19,10 @@ export interface LibraryGateway {
   ): Promise<LibrarySectionDto>
   deleteSection(rpgId: string, sectionId: string): Promise<void>
   fetchSection(rpgId: string, sectionId: string): Promise<{ section: LibrarySectionDto; canManage: boolean }>
-  fetchSectionBooks(rpgId: string, sectionId: string): Promise<{ books: LibraryBookDto[]; canManage: boolean }>
+  fetchSectionBooks(
+    rpgId: string,
+    sectionId: string,
+  ): Promise<{ books: LibraryBookDto[]; canManage: boolean; canCreate: boolean }>
   fetchVisibilityOptions(
     rpgId: string,
   ): Promise<{ players: RpgUserOptionDto[]; races: RaceOptionDto[]; classes: ClassOptionDto[] }>

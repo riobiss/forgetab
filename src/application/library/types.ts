@@ -72,6 +72,7 @@ export type LibrarySectionBooksViewDto = {
   section: LibrarySectionDto
   books: LibraryBookDto[]
   canManage: boolean
+  canCreate: boolean
   players: RpgUserOptionDto[]
   races: RaceOptionDto[]
   classes: ClassOptionDto[]

@@ -19,13 +19,6 @@ function ensureCanView(exists: boolean, canView: boolean) {
   if (!exists || !canView) throw new AppError("RPG nao encontrado.", 404)
 }
 
-function ensureCanManage(exists: boolean, canManage: boolean) {
-  if (!exists) throw new AppError("RPG nao encontrado.", 404)
-  if (!canManage) {
-    throw new AppError("Voce nao pode editar a biblioteca deste RPG.", 403)
-  }
-}
-
 function ensureCanViewSection(
   section: { visibility: "private" | "public" },
   canManage: boolean,
@@ -45,6 +38,19 @@ function ensureCanManageSection(
   if (access.canManage) return
   if (owner.createdByUserId !== userId) {
     throw new AppError("Voce so pode editar ou remover secoes criadas por voce.", 403)
+  }
+}
+
+function ensureCanManageBook(
+  access: { exists: boolean; canManage: boolean },
+  owner: { createdByUserId: string | null } | null,
+  userId: string,
+) {
+  if (!access.exists) throw new AppError("RPG nao encontrado.", 404)
+  if (!owner) throw new AppError("Livro nao encontrado.", 404)
+  if (access.canManage) return
+  if (owner.createdByUserId !== userId) {
+    throw new AppError("Voce so pode editar ou remover livros criados por voce.", 403)
   }
 }
 
@@ -249,8 +255,12 @@ export async function listLibrarySectionBooks(
         .filter((book) =>
           canViewLibraryBook(book, params.userId, access.canManage, viewerCharacters),
         )
-        .map((book) => ({ ...book, canEdit: book.createdByUserId === params.userId })),
+        .map((book) => ({
+          ...book,
+          canEdit: access.canManage || book.createdByUserId === params.userId,
+        })),
       canManage: access.canManage,
+      canCreate: access.canView,
     }
   } catch (error) {
     wrapLibraryError(error, "Erro interno ao listar livros.")
@@ -263,9 +273,10 @@ export async function createLibraryBook(
 ) {
   try {
     const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
-    ensureCanManage(access.exists, access.canManage)
+    ensureCanView(access.exists, access.canView)
     const section = await deps.repository.findSection(params.rpgId, params.sectionId)
     if (!section) throw new AppError("Secao nao encontrada.", 404)
+    ensureCanViewSection(section, access.canManage)
     const book = await deps.repository.createBook({
       rpgId: params.rpgId,
       sectionId: params.sectionId,
@@ -298,7 +309,11 @@ export async function getLibraryBook(
     ) {
       throw new AppError("Livro nao encontrado.", 404)
     }
-    return { book, canManage: access.canManage, canEdit: book.createdByUserId === params.userId }
+    return {
+      book,
+      canManage: access.canManage,
+      canEdit: access.canManage || book.createdByUserId === params.userId,
+    }
   } catch (error) {
     wrapLibraryError(error, "Erro interno ao buscar livro.")
   }
@@ -310,12 +325,8 @@ export async function updateLibraryBook(
 ) {
   try {
     const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
-    ensureCanManage(access.exists, access.canManage)
     const owner = await deps.repository.findBookOwner({ rpgId: params.rpgId, bookId: params.bookId })
-    if (!owner) throw new AppError("Livro nao encontrado.", 404)
-    if (owner.createdByUserId !== params.userId) {
-      throw new AppError("Apenas o autor pode editar este livro.", 403)
-    }
+    ensureCanManageBook(access, owner, params.userId)
     const book = await deps.repository.updateBook({
       rpgId: params.rpgId,
       bookId: params.bookId,
@@ -335,12 +346,8 @@ export async function deleteLibraryBook(
 ) {
   try {
     const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
-    ensureCanManage(access.exists, access.canManage)
     const owner = await deps.repository.findBookOwner({ rpgId: params.rpgId, bookId: params.bookId })
-    if (!owner) throw new AppError("Livro nao encontrado.", 404)
-    if (owner.createdByUserId !== params.userId) {
-      throw new AppError("Apenas o autor pode remover este livro.", 403)
-    }
+    ensureCanManageBook(access, owner, params.userId)
     const deleted = await deps.repository.deleteBook(params.rpgId, params.bookId)
     if (!deleted) throw new AppError("Livro nao encontrado.", 404)
     await deps.repository.touchSection(deleted.sectionId)

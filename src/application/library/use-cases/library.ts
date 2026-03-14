@@ -47,6 +47,7 @@ export async function loadLibrarySectionBooksUseCase(
   return {
     section: sectionPayload.section,
     canManage: booksPayload.canManage || sectionPayload.canManage,
+    canCreate: booksPayload.canCreate,
     books: booksPayload.books,
     players: optionsPayload.players,
     races: optionsPayload.races,
