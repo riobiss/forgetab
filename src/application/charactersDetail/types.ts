@@ -92,8 +92,12 @@ export type CharacterDetailViewModel = {
   progressionLevelDisplay: string
   progressionCurrent: number
   nextProgressionTierText: string
+  aboutText: string
   identityItems: CharacterDetailIdentityItemDto[]
   characteristicsItems: CharacterDetailIdentityItemDto[]
+  maskStatuses: boolean
+  maskAttributes: boolean
+  maskSkills: boolean
 }
 
 export type LoadCharacterDetailResult =

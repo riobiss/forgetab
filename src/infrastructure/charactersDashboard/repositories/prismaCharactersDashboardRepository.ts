@@ -17,6 +17,7 @@ export const prismaCharactersDashboardRepository: CharactersDashboardRepository 
       rpgRows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
         SELECT
           id,
+          title AS name,
           owner_id AS "ownerId",
           visibility,
           COALESCE(allow_multiple_player_characters, false) AS "allowMultiplePlayerCharacters"
@@ -32,6 +33,7 @@ export const prismaCharactersDashboardRepository: CharactersDashboardRepository 
         rpgRows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
           SELECT
             id,
+            title AS name,
             owner_id AS "ownerId",
             visibility,
             false AS "allowMultiplePlayerCharacters"

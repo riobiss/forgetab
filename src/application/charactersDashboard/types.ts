@@ -1,3 +1,6 @@
+import type { CharacterEditorBootstrapDto } from "@/application/charactersEditor/types"
+import type { CharacterDetailViewModel } from "@/application/charactersDetail/types"
+
 export type CharactersDashboardFilterType = "all" | "player" | "npc" | "monster"
 
 export type CharacterDashboardCardDto = {
@@ -10,6 +13,7 @@ export type CharacterDashboardCardDto = {
 
 export type CharactersDashboardRpgDto = {
   id: string
+  name: string
   ownerId: string
   visibility: "private" | "public"
   allowMultiplePlayerCharacters: boolean
@@ -17,8 +21,11 @@ export type CharactersDashboardRpgDto = {
 
 export type CharactersDashboardViewModel = {
   rpgId: string
+  rpgName: string
   filterType: CharactersDashboardFilterType
   characters: CharacterDashboardCardDto[]
+  editorBootstrap: CharacterEditorBootstrapDto | null
+  selectedCharacterDetail: CharacterDetailViewModel | null
   canCreateCharacter: boolean
   isOwner: boolean
   isAcceptedMember: boolean

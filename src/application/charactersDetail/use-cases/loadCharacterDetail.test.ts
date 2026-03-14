@@ -177,4 +177,96 @@ describe("loadCharacterDetailUseCase", () => {
     expect(result.data.identityItems.some((item) => item.label === "Raca")).toBe(true)
     expect(result.data.nextProgressionTierText).toBe("Level 2 (100)")
   })
+
+  it("mascara campos secretos de npc para outros membros", async () => {
+    const repository = createRepositoryMock()
+    const rpgAccessRepository: RpgAccessRepository = {
+      getRpgAccessRow: vi.fn(),
+      getMembership: vi.fn(),
+    }
+    const permissionService: CharacterDetailPermissionService = {
+      getRpgPermission: vi.fn(),
+    }
+
+    vi.mocked(repository.getRpg).mockResolvedValue({
+      id: "rpg-1",
+      ownerId: "owner-1",
+      visibility: "public",
+      usersCanManageOwnXp: true,
+      progressionMode: "xp_level",
+      progressionTiers: [{ label: "Level 1", required: 0 }],
+    })
+    vi.mocked(permissionService.getRpgPermission).mockResolvedValue({
+      isOwner: false,
+      canManage: false,
+    })
+    vi.mocked(rpgAccessRepository.getMembership).mockResolvedValue({
+      status: "accepted",
+      role: "player",
+    })
+    vi.mocked(repository.getCharacter).mockResolvedValue({
+      id: "char-1",
+      name: "Esfinge",
+      image: null,
+      raceKey: null,
+      classKey: null,
+      skillPoints: 0,
+      costResourceName: "Skill Points",
+      characterType: "npc",
+      visibility: "public",
+      progressionMode: "xp_level",
+      progressionLabel: "Level 1",
+      progressionRequired: 0,
+      progressionCurrent: 0,
+      createdByUserId: "owner-1",
+      life: 10,
+      defense: 2,
+      mana: 5,
+      exhaustion: 1,
+      sanity: 8,
+      statuses: { life: 10, mana: 5, sanity: 8, exhaustion: 4 },
+      currentStatuses: { life: 10, mana: 4, sanity: 8, exhaustion: 1 },
+      attributes: {},
+      skills: {},
+      identity: {
+        nome: "Esfinge",
+        "titulo-apelido": "Ancestral",
+        "classe-livre": "Guardia",
+      },
+      characteristics: {
+        descricao: "Guarda os portoes",
+        "status-narrativo": "secreto",
+        "campos-secretos": JSON.stringify(["name", "classLabel", "description"]),
+      },
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    })
+    vi.mocked(repository.listSkillLabels).mockResolvedValue([])
+    vi.mocked(repository.listStatusLabels).mockResolvedValue([
+      { key: "life", label: "Vida" },
+      { key: "mana", label: "Mana" },
+      { key: "sanity", label: "Sanidade" },
+      { key: "exhaustion", label: "Exaustao" },
+    ])
+    vi.mocked(repository.listIdentityFields).mockResolvedValue([])
+    vi.mocked(repository.listCharacteristicFields).mockResolvedValue([])
+    vi.mocked(repository.listAttributeLabels).mockResolvedValue([])
+    vi.mocked(repository.listRaceLabels).mockResolvedValue([])
+    vi.mocked(repository.listClassLabels).mockResolvedValue([])
+
+    const result = await loadCharacterDetailUseCase(
+      { repository, rpgAccessRepository, permissionService },
+      { rpgId: "rpg-1", characterId: "char-1", userId: "user-2" },
+    )
+
+    expect(result.status).toBe("ok")
+    if (result.status !== "ok") {
+      return
+    }
+
+    expect(result.data.displayName).not.toBe("Esfinge")
+    expect(result.data.displayName).not.toMatch(/[A-Za-z]/)
+    expect(result.data.identityItems.find((item) => item.label === "Classe")?.value).not.toBe("Guardia")
+    expect(result.data.aboutText).not.toBe("Guarda os portoes")
+    expect(result.data.characteristicsItems.find((item) => item.label === "Sobre")).toBeUndefined()
+  })
 })

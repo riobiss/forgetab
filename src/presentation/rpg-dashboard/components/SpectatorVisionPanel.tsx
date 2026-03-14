@@ -32,7 +32,7 @@ type Props = {
 
 const CATEGORY_OPTIONS: Array<{ key: CharacterType; label: string }> = [
   { key: "player", label: "Players" },
-  { key: "monster", label: "Monstros" },
+  { key: "monster", label: "Criaturas" },
   { key: "npc", label: "Npc" },
 ]
 

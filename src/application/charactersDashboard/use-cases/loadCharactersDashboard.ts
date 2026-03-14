@@ -1,4 +1,6 @@
 import type { RpgAccessRepository } from "@/application/characters/ports/RpgAccessRepository"
+import type { CharacterEditorBootstrapDto } from "@/application/charactersEditor/types"
+import type { CharacterDetailViewModel } from "@/application/charactersDetail/types"
 import type { CharactersDashboardRepository } from "@/application/charactersDashboard/ports/CharactersDashboardRepository"
 import type {
   CharactersDashboardFilterType,
@@ -16,6 +18,8 @@ export async function loadCharactersDashboardUseCase(
     rpgId: string
     userId: string | null
     filterType: CharactersDashboardFilterType
+    editorBootstrap?: CharacterEditorBootstrapDto | null
+    selectedCharacterDetail?: CharacterDetailViewModel | null
   },
 ): Promise<LoadCharactersDashboardResult> {
   const rpg = await deps.dashboardRepository.getRpg(params.rpgId)
@@ -52,8 +56,11 @@ export async function loadCharactersDashboardUseCase(
     status: "ok",
     data: {
       rpgId: params.rpgId,
+      rpgName: rpg.name,
       filterType: params.filterType,
       characters,
+      editorBootstrap: params.editorBootstrap ?? null,
+      selectedCharacterDetail: params.selectedCharacterDetail ?? null,
       canCreateCharacter: Boolean(params.userId && (isOwner || isAcceptedMember)),
       isOwner,
       isAcceptedMember,

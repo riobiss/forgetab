@@ -80,3 +80,5 @@ export type UpsertCharacterPayloadDto = {
   characteristics: Record<string, string>
   skills?: Record<string, number>
 }
+
+export type UpdateCharacterPayloadDto = Partial<UpsertCharacterPayloadDto>

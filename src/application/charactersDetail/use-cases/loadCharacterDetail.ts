@@ -2,11 +2,15 @@ import type { RpgAccessRepository } from "@/application/characters/ports/RpgAcce
 import type { CharacterDetailPermissionService } from "@/application/charactersDetail/ports/CharacterDetailPermissionService"
 import type { CharacterDetailRepository } from "@/application/charactersDetail/ports/CharacterDetailRepository"
 import type {
-  CharacterDetailIdentityItemDto,
-  CharacterDetailLabeledValueDto,
   CharacterDetailViewModel,
   LoadCharacterDetailResult,
 } from "@/application/charactersDetail/types"
+import {
+  buildNpcMonsterTextSections,
+  getProgressionLevelDisplay,
+  normalizeLegacyStatusKeys,
+  toLabeledEntries,
+} from "@/application/charactersDetail/use-cases/characterDetailPresentation"
 import {
   getDefaultProgressionTiers,
   isProgressionMode,
@@ -56,73 +60,6 @@ const skillLabels: Record<string, string> = {
 const statusLabelByKey: Record<string, string> = Object.fromEntries(
   STATUS_CATALOG.map((item) => [item.key, item.label]),
 )
-
-function getIdentityDisplayName(identity: Record<string, string>) {
-  const firstName =
-    identity.nome?.trim() ||
-    identity.name?.trim() ||
-    identity["primeiro-nome"]?.trim() ||
-    ""
-  const lastName =
-    identity.sobrenome?.trim() ||
-    identity["last-name"]?.trim() ||
-    identity["ultimo-nome"]?.trim() ||
-    ""
-
-  const fullName = `${firstName} ${lastName}`.trim()
-  if (fullName) return fullName
-
-  return (
-    Object.values(identity).find((value) => value.trim().length > 0)?.trim() ||
-    "Personagem"
-  )
-}
-
-function normalizeLegacyStatusKeys(record: Record<string, number>) {
-  const normalized = { ...record }
-  if (typeof normalized.stamina === "number" && typeof normalized.exhaustion !== "number") {
-    normalized.exhaustion = normalized.stamina
-  }
-  delete normalized.stamina
-  return normalized
-}
-
-function getProgressionLevelDisplay(label: string) {
-  const match = label.match(/\d+/)
-  return match ? match[0] : label
-}
-
-function toLabeledEntries(
-  values: Record<string, number>,
-  labelByKey: Map<string, string>,
-): CharacterDetailLabeledValueDto[] {
-  return Object.entries(values)
-    .filter(([key, value]) => labelByKey.has(key) && Number(value) > 0)
-    .map(([key, value]) => ({
-      key,
-      label: labelByKey.get(key) ?? key,
-      value: Number(value),
-    }))
-}
-
-function toIdentityItems(
-  values: Record<string, string>,
-  templateFields: Array<{ key: string; label: string }>,
-): CharacterDetailIdentityItemDto[] {
-  if (templateFields.length > 0) {
-    return templateFields.map((field) => ({
-      key: field.key,
-      label: field.label,
-      value: values[field.key] ?? "",
-    }))
-  }
-
-  return Object.entries(values).map(([key, value]) => ({
-    key,
-    label: key,
-    value,
-  }))
-}
 
 export async function loadCharacterDetailUseCase(
   deps: Dependencies,
@@ -270,37 +207,26 @@ export async function loadCharacterDetailUseCase(
       value: Number(value),
     }))
 
-  const identityItems = toIdentityItems(identity, identityTemplateFields)
-  const identityItemsWithRaceClass = [
-    ...identityItems,
-    ...(row.raceKey
-      ? [
-          {
-            key: "race-key",
-            label: "Raca",
-            value: raceTemplateLabelByKey.get(row.raceKey) ?? row.raceKey,
-            href: `/rpg/${params.rpgId}/races/${row.raceKey}`,
-          },
-        ]
-      : []),
-    ...(row.classKey
-      ? [
-          {
-            key: "class-key",
-            label: "Classe",
-            value: classTemplateLabelByKey.get(row.classKey) ?? row.classKey,
-            href: classTemplateIdByKey.get(row.classKey)
-              ? `/rpg/${params.rpgId}/classes/${classTemplateIdByKey.get(row.classKey)}`
-              : undefined,
-          },
-        ]
-      : []),
-  ]
+  const textSections = buildNpcMonsterTextSections({
+    rpgId: params.rpgId,
+    rowName: row.name,
+    characterType: row.characterType,
+    raceKey: row.raceKey,
+    classKey: row.classKey,
+    identity,
+    characteristics,
+    canEditCharacter,
+    identityTemplateFields,
+    characteristicTemplateFields,
+    raceTemplateLabelByKey,
+    classTemplateLabelByKey,
+    classTemplateIdByKey,
+  })
 
   const data: CharacterDetailViewModel = {
     rpgId: params.rpgId,
     characterId: row.id,
-    displayName: getIdentityDisplayName(identity),
+    displayName: textSections.displayName,
     image: row.image,
     characterType: row.characterType,
     canEditCharacter,
@@ -315,8 +241,12 @@ export async function loadCharacterDetailUseCase(
     nextProgressionTierText: nextProgressionTier
       ? `${nextProgressionTier.label} (${nextProgressionTier.required})`
       : "Maximo",
-    identityItems: identityItemsWithRaceClass,
-    characteristicsItems: toIdentityItems(characteristics, characteristicTemplateFields),
+    aboutText: textSections.aboutText,
+    identityItems: textSections.identityItems,
+    characteristicsItems: textSections.characteristicsItems,
+    maskStatuses: textSections.maskStatuses,
+    maskAttributes: textSections.maskAttributes,
+    maskSkills: textSections.maskSkills,
   }
 
   return { status: "ok", data }

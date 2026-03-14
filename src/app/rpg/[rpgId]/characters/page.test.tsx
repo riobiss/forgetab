@@ -8,6 +8,8 @@ const mocks = vi.hoisted(() => ({
   getRpg: vi.fn(),
   listCharacters: vi.fn(),
   countOwnPlayerCharacters: vi.fn(),
+  loadCharacterEditorBootstrapServer: vi.fn(),
+  push: vi.fn(),
 }))
 
 vi.mock("@/lib/server/auth", () => ({
@@ -28,6 +30,10 @@ vi.mock("@/infrastructure/charactersDashboard/repositories/prismaCharactersDashb
   },
 }))
 
+vi.mock("@/application/charactersEditor/use-cases/loadCharacterEditorBootstrapServer", () => ({
+  loadCharacterEditorBootstrapServerUseCase: mocks.loadCharacterEditorBootstrapServer,
+}))
+
 vi.mock("next/link", () => ({
   default: ({ children, href }: { children: ReactNode; href: string }) => (
     <a href={href}>{children}</a>
@@ -44,6 +50,18 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("NOT_FOUND")
   },
+  usePathname: () => "/rpg/rpg-1/characters",
+  useRouter: () => ({
+    push: mocks.push,
+    refresh: vi.fn(),
+  }),
+  useSearchParams: () => {
+    const params = new URLSearchParams()
+    return {
+      get: (key: string) => params.get(key),
+      toString: () => params.toString(),
+    }
+  },
 }))
 
 import CharactersPage from "./page"
@@ -53,6 +71,7 @@ describe("CharactersPage", () => {
     vi.clearAllMocks()
     mocks.getUserIdFromCookieStore.mockResolvedValue("user-1")
     mocks.getMembership.mockResolvedValue({ status: "accepted", role: "player" })
+    mocks.loadCharacterEditorBootstrapServer.mockResolvedValue(null)
     mocks.getRpg.mockResolvedValue({
       id: "rpg-1",
       ownerId: "owner-1",

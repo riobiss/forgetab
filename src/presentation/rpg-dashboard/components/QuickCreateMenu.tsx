@@ -58,7 +58,7 @@ export default function QuickCreateMenu({ rpgId }: Props) {
 
       {isOpen ? (
         <div className={styles.quickCreateMenu}>
-          <Link href={`/rpg/${rpgId}/characters/new`} onClick={() => setIsOpen(false)}>
+          <Link href={`/rpg/${rpgId}/characters?modal=create&editor=player`} onClick={() => setIsOpen(false)}>
             <UserPlus size={15} />
             Criar Personagem
           </Link>
