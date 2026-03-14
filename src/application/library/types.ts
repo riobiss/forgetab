@@ -3,8 +3,12 @@ import type { JSONContent } from "@tiptap/react"
 export type LibrarySectionDto = {
   id: string
   rpgId: string
+  createdByUserId?: string | null
   title: string
   description: string | null
+  visibility: "private" | "public"
+  canEdit?: boolean
+  canDelete?: boolean
   booksCount?: number
   createdAt: string
   updatedAt: string
@@ -19,7 +23,7 @@ export type LibraryBookDto = {
   content: JSONContent
   canEdit?: boolean
   createdByUserId?: string | null
-  visibility: "private" | "public"
+  visibility: "private" | "public" | "unlisted"
   allowedCharacterIds: string[]
   allowedClassKeys: string[]
   allowedRaceKeys: string[]
@@ -46,13 +50,14 @@ export type ClassOptionDto = {
 export type UpsertLibrarySectionPayloadDto = {
   title: string
   description: string | null
+  visibility: "private" | "public"
 }
 
 export type UpsertLibraryBookPayloadDto = {
   title: string
   description: string | null
   content: JSONContent
-  visibility: "private" | "public"
+  visibility: "private" | "public" | "unlisted"
   allowedCharacterIds: string[]
   allowedClassKeys: string[]
   allowedRaceKeys: string[]

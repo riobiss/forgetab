@@ -12,15 +12,22 @@ export interface LibraryRepository {
   findSection(rpgId: string, sectionId: string): Promise<LibrarySectionDto | null>
   createSection(params: {
     rpgId: string
+    userId: string
     title: string
     description: string | null
+    visibility: "private" | "public"
   }): Promise<LibrarySectionDto>
   updateSection(params: {
     rpgId: string
     sectionId: string
     title: string
     description: string | null
+    visibility: "private" | "public"
   }): Promise<LibrarySectionDto | null>
+  findSectionOwner(params: {
+    rpgId: string
+    sectionId: string
+  }): Promise<{ createdByUserId: string | null } | null>
   deleteSection(rpgId: string, sectionId: string): Promise<boolean>
   sectionExists(rpgId: string, sectionId: string): Promise<boolean>
   listBooks(rpgId: string, sectionId: string): Promise<LibraryBookDto[]>
@@ -36,7 +43,7 @@ export interface LibraryRepository {
     title: string
     description: string | null
     content: Prisma.JsonValue
-    visibility: "private" | "public"
+    visibility: "private" | "public" | "unlisted"
     allowedCharacterIds: string[]
     allowedClassKeys: string[]
     allowedRaceKeys: string[]
@@ -47,7 +54,7 @@ export interface LibraryRepository {
     title: string
     description: string | null
     content: Prisma.JsonValue
-    visibility: "private" | "public"
+    visibility: "private" | "public" | "unlisted"
     allowedCharacterIds: string[]
     allowedClassKeys: string[]
     allowedRaceKeys: string[]

@@ -26,10 +26,32 @@ function ensureCanManage(exists: boolean, canManage: boolean) {
   }
 }
 
+function ensureCanViewSection(
+  section: { visibility: "private" | "public" },
+  canManage: boolean,
+) {
+  if (section.visibility === "private" && !canManage) {
+    throw new AppError("Secao nao encontrada.", 404)
+  }
+}
+
+function ensureCanManageSection(
+  access: { exists: boolean; canManage: boolean },
+  owner: { createdByUserId: string | null } | null,
+  userId: string,
+) {
+  if (!access.exists) throw new AppError("RPG nao encontrado.", 404)
+  if (!owner) throw new AppError("Secao nao encontrada.", 404)
+  if (access.canManage) return
+  if (owner.createdByUserId !== userId) {
+    throw new AppError("Voce so pode editar ou remover secoes criadas por voce.", 403)
+  }
+}
+
 function canViewLibraryBook(
   book: {
     createdByUserId?: string | null
-    visibility: "private" | "public"
+    visibility: "private" | "public" | "unlisted"
     allowedCharacterIds: string[]
     allowedClassKeys: string[]
     allowedRaceKeys: string[]
@@ -37,10 +59,12 @@ function canViewLibraryBook(
   userId: string,
   canManage: boolean,
   viewerCharacters: ViewerCharacter[],
+  options?: { allowUnlisted?: boolean },
 ) {
   if (canManage) return true
   if (book.createdByUserId === userId) return true
   if (book.visibility === "public") return true
+  if (book.visibility === "unlisted") return Boolean(options?.allowUnlisted)
 
   const allowedUsersOrCharacterIds = new Set(parseStringList(book.allowedCharacterIds))
   const allowedClassKeys = new Set(parseStringList(book.allowedClassKeys))
@@ -95,7 +119,16 @@ export async function listLibrarySections(
     const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
     ensureCanView(access.exists, access.canView)
     const sections = await deps.repository.listSections(params.rpgId)
-    return { sections, canManage: access.canManage }
+    return {
+      sections: (access.canManage
+        ? sections
+        : sections.filter((section) => section.visibility === "public")).map((section) => ({
+          ...section,
+          canEdit: access.canManage || section.createdByUserId === params.userId,
+          canDelete: access.canManage || section.createdByUserId === params.userId,
+        })),
+      canManage: access.canManage,
+    }
   } catch (error) {
     wrapLibraryError(error, "Erro interno ao listar secoes.")
   }
@@ -107,15 +140,17 @@ export async function createLibrarySection(
 ) {
   try {
     const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
-    ensureCanManage(access.exists, access.canManage)
+    ensureCanView(access.exists, access.canView)
     const parsed = createLibrarySectionSchema.safeParse(params.body)
     if (!parsed.success) {
       throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
     }
     const section = await deps.repository.createSection({
       rpgId: params.rpgId,
+      userId: params.userId,
       title: parsed.data.title.trim(),
       description: normalizeDescription(parsed.data.description),
+      visibility: parsed.data.visibility,
     })
     return { section }
   } catch (error) {
@@ -132,7 +167,15 @@ export async function getLibrarySection(
     ensureCanView(access.exists, access.canView)
     const section = await deps.repository.findSection(params.rpgId, params.sectionId)
     if (!section) throw new AppError("Secao nao encontrada.", 404)
-    return { section, canManage: access.canManage }
+    ensureCanViewSection(section, access.canManage)
+    return {
+      section: {
+        ...section,
+        canEdit: access.canManage || section.createdByUserId === params.userId,
+        canDelete: access.canManage || section.createdByUserId === params.userId,
+      },
+      canManage: access.canManage,
+    }
   } catch (error) {
     wrapLibraryError(error, "Erro interno ao buscar secao.")
   }
@@ -144,7 +187,11 @@ export async function updateLibrarySection(
 ) {
   try {
     const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
-    ensureCanManage(access.exists, access.canManage)
+    const owner = await deps.repository.findSectionOwner({
+      rpgId: params.rpgId,
+      sectionId: params.sectionId,
+    })
+    ensureCanManageSection(access, owner, params.userId)
     const parsed = createLibrarySectionSchema.safeParse(params.body)
     if (!parsed.success) {
       throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
@@ -154,6 +201,7 @@ export async function updateLibrarySection(
       sectionId: params.sectionId,
       title: parsed.data.title.trim(),
       description: normalizeDescription(parsed.data.description),
+      visibility: parsed.data.visibility,
     })
     if (!section) throw new AppError("Secao nao encontrada.", 404)
     return { section }
@@ -168,7 +216,11 @@ export async function deleteLibrarySection(
 ) {
   try {
     const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
-    ensureCanManage(access.exists, access.canManage)
+    const owner = await deps.repository.findSectionOwner({
+      rpgId: params.rpgId,
+      sectionId: params.sectionId,
+    })
+    ensureCanManageSection(access, owner, params.userId)
     const deleted = await deps.repository.deleteSection(params.rpgId, params.sectionId)
     if (!deleted) throw new AppError("Secao nao encontrada.", 404)
     return { message: "Secao removida com sucesso." }
@@ -184,8 +236,9 @@ export async function listLibrarySectionBooks(
   try {
     const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
     ensureCanView(access.exists, access.canView)
-    const exists = await deps.repository.sectionExists(params.rpgId, params.sectionId)
-    if (!exists) throw new AppError("Secao nao encontrada.", 404)
+    const section = await deps.repository.findSection(params.rpgId, params.sectionId)
+    if (!section) throw new AppError("Secao nao encontrada.", 404)
+    ensureCanViewSection(section, access.canManage)
     const books = await deps.repository.listBooks(params.rpgId, params.sectionId)
     const viewerCharacters = access.canManage
       ? []
@@ -193,7 +246,9 @@ export async function listLibrarySectionBooks(
 
     return {
       books: books
-        .filter((book) => canViewLibraryBook(book, params.userId, access.canManage, viewerCharacters))
+        .filter((book) =>
+          canViewLibraryBook(book, params.userId, access.canManage, viewerCharacters),
+        )
         .map((book) => ({ ...book, canEdit: book.createdByUserId === params.userId })),
       canManage: access.canManage,
     }
@@ -209,8 +264,8 @@ export async function createLibraryBook(
   try {
     const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
     ensureCanManage(access.exists, access.canManage)
-    const exists = await deps.repository.sectionExists(params.rpgId, params.sectionId)
-    if (!exists) throw new AppError("Secao nao encontrada.", 404)
+    const section = await deps.repository.findSection(params.rpgId, params.sectionId)
+    if (!section) throw new AppError("Secao nao encontrada.", 404)
     const book = await deps.repository.createBook({
       rpgId: params.rpgId,
       sectionId: params.sectionId,
@@ -236,7 +291,11 @@ export async function getLibraryBook(
     const viewerCharacters = access.canManage
       ? []
       : await deps.repository.getViewerCharacters(params.rpgId, params.userId)
-    if (!canViewLibraryBook(book, params.userId, access.canManage, viewerCharacters)) {
+    if (
+      !canViewLibraryBook(book, params.userId, access.canManage, viewerCharacters, {
+        allowUnlisted: true,
+      })
+    ) {
       throw new AppError("Livro nao encontrado.", 404)
     }
     return { book, canManage: access.canManage, canEdit: book.createdByUserId === params.userId }

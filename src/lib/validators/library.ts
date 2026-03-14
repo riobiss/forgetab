@@ -12,6 +12,7 @@ export const createLibrarySectionSchema = z.object({
     .max(400, "Descricao muito grande.")
     .nullable()
     .optional(),
+  visibility: z.enum(["private", "public"]).default("public"),
 })
 
 export const createLibraryBookSchema = z.object({
@@ -32,7 +33,7 @@ export const createLibraryBookSchema = z.object({
       content: z.array(z.unknown()).optional(),
     })
     .passthrough(),
-  visibility: z.enum(["private", "public"]).default("private"),
+  visibility: z.enum(["private", "public", "unlisted"]).default("private"),
   allowedCharacterIds: z.array(z.string().trim().min(1)).default([]),
   allowedClassKeys: z.array(z.string().trim().min(1)).default([]),
   allowedRaceKeys: z.array(z.string().trim().min(1)).default([]),

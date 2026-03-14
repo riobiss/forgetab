@@ -34,6 +34,7 @@ model User {
 enum RpgVisibility {
   private
   public
+  unlisted
 }
 
 enum BaseItemType {
@@ -123,14 +124,17 @@ model Rpg {
 model RpgLibrarySection {
   id          String           @id @default(cuid())
   rpgId       String           @map("rpg_id")
+  createdByUserId String?      @map("created_by_user_id")
   rpg         Rpg              @relation(fields: [rpgId], references: [id], onDelete: Cascade)
   title       String
   description String?
+  visibility  RpgVisibility    @default(public)
   createdAt   DateTime         @default(now()) @map("created_at")
   updatedAt   DateTime         @default(now()) @map("updated_at")
   books       RpgLibraryBook[]
 
   @@index([rpgId])
+  @@index([createdByUserId])
   @@map("rpg_library_sections")
 }
 

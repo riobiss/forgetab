@@ -32,4 +32,14 @@ describe("createLibraryBookSchema", () => {
     expect(result.allowedClassKeys).toEqual([])
     expect(result.allowedRaceKeys).toEqual([])
   })
+
+  it("aceita a visibilidade unlisted", () => {
+    const result = createLibraryBookSchema.parse({
+      title: "Livro por link",
+      content: { type: "doc", content: [] },
+      visibility: "unlisted",
+    })
+
+    expect(result.visibility).toBe("unlisted")
+  })
 })

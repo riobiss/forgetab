@@ -6,8 +6,10 @@ import type { LibraryBookDto, LibrarySectionDto } from "@/application/library/ty
 type LibrarySectionRow = {
   id: string
   rpgId: string
+  createdByUserId: string | null
   title: string
   description: string | null
+  visibility: "private" | "public"
   createdAt: Date
   updatedAt: Date
   booksCount: number
@@ -21,7 +23,7 @@ type LibraryBookRow = {
   title: string
   description: string | null
   content: Prisma.JsonValue
-  visibility: "private" | "public"
+  visibility: "private" | "public" | "unlisted"
   allowedCharacterIds: Prisma.JsonValue
   allowedClassKeys: Prisma.JsonValue
   allowedRaceKeys: Prisma.JsonValue
@@ -39,8 +41,10 @@ function mapSection(row: LibrarySectionRow): LibrarySectionDto {
   return {
     id: row.id,
     rpgId: row.rpgId,
+    createdByUserId: row.createdByUserId,
     title: row.title,
     description: row.description,
+    visibility: row.visibility,
     booksCount: row.booksCount,
     createdAt: toIsoString(row.createdAt),
     updatedAt: toIsoString(row.updatedAt),
@@ -76,8 +80,10 @@ export const prismaLibraryRepository: LibraryRepository = {
       SELECT
         s.id,
         s.rpg_id AS "rpgId",
+        s.created_by_user_id AS "createdByUserId",
         s.title,
         s.description,
+        s.visibility,
         s.created_at AS "createdAt",
         s.updated_at AS "updatedAt",
         COUNT(b.id)::int AS "booksCount"
@@ -95,8 +101,10 @@ export const prismaLibraryRepository: LibraryRepository = {
       SELECT
         id,
         rpg_id AS "rpgId",
+        created_by_user_id AS "createdByUserId",
         title,
         description,
+        visibility,
         created_at AS "createdAt",
         updated_at AS "updatedAt",
         (
@@ -114,13 +122,22 @@ export const prismaLibraryRepository: LibraryRepository = {
 
   async createSection(params) {
     const rows = await prisma.$queryRaw<LibrarySectionRow[]>(Prisma.sql`
-      INSERT INTO rpg_library_sections (id, rpg_id, title, description)
-      VALUES (${crypto.randomUUID()}, ${params.rpgId}, ${params.title}, ${params.description})
+      INSERT INTO rpg_library_sections (id, rpg_id, created_by_user_id, title, description, visibility)
+      VALUES (
+        ${crypto.randomUUID()},
+        ${params.rpgId},
+        ${params.userId},
+        ${params.title},
+        ${params.description},
+        ${params.visibility}::"public"."RpgVisibility"
+      )
       RETURNING
         id,
         rpg_id AS "rpgId",
+        created_by_user_id AS "createdByUserId",
         title,
         description,
+        visibility,
         created_at AS "createdAt",
         updated_at AS "updatedAt",
         0::int AS "booksCount"
@@ -134,14 +151,17 @@ export const prismaLibraryRepository: LibraryRepository = {
       SET
         title = ${params.title},
         description = ${params.description},
+        visibility = ${params.visibility}::"public"."RpgVisibility",
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${params.sectionId}
         AND rpg_id = ${params.rpgId}
       RETURNING
         id,
         rpg_id AS "rpgId",
+        created_by_user_id AS "createdByUserId",
         title,
         description,
+        visibility,
         created_at AS "createdAt",
         updated_at AS "updatedAt",
         (
@@ -161,6 +181,17 @@ export const prismaLibraryRepository: LibraryRepository = {
       RETURNING id
     `)
     return Boolean(rows[0])
+  },
+
+  async findSectionOwner(params) {
+    const rows = await prisma.$queryRaw<Array<{ createdByUserId: string | null }>>(Prisma.sql`
+      SELECT created_by_user_id AS "createdByUserId"
+      FROM rpg_library_sections
+      WHERE id = ${params.sectionId}
+        AND rpg_id = ${params.rpgId}
+      LIMIT 1
+    `)
+    return rows[0] ?? null
   },
 
   async sectionExists(rpgId, sectionId) {
