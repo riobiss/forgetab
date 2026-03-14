@@ -7,7 +7,6 @@ type Props = {
   sectionTitle: string
   pageTitle: string
   canEdit: boolean
-  hasDraft: boolean
   contentEditing: boolean
   saving: boolean
   onToggleEditing: () => void
@@ -18,7 +17,6 @@ export default function LibraryBookEditorHeader({
   sectionTitle,
   pageTitle,
   canEdit,
-  hasDraft,
   contentEditing,
   saving,
   onToggleEditing,
@@ -31,8 +29,9 @@ export default function LibraryBookEditorHeader({
         <div className={styles.titleRow}>
           <h1 className={styles.title}>{pageTitle}</h1>
           {canEdit ? (
-            <div className={styles.headerActions}>
-              {hasDraft ? <span className={styles.draftLabel}>Rascunho</span> : null}
+            <div
+              className={`${styles.headerActions} ${contentEditing ? styles.headerActionsFloating : ""}`}
+            >
               <button
                 type="button"
                 className={contentEditing ? styles.primaryButton : styles.secondaryButton}

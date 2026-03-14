@@ -79,10 +79,17 @@
   margin-left: auto;
 }
 
-.draftLabel {
-  color: var(--color-text-muted);
-  font-size: 0.82rem;
-  font-weight: 700;
+.headerActionsFloating {
+  position: fixed;
+  top: calc(72px + 0.85rem);
+  right: 1.4rem;
+  z-index: 950;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-strong) 72%, var(--color-border-soft));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-bg-surface) 92%, transparent);
+  box-shadow: var(--shadow-elevation-sm);
+  backdrop-filter: blur(10px);
 }
 
 .primaryButton,
@@ -178,6 +185,12 @@
 @media (max-width: 720px) {
   .page {
     padding: 1.4rem 1rem 2rem;
+  }
+
+  .headerActionsFloating {
+    top: calc(72px + 0.7rem);
+    right: 1rem;
+    max-width: calc(100vw - 2rem);
   }
 
   .editorCard {

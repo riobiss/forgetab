@@ -58,7 +58,6 @@ export default function LibraryBookEditorClient({
           sectionTitle={sectionTitle}
           pageTitle={editor.pageTitle}
           canEdit={false}
-          hasDraft={false}
           contentEditing={false}
           saving={false}
           onToggleEditing={() => undefined}
@@ -114,7 +113,6 @@ export default function LibraryBookEditorClient({
         sectionTitle={sectionTitle}
         pageTitle={editor.pageTitle}
         canEdit={editor.canEdit}
-        hasDraft={editor.hasDraft}
         contentEditing={editor.contentEditing}
         saving={editor.saving}
         onToggleEditing={editor.toggleContentEditing}
