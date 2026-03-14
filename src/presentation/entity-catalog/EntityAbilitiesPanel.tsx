@@ -97,7 +97,7 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
   const disabledReason = useMemo(() => {
     if (!purchase) return ""
     if (!purchase.costsEnabled) return "Sistema de custos desativado neste RPG."
-    if (!purchase.characterId) return "Personagem compativel nao encontrado para compra."
+    if (!purchase.characterId) return
     return ""
   }, [purchase])
 

@@ -32,7 +32,10 @@ async function getAccessContext(
     throw new AppError("Personagem nao encontrado.", 404)
   }
 
-  const canViewInventory = canManageAsMaster || character.createdByUserId === params.userId
+  const canViewInventory =
+    character.characterType === "player"
+      ? canManageAsMaster || character.createdByUserId === params.userId
+      : canManageAsMaster
 
   return {
     characterName: character.name,

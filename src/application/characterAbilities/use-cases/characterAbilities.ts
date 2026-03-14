@@ -34,10 +34,12 @@ export async function loadCharacterAbilitiesUseCase(
 
   const isOwner = params.userId === dbRpg.ownerId
   let isAcceptedMember = false
+  let isModerator = false
 
   if (params.userId && !isOwner) {
     const membership = await deps.rpgAccessRepository.getMembership(params.rpgId, params.userId)
     isAcceptedMember = membership?.status === "accepted"
+    isModerator = membership?.status === "accepted" && membership.role === "moderator"
   }
 
   if (dbRpg.visibility === "private" && !isOwner && !isAcceptedMember) {
@@ -50,7 +52,10 @@ export async function loadCharacterAbilitiesUseCase(
   }
 
   const canViewAbilities = Boolean(
-    params.userId && (isOwner || character.createdByUserId === params.userId),
+    params.userId &&
+      (character.characterType === "player"
+        ? isOwner || isModerator || character.createdByUserId === params.userId
+        : isOwner || isModerator),
   )
   if (!canViewAbilities) {
     return null

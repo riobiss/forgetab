@@ -286,11 +286,11 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
           </>
         ) : null}
 
-        {loading ? <p className={styles.emptyState}>Carregando inventario...</p> : null}
+        {loading ? <p className={styles.emptyState}>Carregando items...</p> : null}
         {error ? <p className={styles.errorText}>{error}</p> : null}
 
         {!loading && !error && !hasInventory ? (
-          <p className={styles.emptyState}>Nenhum item no inventario.</p>
+          <p className={styles.emptyState}>Nenhum item.</p>
         ) : null}
         {!loading && !error && hasInventory && cardItems.length === 0 ? (
           <p className={styles.emptyState}>Nenhum item encontrado com os filtros atuais.</p>
@@ -299,7 +299,7 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
         {!loading && !error && hasInventory && cardItems.length > 0 ? (
           <InventoryCards
             items={cardItems}
-            emptyMessage="Nenhum item no inventario."
+            emptyMessage="Nenhum item."
             onRemoveItem={handleRemoveItem}
             removingItemId={removingItemId}
           />

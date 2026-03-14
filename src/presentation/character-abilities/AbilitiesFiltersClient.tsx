@@ -66,10 +66,12 @@ export default function AbilitiesFiltersClient({
   characterId,
   abilities,
   deps,
+  canManage = true,
 }: {
   characterId: string
   abilities: PurchasedAbilityViewDto[]
   deps: CharacterAbilitiesDependencies
+  canManage?: boolean
 }) {
   const [abilityItems, setAbilityItems] = useState<PurchasedAbilityViewDto[]>(abilities)
   const [search, setSearch] = useState("")
@@ -81,6 +83,10 @@ export default function AbilitiesFiltersClient({
   const [selectedAbilityModal, setSelectedAbilityModal] = useState<PurchasedAbilityViewDto | null>(null)
   const [isRemovingAbility, setIsRemovingAbility] = useState(false)
   const [removeAbilityError, setRemoveAbilityError] = useState("")
+
+  useEffect(() => {
+    setAbilityItems(abilities)
+  }, [abilities])
 
   const categoryOptions = useMemo(
     () =>
@@ -624,17 +630,21 @@ export default function AbilitiesFiltersClient({
                 ))}
               </div>
             ) : null}
-            {removeAbilityError ? <p className={styles.errorText}>{removeAbilityError}</p> : null}
-            <div className={styles.modalActions}>
-              <button
-                type="button"
-                className={styles.removeAbilityButton}
-                onClick={() => void handleRemoveAbility()}
-                disabled={isRemovingAbility}
-              >
-                {isRemovingAbility ? "Retirando..." : "Retirar habilidade"}
-              </button>
-            </div>
+            {canManage ? (
+              <>
+                {removeAbilityError ? <p className={styles.errorText}>{removeAbilityError}</p> : null}
+                <div className={styles.modalActions}>
+                  <button
+                    type="button"
+                    className={styles.removeAbilityButton}
+                    onClick={() => void handleRemoveAbility()}
+                    disabled={isRemovingAbility}
+                  >
+                    {isRemovingAbility ? "Retirando..." : "Retirar habilidade"}
+                  </button>
+                </div>
+              </>
+            ) : null}
           </section>
         </div>
       ) : null}

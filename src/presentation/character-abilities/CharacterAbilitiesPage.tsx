@@ -27,7 +27,7 @@ export default function CharacterAbilitiesPage({ data }: CharacterAbilitiesPageP
 
       <section className={styles.section}>
         {data.abilities.length === 0 ? (
-          <p className={styles.emptyState}>Nenhuma habilidade comprada para este personagem.</p>
+          <p className={styles.emptyState}>Nenhuma skill comprada para este personagem.</p>
         ) : (
           <CharacterAbilitiesFeature data={data} gatewayFactory="http" />
         )}
