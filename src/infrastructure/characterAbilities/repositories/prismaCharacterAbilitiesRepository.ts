@@ -11,10 +11,19 @@ import { Prisma } from "../../../../generated/prisma/client.js"
 
 export const prismaCharacterAbilitiesRepository: CharacterAbilitiesRepository = {
   async getRpg(rpgId: string) {
-    return prisma.rpg.findUnique({
+    const row = await prisma.rpg.findUnique({
       where: { id: rpgId },
       select: { id: true, ownerId: true, visibility: true },
     })
+
+    if (!row) {
+      return null
+    }
+
+    return {
+      ...row,
+      visibility: row.visibility === "private" ? "private" : "public",
+    }
   },
 
   async getCharacter(rpgId: string, characterId: string): Promise<CharacterAbilitiesCharacterRow | null> {
