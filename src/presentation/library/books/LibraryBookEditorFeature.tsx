@@ -6,6 +6,7 @@ import { createLibraryDependencies, type LibraryGatewayFactory } from "../depend
 
 type Props = {
   rpgId: string
+  sectionTitle: string
   sectionId: string
   mode: "create" | "edit"
   bookId?: string
@@ -15,6 +16,7 @@ type Props = {
 
 export default function LibraryBookEditorFeature({
   rpgId,
+  sectionTitle,
   sectionId,
   mode,
   bookId,
@@ -25,6 +27,7 @@ export default function LibraryBookEditorFeature({
   return (
     <LibraryBookEditorClient
       rpgId={rpgId}
+      sectionTitle={sectionTitle}
       sectionId={sectionId}
       mode={mode}
       bookId={bookId}

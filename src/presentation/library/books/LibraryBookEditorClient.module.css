@@ -1,42 +1,162 @@
 .page {
+  --library-panel-bg: color-mix(in srgb, var(--color-bg-surface-alt) 94%, var(--color-bg-surface));
+  --library-panel-border: color-mix(in srgb, var(--color-border-strong) 72%, var(--color-border-soft));
   min-height: 100vh;
-  background: var(--color-bg-app);
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 24px 16px;
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--color-brand-primary) 16%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 20% 30%,
+      color-mix(in srgb, var(--color-brand-contrast) 6%, transparent),
+      transparent 60%
+    );
+  padding: 2.2rem 1.4rem 3.4rem;
   display: grid;
-  gap: 0.75rem;
+  gap: 1rem;
+  align-content: start;
+  color: var(--color-text-secondary);
 }
 
-.editorCard {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 12px;
-  background-color: var(--color-bg-surface);
-  box-shadow: var(--shadow-elevation-sm);
-  max-height: calc(100vh - 170px);
-  overflow: auto;
-  padding: 0.35rem 0.45rem 0.45rem;
+.embeddedRoot {
+  display: grid;
+  gap: 0.85rem;
 }
 
-.readOnlyBody {
-  max-height: none;
-  overflow: visible;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.headerText {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--color-text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text-primary);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
+  font-size: 2.05rem;
+  line-height: 1.05;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.draftLabel {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.58rem 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 10px;
+  text-decoration: none;
 }
 
 .primaryButton {
-  border-radius: 10px;
-  padding: 0.5rem 0.95rem;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
   border: 1px solid var(--color-brand-primary);
   background: var(--color-brand-primary);
   color: var(--color-text-on-brand);
 }
 
-.primaryButton:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.secondaryButton {
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-primary);
+}
+
+.statusPanel,
+.feedbackPanel {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  border: 1px solid var(--library-panel-border);
+  border-radius: 16px;
+  background: var(--library-panel-bg);
+  padding: 0.9rem 1rem;
+}
+
+.statusText {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.editorCard {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  border: 1px solid var(--library-panel-border);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-brand-soft) 22%, var(--library-panel-bg)) 0%,
+      var(--library-panel-bg) 30%,
+      color-mix(in srgb, var(--color-bg-elevated) 72%, var(--library-panel-bg)) 100%
+    );
+  box-shadow: var(--shadow-elevation-sm);
+  max-height: calc(100vh - 200px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0.35rem 0.45rem 0.45rem;
+}
+
+.embeddedEditorCard {
+  max-width: 100%;
+  max-height: min(72vh, 860px);
+  margin: 0;
+}
+
+.readOnlyBody {
+  max-height: none;
+  overflow: visible;
 }
 
 .feedback {
@@ -49,13 +169,19 @@
   color: var(--color-status-danger);
 }
 
+.embeddedActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
 @media (max-width: 720px) {
   .page {
-    padding: 14px 10px;
+    padding: 1.4rem 1rem 2rem;
   }
 
   .editorCard {
-    max-height: calc(100vh - 150px);
+    max-height: calc(100vh - 200px);
     padding: 0.2rem 0.2rem 0.3rem;
   }
 
