@@ -66,17 +66,22 @@ export async function updateCharacter(input: UpdateCharacterInput): Promise<void
 
     const hasRaceKeyInBody = Object.prototype.hasOwnProperty.call(body, "raceKey")
     const hasClassKeyInBody = Object.prototype.hasOwnProperty.call(body, "classKey")
-    if ((hasRaceKeyInBody || hasClassKeyInBody) && !permission.isOwner) {
+    const canEditTemplateRaceClass = permission.characterType === "player" && permission.isOwner
+    const shouldPersistRaceKey = permission.characterType === "player" && hasRaceKeyInBody
+    const shouldPersistClassKey = permission.characterType === "player" && hasClassKeyInBody
+    if ((shouldPersistRaceKey || shouldPersistClassKey) && !canEditTemplateRaceClass) {
       fail(403, "Somente mestre ou moderador podem editar raca e classe de personagens.")
     }
 
-    const name = body.name?.trim() ?? ""
+    const hasNameInBody = Object.prototype.hasOwnProperty.call(body, "name")
+    const name = hasNameInBody ? body.name?.trim() ?? "" : permission.currentName
     const hasImageInBody = Object.prototype.hasOwnProperty.call(body, "image")
     const image = normalizeOptionalText(body.image)
     let previousImage: string | null = null
 
-    if (name.length < 2) {
-      fail(400, "Nome deve ter pelo menos 2 caracteres.")
+    const requiresLongerName = permission.characterType === "player"
+    if (hasNameInBody && (requiresLongerName ? name.length < 2 : name.length === 0)) {
+      fail(400, requiresLongerName ? "Nome deve ter pelo menos 2 caracteres." : "Nome obrigatorio.")
     }
     if (body.visibility !== undefined && !isValidVisibility(body.visibility)) {
       fail(400, "Visibilidade invalida. Use private ou public.")
@@ -104,10 +109,10 @@ export async function updateCharacter(input: UpdateCharacterInput): Promise<void
       resolvedProgressionCurrent,
     )
 
-    const selectedRaceKey = hasRaceKeyInBody ? normalizeOptionalText(body.raceKey) : null
-    const selectedClassKey = hasClassKeyInBody ? normalizeOptionalText(body.classKey) : null
+    const selectedRaceKey = shouldPersistRaceKey ? normalizeOptionalText(body.raceKey) : null
+    const selectedClassKey = shouldPersistClassKey ? normalizeOptionalText(body.classKey) : null
 
-    if (hasRaceKeyInBody && selectedRaceKey) {
+    if (shouldPersistRaceKey && selectedRaceKey) {
       let raceRows: Array<{ key: string }> = []
       try {
         raceRows = await prisma.$queryRaw<Array<{ key: string }>>(Prisma.sql`
@@ -129,7 +134,7 @@ export async function updateCharacter(input: UpdateCharacterInput): Promise<void
       if (raceRows.length === 0) fail(400, "Raca invalida para este RPG.")
     }
 
-    if (hasClassKeyInBody && selectedClassKey) {
+    if (shouldPersistClassKey && selectedClassKey) {
       let classRows: Array<{ key: string }> = []
       try {
         classRows = await prisma.$queryRaw<Array<{ key: string }>>(Prisma.sql`
@@ -162,119 +167,137 @@ export async function updateCharacter(input: UpdateCharacterInput): Promise<void
       previousImage = currentRows[0]?.image ?? null
     }
 
-    let dbAttributeTemplate: Array<{ key: string; label: string; position: number }> = []
-    try {
-      dbAttributeTemplate = await prisma.$queryRaw(Prisma.sql`
-        SELECT key, label, position
-        FROM rpg_attribute_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    } catch (error) {
-      if (
-        !(error instanceof Error && error.message.includes('relation "rpg_attribute_templates" does not exist'))
-      ) {
-        throw error
+    const hasAttributesInBody = Object.prototype.hasOwnProperty.call(body, "attributes")
+    let parsedAttributesValue: Record<string, number> | null = null
+    if (hasAttributesInBody) {
+      let dbAttributeTemplate: Array<{ key: string; label: string; position: number }> = []
+      try {
+        dbAttributeTemplate = await prisma.$queryRaw(Prisma.sql`
+          SELECT key, label, position
+          FROM rpg_attribute_templates
+          WHERE rpg_id = ${rpgId}
+          ORDER BY position ASC
+        `)
+      } catch (error) {
+        if (
+          !(error instanceof Error && error.message.includes('relation "rpg_attribute_templates" does not exist'))
+        ) {
+          throw error
+        }
       }
+      const parsedAttributes = validateAttributesPayload(body.attributes, dbAttributeTemplate)
+      if (!parsedAttributes.ok) fail(400, parsedAttributes.message)
+      parsedAttributesValue = parsedAttributes.value as Record<string, number>
     }
-    const parsedAttributes = validateAttributesPayload(body.attributes, dbAttributeTemplate)
-    if (!parsedAttributes.ok) fail(400, parsedAttributes.message)
 
-    let dbStatusTemplate: Array<{ key: string; label: string; position: number }> = []
-    try {
-      dbStatusTemplate = await prisma.$queryRaw(Prisma.sql`
-        SELECT key, label, position
-        FROM rpg_status_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    } catch (error) {
-      if (
-        !(error instanceof Error && error.message.includes('relation "rpg_status_templates" does not exist'))
-      ) {
-        throw error
+    const hasStatusesInBody = Object.prototype.hasOwnProperty.call(body, "statuses")
+    let parsedStatusesValue: Record<string, number> | null = null
+    let normalizedCurrentStatuses: Record<string, number> | null = null
+    let nextLife = 0
+    let nextDefense = 0
+    let nextMana = 0
+    let nextExhaustion = 0
+    let nextSanity = 0
+    if (hasStatusesInBody) {
+      let dbStatusTemplate: Array<{ key: string; label: string; position: number }> = []
+      try {
+        dbStatusTemplate = await prisma.$queryRaw(Prisma.sql`
+          SELECT key, label, position
+          FROM rpg_status_templates
+          WHERE rpg_id = ${rpgId}
+          ORDER BY position ASC
+        `)
+      } catch (error) {
+        if (
+          !(error instanceof Error && error.message.includes('relation "rpg_status_templates" does not exist'))
+        ) {
+          throw error
+        }
       }
+      const statusTemplate = dbStatusTemplate.length > 0 ? dbStatusTemplate : getDefaultStatusTemplate()
+      const parsedStatuses = validateStatusesPayload(body.statuses, statusTemplate)
+      if (!parsedStatuses.ok) fail(400, parsedStatuses.message)
+      parsedStatusesValue = parsedStatuses.value
+
+      const currentStatusesRecord =
+        permission.currentCurrentStatuses &&
+        typeof permission.currentCurrentStatuses === "object" &&
+        !Array.isArray(permission.currentCurrentStatuses)
+          ? (permission.currentCurrentStatuses as Record<string, unknown>)
+          : {}
+      normalizedCurrentStatuses = Object.entries(parsedStatuses.value).reduce<Record<string, number>>(
+        (acc, [key, maxValue]) => {
+          const rawCurrent = currentStatusesRecord[key]
+          const currentNumber =
+            typeof rawCurrent === "number" && Number.isFinite(rawCurrent)
+              ? Math.floor(rawCurrent)
+              : Math.floor(maxValue)
+          acc[key] = Math.max(0, Math.min(Math.floor(maxValue), currentNumber))
+          return acc
+        },
+        {},
+      )
+
+      const life = validateStat("vida", parsedStatuses.value.life ?? 0)
+      if (!life.ok) fail(400, life.message)
+      nextLife = life.value
+      const defense = validateStat("defesa", parsedStatuses.value.defense ?? 0)
+      if (!defense.ok) fail(400, defense.message)
+      nextDefense = defense.value
+      const mana = validateStat("mana", parsedStatuses.value.mana ?? 0)
+      if (!mana.ok) fail(400, mana.message)
+      nextMana = mana.value
+      const exhaustion = validateStat("exaustão", parsedStatuses.value.exhaustion ?? 0)
+      if (!exhaustion.ok) fail(400, exhaustion.message)
+      nextExhaustion = exhaustion.value
+      const sanity = validateStat("sanidade", parsedStatuses.value.sanity ?? 0)
+      if (!sanity.ok) fail(400, sanity.message)
+      nextSanity = sanity.value
     }
-    const statusTemplate = dbStatusTemplate.length > 0 ? dbStatusTemplate : getDefaultStatusTemplate()
-    const parsedStatuses = validateStatusesPayload(body.statuses, statusTemplate)
-    if (!parsedStatuses.ok) fail(400, parsedStatuses.message)
 
-    const currentStatusesRecord =
-      permission.currentCurrentStatuses &&
-      typeof permission.currentCurrentStatuses === "object" &&
-      !Array.isArray(permission.currentCurrentStatuses)
-        ? (permission.currentCurrentStatuses as Record<string, unknown>)
-        : {}
-    const normalizedCurrentStatuses = Object.entries(parsedStatuses.value).reduce<Record<string, number>>(
-      (acc, [key, maxValue]) => {
-        const rawCurrent = currentStatusesRecord[key]
-        const currentNumber =
-          typeof rawCurrent === "number" && Number.isFinite(rawCurrent)
-            ? Math.floor(rawCurrent)
-            : Math.floor(maxValue)
-        acc[key] = Math.max(0, Math.min(Math.floor(maxValue), currentNumber))
-        return acc
-      },
-      {},
-    )
-
-    const life = validateStat("vida", parsedStatuses.value.life ?? 0)
-    if (!life.ok) fail(400, life.message)
-    const defense = validateStat("defesa", parsedStatuses.value.defense ?? 0)
-    if (!defense.ok) fail(400, defense.message)
-    const mana = validateStat("mana", parsedStatuses.value.mana ?? 0)
-    if (!mana.ok) fail(400, mana.message)
-    const exhaustion = validateStat("exaustão", parsedStatuses.value.exhaustion ?? 0)
-    if (!exhaustion.ok) fail(400, exhaustion.message)
-    const sanity = validateStat("sanidade", parsedStatuses.value.sanity ?? 0)
-    if (!sanity.ok) fail(400, sanity.message)
-
-    if (!permission.isOwner && body.skills !== undefined) {
+    const canEditSkills = permission.isOwner || permission.characterType !== "player"
+    const hasSkillsInBody = Object.prototype.hasOwnProperty.call(body, "skills")
+    if (!canEditSkills && hasSkillsInBody) {
       fail(403, "Somente mestre ou moderador podem editar pericias de personagens.")
     }
 
-    let dbSkillTemplate: Array<{ key: string; label: string; position: number }> = []
-    try {
-      dbSkillTemplate = await prisma.$queryRaw(Prisma.sql`
-        SELECT key, label, position
-        FROM rpg_skill_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    } catch (error) {
-      if (
-        !(error instanceof Error && error.message.includes('relation "rpg_skill_templates" does not exist'))
-      ) {
-        throw error
+    let parsedSkillsValue: Record<string, number> | null = null
+    if (hasSkillsInBody) {
+      let dbSkillTemplate: Array<{ key: string; label: string; position: number }> = []
+      try {
+        dbSkillTemplate = await prisma.$queryRaw(Prisma.sql`
+          SELECT key, label, position
+          FROM rpg_skill_templates
+          WHERE rpg_id = ${rpgId}
+          ORDER BY position ASC
+        `)
+      } catch (error) {
+        if (
+          !(error instanceof Error && error.message.includes('relation "rpg_skill_templates" does not exist'))
+        ) {
+          throw error
+        }
       }
+      const parsedSkills = validateSkillsPayload(body.skills, dbSkillTemplate)
+      if (!parsedSkills.ok) fail(400, parsedSkills.message)
+      parsedSkillsValue = parsedSkills.value
     }
-    const defaultSkills = dbSkillTemplate.reduce<Record<string, number>>((acc, item) => {
-      acc[item.key] = 0
-      return acc
-    }, {})
-    const currentSkills =
-      permission.currentSkills &&
-      typeof permission.currentSkills === "object" &&
-      !Array.isArray(permission.currentSkills)
-        ? (permission.currentSkills as Record<string, number>)
-        : defaultSkills
-    const incomingSkills = permission.isOwner ? body.skills ?? currentSkills : currentSkills
-    const parsedSkills = validateSkillsPayload(incomingSkills, dbSkillTemplate)
-    if (!parsedSkills.ok) fail(400, parsedSkills.message)
 
     let identityTemplate: Array<{ key: string; label: string; required: boolean; position: number }> = []
-    try {
-      identityTemplate = await prisma.$queryRaw(Prisma.sql`
-        SELECT key, label, required, position
-        FROM rpg_character_identity_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    } catch (error) {
-      if (
-        !(error instanceof Error && error.message.includes('relation "rpg_character_identity_templates" does not exist'))
-      ) {
-        throw error
+    if (permission.characterType === "player") {
+      try {
+        identityTemplate = await prisma.$queryRaw(Prisma.sql`
+          SELECT key, label, required, position
+          FROM rpg_character_identity_templates
+          WHERE rpg_id = ${rpgId}
+          ORDER BY position ASC
+        `)
+      } catch (error) {
+        if (
+          !(error instanceof Error && error.message.includes('relation "rpg_character_identity_templates" does not exist'))
+        ) {
+          throw error
+        }
       }
     }
 
@@ -289,18 +312,20 @@ export async function updateCharacter(input: UpdateCharacterInput): Promise<void
     if (!parsedIdentity.ok) fail(400, parsedIdentity.message)
 
     let characteristicsTemplate: Array<{ key: string; label: string; required: boolean; position: number }> = []
-    try {
-      characteristicsTemplate = await prisma.$queryRaw(Prisma.sql`
-        SELECT key, label, required, position
-        FROM rpg_character_characteristic_templates
-        WHERE rpg_id = ${rpgId}
-        ORDER BY position ASC
-      `)
-    } catch (error) {
-      if (
-        !(error instanceof Error && error.message.includes('relation "rpg_character_characteristic_templates" does not exist'))
-      ) {
-        throw error
+    if (permission.characterType === "player") {
+      try {
+        characteristicsTemplate = await prisma.$queryRaw(Prisma.sql`
+          SELECT key, label, required, position
+          FROM rpg_character_characteristic_templates
+          WHERE rpg_id = ${rpgId}
+          ORDER BY position ASC
+        `)
+      } catch (error) {
+        if (
+          !(error instanceof Error && error.message.includes('relation "rpg_character_characteristic_templates" does not exist'))
+        ) {
+          throw error
+        }
       }
     }
 
@@ -323,8 +348,8 @@ export async function updateCharacter(input: UpdateCharacterInput): Promise<void
       SET
         name = ${name},
         image = CASE WHEN ${hasImageInBody} THEN ${image} ELSE image END,
-        race_key = CASE WHEN ${hasRaceKeyInBody} THEN ${selectedRaceKey} ELSE race_key END,
-        class_key = CASE WHEN ${hasClassKeyInBody} THEN ${selectedClassKey} ELSE class_key END,
+        race_key = CASE WHEN ${shouldPersistRaceKey} THEN ${selectedRaceKey} ELSE race_key END,
+        class_key = CASE WHEN ${shouldPersistClassKey} THEN ${selectedClassKey} ELSE class_key END,
         visibility = COALESCE(${visibility}::"RpgVisibility", visibility),
         max_carry_weight = CASE
           WHEN ${hasMaxCarryWeightInBody} THEN ${resolvedMaxCarryWeight}
@@ -334,15 +359,27 @@ export async function updateCharacter(input: UpdateCharacterInput): Promise<void
         progression_label = ${resolvedProgression.label},
         progression_required = ${resolvedProgression.required},
         progression_current = ${resolvedProgressionCurrent},
-        life = ${life.value},
-        defense = ${defense.value},
-        mana = ${mana.value},
-        stamina = ${exhaustion.value},
-        sanity = ${sanity.value},
-        statuses = ${JSON.stringify(parsedStatuses.value)}::jsonb,
-        current_statuses = ${JSON.stringify(normalizedCurrentStatuses)}::jsonb,
-        attributes = ${JSON.stringify(parsedAttributes.value)}::jsonb,
-        skills = ${JSON.stringify(parsedSkills.value)}::jsonb,
+        life = CASE WHEN ${hasStatusesInBody} THEN ${nextLife} ELSE life END,
+        defense = CASE WHEN ${hasStatusesInBody} THEN ${nextDefense} ELSE defense END,
+        mana = CASE WHEN ${hasStatusesInBody} THEN ${nextMana} ELSE mana END,
+        stamina = CASE WHEN ${hasStatusesInBody} THEN ${nextExhaustion} ELSE stamina END,
+        sanity = CASE WHEN ${hasStatusesInBody} THEN ${nextSanity} ELSE sanity END,
+        statuses = CASE
+          WHEN ${hasStatusesInBody} THEN ${JSON.stringify(parsedStatusesValue ?? {})}::jsonb
+          ELSE statuses
+        END,
+        current_statuses = CASE
+          WHEN ${hasStatusesInBody} THEN ${JSON.stringify(normalizedCurrentStatuses ?? {})}::jsonb
+          ELSE current_statuses
+        END,
+        attributes = CASE
+          WHEN ${hasAttributesInBody} THEN ${JSON.stringify(parsedAttributesValue ?? {})}::jsonb
+          ELSE attributes
+        END,
+        skills = CASE
+          WHEN ${hasSkillsInBody} THEN ${JSON.stringify(parsedSkillsValue ?? {})}::jsonb
+          ELSE skills
+        END,
         identity = ${JSON.stringify(parsedIdentity.value)}::jsonb,
         characteristics = ${JSON.stringify(parsedCharacteristics.value)}::jsonb,
         updated_at = CURRENT_TIMESTAMP

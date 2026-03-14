@@ -20,6 +20,7 @@ type CanManageCharacterResult =
       useInventoryWeightLimit: boolean
       progressionMode: ProgressionMode
       progressionTiers: Array<{ label: string; required: number }>
+      currentName: string
       characterType: "player" | "npc" | "monster"
       currentSkills: Prisma.JsonValue
       currentCurrentStatuses: Prisma.JsonValue
@@ -33,64 +34,35 @@ export async function canManageCharacter(
   characterId: string,
   userId: string,
 ): Promise<CanManageCharacterResult> {
-  let rpgRows: Array<{
-    id: string
-    ownerId: string
-    useInventoryWeightLimit: boolean
-    progressionMode: string
-    progressionTiers: Prisma.JsonValue
-  }> = []
-
-  try {
-    rpgRows = await prisma.$queryRaw<
-      Array<{
-        id: string
-        ownerId: string
-        useInventoryWeightLimit: boolean
-        progressionMode: string
-        progressionTiers: Prisma.JsonValue
-      }>
-    >(Prisma.sql`
-      SELECT
-        id,
-        owner_id AS "ownerId",
-        COALESCE(use_inventory_weight_limit, false) AS "useInventoryWeightLimit",
-        COALESCE(progression_mode, 'xp_level') AS "progressionMode",
-        COALESCE(progression_tiers, '[{"label":"Level 1","required":0}]'::jsonb) AS "progressionTiers"
-      FROM rpgs
-      WHERE id = ${rpgId}
-      LIMIT 1
-    `)
-  } catch (error) {
-    if (
-      !(error instanceof Error) ||
-      (!error.message.includes('column "use_inventory_weight_limit" does not exist') &&
-        !error.message.includes('column "progression_mode" does not exist') &&
-        !error.message.includes('column "progression_tiers" does not exist'))
-    ) {
-      throw error
-    }
-
-    rpgRows = await prisma.$queryRaw<
-      Array<{
-        id: string
-        ownerId: string
-        useInventoryWeightLimit: boolean
-        progressionMode: string
-        progressionTiers: Prisma.JsonValue
-      }>
-    >(Prisma.sql`
-      SELECT
-        id,
-        owner_id AS "ownerId",
-        false AS "useInventoryWeightLimit",
-        'xp_level'::text AS "progressionMode",
-        '[{"label":"Level 1","required":0}]'::jsonb AS "progressionTiers"
-      FROM rpgs
-      WHERE id = ${rpgId}
-      LIMIT 1
-    `)
-  }
+  const rpgRows = await prisma.$queryRaw<
+    Array<{
+      id: string
+      ownerId: string
+      useInventoryWeightLimit: boolean
+      progressionMode: string
+      progressionTiers: Prisma.JsonValue
+    }>
+  >(Prisma.sql`
+    SELECT
+      r.id,
+      r.owner_id AS "ownerId",
+      CASE
+        WHEN jsonb_typeof(rpg_meta.rpg_json -> 'use_inventory_weight_limit') = 'boolean'
+          THEN COALESCE((rpg_meta.rpg_json ->> 'use_inventory_weight_limit')::boolean, false)
+        ELSE false
+      END AS "useInventoryWeightLimit",
+      COALESCE(NULLIF(rpg_meta.rpg_json ->> 'progression_mode', ''), 'xp_level') AS "progressionMode",
+      COALESCE(
+        rpg_meta.rpg_json -> 'progression_tiers',
+        '[{"label":"Level 1","required":0}]'::jsonb
+      ) AS "progressionTiers"
+    FROM rpgs r
+    CROSS JOIN LATERAL (
+      SELECT to_jsonb(r) AS rpg_json
+    ) rpg_meta
+    WHERE r.id = ${rpgId}
+    LIMIT 1
+  `)
 
   const rpg = rpgRows[0]
   const progressionMode = isProgressionMode(rpg?.progressionMode)
@@ -119,82 +91,41 @@ export async function canManageCharacter(
   }
 
   const canManageAsMaster = isOwner || isModerator
-  let character: Array<{
-    id: string
-    characterType: "player" | "npc" | "monster"
-    createdByUserId: string | null
-    skills: Prisma.JsonValue
-    currentStatuses: Prisma.JsonValue
-    identity: Prisma.JsonValue
-    characteristics: Prisma.JsonValue
-    progressionCurrent: number
-  }> = []
-
-  try {
-    character = await prisma.$queryRaw<
-      Array<{
-        id: string
-        characterType: "player" | "npc" | "monster"
-        createdByUserId: string | null
-        skills: Prisma.JsonValue
-        currentStatuses: Prisma.JsonValue
-        identity: Prisma.JsonValue
-        characteristics: Prisma.JsonValue
-        progressionCurrent: number
-      }>
-    >(Prisma.sql`
-      SELECT
-        id,
-        character_type AS "characterType",
-        created_by_user_id AS "createdByUserId",
-        skills,
-        COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",
-        COALESCE(identity, '{}'::jsonb) AS identity,
-        COALESCE(characteristics, '{}'::jsonb) AS characteristics,
-        COALESCE(progression_current, 0) AS "progressionCurrent"
-      FROM rpg_characters
-      WHERE id = ${characterId}
-        AND rpg_id = ${rpgId}
-      LIMIT 1
-    `)
-  } catch (error) {
-    if (
-      !(error instanceof Error) ||
-      (!error.message.includes('column "identity" does not exist') &&
-        !error.message.includes('column "characteristics" does not exist') &&
-        !error.message.includes('column "current_statuses" does not exist') &&
-        !error.message.includes('column "progression_current" does not exist'))
-    ) {
-      throw error
-    }
-
-    character = await prisma.$queryRaw<
-      Array<{
-        id: string
-        characterType: "player" | "npc" | "monster"
-        createdByUserId: string | null
-        skills: Prisma.JsonValue
-        currentStatuses: Prisma.JsonValue
-        identity: Prisma.JsonValue
-        characteristics: Prisma.JsonValue
-        progressionCurrent: number
-      }>
-    >(Prisma.sql`
-      SELECT
-        id,
-        character_type AS "characterType",
-        created_by_user_id AS "createdByUserId",
-        skills,
-        '{}'::jsonb AS "currentStatuses",
-        '{}'::jsonb AS identity,
-        '{}'::jsonb AS characteristics,
-        0::integer AS "progressionCurrent"
-      FROM rpg_characters
-      WHERE id = ${characterId}
-        AND rpg_id = ${rpgId}
-      LIMIT 1
-    `)
-  }
+  const character = await prisma.$queryRaw<
+    Array<{
+      id: string
+      name: string
+      characterType: "player" | "npc" | "monster"
+      createdByUserId: string | null
+      skills: Prisma.JsonValue
+      currentStatuses: Prisma.JsonValue
+      identity: Prisma.JsonValue
+      characteristics: Prisma.JsonValue
+      progressionCurrent: number
+    }>
+  >(Prisma.sql`
+    SELECT
+      c.id,
+      c.name,
+      c.character_type AS "characterType",
+      c.created_by_user_id AS "createdByUserId",
+      c.skills,
+      COALESCE(character_meta.character_json -> 'current_statuses', '{}'::jsonb) AS "currentStatuses",
+      COALESCE(character_meta.character_json -> 'identity', '{}'::jsonb) AS identity,
+      COALESCE(character_meta.character_json -> 'characteristics', '{}'::jsonb) AS characteristics,
+      CASE
+        WHEN jsonb_typeof(character_meta.character_json -> 'progression_current') IN ('number', 'string')
+          THEN COALESCE(NULLIF(character_meta.character_json ->> 'progression_current', '')::integer, 0)
+        ELSE 0
+      END AS "progressionCurrent"
+    FROM rpg_characters c
+    CROSS JOIN LATERAL (
+      SELECT to_jsonb(c) AS character_json
+    ) character_meta
+    WHERE c.id = ${characterId}
+      AND c.rpg_id = ${rpgId}
+    LIMIT 1
+  `)
 
   if (character.length === 0) {
     return { ok: false, status: 404, message: "Personagem nao encontrado." }
@@ -211,6 +142,7 @@ export async function canManageCharacter(
     useInventoryWeightLimit: rpg.useInventoryWeightLimit,
     progressionMode,
     progressionTiers,
+    currentName: character[0].name,
     characterType: character[0].characterType,
     currentSkills: character[0].skills,
     currentCurrentStatuses: character[0].currentStatuses,

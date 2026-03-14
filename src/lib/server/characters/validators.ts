@@ -146,11 +146,10 @@ export function validateIdentityPayload(
   incoming: unknown,
   template: CharacterIdentityTemplateRow[],
 ) {
-  if (template.length === 0) {
-    return { ok: true as const, value: {} as Record<string, string> }
-  }
-
   if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
+    if (template.length === 0) {
+      return { ok: true as const, value: {} as Record<string, string> }
+    }
     return { ok: false as const, message: "Identidade invalida." }
   }
 
@@ -168,29 +167,37 @@ export function validateIdentityPayload(
     }
   }
 
-  const extraKey = Object.keys(record).find((key) => !allowedKeys.includes(key))
-  if (extraKey) {
-    return { ok: false as const, message: `Campo de identidade fora do padrao: ${extraKey}.` }
+  const invalidExtraKey = Object.entries(record).find(
+    ([key, value]) => !allowedKeys.includes(key) && typeof value !== "string",
+  )
+  if (invalidExtraKey) {
+    return { ok: false as const, message: `Valor invalido para ${invalidExtraKey[0]}.` }
   }
 
-  const normalized = template.reduce<Record<string, string>>((acc, item) => {
+  const normalizedFromTemplate = template.reduce<Record<string, string>>((acc, item) => {
     const value = record[item.key]
     acc[item.key] = typeof value === "string" ? value.trim() : ""
     return acc
   }, {})
 
-  return { ok: true as const, value: normalized }
+  const extraFields = Object.entries(record).reduce<Record<string, string>>((acc, [key, value]) => {
+    if (!allowedKeys.includes(key) && typeof value === "string") {
+      acc[key] = value.trim()
+    }
+    return acc
+  }, {})
+
+  return { ok: true as const, value: { ...normalizedFromTemplate, ...extraFields } }
 }
 
 export function validateCharacteristicsPayload(
   incoming: unknown,
   template: CharacterCharacteristicTemplateRow[],
 ) {
-  if (template.length === 0) {
-    return { ok: true as const, value: {} as Record<string, string> }
-  }
-
   if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
+    if (template.length === 0) {
+      return { ok: true as const, value: {} as Record<string, string> }
+    }
     return { ok: false as const, message: "Caracteristicas invalidas." }
   }
 
@@ -208,18 +215,27 @@ export function validateCharacteristicsPayload(
     }
   }
 
-  const extraKey = Object.keys(record).find((key) => !allowedKeys.includes(key))
-  if (extraKey) {
-    return { ok: false as const, message: `Campo de caracteristica fora do padrao: ${extraKey}.` }
+  const invalidExtraKey = Object.entries(record).find(
+    ([key, value]) => !allowedKeys.includes(key) && typeof value !== "string",
+  )
+  if (invalidExtraKey) {
+    return { ok: false as const, message: `Valor invalido para ${invalidExtraKey[0]}.` }
   }
 
-  const normalized = template.reduce<Record<string, string>>((acc, item) => {
+  const normalizedFromTemplate = template.reduce<Record<string, string>>((acc, item) => {
     const value = record[item.key]
     acc[item.key] = typeof value === "string" ? value.trim() : ""
     return acc
   }, {})
 
-  return { ok: true as const, value: normalized }
+  const extraFields = Object.entries(record).reduce<Record<string, string>>((acc, [key, value]) => {
+    if (!allowedKeys.includes(key) && typeof value === "string") {
+      acc[key] = value.trim()
+    }
+    return acc
+  }, {})
+
+  return { ok: true as const, value: { ...normalizedFromTemplate, ...extraFields } }
 }
 
 export function isValidCharacterType(value: unknown): value is CharacterRow["characterType"] {

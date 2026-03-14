@@ -1,1 +1,1 @@
-export { DELETE, PATCH } from "@/presentation/api/characters/characterByIdRoute"
+export { DELETE, GET, PATCH } from "@/presentation/api/characters/characterByIdRoute"

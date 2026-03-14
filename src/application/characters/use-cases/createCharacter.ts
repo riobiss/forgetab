@@ -14,6 +14,7 @@ import {
   validateStat,
   validateStatusesPayload,
 } from "@/lib/server/characters/validators"
+import { isValidVisibility } from "@/lib/server/characters/manage/validators"
 import type { CharacterRepository } from "@/application/characters/ports/CharacterRepository"
 import type { RpgTemplatesRepository } from "@/application/characters/ports/RpgTemplatesRepository"
 import type { CreateCharacterPayload, CharacterRow, RpgAccess } from "@/application/characters/types"
@@ -36,12 +37,17 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
   try {
     const name = input.payload.name?.trim() ?? ""
     const image = normalizeOptionalText(input.payload.image)
-    if (name.length < 2) {
-      fail(400, "Nome deve ter pelo menos 2 caracteres.")
+    const requiresLongerName = input.payload.characterType === "player"
+    if (requiresLongerName ? name.length < 2 : name.length === 0) {
+      fail(400, requiresLongerName ? "Nome deve ter pelo menos 2 caracteres." : "Nome obrigatorio.")
     }
 
     if (!isValidCharacterType(input.payload.characterType)) {
       fail(400, "Tipo invalido. Use player, npc ou monster.")
+    }
+
+    if (input.payload.visibility !== undefined && !isValidVisibility(input.payload.visibility)) {
+      fail(400, "Visibilidade invalida. Use private ou public.")
     }
 
     if (!input.access.isOwner && input.payload.characterType !== "player") {
@@ -118,13 +124,19 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
       fail(400, parsedSkills.message)
     }
 
-    const identityTemplate = await input.rpgTemplatesRepository.getIdentityTemplates(input.rpgId)
+    const identityTemplate =
+      input.payload.characterType === "player"
+        ? await input.rpgTemplatesRepository.getIdentityTemplates(input.rpgId)
+        : []
     const parsedIdentity = validateIdentityPayload(input.payload.identity, identityTemplate)
     if (!parsedIdentity.ok) {
       fail(400, parsedIdentity.message)
     }
 
-    const characteristicsTemplate = await input.rpgTemplatesRepository.getCharacteristicTemplates(input.rpgId)
+    const characteristicsTemplate =
+      input.payload.characterType === "player"
+        ? await input.rpgTemplatesRepository.getCharacteristicTemplates(input.rpgId)
+        : []
     const parsedCharacteristics = validateCharacteristicsPayload(
       input.payload.characteristics,
       characteristicsTemplate,
@@ -133,8 +145,10 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
       fail(400, parsedCharacteristics.message)
     }
 
-    const selectedRaceKey = input.access.useRaceBonuses ? input.payload.raceKey?.trim() || null : null
-    const selectedClassKey = input.access.useClassBonuses ? input.payload.classKey?.trim() || null : null
+    const selectedRaceKey = input.payload.raceKey?.trim() || null
+    const selectedClassKey = input.payload.classKey?.trim() || null
+    const shouldUseTemplateRaceClass = input.payload.characterType === "player"
+    const visibility = input.payload.visibility ?? "public"
     let raceAttributeBonuses: Record<string, number> = {}
     let classAttributeBonuses: Record<string, number> = {}
     let raceSkillBonuses: Record<string, number> = {}
@@ -146,14 +160,24 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
         input.rpgTemplatesRepository.getClassTemplates(input.rpgId),
       ])
 
-      if (input.access.useRaceBonuses && raceTemplates.length > 0 && !selectedRaceKey) {
+      if (
+        shouldUseTemplateRaceClass &&
+        input.access.useRaceBonuses &&
+        raceTemplates.length > 0 &&
+        !selectedRaceKey
+      ) {
         fail(400, "Selecione uma raca.")
       }
-      if (input.access.useClassBonuses && classTemplates.length > 0 && !selectedClassKey) {
+      if (
+        shouldUseTemplateRaceClass &&
+        input.access.useClassBonuses &&
+        classTemplates.length > 0 &&
+        !selectedClassKey
+      ) {
         fail(400, "Selecione uma classe.")
       }
 
-      if (selectedRaceKey) {
+      if (shouldUseTemplateRaceClass && selectedRaceKey) {
         const race = raceTemplates.find((item) => item.key === selectedRaceKey)
         if (!race) {
           fail(400, "Raca invalida para este RPG.")
@@ -164,7 +188,7 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
         }
       }
 
-      if (selectedClassKey) {
+      if (shouldUseTemplateRaceClass && selectedClassKey) {
         const cls = classTemplates.find((item) => item.key === selectedClassKey)
         if (!cls) {
           fail(400, "Classe invalida para este RPG.")
@@ -197,9 +221,10 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
       rpgId: input.rpgId,
       name,
       image,
-      raceKey: selectedRaceKey,
-      classKey: selectedClassKey,
+      raceKey: shouldUseTemplateRaceClass ? selectedRaceKey : null,
+      classKey: shouldUseTemplateRaceClass ? selectedClassKey : null,
       characterType: input.payload.characterType,
+      visibility,
       maxCarryWeight,
       progressionMode: input.access.progressionMode,
       progressionLabel: resolvedProgression.label,

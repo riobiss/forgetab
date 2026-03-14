@@ -1,4 +1,4 @@
-import type { CharactersEditorDependencies } from "@/application/charactersEditor/contracts/CharactersEditorDependencies"
+import type { CharactersEditorDependencies } from "@/application/characters/editor"
 import { httpCharactersEditorGateway } from "@/infrastructure/charactersEditor/gateways/httpCharactersEditorGateway"
 
 export type CharactersEditorGatewayFactory = "http"

@@ -17,10 +17,10 @@ vi.mock("@/lib/prisma", () => ({
   },
 }))
 
-import { DELETE, PATCH } from "./route"
+import { DELETE, GET, PATCH } from "./route"
 
 function makeRequest(
-  method: "PATCH" | "DELETE",
+  method: "GET" | "PATCH" | "DELETE",
   body?: unknown,
   withAuth = true,
 ) {
@@ -38,9 +38,109 @@ function makeContext(rpgId = "rpg-1", characterId = "char-1") {
   return { params: Promise.resolve({ rpgId, characterId }) }
 }
 
+describe("GET /api/rpg/[rpgId]/characters/[characterId]", () => {
+  beforeEach(() => {
+    mocks.queryRaw.mockReset()
+    mocks.verifyAuthToken.mockReset()
+    mocks.verifyAuthToken.mockResolvedValue({ userId: "user-1" })
+  })
+
+  it("retorna 200 com o snapshot completo do npc para edicao", async () => {
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
+        id: "rpg-1",
+        ownerId: "user-1",
+        useInventoryWeightLimit: false,
+        progressionMode: "xp_level",
+        progressionTiers: [{ label: "Level 1", required: 0 }],
+      },
+    ])
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
+        id: "char-1",
+        name: "Goblin",
+        characterType: "npc",
+        createdByUserId: null,
+        skills: {},
+        currentStatuses: {},
+        identity: { nome: "Goblin", "titulo-apelido": "Ladrao" },
+        characteristics: { descricao: "Pequeno e agil" },
+        progressionCurrent: 0,
+      },
+    ])
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
+        id: "char-1",
+        rpgId: "rpg-1",
+        name: "Goblin",
+        image: null,
+        raceKey: null,
+        classKey: null,
+        characterType: "npc",
+        visibility: "public",
+        maxCarryWeight: null,
+        progressionMode: "xp_level",
+        progressionLabel: "Level 1",
+        progressionRequired: 0,
+        progressionCurrent: 0,
+        createdByUserId: null,
+        life: 0,
+        defense: 0,
+        mana: 0,
+        exhaustion: 0,
+        sanity: 0,
+        statuses: {},
+        currentStatuses: {},
+        attributes: {},
+        skills: {},
+        identity: { nome: "Goblin", "titulo-apelido": "Ladrao" },
+        characteristics: { descricao: "Pequeno e agil" },
+        createdAt: new Date("2026-03-13T00:00:00.000Z"),
+        updatedAt: new Date("2026-03-13T00:00:00.000Z"),
+      },
+    ])
+
+    const response = await GET(makeRequest("GET"), makeContext())
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({
+      character: {
+        id: "char-1",
+        rpgId: "rpg-1",
+        name: "Goblin",
+        image: null,
+        raceKey: null,
+        classKey: null,
+        characterType: "npc",
+        visibility: "public",
+        maxCarryWeight: null,
+        progressionMode: "xp_level",
+        progressionLabel: "Level 1",
+        progressionRequired: 0,
+        progressionCurrent: 0,
+        createdByUserId: null,
+        life: 0,
+        defense: 0,
+        mana: 0,
+        exhaustion: 0,
+        sanity: 0,
+        statuses: {},
+        currentStatuses: {},
+        attributes: {},
+        skills: {},
+        identity: { nome: "Goblin", "titulo-apelido": "Ladrao" },
+        characteristics: { descricao: "Pequeno e agil" },
+        createdAt: "2026-03-13T00:00:00.000Z",
+        updatedAt: "2026-03-13T00:00:00.000Z",
+      },
+    })
+  })
+})
+
 describe("PATCH /api/rpg/[rpgId]/characters/[characterId]", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mocks.queryRaw.mockReset()
+    mocks.verifyAuthToken.mockReset()
     mocks.verifyAuthToken.mockResolvedValue({ userId: "user-1" })
   })
 
@@ -93,11 +193,113 @@ describe("PATCH /api/rpg/[rpgId]/characters/[characterId]", () => {
       message: "Somente mestre ou moderador podem editar raca e classe de personagens.",
     })
   })
+
+  it("retorna 200 ao atualizar npc com patch basico", async () => {
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
+        id: "rpg-1",
+        ownerId: "user-1",
+        useInventoryWeightLimit: false,
+        progressionMode: "xp_level",
+        progressionTiers: [{ label: "Level 1", required: 0 }],
+      },
+    ])
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
+        id: "char-1",
+        name: "Goblin",
+        characterType: "npc",
+        createdByUserId: null,
+        skills: {},
+        currentStatuses: {},
+        identity: {},
+        characteristics: {},
+        progressionCurrent: 0,
+      },
+    ])
+    mocks.queryRaw.mockResolvedValueOnce([{ id: "char-1" }])
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
+        id: "char-1",
+        rpgId: "rpg-1",
+        name: "Goblin Rei",
+        image: null,
+        raceKey: null,
+        classKey: null,
+        characterType: "npc",
+        visibility: "public",
+        maxCarryWeight: null,
+        progressionMode: "xp_level",
+        progressionLabel: "Level 1",
+        progressionRequired: 0,
+        progressionCurrent: 0,
+        createdByUserId: null,
+        life: 0,
+        defense: 0,
+        mana: 0,
+        exhaustion: 0,
+        sanity: 0,
+        statuses: {},
+        currentStatuses: {},
+        attributes: {},
+        skills: {},
+        identity: { nome: "Goblin Rei", "titulo-apelido": "Chefe" },
+        characteristics: { descricao: "Novo lider" },
+        createdAt: new Date("2026-03-13T00:00:00.000Z"),
+        updatedAt: new Date("2026-03-13T00:00:00.000Z"),
+      },
+    ])
+
+    const response = await PATCH(
+      makeRequest("PATCH", {
+        name: "Goblin Rei",
+        visibility: "public",
+        identity: { nome: "Goblin Rei", "titulo-apelido": "Chefe" },
+        characteristics: { descricao: "Novo lider" },
+      }),
+      makeContext(),
+    )
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({
+      message: "Personagem atualizado com sucesso.",
+      character: {
+        id: "char-1",
+        rpgId: "rpg-1",
+        name: "Goblin Rei",
+        image: null,
+        raceKey: null,
+        classKey: null,
+        characterType: "npc",
+        visibility: "public",
+        maxCarryWeight: null,
+        progressionMode: "xp_level",
+        progressionLabel: "Level 1",
+        progressionRequired: 0,
+        progressionCurrent: 0,
+        createdByUserId: null,
+        life: 0,
+        defense: 0,
+        mana: 0,
+        exhaustion: 0,
+        sanity: 0,
+        statuses: {},
+        currentStatuses: {},
+        attributes: {},
+        skills: {},
+        identity: { nome: "Goblin Rei", "titulo-apelido": "Chefe" },
+        characteristics: { descricao: "Novo lider" },
+        createdAt: "2026-03-13T00:00:00.000Z",
+        updatedAt: "2026-03-13T00:00:00.000Z",
+      },
+    })
+  })
 })
 
 describe("DELETE /api/rpg/[rpgId]/characters/[characterId]", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mocks.queryRaw.mockReset()
+    mocks.verifyAuthToken.mockReset()
     mocks.verifyAuthToken.mockResolvedValue({ userId: "user-1" })
   })
 

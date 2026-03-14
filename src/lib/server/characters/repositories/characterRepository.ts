@@ -15,6 +15,7 @@ type CreateCharacterRowInput = {
   raceKey: string | null
   classKey: string | null
   characterType: "player" | "npc" | "monster"
+  visibility: "private" | "public"
   maxCarryWeight: number | null
   progressionMode: string
   progressionLabel: string
@@ -48,92 +49,55 @@ const buildVisibilityCondition = (isOwner: boolean, userId: string) =>
 
 export const prismaCharacterRepository: CharacterRepository = {
   async listByRpg({ rpgId, userId, isOwner }) {
-    try {
-      return await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
-        SELECT
-          id,
-          rpg_id AS "rpgId",
-          name,
-          image,
-          race_key AS "raceKey",
-          class_key AS "classKey",
-          character_type AS "characterType",
-          visibility,
-          max_carry_weight AS "maxCarryWeight",
-          COALESCE(progression_mode, 'xp_level') AS "progressionMode",
-          COALESCE(progression_label, 'Level 1') AS "progressionLabel",
-          COALESCE(progression_required, 0) AS "progressionRequired",
-          COALESCE(progression_current, 0) AS "progressionCurrent",
-          created_by_user_id AS "createdByUserId",
-          life,
-          defense,
-          mana,
-          stamina AS exhaustion,
-          sanity,
-          statuses,
-          COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",
-          attributes,
-          skills,
-          COALESCE(identity, '{}'::jsonb) AS identity,
-          COALESCE(characteristics, '{}'::jsonb) AS characteristics,
-          created_at AS "createdAt",
-          updated_at AS "updatedAt"
-        FROM rpg_characters
-        WHERE rpg_id = ${rpgId}
-          ${buildVisibilityCondition(isOwner, userId)}
-        ORDER BY created_at DESC
-      `)
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        (error.message.includes('column "race_key" does not exist') ||
-          error.message.includes('column "class_key" does not exist') ||
-          error.message.includes('column "max_carry_weight" does not exist') ||
-          error.message.includes('column "current_statuses" does not exist') ||
-          error.message.includes('column "identity" does not exist') ||
-          error.message.includes('column "characteristics" does not exist') ||
-          error.message.includes('column "progression_mode" does not exist') ||
-          error.message.includes('column "progression_label" does not exist') ||
-          error.message.includes('column "progression_required" does not exist') ||
-          error.message.includes('column "progression_current" does not exist'))
-      ) {
-        return prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
-          SELECT
-            id,
-            rpg_id AS "rpgId",
-            name,
-            null::text AS "image",
-            null::text AS "raceKey",
-            null::text AS "classKey",
-            character_type AS "characterType",
-            visibility,
-            null::double precision AS "maxCarryWeight",
-            'xp_level'::text AS "progressionMode",
-            'Level 1'::text AS "progressionLabel",
-            0::integer AS "progressionRequired",
-            0::integer AS "progressionCurrent",
-            created_by_user_id AS "createdByUserId",
-            life,
-            defense,
-            mana,
-            stamina AS exhaustion,
-            sanity,
-            statuses,
-            '{}'::jsonb AS "currentStatuses",
-            attributes,
-            skills,
-            '{}'::jsonb AS identity,
-            '{}'::jsonb AS characteristics,
-            created_at AS "createdAt",
-            updated_at AS "updatedAt"
-          FROM rpg_characters
-          WHERE rpg_id = ${rpgId}
-            ${buildVisibilityCondition(isOwner, userId)}
-          ORDER BY created_at DESC
-        `)
-      }
-      throw error
-    }
+    return prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
+      SELECT
+        c.id,
+        c.rpg_id AS "rpgId",
+        c.name,
+        character_meta.character_json ->> 'image' AS image,
+        character_meta.character_json ->> 'race_key' AS "raceKey",
+        character_meta.character_json ->> 'class_key' AS "classKey",
+        c.character_type AS "characterType",
+        c.visibility,
+        CASE
+          WHEN jsonb_typeof(character_meta.character_json -> 'max_carry_weight') IN ('number', 'string')
+            THEN NULLIF(character_meta.character_json ->> 'max_carry_weight', '')::double precision
+          ELSE null::double precision
+        END AS "maxCarryWeight",
+        COALESCE(NULLIF(character_meta.character_json ->> 'progression_mode', ''), 'xp_level') AS "progressionMode",
+        COALESCE(NULLIF(character_meta.character_json ->> 'progression_label', ''), 'Level 1') AS "progressionLabel",
+        CASE
+          WHEN jsonb_typeof(character_meta.character_json -> 'progression_required') IN ('number', 'string')
+            THEN COALESCE(NULLIF(character_meta.character_json ->> 'progression_required', '')::integer, 0)
+          ELSE 0
+        END AS "progressionRequired",
+        CASE
+          WHEN jsonb_typeof(character_meta.character_json -> 'progression_current') IN ('number', 'string')
+            THEN COALESCE(NULLIF(character_meta.character_json ->> 'progression_current', '')::integer, 0)
+          ELSE 0
+        END AS "progressionCurrent",
+        NULLIF(character_meta.character_json ->> 'created_by_user_id', '') AS "createdByUserId",
+        c.life,
+        c.defense,
+        c.mana,
+        c.stamina AS exhaustion,
+        c.sanity,
+        c.statuses,
+        COALESCE(character_meta.character_json -> 'current_statuses', '{}'::jsonb) AS "currentStatuses",
+        c.attributes,
+        c.skills,
+        COALESCE(character_meta.character_json -> 'identity', '{}'::jsonb) AS identity,
+        COALESCE(character_meta.character_json -> 'characteristics', '{}'::jsonb) AS characteristics,
+        c.created_at AS "createdAt",
+        c.updated_at AS "updatedAt"
+      FROM rpg_characters c
+      CROSS JOIN LATERAL (
+        SELECT to_jsonb(c) AS character_json
+      ) character_meta
+      WHERE c.rpg_id = ${rpgId}
+        ${buildVisibilityCondition(isOwner, userId)}
+      ORDER BY c.created_at DESC
+    `)
   },
 
   async countPlayersByCreator(rpgId, userId) {
@@ -160,7 +124,7 @@ export const prismaCharacterRepository: CharacterRepository = {
         ${input.raceKey},
         ${input.classKey},
         ${input.characterType}::"RpgCharacterType",
-        'public'::"RpgVisibility",
+        ${input.visibility}::"RpgVisibility",
         ${input.maxCarryWeight},
         ${input.progressionMode},
         ${input.progressionLabel},

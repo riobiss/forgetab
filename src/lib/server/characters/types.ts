@@ -91,6 +91,7 @@ export type CreateCharacterPayload = {
   name?: string
   image?: string
   characterType?: CharacterRow["characterType"]
+  visibility?: CharacterRow["visibility"]
   maxCarryWeight?: number | null
   statuses?: Record<string, number>
   attributes?: Record<string, number>
