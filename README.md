@@ -1,12 +1,12 @@
 # ForgeTab
 
-Plataforma web para criacao e gerenciamento de campanhas de RPG, com foco em:
+Plataforma web para criacao e gerenciamento de campanhas de RPG, pensada para centralizar mesa, ficha, biblioteca e apoio de jogo em um unico lugar.
 
-- gestao de campanhas e membros
-- criacao e evolucao de personagens
-- sistema de itens, inventario e habilidades por level
-- biblioteca/lore por secoes e livros com editor rico
-- modulo de combate tatico (em evolucao)
+## Objetivo do produto
+
+Comecei esse projeto com o objetivo de atacar uma coisa que eu odiava em RPGs: o combate. Com o tempo fui me empolgando mais com a ideia, e hoje o ForgeTab está caminhando para se tornar um suporte completo, capaz de suprir as necessidades de qualquer RPG sem prender a mesa a um sistema específico.
+
+A proposta é ser uma plataforma leve e versátil, porque a maior parte dos usuários acessa pelo celular. A ideia é que mestres e jogadores consigam consultar personagens, habilidades, inventário, biblioteca e configurações da campanha de forma rápida, sem transformar a sessão em uma luta contra a interface.
 
 ## Stack
 
@@ -17,6 +17,7 @@ Plataforma web para criacao e gerenciamento de campanhas de RPG, com foco em:
 - Validacoes com Zod
 - Upload de imagens com ImageKit
 - Estilos com CSS Modules + Sass
+- Testes com Vitest + Testing Library
 
 ## Principais funcionalidades
 
@@ -26,32 +27,39 @@ Plataforma web para criacao e gerenciamento de campanhas de RPG, com foco em:
 - Sessao via cookie `auth_token` (JWT HS256)
 - Protecao de rotas por proxy/middleware
 - Protecao CSRF para metodos mutaveis da API (`POST`, `PUT`, `PATCH`, `DELETE`)
-- Rate limit local para login/register (com ponto de extensao para Upstash)
+- Rate limit local para login/register
 
 ### 2) Campanhas (RPG)
 
 - Criar, listar, editar e remover campanhas
 - Campanhas publicas e privadas
-- Solicitar entrada em campanhas (membro pendente/aceito/rejeitado)
+- Solicitar entrada em campanhas
 - Controle de membros aceitos e notificacoes para o dono
 - Configuracoes avancadas por campanha:
   - sistema de custos habilitado/desabilitado
-  - nome customizavel do recurso de custo (ex.: "Skill Points")
+  - nome customizavel do recurso de custo
   - uso de mapa mundi
   - uso de bonus por raca/classe
   - limite de peso de inventario
+  - progressao por niveis configuraveis
+  - distribuicao de pontos por classe
 
 ### 3) Personagens
 
-- Criacao e listagem por tipo (`player`, `npc`, `monster`)
+- Dashboard com filtros por `player`, `npc` e `monster`
+- Criacao e edicao de player em fluxo dedicado
+- Criacao e edicao de `npc` e `monster` em modal
+- Visualizacao detalhada de personagem em modal
+- Favoritos locais para acesso rapido no dashboard
 - Permissao para criacao de personagem via solicitacao ao mestre
-- Visibilidade por personagem (publico/privado)
+- Visibilidade por personagem (`public` e `private`)
 - Ficha com:
   - identidade e caracteristicas customizaveis
   - atributos, status e pericias
   - habilidades
-  - inventario
+  - inventario e itens
   - status atuais
+  - progressao atual da ficha
 
 ### 4) Racas e classes
 
@@ -61,37 +69,34 @@ Plataforma web para criacao e gerenciamento de campanhas de RPG, com foco em:
 - Edicao avancada por template
 - Vinculo entre habilidades e racas/classes
 
-### 5) Habilidades (Skill Builder)
+### 5) Habilidades
 
-- Dashboard para criacao/edicao de habilidades por RPG
+- Dashboard para criacao e edicao de habilidades por RPG
 - Habilidade com multiplos levels
-- Campos de combate e progressao:
-  - categoria e tipo de uso (acao/bonus/reacao/passiva)
-  - dano, alcance, recarga, duracao, conjuracao
-  - custo de recurso e custo em pontos
-  - notas por level
-- Modelagem de efeitos por level:
-  - dano, cura, buff/debuff, aplicar/remover status, escudo, zona, invocacao, movimento
-  - valor fixo ou baseado em dados
-- Compra de habilidade pelo personagem com consumo de pontos
+- Campos de combate e progressao
+- Compra e gerenciamento de habilidades por personagem
+- Pagina dedicada para habilidades de personagem
+- Suporte a habilidades para player, npc e monster
 
 ### 6) Itens e inventario
 
 - CRUD de itens base por RPG
-- Tipos de item: `weapon`, `armor`, `consumable`, `accessory`, `material`, `quest`
-- Campos avancados de item:
-  - raridade, dano, alcance, peso, durabilidade, duracao, pre-requisito
-  - habilidades/efeitos estruturados
 - Entrega de item para personagens com quantidade
 - Inventario por personagem com operacoes de adicionar/remover
+- Paginas dedicadas para itens e inventario da ficha
+- Suporte de loadout para npc e monster em evolucao
 
 ### 7) Biblioteca e lore
 
 - Secoes da biblioteca por RPG
 - Livros por secao
-- Editor rico (Tiptap) para conteudo de livros
-- Controle de visibilidade por livro
+- Criacao e edicao de secoes em modal
+- Controle de autoria em secoes e livros
+- Controle de visibilidade por secao e por livro
+- Livros com visibilidade `private`, `public` e `unlisted`
 - Filtros por raca/classe/personagem permitido
+- Editor rico com Tiptap para conteudo de livros
+- Upload de imagens para o conteudo da biblioteca
 
 ### 8) Mapa
 
@@ -101,21 +106,20 @@ Plataforma web para criacao e gerenciamento de campanhas de RPG, com foco em:
 
 ### 9) Combate
 
-- Existe modulo de combate com:
-  - fila de turnos
-  - fases de turno
-  - escolha de ataque/alvo
-  - logs de batalha
-- Observacao: a rota `/combat` ainda esta como "Em desenvolvimento...". O codigo do modulo esta em `src/app/combat/battle` e `src/app/combat/setup`.
+- O projeto nasceu com foco em combate tatico
+- Ja existem estruturas e rotas relacionadas ao modulo de combate
+- A experiencia final de combate ainda esta em evolucao
 
 ## Estrutura do projeto (resumo)
 
 ```text
 src/
   app/                 # paginas e rotas API (App Router)
-  lib/                 # autenticacao, acesso a dados, validacoes, utilitarios de RPG
-  components/          # componentes de UI e editor
-  data/                # dados estaticos (world-of-clans etc.)
+  application/         # casos de uso e contratos da aplicacao
+  infrastructure/      # repositorios, gateways e servicos concretos
+  presentation/        # features e componentes de interface
+  lib/                 # autenticacao, validacoes e utilitarios
+  components/          # componentes compartilhados
 prisma/
   schema.prisma        # modelo do banco
   migrations/          # historico de migrations
@@ -125,7 +129,7 @@ generated/
 
 ## Requisitos
 
-- Node.js 22+ (alinhado ao `Dockerfile.dev`)
+- Node.js 22+
 - npm 10+
 - PostgreSQL 16+ (ou via Docker)
 
@@ -133,19 +137,20 @@ generated/
 
 Use os exemplos:
 
-- `.env.example` (execucao local)
-- `.env.development.example` (docker-compose)
+- `.env.example`
+- `.env.development.example`
 
 Campos principais:
 
 - `DATABASE_URL`: conexao do app com o Postgres
-- `DIRECT_URL`: conexao direta usada em migrations (quando aplicavel)
+- `DIRECT_URL`: conexao direta usada em migrations
 - `JWT_SECRET`: segredo principal do token JWT
 - `NEXTAUTH_SECRET` / `APP_SECRET_KEY`: fallback para segredo JWT
 - `IMAGEKIT_URL_ENDPOINT`
 - `IMAGEKIT_PUBLIC_KEY`
 - `IMAGEKIT_PRIVATE_KEY`
-- `UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN` (opcional, ainda nao conectado na implementacao atual de rate limit distribuido)
+- `UPSTASH_REDIS_REST_URL`
+- `UPSTASH_REDIS_REST_TOKEN`
 
 ## Como rodar localmente (sem Docker)
 
@@ -170,7 +175,7 @@ npx prisma generate
 npm run dev
 ```
 
-5. Abra: `http://localhost:3000`
+5. Abra `http://localhost:3000`
 
 ## Como rodar com Docker
 
@@ -185,7 +190,7 @@ Comando:
 docker compose up --build
 ```
 
-O container `web` ja executa: install, `prisma migrate deploy`, `prisma generate` e `npm run dev`.
+O container `web` executa install, `prisma migrate deploy`, `prisma generate` e `npm run dev`.
 
 ## Rotas principais (UI)
 
@@ -196,35 +201,43 @@ O container `web` ja executa: install, `prisma migrate deploy`, `prisma generate
 - `/rpg/new` Criacao de campanha
 - `/rpg/[rpgId]` Hub da campanha
 - `/rpg/[rpgId]/edit` Configuracoes da campanha
-- `/rpg/[rpgId]/characters` Personagens
+- `/rpg/[rpgId]/characters` Dashboard de personagens
+- `/rpg/[rpgId]/characters/[characterId]` Ficha do personagem
+- `/rpg/[rpgId]/characters/[characterId]/abilities` Habilidades do personagem
+- `/rpg/[rpgId]/characters/[characterId]/inventory` Inventario do personagem
+- `/rpg/[rpgId]/characters/[characterId]/items` Itens do personagem
+- `/rpg/[rpgId]/characters/[characterId]/skills` Pericias do personagem
 - `/rpg/[rpgId]/races` Racas
 - `/rpg/[rpgId]/classes` Classes
-- `/rpg/[rpgId]/items` Itens
+- `/rpg/[rpgId]/items` Itens base do RPG
 - `/rpg/[rpgId]/library` Biblioteca
-- `/rpg/[rpgId]/map` Mapa (quando habilitado)
-- `/rpg/[rpgId]/skills` Dashboard de habilidades da campanha
-- `/combat` entrada atual do modulo de combate (placeholder)
+- `/rpg/[rpgId]/map` Mapa
+- `/rpg/[rpgId]/skills` Dashboard de habilidades
+- `/combat` entrada atual do modulo de combate
 
 ## API (resumo)
 
 Principais grupos:
 
 - `/api/auth/*` autenticacao (`login`, `register`, `logout`)
-- `/api/rpg/*` CRUD e configuracoes de RPG (membros, personagens, itens, biblioteca, mapa, templates)
+- `/api/rpg/*` CRUD e configuracoes de RPG
+- `/api/rpg/[rpgId]/characters/*` gestao de personagens, inventario e habilidades da campanha
+- `/api/rpg/[rpgId]/library/*` secoes e livros da biblioteca
 - `/api/skills/*` CRUD de habilidades e levels
-- `/api/uploads/*` upload/remocao de imagens (rpg/mapa/item/personagem/biblioteca)
+- `/api/uploads/*` upload e remocao de imagens
 - `/api/characters/*` acoes de pontos e compra de habilidades
 
 ## Upload de imagens
 
-- Upload via endpoints backend que enviam para ImageKit.
-- Limite atual: 8 MB por arquivo.
-- O backend valida autenticacao e tenta remover imagem anterior quando uma nova e enviada.
+- Upload via endpoints backend que enviam para ImageKit
+- Limite atual de 8 MB por arquivo
+- O backend valida autenticacao e tenta remover imagem anterior quando uma nova e enviada
 
 ## Estado atual e observacoes
 
-- Ha rotas de documentacao (`/docs`) e combate (`/combat`) ainda sem experiencia final completa.
-- O projeto possui diversas validacoes e tratamentos de compatibilidade para bancos com migrations antigas, mas o ideal e manter todas as migrations aplicadas.
+- A biblioteca e o dashboard de personagens receberam o maior volume de evolucao recente
+- O projeto ja possui testes com Vitest em partes importantes da aplicacao
+- O modulo de combate continua em desenvolvimento e ainda nao representa a experiencia final do produto
 
 ## Scripts
 
@@ -232,19 +245,9 @@ Principais grupos:
 - `npm run build` build de producao
 - `npm run start` inicia build de producao
 - `npm run lint` lint
-
-## O que vale completar manualmente neste README
-
-Para deixar este README excelente, inclua manualmente:
-
-1. Objetivo de produto em 1-2 paragrafos (problema que resolve e publico-alvo).
-2. Screenshots ou GIFs das telas principais (Home, Hub do RPG, Skill Builder, Biblioteca, Itens).
-3. Fluxo "primeiros 5 minutos" (cadastro -> criar RPG -> criar personagem -> criar skill -> testar).
-4. Politica de deploy (onde sobe, como configurar secrets em producao, estrategia de migrations).
-5. Padrao de contribuicao (branch naming, commit convention, PR checklist).
-6. Roadmap curto (proximas features e o que esta "em desenvolvimento").
-7. Decisoes de design importantes (ex.: por que JWT cookie + proxy, por que ImageKit, por que schema atual).
-8. Exemplos de payload para 3-5 endpoints criticos da API.
+- `npm run test` executa os testes
+- `npm run test:watch` executa os testes em modo watch
+- `npm run test:ui` abre a interface do Vitest
 
 ## Seguranca
 
