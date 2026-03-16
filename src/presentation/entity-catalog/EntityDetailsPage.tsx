@@ -34,8 +34,8 @@ type IdentityTemplateRecord = {
   category: string
   shortDescription: string | null
   content: JSONContent
-  attributeBonuses: Record<string, number>
-  skillBonuses: Record<string, number>
+  attributeBonuses: Record<string, string | number>
+  skillBonuses: Record<string, string | number>
   catalogMeta: EntityCatalogMeta
   lore?: unknown
 }
@@ -90,8 +90,8 @@ export default function EntityDetailsPage({
   const [shortDescription, setShortDescription] = useState(current.shortDescription ?? "")
   const [name, setName] = useState(current.label)
   const [category, setCategory] = useState(current.category)
-  const [attributeBonuses, setAttributeBonuses] = useState(current.attributeBonuses)
-  const [skillBonuses, setSkillBonuses] = useState(current.skillBonuses)
+const [attributeBonuses, setAttributeBonuses] = useState<Record<string, string | number>>(current.attributeBonuses)
+const [skillBonuses, setSkillBonuses] = useState<Record<string, string | number>>(current.skillBonuses)
   const [configModalOpen, setConfigModalOpen] = useState(false)
   const [contentEditing, setContentEditing] = useState(false)
   const [syncDescriptionToEditor, setSyncDescriptionToEditor] = useState(
@@ -252,12 +252,19 @@ export default function EntityDetailsPage({
   async function saveTemplate(nextTemplate: IdentityTemplateRecord) {
     await actions.saveTemplate(nextTemplate)
   }
-
+function parseBonusRecord(record: Record<string, string | number>): Record<string, number> {
+  return Object.fromEntries(
+    Object.entries(record).map(([key, val]) => [
+      key,
+      val === "" ? 0 : Number(val),
+    ])
+  )
+}
   async function handleSave() {
     if (!canManage || saving) return
     setSaving(true)
     const loadingToastId = toast.loading("Salvando...")
-
+  
     try {
       const nextTemplate: IdentityTemplateRecord = {
         ...current,
@@ -265,8 +272,8 @@ export default function EntityDetailsPage({
         category: category.trim() || "geral",
         shortDescription: shortDescription.trim() || null,
         content: editorContent,
-        attributeBonuses,
-        skillBonuses,
+        attributeBonuses: parseBonusRecord(attributeBonuses),
+        skillBonuses: parseBonusRecord(skillBonuses),
         catalogMeta: {
           ...current.catalogMeta,
           shortDescription: shortDescription.trim() || null,
@@ -571,8 +578,8 @@ export default function EntityDetailsPage({
                 values={configStage === "attributes" ? attributeBonuses : skillBonuses}
                 onChange={(key, value) =>
                   configStage === "attributes"
-                    ? setAttributeBonuses((prev) => ({ ...prev, [key]: Number(value) }))
-                    : setSkillBonuses((prev) => ({ ...prev, [key]: Number(value) }))
+                    ? setAttributeBonuses((prev) => ({ ...prev, [key]: value }))
+                    : setSkillBonuses((prev) => ({ ...prev, [key]: value}))
                 }
                 gridClassName={styles.grid}
                 fieldClassName={styles.field}

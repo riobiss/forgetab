@@ -7,13 +7,13 @@ type TemplateItem = {
 
 type Props = {
   items: TemplateItem[]
-  values: Record<string, number | "">
+  values: Record<string, string | number>
   onChange: (key: string, value: string) => void
   gridClassName: string
   fieldClassName: string
   keyPrefix: string
   min?: number
-  disabled?: boolean
+  disabled?: boolean  
   required?: boolean
 }
 
