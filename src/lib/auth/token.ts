@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from "jose"
 
 export const TOKEN_COOKIE_NAME = "auth_token"
-export const TOKEN_EXPIRES_IN_SECONDS = 60 * 60 * 24 * 7
+export const TOKEN_EXPIRES_IN_SECONDS = 60 * 60 * 24 * 30
 
 const configuredSecret =
   process.env.JWT_SECRET ?? process.env.NEXTAUTH_SECRET ?? process.env.APP_SECRET_KEY
