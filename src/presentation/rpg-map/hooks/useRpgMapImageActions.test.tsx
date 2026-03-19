@@ -30,7 +30,8 @@ describe("useRpgMapImageActions", () => {
     const { result } = renderHook(() =>
       useRpgMapImageActions({
         rpgId: "rpg-1",
-        isOwner: true,
+        mapId: "map-1",
+        canManage: true,
         mapSrc: "https://img.com/current-map.png",
         setMapSrc,
       }),
@@ -45,6 +46,7 @@ describe("useRpgMapImageActions", () => {
     expect(mocks.uploadRpgMapImageUseCase).toHaveBeenCalledTimes(1)
     expect(mocks.persistRpgMapImageUseCase).toHaveBeenCalledWith(expect.anything(), {
       rpgId: "rpg-1",
+      mapId: "map-1",
       mapImage: "https://img.com/new-map.png",
     })
     expect(setMapSrc).toHaveBeenCalledWith("https://img.com/new-map.png")
@@ -64,7 +66,8 @@ describe("useRpgMapImageActions", () => {
     const { result } = renderHook(() =>
       useRpgMapImageActions({
         rpgId: "rpg-1",
-        isOwner: true,
+        mapId: "map-1",
+        canManage: true,
         mapSrc: "https://img.com/current-map.png",
         setMapSrc,
       }),
@@ -79,6 +82,7 @@ describe("useRpgMapImageActions", () => {
     })
     expect(mocks.persistRpgMapImageUseCase).toHaveBeenCalledWith(expect.anything(), {
       rpgId: "rpg-1",
+      mapId: "map-1",
       mapImage: null,
     })
     expect(setMapSrc).toHaveBeenCalledWith("/map/world-map.png")

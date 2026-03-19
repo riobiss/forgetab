@@ -1,32 +1,564 @@
 .page {
-  display: flex;
-  flex-direction: column;
+  --catalog-panel-bg: color-mix(in srgb, var(--color-bg-surface-alt) 94%, var(--color-bg-surface));
+  --catalog-panel-border: color-mix(in srgb, var(--color-border-strong) 72%, var(--color-border-soft));
+  --catalog-panel-inner: color-mix(in srgb, var(--color-bg-surface-alt) 92%, transparent);
+  --catalog-card-bg: color-mix(in srgb, var(--color-bg-card) 94%, transparent);
+  --catalog-card-hover: color-mix(in srgb, var(--color-bg-elevated) 96%, transparent);
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--color-brand-primary) 16%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 20% 30%,
+      color-mix(in srgb, var(--color-brand-contrast) 6%, transparent),
+      transparent 60%
+    );
+  display: grid;
   gap: 1rem;
-  padding: 1rem 1rem 2rem;
-  min-height: calc(100dvh - 100px);
+  min-height: 100vh;
+  padding: 2.2rem 1.4rem 3.4rem;
+  color: var(--color-text-secondary);
+  align-content: start;
 }
 
-.title {
+.header,
+.mapHeaderCard,
+.panel,
+.sidebar,
+.modal {
+  border: 1px solid var(--catalog-panel-border);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-brand-soft) 22%, var(--catalog-panel-bg)) 0%,
+      var(--catalog-panel-bg) 38%,
+      color-mix(in srgb, var(--color-bg-elevated) 72%, var(--catalog-panel-bg)) 100%
+    );
+  box-shadow: var(--shadow-elevation-sm);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  max-width: 920px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.headerText {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.kicker,
+.badgeLine {
+  margin: 0 0 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+}
+
+.title,
+.sectionTitle {
   margin: 0;
-  font-size: 1.3rem;
   color: var(--color-text-primary);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
+  font-size: clamp(2rem, 2.8vw, 2.5rem);
+  line-height: 1.05;
 }
 
-.extraArea {
-  border: 1px dashed var(--color-border-soft);
-  border-radius: 10px;
-  padding: 1rem;
-  background: var(--color-bg-surface);
-}
-
-.extraTitle {
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
+.sectionText,
+.mapCard p,
+.detailCard p,
+.feedback {
+  margin: 0.5rem 0 0;
   color: var(--color-text-secondary);
 }
 
-.extraText {
+.controls,
+.groups,
+.content {
+  max-width: 920px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.controls,
+.groups,
+.mapList {
+  display: grid;
+  gap: 1rem;
+}
+
+.panel {
+  padding: 1rem;
+}
+
+.searchField,
+.field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.searchField {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  border: 1px solid var(--catalog-panel-border);
+  background: var(--catalog-panel-bg);
+  border-radius: 14px;
+  padding: 0.15rem 0.25rem 0.15rem 0.8rem;
+}
+
+.searchField input,
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.searchField input {
+  padding: 0.72rem 0.2rem;
+}
+
+.field input,
+.field textarea,
+.field select {
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text-primary);
+  padding: 0.68rem 0.82rem;
+}
+
+.mapList,
+.content,
+.workspace {
+  display: grid;
+  gap: 1rem;
+}
+
+.mapList {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.mapCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  padding: 0.9rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--color-border-default) 85%, transparent);
+  background: var(--catalog-card-bg);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 3%, transparent);
+}
+
+.mapCardActive {
+  border-color: color-mix(in srgb, var(--color-border-brand) 58%, transparent);
+  background: var(--catalog-card-hover);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-brand-primary) 12%, transparent),
+    var(--shadow-elevation-sm);
+}
+
+.mapCardMain {
+  all: unset;
+  cursor: pointer;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.mapCardHeader,
+.panelHeader,
+.headerActions,
+.inlineActions,
+.treeActions,
+.modalActions,
+.mapCardActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mapCard small {
+  color: var(--color-text-muted);
+}
+
+.content {
+  min-width: 0;
+}
+
+.group {
+  border: 1px solid var(--catalog-panel-border);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-brand-soft) 22%, var(--catalog-panel-bg)) 0%,
+      var(--catalog-panel-bg) 38%,
+      color-mix(in srgb, var(--color-bg-elevated) 72%, var(--catalog-panel-bg)) 100%
+    );
+  box-shadow: var(--shadow-elevation-sm);
+  overflow: hidden;
+}
+
+.groupHeaderStatic {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 1rem 1rem 0.9rem;
+}
+
+.groupHeaderInfo {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.groupTitle {
+  margin: 0;
+  font-size: 1.02rem;
+  color: var(--color-text-primary);
+}
+
+.groupSubtitle {
   margin: 0;
   color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.groupBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.2rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 32%, transparent);
+  background: var(--color-brand-soft);
+  color: var(--color-brand-primary);
+  font-weight: 800;
+}
+
+.groupContent {
+  padding: 0 1rem 1rem;
+}
+
+.mapHeaderCard {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.workspace {
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+}
+
+.panelHeader {
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.treeList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.treeNode {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.treeRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--color-border-default) 85%, transparent);
+  background: var(--catalog-card-bg);
+  padding: 0.55rem 0.7rem;
+}
+
+.treeRowActive {
+  border-color: color-mix(in srgb, var(--color-border-brand) 58%, transparent);
+  background: var(--catalog-card-hover);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-brand-primary) 12%, transparent),
+    var(--shadow-elevation-sm);
+}
+
+.treeToggle,
+.treeLabel,
+.iconButton,
+.iconButtonDanger,
+.primaryButton,
+.secondaryButton,
+.breadcrumbs button {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.treeToggle,
+.iconButton,
+.iconButtonDanger {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-primary);
+}
+
+.iconButtonDanger {
+  color: var(--color-status-danger);
+  border-color: color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
+  background: var(--color-status-danger-soft);
+}
+
+.treeLabel {
+  all: unset;
+  cursor: pointer;
+  display: grid;
+  min-width: 0;
+}
+
+.treeLabel span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.treeLabel small {
+  color: var(--color-text-muted);
+}
+
+.detailCard {
+  display: grid;
+  gap: 1rem;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.metaGrid div {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 14px;
+  padding: 0.75rem;
+}
+
+.metaGrid dt {
+  color: var(--color-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.metaGrid dd {
+  margin: 0;
+}
+
+.jsonBlock {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.customFieldList {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.customFieldItem {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid var(--color-border-soft);
+  background: var(--catalog-panel-inner);
+}
+
+.customFieldItem dt {
+  color: var(--color-text-muted);
+}
+
+.customFieldItem dd {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.breadcrumbs button {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-primary);
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 24%, transparent);
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 10px;
+  font-weight: 700;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.customFieldsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.customFieldsEditor {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.customFieldEditorRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.customFieldEditorRow input {
+  width: 100%;
+  min-width: 0;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text-primary);
+  padding: 0.68rem 0.82rem;
+  font: inherit;
+}
+
+.primaryButton {
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 80%, white);
+  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-strong));
+  color: var(--color-text-on-brand);
+  padding: 0.62rem 0.9rem;
+}
+
+.secondaryButton {
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-primary);
+  padding: 0.58rem 0.8rem;
+}
+
+.rotateUp {
+  transform: rotate(-90deg);
+}
+
+.rotateDown {
+  transform: rotate(90deg);
+}
+
+.error {
+  color: var(--color-status-danger);
+}
+
+.emptyPanel {
+  border-radius: 16px;
+  border: 1px dashed var(--color-border-soft);
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, #000 58%, transparent);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  z-index: 80;
+}
+
+.modal {
+  width: min(520px, 100%);
+  border-radius: 12px;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-elevation-md);
+  padding: 1rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+@media (max-width: 1100px) {
+  .workspace,
+  .mapHeaderCard,
+  .header {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 1.4rem 1rem 2.4rem;
+  }
+
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .headerActions,
+  .titleRow {
+    justify-content: flex-start;
+  }
+
+  .customFieldEditorRow {
+    grid-template-columns: 1fr;
+  }
 }
 

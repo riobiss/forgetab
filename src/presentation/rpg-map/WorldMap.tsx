@@ -11,11 +11,12 @@ const BRUSH_COLORS = ["#c4243b", "#ff7a18", "#f5e6c8", "#4f9cff", "#34c759"]
 
 type MundiMapProps = {
   rpgId: string
-  isOwner: boolean
+  mapId: string
+  canManage: boolean
   initialMapSrc: string | null
 }
 
-export function MundiMap({ rpgId, isOwner, initialMapSrc }: MundiMapProps) {
+export function MundiMap({ rpgId, mapId, canManage, initialMapSrc }: MundiMapProps) {
   const frameRef = useRef<HTMLDivElement | null>(null)
   const stageContainerRef = useRef<HTMLDivElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
@@ -44,7 +45,8 @@ export function MundiMap({ rpgId, isOwner, initialMapSrc }: MundiMapProps) {
   const { isUploading, uploadMessage, handleMapFile, handleResetMapImage } =
     useRpgMapImageActions({
       rpgId,
-      isOwner,
+      mapId,
+      canManage,
       mapSrc,
       setMapSrc,
     })
@@ -54,10 +56,10 @@ export function MundiMap({ rpgId, isOwner, initialMapSrc }: MundiMapProps) {
   }, [initialMapSrc])
 
   useEffect(() => {
-    if (!isOwner) {
+    if (!canManage) {
       setIsEditOpen(false)
     }
-  }, [isOwner])
+  }, [canManage])
 
   useEffect(() => {
     const container = stageContainerRef.current
@@ -275,7 +277,7 @@ export function MundiMap({ rpgId, isOwner, initialMapSrc }: MundiMapProps) {
       drawLayerRef.current = null
       currentLineRef.current = null
     }
-  }, [isOwner])
+  }, [canManage])
 
   useEffect(() => {
     const stage = stageRef.current
@@ -416,7 +418,7 @@ export function MundiMap({ rpgId, isOwner, initialMapSrc }: MundiMapProps) {
   }
 
   const handleOpenFilePicker = () => {
-    if (!isOwner || isUploading) {
+    if (!canManage || isUploading) {
       return
     }
 
@@ -435,7 +437,7 @@ export function MundiMap({ rpgId, isOwner, initialMapSrc }: MundiMapProps) {
         ref={frameRef}
         className={`${styles.frame} ${isFullscreen ? styles.frameFullscreen : ""}`}
       >
-        {isOwner ? (
+        {canManage ? (
           <div className={styles.ownerActions}>
             <button
               type="button"
@@ -580,7 +582,7 @@ export function MundiMap({ rpgId, isOwner, initialMapSrc }: MundiMapProps) {
         </button>
       </div>
 
-      {isOwner ? (
+      {canManage ? (
         <>
           <input
             ref={fileInputRef}

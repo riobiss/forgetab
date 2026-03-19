@@ -15,7 +15,8 @@ const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024
 
 export function useRpgMapImageActions(params: {
   rpgId: string
-  isOwner: boolean
+  mapId: string
+  canManage: boolean
   mapSrc: string
   setMapSrc: (next: string) => void
 }) {
@@ -25,7 +26,7 @@ export function useRpgMapImageActions(params: {
   const gateway = useMemo(() => httpRpgMapGateway, [])
 
   async function handleMapFile(file: File | null) {
-    if (!params.isOwner || !file) {
+    if (!params.canManage || !file) {
       return
     }
 
@@ -51,6 +52,7 @@ export function useRpgMapImageActions(params: {
 
       await persistRpgMapImageUseCase(gateway, {
         rpgId: params.rpgId,
+        mapId: params.mapId,
         mapImage: uploadPayload.url,
       })
 
@@ -68,7 +70,7 @@ export function useRpgMapImageActions(params: {
   }
 
   async function handleResetMapImage() {
-    if (!params.isOwner || isUploading) {
+    if (!params.canManage || isUploading) {
       return
     }
 
@@ -83,6 +85,7 @@ export function useRpgMapImageActions(params: {
 
       await persistRpgMapImageUseCase(gateway, {
         rpgId: params.rpgId,
+        mapId: params.mapId,
         mapImage: null,
       })
 
