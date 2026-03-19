@@ -1,4 +1,11 @@
 import type { RpgMapGateway } from "@/application/rpgMap/contracts/RpgMapGateway"
+import type {
+  RpgMapDetailViewDto,
+  RpgMapDto,
+  RpgMapSectionDto,
+  UpsertRpgMapPayloadDto,
+  UpsertRpgMapSectionPayloadDto,
+} from "@/application/rpgMap/types"
 
 type ErrorPayload = { message?: string; url?: string; mapImage?: string | null }
 
@@ -11,13 +18,101 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
 }
 
 export const httpRpgMapGateway: RpgMapGateway = {
-  async saveMapImage(rpgId, mapImage) {
-    const response = await fetch(`/api/rpg/${rpgId}/map`, {
+  async fetchMaps(rpgId) {
+    return parseJsonResponse<{ maps: RpgMapDto[]; canManage: boolean }>(
+      await fetch(`/api/rpg/${rpgId}/maps`),
+    )
+  },
+
+  async fetchMap(rpgId, mapId) {
+    return parseJsonResponse<RpgMapDetailViewDto>(
+      await fetch(`/api/rpg/${rpgId}/maps/${mapId}`),
+    )
+  },
+
+  async createMap(rpgId, payload) {
+    const response = await fetch(`/api/rpg/${rpgId}/maps`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload satisfies UpsertRpgMapPayloadDto),
+    })
+    const result = await parseJsonResponse<{ map?: RpgMapDto }>(response)
+    if (!result.map) throw new Error("Nao foi possivel criar o mapa.")
+    return result.map
+  },
+
+  async updateMap(rpgId, mapId, payload) {
+    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mapImage }),
+      body: JSON.stringify(payload satisfies UpsertRpgMapPayloadDto),
     })
-    return parseJsonResponse<{ message?: string; mapImage: string | null }>(response)
+    const result = await parseJsonResponse<{ map?: RpgMapDto }>(response)
+    if (!result.map) throw new Error("Nao foi possivel atualizar o mapa.")
+    return result.map
+  },
+
+  async deleteMap(rpgId, mapId) {
+    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
+      method: "DELETE",
+    })
+    await parseJsonResponse<{ message?: string }>(response)
+  },
+
+  async createSection(rpgId, mapId, payload) {
+    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/sections`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload satisfies UpsertRpgMapSectionPayloadDto),
+    })
+    const result = await parseJsonResponse<{ section?: RpgMapSectionDto }>(response)
+    if (!result.section) throw new Error("Nao foi possivel criar a secao.")
+    return result.section
+  },
+
+  async updateSection(rpgId, mapId, sectionId, payload) {
+    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/sections/${sectionId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload satisfies UpsertRpgMapSectionPayloadDto),
+    })
+    const result = await parseJsonResponse<{ section?: RpgMapSectionDto }>(response)
+    if (!result.section) throw new Error("Nao foi possivel atualizar a secao.")
+    return result.section
+  },
+
+  async deleteSection(rpgId, mapId, sectionId) {
+    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/sections/${sectionId}`, {
+      method: "DELETE",
+    })
+    await parseJsonResponse<{ message?: string }>(response)
+  },
+
+  async reorderSection(rpgId, mapId, sectionId, direction) {
+    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/sections/${sectionId}/reorder`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ direction }),
+    })
+    const result = await parseJsonResponse<{ section?: RpgMapSectionDto }>(response)
+    if (!result.section) throw new Error("Nao foi possivel reordenar a secao.")
+    return result.section
+  },
+
+  async saveMapImage(rpgId, mapId, mapImage) {
+    const current = await this.fetchMap(rpgId, mapId)
+    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: current.map.title,
+        description: current.map.description,
+        type: current.map.type,
+        image: mapImage,
+      } satisfies UpsertRpgMapPayloadDto),
+    })
+    const payload = await parseJsonResponse<{ map?: RpgMapDto }>(response)
+    return { mapImage: payload.map?.image ?? mapImage }
   },
 
   async uploadMapImage(file, oldUrl) {

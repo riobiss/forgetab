@@ -55,22 +55,51 @@ describe("map route", () => {
 
   it("retorna 403 sem permissao", async () => {
     mocks.getRpgPermission.mockResolvedValue({ exists: true, canManage: false })
-    mocks.queryRaw.mockResolvedValueOnce([
-      {
-        id: "rpg-1",
-        visibility: "public",
-        useMundiMap: true,
-        mapImage: "https://img.com/map.png",
-      },
-    ])
-    const response = await PATCH(makeRequest({ mapImage: "https://img.com/map.png" }), makeContext())
+    mocks.queryRaw.mockResolvedValueOnce([{ createdByUserId: "u2" }])
+    const response = await PATCH(
+      makeRequest({ mapId: "map-1", mapImage: "https://img.com/map.png" }),
+      makeContext(),
+    )
     expect(response.status).toBe(403)
   })
 
   it("retorna 200 ao atualizar mapa", async () => {
     mocks.getRpgPermission.mockResolvedValue({ exists: true, canManage: true })
-    mocks.queryRaw.mockResolvedValue([{ id: "rpg-1" }])
-    const response = await PATCH(makeRequest({ mapImage: "https://img.com/map.png" }), makeContext())
+    mocks.queryRaw
+      .mockResolvedValueOnce([{ createdByUserId: "u1" }])
+      .mockResolvedValueOnce([
+        {
+          id: "map-1",
+          rpgId: "rpg-1",
+          title: "Mapa",
+          description: null,
+          type: null,
+          image: "https://img.com/old.png",
+          order: 0,
+          sectionsCount: 0,
+          createdAt: new Date("2026-03-19T00:00:00.000Z"),
+          updatedAt: new Date("2026-03-19T00:00:00.000Z"),
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: "map-1",
+          rpgId: "rpg-1",
+          createdByUserId: "u1",
+          title: "Mapa",
+          description: null,
+          type: null,
+          image: "https://img.com/map.png",
+          order: 0,
+          sectionsCount: 0,
+          createdAt: new Date("2026-03-19T00:00:00.000Z"),
+          updatedAt: new Date("2026-03-19T00:00:00.000Z"),
+        },
+      ])
+    const response = await PATCH(
+      makeRequest({ mapId: "map-1", mapImage: "https://img.com/map.png" }),
+      makeContext(),
+    )
     expect(response.status).toBe(200)
     const json = await response.json()
     expect(json.mapImage).toBe("https://img.com/map.png")

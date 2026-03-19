@@ -1,4 +1,5 @@
 export type RpgMapAccess = {
+  exists: boolean
   userId: string | null
   canManage: boolean
   isAcceptedMember: boolean

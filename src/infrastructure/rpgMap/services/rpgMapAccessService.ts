@@ -6,6 +6,7 @@ export const rpgMapAccessService: RpgMapAccessService = {
   async getAccess(rpgId, userId) {
     if (!userId) {
       return {
+        exists: false,
         userId: null,
         canManage: false,
         isAcceptedMember: false,
@@ -15,6 +16,7 @@ export const rpgMapAccessService: RpgMapAccessService = {
     const permission = await getRpgPermission(rpgId, userId)
     if (permission.canManage) {
       return {
+        exists: true,
         userId,
         canManage: true,
         isAcceptedMember: true,
@@ -23,6 +25,7 @@ export const rpgMapAccessService: RpgMapAccessService = {
 
     const membershipStatus = await getMembershipStatus(rpgId, userId)
     return {
+      exists: permission.exists,
       userId,
       canManage: false,
       isAcceptedMember: membershipStatus === "accepted",
