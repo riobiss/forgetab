@@ -3,6 +3,8 @@ import { cookieCurrentUserSessionService } from "@/infrastructure/session/servic
 import { prismaRpgCatalogRepository } from "@/infrastructure/rpgCatalog/repositories/prismaRpgCatalogRepository"
 import RpgCatalogPage from "@/presentation/rpg-catalog/RpgCatalogPage"
 
+export const dynamic = "force-dynamic"
+
 export default async function ViewRpg() {
   const userId = await cookieCurrentUserSessionService.getCurrentUserId()
   const data = await loadRpgCatalogUseCase(prismaRpgCatalogRepository, { userId })
