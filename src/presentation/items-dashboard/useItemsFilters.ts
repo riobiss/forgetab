@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useDeferredValue, useMemo, useState } from "react"
 import { baseItemRarityValues } from "@/lib/validators/baseItem"
 import type { BaseItem, ItemType } from "./types"
 import { parseCustomFieldList } from "./utils"
@@ -9,6 +9,7 @@ type UseItemsFiltersParams = {
 
 export function useItemsFilters({ items }: UseItemsFiltersParams) {
   const [search, setSearch] = useState("")
+  const deferredSearch = useDeferredValue(search)
   const [searchOpen, setSearchOpen] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<ItemType | "all">("all")
   const [selectedRarity, setSelectedRarity] = useState<
@@ -17,7 +18,7 @@ export function useItemsFilters({ items }: UseItemsFiltersParams) {
   const [showCategories, setShowCategories] = useState(false)
 
   const visibleItems = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase()
+    const normalizedSearch = deferredSearch.trim().toLowerCase()
 
     return items.filter((item) => {
       const matchesCategory = selectedCategory === "all" ? true : item.type === selectedCategory
@@ -46,7 +47,7 @@ export function useItemsFilters({ items }: UseItemsFiltersParams) {
         )
       )
     })
-  }, [items, search, selectedCategory, selectedRarity])
+  }, [deferredSearch, items, selectedCategory, selectedRarity])
 
   return {
     search,

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
 import { Plus, Search } from "lucide-react"
@@ -61,6 +61,7 @@ export default function LibrarySectionBooksPage({ rpgId, sectionId, deps }: Prop
   const [savingEdit, setSavingEdit] = useState(false)
   const [editError, setEditError] = useState("")
   const [search, setSearch] = useState("")
+  const deferredSearch = useDeferredValue(search)
 
   const selectedPlayerOptions = useMemo(
     () => playerOptions.filter((item) => editAllowedUserIds.includes(item.value)),
@@ -75,14 +76,14 @@ export default function LibrarySectionBooksPage({ rpgId, sectionId, deps }: Prop
     [classOptions, editAllowedClassKeys],
   )
   const filteredBooks = useMemo(() => {
-    const normalized = search.trim().toLowerCase()
+    const normalized = deferredSearch.trim().toLowerCase()
     if (!normalized) return books
 
     return books.filter((book) =>
       book.title.toLowerCase().includes(normalized) ||
       (book.description ?? "").toLowerCase().includes(normalized),
     )
-  }, [books, search])
+  }, [books, deferredSearch])
 
   const loadData = useCallback(async () => {
     try {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useDeferredValue, useEffect, useMemo, useState } from "react"
 import type { CSSProperties } from "react"
 import { Filter } from "lucide-react"
 import type { CharacterAbilitiesDependencies } from "@/application/characterAbilities/contracts/CharacterAbilitiesDependencies"
@@ -83,6 +83,7 @@ export default function AbilitiesFiltersClient({
   const [selectedAbilityModal, setSelectedAbilityModal] = useState<PurchasedAbilityViewDto | null>(null)
   const [isRemovingAbility, setIsRemovingAbility] = useState(false)
   const [removeAbilityError, setRemoveAbilityError] = useState("")
+  const deferredSearch = useDeferredValue(search)
 
   useEffect(() => {
     setAbilityItems(abilities)
@@ -120,7 +121,7 @@ export default function AbilitiesFiltersClient({
     selectedTags.length
 
   const baseFiltered = useMemo(() => {
-    const query = search.trim().toLowerCase()
+    const query = deferredSearch.trim().toLowerCase()
 
     return abilityItems.filter((ability) => {
       if (
@@ -166,7 +167,7 @@ export default function AbilitiesFiltersClient({
     })
   }, [
     abilityItems,
-    search,
+    deferredSearch,
     selectedActionTypeFilters,
     selectedCategoryFilters,
     selectedTags,

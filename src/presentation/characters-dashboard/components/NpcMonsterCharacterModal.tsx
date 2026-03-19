@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useDeferredValue, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, X } from "lucide-react"
 import { toast } from "react-hot-toast"
@@ -129,6 +129,7 @@ export default function NpcMonsterCharacterModal({
   const [skillsLoading, setSkillsLoading] = useState(false)
   const [pickerMode, setPickerMode] = useState<PickerMode>(null)
   const [pickerSearch, setPickerSearch] = useState("")
+  const deferredPickerSearch = useDeferredValue(pickerSearch)
   const [pickerSaving, setPickerSaving] = useState(false)
   const [removingAbilityKey, setRemovingAbilityKey] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -308,7 +309,7 @@ export default function NpcMonsterCharacterModal({
   const currentCharacter = editingCharacter
   const imageStatusText = getNpcMonsterImageStatusText(image, selectedImageName)
   const canAdvance = createdCharacterId !== null
-  const normalizedPickerSearch = pickerSearch.trim().toLowerCase()
+  const normalizedPickerSearch = deferredPickerSearch.trim().toLowerCase()
   const filteredAvailableItems = !normalizedPickerSearch
     ? availableItems
     : availableItems.filter((item) =>

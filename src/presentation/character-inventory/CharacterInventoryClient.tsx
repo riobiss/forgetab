@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { Filter } from "lucide-react"
 import type { CharacterInventoryDependencies } from "@/application/characterInventory/contracts/CharacterInventoryDependencies"
@@ -39,6 +39,7 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
   const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
   const [maxCarryWeight, setMaxCarryWeight] = useState<number | null>(null)
+  const deferredSearch = useDeferredValue(search)
 
   const hasInventory = inventory.length > 0
   const totalWeight = useMemo(
@@ -54,7 +55,7 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
   const activeExtraFilters =
     (selectedCategory === "all" ? 0 : 1) + (selectedRarity === "all" ? 0 : 1)
   const filteredInventory = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase()
+    const normalizedSearch = deferredSearch.trim().toLowerCase()
     return inventory.filter((item) => {
       const itemTypeNormalized = item.itemType.toLowerCase()
       const matchesCategory =
@@ -71,7 +72,7 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
 
       return matchesInventorySearch(item, normalizedSearch)
     })
-  }, [inventory, search, selectedCategory, selectedRarity])
+  }, [deferredSearch, inventory, selectedCategory, selectedRarity])
 
   const cardItems: InventoryCardItem[] = filteredInventory.map((item) =>
     toInventoryCardItem(item),
