@@ -33,6 +33,20 @@ type Params = {
   onPersist?: (bookId: string) => void
 }
 
+function mergeDraftWithServerMetadata(
+  serverDraft: LibraryBookDraft,
+  restoredDraft: LibraryBookDraft | null,
+) {
+  if (!restoredDraft) {
+    return serverDraft
+  }
+
+  return createLibraryBookDraftSnapshot({
+    ...serverDraft,
+    content: restoredDraft.content,
+  })
+}
+
 export function useLibraryBookEditorState({
   rpgId,
   sectionId,
@@ -93,7 +107,9 @@ export function useLibraryBookEditorState({
         const shouldRestoreDraft =
           Boolean(restoredDraft) &&
           serializeLibraryBookDraft(restoredDraft as LibraryBookDraft) !== defaultSignature
-        const nextDraft = shouldRestoreDraft ? (restoredDraft as LibraryBookDraft) : defaultSnapshot
+        const nextDraft = shouldRestoreDraft
+          ? mergeDraftWithServerMetadata(defaultSnapshot, restoredDraft as LibraryBookDraft)
+          : defaultSnapshot
 
         setDraft(nextDraft)
         setEditorKey(shouldRestoreDraft ? "new-draft" : "new")
@@ -136,7 +152,9 @@ export function useLibraryBookEditorState({
         const shouldRestoreDraft =
           Boolean(restoredDraft) &&
           serializeLibraryBookDraft(restoredDraft as LibraryBookDraft) !== serverSignature
-        const nextDraft = shouldRestoreDraft ? (restoredDraft as LibraryBookDraft) : serverDraft
+        const nextDraft = shouldRestoreDraft
+          ? mergeDraftWithServerMetadata(serverDraft, restoredDraft as LibraryBookDraft)
+          : serverDraft
 
         setDraft(nextDraft)
         setEditorKey(`edit-${book.id}-${shouldRestoreDraft ? "draft" : "saved"}`)
