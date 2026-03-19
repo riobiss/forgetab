@@ -23,99 +23,102 @@ export function RpgDashboardPage({ viewModel }: { viewModel: RpgDashboardViewMod
 
   if (!viewModel.canViewFullContent) {
     return (
+      <div className={styles.page}>
+        <div className={styles.container}>
+          <div className={styles.topActions}>
+            <RpgInfoModalButton
+              title={viewModel.rpg.title}
+              description={limitedDescription}
+              masterName={viewModel.rpg.ownerName}
+              visibility={viewModel.rpg.visibility}
+              createdAt={createdAtLabel}
+              membersCount={0}
+            />
+          </div>
+          <div className={styles.titleRow}>
+            <h2 className={styles.title}>{viewModel.rpg.title}</h2>
+          </div>
+          <MembershipNotifications
+            rpgId={viewModel.rpg.id}
+            isOwner={viewModel.isOwner}
+            isAuthenticated={viewModel.isAuthenticated}
+            membershipStatus={viewModel.membershipStatus}
+            pendingRequests={[]}
+            pendingCharacterRequests={[]}
+            simpleJoin
+          />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={styles.page}>
       <div className={styles.container}>
         <div className={styles.topActions}>
+          <MembershipNotifications
+            rpgId={viewModel.rpg.id}
+            isOwner={viewModel.canManageRpg}
+            isAuthenticated={viewModel.isAuthenticated}
+            membershipStatus={viewModel.membershipStatus}
+            pendingRequests={viewModel.pendingRequests.map((item) => ({
+              ...item,
+              requestedAt: item.requestedAt.toISOString(),
+            }))}
+            pendingCharacterRequests={viewModel.pendingCharacterRequests.map((item) => ({
+              ...item,
+              requestedAt: item.requestedAt.toISOString(),
+            }))}
+            compact
+          />
+          {viewModel.canManageRpg ? <QuickCreateMenu rpgId={viewModel.rpg.id} /> : null}
+          {viewModel.canManageRpg ? (
+            <MembersList
+              rpgId={viewModel.rpg.id}
+              members={viewModel.acceptedMembers}
+              compact
+              usersCanManageOwnXp={viewModel.rpg.usersCanManageOwnXp}
+              allowSkillPointDistribution={viewModel.rpg.allowSkillPointDistribution}
+            />
+          ) : null}
           <RpgInfoModalButton
             title={viewModel.rpg.title}
             description={limitedDescription}
             masterName={viewModel.rpg.ownerName}
             visibility={viewModel.rpg.visibility}
             createdAt={createdAtLabel}
-            membersCount={0}
+            membersCount={viewModel.acceptedMembersCount}
           />
+          {viewModel.canManageRpg ? <RpgDashboardEditorLauncher rpgId={viewModel.rpg.id} /> : null}
         </div>
         <div className={styles.titleRow}>
           <h2 className={styles.title}>{viewModel.rpg.title}</h2>
         </div>
-        <MembershipNotifications
-          rpgId={viewModel.rpg.id}
-          isOwner={viewModel.isOwner}
-          isAuthenticated={viewModel.isAuthenticated}
-          membershipStatus={viewModel.membershipStatus}
-          pendingRequests={[]}
-          pendingCharacterRequests={[]}
-          simpleJoin
-        />
-      </div>
-    )
-  }
 
-  return (
-    <div className={styles.container}>
-      <div className={styles.topActions}>
-        <MembershipNotifications
-          rpgId={viewModel.rpg.id}
-          isOwner={viewModel.canManageRpg}
-          isAuthenticated={viewModel.isAuthenticated}
-          membershipStatus={viewModel.membershipStatus}
-          pendingRequests={viewModel.pendingRequests.map((item) => ({
-            ...item,
-            requestedAt: item.requestedAt.toISOString(),
-          }))}
-          pendingCharacterRequests={viewModel.pendingCharacterRequests.map((item) => ({
-            ...item,
-            requestedAt: item.requestedAt.toISOString(),
-          }))}
-          compact
-        />
-        {viewModel.canManageRpg ? <QuickCreateMenu rpgId={viewModel.rpg.id} /> : null}
-        {viewModel.canManageRpg ? (
-          <MembersList
+        {viewModel.isOwner ? (
+          <SpectatorVisionPanel
             rpgId={viewModel.rpg.id}
-            members={viewModel.acceptedMembers}
-            compact
-            usersCanManageOwnXp={viewModel.rpg.usersCanManageOwnXp}
-            allowSkillPointDistribution={viewModel.rpg.allowSkillPointDistribution}
+            characters={viewModel.spectatorCharacters}
+            attributeLabels={viewModel.attributeLabels}
+            skillLabels={viewModel.skillLabels}
+            statusLabels={viewModel.statusLabels}
           />
         ) : null}
-        <RpgInfoModalButton
-          title={viewModel.rpg.title}
-          description={limitedDescription}
-          masterName={viewModel.rpg.ownerName}
-          visibility={viewModel.rpg.visibility}
-          createdAt={createdAtLabel}
-          membersCount={viewModel.acceptedMembersCount}
-        />
-        {viewModel.canManageRpg ? <RpgDashboardEditorLauncher rpgId={viewModel.rpg.id} /> : null}
-      </div>
-      <div className={styles.titleRow}>
-        <h2 className={styles.title}>{viewModel.rpg.title}</h2>
-      </div>
 
-      {viewModel.isOwner ? (
-        <SpectatorVisionPanel
-          rpgId={viewModel.rpg.id}
-          characters={viewModel.spectatorCharacters}
-          attributeLabels={viewModel.attributeLabels}
-          skillLabels={viewModel.skillLabels}
-          statusLabels={viewModel.statusLabels}
-        />
-      ) : null}
+        <h3 className={styles.sectionTitle}>Sessoes</h3>
 
-      <h3 className={styles.sectionTitle}>Sessoes</h3>
-
-      <div className={styles.cards}>
-        <Link href={`/rpg/${viewModel.rpg.id}/characters`} className={styles.card}>
-          <Image src="/images/bg-characters.jpg" alt="Personagens" fill className={styles.cardImage} />
-          <span>Personagens</span>
-        </Link>
-
-        {viewModel.hasRaces ? (
-          <Link href={`/rpg/${viewModel.rpg.id}/races`} className={styles.card}>
-            <Image src="/images/bg-races.jpg" alt="Racas" fill className={styles.cardImage} />
-            <span>Racas</span>
+        <div className={styles.cards}>
+          <Link href={`/rpg/${viewModel.rpg.id}/characters`} className={styles.card}>
+            <Image src="/images/bg-characters.jpg" alt="Personagens" fill className={styles.cardImage} />
+            <span>Personagens</span>
           </Link>
-        ) : null}
+
+          {viewModel.hasRaces ? (
+            <Link href={`/rpg/${viewModel.rpg.id}/races`} className={styles.card}>
+              <Image src="/images/bg-races.jpg" alt="Racas" fill className={styles.cardImage} />
+              <span>Racas</span>
+            </Link>
+          ) : null}
 
         {viewModel.hasClasses ? (
           <Link href={`/rpg/${viewModel.rpg.id}/classes`} className={styles.card}>
@@ -124,24 +127,30 @@ export function RpgDashboardPage({ viewModel }: { viewModel: RpgDashboardViewMod
           </Link>
         ) : null}
 
+        <Link href={`/rpg/${viewModel.rpg.id}/skills`} className={styles.card}>
+          <Image src="/images/bg-skills.png" alt="Skills" fill className={styles.cardImage} />
+          <span>Habilidades</span>
+        </Link>
+
         {viewModel.rpg.useMundiMap ? (
           <Link href={`/rpg/${viewModel.rpg.id}/map`} className={styles.card}>
             <Image src="/images/bg-regions.jpg" alt="Mapa Mundi" fill className={styles.cardImage} />
             <span>Mapa Mundi</span>
-          </Link>
-        ) : null}
+            </Link>
+          ) : null}
 
-        {viewModel.canManageRpg ? (
-          <Link href={`/rpg/${viewModel.rpg.id}/items`} className={styles.card}>
-            <Image src="/images/bg-items.png" alt="Itens" fill className={styles.cardImage} />
-            <span>Items</span>
-          </Link>
-        ) : null}
+          {viewModel.canManageRpg ? (
+            <Link href={`/rpg/${viewModel.rpg.id}/items`} className={styles.card}>
+              <Image src="/images/bg-items.png" alt="Itens" fill className={styles.cardImage} />
+              <span>Items</span>
+            </Link>
+          ) : null}
 
-        <Link href={`/rpg/${viewModel.rpg.id}/library`} className={styles.card}>
-          <Image src="/images/bg-library.jpg" alt="Biblioteca" fill className={styles.cardImage} />
-          <span>Biblioteca</span>
-        </Link>
+          <Link href={`/rpg/${viewModel.rpg.id}/library`} className={styles.card}>
+            <Image src="/images/bg-library.jpg" alt="Biblioteca" fill className={styles.cardImage} />
+            <span>Biblioteca</span>
+          </Link>
+        </div>
       </div>
     </div>
   )
