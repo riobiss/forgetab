@@ -23,8 +23,10 @@ import { GET, POST } from "./route"
 const sectionRow = {
   id: "s1",
   rpgId: "rpg-1",
+  createdByUserId: "u1",
   title: "Lore",
   description: null,
+  visibility: "public",
   booksCount: 0,
   createdAt: new Date("2026-03-11T10:00:00.000Z"),
   updatedAt: new Date("2026-03-11T10:00:00.000Z"),
@@ -70,6 +72,8 @@ describe("GET /api/rpg/[rpgId]/library/sections", () => {
       sections: [
         {
           ...sectionRow,
+          canEdit: true,
+          canDelete: true,
           createdAt: sectionRow.createdAt.toISOString(),
           updatedAt: sectionRow.updatedAt.toISOString(),
         },
@@ -85,17 +89,17 @@ describe("POST /api/rpg/[rpgId]/library/sections", () => {
     mocks.getUserIdFromRequestToken.mockResolvedValue("u1")
   })
 
-  it("retorna 403 sem permissao de edicao", async () => {
-    mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canManage: false })
+  it("retorna 201 para membro com acesso de visualizacao criar a propria secao", async () => {
+    mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canView: true, canManage: false })
     const response = await POST(
       makeRequest("POST", { title: "Lore", description: "Descricao qualquer" }),
       makeContext(),
     )
-    expect(response.status).toBe(403)
+    expect(response.status).toBe(201)
   })
 
   it("retorna 201 ao criar secao", async () => {
-    mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canManage: true })
+    mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canView: true, canManage: true })
     mocks.queryRaw.mockResolvedValue([sectionRow])
     const response = await POST(
       makeRequest("POST", { title: "Lore", description: "Descricao qualquer" }),

@@ -38,6 +38,18 @@ const bookRow = {
   updatedAt: new Date("2026-03-11T10:00:00.000Z"),
 }
 
+const sectionRow = {
+  id: "s1",
+  rpgId: "rpg-1",
+  createdByUserId: "u1",
+  title: "Lore",
+  description: null,
+  visibility: "public",
+  booksCount: 0,
+  createdAt: new Date("2026-03-11T10:00:00.000Z"),
+  updatedAt: new Date("2026-03-11T10:00:00.000Z"),
+}
+
 function makeRequest(method: "GET" | "POST", body?: unknown) {
   return new NextRequest("http://localhost/api/rpg/rpg-1/library/sections/s1/books", {
     method,
@@ -65,7 +77,7 @@ describe("books by section route", () => {
 
   it("GET retorna 200 com livros", async () => {
     mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canView: true, canManage: true })
-    mocks.queryRaw.mockResolvedValueOnce([{ id: "s1" }])
+    mocks.queryRaw.mockResolvedValueOnce([sectionRow])
     mocks.queryRaw.mockResolvedValueOnce([bookRow])
     const response = await GET(makeRequest("GET"), makeContext())
     expect(response.status).toBe(200)
@@ -74,8 +86,8 @@ describe("books by section route", () => {
   })
 
   it("POST retorna 201 ao criar livro", async () => {
-    mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canManage: true })
-    mocks.queryRaw.mockResolvedValueOnce([{ id: "s1" }])
+    mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canView: true, canManage: true })
+    mocks.queryRaw.mockResolvedValueOnce([sectionRow])
     mocks.queryRaw.mockResolvedValueOnce([bookRow])
     mocks.executeRaw.mockResolvedValue(1)
     const response = await POST(

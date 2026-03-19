@@ -48,7 +48,7 @@ describe("book route", () => {
   })
 
   it("PATCH retorna 403 se usuario nao e autor", async () => {
-    mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canManage: true })
+    mocks.getRpgVisibilityAccess.mockResolvedValue({ exists: true, canManage: false })
     mocks.queryRaw.mockResolvedValueOnce([{ createdByUserId: "u2" }])
     const response = await PATCH(
       makeRequest("PATCH", {
