@@ -1,9 +1,9 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Settings } from "lucide-react"
 import MembershipNotifications from "@/presentation/rpg-dashboard/components/MembershipNotifications"
 import MembersList from "@/presentation/rpg-dashboard/components/MembersList"
 import QuickCreateMenu from "@/presentation/rpg-dashboard/components/QuickCreateMenu"
+import RpgDashboardEditorLauncher from "@/presentation/rpg-dashboard/components/RpgDashboardEditorLauncher"
 import RpgInfoModalButton from "@/presentation/rpg-dashboard/components/RpgInfoModalButton"
 import SpectatorVisionPanel from "@/presentation/rpg-dashboard/components/SpectatorVisionPanel"
 import type { RpgDashboardViewModel } from "@/application/rpgDashboard/types"
@@ -86,16 +86,7 @@ export function RpgDashboardPage({ viewModel }: { viewModel: RpgDashboardViewMod
           createdAt={createdAtLabel}
           membersCount={viewModel.acceptedMembersCount}
         />
-        {viewModel.canManageRpg ? (
-          <Link
-            href={`/rpg/${viewModel.rpg.id}/edit`}
-            className={styles.settingsButton}
-            aria-label="Configurar RPG"
-            title="Configurar RPG"
-          >
-            <Settings size={18} />
-          </Link>
-        ) : null}
+        {viewModel.canManageRpg ? <RpgDashboardEditorLauncher rpgId={viewModel.rpg.id} /> : null}
       </div>
       <div className={styles.titleRow}>
         <h2 className={styles.title}>{viewModel.rpg.title}</h2>

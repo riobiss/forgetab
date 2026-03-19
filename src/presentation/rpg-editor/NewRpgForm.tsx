@@ -21,9 +21,17 @@ import { dismissToast } from "@/lib/toast"
 
 type Props = {
   deps: RpgEditorDependencies
+  presentation?: "standalone" | "embedded"
+  onCancel?: () => void
+  onCompleted?: () => void
 }
 
-export default function NewRpgForm({ deps }: Props) {
+export default function NewRpgForm({
+  deps,
+  presentation = "standalone",
+  onCancel,
+  onCompleted,
+}: Props) {
   const router = useRouter()
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -103,8 +111,12 @@ export default function NewRpgForm({ deps }: Props) {
 
       setSelectedImageFile(null)
       toast.success("RPG criado com sucesso.")
-      router.push("/rpg")
-      router.refresh()
+      if (presentation === "embedded") {
+        onCompleted?.()
+      } else {
+        router.push("/rpg")
+        router.refresh()
+      }
     } catch (cause) {
       if (hasFreshUpload && uploadedImageUrl) {
         try {
@@ -125,7 +137,7 @@ export default function NewRpgForm({ deps }: Props) {
   }
 
   return (
-    <main className={styles.page}>
+    <main className={presentation === "embedded" ? undefined : styles.page}>
       <section className={styles.card}>
         <h1>Criar RPG</h1>
         <p>Defina as informacoes iniciais da campanha.</p>
@@ -257,7 +269,13 @@ export default function NewRpgForm({ deps }: Props) {
               {loading ? "Criando..." : "Criar RPG"}
             </button>
 
-            <Link href="/rpg">Cancelar</Link>
+            {presentation === "embedded" ? (
+              <button type="button" onClick={onCancel} disabled={loading}>
+                Cancelar
+              </button>
+            ) : (
+              <Link href="/rpg">Cancelar</Link>
+            )}
           </div>
         </form>
 

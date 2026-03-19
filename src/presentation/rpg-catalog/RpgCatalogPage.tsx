@@ -1,11 +1,11 @@
 "use client"
 
-import Link from "next/link"
 import Image from "next/image"
-import { Plus } from "lucide-react"
+import Link from "next/link"
 import { formatDateInBrasilia } from "@/lib/date"
 import type { RpgCatalogData } from "@/application/rpgCatalog/types"
 import styles from "./RpgCatalogPage.module.css"
+import RpgCatalogEditorLauncher from "@/presentation/rpg-catalog/RpgCatalogEditorLauncher"
 
 type Props = {
   data: RpgCatalogData
@@ -16,10 +16,7 @@ export default function RpgCatalogPage({ data }: Props) {
     <div className={styles.container}>
       <div className={styles.topbar}>
         <h2 className={styles.title}>RPGs</h2>
-        <Link href="/rpg/new" className={styles.createButton}>
-          <Plus size={16} />
-          <span>Criar RPG</span>
-        </Link>
+        <RpgCatalogEditorLauncher />
       </div>
 
       {data.userId ? (

@@ -1,5 +1,12 @@
-import EditRpgFeature from "@/presentation/rpg-editor/edit/EditRpgFeature"
+import { redirect } from "next/navigation"
 
-export default function EditRpgPage() {
-  return <EditRpgFeature />
+type Props = {
+  params: Promise<{
+    rpgId: string
+  }>
+}
+
+export default async function EditRpgPage({ params }: Props) {
+  const { rpgId } = await params
+  redirect(`/rpg/${rpgId}?modal=edit&editor=rpg`)
 }

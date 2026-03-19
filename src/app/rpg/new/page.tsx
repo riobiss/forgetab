@@ -1,5 +1,5 @@
-import NewRpgFeature from "@/presentation/rpg-editor/NewRpgFeature"
+import { redirect } from "next/navigation"
 
 export default function NewRpgPage() {
-  return <NewRpgFeature gatewayFactory="http" />
+  redirect("/rpg?modal=create&editor=rpg")
 }

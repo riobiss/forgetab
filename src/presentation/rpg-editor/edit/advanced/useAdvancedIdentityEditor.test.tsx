@@ -101,7 +101,7 @@ describe("useAdvancedIdentityEditor", () => {
     })
 
     expect(mocks.saveRpgRacesUseCase).toHaveBeenCalledTimes(1)
-    expect(mocks.push).toHaveBeenCalledWith("/rpg/rpg-1/edit")
+    expect(mocks.push).toHaveBeenCalledWith("/rpg/rpg-1?modal=edit&editor=rpg")
     expect(mocks.refresh).toHaveBeenCalledTimes(1)
   })
 })

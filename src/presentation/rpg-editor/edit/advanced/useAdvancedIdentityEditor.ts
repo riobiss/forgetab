@@ -200,7 +200,7 @@ export function useAdvancedIdentityEditor(params: {
 
       setSuccess(`${params.type === "race" ? "Raca" : "Classe"} salva com sucesso.`)
       toast.success(`${params.type === "race" ? "Raca" : "Classe"} salva com sucesso.`)
-      router.push(`/rpg/${params.rpgId}/edit`)
+      router.push(`/rpg/${params.rpgId}?modal=edit&editor=rpg`)
       router.refresh()
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Nao foi possivel salvar."
@@ -212,7 +212,7 @@ export function useAdvancedIdentityEditor(params: {
   }
 
   function handleCancel() {
-    router.push(`/rpg/${params.rpgId}/edit`)
+    router.push(`/rpg/${params.rpgId}?modal=edit&editor=rpg`)
   }
 
   return {

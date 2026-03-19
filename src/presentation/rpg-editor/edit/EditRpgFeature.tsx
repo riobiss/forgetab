@@ -42,12 +42,26 @@ const CORE_STATUS_OPTIONS: CatalogOption[] = [
   { key: "exhaustion", label: "Exaustão" },
 ]
 
-export default function EditRpgFeature() {
+type EditRpgFeatureProps = {
+  deps?: ReturnType<typeof createRpgEditorDependencies>
+  presentation?: "standalone" | "embedded"
+  onClose?: () => void
+  onSaved?: () => void
+  onDeleted?: () => void
+}
+
+export default function EditRpgFeature({
+  deps: providedDeps,
+  presentation = "standalone",
+  onClose,
+  onSaved,
+  onDeleted,
+}: EditRpgFeatureProps = {}) {
   const params = useParams<{ rpgId: string }>()
   const router = useRouter()
   const rpgId = params.rpgId
   const state = useEditRpgState()
-  const deps = useMemo(() => createRpgEditorDependencies("http"), [])
+  const deps = useMemo(() => providedDeps ?? createRpgEditorDependencies("http"), [providedDeps])
   const [activeStage, setActiveStage] = useState<"basic" | "advanced" | "permissions">("basic")
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadError, setUploadError] = useState("")
@@ -119,6 +133,7 @@ export default function EditRpgFeature() {
     dismissToast(loadingToastId)
     if (result.ok) {
       toast.success("RPG deletado com sucesso.")
+      onDeleted?.()
       router.push("/rpg")
       router.refresh()
     } else {
@@ -206,6 +221,7 @@ export default function EditRpgFeature() {
       if (saved) {
         setSelectedImageFile(null)
         toast.success("RPG salvo com sucesso.")
+        onSaved?.()
       }
     } catch {
       if (hasFreshUpload && uploadedImageUrl) {
@@ -225,7 +241,7 @@ export default function EditRpgFeature() {
 
   if (data.loading) {
     return (
-      <main className={styles.page}>
+      <main className={presentation === "embedded" ? undefined : styles.page}>
         <section className={styles.card}>
           <p>Carregando...</p>
         </section>
@@ -235,15 +251,22 @@ export default function EditRpgFeature() {
 
   if (!data.canEdit) {
     return (
-      <main className={styles.page}>
+      <main className={presentation === "embedded" ? undefined : styles.page}>
         <section className={styles.card}>
           <h1>Edicao bloqueada</h1>
           <p className={styles.error}>{data.error || "Voce nao pode editar este RPG."}</p>
           <div className={styles.actions}>
-            <Link href="/rpg">
-              <ArrowLeft size={16} />
-              <span>Voltar para RPGs</span>
-            </Link>
+            {presentation === "embedded" ? (
+              <button type="button" onClick={onClose}>
+                <ArrowLeft size={16} />
+                <span>Fechar</span>
+              </button>
+            ) : (
+              <Link href="/rpg">
+                <ArrowLeft size={16} />
+                <span>Voltar para RPGs</span>
+              </Link>
+            )}
           </div>
         </section>
       </main>
@@ -251,7 +274,7 @@ export default function EditRpgFeature() {
   }
 
   return (
-    <main className={styles.page}>
+    <main className={presentation === "embedded" ? undefined : styles.page}>
       <section className={styles.card}>
         <h1>Editar RPG</h1>
         <div className={styles.stageTabs} role="tablist" aria-label="Etapas de edicao do RPG">
