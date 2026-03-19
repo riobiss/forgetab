@@ -14,6 +14,7 @@ import styles from "./EntityCatalogClient.module.css"
 
 type Props = {
   rpgId: string
+  rpgTitle: string
   entityType: CatalogEntityType
   title: string
   canManage: boolean
@@ -33,6 +34,7 @@ const SORT_OPTIONS: Array<{ value: EntityCatalogSort; label: string }> = [
 
 export default function EntityCatalogClient({
   rpgId,
+  rpgTitle,
   entityType,
   title,
   canManage,
@@ -211,6 +213,7 @@ export default function EntityCatalogClient({
     <div className={styles.page}>
       <section className={styles.header}>
         <div className={styles.headerText}>
+          <p className={styles.kicker}>{rpgTitle}</p>
           <h1 className={styles.title}>{title}</h1>
         </div>
 

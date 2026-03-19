@@ -6,6 +6,7 @@ import type { EntityCatalogPageData } from "@/application/entityCatalog/types"
 
 type Props = {
   rpgId: string
+  rpgTitle: string
   entityType: CatalogEntityType
   title: string
   data: EntityCatalogPageData
@@ -13,6 +14,7 @@ type Props = {
 
 export default function EntityCatalogFeature({
   rpgId,
+  rpgTitle,
   entityType,
   title,
   data,
@@ -20,6 +22,7 @@ export default function EntityCatalogFeature({
   return (
     <EntityCatalogClient
       rpgId={rpgId}
+      rpgTitle={rpgTitle}
       entityType={entityType}
       title={title}
       canManage={data.canManage}

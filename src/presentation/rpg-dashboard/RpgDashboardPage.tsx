@@ -134,12 +134,10 @@ export function RpgDashboardPage({ viewModel }: { viewModel: RpgDashboardViewMod
           </Link>
         ) : null}
 
-        {viewModel.rpg.useMundiMap ? (
-          <Link href={`/rpg/${viewModel.rpg.id}/map`} className={styles.card}>
-            <Image src="/images/bg-regions.jpg" alt="Mapa Mundi" fill className={styles.cardImage} />
-            <span>Mapa Mundi</span>
-            </Link>
-          ) : null}
+        <Link href={`/rpg/${viewModel.rpg.id}/map`} className={styles.card}>
+          <Image src="/images/bg-regions.jpg" alt="Mapas" fill className={styles.cardImage} />
+          <span>Mapas</span>
+        </Link>
 
           {viewModel.canManageRpg ? (
             <Link href={`/rpg/${viewModel.rpg.id}/items`} className={styles.card}>
