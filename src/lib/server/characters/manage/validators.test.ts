@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vitest"
 import {
+  isValidVisibility,
   validateCharacteristicsPayload,
   validateIdentityPayload,
 } from "./validators"
 
 describe("manage validators", () => {
+  it("mantem a fachada legada de visibilidade", () => {
+    expect(isValidVisibility("public")).toBe(true)
+    expect(isValidVisibility("private")).toBe(true)
+    expect(isValidVisibility("guild")).toBe(false)
+  })
+
   it("preserva identidade livre de npc/criatura quando nao ha template", () => {
     expect(
       validateIdentityPayload(

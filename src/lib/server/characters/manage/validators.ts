@@ -1,8 +1,6 @@
-export function isValidVisibility(value: unknown): value is "private" | "public" {
-  return value === "private" || value === "public"
-}
 export {
   getDefaultStatusTemplate,
+  isValidVisibility,
   normalizeOptionalText,
   normalizeStatusKey,
   validateAttributesPayload,
@@ -13,4 +11,4 @@ export {
   validateSkillsPayload,
   validateStat,
   validateStatusesPayload,
-} from "../validators"
+} from "@/application/characters/validators"

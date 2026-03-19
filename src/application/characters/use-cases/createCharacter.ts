@@ -3,6 +3,7 @@ import { resolveProgressionTierByCurrent } from "@/lib/rpg/progression"
 import {
   getDefaultStatusTemplate,
   isValidCharacterType,
+  isValidVisibility,
   normalizeOptionalText,
   parseJsonBonusRecord,
   validateAttributesPayload,
@@ -13,8 +14,7 @@ import {
   validateSkillsPayload,
   validateStat,
   validateStatusesPayload,
-} from "@/lib/server/characters/validators"
-import { isValidVisibility } from "@/lib/server/characters/manage/validators"
+} from "@/application/characters/validators"
 import type { CharacterRepository } from "@/application/characters/ports/CharacterRepository"
 import type { RpgTemplatesRepository } from "@/application/characters/ports/RpgTemplatesRepository"
 import type { CreateCharacterPayload, CharacterRow, RpgAccess } from "@/application/characters/types"

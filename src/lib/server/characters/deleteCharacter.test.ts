@@ -2,52 +2,49 @@ import { describe, expect, it, vi } from "vitest"
 import { AppError } from "@/shared/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
-  updateCharacter: vi.fn(),
+  deleteCharacter: vi.fn(),
 }))
 
 vi.mock("@/infrastructure/characters/services/legacyCharacterManagementService", () => ({
   legacyCharacterManagementService: {
-    updateCharacter: mocks.updateCharacter,
+    deleteCharacter: mocks.deleteCharacter,
   },
 }))
 
-import { updateCharacter } from "./updateCharacter"
+import { deleteCharacter } from "./deleteCharacter"
 
-describe("updateCharacter legacy adapter", () => {
+describe("deleteCharacter legacy adapter", () => {
   it("delegates to the infrastructure management service", async () => {
-    mocks.updateCharacter.mockResolvedValueOnce(undefined)
+    mocks.deleteCharacter.mockResolvedValueOnce(undefined)
 
     await expect(
-      updateCharacter({
+      deleteCharacter({
         rpgId: "rpg-1",
         characterId: "char-1",
         userId: "user-1",
-        payload: { name: "Goblin Rei" },
       }),
     ).resolves.toBeUndefined()
 
-    expect(mocks.updateCharacter).toHaveBeenCalledWith({
+    expect(mocks.deleteCharacter).toHaveBeenCalledWith({
       rpgId: "rpg-1",
       characterId: "char-1",
       userId: "user-1",
-      payload: { name: "Goblin Rei" },
     })
   })
 
-  it("converte AppError para UpdateCharacterError legado", async () => {
-    mocks.updateCharacter.mockRejectedValueOnce(new AppError("Personagem nao encontrado.", 404))
+  it("converte AppError para DeleteCharacterError legado", async () => {
+    mocks.deleteCharacter.mockRejectedValueOnce(new AppError("Personagem nao encontrado.", 404))
 
     await expect(
-      updateCharacter({
+      deleteCharacter({
         rpgId: "rpg-1",
         characterId: "char-1",
         userId: "user-1",
-        payload: {},
       }),
     ).rejects.toMatchObject({
       status: 404,
       message: "Personagem nao encontrado.",
-      name: "UpdateCharacterError",
+      name: "DeleteCharacterError",
     })
   })
 })
