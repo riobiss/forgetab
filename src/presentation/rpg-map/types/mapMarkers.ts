@@ -1,3 +1,5 @@
+export type MarkerPinStyle = "default" | "label"
+
 export type MapMarkerItem = {
   id: string
   name: string
@@ -7,6 +9,8 @@ export type MapMarkerItem = {
   x: number
   y: number
   color?: string | null
+  size?: number | null
+  pinStyle?: MarkerPinStyle | null
 }
 
 export type MarkerGroup = {
@@ -25,4 +29,6 @@ export type PendingMarker = {
   location: string
   shortDescription: string
   image: string
+  size: number
+  pinStyle: MarkerPinStyle
 }

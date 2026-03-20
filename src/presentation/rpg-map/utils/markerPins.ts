@@ -1,4 +1,5 @@
 import Konva from "konva"
+import type { MarkerPinStyle } from "@/presentation/rpg-map/types/mapMarkers"
 
 export function drawMarkerPin(params: {
   layer: Konva.Layer
@@ -6,10 +7,15 @@ export function drawMarkerPin(params: {
   y: number
   color: string
   label: string
+  size?: number | null
+  pinStyle?: MarkerPinStyle | null
   opacity?: number
   dashed?: boolean
   onClick?: () => void
 }) {
+  const size = Math.max(0.5, Math.min(2, params.size ?? 1))
+  const pinStyle = params.pinStyle === "label" ? "label" : "default"
+  const isNamedMarker = params.label.length > 2
   const group = new Konva.Group({
     x: params.x,
     y: params.y,
@@ -17,10 +23,44 @@ export function drawMarkerPin(params: {
     opacity: params.opacity ?? 1,
   })
 
+  if (pinStyle === "label") {
+    const bubbleWidth = Math.max(92, params.label.length * 8 + 24) * size
+    const bubbleHeight = 30 * size
+    const bubble = new Konva.Rect({
+      x: -(bubbleWidth / 2),
+      y: -(bubbleHeight / 2),
+      width: bubbleWidth,
+      height: bubbleHeight,
+      cornerRadius: 999,
+      fill: "rgba(15, 23, 42, 0.94)",
+      stroke: params.color,
+      strokeWidth: 2,
+      dash: params.dashed ? [4, 3] : undefined,
+    })
+    const text = new Konva.Text({
+      x: -(bubbleWidth / 2),
+      y: -(bubbleHeight / 2) + 7 * size,
+      width: bubbleWidth,
+      align: "center",
+      text: params.label,
+      fontSize: 13 * size,
+      fontStyle: "bold",
+      fill: "#ffffff",
+    })
+
+    group.add(bubble)
+    group.add(text)
+    if (params.onClick) {
+      group.on("click tap", params.onClick)
+    }
+    params.layer.add(group)
+    return group
+  }
+
   const outerCircle = new Konva.Circle({
     x: 0,
-    y: -14,
-    radius: 14,
+    y: -14 * size,
+    radius: 14 * size,
     fill: params.color,
     stroke: "rgba(15, 23, 42, 0.95)",
     strokeWidth: 2,
@@ -28,7 +68,7 @@ export function drawMarkerPin(params: {
   })
 
   const pointer = new Konva.Line({
-    points: [-7, -4, 0, 10, 7, -4],
+    points: [-7 * size, -4 * size, 0, 10 * size, 7 * size, -4 * size],
     closed: true,
     fill: params.color,
     stroke: "rgba(15, 23, 42, 0.95)",
@@ -36,24 +76,23 @@ export function drawMarkerPin(params: {
     dash: params.dashed ? [4, 3] : undefined,
   })
 
-  const isNamedMarker = params.label.length > 2
   const text = new Konva.Text({
-    x: isNamedMarker ? -44 : -12,
-    y: isNamedMarker ? -46 : -23,
-    width: isNamedMarker ? 88 : 24,
+    x: isNamedMarker ? -44 * size : -12 * size,
+    y: isNamedMarker ? -46 * size : -23 * size,
+    width: isNamedMarker ? 88 * size : 24 * size,
     align: "center",
     text: params.label,
-    fontSize: 12,
+    fontSize: 12 * size,
     fontStyle: "bold",
     fill: "#ffffff",
   })
 
   const nameBubble = isNamedMarker
     ? new Konva.Rect({
-        x: -48,
-        y: -49,
-        width: 96,
-        height: 22,
+        x: -48 * size,
+        y: -49 * size,
+        width: 96 * size,
+        height: 22 * size,
         cornerRadius: 999,
         fill: "rgba(15, 23, 42, 0.92)",
         stroke: params.color,
