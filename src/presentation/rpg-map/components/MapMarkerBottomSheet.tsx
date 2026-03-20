@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import type { RefObject } from "react"
 import { Pencil, X } from "lucide-react"
 import type { MapMarkerItem } from "@/presentation/rpg-map/types/mapMarkers"
@@ -33,13 +34,13 @@ export function MapMarkerBottomSheet({ marker, canEdit, sheetRef, onEdit, onClos
 
         {marker.image ? (
           <div className={styles.bottomSheetImageWrap}>
-            <img
+            <Image
               src={marker.image.trim()}
               alt={marker.name}
               className={styles.bottomSheetImage}
-              loading="lazy"
-              decoding="async"
-              referrerPolicy="no-referrer"
+              fill
+              sizes="(max-width: 768px) 100vw, 560px"
+              unoptimized
             />
           </div>
         ) : null}

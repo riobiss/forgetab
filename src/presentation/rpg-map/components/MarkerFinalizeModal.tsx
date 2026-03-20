@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import type { RefObject } from "react"
 import { X } from "lucide-react"
 import type { PendingMarker } from "@/presentation/rpg-map/types/mapMarkers"
@@ -117,13 +118,13 @@ export function MarkerFinalizeModal({
                 />
                 <div className={styles.markerImageField}>
                   {marker.image ? (
-                    <img
+                    <Image
                       src={marker.image.trim()}
                       alt={marker.name}
                       className={styles.markerImagePreview}
-                      loading="lazy"
-                      decoding="async"
-                      referrerPolicy="no-referrer"
+                      fill
+                      sizes="160px"
+                      unoptimized
                     />
                   ) : (
                     <div className={styles.markerImagePlaceholder}>Sem imagem</div>
