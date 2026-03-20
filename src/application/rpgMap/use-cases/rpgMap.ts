@@ -194,6 +194,8 @@ function parseMarkerGroupBody(body: unknown) {
       color: normalizeOptionalText(marker.color),
       x: marker.x,
       y: marker.y,
+      size: marker.size ?? null,
+      pinStyle: normalizeOptionalText(marker.pinStyle),
     })),
   }
 }
@@ -486,7 +488,7 @@ export async function createRpgMapMarkerGroup(
   params: { rpgId: string; mapId: string; userId: string; body: unknown },
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
-  ensureCanView(access)
+  ensureCanManage(access)
 
   const map = await repository.findMap(params.rpgId, params.mapId)
   if (!map) {
@@ -509,7 +511,7 @@ export async function updateRpgMapMarkerGroup(
   params: { rpgId: string; mapId: string; groupId: string; userId: string; body: unknown },
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
-  ensureCanView(access)
+  ensureCanManage(access)
 
   const input = parseMarkerGroupBody(params.body)
   const markerGroup = await repository.updateMarkerGroup({
@@ -531,7 +533,7 @@ export async function deleteRpgMapMarkerGroup(
   params: { rpgId: string; mapId: string; groupId: string; userId: string },
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
-  ensureCanView(access)
+  ensureCanManage(access)
 
   const deleted = await repository.deleteMarkerGroup({
     rpgId: params.rpgId,
@@ -564,6 +566,20 @@ export async function deleteRpgMapImageByUrlUseCase(
   params: { url: string },
 ) {
   return gateway.deleteMapImage(params.url)
+}
+
+export async function uploadRpgMapMarkerImageUseCase(
+  gateway: RpgMapGateway,
+  params: { file: File; oldUrl?: string | null },
+) {
+  return gateway.uploadMarkerImage(params.file, params.oldUrl)
+}
+
+export async function deleteRpgMapMarkerImageByUrlUseCase(
+  gateway: RpgMapGateway,
+  params: { url: string },
+) {
+  return gateway.deleteMarkerImage(params.url)
 }
 
 export async function loadRpgMapsUseCase(

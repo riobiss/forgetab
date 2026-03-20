@@ -74,5 +74,7 @@ export const upsertRpgMapMarkerGroupSchema = z.object({
     color: z.string().trim().max(32, "Cor muito grande.").nullable().optional(),
     x: z.number().finite(),
     y: z.number().finite(),
+    size: z.number().finite().min(0.5, "Tamanho muito pequeno.").max(2, "Tamanho muito grande.").nullable().optional(),
+    pinStyle: z.enum(["default", "label"]).nullable().optional(),
   })),
 })

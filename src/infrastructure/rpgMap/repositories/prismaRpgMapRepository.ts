@@ -57,6 +57,8 @@ type MarkerRow = {
   color: string | null
   x: number
   y: number
+  size: number | null
+  pinStyle: string | null
   order: number
   createdAt: Date
   updatedAt: Date
@@ -122,6 +124,8 @@ function mapMarker(row: MarkerRow): RpgMapMarkerDto {
     color: row.color,
     x: row.x,
     y: row.y,
+    size: row.size,
+    pinStyle: row.pinStyle,
     order: row.order,
     createdAt: toIsoString(row.createdAt),
     updatedAt: toIsoString(row.updatedAt),
@@ -584,6 +588,8 @@ export const prismaRpgMapRepository: RpgMapRepository = {
           color,
           x,
           y,
+          size,
+          pin_style AS "pinStyle",
           position AS "order",
           created_at AS "createdAt",
           updated_at AS "updatedAt"
@@ -658,6 +664,8 @@ export const prismaRpgMapRepository: RpgMapRepository = {
             color,
             x,
             y,
+            size,
+            pin_style,
             position
           )
           VALUES (
@@ -673,6 +681,8 @@ export const prismaRpgMapRepository: RpgMapRepository = {
             ${marker.color},
             ${marker.x},
             ${marker.y},
+            ${marker.size},
+            ${marker.pinStyle},
             ${index}
           )
         `)
@@ -692,6 +702,8 @@ export const prismaRpgMapRepository: RpgMapRepository = {
           color,
           x,
           y,
+          size,
+          pin_style AS "pinStyle",
           position AS "order",
           created_at AS "createdAt",
           updated_at AS "updatedAt"
@@ -753,6 +765,8 @@ export const prismaRpgMapRepository: RpgMapRepository = {
             color,
             x,
             y,
+            size,
+            pin_style,
             position
           )
           VALUES (
@@ -768,6 +782,8 @@ export const prismaRpgMapRepository: RpgMapRepository = {
             ${marker.color},
             ${marker.x},
             ${marker.y},
+            ${marker.size},
+            ${marker.pinStyle},
             ${index}
           )
         `)
@@ -787,6 +803,8 @@ export const prismaRpgMapRepository: RpgMapRepository = {
           color,
           x,
           y,
+          size,
+          pin_style AS "pinStyle",
           position AS "order",
           created_at AS "createdAt",
           updated_at AS "updatedAt"

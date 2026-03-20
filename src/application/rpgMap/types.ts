@@ -50,6 +50,8 @@ export type RpgMapMarkerDto = {
   color: string | null
   x: number
   y: number
+  size: number | null
+  pinStyle: string | null
   order: number
   createdAt: string
   updatedAt: string
@@ -110,6 +112,8 @@ export type UpsertRpgMapMarkerItemPayloadDto = {
   color: string | null
   x: number
   y: number
+  size: number | null
+  pinStyle: string | null
 }
 
 export type UpsertRpgMapMarkerGroupPayloadDto = {
