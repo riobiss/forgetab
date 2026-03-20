@@ -5,11 +5,12 @@ import type {
   JsonMapValue,
   RpgMapDetailViewDto,
   RpgMapDto,
+  UpsertRpgMapMarkerGroupPayloadDto,
   RpgMapSectionDto,
   RpgMapSectionTreeNodeDto,
   RpgMapsViewDto,
 } from "@/application/rpgMap/types"
-import { reorderRpgMapSectionSchema, upsertRpgMapSchema, upsertRpgMapSectionSchema } from "@/lib/validators/rpgMap"
+import { reorderRpgMapSectionSchema, upsertRpgMapMarkerGroupSchema, upsertRpgMapSchema, upsertRpgMapSectionSchema } from "@/lib/validators/rpgMap"
 import { AppError } from "@/shared/errors/AppError"
 
 function normalizeOptionalUrl(value: unknown) {
@@ -175,6 +176,28 @@ function parseSectionBody(body: unknown) {
   }
 }
 
+function parseMarkerGroupBody(body: unknown) {
+  const parsed = upsertRpgMapMarkerGroupSchema.safeParse(body)
+  if (!parsed.success) {
+    throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
+  }
+
+  return {
+    name: parsed.data.name.trim(),
+    color: parsed.data.color.trim(),
+    markers: parsed.data.markers.map((marker) => ({
+      id: normalizeOptionalText(marker.id) ?? undefined,
+      name: marker.name.trim(),
+      location: normalizeOptionalText(marker.location),
+      shortDescription: normalizeOptionalText(marker.shortDescription),
+      image: normalizeOptionalUrl(marker.image),
+      color: normalizeOptionalText(marker.color),
+      x: marker.x,
+      y: marker.y,
+    })),
+  }
+}
+
 export async function listRpgMaps(
   repository: RpgMapRepository,
   accessService: RpgMapAccessService,
@@ -206,6 +229,7 @@ export async function getRpgMapDetail(
   }
 
   const sections = await repository.listSections(params.rpgId, params.mapId)
+  const markerGroups = await repository.listMarkerGroups(params.rpgId, params.mapId)
   const safeUserId = params.userId ?? ""
 
   return {
@@ -216,6 +240,12 @@ export async function getRpgMapDetail(
     tree: buildSectionTree(
       params.userId ? sections.map((section) => withPermissions(access, safeUserId, section)) : sections,
     ),
+    markerGroups: params.userId
+      ? markerGroups.map((group) => ({
+          ...withPermissions(access, safeUserId, group),
+          markers: group.markers.map((marker) => withPermissions(access, safeUserId, marker)),
+        }))
+      : markerGroups,
     canManage: access.canManage,
   }
 }
@@ -242,13 +272,23 @@ export async function updateRpgMap(
   params: { rpgId: string; mapId: string; userId: string; body: unknown },
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
+  ensureCanView(access)
   const owner = await repository.findMapOwner({ rpgId: params.rpgId, mapId: params.mapId })
-  assertCanManageOwnResource(access, owner, params.userId, "Mapa nao encontrado.")
+  const current = await repository.findMap(params.rpgId, params.mapId)
+  if (!current) {
+    throw new AppError("Mapa nao encontrado.", 404)
+  }
+
+  const input = parseMapBody(params.body)
+  const isChangingImage = input.image !== current.image
+  if (isChangingImage) {
+    assertCanManageOwnResource(access, owner, params.userId, "Mapa nao encontrado.")
+  }
 
   const map = await repository.updateMap({
     rpgId: params.rpgId,
     mapId: params.mapId,
-    ...parseMapBody(params.body),
+    ...input,
   })
   if (!map) {
     throw new AppError("Mapa nao encontrado.", 404)
@@ -312,12 +352,7 @@ export async function updateRpgMapSection(
   params: { rpgId: string; mapId: string; sectionId: string; userId: string; body: unknown },
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
-  const owner = await repository.findSectionOwner({
-    rpgId: params.rpgId,
-    mapId: params.mapId,
-    sectionId: params.sectionId,
-  })
-  assertCanManageOwnResource(access, owner, params.userId, "Secao nao encontrada.")
+  ensureCanView(access)
 
   const sections = await repository.listSections(params.rpgId, params.mapId)
   const input = parseSectionBody(params.body)
@@ -348,12 +383,7 @@ export async function deleteRpgMapSection(
   params: { rpgId: string; mapId: string; sectionId: string; userId: string },
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
-  const owner = await repository.findSectionOwner({
-    rpgId: params.rpgId,
-    mapId: params.mapId,
-    sectionId: params.sectionId,
-  })
-  assertCanManageOwnResource(access, owner, params.userId, "Secao nao encontrada.")
+  ensureCanView(access)
 
   const deleted = await repository.deleteSection({
     rpgId: params.rpgId,
@@ -372,12 +402,7 @@ export async function reorderRpgMapSection(
   params: { rpgId: string; mapId: string; sectionId: string; userId: string; body: unknown },
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
-  const owner = await repository.findSectionOwner({
-    rpgId: params.rpgId,
-    mapId: params.mapId,
-    sectionId: params.sectionId,
-  })
-  assertCanManageOwnResource(access, owner, params.userId, "Secao nao encontrada.")
+  ensureCanView(access)
 
   const parsed = reorderRpgMapSectionSchema.safeParse(params.body)
   if (!parsed.success) {
@@ -453,6 +478,71 @@ export async function updateRpgMapImage(
     message: "Mapa atualizado com sucesso.",
     mapImage,
   }
+}
+
+export async function createRpgMapMarkerGroup(
+  repository: RpgMapRepository,
+  accessService: RpgMapAccessService,
+  params: { rpgId: string; mapId: string; userId: string; body: unknown },
+) {
+  const access = await accessService.getAccess(params.rpgId, params.userId)
+  ensureCanView(access)
+
+  const map = await repository.findMap(params.rpgId, params.mapId)
+  if (!map) {
+    throw new AppError("Mapa nao encontrado.", 404)
+  }
+
+  const input = parseMarkerGroupBody(params.body)
+  const markerGroup = await repository.createMarkerGroup({
+    rpgId: params.rpgId,
+    mapId: params.mapId,
+    userId: params.userId,
+    ...input,
+  })
+  return { markerGroup }
+}
+
+export async function updateRpgMapMarkerGroup(
+  repository: RpgMapRepository,
+  accessService: RpgMapAccessService,
+  params: { rpgId: string; mapId: string; groupId: string; userId: string; body: unknown },
+) {
+  const access = await accessService.getAccess(params.rpgId, params.userId)
+  ensureCanView(access)
+
+  const input = parseMarkerGroupBody(params.body)
+  const markerGroup = await repository.updateMarkerGroup({
+    rpgId: params.rpgId,
+    mapId: params.mapId,
+    groupId: params.groupId,
+    ...input,
+  })
+  if (!markerGroup) {
+    throw new AppError("Grupo de marcadores nao encontrado.", 404)
+  }
+
+  return { markerGroup }
+}
+
+export async function deleteRpgMapMarkerGroup(
+  repository: RpgMapRepository,
+  accessService: RpgMapAccessService,
+  params: { rpgId: string; mapId: string; groupId: string; userId: string },
+) {
+  const access = await accessService.getAccess(params.rpgId, params.userId)
+  ensureCanView(access)
+
+  const deleted = await repository.deleteMarkerGroup({
+    rpgId: params.rpgId,
+    mapId: params.mapId,
+    groupId: params.groupId,
+  })
+  if (!deleted) {
+    throw new AppError("Grupo de marcadores nao encontrado.", 404)
+  }
+
+  return { message: "Grupo de marcadores removido com sucesso." }
 }
 
 export async function persistRpgMapImageUseCase(
@@ -559,4 +649,25 @@ export async function reorderRpgMapSectionUseCase(
   params: { rpgId: string; mapId: string; sectionId: string; direction: "up" | "down" },
 ) {
   return gateway.reorderSection(params.rpgId, params.mapId, params.sectionId, params.direction)
+}
+
+export async function createRpgMapMarkerGroupUseCase(
+  gateway: RpgMapGateway,
+  params: { rpgId: string; mapId: string; payload: UpsertRpgMapMarkerGroupPayloadDto },
+) {
+  return gateway.createMarkerGroup(params.rpgId, params.mapId, params.payload)
+}
+
+export async function updateRpgMapMarkerGroupUseCase(
+  gateway: RpgMapGateway,
+  params: { rpgId: string; mapId: string; groupId: string; payload: UpsertRpgMapMarkerGroupPayloadDto },
+) {
+  return gateway.updateMarkerGroup(params.rpgId, params.mapId, params.groupId, params.payload)
+}
+
+export async function deleteRpgMapMarkerGroupUseCase(
+  gateway: RpgMapGateway,
+  params: { rpgId: string; mapId: string; groupId: string },
+) {
+  return gateway.deleteMarkerGroup(params.rpgId, params.mapId, params.groupId)
 }

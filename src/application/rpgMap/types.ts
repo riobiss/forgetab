@@ -37,6 +37,37 @@ export type RpgMapSectionTreeNodeDto = RpgMapSectionDto & {
   children: RpgMapSectionTreeNodeDto[]
 }
 
+export type RpgMapMarkerDto = {
+  id: string
+  groupId: string
+  mapId: string
+  rpgId: string
+  createdByUserId?: string | null
+  name: string
+  location: string | null
+  shortDescription: string | null
+  image: string | null
+  color: string | null
+  x: number
+  y: number
+  order: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type RpgMapMarkerGroupDto = {
+  id: string
+  mapId: string
+  rpgId: string
+  createdByUserId?: string | null
+  name: string
+  color: string
+  order: number
+  markers: RpgMapMarkerDto[]
+  createdAt: string
+  updatedAt: string
+}
+
 export type RpgMapBreadcrumbDto = {
   id: string
   label: string
@@ -66,5 +97,23 @@ export type RpgMapDetailViewDto = {
   map: RpgMapDto
   sections: RpgMapSectionDto[]
   tree: RpgMapSectionTreeNodeDto[]
+  markerGroups: RpgMapMarkerGroupDto[]
   canManage: boolean
+}
+
+export type UpsertRpgMapMarkerItemPayloadDto = {
+  id?: string
+  name: string
+  location: string | null
+  shortDescription: string | null
+  image: string | null
+  color: string | null
+  x: number
+  y: number
+}
+
+export type UpsertRpgMapMarkerGroupPayloadDto = {
+  name: string
+  color: string
+  markers: UpsertRpgMapMarkerItemPayloadDto[]
 }

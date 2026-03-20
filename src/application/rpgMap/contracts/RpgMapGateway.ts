@@ -22,6 +22,18 @@ export interface RpgMapGateway {
     sectionId: string,
     direction: "up" | "down",
   ): Promise<import("@/application/rpgMap/types").RpgMapSectionDto>
+  createMarkerGroup(
+    rpgId: string,
+    mapId: string,
+    payload: import("@/application/rpgMap/types").UpsertRpgMapMarkerGroupPayloadDto,
+  ): Promise<import("@/application/rpgMap/types").RpgMapMarkerGroupDto>
+  updateMarkerGroup(
+    rpgId: string,
+    mapId: string,
+    groupId: string,
+    payload: import("@/application/rpgMap/types").UpsertRpgMapMarkerGroupPayloadDto,
+  ): Promise<import("@/application/rpgMap/types").RpgMapMarkerGroupDto>
+  deleteMarkerGroup(rpgId: string, mapId: string, groupId: string): Promise<void>
   saveMapImage(
     rpgId: string,
     mapId: string,

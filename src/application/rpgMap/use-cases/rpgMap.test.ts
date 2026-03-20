@@ -68,6 +68,12 @@ function createRepositoryMock(): RpgMapRepository {
     findSectionOwner: vi.fn(),
     findAdjacentSection: vi.fn(),
     swapSectionOrder: vi.fn(),
+    listMarkerGroups: vi.fn().mockResolvedValue([]),
+    findMarkerGroup: vi.fn().mockResolvedValue(null),
+    createMarkerGroup: vi.fn(),
+    updateMarkerGroup: vi.fn(),
+    deleteMarkerGroup: vi.fn(),
+    findMarkerGroupOwner: vi.fn().mockResolvedValue({ createdByUserId: "user-1" }),
   }
 }
 

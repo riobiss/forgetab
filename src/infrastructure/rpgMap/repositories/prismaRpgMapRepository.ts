@@ -1,7 +1,7 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { RpgMapRepository } from "@/application/rpgMap/ports/RpgMapRepository"
-import type { JsonMapValue, RpgMapDto, RpgMapSectionDto } from "@/application/rpgMap/types"
+import type { JsonMapValue, RpgMapDto, RpgMapMarkerDto, RpgMapMarkerGroupDto, RpgMapSectionDto } from "@/application/rpgMap/types"
 
 type MapRow = {
   id: string
@@ -28,6 +28,36 @@ type SectionRow = {
   type: string | null
   order: number
   customFields: Prisma.JsonValue | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+type MarkerGroupRow = {
+  id: string
+  mapId: string
+  rpgId: string
+  createdByUserId: string | null
+  name: string
+  color: string
+  order: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+type MarkerRow = {
+  id: string
+  groupId: string
+  mapId: string
+  rpgId: string
+  createdByUserId: string | null
+  name: string
+  location: string | null
+  shortDescription: string | null
+  image: string | null
+  color: string | null
+  x: number
+  y: number
+  order: number
   createdAt: Date
   updatedAt: Date
 }
@@ -73,6 +103,41 @@ function mapSection(row: SectionRow): RpgMapSectionDto {
     type: row.type,
     order: row.order,
     customFields: row.customFields ? parseObject(row.customFields) : null,
+    createdAt: toIsoString(row.createdAt),
+    updatedAt: toIsoString(row.updatedAt),
+  }
+}
+
+function mapMarker(row: MarkerRow): RpgMapMarkerDto {
+  return {
+    id: row.id,
+    groupId: row.groupId,
+    mapId: row.mapId,
+    rpgId: row.rpgId,
+    createdByUserId: row.createdByUserId,
+    name: row.name,
+    location: row.location,
+    shortDescription: row.shortDescription,
+    image: row.image,
+    color: row.color,
+    x: row.x,
+    y: row.y,
+    order: row.order,
+    createdAt: toIsoString(row.createdAt),
+    updatedAt: toIsoString(row.updatedAt),
+  }
+}
+
+function mapMarkerGroup(row: MarkerGroupRow, markers: MarkerRow[]): RpgMapMarkerGroupDto {
+  return {
+    id: row.id,
+    mapId: row.mapId,
+    rpgId: row.rpgId,
+    createdByUserId: row.createdByUserId,
+    name: row.name,
+    color: row.color,
+    order: row.order,
+    markers: markers.filter((marker) => marker.groupId === row.id).map(mapMarker),
     createdAt: toIsoString(row.createdAt),
     updatedAt: toIsoString(row.updatedAt),
   }
@@ -485,5 +550,275 @@ export const prismaRpgMapRepository: RpgMapRepository = {
           AND id = ${params.otherSectionId}
       `),
     ])
+  },
+
+  async listMarkerGroups(rpgId, mapId) {
+    const [groupRows, markerRows] = await Promise.all([
+      prisma.$queryRaw<MarkerGroupRow[]>(Prisma.sql`
+        SELECT
+          id,
+          map_id AS "mapId",
+          rpg_id AS "rpgId",
+          created_by_user_id AS "createdByUserId",
+          name,
+          color,
+          position AS "order",
+          created_at AS "createdAt",
+          updated_at AS "updatedAt"
+        FROM rpg_map_marker_groups
+        WHERE rpg_id = ${rpgId}
+          AND map_id = ${mapId}
+        ORDER BY position ASC, updated_at DESC
+      `),
+      prisma.$queryRaw<MarkerRow[]>(Prisma.sql`
+        SELECT
+          id,
+          group_id AS "groupId",
+          map_id AS "mapId",
+          rpg_id AS "rpgId",
+          created_by_user_id AS "createdByUserId",
+          name,
+          location,
+          short_description AS "shortDescription",
+          image,
+          color,
+          x,
+          y,
+          position AS "order",
+          created_at AS "createdAt",
+          updated_at AS "updatedAt"
+        FROM rpg_map_markers
+        WHERE rpg_id = ${rpgId}
+          AND map_id = ${mapId}
+        ORDER BY group_id ASC, position ASC, updated_at DESC
+      `),
+    ])
+
+    return groupRows.map((group) => mapMarkerGroup(group, markerRows))
+  },
+
+  async findMarkerGroup(params) {
+    const groups = await this.listMarkerGroups(params.rpgId, params.mapId)
+    return groups.find((group) => group.id === params.groupId) ?? null
+  },
+
+  async createMarkerGroup(params) {
+    return prisma.$transaction(async (tx) => {
+      const nextRows = await tx.$queryRaw<Array<{ value: number }>>(Prisma.sql`
+        SELECT COALESCE(MAX(position), -1) + 1 AS value
+        FROM rpg_map_marker_groups
+        WHERE map_id = ${params.mapId}
+      `)
+      const groupId = crypto.randomUUID()
+
+      const groupRows = await tx.$queryRaw<MarkerGroupRow[]>(Prisma.sql`
+        INSERT INTO rpg_map_marker_groups (
+          id,
+          map_id,
+          rpg_id,
+          created_by_user_id,
+          name,
+          color,
+          position
+        )
+        VALUES (
+          ${groupId},
+          ${params.mapId},
+          ${params.rpgId},
+          ${params.userId},
+          ${params.name},
+          ${params.color},
+          ${nextRows[0]?.value ?? 0}
+        )
+        RETURNING
+          id,
+          map_id AS "mapId",
+          rpg_id AS "rpgId",
+          created_by_user_id AS "createdByUserId",
+          name,
+          color,
+          position AS "order",
+          created_at AS "createdAt",
+          updated_at AS "updatedAt"
+      `)
+
+      for (let index = 0; index < params.markers.length; index += 1) {
+        const marker = params.markers[index]
+        await tx.$executeRaw(Prisma.sql`
+          INSERT INTO rpg_map_markers (
+            id,
+            group_id,
+            map_id,
+            rpg_id,
+            created_by_user_id,
+            name,
+            location,
+            short_description,
+            image,
+            color,
+            x,
+            y,
+            position
+          )
+          VALUES (
+            ${marker.id ?? crypto.randomUUID()},
+            ${groupId},
+            ${params.mapId},
+            ${params.rpgId},
+            ${params.userId},
+            ${marker.name},
+            ${marker.location},
+            ${marker.shortDescription},
+            ${marker.image},
+            ${marker.color},
+            ${marker.x},
+            ${marker.y},
+            ${index}
+          )
+        `)
+      }
+
+      const markerRows = await tx.$queryRaw<MarkerRow[]>(Prisma.sql`
+        SELECT
+          id,
+          group_id AS "groupId",
+          map_id AS "mapId",
+          rpg_id AS "rpgId",
+          created_by_user_id AS "createdByUserId",
+          name,
+          location,
+          short_description AS "shortDescription",
+          image,
+          color,
+          x,
+          y,
+          position AS "order",
+          created_at AS "createdAt",
+          updated_at AS "updatedAt"
+        FROM rpg_map_markers
+        WHERE group_id = ${groupId}
+        ORDER BY position ASC, updated_at DESC
+      `)
+
+      return mapMarkerGroup(groupRows[0], markerRows)
+    })
+  },
+
+  async updateMarkerGroup(params) {
+    return prisma.$transaction(async (tx) => {
+      const groupRows = await tx.$queryRaw<MarkerGroupRow[]>(Prisma.sql`
+        UPDATE rpg_map_marker_groups
+        SET
+          name = ${params.name},
+          color = ${params.color},
+          updated_at = CURRENT_TIMESTAMP
+        WHERE rpg_id = ${params.rpgId}
+          AND map_id = ${params.mapId}
+          AND id = ${params.groupId}
+        RETURNING
+          id,
+          map_id AS "mapId",
+          rpg_id AS "rpgId",
+          created_by_user_id AS "createdByUserId",
+          name,
+          color,
+          position AS "order",
+          created_at AS "createdAt",
+          updated_at AS "updatedAt"
+      `)
+      if (!groupRows[0]) {
+        return null
+      }
+
+      await tx.$executeRaw(Prisma.sql`
+        DELETE FROM rpg_map_markers
+        WHERE group_id = ${params.groupId}
+          AND map_id = ${params.mapId}
+          AND rpg_id = ${params.rpgId}
+      `)
+
+      for (let index = 0; index < params.markers.length; index += 1) {
+        const marker = params.markers[index]
+        await tx.$executeRaw(Prisma.sql`
+          INSERT INTO rpg_map_markers (
+            id,
+            group_id,
+            map_id,
+            rpg_id,
+            created_by_user_id,
+            name,
+            location,
+            short_description,
+            image,
+            color,
+            x,
+            y,
+            position
+          )
+          VALUES (
+            ${marker.id ?? crypto.randomUUID()},
+            ${params.groupId},
+            ${params.mapId},
+            ${params.rpgId},
+            ${groupRows[0].createdByUserId},
+            ${marker.name},
+            ${marker.location},
+            ${marker.shortDescription},
+            ${marker.image},
+            ${marker.color},
+            ${marker.x},
+            ${marker.y},
+            ${index}
+          )
+        `)
+      }
+
+      const markerRows = await tx.$queryRaw<MarkerRow[]>(Prisma.sql`
+        SELECT
+          id,
+          group_id AS "groupId",
+          map_id AS "mapId",
+          rpg_id AS "rpgId",
+          created_by_user_id AS "createdByUserId",
+          name,
+          location,
+          short_description AS "shortDescription",
+          image,
+          color,
+          x,
+          y,
+          position AS "order",
+          created_at AS "createdAt",
+          updated_at AS "updatedAt"
+        FROM rpg_map_markers
+        WHERE group_id = ${params.groupId}
+        ORDER BY position ASC, updated_at DESC
+      `)
+
+      return mapMarkerGroup(groupRows[0], markerRows)
+    })
+  },
+
+  async deleteMarkerGroup(params) {
+    const rows = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+      DELETE FROM rpg_map_marker_groups
+      WHERE rpg_id = ${params.rpgId}
+        AND map_id = ${params.mapId}
+        AND id = ${params.groupId}
+      RETURNING id
+    `)
+    return Boolean(rows[0])
+  },
+
+  async findMarkerGroupOwner(params) {
+    const rows = await prisma.$queryRaw<Array<{ createdByUserId: string | null }>>(Prisma.sql`
+      SELECT created_by_user_id AS "createdByUserId"
+      FROM rpg_map_marker_groups
+      WHERE rpg_id = ${params.rpgId}
+        AND map_id = ${params.mapId}
+        AND id = ${params.groupId}
+      LIMIT 1
+    `)
+    return rows[0] ?? null
   },
 }

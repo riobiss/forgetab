@@ -2,7 +2,9 @@ import type { RpgMapGateway } from "@/application/rpgMap/contracts/RpgMapGateway
 import type {
   RpgMapDetailViewDto,
   RpgMapDto,
+  RpgMapMarkerGroupDto,
   RpgMapSectionDto,
+  UpsertRpgMapMarkerGroupPayloadDto,
   UpsertRpgMapPayloadDto,
   UpsertRpgMapSectionPayloadDto,
 } from "@/application/rpgMap/types"
@@ -97,6 +99,35 @@ export const httpRpgMapGateway: RpgMapGateway = {
     const result = await parseJsonResponse<{ section?: RpgMapSectionDto }>(response)
     if (!result.section) throw new Error("Nao foi possivel reordenar a secao.")
     return result.section
+  },
+
+  async createMarkerGroup(rpgId, mapId, payload) {
+    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/marker-groups`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload satisfies UpsertRpgMapMarkerGroupPayloadDto),
+    })
+    const result = await parseJsonResponse<{ markerGroup?: RpgMapMarkerGroupDto }>(response)
+    if (!result.markerGroup) throw new Error("Nao foi possivel criar o grupo de marcadores.")
+    return result.markerGroup
+  },
+
+  async updateMarkerGroup(rpgId, mapId, groupId, payload) {
+    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/marker-groups/${groupId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload satisfies UpsertRpgMapMarkerGroupPayloadDto),
+    })
+    const result = await parseJsonResponse<{ markerGroup?: RpgMapMarkerGroupDto }>(response)
+    if (!result.markerGroup) throw new Error("Nao foi possivel atualizar o grupo de marcadores.")
+    return result.markerGroup
+  },
+
+  async deleteMarkerGroup(rpgId, mapId, groupId) {
+    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/marker-groups/${groupId}`, {
+      method: "DELETE",
+    })
+    await parseJsonResponse<{ message?: string }>(response)
   },
 
   async saveMapImage(rpgId, mapId, mapImage) {
