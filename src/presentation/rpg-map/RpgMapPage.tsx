@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { toast } from "react-hot-toast"
 import { ChevronDown, ChevronRight, Map as MapIcon, Pencil, Plus, Search, Trash2, X } from "lucide-react"
@@ -29,6 +30,9 @@ import styles from "./RpgMapPage.module.css"
 type RpgMapPageProps = {
   rpgId: string
   rpgTitle: string
+  view?: "catalog" | "detail"
+  initialMapId?: string | null
+  detailTitle?: string | null
 }
 
 type MapFormState = {
@@ -42,6 +46,7 @@ type SectionFormState = {
   description: string
   type: string
   parentSectionId: string
+  aboutLink: string
   customFields: Array<{ id: string; name: string; value: string }>
 }
 
@@ -56,6 +61,7 @@ const EMPTY_SECTION_FORM: SectionFormState = {
   description: "",
   type: "",
   parentSectionId: "",
+  aboutLink: "",
   customFields: [],
 }
 
@@ -85,20 +91,32 @@ function parseOptionalJsonObject(text: string, fieldLabel: string) {
 }
 
 function customFieldsToDraft(value: JsonMapValue | null | undefined) {
-  return Object.entries(value ?? {}).map(([name, fieldValue], index) => ({
+  return Object.entries(value ?? {})
+    .filter(([name]) => name !== "Sobre")
+    .map(([name, fieldValue], index) => ({
     id: `field-${index}-${name}`,
     name,
     value: fieldValue == null ? "" : String(fieldValue),
-  }))
+    }))
 }
 
-function customFieldsToObject(fields: Array<{ name: string; value: string }>) {
+function getAboutLink(value: JsonMapValue | null | undefined) {
+  const about = value?.Sobre
+  return typeof about === "string" ? about : ""
+}
+
+function customFieldsToObject(fields: Array<{ name: string; value: string }>, aboutLink: string) {
   const entries = fields
     .map((field) => ({
       name: field.name.trim(),
       value: field.value.trim(),
     }))
     .filter((field) => field.name.length > 0)
+
+  const normalizedAboutLink = aboutLink.trim()
+  if (normalizedAboutLink) {
+    entries.unshift({ name: "Sobre", value: normalizedAboutLink })
+  }
 
   if (entries.length === 0) {
     return null
@@ -158,6 +176,7 @@ function collectSectionOptions(nodes: RpgMapSectionDto[], currentSectionId?: str
 function MapTreeNode(props: {
   node: RpgMapSectionTreeNodeDto
   selectedId: string | null
+  canManageStructure: boolean
   onSelect: (sectionId: string) => void
   onCreateChild: (section: RpgMapSectionDto) => void
   onEdit: (section: RpgMapSectionDto) => void
@@ -186,15 +205,19 @@ function MapTreeNode(props: {
           {props.node.type ? <small>{props.node.type}</small> : null}
         </button>
         <div className={styles.treeActions}>
-          <button type="button" className={styles.iconButton} onClick={() => props.onCreateChild(props.node)} title="Criar abaixo">
-            <Plus size={14} />
-          </button>
-          <button type="button" className={styles.iconButton} onClick={() => props.onReorder(props.node.id, "up")} title="Subir">
-            <ChevronRight size={14} className={styles.rotateUp} />
-          </button>
-          <button type="button" className={styles.iconButton} onClick={() => props.onReorder(props.node.id, "down")} title="Descer">
-            <ChevronRight size={14} className={styles.rotateDown} />
-          </button>
+          {props.canManageStructure ? (
+            <>
+              <button type="button" className={styles.iconButton} onClick={() => props.onCreateChild(props.node)} title="Criar abaixo">
+                <Plus size={14} />
+              </button>
+              <button type="button" className={styles.iconButton} onClick={() => props.onReorder(props.node.id, "up")} title="Subir">
+                <ChevronRight size={14} className={styles.rotateUp} />
+              </button>
+              <button type="button" className={styles.iconButton} onClick={() => props.onReorder(props.node.id, "down")} title="Descer">
+                <ChevronRight size={14} className={styles.rotateDown} />
+              </button>
+            </>
+          ) : null}
           {props.node.canEdit ? (
             <button type="button" className={styles.iconButton} onClick={() => props.onEdit(props.node)} title="Editar">
               <Pencil size={14} />
@@ -218,13 +241,19 @@ function MapTreeNode(props: {
   )
 }
 
-export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
+export function RpgMapPage({
+  rpgId,
+  rpgTitle,
+  view = "catalog",
+  initialMapId = null,
+  detailTitle = null,
+}: RpgMapPageProps) {
   const sectionNameInputId = useId()
   const mapModalRef = useRef<HTMLElement | null>(null)
   const sectionModalRef = useRef<HTMLElement | null>(null)
   const sectionNameInputRef = useRef<HTMLInputElement | null>(null)
   const [maps, setMaps] = useState<RpgMapDto[]>([])
-  const [selectedMapId, setSelectedMapId] = useState<string | null>(null)
+  const [selectedMapId, setSelectedMapId] = useState<string | null>(initialMapId)
   const [detail, setDetail] = useState<RpgMapDetailViewDto | null>(null)
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null)
   const [loadingMaps, setLoadingMaps] = useState(true)
@@ -263,6 +292,8 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
     () => filterTree(detail?.tree ?? [], sectionSearch),
     [detail?.tree, sectionSearch],
   )
+  const canEditMapContent = Boolean(detail)
+  const canManageMapImage = Boolean(detail?.canManage || detail?.map.canEdit)
 
   const loadMaps = useCallback(async () => {
     try {
@@ -270,13 +301,18 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
       setError("")
       const payload = await loadRpgMapsUseCase(httpRpgMapGateway, { rpgId })
       setMaps(payload.maps)
-      setSelectedMapId((current) => current ?? payload.maps[0]?.id ?? null)
+      setSelectedMapId((current) => {
+        if (view === "detail") {
+          return initialMapId ?? current ?? null
+        }
+        return current ?? payload.maps[0]?.id ?? null
+      })
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Erro ao carregar mapas.")
     } finally {
       setLoadingMaps(false)
     }
-  }, [rpgId])
+  }, [initialMapId, rpgId, view])
 
   const loadDetail = useCallback(async (mapId: string, preferredSectionId?: string | null) => {
     try {
@@ -299,6 +335,12 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
   useEffect(() => {
     void loadMaps()
   }, [loadMaps])
+
+  useEffect(() => {
+    if (view === "detail" && initialMapId) {
+      setSelectedMapId(initialMapId)
+    }
+  }, [initialMapId, view])
 
   useEffect(() => {
     if (selectedMapId) {
@@ -344,6 +386,7 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
       description: section.description ?? "",
       type: section.type ?? "",
       parentSectionId: section.parentSectionId ?? "",
+      aboutLink: getAboutLink(section.customFields),
       customFields: customFieldsToDraft(section.customFields),
     })
     setSectionFormError("")
@@ -495,7 +538,7 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
         description: sectionForm.description.trim() || null,
         type: sectionForm.type.trim() || null,
         parentSectionId: sectionForm.parentSectionId || null,
-        customFields: customFieldsToObject(sectionForm.customFields),
+        customFields: customFieldsToObject(sectionForm.customFields, sectionForm.aboutLink),
       }
 
       const section = editingSection
@@ -564,120 +607,118 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
     <main className={styles.page}>
       <section className={styles.header}>
         <div className={styles.headerText}>
-          <p className={styles.kicker}>{rpgTitle}</p>
+          <p className={styles.kicker}>{view === "detail" ? "Mapa" : rpgTitle}</p>
           <div className={styles.titleRow}>
-            <h1 className={styles.title}>Mapa</h1>
-            <button type="button" className={styles.primaryButton} onClick={openCreateMapModal}>
-              <Plus size={16} />
-              <span>Criar</span>
-            </button>
+            <h1 className={styles.title}>{view === "detail" ? detailTitle || detail?.map.title || "Mapa" : "Mapa"}</h1>
+            {view === "catalog" ? (
+              <button type="button" className={styles.primaryButton} onClick={openCreateMapModal}>
+                <Plus size={16} />
+                <span>Criar</span>
+              </button>
+            ) : null}
           </div>
         </div>
       </section>
 
-      <section className={styles.controls}>
-        <div className={styles.searchRow}>
-          <label className={styles.searchField}>
-            <Search size={16} />
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar mapas..."
-            />
-          </label>
-        </div>
-      </section>
+      {view === "catalog" ? (
+        <>
+          <section className={styles.controls}>
+            <div className={styles.searchRow}>
+              <label className={styles.searchField}>
+                <Search size={16} />
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Buscar mapas..."
+                />
+              </label>
+            </div>
+          </section>
 
-      {loadingMaps ? <p className={styles.feedback}>Carregando mapas...</p> : null}
-      {error && !loadingMaps ? <p className={styles.error}>{error}</p> : null}
+          {loadingMaps ? <p className={styles.feedback}>Carregando mapas...</p> : null}
+          {error && !loadingMaps ? <p className={styles.error}>{error}</p> : null}
 
-      {!loadingMaps && filteredMaps.length === 0 ? (
-        <section className={styles.emptyPanel}>
-          <p>{maps.length === 0 ? "Nenhum mapa cadastrado ainda." : "Nenhum mapa encontrado com a busca atual."}</p>
-        </section>
+          {!loadingMaps && filteredMaps.length === 0 ? (
+            <section className={styles.emptyPanel}>
+              <p>{maps.length === 0 ? "Nenhum mapa cadastrado ainda." : "Nenhum mapa encontrado com a busca atual."}</p>
+            </section>
+          ) : null}
+
+          {filteredMaps.length > 0 ? (
+            <section className={styles.groups}>
+              <article className={styles.group}>
+                <div className={styles.groupHeaderStatic}>
+                  <div className={styles.groupHeaderInfo}>
+                    <h2 className={styles.groupTitle}>Mapas</h2>
+                    <p className={styles.groupSubtitle}>Escolha um mapa para abrir a visao principal.</p>
+                  </div>
+                  <span className={styles.groupBadge}>{filteredMaps.length}</span>
+                </div>
+
+                <div className={styles.groupContent}>
+                  <div className={styles.mapList}>
+                    {filteredMaps.map((map) => (
+                      <article
+                        key={map.id}
+                        className={`${styles.mapCard} ${selectedMapId === map.id ? styles.mapCardActive : ""}`}
+                      >
+                        <Link href={`/rpg/${rpgId}/map/${map.id}`} className={styles.mapCardMain}>
+                          <div className={styles.mapCardHeader}>
+                            <MapIcon size={16} />
+                            <strong>{map.title}</strong>
+                          </div>
+                          <p>{map.description || "Sem descricao."}</p>
+                          <small>{map.sectionsCount ?? 0} secoes</small>
+                        </Link>
+                        <div className={styles.mapCardActions}>
+                          {map.canEdit ? (
+                            <button type="button" className={styles.iconButton} onClick={() => openEditMapModal(map)}>
+                              <Pencil size={14} />
+                            </button>
+                          ) : null}
+                          {map.canDelete ? (
+                            <button
+                              type="button"
+                              className={styles.iconButtonDanger}
+                              onClick={() => void handleDeleteMap(map)}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          ) : null}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              </article>
+            </section>
+          ) : null}
+        </>
       ) : null}
 
-      {filteredMaps.length > 0 ? (
-        <section className={styles.groups}>
-          <article className={styles.group}>
-            <div className={styles.groupHeaderStatic}>
-              <div className={styles.groupHeaderInfo}>
-                <h2 className={styles.groupTitle}>Mapas</h2>
-                <p className={styles.groupSubtitle}>Escolha um mapa para navegar pela hierarquia e visibilidade.</p>
-              </div>
-              <span className={styles.groupBadge}>{filteredMaps.length}</span>
-            </div>
-
-            <div className={styles.groupContent}>
-              <div className={styles.mapList}>
-                {filteredMaps.map((map) => (
-                  <article
-                    key={map.id}
-                    className={`${styles.mapCard} ${selectedMapId === map.id ? styles.mapCardActive : ""}`}
-                  >
-                    <button type="button" className={styles.mapCardMain} onClick={() => setSelectedMapId(map.id)}>
-                      <div className={styles.mapCardHeader}>
-                        <MapIcon size={16} />
-                        <strong>{map.title}</strong>
-                      </div>
-                      <p>{map.description || "Sem descricao."}</p>
-                      <small>{map.sectionsCount ?? 0} secoes</small>
-                    </button>
-                    <div className={styles.mapCardActions}>
-                      {map.canEdit ? (
-                        <button type="button" className={styles.iconButton} onClick={() => openEditMapModal(map)}>
-                          <Pencil size={14} />
-                        </button>
-                      ) : null}
-                      {map.canDelete ? (
-                        <button
-                          type="button"
-                          className={styles.iconButtonDanger}
-                          onClick={() => void handleDeleteMap(map)}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      ) : null}
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </article>
-        </section>
-      ) : null}
-
-      <section className={styles.content}>
+      {view === "detail" ? (
+        <section className={styles.content}>
           {loadingDetail ? <p className={styles.feedback}>Carregando estrutura...</p> : null}
 
           {!loadingDetail && detail ? (
             <>
-              <section className={styles.mapHeaderCard}>
-                <div>
-                  <p className={styles.badgeLine}>{detail.map.type || "Mapa generico"}</p>
-                  <h2 className={styles.sectionTitle}>{detail.map.title}</h2>
-                  <p className={styles.sectionText}>{detail.map.description || "Sem descricao cadastrada."}</p>
-                </div>
+              {canEditMapContent ? (
                 <div className={styles.headerActions}>
-                  <button type="button" className={styles.secondaryButton} onClick={() => openCreateSectionModal()}>
-                    <Plus size={16} />
-                    <span>Nova secao raiz</span>
+                  <button type="button" className={styles.secondaryButton} onClick={() => openEditMapModal(detail.map)}>
+                    <Pencil size={16} />
+                    <span>Editar mapa</span>
                   </button>
-                  {detail.map.canEdit ? (
-                    <button type="button" className={styles.secondaryButton} onClick={() => openEditMapModal(detail.map)}>
-                      <Pencil size={16} />
-                      <span>Editar mapa</span>
-                    </button>
-                  ) : null}
                 </div>
-              </section>
+              ) : null}
 
               <MundiMap
                 rpgId={rpgId}
                 mapId={detail.map.id}
-                canManage={detail.canManage || Boolean(detail.map.canEdit)}
+                canEditContent={canEditMapContent}
+                canManageImage={canManageMapImage}
                 initialMapSrc={detail.map.image}
+                initialPublicMarkerGroups={detail.markerGroups}
               />
 
               <div className={styles.workspace}>
@@ -687,13 +728,15 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
                       <h3 className={styles.groupTitle}>Visibilidade</h3>
                       <p className={styles.groupSubtitle}>Estrutura em arvore das secoes e areas descobertas.</p>
                     </div>
-                    <button
-                      type="button"
-                      className={styles.iconButton}
-                      onClick={() => openCreateSectionModal(selectedSection)}
-                    >
-                      <Plus size={14} />
-                    </button>
+                    {canEditMapContent ? (
+                      <button
+                        type="button"
+                        className={styles.iconButton}
+                        onClick={() => openCreateSectionModal(selectedSection)}
+                      >
+                        <Plus size={14} />
+                      </button>
+                    ) : null}
                   </div>
                   <label className={styles.searchField}>
                     <Search size={16} />
@@ -713,6 +756,7 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
                           key={node.id}
                           node={node}
                           selectedId={selectedSectionId}
+                          canManageStructure={canEditMapContent}
                           onSelect={setSelectedSectionId}
                           onCreateChild={openCreateSectionModal}
                           onEdit={openEditSectionModal}
@@ -729,15 +773,21 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
                     <h3>Detalhes da secao</h3>
                     {selectedSection ? (
                       <div className={styles.inlineActions}>
-                        <button type="button" className={styles.iconButton} onClick={() => openEditSectionModal(selectedSection)}>
-                          <Pencil size={14} />
-                        </button>
-                        <button type="button" className={styles.iconButton} onClick={() => openCreateSectionModal(selectedSection)}>
-                          <Plus size={14} />
-                        </button>
-                        <button type="button" className={styles.iconButtonDanger} onClick={() => void handleDeleteSection(selectedSection)}>
-                          <Trash2 size={14} />
-                        </button>
+                        {selectedSection.canEdit ? (
+                          <button type="button" className={styles.iconButton} onClick={() => openEditSectionModal(selectedSection)}>
+                            <Pencil size={14} />
+                          </button>
+                        ) : null}
+                        {canEditMapContent ? (
+                          <button type="button" className={styles.iconButton} onClick={() => openCreateSectionModal(selectedSection)}>
+                            <Plus size={14} />
+                          </button>
+                        ) : null}
+                        {selectedSection.canDelete ? (
+                          <button type="button" className={styles.iconButtonDanger} onClick={() => void handleDeleteSection(selectedSection)}>
+                            <Trash2 size={14} />
+                          </button>
+                        ) : null}
                       </div>
                     ) : null}
                   </div>
@@ -756,6 +806,16 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
                     <div className={styles.detailCard}>
                       <h4>{selectedSection.name}</h4>
                       <p>{selectedSection.description || "Sem descricao cadastrada."}</p>
+                      {getAboutLink(selectedSection.customFields) ? (
+                        <a
+                          className={styles.aboutLink}
+                          href={getAboutLink(selectedSection.customFields)}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Sobre
+                        </a>
+                      ) : null}
                       <dl className={styles.metaGrid}>
                         <div>
                           <dt>Tipo</dt>
@@ -793,7 +853,8 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
               </div>
             </>
           ) : null}
-      </section>
+        </section>
+      ) : null}
 
       {isMapModalOpen ? (
         <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="Salvar mapa">
@@ -853,6 +914,14 @@ export function RpgMapPage({ rpgId, rpgTitle }: RpgMapPageProps) {
                   <option key={option.id} value={option.id}>{option.label}</option>
                 ))}
               </select>
+            </label>
+            <label className={styles.field}>
+              <span>Sobre</span>
+              <input
+                value={sectionForm.aboutLink}
+                onChange={(event) => setSectionForm((current) => ({ ...current, aboutLink: event.target.value }))}
+                placeholder="https://..."
+              />
             </label>
             <div className={styles.field}>
               <div className={styles.customFieldsHeader}>

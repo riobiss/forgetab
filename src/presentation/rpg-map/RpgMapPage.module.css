@@ -24,7 +24,6 @@
 }
 
 .header,
-.mapHeaderCard,
 .panel,
 .sidebar,
 .modal {
@@ -66,8 +65,7 @@
   flex-wrap: wrap;
 }
 
-.kicker,
-.badgeLine {
+.kicker {
   margin: 0 0 0.25rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -75,8 +73,7 @@
   font-size: 0.65rem;
 }
 
-.title,
-.sectionTitle {
+.title {
   margin: 0;
   color: var(--color-text-primary);
   text-shadow: 0 0 12px color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
@@ -84,7 +81,6 @@
   line-height: 1.05;
 }
 
-.sectionText,
 .mapCard p,
 .detailCard p,
 .feedback {
@@ -265,13 +261,6 @@
   padding: 0 1rem 1rem;
 }
 
-.mapHeaderCard {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.25rem;
-}
-
 .workspace {
   grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
 }
@@ -419,6 +408,20 @@
   color: var(--color-text-primary);
 }
 
+.aboutLink {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 24%, transparent);
+  background: var(--color-brand-soft);
+  color: var(--color-brand-primary);
+  text-decoration: none;
+  font-weight: 700;
+}
+
 .breadcrumbs {
   display: flex;
   flex-wrap: wrap;
@@ -536,7 +539,6 @@
 
 @media (max-width: 1100px) {
   .workspace,
-  .mapHeaderCard,
   .header {
     grid-template-columns: 1fr;
     display: grid;

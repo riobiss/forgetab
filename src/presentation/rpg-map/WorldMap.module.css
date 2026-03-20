@@ -28,6 +28,21 @@
   gap: 0.4rem;
 }
 
+.leftActions {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+}
+
+.ownerActionRow {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
 .editButton {
   border: 1px solid var(--color-border-soft);
   border-radius: 8px;
@@ -163,11 +178,33 @@
   border-radius: 999px;
   border: 1px solid var(--color-border-soft);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .colorOptionActive {
   outline: 2px solid var(--color-text-primary);
   outline-offset: 1px;
+}
+
+.customColorOption::after {
+  content: "+";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.customColorInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .interactionOverlay {
@@ -211,6 +248,497 @@
   margin: 0;
   font-size: 0.84rem;
   color: var(--color-text-muted);
+}
+
+.selectionModalWrap {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  padding: 4.25rem 1rem 1rem;
+  pointer-events: none;
+}
+
+.selectionBanner {
+  width: min(34rem, calc(100% - 1rem));
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: var(--color-bg-overlay-strong);
+  box-shadow: var(--shadow-elevation-md);
+  color: var(--color-text-primary);
+  pointer-events: auto;
+}
+
+.selectionBanner strong,
+.selectionBanner span {
+  display: block;
+}
+
+.selectionBanner span {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.selectionActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: color-mix(in srgb, #000 58%, transparent);
+}
+
+.modal {
+  width: min(520px, 100%);
+  border-radius: 18px;
+  border: 1px solid var(--color-border-soft);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-brand-soft) 22%, var(--color-bg-surface-alt)) 0%,
+    var(--color-bg-surface-alt) 42%,
+    color-mix(in srgb, var(--color-bg-elevated) 68%, var(--color-bg-surface-alt)) 100%
+  );
+  box-shadow: var(--shadow-elevation-md);
+  padding: 1rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.markerEditModal {
+  max-height: min(82dvh, 46rem);
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.modalHeaderActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.modalSubtle {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.segmentedTabs {
+  display: inline-flex;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border-soft);
+  width: fit-content;
+}
+
+.segmentedTab {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+  font: inherit;
+}
+
+.segmentedTabActive {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-primary);
+  font-weight: 700;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field span {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text-primary);
+  padding: 0.68rem 0.82rem;
+  font: inherit;
+}
+
+.field textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.modalActions,
+.markerListActions {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.primaryButton,
+.secondaryButton,
+.secondaryDangerButton,
+.iconButton,
+.iconButtonDanger {
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  cursor: pointer;
+  font: inherit;
+}
+
+.primaryButton,
+.secondaryButton,
+.secondaryDangerButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.62rem 0.9rem;
+}
+
+.primaryButton {
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 80%, white);
+  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-strong));
+  color: var(--color-text-on-brand);
+}
+
+.secondaryButton,
+.secondaryDangerButton,
+.iconButton {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-primary);
+}
+
+.secondaryDangerButton {
+  color: var(--color-status-danger);
+  border-color: color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
+  background: var(--color-status-danger-soft);
+}
+
+.iconButton,
+.iconButtonDanger {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.iconButtonDanger {
+  color: var(--color-status-danger);
+  border-color: color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
+  background: var(--color-status-danger-soft);
+}
+
+.markerColorRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.markerDraftList,
+.markerList {
+  display: grid;
+  gap: 0.6rem;
+  max-height: min(22rem, 50vh);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.markerDraftItem,
+.markerListItem {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.markerDraftHeader {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.markerDraftFields {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.markerImageField {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.markerImagePreview,
+.markerImagePlaceholder {
+  width: 100%;
+  min-height: 8rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.markerImagePreview {
+  display: block;
+  max-height: 14rem;
+  object-fit: cover;
+}
+
+.markerImagePlaceholder {
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+}
+
+.markerImageActions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.markerDraftItem input,
+.markerDraftItem textarea {
+  width: 100%;
+  min-width: 0;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text-primary);
+  padding: 0.6rem 0.75rem;
+  font: inherit;
+}
+
+.markerDraftItem textarea {
+  min-height: 4.8rem;
+  resize: vertical;
+}
+
+.markerNumber,
+.markerSwatch {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.markerNumber {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-primary);
+  font-weight: 800;
+}
+
+.markerSwatch {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.markerListMain {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.markerListMain strong,
+.markerListMain small {
+  display: block;
+}
+
+.markerListMain small {
+  color: var(--color-text-muted);
+}
+
+.overlappingMarkerButton {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  cursor: pointer;
+  padding: 0.75rem 0.85rem;
+  text-align: left;
+}
+
+.overlappingMarkerButton:hover {
+  border-color: var(--color-border-brand);
+  box-shadow: var(--shadow-brand-glow);
+}
+
+.markerVisibilityList {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 12rem;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+
+.markerVisibilityItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-primary);
+}
+
+.markerVisibilityItem input {
+  margin: 0;
+  width: 0.95rem;
+  height: 0.95rem;
+  accent-color: var(--color-brand-primary);
+  flex-shrink: 0;
+}
+
+.markerVisibilityName {
+  min-width: 0;
+  flex: 1;
+  color: var(--color-text-primary);
+}
+
+.imageModalActions {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.bottomSheetOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, #000 52%, transparent) 100%);
+  pointer-events: none;
+}
+
+.bottomSheet {
+  width: min(100%, 760px);
+  max-height: min(70dvh, 34rem);
+  overflow-y: auto;
+  border-radius: 20px 20px 0 0;
+  border: 1px solid var(--color-border-soft);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-brand-soft) 18%, var(--color-bg-surface-alt)) 0%,
+      var(--color-bg-surface-alt) 35%,
+      color-mix(in srgb, var(--color-bg-elevated) 68%, var(--color-bg-surface-alt)) 100%
+    );
+  box-shadow: var(--shadow-elevation-md);
+  padding: 0.8rem 1rem 1.1rem;
+  pointer-events: auto;
+}
+
+.bottomSheetHandle {
+  width: 3rem;
+  height: 0.28rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
+  margin: 0 auto 0.9rem;
+}
+
+.bottomSheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.bottomSheetHeader strong {
+  color: var(--color-text-primary);
+}
+
+.bottomSheetImageWrap {
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--color-border-soft);
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.bottomSheetImage {
+  display: block;
+  width: 100%;
+  max-height: 15rem;
+  object-fit: cover;
+}
+
+.bottomSheetContent {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.bottomSheetField {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.bottomSheetField span {
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.bottomSheetField strong,
+.bottomSheetField p {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+
+@media (max-width: 720px) {
+  .ownerActionRow,
+  .selectionBanner,
+  .modalActions,
+  .markerDraftItem,
+  .markerListItem {
+    flex-wrap: wrap;
+  }
 }
 
 
