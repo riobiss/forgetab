@@ -131,7 +131,7 @@ export function useMapMarkerGroups(params: Params) {
   }
 
   function saveMarkerGroupChanges() {
-    if (!selectedMarkerGroup) {
+    if (!selectedMarkerGroup?.canEdit) {
       return
     }
 
@@ -163,7 +163,7 @@ export function useMapMarkerGroups(params: Params) {
   }
 
   function publishSelectedMarkerGroup() {
-    if (!selectedMarkerGroup || selectedMarkerGroup.visibility !== "private") {
+    if (!selectedMarkerGroup || selectedMarkerGroup.visibility !== "private" || !selectedMarkerGroup.canEdit) {
       return
     }
 
@@ -182,7 +182,7 @@ export function useMapMarkerGroups(params: Params) {
   }
 
   function deleteMarkerGroup() {
-    if (!selectedMarkerGroup) {
+    if (!selectedMarkerGroup?.canDelete) {
       return
     }
 
@@ -200,6 +200,10 @@ export function useMapMarkerGroups(params: Params) {
   }
 
   function openMarkerEdit(marker: MapMarkerItem) {
+    if (!selectedMarkerGroup?.canEdit || marker.canEdit === false) {
+      return
+    }
+
     setEditingMarker(marker)
     setEditingMarkerName(marker.name)
     setEditingMarkerLocation(marker.location ?? "")
@@ -247,7 +251,7 @@ export function useMapMarkerGroups(params: Params) {
   }
 
   function saveMarkerEdit() {
-    if (!selectedMarkerGroup || !editingMarker) {
+    if (!selectedMarkerGroup?.canEdit || !editingMarker || editingMarker.canEdit === false) {
       return
     }
 
@@ -288,7 +292,12 @@ export function useMapMarkerGroups(params: Params) {
   }
 
   function deleteMarkerItem(markerId: string) {
-    if (!selectedMarkerGroup) {
+    if (!selectedMarkerGroup?.canEdit) {
+      return
+    }
+
+    const currentMarker = selectedMarkerGroup.markers.find((marker) => marker.id === markerId)
+    if (!currentMarker || currentMarker.canDelete === false) {
       return
     }
 

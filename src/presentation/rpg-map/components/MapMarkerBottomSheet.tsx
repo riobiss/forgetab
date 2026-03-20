@@ -7,20 +7,25 @@ import styles from "../WorldMap.module.css"
 
 type Props = {
   marker: MapMarkerItem
+  canEdit: boolean
   sheetRef: RefObject<HTMLDivElement | null>
   onEdit: () => void
   onClose: () => void
 }
 
-export function MapMarkerBottomSheet({ marker, sheetRef, onEdit, onClose }: Props) {
+export function MapMarkerBottomSheet({ marker, canEdit, sheetRef, onEdit, onClose }: Props) {
   return (
     <div className={styles.bottomSheetOverlay} role="dialog" aria-modal="true" aria-label="Detalhes do marcador">
       <section ref={sheetRef} className={styles.bottomSheet} tabIndex={-1}>
         <div className={styles.bottomSheetHandle} />
         <div className={styles.bottomSheetHeader}>
-          <button type="button" className={styles.iconButton} onClick={onEdit} aria-label="Editar marcador">
-            <Pencil size={16} />
-          </button>
+          {canEdit ? (
+            <button type="button" className={styles.iconButton} onClick={onEdit} aria-label="Editar marcador">
+              <Pencil size={16} />
+            </button>
+          ) : (
+            <span />
+          )}
           <button type="button" className={styles.iconButton} onClick={onClose} aria-label="Fechar detalhes do marcador">
             <X size={16} />
           </button>

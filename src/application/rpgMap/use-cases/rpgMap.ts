@@ -71,6 +71,14 @@ function withPermissions<T extends { createdByUserId?: string | null }>(
     canDelete: access.canManage || entity.createdByUserId === userId,
   }
 }
+
+function withManagedPermissions<T>(access: { canManage: boolean }, entity: T) {
+  return {
+    ...entity,
+    canEdit: access.canManage,
+    canDelete: access.canManage,
+  }
+}
 function buildSectionTree(sections: RpgMapSectionDto[]): RpgMapSectionTreeNodeDto[] {
   const nodes = new Map<string, RpgMapSectionTreeNodeDto>()
   const roots: RpgMapSectionTreeNodeDto[] = []
@@ -244,8 +252,8 @@ export async function getRpgMapDetail(
     ),
     markerGroups: params.userId
       ? markerGroups.map((group) => ({
-          ...withPermissions(access, safeUserId, group),
-          markers: group.markers.map((marker) => withPermissions(access, safeUserId, marker)),
+          ...withManagedPermissions(access, group),
+          markers: group.markers.map((marker) => withManagedPermissions(access, marker)),
         }))
       : markerGroups,
     canManage: access.canManage,

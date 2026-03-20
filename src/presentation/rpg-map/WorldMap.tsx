@@ -31,11 +31,20 @@ type MundiMapProps = {
   mapId: string
   canEditContent: boolean
   canManageImage: boolean
+  canManagePublicMarkers: boolean
   initialMapSrc: string | null
   initialPublicMarkerGroups: RpgMapMarkerGroupDto[]
 }
 
-export function MundiMap({ rpgId, mapId, canEditContent, canManageImage, initialMapSrc, initialPublicMarkerGroups }: MundiMapProps) {
+export function MundiMap({
+  rpgId,
+  mapId,
+  canEditContent,
+  canManageImage,
+  canManagePublicMarkers,
+  initialMapSrc,
+  initialPublicMarkerGroups,
+}: MundiMapProps) {
   const frameRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<WorldMapCanvasHandle | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
@@ -390,21 +399,22 @@ export function MundiMap({ rpgId, mapId, canEditContent, canManageImage, initial
     const matchedGroup = allMarkerGroups.find((group) =>
       group.markers.some((marker) => marker.id === selectedMapMarker.marker.id),
     )
+    const matchedMarker = matchedGroup?.markers.find((marker) => marker.id === selectedMapMarker.marker.id) ?? null
 
-    if (!matchedGroup) {
+    if (!matchedGroup || !matchedMarker?.canEdit || !matchedGroup.canEdit) {
       return
     }
 
     setSelectedVisibility(matchedGroup.visibility)
     setSelectedMarkerGroupId(matchedGroup.id)
-    setEditingMarker(selectedMapMarker.marker)
-    setEditingMarkerName(selectedMapMarker.marker.name)
-    setEditingMarkerLocation(selectedMapMarker.marker.location ?? "")
-    setEditingMarkerShortDescription(selectedMapMarker.marker.shortDescription ?? "")
-    setEditingMarkerImage(selectedMapMarker.marker.image ?? "")
-    setEditingMarkerColor(selectedMapMarker.marker.color || matchedGroup.color)
-    setEditingMarkerSize(selectedMapMarker.marker.size ?? DEFAULT_MARKER_SIZE)
-    setEditingMarkerPinStyle(selectedMapMarker.marker.pinStyle === "label" ? "label" : "default")
+    setEditingMarker(matchedMarker)
+    setEditingMarkerName(matchedMarker.name)
+    setEditingMarkerLocation(matchedMarker.location ?? "")
+    setEditingMarkerShortDescription(matchedMarker.shortDescription ?? "")
+    setEditingMarkerImage(matchedMarker.image ?? "")
+    setEditingMarkerColor(matchedMarker.color || matchedGroup.color)
+    setEditingMarkerSize(matchedMarker.size ?? DEFAULT_MARKER_SIZE)
+    setEditingMarkerPinStyle(matchedMarker.pinStyle === "label" ? "label" : "default")
     setSelectedMapMarker(null)
   }
 
@@ -699,7 +709,7 @@ export function MundiMap({ rpgId, mapId, canEditContent, canManageImage, initial
           editingGroupName={editingGroupName}
           editingGroupColor={editingGroupColor}
           markerColors={MARKER_COLORS}
-          canPublish={selectedMarkerGroup?.visibility === "private" && canManageImage}
+          canPublish={selectedMarkerGroup?.visibility === "private" && canManagePublicMarkers}
           onChangeGroupName={setEditingGroupName}
           onChangeGroupColor={setEditingGroupColor}
           onEditMarker={openMarkerEdit}
@@ -753,6 +763,7 @@ export function MundiMap({ rpgId, mapId, canEditContent, canManageImage, initial
         {selectedMapMarker ? (
           <MapMarkerBottomSheet
             marker={selectedMapMarker.marker}
+            canEdit={Boolean(selectedMapMarker.marker.canEdit)}
             sheetRef={markerSheetRef}
             onEdit={handleEditSelectedMapMarker}
             onClose={() => setSelectedMapMarker(null)}

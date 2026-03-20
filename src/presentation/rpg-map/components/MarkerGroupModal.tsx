@@ -60,7 +60,11 @@ export function MarkerGroupModal({
         </div>
         <label className={styles.field}>
           <span>Nome do grupo</span>
-          <input value={editingGroupName} onChange={(event) => onChangeGroupName(event.target.value)} />
+          <input
+            value={editingGroupName}
+            onChange={(event) => onChangeGroupName(event.target.value)}
+            disabled={!group.canEdit}
+          />
         </label>
         <div className={styles.field}>
           <span>Cor do grupo</span>
@@ -73,6 +77,7 @@ export function MarkerGroupModal({
                 className={`${styles.colorOption} ${editingGroupColor === color ? styles.colorOptionActive : ""}`}
                 style={{ backgroundColor: color }}
                 aria-label={`Cor ${color}`}
+                disabled={!group.canEdit}
               />
             ))}
           </div>
@@ -92,12 +97,16 @@ export function MarkerGroupModal({
                   </div>
                 </div>
                 <div className={styles.markerListActions}>
-                  <button type="button" className={styles.iconButton} onClick={() => onEditMarker(marker)}>
-                    <Pencil size={14} />
-                  </button>
-                  <button type="button" className={styles.iconButtonDanger} onClick={() => onDeleteMarker(marker.id)}>
-                    <Trash2 size={14} />
-                  </button>
+                  {marker.canEdit ? (
+                    <button type="button" className={styles.iconButton} onClick={() => onEditMarker(marker)}>
+                      <Pencil size={14} />
+                    </button>
+                  ) : null}
+                  {marker.canDelete ? (
+                    <button type="button" className={styles.iconButtonDanger} onClick={() => onDeleteMarker(marker.id)}>
+                      <Trash2 size={14} />
+                    </button>
+                  ) : null}
                 </div>
               </article>
             ))
@@ -106,9 +115,11 @@ export function MarkerGroupModal({
           )}
         </div>
         <div className={styles.modalActions}>
-          <button type="button" className={styles.primaryButton} onClick={onSaveGroup}>
-            Salvar grupo
-          </button>
+          {group.canEdit ? (
+            <button type="button" className={styles.primaryButton} onClick={onSaveGroup}>
+              Salvar grupo
+            </button>
+          ) : null}
           <button type="button" className={styles.secondaryButton} onClick={onClearAll}>
             Limpar todos
           </button>
@@ -117,9 +128,11 @@ export function MarkerGroupModal({
               Tornar publico
             </button>
           ) : null}
-          <button type="button" className={styles.iconButtonDanger} onClick={onDeleteGroup}>
-            <Trash2 size={14} />
-          </button>
+          {group.canDelete ? (
+            <button type="button" className={styles.iconButtonDanger} onClick={onDeleteGroup}>
+              <Trash2 size={14} />
+            </button>
+          ) : null}
           <button type="button" className={styles.secondaryButton} onClick={onClose}>
             Fechar
           </button>

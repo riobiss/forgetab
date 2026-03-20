@@ -294,6 +294,7 @@ export function RpgMapPage({
   )
   const canEditMapContent = Boolean(detail)
   const canManageMapImage = Boolean(detail?.canManage || detail?.map.canEdit)
+  const canManagePublicMarkers = Boolean(detail?.canManage)
 
   const loadMaps = useCallback(async () => {
     try {
@@ -717,6 +718,7 @@ export function RpgMapPage({
                 mapId={detail.map.id}
                 canEditContent={canEditMapContent}
                 canManageImage={canManageMapImage}
+                canManagePublicMarkers={canManagePublicMarkers}
                 initialMapSrc={detail.map.image}
                 initialPublicMarkerGroups={detail.markerGroups}
               />

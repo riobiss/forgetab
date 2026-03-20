@@ -53,6 +53,8 @@ export type RpgMapMarkerDto = {
   size: number | null
   pinStyle: string | null
   order: number
+  canEdit?: boolean
+  canDelete?: boolean
   createdAt: string
   updatedAt: string
 }
@@ -66,6 +68,8 @@ export type RpgMapMarkerGroupDto = {
   color: string
   order: number
   markers: RpgMapMarkerDto[]
+  canEdit?: boolean
+  canDelete?: boolean
   createdAt: string
   updatedAt: string
 }

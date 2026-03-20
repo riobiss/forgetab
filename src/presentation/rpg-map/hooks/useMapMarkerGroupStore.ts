@@ -55,6 +55,8 @@ export function useMapMarkerGroupStore(params: Params) {
           name: String(group.name ?? "Marcadores"),
           color: typeof group.color === "string" ? group.color : params.markerColors[0] ?? "#f97316",
           visibility: "private" as const,
+          canEdit: true,
+          canDelete: true,
           markers: Array.isArray(group.markers)
             ? group.markers.map((marker) => ({
                 id: String(marker.id),
@@ -67,6 +69,8 @@ export function useMapMarkerGroupStore(params: Params) {
                 color: typeof marker.color === "string" ? marker.color : null,
                 size: typeof marker.size === "number" ? marker.size : DEFAULT_MARKER_SIZE,
                 pinStyle: marker.pinStyle === "label" ? "label" : DEFAULT_MARKER_PIN_STYLE,
+                canEdit: true,
+                canDelete: true,
               }))
             : [],
         }))
@@ -94,6 +98,8 @@ export function useMapMarkerGroupStore(params: Params) {
         name: group.name,
         color: group.color,
         visibility: "public" as const,
+        canEdit: group.canEdit ?? false,
+        canDelete: group.canDelete ?? false,
         markers: group.markers.map((marker) => ({
           id: marker.id,
           name: marker.name,
@@ -105,6 +111,8 @@ export function useMapMarkerGroupStore(params: Params) {
           y: marker.y,
           size: marker.size ?? DEFAULT_MARKER_SIZE,
           pinStyle: marker.pinStyle === "label" ? "label" : DEFAULT_MARKER_PIN_STYLE,
+          canEdit: marker.canEdit ?? false,
+          canDelete: marker.canDelete ?? false,
         })),
       })),
     )
@@ -147,6 +155,8 @@ export function useMapMarkerGroupStore(params: Params) {
         name: savedGroup.name,
         color: savedGroup.color,
         visibility: "public",
+        canEdit: savedGroup.canEdit ?? false,
+        canDelete: savedGroup.canDelete ?? false,
         markers: savedGroup.markers.map((marker) => ({
           id: marker.id,
           name: marker.name,
@@ -158,6 +168,8 @@ export function useMapMarkerGroupStore(params: Params) {
           y: marker.y,
           size: marker.size ?? DEFAULT_MARKER_SIZE,
           pinStyle: marker.pinStyle === "label" ? "label" : DEFAULT_MARKER_PIN_STYLE,
+          canEdit: marker.canEdit ?? false,
+          canDelete: marker.canDelete ?? false,
         })),
       }
 
@@ -205,6 +217,8 @@ export function useMapMarkerGroupStore(params: Params) {
       name: normalizedName,
       color: input.markerGroupColor,
       visibility: "private",
+      canEdit: true,
+      canDelete: true,
       markers: input.pendingMarkers.map((marker) => ({
         id: marker.id,
         name: marker.name.trim() || "Marcador",
@@ -216,6 +230,8 @@ export function useMapMarkerGroupStore(params: Params) {
         color: null,
         size: marker.size,
         pinStyle: marker.pinStyle,
+        canEdit: true,
+        canDelete: true,
       })),
     }
 

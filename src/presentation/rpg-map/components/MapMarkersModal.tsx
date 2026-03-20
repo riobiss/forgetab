@@ -148,7 +148,12 @@ export function MapMarkersModal({
               </select>
             </label>
             <div className={styles.modalActions}>
-              <button type="button" className={styles.secondaryButton} onClick={onEdit} disabled={!selectedMarkerGroup}>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={onEdit}
+                disabled={!selectedMarkerGroup}
+              >
                 <Pencil size={16} />
                 <span>Editar</span>
               </button>

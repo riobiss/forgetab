@@ -11,6 +11,8 @@ export type MapMarkerItem = {
   color?: string | null
   size?: number | null
   pinStyle?: MarkerPinStyle | null
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
 export type MarkerGroup = {
@@ -19,6 +21,8 @@ export type MarkerGroup = {
   color: string
   markers: MapMarkerItem[]
   visibility: "private" | "public"
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
 export type PendingMarker = {

@@ -155,6 +155,36 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
   }, [isFullscreen])
 
   useEffect(() => {
+    const stage = stageRef.current
+    const mapImage = mapImageRef.current
+    if (!stage || !mapImage) {
+      return
+    }
+
+    if (!isFullscreen) {
+      const syncBackToInlineSize = () => {
+        const currentStage = stageRef.current
+        const currentImage = mapImageRef.current
+        const currentContainer = stageContainerRef.current
+        if (!currentStage || !currentImage || !currentContainer) {
+          return
+        }
+
+        currentStage.size({
+          width: currentContainer.clientWidth,
+          height: currentContainer.clientHeight,
+        })
+        fitImageToStage(currentStage, currentImage)
+        currentStage.batchDraw()
+      }
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(syncBackToInlineSize)
+      })
+    }
+  }, [isFullscreen])
+
+  useEffect(() => {
     onAddPendingMarkerRef.current = onAddPendingMarker
   }, [onAddPendingMarker])
 
