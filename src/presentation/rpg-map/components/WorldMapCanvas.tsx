@@ -13,6 +13,7 @@ const SYNTHETIC_MOUSE_GUARD_MS = 500
 export type WorldMapCanvasHandle = {
   resetView: () => void
   clearLastDrawing: () => void
+  focusMarker: (marker: Pick<MapMarkerItem, "x" | "y">) => void
 }
 
 type Props = {
@@ -66,6 +67,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
   const mapLayerRef = useRef<Konva.Layer | null>(null)
   const mapImageRef = useRef<Konva.Image | null>(null)
   const markerLayerRef = useRef<Konva.Layer | null>(null)
+  const markerOverlayLayerRef = useRef<Konva.Layer | null>(null)
   const drawLayerRef = useRef<Konva.Layer | null>(null)
   const currentLineRef = useRef<Konva.Line | null>(null)
   const isDrawingRef = useRef(false)
@@ -81,6 +83,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
   const brushSizeRef = useRef(brushSize)
   const onAddPendingMarkerRef = useRef(onAddPendingMarker)
   const onRepositionMarkerRef = useRef(onRepositionMarker)
+  const onMarkerPinSelectRef = useRef(onMarkerPinSelect)
   const onMapSrcErrorRef = useRef(onMapSrcError)
   const touchSelectionStartRef = useRef<Point | null>(null)
   const touchSelectionMovedRef = useRef(false)
@@ -111,6 +114,16 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
 
       lastDrawing.destroy()
       drawLayerCurrent.batchDraw()
+    },
+    focusMarker(marker) {
+      const stage = stageRef.current
+      const mapImage = mapImageRef.current
+      if (!stage || !mapImage) {
+        return
+      }
+
+      focusStageOnMarker(stage, mapImage, marker)
+      stage.batchDraw()
     },
   }), [])
 
@@ -161,27 +174,26 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
       return
     }
 
-    if (!isFullscreen) {
-      const syncBackToInlineSize = () => {
-        const currentStage = stageRef.current
-        const currentImage = mapImageRef.current
-        const currentContainer = stageContainerRef.current
-        if (!currentStage || !currentImage || !currentContainer) {
-          return
-        }
-
-        currentStage.size({
-          width: currentContainer.clientWidth,
-          height: currentContainer.clientHeight,
-        })
-        fitImageToStage(currentStage, currentImage)
-        currentStage.batchDraw()
+    const syncStageToContainer = () => {
+      const currentStage = stageRef.current
+      const currentImage = mapImageRef.current
+      const currentContainer = stageContainerRef.current
+      if (!currentStage || !currentImage || !currentContainer) {
+        return
       }
 
-      requestAnimationFrame(() => {
-        requestAnimationFrame(syncBackToInlineSize)
+      currentStage.size({
+        width: currentContainer.clientWidth,
+        height: currentContainer.clientHeight,
       })
+      syncStageDomSize(currentStage, currentContainer.clientWidth, currentContainer.clientHeight)
+      fitImageToStage(currentStage, currentImage)
+      currentStage.batchDraw()
     }
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(syncStageToContainer)
+    })
   }, [isFullscreen])
 
   useEffect(() => {
@@ -195,6 +207,10 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
   useEffect(() => {
     onRepositionMarkerRef.current = onRepositionMarker
   }, [onRepositionMarker])
+
+  useEffect(() => {
+    onMarkerPinSelectRef.current = onMarkerPinSelect
+  }, [onMarkerPinSelect])
 
   useEffect(() => {
     const container = stageContainerRef.current
@@ -211,15 +227,19 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
 
     const mapLayer = new Konva.Layer()
     const markerLayer = new Konva.Layer()
+    const markerOverlayLayer = new Konva.Layer()
     const drawLayer = new Konva.Layer()
     stage.add(mapLayer)
     stage.add(markerLayer)
+    stage.add(markerOverlayLayer)
     stage.add(drawLayer)
 
     stageRef.current = stage
     mapLayerRef.current = mapLayer
     markerLayerRef.current = markerLayer
+    markerOverlayLayerRef.current = markerOverlayLayer
     drawLayerRef.current = drawLayer
+    syncStageDomSize(stage, container.clientWidth, container.clientHeight)
 
     const handleWheel = (event: Konva.KonvaEventObject<WheelEvent>) => {
       if (!canInteractMap(isInteractiveRef.current, isFullscreenRef.current) || isBrushModeRef.current) {
@@ -447,6 +467,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
         width: currentContainer.clientWidth,
         height: currentContainer.clientHeight,
       })
+      syncStageDomSize(currentStage, currentContainer.clientWidth, currentContainer.clientHeight)
 
       if (currentImage && !isDrawingRef.current) {
         if (canInteractMap(isInteractiveRef.current, isFullscreenRef.current)) {
@@ -483,6 +504,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
       mapLayerRef.current = null
       mapImageRef.current = null
       markerLayerRef.current = null
+      markerOverlayLayerRef.current = null
       drawLayerRef.current = null
       currentLineRef.current = null
     }
@@ -551,16 +573,27 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
               if (isMarkerSelectionModeRef.current) {
                 return
               }
-              onMarkerPinSelect(marker, marker.color || group.color)
+              onMarkerPinSelectRef.current(marker, marker.color || group.color)
             },
           })
         })
       }
     }
 
+    markerLayer.batchDraw()
+  }, [allMarkerGroups, areMarkersVisible, visibleMarkerGroupIds])
+
+  useEffect(() => {
+    const markerOverlayLayer = markerOverlayLayerRef.current
+    if (!markerOverlayLayer) {
+      return
+    }
+
+    markerOverlayLayer.destroyChildren()
+
     if (editingMarkerPreview) {
       drawMarkerPin({
-        layer: markerLayer,
+        layer: markerOverlayLayer,
         x: editingMarkerPreview.x,
         y: editingMarkerPreview.y,
         color: editingMarkerPreview.color || markerGroupColor,
@@ -574,7 +607,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
 
     pendingMarkers.forEach((marker, index) => {
       drawMarkerPin({
-        layer: markerLayer,
+        layer: markerOverlayLayer,
         x: marker.x,
         y: marker.y,
         color: markerGroupColor,
@@ -586,8 +619,8 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
       })
     })
 
-    markerLayer.batchDraw()
-  }, [allMarkerGroups, areMarkersVisible, editingMarkerPreview, isMarkerRepositionMode, markerGroupColor, onMarkerPinSelect, pendingMarkers, visibleMarkerGroupIds])
+    markerOverlayLayer.batchDraw()
+  }, [editingMarkerPreview, isMarkerRepositionMode, markerGroupColor, pendingMarkers])
 
   return (
     <>
@@ -853,6 +886,35 @@ function fitImageToStage(stage: Konva.Stage, mapImage: Konva.Image) {
     x: (stageWidth - imageSize.width * scale) / 2,
     y: (stageHeight - imageSize.height * scale) / 2,
   })
+}
+
+function syncStageDomSize(stage: Konva.Stage, width: number, height: number) {
+  const stageContent = stage.container()
+  if (!stageContent) {
+    return
+  }
+
+  stageContent.style.width = `${width}px`
+  stageContent.style.height = `${height}px`
+}
+
+function focusStageOnMarker(
+  stage: Konva.Stage,
+  mapImage: Konva.Image,
+  marker: Pick<MapMarkerItem, "x" | "y">,
+) {
+  const minScale = getStageMinScale(stage, mapImage)
+  if (minScale === null) {
+    return
+  }
+
+  const targetScale = clamp(Math.max(minScale * 1.85, minScale + 0.35), minScale, Math.max(minScale, 4))
+  stage.scale({ x: targetScale, y: targetScale })
+  stage.position({
+    x: stage.width() / 2 - marker.x * targetScale,
+    y: stage.height() / 2 - marker.y * targetScale,
+  })
+  constrainStagePosition(stage, mapImage)
 }
 
 function getImageSize(

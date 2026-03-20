@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 
 type Params = {
   activeElement: HTMLElement | null
@@ -8,6 +8,12 @@ type Params = {
 }
 
 export function useModalFocusTrap({ activeElement, onEscape }: Params) {
+  const onEscapeRef = useRef(onEscape)
+
+  useEffect(() => {
+    onEscapeRef.current = onEscape
+  }, [onEscape])
+
   useEffect(() => {
     if (!activeElement) {
       return
@@ -30,8 +36,13 @@ export function useModalFocusTrap({ activeElement, onEscape }: Params) {
         (element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true",
       )
 
-    const firstFocusable = getFocusableElements()[0] ?? modalElement
     queueMicrotask(() => {
+      const currentFocusedElement = document.activeElement
+      if (currentFocusedElement instanceof HTMLElement && modalElement.contains(currentFocusedElement)) {
+        return
+      }
+
+      const firstFocusable = getFocusableElements()[0] ?? modalElement
       firstFocusable.focus()
     })
 
@@ -46,7 +57,7 @@ export function useModalFocusTrap({ activeElement, onEscape }: Params) {
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        onEscape()
+        onEscapeRef.current()
         return
       }
 
@@ -82,5 +93,5 @@ export function useModalFocusTrap({ activeElement, onEscape }: Params) {
       document.removeEventListener("focusin", handleFocusIn)
       document.removeEventListener("keydown", handleKeyDown)
     }
-  }, [activeElement, onEscape])
+  }, [activeElement])
 }

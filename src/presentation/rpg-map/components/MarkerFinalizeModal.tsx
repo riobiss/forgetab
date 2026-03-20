@@ -53,7 +53,15 @@ export function MarkerFinalizeModal({
         </div>
         <label className={styles.field}>
           <span>Nome</span>
-          <input value={markerGroupName} onChange={(event) => setMarkerGroupName(event.target.value)} />
+          <input
+            value={markerGroupName}
+            onChange={(event) => setMarkerGroupName(event.target.value)}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="words"
+            spellCheck={false}
+            data-lpignore="true"
+          />
         </label>
         <div className={styles.field}>
           <span>Cor</span>
@@ -78,6 +86,12 @@ export function MarkerFinalizeModal({
                 <input
                   value={marker.name}
                   placeholder="Nome"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="words"
+                  spellCheck={false}
+                  inputMode="text"
+                  data-lpignore="true"
                   onChange={(event) =>
                     setPendingMarkers((current) =>
                       current.map((item) => (item.id === marker.id ? { ...item, name: event.target.value } : item)),
@@ -89,6 +103,12 @@ export function MarkerFinalizeModal({
                 <input
                   value={marker.location}
                   placeholder="Localizacao"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="words"
+                  spellCheck={false}
+                  inputMode="text"
+                  data-lpignore="true"
                   onChange={(event) =>
                     setPendingMarkers((current) =>
                       current.map((item) => (item.id === marker.id ? { ...item, location: event.target.value } : item)),
@@ -133,6 +153,11 @@ export function MarkerFinalizeModal({
                   value={marker.shortDescription}
                   placeholder="Descricao"
                   rows={3}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="sentences"
+                  spellCheck={false}
+                  data-lpignore="true"
                   onChange={(event) =>
                     setPendingMarkers((current) =>
                       current.map((item) => (item.id === marker.id ? { ...item, shortDescription: event.target.value } : item)),

@@ -3,9 +3,8 @@
 import Link from "next/link"
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { toast } from "react-hot-toast"
-import { ChevronDown, ChevronRight, Map as MapIcon, Pencil, Plus, Search, Trash2, X } from "lucide-react"
+import { Map as MapIcon, Pencil, Plus, Search, Trash2 } from "lucide-react"
 import type {
-  JsonMapValue,
   RpgMapBreadcrumbDto,
   RpgMapDetailViewDto,
   RpgMapDto,
@@ -24,7 +23,34 @@ import {
   updateRpgMapUseCase,
 } from "@/application/rpgMap/use-cases/rpgMap"
 import { httpRpgMapGateway } from "@/infrastructure/rpgMap/gateways/httpRpgMapGateway"
+import {
+  MARKER_STORAGE_PREFIX,
+  parsePrivateMarkerGroupsFromStorage,
+} from "@/presentation/rpg-map/hooks/useMapMarkerGroupStore"
+import { useRpgMapFormModalState } from "@/presentation/rpg-map/hooks/useRpgMapFormModalState"
+import { useRpgMapPageModalFocus } from "@/presentation/rpg-map/hooks/useRpgMapPageModalFocus"
+import {
+  useRpgMapSectionModalState,
+} from "@/presentation/rpg-map/hooks/useRpgMapSectionModalState"
+import { MapSectionConflictModal } from "@/presentation/rpg-map/components/MapSectionConflictModal"
+import { MapSectionCustomFieldModal } from "@/presentation/rpg-map/components/MapSectionCustomFieldModal"
+import { MapFormModal } from "@/presentation/rpg-map/components/MapFormModal"
+import { MapSectionFormModal } from "@/presentation/rpg-map/components/MapSectionFormModal"
+import { MapSectionDetailsModal } from "@/presentation/rpg-map/components/MapSectionDetailsModal"
+import { MapSectionTree } from "@/presentation/rpg-map/components/MapSectionTree"
+import { syncLinkedMarkerWithSection } from "@/presentation/rpg-map/services/syncLinkedMarkerWithSection"
 import { MundiMap } from "@/presentation/rpg-map/WorldMap"
+import {
+  applyLinkedMarkerToPayload,
+  buildLinkedSectionSnapshots,
+  buildMarkerOptions,
+  buildSectionRenderState,
+  customFieldsToObject,
+  findLinkedMarkerConflicts,
+  getLinkedMarkerId,
+  type MarkerLinkOption,
+  type SectionSavePayload,
+} from "@/presentation/rpg-map/utils/sectionMarkerLinking"
 import styles from "./RpgMapPage.module.css"
 
 type RpgMapPageProps = {
@@ -35,95 +61,7 @@ type RpgMapPageProps = {
   detailTitle?: string | null
 }
 
-type MapFormState = {
-  title: string
-  description: string
-  type: string
-}
-
-type SectionFormState = {
-  name: string
-  description: string
-  type: string
-  parentSectionId: string
-  aboutLink: string
-  customFields: Array<{ id: string; name: string; value: string }>
-}
-
-const EMPTY_MAP_FORM: MapFormState = {
-  title: "",
-  description: "",
-  type: "",
-}
-
-const EMPTY_SECTION_FORM: SectionFormState = {
-  name: "",
-  description: "",
-  type: "",
-  parentSectionId: "",
-  aboutLink: "",
-  customFields: [],
-}
-
-function parseJsonObject(text: string, fieldLabel: string) {
-  const trimmed = text.trim()
-  if (!trimmed) {
-    return {}
-  }
-
-  try {
-    const parsed = JSON.parse(trimmed)
-    if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") {
-      throw new Error()
-    }
-    return parsed as JsonMapValue
-  } catch {
-    throw new Error(`${fieldLabel} precisa ser um objeto JSON valido.`)
-  }
-}
-
-function parseOptionalJsonObject(text: string, fieldLabel: string) {
-  const trimmed = text.trim()
-  if (!trimmed) {
-    return null
-  }
-  return parseJsonObject(trimmed, fieldLabel)
-}
-
-function customFieldsToDraft(value: JsonMapValue | null | undefined) {
-  return Object.entries(value ?? {})
-    .filter(([name]) => name !== "Sobre")
-    .map(([name, fieldValue], index) => ({
-    id: `field-${index}-${name}`,
-    name,
-    value: fieldValue == null ? "" : String(fieldValue),
-    }))
-}
-
-function getAboutLink(value: JsonMapValue | null | undefined) {
-  const about = value?.Sobre
-  return typeof about === "string" ? about : ""
-}
-
-function customFieldsToObject(fields: Array<{ name: string; value: string }>, aboutLink: string) {
-  const entries = fields
-    .map((field) => ({
-      name: field.name.trim(),
-      value: field.value.trim(),
-    }))
-    .filter((field) => field.name.length > 0)
-
-  const normalizedAboutLink = aboutLink.trim()
-  if (normalizedAboutLink) {
-    entries.unshift({ name: "Sobre", value: normalizedAboutLink })
-  }
-
-  if (entries.length === 0) {
-    return null
-  }
-
-  return Object.fromEntries(entries.map((field) => [field.name, field.value]))
-}
+const SECTION_MARKER_COLORS = ["#f97316", "#f5b33b", "#60a5fa", "#34d399", "#f472b6", "#a78bfa"]
 
 function buildBreadcrumbs(
   selectedSectionId: string | null,
@@ -173,74 +111,6 @@ function collectSectionOptions(nodes: RpgMapSectionDto[], currentSectionId?: str
     }))
 }
 
-function MapTreeNode(props: {
-  node: RpgMapSectionTreeNodeDto
-  selectedId: string | null
-  canManageStructure: boolean
-  onSelect: (sectionId: string) => void
-  onCreateChild: (section: RpgMapSectionDto) => void
-  onEdit: (section: RpgMapSectionDto) => void
-  onDelete: (section: RpgMapSectionDto) => void
-  onReorder: (sectionId: string, direction: "up" | "down") => void
-}) {
-  const [isOpen, setIsOpen] = useState(true)
-  const hasChildren = props.node.children.length > 0
-
-  return (
-    <li className={styles.treeNode}>
-      <div
-        className={`${styles.treeRow} ${props.selectedId === props.node.id ? styles.treeRowActive : ""}`}
-      >
-        <button
-          type="button"
-          className={styles.treeToggle}
-          onClick={() => setIsOpen((current) => !current)}
-          disabled={!hasChildren}
-          aria-label={hasChildren ? (isOpen ? "Recolher secoes" : "Expandir secoes") : "Sem filhos"}
-        >
-          {hasChildren ? (isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />) : <span />}
-        </button>
-        <button type="button" className={styles.treeLabel} onClick={() => props.onSelect(props.node.id)}>
-          <span>{props.node.name}</span>
-          {props.node.type ? <small>{props.node.type}</small> : null}
-        </button>
-        <div className={styles.treeActions}>
-          {props.canManageStructure ? (
-            <>
-              <button type="button" className={styles.iconButton} onClick={() => props.onCreateChild(props.node)} title="Criar abaixo">
-                <Plus size={14} />
-              </button>
-              <button type="button" className={styles.iconButton} onClick={() => props.onReorder(props.node.id, "up")} title="Subir">
-                <ChevronRight size={14} className={styles.rotateUp} />
-              </button>
-              <button type="button" className={styles.iconButton} onClick={() => props.onReorder(props.node.id, "down")} title="Descer">
-                <ChevronRight size={14} className={styles.rotateDown} />
-              </button>
-            </>
-          ) : null}
-          {props.node.canEdit ? (
-            <button type="button" className={styles.iconButton} onClick={() => props.onEdit(props.node)} title="Editar">
-              <Pencil size={14} />
-            </button>
-          ) : null}
-          {props.node.canDelete ? (
-            <button type="button" className={styles.iconButtonDanger} onClick={() => props.onDelete(props.node)} title="Apagar">
-              <Trash2 size={14} />
-            </button>
-          ) : null}
-        </div>
-      </div>
-      {hasChildren && isOpen ? (
-        <ul className={styles.treeList}>
-          {props.node.children.map((child) => (
-            <MapTreeNode key={child.id} {...props} node={child} />
-          ))}
-        </ul>
-      ) : null}
-    </li>
-  )
-}
-
 export function RpgMapPage({
   rpgId,
   rpgTitle,
@@ -251,7 +121,12 @@ export function RpgMapPage({
   const sectionNameInputId = useId()
   const mapModalRef = useRef<HTMLElement | null>(null)
   const sectionModalRef = useRef<HTMLElement | null>(null)
+  const sectionConflictModalRef = useRef<HTMLElement | null>(null)
+  const sectionDetailsModalRef = useRef<HTMLElement | null>(null)
+  const customFieldModalRef = useRef<HTMLElement | null>(null)
   const sectionNameInputRef = useRef<HTMLInputElement | null>(null)
+  const customFieldKeyInputRef = useRef<HTMLInputElement | null>(null)
+  const mapFeatureRef = useRef<HTMLDivElement | null>(null)
   const [maps, setMaps] = useState<RpgMapDto[]>([])
   const [selectedMapId, setSelectedMapId] = useState<string | null>(initialMapId)
   const [detail, setDetail] = useState<RpgMapDetailViewDto | null>(null)
@@ -261,15 +136,46 @@ export function RpgMapPage({
   const [error, setError] = useState("")
   const [search, setSearch] = useState("")
   const [sectionSearch, setSectionSearch] = useState("")
-  const [isMapModalOpen, setIsMapModalOpen] = useState(false)
-  const [editingMap, setEditingMap] = useState<RpgMapDto | null>(null)
-  const [mapForm, setMapForm] = useState<MapFormState>(EMPTY_MAP_FORM)
-  const [mapFormError, setMapFormError] = useState("")
-  const [isSectionModalOpen, setIsSectionModalOpen] = useState(false)
-  const [editingSection, setEditingSection] = useState<RpgMapSectionDto | null>(null)
-  const [sectionForm, setSectionForm] = useState<SectionFormState>(EMPTY_SECTION_FORM)
-  const [sectionFormError, setSectionFormError] = useState("")
+  const [focusMarkerRequest, setFocusMarkerRequest] = useState<{ markerId: string; token: number } | null>(null)
+  const [privateMarkerOptions, setPrivateMarkerOptions] = useState<MarkerLinkOption[]>([])
+  const [isMapCollapsed, setIsMapCollapsed] = useState(false)
   const [saving, setSaving] = useState(false)
+  const {
+    closeMapModal,
+    editingMap,
+    isMapModalOpen,
+    mapForm,
+    mapFormError,
+    openCreateMapModal,
+    openEditMapModal,
+    setMapForm,
+    setMapFormError,
+  } = useRpgMapFormModalState()
+  const {
+    closeConflictModal,
+    closeCustomFieldModal,
+    closeSectionDetailsModal,
+    closeSectionModal,
+    customFieldDraft,
+    customFieldError,
+    editingSection,
+    handleEscape,
+    handleSaveCustomField,
+    isCustomFieldModalOpen,
+    isSectionDetailsModalOpen,
+    isSectionModalOpen,
+    openCreateSectionModal,
+    openCustomFieldModal,
+    openEditSectionModal,
+    openSectionDetails,
+    pendingSectionConflict,
+    sectionForm,
+    sectionFormError,
+    setCustomFieldDraft,
+    setPendingSectionConflict,
+    setSectionForm,
+    setSectionFormError,
+  } = useRpgMapSectionModalState()
 
   const selectedSection = useMemo(
     () => detail?.sections.find((section) => section.id === selectedSectionId) ?? null,
@@ -292,9 +198,32 @@ export function RpgMapPage({
     () => filterTree(detail?.tree ?? [], sectionSearch),
     [detail?.tree, sectionSearch],
   )
+  const markerOptions = useMemo(() => {
+    const publicOptions = buildMarkerOptions(detail)
+    const seen = new Set<string>()
+    return [...publicOptions, ...privateMarkerOptions].filter((marker) => {
+      if (seen.has(marker.id)) {
+        return false
+      }
+      seen.add(marker.id)
+      return true
+    })
+  }, [detail, privateMarkerOptions])
   const canEditMapContent = Boolean(detail)
   const canManageMapImage = Boolean(detail?.canManage || detail?.map.canEdit)
   const canManagePublicMarkers = Boolean(detail?.canManage)
+  const linkedSectionMarker = useMemo(
+    () => markerOptions.find((marker) => marker.id === getLinkedMarkerId(selectedSection?.customFields)) ?? null,
+    [markerOptions, selectedSection?.customFields],
+  )
+  const sectionRenderState = useMemo(
+    () => (selectedSection ? buildSectionRenderState(selectedSection, linkedSectionMarker) : null),
+    [linkedSectionMarker, selectedSection],
+  )
+  const linkedSectionSnapshots = useMemo(
+    () => buildLinkedSectionSnapshots(detail?.sections ?? []),
+    [detail?.sections],
+  )
 
   const loadMaps = useCallback(async () => {
     try {
@@ -352,47 +281,35 @@ export function RpgMapPage({
     }
   }, [loadDetail, selectedMapId])
 
-  function openCreateMapModal() {
-    setEditingMap(null)
-    setMapForm(EMPTY_MAP_FORM)
-    setMapFormError("")
-    setIsMapModalOpen(true)
-  }
+  useEffect(() => {
+    if (!selectedMapId) {
+      setPrivateMarkerOptions([])
+      return
+    }
 
-  function openEditMapModal(map: RpgMapDto) {
-    setEditingMap(map)
-    setMapForm({
-      title: map.title,
-      description: map.description ?? "",
-      type: map.type ?? "",
-    })
-    setMapFormError("")
-    setIsMapModalOpen(true)
-  }
-
-  function openCreateSectionModal(parent?: RpgMapSectionDto | null) {
-    setEditingSection(null)
-    setSectionForm({
-      ...EMPTY_SECTION_FORM,
-      parentSectionId: parent?.id ?? "",
-    })
-    setSectionFormError("")
-    setIsSectionModalOpen(true)
-  }
-
-  function openEditSectionModal(section: RpgMapSectionDto) {
-    setEditingSection(section)
-    setSectionForm({
-      name: section.name,
-      description: section.description ?? "",
-      type: section.type ?? "",
-      parentSectionId: section.parentSectionId ?? "",
-      aboutLink: getAboutLink(section.customFields),
-      customFields: customFieldsToDraft(section.customFields),
-    })
-    setSectionFormError("")
-    setIsSectionModalOpen(true)
-  }
+    try {
+      const raw = window.localStorage.getItem(`${MARKER_STORAGE_PREFIX}${selectedMapId}`)
+      const groups = parsePrivateMarkerGroupsFromStorage(raw, SECTION_MARKER_COLORS)
+      setPrivateMarkerOptions(
+        groups.flatMap((group) =>
+          group.markers.map((marker) => ({
+            id: marker.id,
+            groupId: group.id,
+            visibility: "private",
+            name: marker.name,
+            location: marker.location ?? null,
+            shortDescription: marker.shortDescription ?? null,
+            image: marker.image ?? null,
+            color: marker.color || group.color,
+            size: marker.size ?? null,
+            pinStyle: marker.pinStyle ?? "default",
+          })),
+        ),
+      )
+    } catch {
+      setPrivateMarkerOptions([])
+    }
+  }, [selectedMapId, detail?.markerGroups])
 
   useEffect(() => {
     if (!isSectionModalOpen) {
@@ -405,85 +322,35 @@ export function RpgMapPage({
   }, [isSectionModalOpen, sectionNameInputId])
 
   useEffect(() => {
-    const activeModal = isSectionModalOpen ? sectionModalRef.current : isMapModalOpen ? mapModalRef.current : null
-    if (!activeModal) {
+    if (!isCustomFieldModalOpen) {
       return
     }
 
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = "hidden"
-
-    const focusableSelectors = [
-      "button:not([disabled])",
-      "input:not([disabled])",
-      "textarea:not([disabled])",
-      "select:not([disabled])",
-      "[tabindex]:not([tabindex='-1'])",
-    ].join(", ")
-
-    const getFocusableElements = () =>
-      Array.from(activeModal.querySelectorAll<HTMLElement>(focusableSelectors)).filter(
-        (element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true",
-      )
-
-    const firstFocusable = getFocusableElements()[0] ?? activeModal
     queueMicrotask(() => {
-      firstFocusable.focus()
+      customFieldKeyInputRef.current?.focus()
     })
+  }, [isCustomFieldModalOpen])
 
-    function handleFocusIn(event: FocusEvent) {
-      const currentModal = isSectionModalOpen ? sectionModalRef.current : isMapModalOpen ? mapModalRef.current : null
-      if (!currentModal) {
+  useRpgMapPageModalFocus({
+    isMapModalOpen,
+    mapModalElement: mapModalRef.current,
+    isSectionModalOpen,
+    sectionModalElement: sectionModalRef.current,
+    isSectionDetailsModalOpen,
+    sectionDetailsModalElement: sectionDetailsModalRef.current,
+    isCustomFieldModalOpen,
+    customFieldModalElement: customFieldModalRef.current,
+    hasPendingSectionConflict: Boolean(pendingSectionConflict),
+    sectionConflictModalElement: sectionConflictModalRef.current,
+    onEscape: () => {
+      if (isMapModalOpen) {
+        closeMapModal()
         return
       }
 
-      if (event.target instanceof HTMLElement && currentModal.contains(event.target)) {
-        return
-      }
-
-      const firstElement = getFocusableElements()[0] ?? currentModal
-      firstElement.focus()
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key !== "Tab") {
-        return
-      }
-
-      const currentModal = isSectionModalOpen ? sectionModalRef.current : isMapModalOpen ? mapModalRef.current : null
-      if (!currentModal) {
-        return
-      }
-
-      const focusableElements = getFocusableElements()
-      if (focusableElements.length === 0) {
-        event.preventDefault()
-        currentModal.focus()
-        return
-      }
-
-      const firstElement = focusableElements[0]
-      const lastElement = focusableElements[focusableElements.length - 1]
-      const activeElement = document.activeElement
-
-      if (event.shiftKey && activeElement === firstElement) {
-        event.preventDefault()
-        lastElement.focus()
-      } else if (!event.shiftKey && activeElement === lastElement) {
-        event.preventDefault()
-        firstElement.focus()
-      }
-    }
-
-    document.addEventListener("focusin", handleFocusIn)
-    document.addEventListener("keydown", handleKeyDown)
-
-    return () => {
-      document.body.style.overflow = previousOverflow
-      document.removeEventListener("focusin", handleFocusIn)
-      document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [isMapModalOpen, isSectionModalOpen])
+      handleEscape()
+    },
+  })
 
   async function handleSaveMap() {
     try {
@@ -502,7 +369,7 @@ export function RpgMapPage({
 
       await loadMaps()
       setSelectedMapId(map.id)
-      setIsMapModalOpen(false)
+      closeMapModal()
       toast.success(editingMap ? "Mapa atualizado com sucesso." : "Mapa criado com sucesso.")
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Erro ao salvar mapa."
@@ -528,20 +395,11 @@ export function RpgMapPage({
     }
   }
 
-  async function handleSaveSection() {
+  async function persistSection(payload: SectionSavePayload, linkedMarker?: MarkerLinkOption | null) {
     if (!selectedMapId) return
-
     try {
       setSaving(true)
       setSectionFormError("")
-      const payload = {
-        name: sectionForm.name.trim(),
-        description: sectionForm.description.trim() || null,
-        type: sectionForm.type.trim() || null,
-        parentSectionId: sectionForm.parentSectionId || null,
-        customFields: customFieldsToObject(sectionForm.customFields, sectionForm.aboutLink),
-      }
-
       const section = editingSection
         ? await updateRpgMapSectionUseCase(httpRpgMapGateway, {
             rpgId,
@@ -555,9 +413,21 @@ export function RpgMapPage({
             payload,
           })
 
+      if (linkedMarker) {
+        await syncLinkedMarkerWithSection({
+          rpgId,
+          mapId: selectedMapId,
+          detail,
+          markerColors: SECTION_MARKER_COLORS,
+          linkedMarker,
+          payload,
+        })
+      }
+
       await loadDetail(selectedMapId, section.id)
       await loadMaps()
-      setIsSectionModalOpen(false)
+      closeConflictModal()
+      closeSectionModal()
       toast.success(editingSection ? "Secao atualizada com sucesso." : "Secao criada com sucesso.")
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Erro ao salvar secao."
@@ -566,6 +436,59 @@ export function RpgMapPage({
     } finally {
       setSaving(false)
     }
+  }
+
+  function handleGoToMarker(markerId: string) {
+    mapFeatureRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    setFocusMarkerRequest({ markerId, token: Date.now() })
+  }
+
+  async function handleSaveSection() {
+    const trimmedName = sectionForm.name.trim()
+    const payload: SectionSavePayload = {
+      name: trimmedName,
+      description: sectionForm.description.trim() || null,
+      type: sectionForm.type.trim() || null,
+      parentSectionId: sectionForm.parentSectionId || null,
+      customFields: customFieldsToObject(sectionForm.customFields, sectionForm.aboutLink),
+    }
+
+    const linkedMarker = markerOptions.find((marker) => marker.id === sectionForm.linkedMarkerId) ?? null
+    if (!trimmedName && !linkedMarker) {
+      setSectionFormError("Nome e obrigatorio, a menos que a secao esteja vinculada a um marcador.")
+      return
+    }
+
+    if (!linkedMarker) {
+      await persistSection(payload)
+      return
+    }
+
+    const conflicts = findLinkedMarkerConflicts(payload, linkedMarker)
+    if (conflicts.length > 0) {
+      setPendingSectionConflict({
+        payload,
+        linkedMarker,
+        fields: conflicts,
+      })
+      return
+    }
+
+    const mergedPayload = applyLinkedMarkerToPayload(payload, linkedMarker, "section")
+    await persistSection(mergedPayload, linkedMarker)
+  }
+
+  async function handleResolveSectionConflict(preference: "marker" | "section") {
+    if (!pendingSectionConflict) {
+      return
+    }
+
+    const mergedPayload = applyLinkedMarkerToPayload(
+      pendingSectionConflict.payload,
+      pendingSectionConflict.linkedMarker,
+      preference,
+    )
+    await persistSection(mergedPayload, pendingSectionConflict.linkedMarker)
   }
 
   async function handleDeleteSection(section: RpgMapSectionDto) {
@@ -704,308 +627,127 @@ export function RpgMapPage({
 
           {!loadingDetail && detail ? (
             <>
-              {canEditMapContent ? (
+              {canEditMapContent || detail ? (
                 <div className={styles.headerActions}>
-                  <button type="button" className={styles.secondaryButton} onClick={() => openEditMapModal(detail.map)}>
-                    <Pencil size={16} />
-                    <span>Editar mapa</span>
+                  {canEditMapContent ? (
+                    <button type="button" className={styles.secondaryButton} onClick={() => openEditMapModal(detail.map)}>
+                      <Pencil size={16} />
+                      <span>Editar mapa</span>
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    onClick={() => setIsMapCollapsed((current) => !current)}
+                  >
+                    <span>{isMapCollapsed ? "Expandir mapa" : "Recolher mapa"}</span>
                   </button>
                 </div>
               ) : null}
 
-              <MundiMap
-                rpgId={rpgId}
-                mapId={detail.map.id}
-                canEditContent={canEditMapContent}
-                canManageImage={canManageMapImage}
-                canManagePublicMarkers={canManagePublicMarkers}
-                initialMapSrc={detail.map.image}
-                initialPublicMarkerGroups={detail.markerGroups}
+              {!isMapCollapsed ? (
+                <div ref={mapFeatureRef}>
+                  <MundiMap
+                    rpgId={rpgId}
+                    mapId={detail.map.id}
+                    canEditContent={canEditMapContent}
+                    canManageImage={canManageMapImage}
+                    canManagePublicMarkers={canManagePublicMarkers}
+                    initialMapSrc={detail.map.image}
+                    initialPublicMarkerGroups={detail.markerGroups}
+                    linkedSections={linkedSectionSnapshots}
+                    focusMarkerRequest={focusMarkerRequest}
+                  />
+                </div>
+              ) : null}
+
+              <MapSectionTree
+                canCreate={canEditMapContent}
+                filteredTree={filteredTree}
+                sectionSearch={sectionSearch}
+                onChangeSearch={setSectionSearch}
+                onCreate={() => openCreateSectionModal(selectedSection)}
+                onSelect={(sectionId) => openSectionDetails(sectionId, setSelectedSectionId)}
+                onEdit={openEditSectionModal}
+                selectedSectionId={selectedSectionId}
               />
-
-              <div className={styles.workspace}>
-                <section className={styles.panel}>
-                  <div className={styles.groupHeaderStatic}>
-                    <div className={styles.groupHeaderInfo}>
-                      <h3 className={styles.groupTitle}>Visibilidade</h3>
-                      <p className={styles.groupSubtitle}>Estrutura em arvore das secoes e areas descobertas.</p>
-                    </div>
-                    {canEditMapContent ? (
-                      <button
-                        type="button"
-                        className={styles.iconButton}
-                        onClick={() => openCreateSectionModal(selectedSection)}
-                      >
-                        <Plus size={14} />
-                      </button>
-                    ) : null}
-                  </div>
-                  <label className={styles.searchField}>
-                    <Search size={16} />
-                    <input
-                      type="search"
-                      value={sectionSearch}
-                      onChange={(event) => setSectionSearch(event.target.value)}
-                      placeholder="Buscar secoes..."
-                    />
-                  </label>
-                  {filteredTree.length === 0 ? (
-                    <p className={styles.feedback}>Nenhuma secao encontrada.</p>
-                  ) : (
-                    <ul className={styles.treeList}>
-                      {filteredTree.map((node) => (
-                        <MapTreeNode
-                          key={node.id}
-                          node={node}
-                          selectedId={selectedSectionId}
-                          canManageStructure={canEditMapContent}
-                          onSelect={setSelectedSectionId}
-                          onCreateChild={openCreateSectionModal}
-                          onEdit={openEditSectionModal}
-                          onDelete={(section) => void handleDeleteSection(section)}
-                          onReorder={(sectionId, direction) => void handleReorderSection(sectionId, direction)}
-                        />
-                      ))}
-                    </ul>
-                  )}
-                </section>
-
-                <section className={styles.panel}>
-                  <div className={styles.panelHeader}>
-                    <h3>Detalhes da secao</h3>
-                    {selectedSection ? (
-                      <div className={styles.inlineActions}>
-                        {selectedSection.canEdit ? (
-                          <button type="button" className={styles.iconButton} onClick={() => openEditSectionModal(selectedSection)}>
-                            <Pencil size={14} />
-                          </button>
-                        ) : null}
-                        {canEditMapContent ? (
-                          <button type="button" className={styles.iconButton} onClick={() => openCreateSectionModal(selectedSection)}>
-                            <Plus size={14} />
-                          </button>
-                        ) : null}
-                        {selectedSection.canDelete ? (
-                          <button type="button" className={styles.iconButtonDanger} onClick={() => void handleDeleteSection(selectedSection)}>
-                            <Trash2 size={14} />
-                          </button>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </div>
-
-                  {breadcrumbs.length > 0 ? (
-                    <nav className={styles.breadcrumbs} aria-label="Breadcrumb">
-                      {breadcrumbs.map((crumb) => (
-                        <button key={crumb.id} type="button" onClick={() => setSelectedSectionId(crumb.id)}>
-                          {crumb.label}
-                        </button>
-                      ))}
-                    </nav>
-                  ) : null}
-
-                  {selectedSection ? (
-                    <div className={styles.detailCard}>
-                      <h4>{selectedSection.name}</h4>
-                      <p>{selectedSection.description || "Sem descricao cadastrada."}</p>
-                      {getAboutLink(selectedSection.customFields) ? (
-                        <a
-                          className={styles.aboutLink}
-                          href={getAboutLink(selectedSection.customFields)}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Sobre
-                        </a>
-                      ) : null}
-                      <dl className={styles.metaGrid}>
-                        <div>
-                          <dt>Tipo</dt>
-                          <dd>{selectedSection.type || "Livre"}</dd>
-                        </div>
-                        <div>
-                          <dt>Pai</dt>
-                          <dd>
-                            {selectedSection.parentSectionId
-                              ? detail.sections.find((section) => section.id === selectedSection.parentSectionId)?.name ?? "-"
-                              : "Raiz"}
-                          </dd>
-                        </div>
-                      </dl>
-                      <div className={styles.jsonBlock}>
-                        <strong>Custom fields</strong>
-                        {selectedSection.customFields && Object.keys(selectedSection.customFields).length > 0 ? (
-                          <dl className={styles.customFieldList}>
-                            {Object.entries(selectedSection.customFields).map(([name, value]) => (
-                              <div key={name} className={styles.customFieldItem}>
-                                <dt>{name}</dt>
-                                <dd>{value == null ? "-" : String(value)}</dd>
-                              </div>
-                            ))}
-                          </dl>
-                        ) : (
-                          <p className={styles.feedback}>Nenhum campo customizado.</p>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <p className={styles.feedback}>Selecione uma secao para ver os detalhes.</p>
-                  )}
-                </section>
-              </div>
             </>
           ) : null}
         </section>
       ) : null}
 
-      {isMapModalOpen ? (
-        <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="Salvar mapa">
-          <section ref={mapModalRef} className={styles.modal} tabIndex={-1}>
-            <h2>{editingMap ? "Editar mapa" : "Criar mapa"}</h2>
-            <label className={styles.field}>
-              <span>Nome</span>
-              <input value={mapForm.title} onChange={(event) => setMapForm((current) => ({ ...current, title: event.target.value }))} />
-            </label>
-            <label className={styles.field}>
-              <span>Descricao</span>
-              <textarea rows={3} value={mapForm.description} onChange={(event) => setMapForm((current) => ({ ...current, description: event.target.value }))} />
-            </label>
-            <label className={styles.field}>
-              <span>Tipo</span>
-              <input value={mapForm.type} onChange={(event) => setMapForm((current) => ({ ...current, type: event.target.value }))} placeholder="planet, kingdom, station..." />
-            </label>
-            {mapFormError ? <p className={styles.error}>{mapFormError}</p> : null}
-            <div className={styles.modalActions}>
-              <button type="button" className={styles.primaryButton} onClick={() => void handleSaveMap()} disabled={saving}>
-                {saving ? "Salvando..." : "Salvar"}
-              </button>
-              <button type="button" className={styles.secondaryButton} onClick={() => setIsMapModalOpen(false)} disabled={saving}>
-                Cancelar
-              </button>
-            </div>
-          </section>
-        </div>
-      ) : null}
+      <MapFormModal
+        isOpen={isMapModalOpen}
+        modalRef={mapModalRef}
+        editingMap={editingMap}
+        mapForm={mapForm}
+        mapFormError={mapFormError}
+        saving={saving}
+        onChangeForm={setMapForm}
+        onSave={() => void handleSaveMap()}
+        onClose={closeMapModal}
+      />
 
-      {isSectionModalOpen ? (
-        <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="Salvar secao">
-          <section ref={sectionModalRef} className={styles.modal} tabIndex={-1}>
-            <h2>{editingSection ? "Editar secao" : "Criar secao"}</h2>
-            <label className={styles.field}>
-              <span>Nome</span>
-              <input
-                id={sectionNameInputId}
-                ref={sectionNameInputRef}
-                value={sectionForm.name}
-                onChange={(event) => setSectionForm((current) => ({ ...current, name: event.target.value }))}
-              />
-            </label>
-            <label className={styles.field}>
-              <span>Descricao</span>
-              <textarea rows={3} value={sectionForm.description} onChange={(event) => setSectionForm((current) => ({ ...current, description: event.target.value }))} />
-            </label>
-            <label className={styles.field}>
-              <span>Tipo</span>
-              <input value={sectionForm.type} onChange={(event) => setSectionForm((current) => ({ ...current, type: event.target.value }))} placeholder="city, base, biome..." />
-            </label>
-            <label className={styles.field}>
-              <span>Secao pai</span>
-              <select value={sectionForm.parentSectionId} onChange={(event) => setSectionForm((current) => ({ ...current, parentSectionId: event.target.value }))}>
-                <option value="">Raiz</option>
-                {collectSectionOptions(detail?.sections ?? [], editingSection?.id).map((option) => (
-                  <option key={option.id} value={option.id}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-            <label className={styles.field}>
-              <span>Sobre</span>
-              <input
-                value={sectionForm.aboutLink}
-                onChange={(event) => setSectionForm((current) => ({ ...current, aboutLink: event.target.value }))}
-                placeholder="https://..."
-              />
-            </label>
-            <div className={styles.field}>
-              <div className={styles.customFieldsHeader}>
-                <span>Campos customizados</span>
-                <button
-                  type="button"
-                  className={styles.secondaryButton}
-                  onClick={() =>
-                    setSectionForm((current) => ({
-                      ...current,
-                      customFields: [
-                        ...current.customFields,
-                        { id: crypto.randomUUID(), name: "", value: "" },
-                      ],
-                    }))
-                  }
-                >
-                  <Plus size={14} />
-                  <span>Adicionar campo</span>
-                </button>
-              </div>
-              {sectionForm.customFields.length > 0 ? (
-                <div className={styles.customFieldsEditor}>
-                  {sectionForm.customFields.map((field) => (
-                    <div key={field.id} className={styles.customFieldEditorRow}>
-                      <input
-                        value={field.name}
-                        onChange={(event) =>
-                          setSectionForm((current) => ({
-                            ...current,
-                            customFields: current.customFields.map((item) =>
-                              item.id === field.id ? { ...item, name: event.target.value } : item,
-                            ),
-                          }))
-                        }
-                        placeholder="Nome"
-                      />
-                      <input
-                        value={field.value}
-                        onChange={(event) =>
-                          setSectionForm((current) => ({
-                            ...current,
-                            customFields: current.customFields.map((item) =>
-                              item.id === field.id ? { ...item, value: event.target.value } : item,
-                            ),
-                          }))
-                        }
-                        placeholder="Valor"
-                      />
-                      <button
-                        type="button"
-                        className={styles.iconButtonDanger}
-                        onClick={() =>
-                          setSectionForm((current) => ({
-                            ...current,
-                            customFields: current.customFields.filter((item) => item.id !== field.id),
-                          }))
-                        }
-                        aria-label="Remover campo"
-                        title="Remover campo"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className={styles.feedback}>Nenhum campo customizado adicionado.</p>
-              )}
-            </div>
-            {sectionFormError ? <p className={styles.error}>{sectionFormError}</p> : null}
-            <div className={styles.modalActions}>
-              <button type="button" className={styles.primaryButton} onClick={() => void handleSaveSection()} disabled={saving}>
-                {saving ? "Salvando..." : "Salvar"}
-              </button>
-              <button type="button" className={styles.secondaryButton} onClick={() => setIsSectionModalOpen(false)} disabled={saving}>
-                Cancelar
-              </button>
-            </div>
-          </section>
-        </div>
-      ) : null}
+      <MapSectionDetailsModal
+        isOpen={isSectionDetailsModalOpen}
+        modalRef={sectionDetailsModalRef}
+        selectedSection={selectedSection}
+        breadcrumbs={breadcrumbs}
+        sectionRenderState={sectionRenderState}
+        onOpenBreadcrumb={(sectionId) => openSectionDetails(sectionId, setSelectedSectionId)}
+        onEdit={(section) => {
+          closeSectionDetailsModal()
+          openEditSectionModal(section)
+        }}
+        onClose={closeSectionDetailsModal}
+      />
+
+      <MapSectionFormModal
+        isOpen={isSectionModalOpen}
+        modalRef={sectionModalRef}
+        sectionNameInputId={sectionNameInputId}
+        sectionNameInputRef={sectionNameInputRef}
+        editingSection={editingSection}
+        sectionForm={sectionForm}
+        sectionFormError={sectionFormError}
+        saving={saving}
+        parentOptions={collectSectionOptions(detail?.sections ?? [], editingSection?.id)}
+        markerOptions={markerOptions.map((marker) => ({ id: marker.id, name: marker.name }))}
+        onChangeForm={(updater) => setSectionForm(updater)}
+        onOpenCustomFieldModal={openCustomFieldModal}
+        onSave={() => void handleSaveSection()}
+        onClose={closeSectionModal}
+        onDelete={(section) => {
+          void handleDeleteSection(section)
+          closeSectionModal()
+        }}
+      />
+
+      <MapSectionConflictModal
+        isOpen={Boolean(pendingSectionConflict)}
+        modalRef={sectionConflictModalRef}
+        pendingSectionConflict={pendingSectionConflict}
+        saving={saving}
+        onKeepMarker={() => void handleResolveSectionConflict("marker")}
+        onKeepSection={() => void handleResolveSectionConflict("section")}
+        onGoToMap={(markerId) => {
+          closeConflictModal()
+          closeSectionModal()
+          handleGoToMarker(markerId)
+        }}
+        onClose={closeConflictModal}
+      />
+
+      <MapSectionCustomFieldModal
+        isOpen={isCustomFieldModalOpen}
+        modalRef={customFieldModalRef}
+        customFieldKeyInputRef={customFieldKeyInputRef}
+        draft={customFieldDraft}
+        error={customFieldError}
+        onChangeDraft={setCustomFieldDraft}
+        onSave={handleSaveCustomField}
+        onClose={closeCustomFieldModal}
+      />
     </main>
   )
 }

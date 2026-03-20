@@ -11,7 +11,8 @@ import {
 import { httpRpgMapGateway } from "@/infrastructure/rpgMap/gateways/httpRpgMapGateway"
 import type { MarkerGroup, MarkerPinStyle, PendingMarker } from "@/presentation/rpg-map/types/mapMarkers"
 
-const MARKER_STORAGE_PREFIX = "forgetab:rpg-map-markers:"
+export const MARKER_STORAGE_PREFIX = "forgetab:rpg-map-markers:"
+export const MARKER_STORAGE_UPDATED_EVENT = "forgetab:rpg-map-markers:updated"
 const DEFAULT_MARKER_SIZE = 1
 const DEFAULT_MARKER_PIN_STYLE: MarkerPinStyle = "default"
 
@@ -20,6 +21,61 @@ type Params = {
   mapId: string
   markerColors: string[]
   initialPublicMarkerGroups: RpgMapMarkerGroupDto[]
+}
+
+export function parsePrivateMarkerGroupsFromStorage(raw: string | null, markerColors: string[]) {
+  if (!raw) {
+    return []
+  }
+
+  const parsed = JSON.parse(raw)
+  if (!Array.isArray(parsed)) {
+    return []
+  }
+
+  return parsed
+    .filter((value): value is MarkerGroup => Boolean(value && typeof value === "object"))
+    .map((group) => ({
+      id: String(group.id),
+      name: String(group.name ?? "Marcadores"),
+      color: typeof group.color === "string" ? group.color : markerColors[0] ?? "#f97316",
+      visibility: "private" as const,
+      canEdit: true,
+      canDelete: true,
+      markers: Array.isArray(group.markers)
+        ? group.markers.map((marker) => ({
+            id: String(marker.id),
+            name: String(marker.name ?? "Marcador"),
+            location: typeof marker.location === "string" ? marker.location : null,
+            shortDescription: typeof marker.shortDescription === "string" ? marker.shortDescription : null,
+            image: typeof marker.image === "string" ? marker.image : null,
+            x: Number(marker.x ?? 0),
+            y: Number(marker.y ?? 0),
+            color: typeof marker.color === "string" ? marker.color : null,
+            size: typeof marker.size === "number" ? marker.size : DEFAULT_MARKER_SIZE,
+            pinStyle: marker.pinStyle === "label" ? "label" : DEFAULT_MARKER_PIN_STYLE,
+            canEdit: true,
+            canDelete: true,
+          }))
+        : [],
+    }))
+}
+
+export function persistPrivateMarkerGroupsToStorage(
+  mapId: string,
+  groups: MarkerGroup[],
+  options?: { notify?: boolean },
+) {
+  window.localStorage.setItem(`${MARKER_STORAGE_PREFIX}${mapId}`, JSON.stringify(groups))
+  if (options?.notify === false) {
+    return
+  }
+
+  window.dispatchEvent(
+    new CustomEvent(MARKER_STORAGE_UPDATED_EVENT, {
+      detail: { mapId },
+    }),
+  )
 }
 
 export function useMapMarkerGroupStore(params: Params) {
@@ -37,45 +93,7 @@ export function useMapMarkerGroupStore(params: Params) {
 
     try {
       const raw = window.localStorage.getItem(`${MARKER_STORAGE_PREFIX}${params.mapId}`)
-      if (!raw) {
-        setPrivateMarkerGroups([])
-        return
-      }
-
-      const parsed = JSON.parse(raw)
-      if (!Array.isArray(parsed)) {
-        setPrivateMarkerGroups([])
-        return
-      }
-
-      const groups = parsed
-        .filter((value): value is MarkerGroup => Boolean(value && typeof value === "object"))
-        .map((group) => ({
-          id: String(group.id),
-          name: String(group.name ?? "Marcadores"),
-          color: typeof group.color === "string" ? group.color : params.markerColors[0] ?? "#f97316",
-          visibility: "private" as const,
-          canEdit: true,
-          canDelete: true,
-          markers: Array.isArray(group.markers)
-            ? group.markers.map((marker) => ({
-                id: String(marker.id),
-                name: String(marker.name ?? "Marcador"),
-                location: typeof marker.location === "string" ? marker.location : null,
-                shortDescription: typeof marker.shortDescription === "string" ? marker.shortDescription : null,
-                image: typeof marker.image === "string" ? marker.image : null,
-                x: Number(marker.x ?? 0),
-                y: Number(marker.y ?? 0),
-                color: typeof marker.color === "string" ? marker.color : null,
-                size: typeof marker.size === "number" ? marker.size : DEFAULT_MARKER_SIZE,
-                pinStyle: marker.pinStyle === "label" ? "label" : DEFAULT_MARKER_PIN_STYLE,
-                canEdit: true,
-                canDelete: true,
-              }))
-            : [],
-        }))
-
-      setPrivateMarkerGroups(groups)
+      setPrivateMarkerGroups(parsePrivateMarkerGroupsFromStorage(raw, params.markerColors))
     } catch {
       setPrivateMarkerGroups([])
     } finally {
@@ -88,8 +106,31 @@ export function useMapMarkerGroupStore(params: Params) {
       return
     }
 
-    window.localStorage.setItem(`${MARKER_STORAGE_PREFIX}${params.mapId}`, JSON.stringify(privateMarkerGroups))
+    persistPrivateMarkerGroupsToStorage(params.mapId, privateMarkerGroups, { notify: false })
   }, [hasLoadedPrivateMarkerGroups, params.mapId, privateMarkerGroups])
+
+  useEffect(() => {
+    function handlePrivateGroupsUpdated(event: Event) {
+      const customEvent = event as CustomEvent<{ mapId?: string }>
+      if (customEvent.detail?.mapId !== params.mapId) {
+        return
+      }
+
+      try {
+        const raw = window.localStorage.getItem(`${MARKER_STORAGE_PREFIX}${params.mapId}`)
+        setPrivateMarkerGroups(parsePrivateMarkerGroupsFromStorage(raw, params.markerColors))
+      } catch {
+        setPrivateMarkerGroups([])
+      } finally {
+        setHasLoadedPrivateMarkerGroups(true)
+      }
+    }
+
+    window.addEventListener(MARKER_STORAGE_UPDATED_EVENT, handlePrivateGroupsUpdated)
+    return () => {
+      window.removeEventListener(MARKER_STORAGE_UPDATED_EVENT, handlePrivateGroupsUpdated)
+    }
+  }, [params.mapId, params.markerColors])
 
   useEffect(() => {
     setPublicMarkerGroups(

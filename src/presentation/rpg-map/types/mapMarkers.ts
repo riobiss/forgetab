@@ -1,3 +1,8 @@
+export type MarkerDisplayField = {
+  name: string
+  value: string
+}
+
 export type MarkerPinStyle = "default" | "label"
 
 export type MapMarkerItem = {
@@ -11,6 +16,8 @@ export type MapMarkerItem = {
   color?: string | null
   size?: number | null
   pinStyle?: MarkerPinStyle | null
+  type?: string | null
+  displayFields?: MarkerDisplayField[] | null
   canEdit?: boolean
   canDelete?: boolean
 }
@@ -35,4 +42,13 @@ export type PendingMarker = {
   image: string
   size: number
   pinStyle: MarkerPinStyle
+}
+
+export type LinkedSectionSnapshot = {
+  markerId: string
+  sectionId: string
+  name: string
+  description: string | null
+  type: string | null
+  customFields: MarkerDisplayField[]
 }

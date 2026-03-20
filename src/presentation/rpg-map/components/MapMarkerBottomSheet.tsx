@@ -49,6 +49,12 @@ export function MapMarkerBottomSheet({ marker, canEdit, sheetRef, onEdit, onClos
             <span>Nome</span>
             <strong>{marker.name}</strong>
           </div>
+          {marker.type ? (
+            <div className={styles.bottomSheetField}>
+              <span>Tipo</span>
+              <strong>{marker.type}</strong>
+            </div>
+          ) : null}
           <div className={styles.bottomSheetField}>
             <span>Localizacao</span>
             <strong>{marker.location || "Nao informada"}</strong>
@@ -57,6 +63,14 @@ export function MapMarkerBottomSheet({ marker, canEdit, sheetRef, onEdit, onClos
             <span>Descricao</span>
             <p>{marker.shortDescription || "Sem descricao."}</p>
           </div>
+          {marker.displayFields?.length ? (
+            marker.displayFields.map((field) => (
+              <div key={field.name} className={styles.bottomSheetField}>
+                <span>{field.name}</span>
+                <p>{field.value}</p>
+              </div>
+            ))
+          ) : null}
         </div>
       </section>
     </div>

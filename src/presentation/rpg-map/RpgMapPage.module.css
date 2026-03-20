@@ -227,6 +227,14 @@
   padding: 1rem 1rem 0.9rem;
 }
 
+.rootSectionHeaderMain {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1 1 auto;
+}
+
 .groupHeaderInfo {
   display: grid;
   gap: 0.22rem;
@@ -261,15 +269,6 @@
   padding: 0 1rem 1rem;
 }
 
-.workspace {
-  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
-}
-
-.panelHeader {
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
 .treeList {
   list-style: none;
   padding: 0;
@@ -280,30 +279,115 @@
 
 .treeNode {
   display: grid;
-  gap: 0.4rem;
+  gap: 0.15rem;
 }
 
-.treeRow {
+.sectionsTreeWrap {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.treeContainer {
+  border: 1px solid var(--catalog-panel-border);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-brand-soft) 18%, var(--catalog-panel-bg)) 0%,
+      var(--catalog-panel-bg) 32%,
+      color-mix(in srgb, var(--color-bg-elevated) 72%, var(--catalog-panel-bg)) 100%
+    );
+  box-shadow: var(--shadow-elevation-sm);
+  padding: 0.85rem 0.95rem;
+}
+
+.sectionsTreeHeader {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.treeRootList,
+.treeChildren {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.treeRootList {
+  gap: 0.35rem;
+}
+
+.treeChildren {
+  position: relative;
+  padding-left: 1.35rem;
+  margin-left: 0.75rem;
+}
+
+.treeChildren::before {
+  content: "";
+  position: absolute;
+  top: 0.1rem;
+  bottom: 0.35rem;
+  left: 0.3rem;
+  width: 1px;
+  background: color-mix(in srgb, var(--color-border-soft) 78%, transparent);
+}
+
+.treeLine {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.5rem;
-  border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--color-border-default) 85%, transparent);
-  background: var(--catalog-card-bg);
-  padding: 0.55rem 0.7rem;
+  gap: 0.45rem;
+  min-height: 2.2rem;
+  position: relative;
+  padding: 0.28rem 0.2rem 0.28rem 0;
+  border-radius: 12px;
 }
 
-.treeRowActive {
-  border-color: color-mix(in srgb, var(--color-border-brand) 58%, transparent);
-  background: var(--catalog-card-hover);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--color-brand-primary) 12%, transparent),
-    var(--shadow-elevation-sm);
+.treeLine::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -0.78rem;
+  width: 0.7rem;
+  height: 1px;
+  background: color-mix(in srgb, var(--color-border-soft) 78%, transparent);
+  transform: translateY(-50%);
+}
+
+.treeRootLine {
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+}
+
+.treeRootLine::before {
+  display: none;
+}
+
+.treeRootNode + .treeRootNode {
+  border-top: 1px solid color-mix(in srgb, var(--color-border-soft) 58%, transparent);
+  padding-top: 0.3rem;
+}
+
+.treeLineActive .treeName {
+  color: var(--color-brand-primary);
+}
+
+.treeLineActive .rootSectionName {
+  color: var(--color-brand-primary);
+}
+
+.treeLineActive {
+  background: color-mix(in srgb, var(--color-brand-soft) 55%, transparent);
 }
 
 .treeToggle,
-.treeLabel,
+.treeName,
 .iconButton,
 .iconButtonDanger,
 .primaryButton,
@@ -334,26 +418,66 @@
   background: var(--color-status-danger-soft);
 }
 
-.treeLabel {
+.treeName {
   all: unset;
   cursor: pointer;
-  display: grid;
   min-width: 0;
-}
-
-.treeLabel span {
+  color: var(--color-text-primary);
+  font-size: 0.98rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.treeLabel small {
-  color: var(--color-text-muted);
+.rootSectionName {
+  all: unset;
+  cursor: pointer;
+  min-width: 0;
+  color: var(--color-text-primary);
+  font-size: 1.02rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .detailCard {
   display: grid;
   gap: 1rem;
+}
+
+.detailFieldBlock {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.detailFieldBlock strong,
+.detailFieldBlock p {
+  margin: 0;
+}
+
+.detailFieldBlock strong {
+  color: var(--color-text-primary);
+}
+
+.linkedMarkerPanel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--color-border-soft);
+  background: var(--catalog-panel-inner);
+}
+
+.linkedMarkerPanel strong,
+.linkedMarkerPanel p {
+  margin: 0;
+}
+
+.linkedMarkerPanel p {
+  color: var(--color-text-muted);
 }
 
 .metaGrid {
@@ -522,7 +646,7 @@
   background: color-mix(in srgb, #000 58%, transparent);
   display: grid;
   place-items: center;
-  padding: 1rem;
+  padding: 2.5rem 1rem 1rem;
   z-index: 80;
 }
 
@@ -537,8 +661,21 @@
   gap: 0.8rem;
 }
 
+.sectionModal,
+.sectionConflictModal,
+.sectionDetailsModal,
+.customFieldModal {
+  max-height: min(82dvh, 44rem);
+  overflow-y: auto;
+}
+
+.conflictActions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 1100px) {
-  .workspace,
   .header {
     grid-template-columns: 1fr;
     display: grid;
@@ -561,6 +698,11 @@
 
   .customFieldEditorRow {
     grid-template-columns: 1fr;
+  }
+
+  .linkedMarkerPanel {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 

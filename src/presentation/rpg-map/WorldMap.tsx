@@ -1,6 +1,6 @@
 "use client"
 
-import { type ChangeEvent, useEffect, useRef, useState } from "react"
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { Pencil, Plus, Trash2, X } from "lucide-react"
 import type { RpgMapMarkerGroupDto } from "@/application/rpgMap/types"
@@ -16,12 +16,15 @@ import { WorldMapCanvas, type WorldMapCanvasHandle } from "@/presentation/rpg-ma
 import { useMarkerImageActions } from "@/presentation/rpg-map/hooks/useMarkerImageActions"
 import { useRpgMapImageActions } from "@/presentation/rpg-map/hooks/useRpgMapImageActions"
 import { useMapMarkerGroups } from "@/presentation/rpg-map/hooks/useMapMarkerGroups"
+import { useWorldMapMarkerModalFlow } from "@/presentation/rpg-map/hooks/useWorldMapMarkerModalFlow"
 import { useModalFocusTrap } from "@/presentation/rpg-map/hooks/useModalFocusTrap"
+import { useWorldMapMarkerSelection } from "@/presentation/rpg-map/hooks/useWorldMapMarkerSelection"
+import { DEFAULT_BRUSH_COLORS, useWorldMapUiState } from "@/presentation/rpg-map/hooks/useWorldMapUiState"
+import { buildDisplayMarkerGroups } from "@/presentation/rpg-map/utils/markerDisplay"
 import styles from "./WorldMap.module.css"
-import type { MapMarkerItem } from "./types/mapMarkers"
+import type { LinkedSectionSnapshot, MapMarkerItem } from "./types/mapMarkers"
 
 const DEFAULT_MAP_SRC = "/map/world-map.png"
-const BRUSH_COLORS = ["#c4243b", "#ff7a18", "#f5e6c8", "#4f9cff", "#34c759"]
 const MARKER_COLORS = ["#f97316", "#f5b33b", "#60a5fa", "#34d399", "#f472b6", "#a78bfa"]
 const DEFAULT_MARKER_SIZE = 1
 const OVERLAPPING_MARKER_DISTANCE = 28
@@ -34,6 +37,8 @@ type MundiMapProps = {
   canManagePublicMarkers: boolean
   initialMapSrc: string | null
   initialPublicMarkerGroups: RpgMapMarkerGroupDto[]
+  linkedSections?: LinkedSectionSnapshot[]
+  focusMarkerRequest?: { markerId: string; token: number } | null
 }
 
 export function MundiMap({
@@ -44,30 +49,13 @@ export function MundiMap({
   canManagePublicMarkers,
   initialMapSrc,
   initialPublicMarkerGroups,
+  linkedSections = [],
+  focusMarkerRequest = null,
 }: MundiMapProps) {
   const frameRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<WorldMapCanvasHandle | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [mapSrc, setMapSrc] = useState(initialMapSrc || DEFAULT_MAP_SRC)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isBrushMode, setIsBrushMode] = useState(false)
-  const [isInteractive, setIsInteractive] = useState(false)
-  const [brushColor, setBrushColor] = useState(BRUSH_COLORS[0])
-  const [brushSize, setBrushSize] = useState(4)
-  const [isEditOpen, setIsEditOpen] = useState(false)
-  const [isMarkersModalOpen, setIsMarkersModalOpen] = useState(false)
-  const [isMarkerFinalizeModalOpen, setIsMarkerFinalizeModalOpen] = useState(false)
-  const [isMarkerListModalOpen, setIsMarkerListModalOpen] = useState(false)
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
-  const [isMarkerRepositionMode, setIsMarkerRepositionMode] = useState(false)
-  const [selectedMapMarker, setSelectedMapMarker] = useState<{
-    marker: MapMarkerItem
-    groupColor: string
-  } | null>(null)
-  const [overlappingMarkers, setOverlappingMarkers] = useState<Array<{
-    marker: MapMarkerItem
-    groupColor: string
-  }> | null>(null)
   const markersModalRef = useRef<HTMLElement | null>(null)
   const finalizeModalRef = useRef<HTMLElement | null>(null)
   const markerListModalRef = useRef<HTMLElement | null>(null)
@@ -75,6 +63,28 @@ export function MundiMap({
   const imageModalRef = useRef<HTMLDivElement | null>(null)
   const markerSheetRef = useRef<HTMLDivElement | null>(null)
   const overlappingMarkersModalRef = useRef<HTMLDivElement | null>(null)
+
+  const {
+    brushColor,
+    brushSize,
+    isBrushMode,
+    isEditOpen,
+    isFullscreen,
+    isInteractive,
+    setBrushColor,
+    setBrushSize,
+    setIsEditOpen,
+    setIsInteractive,
+    toggleBrushMode,
+    toggleFullscreen,
+    handleEnableInteraction,
+    resetView,
+    clearLastDrawing,
+  } = useWorldMapUiState({
+    frameRef,
+    canvasRef,
+    canEditContent,
+  })
 
   const { isUploading, uploadMessage, handleMapFile, handleResetMapImage } =
     useRpgMapImageActions({
@@ -146,6 +156,66 @@ export function MundiMap({
     initialPublicMarkerGroups,
   })
 
+  const displayMarkerGroups = useMemo(() => {
+    return buildDisplayMarkerGroups(allMarkerGroups, linkedSections)
+  }, [allMarkerGroups, linkedSections])
+
+  const {
+    isImageModalOpen,
+    isMarkerFinalizeModalOpen,
+    isMarkerListModalOpen,
+    isMarkerRepositionMode,
+    isMarkersModalOpen,
+    setIsImageModalOpen,
+    setIsMarkerListModalOpen,
+    setIsMarkersModalOpen,
+    setIsMarkerRepositionMode,
+    closeTransientUi,
+    handleCancelMarkerReposition,
+    handleCancelMarkerSelection,
+    handleConcludeMarkerSelection,
+    handleDeleteMarkerGroup,
+    handleEditSelectedMarkerGroup,
+    handleEscape,
+    handleMarkerReposition,
+    handleOpenMarkersModal,
+    handleSaveMarkerGroup,
+    handleStartMarkerReposition,
+    handleStartMarkerSelection,
+  } = useWorldMapMarkerModalFlow({
+    openMarkersModal,
+    startMarkerSelection,
+    cancelMarkerSelection,
+    concludeMarkerSelection,
+    saveMarkerGroup,
+    openMarkerList,
+    deleteMarkerGroup,
+    setAreMarkersVisible,
+    setEditingMarker,
+    setEditingMarkerPosition,
+  })
+
+  const {
+    selectedMapMarker,
+    overlappingMarkers,
+    setSelectedMapMarker,
+    setOverlappingMarkers,
+    handleMarkerPinSelect,
+    beginMarkerEditing,
+  } = useWorldMapMarkerSelection({
+    displayMarkerGroups,
+    allMarkerGroups,
+    visibleMarkerGroupIds,
+    focusMarkerRequest,
+    overlapDistance: OVERLAPPING_MARKER_DISTANCE,
+    frameRef,
+    canvasRef,
+    setAreMarkersVisible,
+    setVisibleMarkerGroupIds,
+    closeTransientUi,
+    setIsInteractive,
+  })
+
   const {
     fileInputRef: markerImageInputRef,
     isUploading: isMarkerImageUploading,
@@ -195,24 +265,6 @@ export function MundiMap({
   }, [initialMapSrc])
 
   useEffect(() => {
-    if (!canEditContent) {
-      setIsEditOpen(false)
-    }
-  }, [canEditContent])
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      const frame = frameRef.current
-      setIsFullscreen(Boolean(frame && document.fullscreenElement === frame))
-    }
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange)
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange)
-    }
-  }, [])
-
-  useEffect(() => {
     if (isFullscreen) {
       return
     }
@@ -241,107 +293,16 @@ export function MundiMap({
   useModalFocusTrap({
     activeElement: activeModalElement,
     onEscape: () => {
-      if (editingMarker) {
-        setEditingMarker(null)
-      } else if (overlappingMarkers) {
-        setOverlappingMarkers(null)
-      } else if (selectedMapMarker) {
-        setSelectedMapMarker(null)
-      } else if (isImageModalOpen) {
-        setIsImageModalOpen(false)
-      } else if (isMarkerListModalOpen) {
-        setIsMarkerListModalOpen(false)
-      } else if (isMarkerFinalizeModalOpen) {
-        setIsMarkerFinalizeModalOpen(false)
-      } else if (isMarkersModalOpen) {
-        setIsMarkersModalOpen(false)
-      }
+      handleEscape({
+        editingMarker,
+        hasOverlappingMarkers: Boolean(overlappingMarkers),
+        hasSelectedMapMarker: Boolean(selectedMapMarker),
+        clearEditingMarker: () => setEditingMarker(null),
+        clearOverlappingMarkers: () => setOverlappingMarkers(null),
+        clearSelectedMapMarker: () => setSelectedMapMarker(null),
+      })
     },
   })
-
-  const handleEnableInteraction = () => {
-    if (isFullscreen && !isInteractive) {
-      setIsInteractive(true)
-    }
-  }
-
-  const toggleFullscreen = async () => {
-    const frame = frameRef.current
-    if (!frame) {
-      return
-    }
-
-    if (document.fullscreenElement === frame) {
-      await document.exitFullscreen()
-      setIsBrushMode(false)
-      return
-    }
-
-    await frame.requestFullscreen()
-  }
-
-  const resetView = () => {
-    canvasRef.current?.resetView()
-  }
-
-  const toggleBrushMode = () => {
-    if (!isInteractive) {
-      return
-    }
-
-    setIsBrushMode((prev) => !prev)
-  }
-
-  const clearLastDrawing = () => {
-    canvasRef.current?.clearLastDrawing()
-  }
-
-  function handleOpenMarkersModal() {
-    setAreMarkersVisible(true)
-    openMarkersModal()
-    setIsMarkersModalOpen(true)
-  }
-
-  function handleStartMarkerSelection() {
-    setAreMarkersVisible(true)
-    startMarkerSelection()
-    setIsMarkersModalOpen(false)
-    setIsMarkerFinalizeModalOpen(false)
-    setIsMarkerListModalOpen(false)
-    setEditingMarker(null)
-    setIsMarkerRepositionMode(false)
-  }
-
-  function handleCancelMarkerSelection() {
-    cancelMarkerSelection()
-    setIsMarkerFinalizeModalOpen(false)
-  }
-
-  function handleConcludeMarkerSelection() {
-    if (concludeMarkerSelection()) {
-      setIsMarkerFinalizeModalOpen(true)
-    }
-  }
-
-  function handleSaveMarkerGroup() {
-    const result = saveMarkerGroup()
-    if (result) {
-      setIsMarkerFinalizeModalOpen(false)
-    }
-  }
-
-  function handleDeleteMarkerGroup() {
-    deleteMarkerGroup()
-    setIsMarkerListModalOpen(false)
-    setIsMarkersModalOpen(false)
-  }
-
-  function handleEditSelectedMarkerGroup() {
-    if (openMarkerList()) {
-      setIsMarkersModalOpen(false)
-      setIsMarkerListModalOpen(true)
-    }
-  }
 
   const handleOpenFilePicker = () => {
     if (!canManageImage || isUploading) {
@@ -363,48 +324,13 @@ export function MundiMap({
     }
   }
 
-  function handleMarkerPinSelect(clickedMarker: MapMarkerItem, groupColor: string) {
-    const visibleMarkers = allMarkerGroups
-      .filter((group) => visibleMarkerGroupIds.includes(group.id))
-      .flatMap((group) =>
-        group.markers.map((marker) => ({
-          marker,
-          groupColor: marker.color || group.color,
-        })),
-      )
-
-    const nearbyMarkers = visibleMarkers.filter(({ marker }) => {
-      const distance = Math.hypot(marker.x - clickedMarker.x, marker.y - clickedMarker.y)
-      return distance <= OVERLAPPING_MARKER_DISTANCE
-    })
-
-    if (nearbyMarkers.length > 1) {
-      setSelectedMapMarker(null)
-      setOverlappingMarkers(nearbyMarkers)
-      return
-    }
-
-    setOverlappingMarkers(null)
-    setSelectedMapMarker({
-      marker: clickedMarker,
-      groupColor,
-    })
-  }
-
   function handleEditSelectedMapMarker() {
-    if (!selectedMapMarker) {
+    const editingTarget = beginMarkerEditing()
+    if (!editingTarget) {
       return
     }
 
-    const matchedGroup = allMarkerGroups.find((group) =>
-      group.markers.some((marker) => marker.id === selectedMapMarker.marker.id),
-    )
-    const matchedMarker = matchedGroup?.markers.find((marker) => marker.id === selectedMapMarker.marker.id) ?? null
-
-    if (!matchedGroup || !matchedMarker?.canEdit || !matchedGroup.canEdit) {
-      return
-    }
-
+    const { group: matchedGroup, marker: matchedMarker } = editingTarget
     setSelectedVisibility(matchedGroup.visibility)
     setSelectedMarkerGroupId(matchedGroup.id)
     setEditingMarker(matchedMarker)
@@ -415,24 +341,6 @@ export function MundiMap({
     setEditingMarkerColor(matchedMarker.color || matchedGroup.color)
     setEditingMarkerSize(matchedMarker.size ?? DEFAULT_MARKER_SIZE)
     setEditingMarkerPinStyle(matchedMarker.pinStyle === "label" ? "label" : "default")
-    setSelectedMapMarker(null)
-  }
-
-  function handleStartMarkerReposition() {
-    if (!editingMarker) {
-      return
-    }
-
-    setIsMarkerRepositionMode(true)
-  }
-
-  function handleMarkerReposition(pointer: { x: number; y: number }) {
-    setEditingMarkerPosition(pointer)
-    setIsMarkerRepositionMode(false)
-  }
-
-  function handleCancelMarkerReposition() {
-    setIsMarkerRepositionMode(false)
   }
 
   return (
@@ -588,7 +496,7 @@ export function MundiMap({
               role="group"
               aria-label="Cores do pincel"
             >
-              {BRUSH_COLORS.map((color) => (
+              {DEFAULT_BRUSH_COLORS.map((color) => (
                 <button
                   key={color}
                   type="button"
@@ -624,7 +532,7 @@ export function MundiMap({
             pinStyle: editingMarkerPinStyle,
           } : null}
           markerGroupColor={markerGroupColor}
-          allMarkerGroups={allMarkerGroups}
+          allMarkerGroups={displayMarkerGroups}
           areMarkersVisible={areMarkersVisible}
           visibleMarkerGroupIds={visibleMarkerGroupIds}
           onAddPendingMarker={(pointer) => {
@@ -742,7 +650,7 @@ export function MundiMap({
             onChangePinStyle={setEditingMarkerPinStyle}
             onPickImage={openMarkerImagePicker}
             onDeleteImage={handleDeleteMarkerImage}
-            onChangePosition={handleStartMarkerReposition}
+            onChangePosition={() => handleStartMarkerReposition(editingMarker)}
             onSave={saveMarkerEdit}
             onClose={() => setEditingMarker(null)}
           />

@@ -65,11 +65,29 @@ export function MarkerEditModal({
         </div>
         <label className={styles.field}>
           <span>Nome</span>
-          <input value={markerName} onChange={(event) => onChangeName(event.target.value)} />
+          <input
+            value={markerName}
+            onChange={(event) => onChangeName(event.target.value)}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="words"
+            spellCheck={false}
+            inputMode="text"
+            data-lpignore="true"
+          />
         </label>
         <label className={styles.field}>
           <span>Localizacao</span>
-          <input value={markerLocation} onChange={(event) => onChangeLocation(event.target.value)} />
+          <input
+            value={markerLocation}
+            onChange={(event) => onChangeLocation(event.target.value)}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="words"
+            spellCheck={false}
+            inputMode="text"
+            data-lpignore="true"
+          />
         </label>
         <label className={styles.field}>
           <span>Imagem</span>
@@ -113,6 +131,11 @@ export function MarkerEditModal({
           <textarea
             value={markerDescription}
             rows={4}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="sentences"
+            spellCheck={false}
+            data-lpignore="true"
             onChange={(event) => onChangeDescription(event.target.value)}
           />
         </label>
