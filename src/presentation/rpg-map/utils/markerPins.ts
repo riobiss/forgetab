@@ -1,6 +1,8 @@
 import Konva from "konva"
 import type { MarkerPinStyle } from "@/presentation/rpg-map/types/mapMarkers"
 
+export type MarkerRenderMode = "full" | "compact" | "dot"
+
 export function drawMarkerPin(params: {
   layer: Konva.Layer
   x: number
@@ -9,19 +11,44 @@ export function drawMarkerPin(params: {
   label: string
   size?: number | null
   pinStyle?: MarkerPinStyle | null
+  renderMode?: MarkerRenderMode
   opacity?: number
   dashed?: boolean
   onClick?: () => void
 }) {
   const size = Math.max(0.5, Math.min(2, params.size ?? 1))
-  const pinStyle = params.pinStyle === "label" ? "label" : "default"
+  const renderMode = params.renderMode ?? "full"
+  const pinStyle =
+    renderMode === "full" && params.pinStyle === "label" ? "label" : "default"
   const isNamedMarker = params.label.length > 2
   const group = new Konva.Group({
     x: params.x,
     y: params.y,
     listening: Boolean(params.onClick),
     opacity: params.opacity ?? 1,
+    perfectDrawEnabled: false,
   })
+
+  if (renderMode === "dot") {
+    const dot = new Konva.Circle({
+      x: 0,
+      y: 0,
+      radius: 7 * size,
+      fill: params.color,
+      stroke: "rgba(15, 23, 42, 0.95)",
+      strokeWidth: 2,
+      dash: params.dashed ? [4, 3] : undefined,
+      perfectDrawEnabled: false,
+      shadowForStrokeEnabled: false,
+    })
+
+    group.add(dot)
+    if (params.onClick) {
+      group.on("click tap", params.onClick)
+    }
+    params.layer.add(group)
+    return group
+  }
 
   if (pinStyle === "label") {
     const bubbleWidth = Math.max(92, params.label.length * 8 + 24) * size
@@ -36,6 +63,8 @@ export function drawMarkerPin(params: {
       stroke: params.color,
       strokeWidth: 2,
       dash: params.dashed ? [4, 3] : undefined,
+      perfectDrawEnabled: false,
+      shadowForStrokeEnabled: false,
     })
     const text = new Konva.Text({
       x: -(bubbleWidth / 2),
@@ -46,6 +75,8 @@ export function drawMarkerPin(params: {
       fontSize: 13 * size,
       fontStyle: "bold",
       fill: "#ffffff",
+      listening: false,
+      perfectDrawEnabled: false,
     })
 
     group.add(bubble)
@@ -65,6 +96,8 @@ export function drawMarkerPin(params: {
     stroke: "rgba(15, 23, 42, 0.95)",
     strokeWidth: 2,
     dash: params.dashed ? [4, 3] : undefined,
+    perfectDrawEnabled: false,
+    shadowForStrokeEnabled: false,
   })
 
   const pointer = new Konva.Line({
@@ -74,6 +107,8 @@ export function drawMarkerPin(params: {
     stroke: "rgba(15, 23, 42, 0.95)",
     strokeWidth: 2,
     dash: params.dashed ? [4, 3] : undefined,
+    perfectDrawEnabled: false,
+    shadowForStrokeEnabled: false,
   })
 
   const text = new Konva.Text({
@@ -85,6 +120,8 @@ export function drawMarkerPin(params: {
     fontSize: 12 * size,
     fontStyle: "bold",
     fill: "#ffffff",
+    listening: false,
+    perfectDrawEnabled: false,
   })
 
   const nameBubble = isNamedMarker
@@ -97,15 +134,19 @@ export function drawMarkerPin(params: {
         fill: "rgba(15, 23, 42, 0.92)",
         stroke: params.color,
         strokeWidth: 1.5,
+        perfectDrawEnabled: false,
+        shadowForStrokeEnabled: false,
       })
     : null
 
   group.add(pointer)
   group.add(outerCircle)
-  if (nameBubble) {
+  if (renderMode === "full" && nameBubble) {
     group.add(nameBubble)
   }
-  group.add(text)
+  if (renderMode === "full") {
+    group.add(text)
+  }
   if (params.onClick) {
     group.on("click tap", params.onClick)
   }
