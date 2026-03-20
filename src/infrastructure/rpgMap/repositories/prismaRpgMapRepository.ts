@@ -457,10 +457,25 @@ export const prismaRpgMapRepository: RpgMapRepository = {
 
   async deleteSection(params) {
     const rows = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+      WITH RECURSIVE section_tree AS (
+        SELECT id
+        FROM rpg_map_sections
+        WHERE rpg_id = ${params.rpgId}
+          AND map_id = ${params.mapId}
+          AND id = ${params.sectionId}
+
+        UNION ALL
+
+        SELECT child.id
+        FROM rpg_map_sections child
+        INNER JOIN section_tree parent_tree ON parent_tree.id = child.parent_section_id
+        WHERE child.rpg_id = ${params.rpgId}
+          AND child.map_id = ${params.mapId}
+      )
       DELETE FROM rpg_map_sections
       WHERE rpg_id = ${params.rpgId}
         AND map_id = ${params.mapId}
-        AND id = ${params.sectionId}
+        AND id IN (SELECT id FROM section_tree)
       RETURNING id
     `)
     return Boolean(rows[0])
