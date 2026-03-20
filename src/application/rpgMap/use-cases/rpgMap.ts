@@ -510,7 +510,12 @@ export async function createRpgMapMarkerGroup(
     userId: params.userId,
     ...input,
   })
-  return { markerGroup }
+  return {
+    markerGroup: {
+      ...withManagedPermissions(access, markerGroup),
+      markers: markerGroup.markers.map((marker) => withManagedPermissions(access, marker)),
+    },
+  }
 }
 
 export async function updateRpgMapMarkerGroup(
@@ -532,7 +537,12 @@ export async function updateRpgMapMarkerGroup(
     throw new AppError("Grupo de marcadores nao encontrado.", 404)
   }
 
-  return { markerGroup }
+  return {
+    markerGroup: {
+      ...withManagedPermissions(access, markerGroup),
+      markers: markerGroup.markers.map((marker) => withManagedPermissions(access, marker)),
+    },
+  }
 }
 
 export async function deleteRpgMapMarkerGroup(
