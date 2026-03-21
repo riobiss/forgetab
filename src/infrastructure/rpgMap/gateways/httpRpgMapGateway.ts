@@ -14,7 +14,10 @@ type ErrorPayload = { message?: string; url?: string; mapImage?: string | null }
 async function parseJsonResponse<T>(response: Response): Promise<T> {
   const payload = (await response.json().catch(() => ({}))) as T & ErrorPayload
   if (!response.ok) {
-    throw new Error(payload.message ?? "Request failed.")
+    throw new Error(
+      payload.message ??
+        `${response.status} ${response.statusText || "Request failed"}${payload.url ? ` (${payload.url})` : ""}`,
+    )
   }
   return payload
 }
@@ -28,7 +31,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
 
   async fetchMap(rpgId, mapId) {
     return parseJsonResponse<RpgMapDetailViewDto>(
-      await fetch(`/api/rpg/${rpgId}/maps/${mapId}`),
+      await fetch(`/api/rpg/${rpgId}/map/${mapId}`),
     )
   },
 

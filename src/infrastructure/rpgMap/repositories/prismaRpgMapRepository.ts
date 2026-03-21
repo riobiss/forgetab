@@ -151,6 +151,25 @@ function jsonb(value: Record<string, unknown> | null) {
   return value ? Prisma.sql`${JSON.stringify(value)}::jsonb` : Prisma.sql`null::jsonb`
 }
 
+function shouldIgnoreMarkerStorageError(error: unknown) {
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase()
+
+  const referencesMarkerStorage =
+    message.includes("rpg_map_marker_groups") ||
+    message.includes("rpg_map_markers") ||
+    message.includes("short_description") ||
+    message.includes("pin_style") ||
+    message.includes(" created_by_user_id ")
+
+  const isSchemaMismatch =
+    message.includes("does not exist") ||
+    message.includes("relation") ||
+    message.includes("column") ||
+    message.includes("unknown")
+
+  return referencesMarkerStorage && isSchemaMismatch
+}
+
 export const prismaRpgMapRepository: RpgMapRepository = {
   async listMaps(rpgId) {
     const rows = await prisma.$queryRaw<MapRow[]>(Prisma.sql`
@@ -572,50 +591,57 @@ export const prismaRpgMapRepository: RpgMapRepository = {
   },
 
   async listMarkerGroups(rpgId, mapId) {
-    const [groupRows, markerRows] = await Promise.all([
-      prisma.$queryRaw<MarkerGroupRow[]>(Prisma.sql`
-        SELECT
-          id,
-          map_id AS "mapId",
-          rpg_id AS "rpgId",
-          created_by_user_id AS "createdByUserId",
-          name,
-          color,
-          position AS "order",
-          created_at AS "createdAt",
-          updated_at AS "updatedAt"
-        FROM rpg_map_marker_groups
-        WHERE rpg_id = ${rpgId}
-          AND map_id = ${mapId}
-        ORDER BY position ASC, updated_at DESC
-      `),
-      prisma.$queryRaw<MarkerRow[]>(Prisma.sql`
-        SELECT
-          id,
-          group_id AS "groupId",
-          map_id AS "mapId",
-          rpg_id AS "rpgId",
-          created_by_user_id AS "createdByUserId",
-          name,
-          location,
-          short_description AS "shortDescription",
-          image,
-          color,
-          x,
-          y,
-          size,
-          pin_style AS "pinStyle",
-          position AS "order",
-          created_at AS "createdAt",
-          updated_at AS "updatedAt"
-        FROM rpg_map_markers
-        WHERE rpg_id = ${rpgId}
-          AND map_id = ${mapId}
-        ORDER BY group_id ASC, position ASC, updated_at DESC
-      `),
-    ])
+    try {
+      const [groupRows, markerRows] = await Promise.all([
+        prisma.$queryRaw<MarkerGroupRow[]>(Prisma.sql`
+          SELECT
+            id,
+            map_id AS "mapId",
+            rpg_id AS "rpgId",
+            created_by_user_id AS "createdByUserId",
+            name,
+            color,
+            position AS "order",
+            created_at AS "createdAt",
+            updated_at AS "updatedAt"
+          FROM rpg_map_marker_groups
+          WHERE rpg_id = ${rpgId}
+            AND map_id = ${mapId}
+          ORDER BY position ASC, updated_at DESC
+        `),
+        prisma.$queryRaw<MarkerRow[]>(Prisma.sql`
+          SELECT
+            id,
+            group_id AS "groupId",
+            map_id AS "mapId",
+            rpg_id AS "rpgId",
+            created_by_user_id AS "createdByUserId",
+            name,
+            location,
+            short_description AS "shortDescription",
+            image,
+            color,
+            x,
+            y,
+            size,
+            pin_style AS "pinStyle",
+            position AS "order",
+            created_at AS "createdAt",
+            updated_at AS "updatedAt"
+          FROM rpg_map_markers
+          WHERE rpg_id = ${rpgId}
+            AND map_id = ${mapId}
+          ORDER BY group_id ASC, position ASC, updated_at DESC
+        `),
+      ])
 
-    return groupRows.map((group) => mapMarkerGroup(group, markerRows))
+      return groupRows.map((group) => mapMarkerGroup(group, markerRows))
+    } catch (error) {
+      if (shouldIgnoreMarkerStorageError(error)) {
+        return []
+      }
+      throw error
+    }
   },
 
   async findMarkerGroup(params) {
