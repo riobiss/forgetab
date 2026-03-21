@@ -1,1 +1,1 @@
-export { PATCH } from "@/presentation/api/rpg-map/rpgMapRoute"
+export { GET, PATCH } from "@/presentation/api/rpg-map/rpgMapRoute"
