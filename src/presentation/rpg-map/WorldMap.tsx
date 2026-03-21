@@ -166,6 +166,7 @@ export function MundiMap({
     isMarkerListModalOpen,
     isMarkerRepositionMode,
     isMarkersModalOpen,
+    pendingMarkerReposition,
     setIsImageModalOpen,
     setIsMarkerListModalOpen,
     setIsMarkersModalOpen,
@@ -173,6 +174,7 @@ export function MundiMap({
     closeTransientUi,
     handleCancelMarkerReposition,
     handleCancelMarkerSelection,
+    handleConfirmMarkerReposition,
     handleConcludeMarkerSelection,
     handleDeleteMarkerGroup,
     handleEditSelectedMarkerGroup,
@@ -465,8 +467,14 @@ export function MundiMap({
         {isMarkerRepositionMode && editingMarker ? (
           <MapInteractionBanner
             title="Reposicionando marcador"
-            description={`Clique no mapa para definir a nova posicao de ${editingMarkerName || "Marcador"}.`}
+            description={`Clique no mapa para definir a nova posicao de ${editingMarkerName || "Marcador"} e confirme para aplicar.`}
             actions={[
+              {
+                key: "confirm",
+                label: "Confirmar",
+                onClick: handleConfirmMarkerReposition,
+                disabled: !pendingMarkerReposition,
+              },
               {
                 key: "cancel",
                 label: "Cancelar",
@@ -530,6 +538,8 @@ export function MundiMap({
             color: editingMarkerColor,
             size: editingMarkerSize,
             pinStyle: editingMarkerPinStyle,
+            x: pendingMarkerReposition?.x ?? editingMarker.x,
+            y: pendingMarkerReposition?.y ?? editingMarker.y,
           } : null}
           markerGroupColor={markerGroupColor}
           allMarkerGroups={displayMarkerGroups}
@@ -588,7 +598,14 @@ export function MundiMap({
           setVisibleMarkerGroupIds={setVisibleMarkerGroupIds}
           toggleMarkerGroupVisibility={toggleMarkerGroupVisibility}
           onCreate={handleStartMarkerSelection}
-          onEdit={handleEditSelectedMarkerGroup}
+          onEdit={(groupId) => {
+            setSelectedMarkerGroupId(groupId)
+            if (openMarkerList(groupId)) {
+              setIsMarkersModalOpen(false)
+              setIsMarkerListModalOpen(true)
+            }
+          }}
+          onDeleteGroup={(groupId) => deleteMarkerGroup(groupId)}
           onClear={clearAllMarkers}
           onClose={() => setIsMarkersModalOpen(false)}
         />
@@ -600,12 +617,9 @@ export function MundiMap({
           markerGroupColor={markerGroupColor}
           markerColors={MARKER_COLORS}
           pendingMarkers={pendingMarkers}
-          isImageUploading={isMarkerImageUploading}
           setMarkerGroupName={setMarkerGroupName}
           setMarkerGroupColor={setMarkerGroupColor}
           setPendingMarkers={setPendingMarkers}
-          onPickImage={openMarkerImagePicker}
-          onDeleteImage={handleDeleteMarkerImage}
           onSave={handleSaveMarkerGroup}
           onClose={handleCancelMarkerSelection}
         />
@@ -620,10 +634,12 @@ export function MundiMap({
           canPublish={selectedMarkerGroup?.visibility === "private" && canManagePublicMarkers}
           onChangeGroupName={setEditingGroupName}
           onChangeGroupColor={setEditingGroupColor}
-          onEditMarker={openMarkerEdit}
+          onEditMarker={(marker) => {
+            setIsMarkerListModalOpen(false)
+            openMarkerEdit(marker)
+          }}
           onDeleteMarker={deleteMarkerItem}
           onSaveGroup={saveMarkerGroupChanges}
-          onClearAll={clearAllMarkers}
           onPublish={publishSelectedMarkerGroup}
           onDeleteGroup={handleDeleteMarkerGroup}
           onClose={() => setIsMarkerListModalOpen(false)}
@@ -650,7 +666,9 @@ export function MundiMap({
             onChangePinStyle={setEditingMarkerPinStyle}
             onPickImage={openMarkerImagePicker}
             onDeleteImage={handleDeleteMarkerImage}
-            onChangePosition={() => handleStartMarkerReposition(editingMarker)}
+              onChangePosition={() => {
+                handleStartMarkerReposition(editingMarker)
+              }}
             onSave={saveMarkerEdit}
             onClose={() => setEditingMarker(null)}
           />
@@ -677,18 +695,16 @@ export function MundiMap({
             onClose={() => setSelectedMapMarker(null)}
           />
         ) : null}
-      </div>
 
-      <input
-        ref={markerImageInputRef}
-        type="file"
-        accept="image/*"
-        className={styles.hiddenInput}
-        onChange={handleMarkerImageChange}
-      />
+        <input
+          ref={markerImageInputRef}
+          type="file"
+          accept="image/*"
+          className={styles.hiddenInput}
+          onChange={handleMarkerImageChange}
+        />
 
-      {canManageImage ? (
-        <>
+        {canManageImage ? (
           <input
             ref={fileInputRef}
             type="file"
@@ -696,6 +712,11 @@ export function MundiMap({
             className={styles.hiddenInput}
             onChange={handleMapFileChange}
           />
+        ) : null}
+      </div>
+
+      {canManageImage ? (
+        <>
           {uploadMessage ? (
             <p className={styles.statusText}>{uploadMessage}</p>
           ) : null}

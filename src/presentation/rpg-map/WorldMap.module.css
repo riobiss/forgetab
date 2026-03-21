@@ -328,6 +328,12 @@
   overflow-y: auto;
 }
 
+.markerGroupModal {
+  width: min(560px, 100%);
+  height: min(82dvh, 42rem);
+  overflow-y: auto;
+}
+
 .modalHeader {
   display: flex;
   justify-content: space-between;
@@ -411,6 +417,8 @@
   display: flex;
   gap: 0.55rem;
   align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .primaryButton,
@@ -488,9 +496,11 @@
 .markerDraftItem,
 .markerListItem {
   display: grid;
-  gap: 0.7rem;
-  padding: 0.75rem 0.85rem;
-  border-radius: 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 12px;
   border: 1px solid var(--color-border-soft);
   background: rgba(255, 255, 255, 0.03);
 }
@@ -511,7 +521,7 @@
   gap: 0.55rem;
 }
 
-.markerImagePreview,
+.markerImagePreviewWrap,
 .markerImagePlaceholder {
   width: 100%;
   min-height: 8rem;
@@ -520,9 +530,25 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
+.markerListItemActive {
+  border-color: var(--color-border-brand);
+  background: color-mix(in srgb, var(--color-brand-soft) 36%, rgba(255, 255, 255, 0.03));
+}
+
+.markerImagePreviewWrap {
+  position: relative;
+  overflow: hidden;
+  min-height: 10rem;
+  height: min(14rem, 42vw);
+}
+
+.markerImagePreview,
+.markerImagePlaceholder {
+  border-radius: 12px;
+}
+
 .markerImagePreview {
   display: block;
-  max-height: 14rem;
   object-fit: cover;
 }
 
@@ -581,6 +607,32 @@
   display: flex;
   gap: 0.75rem;
   align-items: center;
+}
+
+.markerGroupPickerList {
+  display: grid;
+  gap: 0.45rem;
+  max-height: min(24rem, 52vh);
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+.markerGroupPickerMain {
+  all: unset;
+  min-width: 0;
+  cursor: pointer;
+  display: grid;
+  gap: 0.08rem;
+}
+
+.markerGroupPickerMain strong,
+.markerGroupPickerMain small {
+  display: block;
+}
+
+.markerGroupPickerMain small {
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
 }
 
 .markerListMain strong,
@@ -698,17 +750,22 @@
 }
 
 .bottomSheetImageWrap {
+  position: relative;
+  width: 100%;
   overflow: hidden;
   border-radius: 16px;
   border: 1px solid var(--color-border-soft);
   margin-bottom: 1rem;
   background: rgba(255, 255, 255, 0.03);
+  min-height: 12rem;
+  height: min(15rem, 42vw);
+  flex-shrink: 0;
 }
 
 .bottomSheetImage {
   display: block;
   width: 100%;
-  max-height: 15rem;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -739,9 +796,7 @@
 @media (max-width: 720px) {
   .ownerActionRow,
   .selectionBanner,
-  .modalActions,
-  .markerDraftItem,
-  .markerListItem {
+  .modalActions {
     flex-wrap: wrap;
   }
 }

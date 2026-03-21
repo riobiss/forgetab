@@ -22,6 +22,7 @@ export function useWorldMapMarkerModalFlow(params: Params) {
   const [isMarkerListModalOpen, setIsMarkerListModalOpen] = useState(false)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [isMarkerRepositionMode, setIsMarkerRepositionMode] = useState(false)
+  const [pendingMarkerReposition, setPendingMarkerReposition] = useState<{ x: number; y: number } | null>(null)
 
   function closeTransientUi() {
     setIsMarkersModalOpen(false)
@@ -82,16 +83,27 @@ export function useWorldMapMarkerModalFlow(params: Params) {
       return
     }
 
+    setPendingMarkerReposition({ x: editingMarker.x, y: editingMarker.y })
     setIsMarkerRepositionMode(true)
   }
 
   function handleMarkerReposition(pointer: { x: number; y: number }) {
-    params.setEditingMarkerPosition(pointer)
+    setPendingMarkerReposition(pointer)
+  }
+
+  function handleConfirmMarkerReposition() {
+    if (!pendingMarkerReposition) {
+      return
+    }
+
+    params.setEditingMarkerPosition(pendingMarkerReposition)
     setIsMarkerRepositionMode(false)
+    setPendingMarkerReposition(null)
   }
 
   function handleCancelMarkerReposition() {
     setIsMarkerRepositionMode(false)
+    setPendingMarkerReposition(null)
   }
 
   function handleEscape(options: {
@@ -123,6 +135,7 @@ export function useWorldMapMarkerModalFlow(params: Params) {
     isImageModalOpen,
     isMarkerFinalizeModalOpen,
     isMarkerListModalOpen,
+    pendingMarkerReposition,
     isMarkerRepositionMode,
     isMarkersModalOpen,
     setIsImageModalOpen,
@@ -132,6 +145,7 @@ export function useWorldMapMarkerModalFlow(params: Params) {
     closeTransientUi,
     handleCancelMarkerReposition,
     handleCancelMarkerSelection,
+    handleConfirmMarkerReposition,
     handleConcludeMarkerSelection,
     handleDeleteMarkerGroup,
     handleEditSelectedMarkerGroup,

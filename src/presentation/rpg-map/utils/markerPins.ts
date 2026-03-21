@@ -16,6 +16,21 @@ export function drawMarkerPin(params: {
   dashed?: boolean
   onClick?: () => void
 }) {
+  const bindClickHandlers = (group: Konva.Group) => {
+    if (!params.onClick) {
+      return
+    }
+
+    group.on("mousedown touchstart", (event) => {
+      event.cancelBubble = true
+    })
+
+    group.on("click tap", (event) => {
+      event.cancelBubble = true
+      params.onClick?.()
+    })
+  }
+
   const size = Math.max(0.5, Math.min(2, params.size ?? 1))
   const renderMode = params.renderMode ?? "full"
   const pinStyle =
@@ -43,9 +58,7 @@ export function drawMarkerPin(params: {
     })
 
     group.add(dot)
-    if (params.onClick) {
-      group.on("click tap", params.onClick)
-    }
+    bindClickHandlers(group)
     params.layer.add(group)
     return group
   }
@@ -81,9 +94,7 @@ export function drawMarkerPin(params: {
 
     group.add(bubble)
     group.add(text)
-    if (params.onClick) {
-      group.on("click tap", params.onClick)
-    }
+    bindClickHandlers(group)
     params.layer.add(group)
     return group
   }
@@ -147,9 +158,7 @@ export function drawMarkerPin(params: {
   if (renderMode === "full") {
     group.add(text)
   }
-  if (params.onClick) {
-    group.on("click tap", params.onClick)
-  }
+  bindClickHandlers(group)
   params.layer.add(group)
   return group
 }

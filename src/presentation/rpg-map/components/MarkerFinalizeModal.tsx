@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import type { RefObject } from "react"
 import { X } from "lucide-react"
 import type { PendingMarker } from "@/presentation/rpg-map/types/mapMarkers"
@@ -13,12 +12,9 @@ type Props = {
   markerGroupColor: string
   markerColors: string[]
   pendingMarkers: PendingMarker[]
-  isImageUploading: boolean
   setMarkerGroupName: (value: string) => void
   setMarkerGroupColor: (value: string) => void
   setPendingMarkers: (updater: (current: PendingMarker[]) => PendingMarker[]) => void
-  onPickImage: (target: { mode: "pending"; markerId: string }) => void
-  onDeleteImage: (target: { mode: "pending"; markerId: string }, imageUrl: string | null) => void
   onSave: () => void
   onClose: () => void
 }
@@ -30,12 +26,9 @@ export function MarkerFinalizeModal({
   markerGroupColor,
   markerColors,
   pendingMarkers,
-  isImageUploading,
   setMarkerGroupName,
   setMarkerGroupColor,
   setPendingMarkers,
-  onPickImage,
-  onDeleteImage,
   onSave,
   onClose,
 }: Props) {
@@ -86,7 +79,7 @@ export function MarkerFinalizeModal({
                 <span className={styles.markerNumber}>{index + 1}</span>
                 <input
                   value={marker.name}
-                  placeholder="Nome"
+                  placeholder="Nome do marcador"
                   autoComplete="off"
                   autoCorrect="off"
                   autoCapitalize="words"
@@ -100,75 +93,13 @@ export function MarkerFinalizeModal({
                   }
                 />
               </div>
-              <div className={styles.markerDraftFields}>
-                <input
-                  value={marker.location}
-                  placeholder="Localizacao"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="words"
-                  spellCheck={false}
-                  inputMode="text"
-                  data-lpignore="true"
-                  onChange={(event) =>
-                    setPendingMarkers((current) =>
-                      current.map((item) => (item.id === marker.id ? { ...item, location: event.target.value } : item)),
-                    )
-                  }
-                />
-                <div className={styles.markerImageField}>
-                  {marker.image ? (
-                    <Image
-                      src={marker.image.trim()}
-                      alt={marker.name}
-                      className={styles.markerImagePreview}
-                      fill
-                      sizes="160px"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className={styles.markerImagePlaceholder}>Sem imagem</div>
-                  )}
-                  <div className={styles.markerImageActions}>
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      onClick={() => onPickImage({ mode: "pending", markerId: marker.id })}
-                      disabled={isImageUploading}
-                    >
-                      {marker.image ? "Trocar imagem" : "Adicionar imagem"}
-                    </button>
-                    {marker.image ? (
-                      <button
-                        type="button"
-                        className={styles.secondaryDangerButton}
-                        onClick={() => onDeleteImage({ mode: "pending", markerId: marker.id }, marker.image)}
-                        disabled={isImageUploading}
-                      >
-                        Deletar imagem
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
-                <textarea
-                  value={marker.shortDescription}
-                  placeholder="Descricao"
-                  rows={3}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="sentences"
-                  spellCheck={false}
-                  data-lpignore="true"
-                  onChange={(event) =>
-                    setPendingMarkers((current) =>
-                      current.map((item) => (item.id === marker.id ? { ...item, shortDescription: event.target.value } : item)),
-                    )
-                  }
-                />
-              </div>
             </div>
           ))}
         </div>
+        <p className={styles.modalSubtle}>
+          Depois de salvar, use <strong>Editar</strong> para ajustar descricao, imagem, tamanho, estilo e outras
+          informacoes de cada marcador.
+        </p>
         <div className={styles.modalActions}>
           <button type="button" className={styles.primaryButton} onClick={onSave} disabled={pendingMarkers.length === 0}>
             Salvar

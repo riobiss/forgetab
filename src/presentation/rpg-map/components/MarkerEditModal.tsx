@@ -94,14 +94,16 @@ export function MarkerEditModal({
           <span>Imagem</span>
           <div className={styles.markerImageField}>
             {markerImage ? (
-              <Image
-                src={markerImage.trim()}
-                alt={markerName || "Marcador"}
-                className={styles.markerImagePreview}
-                fill
-                sizes="160px"
-                unoptimized
-              />
+              <div className={styles.markerImagePreviewWrap}>
+                <Image
+                  src={markerImage.trim()}
+                  alt={markerName || "Marcador"}
+                  className={styles.markerImagePreview}
+                  fill
+                  sizes="160px"
+                  unoptimized
+                />
+              </div>
             ) : (
               <div className={styles.markerImagePlaceholder}>Sem imagem</div>
             )}

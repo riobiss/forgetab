@@ -18,7 +18,6 @@ type Props = {
   onEditMarker: (marker: MapMarkerItem) => void
   onDeleteMarker: (markerId: string) => void
   onSaveGroup: () => void
-  onClearAll: () => void
   onPublish: () => void
   onDeleteGroup: () => void
   onClose: () => void
@@ -37,7 +36,6 @@ export function MarkerGroupModal({
   onEditMarker,
   onDeleteMarker,
   onSaveGroup,
-  onClearAll,
   onPublish,
   onDeleteGroup,
   onClose,
@@ -48,7 +46,7 @@ export function MarkerGroupModal({
 
   return (
     <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="Lista de marcadores">
-      <section ref={modalRef} className={styles.modal} tabIndex={-1}>
+      <section ref={modalRef} className={`${styles.modal} ${styles.markerGroupModal}`} tabIndex={-1}>
         <div className={styles.modalHeader}>
           <div>
             <h2>{group.name}</h2>
@@ -120,9 +118,6 @@ export function MarkerGroupModal({
               Salvar grupo
             </button>
           ) : null}
-          <button type="button" className={styles.secondaryButton} onClick={onClearAll}>
-            Limpar todos
-          </button>
           {canPublish ? (
             <button type="button" className={styles.secondaryButton} onClick={onPublish}>
               Tornar publico
@@ -133,9 +128,6 @@ export function MarkerGroupModal({
               <Trash2 size={14} />
             </button>
           ) : null}
-          <button type="button" className={styles.secondaryButton} onClick={onClose}>
-            Fechar
-          </button>
         </div>
       </section>
     </div>

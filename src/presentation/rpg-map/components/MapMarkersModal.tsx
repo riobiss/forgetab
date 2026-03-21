@@ -1,7 +1,7 @@
 "use client"
 
 import type { RefObject } from "react"
-import { Pencil, Plus, X } from "lucide-react"
+import { Pencil, Plus, Trash2, X } from "lucide-react"
 import type { MarkerGroup } from "@/presentation/rpg-map/types/mapMarkers"
 import styles from "../WorldMap.module.css"
 
@@ -21,7 +21,8 @@ type Props = {
   setVisibleMarkerGroupIds: (value: string[]) => void
   toggleMarkerGroupVisibility: (groupId: string) => void
   onCreate: () => void
-  onEdit: () => void
+  onEdit: (groupId: string) => void
+  onDeleteGroup: (groupId: string) => void
   onClear: () => void
   onClose: () => void
 }
@@ -43,6 +44,7 @@ export function MapMarkersModal({
   toggleMarkerGroupVisibility,
   onCreate,
   onEdit,
+  onDeleteGroup,
   onClear,
   onClose,
 }: Props) {
@@ -136,27 +138,49 @@ export function MapMarkersModal({
           </div>
         ) : selectedMarkerGroups.length > 0 ? (
           <>
-            <label className={styles.field}>
-              <span>Tipo</span>
-              <select value={selectedMarkerGroupId} onChange={(event) => setSelectedMarkerGroupId(event.target.value)}>
-                <option value="">Selecione um grupo</option>
+            <div className={styles.field}>
+              <span>Grupos</span>
+              <div className={styles.markerGroupPickerList}>
                 {selectedMarkerGroups.map((group) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                  </option>
+                  <article
+                    key={group.id}
+                    className={`${styles.markerListItem} ${selectedMarkerGroupId === group.id ? styles.markerListItemActive : ""}`}
+                  >
+                    <button
+                      type="button"
+                      className={styles.markerGroupPickerMain}
+                      onClick={() => setSelectedMarkerGroupId(group.id)}
+                    >
+                      <strong>{group.name}</strong>
+                      <small>{group.markers.length} marcador(es)</small>
+                    </button>
+                    <div className={styles.markerListActions}>
+                      {group.canEdit ? (
+                        <button
+                          type="button"
+                          className={styles.iconButton}
+                          onClick={() => onEdit(group.id)}
+                          title="Editar grupo"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                      ) : null}
+                      {group.canDelete ? (
+                        <button
+                          type="button"
+                          className={styles.iconButtonDanger}
+                          onClick={() => onDeleteGroup(group.id)}
+                          title="Deletar grupo"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      ) : null}
+                    </div>
+                  </article>
                 ))}
-              </select>
-            </label>
+              </div>
+            </div>
             <div className={styles.modalActions}>
-              <button
-                type="button"
-                className={styles.secondaryButton}
-                onClick={onEdit}
-                disabled={!selectedMarkerGroup}
-              >
-                <Pencil size={16} />
-                <span>Editar</span>
-              </button>
               <button type="button" className={styles.secondaryButton} onClick={onClear}>
                 <span>Limpar</span>
               </button>

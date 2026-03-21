@@ -120,13 +120,16 @@ export function useMapMarkerGroups(params: Params) {
     return nextGroup
   }
 
-  function openMarkerList() {
-    if (!selectedMarkerGroup) {
+  function openMarkerList(targetGroupId = selectedMarkerGroupId) {
+    const targetGroup = allMarkerGroups.find((group) => group.id === targetGroupId) ?? null
+    if (!targetGroup) {
       return false
     }
 
-    setEditingGroupName(selectedMarkerGroup.name)
-    setEditingGroupColor(selectedMarkerGroup.color)
+    setSelectedVisibility(targetGroup.visibility)
+    setSelectedMarkerGroupId(targetGroup.id)
+    setEditingGroupName(targetGroup.name)
+    setEditingGroupColor(targetGroup.color)
     return true
   }
 
@@ -181,13 +184,14 @@ export function useMapMarkerGroups(params: Params) {
     })
   }
 
-  function deleteMarkerGroup() {
-    if (!selectedMarkerGroup?.canDelete) {
+  function deleteMarkerGroup(targetGroupId = selectedMarkerGroupId) {
+    const targetGroup = allMarkerGroups.find((group) => group.id === targetGroupId) ?? null
+    if (!targetGroup?.canDelete) {
       return
     }
 
-    if (selectedMarkerGroup.visibility === "public") {
-      void deletePublicMarkerGroup(selectedMarkerGroup.id).then((deleted) => {
+    if (targetGroup.visibility === "public") {
+      void deletePublicMarkerGroup(targetGroup.id).then((deleted) => {
         if (deleted) {
           setSelectedMarkerGroupId("")
         }
@@ -195,7 +199,7 @@ export function useMapMarkerGroups(params: Params) {
       return
     }
 
-    updatePrivateGroups((current) => current.filter((group) => group.id !== selectedMarkerGroup.id))
+    updatePrivateGroups((current) => current.filter((group) => group.id !== targetGroup.id))
     setSelectedMarkerGroupId("")
   }
 

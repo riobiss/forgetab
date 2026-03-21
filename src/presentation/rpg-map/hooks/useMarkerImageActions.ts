@@ -22,18 +22,19 @@ type Params = {
 
 export function useMarkerImageActions(params: Params) {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
-  const [target, setTarget] = useState<MarkerImageTarget | null>(null)
+  const targetRef = useRef<MarkerImageTarget | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const gateway = useMemo(() => httpRpgMapGateway, [])
 
   function openPicker(nextTarget: MarkerImageTarget) {
-    setTarget(nextTarget)
+    targetRef.current = nextTarget
     fileInputRef.current?.click()
   }
 
   async function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0]
     event.currentTarget.value = ""
+    const target = targetRef.current
 
     if (!file || !target) {
       return
@@ -65,7 +66,7 @@ export function useMarkerImageActions(params: Params) {
     } finally {
       dismissToast(loadingToastId)
       setIsUploading(false)
-      setTarget(null)
+      targetRef.current = null
     }
   }
 
