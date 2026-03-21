@@ -12,6 +12,7 @@ const SYNTHETIC_MOUSE_GUARD_MS = 500
 const MARKER_VIEWPORT_PADDING = 132
 
 export type WorldMapCanvasHandle = {
+  syncToContainer: () => void
   resetView: () => void
   clearLastDrawing: () => void
   focusMarker: (marker: Pick<MapMarkerItem, "x" | "y">) => void
@@ -98,18 +99,38 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
   const touchSelectionMovedRef = useRef(false)
   const lastTouchInteractionAtRef = useRef(0)
 
-  useImperativeHandle(ref, () => ({
-    resetView() {
-      const stage = stageRef.current
-      const mapImage = mapImageRef.current
-      if (!stage || !mapImage) {
-        return
-      }
+  function syncCanvasToContainer(shouldFitImage = true) {
+    const stage = stageRef.current
+    const mapImage = mapImageRef.current
+    const container = stageContainerRef.current
+    if (!stage || !container) {
+      return
+    }
 
+    container.style.width = ""
+    container.style.height = ""
+
+    const bounds = container.getBoundingClientRect()
+    const width = Math.max(1, Math.round(bounds.width || container.clientWidth))
+    const height = Math.max(1, Math.round(bounds.height || container.clientHeight))
+
+    stage.size({ width, height })
+
+    if (mapImage && shouldFitImage) {
       fitImageToStage(stage, mapImage)
-      scheduleMarkerLayerRedraw()
-      scheduleOverlayLayerRedraw()
-      stage.batchDraw()
+    }
+
+    scheduleMarkerLayerRedraw()
+    scheduleOverlayLayerRedraw()
+    stage.batchDraw()
+  }
+
+  useImperativeHandle(ref, () => ({
+    syncToContainer() {
+      syncCanvasToContainer(true)
+    },
+    resetView() {
+      syncCanvasToContainer(true)
     },
     clearLastDrawing() {
       const drawLayerCurrent = drawLayerRef.current
@@ -187,27 +208,10 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
       return
     }
 
-    const syncStageToContainer = () => {
-      const currentStage = stageRef.current
-      const currentImage = mapImageRef.current
-      const currentContainer = stageContainerRef.current
-      if (!currentStage || !currentImage || !currentContainer) {
-        return
-      }
-
-      currentStage.size({
-        width: currentContainer.clientWidth,
-        height: currentContainer.clientHeight,
-      })
-      syncStageDomSize(currentStage, currentContainer.clientWidth, currentContainer.clientHeight)
-      fitImageToStage(currentStage, currentImage)
-      scheduleMarkerLayerRedraw()
-      scheduleOverlayLayerRedraw()
-      currentStage.batchDraw()
-    }
-
     requestAnimationFrame(() => {
-      requestAnimationFrame(syncStageToContainer)
+      requestAnimationFrame(() => {
+        syncCanvasToContainer(true)
+      })
     })
   }, [isFullscreen])
 
@@ -264,6 +268,9 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
       return
     }
 
+    container.style.width = ""
+    container.style.height = ""
+
     Konva.pixelRatio = getPreferredPixelRatio()
 
     const stage = new Konva.Stage({
@@ -287,7 +294,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
     markerLayerRef.current = markerLayer
     markerOverlayLayerRef.current = markerOverlayLayer
     drawLayerRef.current = drawLayer
-    syncStageDomSize(stage, container.clientWidth, container.clientHeight)
+    syncCanvasToContainer(false)
 
     const handleWheel = (event: Konva.KonvaEventObject<WheelEvent>) => {
       if (!canInteractMap(isInteractiveRef.current, isFullscreenRef.current) || isBrushModeRef.current) {
@@ -515,11 +522,13 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
       const previousWidth = currentStage.width()
       const previousHeight = currentStage.height()
 
-      currentStage.size({
-        width: currentContainer.clientWidth,
-        height: currentContainer.clientHeight,
-      })
-      syncStageDomSize(currentStage, currentContainer.clientWidth, currentContainer.clientHeight)
+      const bounds = currentContainer.getBoundingClientRect()
+      const width = Math.max(1, Math.round(bounds.width || currentContainer.clientWidth))
+      const height = Math.max(1, Math.round(bounds.height || currentContainer.clientHeight))
+
+      currentContainer.style.width = ""
+      currentContainer.style.height = ""
+      currentStage.size({ width, height })
 
       if (currentImage && !isDrawingRef.current) {
         if (canInteractMap(isInteractiveRef.current, isFullscreenRef.current)) {
@@ -572,6 +581,8 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(function W
       if (overlayRedrawFrameRef.current !== null) {
         cancelAnimationFrame(overlayRedrawFrameRef.current)
       }
+      container.style.width = ""
+      container.style.height = ""
     }
   }, [])
 
@@ -1005,16 +1016,6 @@ function fitImageToStage(stage: Konva.Stage, mapImage: Konva.Image) {
     x: (stageWidth - imageSize.width * scale) / 2,
     y: (stageHeight - imageSize.height * scale) / 2,
   })
-}
-
-function syncStageDomSize(stage: Konva.Stage, width: number, height: number) {
-  const stageContent = stage.container()
-  if (!stageContent) {
-    return
-  }
-
-  stageContent.style.width = `${width}px`
-  stageContent.style.height = `${height}px`
 }
 
 function focusStageOnMarker(

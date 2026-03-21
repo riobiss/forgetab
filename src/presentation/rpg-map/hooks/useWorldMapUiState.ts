@@ -28,7 +28,20 @@ export function useWorldMapUiState({ frameRef, canvasRef, canEditContent }: Para
   useEffect(() => {
     const handleFullscreenChange = () => {
       const frame = frameRef.current
-      setIsFullscreen(Boolean(frame && document.fullscreenElement === frame))
+      const nextIsFullscreen = Boolean(frame && document.fullscreenElement === frame)
+      setIsFullscreen(nextIsFullscreen)
+
+      if (!nextIsFullscreen) {
+        setIsInteractive(false)
+        setIsBrushMode(false)
+        return
+      }
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          canvasRef.current?.syncToContainer()
+        })
+      })
     }
 
     document.addEventListener("fullscreenchange", handleFullscreenChange)
