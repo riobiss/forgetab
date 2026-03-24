@@ -12,6 +12,7 @@ vi.mock("@/presentation/rpg-map/hooks/useModalFocusTrap", () => ({
 
 describe("useRpgMapPageModalFocus", () => {
   it("prioriza o modal de conflito quando existe conflito pendente", () => {
+    const backgroundElement = document.createElement("div")
     const mapModalElement = document.createElement("section")
     const sectionModalElement = document.createElement("section")
     const sectionDetailsModalElement = document.createElement("section")
@@ -21,6 +22,7 @@ describe("useRpgMapPageModalFocus", () => {
 
     renderHook(() =>
       useRpgMapPageModalFocus({
+        backgroundElement,
         isMapModalOpen: true,
         mapModalElement,
         isSectionModalOpen: true,
@@ -37,16 +39,19 @@ describe("useRpgMapPageModalFocus", () => {
 
     expect(mocks.useModalFocusTrap).toHaveBeenCalledWith({
       activeElement: sectionConflictModalElement,
+      backgroundElement,
       onEscape,
     })
   })
 
   it("usa o modal de detalhes quando ele e o modal mais prioritario aberto", () => {
+    const backgroundElement = document.createElement("div")
     const sectionDetailsModalElement = document.createElement("section")
     const onEscape = vi.fn()
 
     renderHook(() =>
       useRpgMapPageModalFocus({
+        backgroundElement,
         isMapModalOpen: true,
         mapModalElement: document.createElement("section"),
         isSectionModalOpen: false,
@@ -63,6 +68,7 @@ describe("useRpgMapPageModalFocus", () => {
 
     expect(mocks.useModalFocusTrap).toHaveBeenCalledWith({
       activeElement: sectionDetailsModalElement,
+      backgroundElement,
       onEscape,
     })
   })

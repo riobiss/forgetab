@@ -119,6 +119,7 @@ export function RpgMapPage({
   detailTitle = null,
 }: RpgMapPageProps) {
   const sectionNameInputId = useId()
+  const pageContentRef = useRef<HTMLDivElement | null>(null)
   const mapModalRef = useRef<HTMLElement | null>(null)
   const sectionModalRef = useRef<HTMLElement | null>(null)
   const sectionConflictModalRef = useRef<HTMLElement | null>(null)
@@ -332,6 +333,7 @@ export function RpgMapPage({
   }, [isCustomFieldModalOpen])
 
   useRpgMapPageModalFocus({
+    backgroundElement: pageContentRef.current,
     isMapModalOpen,
     mapModalElement: mapModalRef.current,
     isSectionModalOpen,
@@ -529,6 +531,7 @@ export function RpgMapPage({
 
   return (
     <main className={styles.page}>
+      <div ref={pageContentRef}>
       <section className={styles.header}>
         <div className={styles.headerText}>
           <p className={styles.kicker}>{view === "detail" ? "Mapa" : rpgTitle}</p>
@@ -675,6 +678,7 @@ export function RpgMapPage({
           ) : null}
         </section>
       ) : null}
+      </div>
 
       <MapFormModal
         isOpen={isMapModalOpen}

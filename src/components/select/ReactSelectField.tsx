@@ -24,6 +24,9 @@ type ReactSelectFieldProps = {
   isClearable?: boolean
   classNames?: {
     container?: () => string
+    wrapper?: () => string
+    label?: () => string
+    control?: () => string
   }
 }
 
@@ -54,9 +57,9 @@ export function ReactSelectField({
     mappedOptions.find((entry) => entry.option.value === (value?.value ?? ""))?.radixValue ?? ""
 
   return (
-    <div className={[styles.wrapper, classNames?.container?.()].filter(Boolean).join(" ")}>
+    <div className={[styles.wrapper, classNames?.wrapper?.(), classNames?.container?.()].filter(Boolean).join(" ")}>
       {label ? (
-        <label htmlFor={selectId} className={styles.label}>
+        <label htmlFor={selectId} className={[styles.label, classNames?.label?.()].filter(Boolean).join(" ")}>
           {label}
         </label>
       ) : null}
@@ -69,7 +72,11 @@ export function ReactSelectField({
           onChange?.(selected)
         }}
       >
-        <Select.Trigger id={selectId} className={styles.control} aria-label={label}>
+        <Select.Trigger
+          id={selectId}
+          className={[styles.control, classNames?.control?.()].filter(Boolean).join(" ")}
+          aria-label={label}
+        >
           <Select.Value
             className={styles.singleValue}
             placeholder={<span className={styles.placeholder}>{placeholder}</span>}
@@ -77,7 +84,12 @@ export function ReactSelectField({
           <Select.Icon className={styles.dropdownIndicator}>▾</Select.Icon>
         </Select.Trigger>
         <Select.Portal>
-          <Select.Content className={styles.menu} position="popper" sideOffset={4}>
+          <Select.Content
+            className={styles.menu}
+            position="popper"
+            sideOffset={4}
+            data-modal-portal-allow="true"
+          >
             <Select.Viewport className={styles.menuList}>
               {mappedOptions.map(({ option, radixValue }) => (
                 <Select.Item

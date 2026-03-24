@@ -4,6 +4,7 @@ import { useMemo } from "react"
 import { useModalFocusTrap } from "@/presentation/rpg-map/hooks/useModalFocusTrap"
 
 type Params = {
+  backgroundElement: HTMLElement | null
   isMapModalOpen: boolean
   mapModalElement: HTMLElement | null
   isSectionModalOpen: boolean
@@ -55,6 +56,7 @@ export function useRpgMapPageModalFocus(params: Params) {
 
   useModalFocusTrap({
     activeElement,
+    backgroundElement: params.backgroundElement,
     onEscape: params.onEscape,
   })
 }
