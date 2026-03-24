@@ -201,6 +201,10 @@
   gap: 0.5rem;
 }
 
+.panelHeader > .inlineActions {
+  margin-left: auto;
+}
+
 .mapCard small {
   color: var(--color-text-muted);
 }
@@ -482,6 +486,19 @@
   color: var(--color-text-primary);
 }
 
+.detailFieldBlock p {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.detailFieldLink {
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .linkedMarkerPanel {
   display: flex;
   align-items: center;
@@ -613,20 +630,13 @@
 
 .customFieldEditorRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.6rem;
-  align-items: center;
+  align-items: start;
 }
 
-.customFieldEditorRow input {
-  width: 100%;
+.customFieldEditorRow > :first-child {
   min-width: 0;
-  border-radius: 10px;
-  border: 1px solid var(--color-border-soft);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--color-text-primary);
-  padding: 0.68rem 0.82rem;
-  font: inherit;
 }
 
 .primaryButton {
@@ -674,6 +684,8 @@
 
 .modal {
   width: min(520px, 100%);
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 3.5rem);
   border-radius: 12px;
   border: 1px solid var(--color-border-soft);
   background: var(--color-bg-surface);
@@ -681,6 +693,8 @@
   padding: 1rem;
   display: grid;
   gap: 0.8rem;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .sectionModal,
@@ -689,6 +703,7 @@
 .customFieldModal {
   max-height: min(82dvh, 44rem);
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .conflictActions {

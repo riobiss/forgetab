@@ -1,6 +1,9 @@
+import type { CustomFieldType } from "@/components/custom-fields/typedCustomField"
+
 export type MarkerDisplayField = {
   name: string
   value: string
+  type: CustomFieldType
 }
 
 export type MarkerPinStyle = "default" | "label"

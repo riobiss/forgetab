@@ -35,7 +35,7 @@ describe("MapSectionDetailsModal", () => {
           name: "Capital Vinculada",
           description: "Centro politico",
           type: "city",
-          customFields: [["Clima", "Frio"]],
+          customFields: [["Clima", { value: "Frio", type: "text" }]],
         }}
         onOpenBreadcrumb={onOpenBreadcrumb}
         onEdit={onEdit}
@@ -92,5 +92,43 @@ describe("MapSectionDetailsModal", () => {
     expect(screen.getByText("Capital")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Fechar detalhes da secao/i })).toBeInTheDocument()
     expect(screen.queryAllByRole("button")).toHaveLength(1)
+  })
+
+  it("renderiza campos do tipo link como link clicavel", () => {
+    render(
+      <MapSectionDetailsModal
+        isOpen
+        modalRef={createRef<HTMLElement>()}
+        selectedSection={{
+          id: "section-1",
+          mapId: "map-1",
+          rpgId: "rpg-1",
+          parentSectionId: null,
+          name: "Capital",
+          description: null,
+          type: null,
+          order: 0,
+          customFields: null,
+          canEdit: false,
+          createdAt: "2026-03-20T00:00:00.000Z",
+          updatedAt: "2026-03-20T00:00:00.000Z",
+        }}
+        breadcrumbs={[]}
+        sectionRenderState={{
+          name: "Capital",
+          description: null,
+          type: null,
+          customFields: [["Wiki", { value: "https://wiki.local/capital", type: "link" }]],
+        }}
+        onOpenBreadcrumb={vi.fn()}
+        onEdit={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole("link", { name: "https://wiki.local/capital" })).toHaveAttribute(
+      "href",
+      "https://wiki.local/capital",
+    )
   })
 })

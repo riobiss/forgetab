@@ -23,7 +23,10 @@ describe("useRpgMapSectionModalState", () => {
         customFields: {
           Sobre: "https://wiki.local/capital",
           MarcadorId: "marker-1",
-          Clima: "Frio",
+          Clima: {
+            value: "Frio",
+            type: "text",
+          },
         },
         createdAt: "2026-03-20T00:00:00.000Z",
         updatedAt: "2026-03-20T00:00:00.000Z",
@@ -42,8 +45,9 @@ describe("useRpgMapSectionModalState", () => {
     })
     expect(result.current.sectionForm.customFields).toEqual([
       expect.objectContaining({
-        name: "Clima",
+        key: "Clima",
         value: "Frio",
+        type: "text",
       }),
     ])
   })
@@ -56,7 +60,7 @@ describe("useRpgMapSectionModalState", () => {
     act(() => {
       result.current.openCreateSectionModal()
       result.current.openCustomFieldModal()
-      result.current.setCustomFieldDraft(() => ({ key: "Sobre", value: "x" }))
+      result.current.setCustomFieldDraft(() => ({ key: "Sobre", value: "x", type: "text" }))
     })
 
     act(() => {
@@ -67,7 +71,7 @@ describe("useRpgMapSectionModalState", () => {
     expect(result.current.sectionForm.customFields).toEqual([])
 
     act(() => {
-      result.current.setCustomFieldDraft(() => ({ key: "Clima", value: "Tropical" }))
+      result.current.setCustomFieldDraft(() => ({ key: "Clima", value: "Tropical", type: "boolean" }))
     })
 
     act(() => {
@@ -79,8 +83,9 @@ describe("useRpgMapSectionModalState", () => {
     expect(result.current.sectionForm.customFields).toEqual([
       {
         id: "field-123",
-        name: "Clima",
+        key: "Clima",
         value: "Tropical",
+        type: "boolean",
       },
     ])
   })

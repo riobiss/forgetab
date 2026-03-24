@@ -1,6 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import {
+  normalizeCustomFieldType,
+  type CustomFieldType,
+} from "@/components/custom-fields/typedCustomField"
 import type { RpgMapSectionDto } from "@/application/rpgMap/types"
 import {
   RESERVED_SECTION_FIELD_NAMES,
@@ -18,7 +22,7 @@ export type SectionFormState = {
   parentSectionId: string
   aboutLink: string
   linkedMarkerId: string
-  customFields: Array<{ id: string; name: string; value: string }>
+  customFields: Array<{ id: string; key: string; value: string; type: CustomFieldType }>
 }
 
 export type SectionConflictState = {
@@ -27,9 +31,10 @@ export type SectionConflictState = {
   fields: string[]
 }
 
-type CustomFieldDraftState = {
+export type CustomFieldDraftState = {
   key: string
   value: string
+  type: CustomFieldType
 }
 
 const EMPTY_SECTION_FORM: SectionFormState = {
@@ -45,6 +50,7 @@ const EMPTY_SECTION_FORM: SectionFormState = {
 const EMPTY_CUSTOM_FIELD_DRAFT: CustomFieldDraftState = {
   key: "",
   value: "",
+  type: "text",
 }
 
 export function useRpgMapSectionModalState() {
@@ -130,7 +136,7 @@ export function useRpgMapSectionModalState() {
       return false
     }
 
-    if (sectionForm.customFields.some((field) => field.name.trim().toLowerCase() === normalizedKey.toLowerCase())) {
+    if (sectionForm.customFields.some((field) => field.key.trim().toLowerCase() === normalizedKey.toLowerCase())) {
       setCustomFieldError("Ja existe um campo com essa chave.")
       return false
     }
@@ -141,8 +147,9 @@ export function useRpgMapSectionModalState() {
         ...current.customFields,
         {
           id: crypto.randomUUID(),
-          name: normalizedKey,
+          key: normalizedKey,
           value: customFieldDraft.value,
+          type: normalizeCustomFieldType(customFieldDraft.type),
         },
       ],
     }))

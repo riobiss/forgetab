@@ -1,5 +1,6 @@
 "use client"
 
+import type { CustomFieldType } from "@/components/custom-fields/typedCustomField"
 import { Pencil, X } from "lucide-react"
 import type { RefObject } from "react"
 import type { RpgMapBreadcrumbDto, RpgMapSectionDto } from "@/application/rpgMap/types"
@@ -9,7 +10,7 @@ type SectionRenderState = {
   name: string
   description: string | null
   type: string | null
-  customFields: Array<[string, unknown]>
+  customFields: Array<readonly [string, { value: string; type: CustomFieldType }]>
 }
 
 type Props = {
@@ -35,6 +36,23 @@ export function MapSectionDetailsModal({
 }: Props) {
   if (!isOpen || !selectedSection) {
     return null
+  }
+
+  function renderFieldValue(value: { value: string; type: CustomFieldType }) {
+    if (value.type === "link") {
+      return (
+        <a
+          href={value.value}
+          target="_blank"
+          rel="noreferrer"
+          className={styles.detailFieldLink}
+        >
+          {value.value}
+        </a>
+      )
+    }
+
+    return <p>{value.value}</p>
   }
 
   return (
@@ -84,17 +102,12 @@ export function MapSectionDetailsModal({
             </div>
           ) : null}
           {sectionRenderState && sectionRenderState.customFields.length > 0 ? (
-            <div className={styles.jsonBlock}>
-              <strong>Campos</strong>
-              <dl className={styles.customFieldList}>
-                {sectionRenderState.customFields.map(([name, value]) => (
-                  <div key={name} className={styles.customFieldItem}>
-                    <dt>{name}</dt>
-                    <dd>{String(value)}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
+            sectionRenderState.customFields.map(([name, value]) => (
+              <div key={name} className={styles.detailFieldBlock}>
+                <strong>{name}</strong>
+                {renderFieldValue(value)}
+              </div>
+            ))
           ) : null}
         </div>
       </section>

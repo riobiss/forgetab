@@ -1,5 +1,9 @@
 "use client"
 
+import {
+  normalizeCustomFieldType,
+  type CustomFieldType,
+} from "@/components/custom-fields/typedCustomField"
 import type {
   JsonMapValue,
   RpgMapDetailViewDto,
@@ -26,6 +30,11 @@ export type SectionSavePayload = {
   type: string | null
   parentSectionId: string | null
   customFields: JsonMapValue | null
+}
+
+type SerializedSectionCustomField = {
+  value: string
+  type: CustomFieldType
 }
 
 export const SECTION_LINK_MARKER_ID = "MarcadorId"
@@ -67,34 +76,59 @@ export function getLinkedMarkerId(value: JsonMapValue | null | undefined) {
   return typeof markerId === "string" ? markerId : ""
 }
 
+function parseSectionCustomFieldValue(value: unknown): SerializedSectionCustomField {
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    const valueRecord = value as Record<string, unknown>
+    return {
+      value: valueRecord.value == null ? "" : String(valueRecord.value),
+      type: normalizeCustomFieldType(valueRecord.type),
+    }
+  }
+
+  return {
+    value: value == null ? "" : String(value),
+    type: "text",
+  }
+}
+
 export function customFieldsToDraft(value: JsonMapValue | null | undefined) {
   return Object.entries(value ?? {})
     .filter(([name]) => !RESERVED_SECTION_FIELD_NAMES.has(name))
     .map(([name, fieldValue], index) => ({
+      ...parseSectionCustomFieldValue(fieldValue),
       id: `field-${index}-${name}`,
-      name,
-      value: fieldValue == null ? "" : String(fieldValue),
+      key: name,
     }))
 }
 
-export function customFieldsToObject(fields: Array<{ name: string; value: string }>, aboutLink: string) {
+export function customFieldsToObject(
+  fields: Array<{ key: string; value: string; type: CustomFieldType }>,
+  aboutLink: string,
+) {
   const entries = fields
     .map((field) => ({
-      name: field.name.trim(),
+      key: field.key.trim(),
       value: field.value.trim(),
+      type: normalizeCustomFieldType(field.type),
     }))
-    .filter((field) => field.name.length > 0)
+    .filter((field) => field.key.length > 0)
 
   const normalizedAboutLink = aboutLink.trim()
   if (normalizedAboutLink) {
-    entries.unshift({ name: "Sobre", value: normalizedAboutLink })
+    entries.unshift({ key: "Sobre", value: normalizedAboutLink, type: "link" })
   }
 
   if (entries.length === 0) {
     return null
   }
 
-  return Object.fromEntries(entries.map((field) => [field.name, field.value]))
+  return Object.fromEntries(
+    entries.map((field) =>
+      field.key === "Sobre"
+        ? [field.key, field.value]
+        : [field.key, { value: field.value, type: field.type }],
+    ),
+  )
 }
 
 export function buildMarkerOptions(detail: RpgMapDetailViewDto | null): MarkerLinkOption[] {
@@ -202,10 +236,15 @@ export function findLinkedMarkerConflicts(payload: SectionSavePayload, linkedMar
 
 function buildMarkerDisplayFields(customFields: JsonMapValue | null | undefined) {
   return Object.entries(customFields ?? {})
-    .filter(([name, value]) => !INTERNAL_SECTION_FIELD_NAMES.has(name) && getStringValue(value).length > 0)
     .map(([name, value]) => ({
       name,
-      value: String(value),
+      parsed: parseSectionCustomFieldValue(value),
+    }))
+    .filter(({ name, parsed }) => !INTERNAL_SECTION_FIELD_NAMES.has(name) && getStringValue(parsed.value).length > 0)
+    .map(({ name, parsed }) => ({
+      name,
+      value: parsed.value,
+      type: parsed.type,
     }))
 }
 
@@ -247,9 +286,13 @@ function buildMergedSectionCustomFields(
     merged[SECTION_LINK_COLOR] = linkedMarker.color
   }
 
-  return Object.entries(merged).filter(
-    ([name, value]) => !INTERNAL_SECTION_FIELD_NAMES.has(name) && getStringValue(value).length > 0,
-  )
+  return Object.entries(merged)
+    .map(([name, value]) => ({
+      name,
+      parsed: parseSectionCustomFieldValue(value),
+    }))
+    .filter(({ name, parsed }) => !INTERNAL_SECTION_FIELD_NAMES.has(name) && getStringValue(parsed.value).length > 0)
+    .map(({ name, parsed }) => [name, parsed] as const)
 }
 
 export function buildSectionRenderState(section: RpgMapSectionDto, linkedMarker: MarkerLinkOption | null) {
