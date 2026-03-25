@@ -586,6 +586,20 @@ export async function deleteRpgMapImageByUrlUseCase(
   return gateway.deleteMapImage(params.url)
 }
 
+export async function uploadRpgMapSectionImageUseCase(
+  gateway: RpgMapGateway,
+  params: { file: File; oldUrl?: string | null },
+) {
+  return gateway.uploadSectionImage(params.file, params.oldUrl)
+}
+
+export async function deleteRpgMapSectionImageByUrlUseCase(
+  gateway: RpgMapGateway,
+  params: { url: string },
+) {
+  return gateway.deleteSectionImage(params.url)
+}
+
 export async function uploadRpgMapMarkerImageUseCase(
   gateway: RpgMapGateway,
   params: { file: File; oldUrl?: string | null },

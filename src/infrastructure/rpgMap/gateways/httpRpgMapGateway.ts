@@ -172,6 +172,29 @@ export const httpRpgMapGateway: RpgMapGateway = {
     return parseJsonResponse<{ message?: string }>(response)
   },
 
+  async uploadSectionImage(file, oldUrl) {
+    const formData = new FormData()
+    formData.append("file", file)
+    if (oldUrl) {
+      formData.append("oldUrl", oldUrl)
+    }
+
+    const response = await fetch("/api/uploads/section-image", {
+      method: "POST",
+      body: formData,
+    })
+    return parseJsonResponse<{ url: string; message?: string }>(response)
+  },
+
+  async deleteSectionImage(url) {
+    const response = await fetch("/api/uploads/section-image", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    })
+    return parseJsonResponse<{ message?: string }>(response)
+  },
+
   async uploadMarkerImage(file, oldUrl) {
     const formData = new FormData()
     formData.append("file", file)

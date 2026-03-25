@@ -1,7 +1,7 @@
 import type { ScopedImageService } from "@/application/media/ports/ScopedImageService"
 import { AppError } from "@/shared/errors/AppError"
 
-const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
 
 type Dependencies = {
   service: ScopedImageService
