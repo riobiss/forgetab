@@ -35,6 +35,7 @@ describe("MapSectionDetailsModal", () => {
           name: "Capital Vinculada",
           description: "Centro politico",
           type: "city",
+          images: [],
           customFields: [["Clima", { value: "Frio", type: "text" }]],
         }}
         onOpenBreadcrumb={onOpenBreadcrumb}
@@ -118,6 +119,7 @@ describe("MapSectionDetailsModal", () => {
           name: "Capital",
           description: null,
           type: null,
+          images: [],
           customFields: [["Wiki", { value: "https://wiki.local/capital", type: "link" }]],
         }}
         onOpenBreadcrumb={vi.fn()}

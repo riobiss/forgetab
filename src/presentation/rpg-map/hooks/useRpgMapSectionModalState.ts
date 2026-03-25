@@ -7,9 +7,9 @@ import {
 } from "@/components/custom-fields/typedCustomField"
 import type { RpgMapSectionDto } from "@/application/rpgMap/types"
 import {
+  getSectionImages,
   RESERVED_SECTION_FIELD_NAMES,
   customFieldsToDraft,
-  getAboutLink,
   getLinkedMarkerId,
   type MarkerLinkOption,
   type SectionSavePayload,
@@ -20,8 +20,8 @@ export type SectionFormState = {
   description: string
   type: string
   parentSectionId: string
-  aboutLink: string
   linkedMarkerId: string
+  images: string[]
   customFields: Array<{ id: string; key: string; value: string; type: CustomFieldType }>
 }
 
@@ -42,8 +42,8 @@ const EMPTY_SECTION_FORM: SectionFormState = {
   description: "",
   type: "",
   parentSectionId: "",
-  aboutLink: "",
   linkedMarkerId: "",
+  images: [],
   customFields: [],
 }
 
@@ -91,8 +91,8 @@ export function useRpgMapSectionModalState() {
       description: section.description ?? "",
       type: section.type ?? "",
       parentSectionId: section.parentSectionId ?? "",
-      aboutLink: getAboutLink(section.customFields),
       linkedMarkerId: getLinkedMarkerId(section.customFields),
+      images: getSectionImages(section.customFields),
       customFields: customFieldsToDraft(section.customFields),
     })
     setSectionFormError("")

@@ -38,7 +38,10 @@ type MundiMapProps = {
   initialMapSrc: string | null
   initialPublicMarkerGroups: RpgMapMarkerGroupDto[]
   linkedSections?: LinkedSectionSnapshot[]
+  sectionOptions?: Array<{ id: string; name: string }>
   focusMarkerRequest?: { markerId: string; token: number } | null
+  onOpenLinkedSection?: (sectionId: string) => void
+  onSaveMarkerSectionLink?: (markerId: string, sectionId: string | null) => Promise<void> | void
 }
 
 export function MundiMap({
@@ -50,7 +53,10 @@ export function MundiMap({
   initialMapSrc,
   initialPublicMarkerGroups,
   linkedSections = [],
+  sectionOptions = [],
   focusMarkerRequest = null,
+  onOpenLinkedSection,
+  onSaveMarkerSectionLink,
 }: MundiMapProps) {
   const frameRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<WorldMapCanvasHandle | null>(null)
@@ -63,6 +69,7 @@ export function MundiMap({
   const imageModalRef = useRef<HTMLDivElement | null>(null)
   const markerSheetRef = useRef<HTMLDivElement | null>(null)
   const overlappingMarkersModalRef = useRef<HTMLDivElement | null>(null)
+  const [editingLinkedSectionId, setEditingLinkedSectionId] = useState("")
 
   const {
     brushColor,
@@ -159,6 +166,10 @@ export function MundiMap({
   const displayMarkerGroups = useMemo(() => {
     return buildDisplayMarkerGroups(allMarkerGroups, linkedSections)
   }, [allMarkerGroups, linkedSections])
+  const linkedSectionsByMarkerId = useMemo(
+    () => new Map(linkedSections.map((section) => [section.markerId, section])),
+    [linkedSections],
+  )
 
   const {
     isImageModalOpen,
@@ -276,6 +287,15 @@ export function MundiMap({
     setIsMarkerRepositionMode(false)
   }, [isFullscreen])
 
+  useEffect(() => {
+    if (!editingMarker) {
+      setEditingLinkedSectionId("")
+      return
+    }
+
+    setEditingLinkedSectionId(linkedSectionsByMarkerId.get(editingMarker.id)?.sectionId ?? "")
+  }, [editingMarker, linkedSectionsByMarkerId])
+
   const activeModalElement = editingMarker
     ? markerEditModalRef.current
     : overlappingMarkers
@@ -343,6 +363,17 @@ export function MundiMap({
     setEditingMarkerColor(matchedMarker.color || matchedGroup.color)
     setEditingMarkerSize(matchedMarker.size ?? DEFAULT_MARKER_SIZE)
     setEditingMarkerPinStyle(matchedMarker.pinStyle === "label" ? "label" : "default")
+  }
+
+  async function handleSaveMarkerEditWithSectionLink() {
+    const markerId = editingMarker?.id ?? null
+    saveMarkerEdit()
+
+    if (!markerId || !onSaveMarkerSectionLink) {
+      return
+    }
+
+    await onSaveMarkerSectionLink(markerId, editingLinkedSectionId || null)
   }
 
   return (
@@ -656,6 +687,8 @@ export function MundiMap({
             markerSize={editingMarkerSize}
             markerPinStyle={editingMarkerPinStyle}
             markerColors={MARKER_COLORS}
+            linkedSectionId={editingLinkedSectionId}
+            sectionOptions={sectionOptions}
             isImageUploading={isMarkerImageUploading}
             markerId={editingMarker.id}
             onChangeName={setEditingMarkerName}
@@ -664,12 +697,13 @@ export function MundiMap({
             onChangeColor={setEditingMarkerColor}
             onChangeSize={setEditingMarkerSize}
             onChangePinStyle={setEditingMarkerPinStyle}
+            onChangeLinkedSection={setEditingLinkedSectionId}
             onPickImage={openMarkerImagePicker}
             onDeleteImage={handleDeleteMarkerImage}
               onChangePosition={() => {
                 handleStartMarkerReposition(editingMarker)
               }}
-            onSave={saveMarkerEdit}
+            onSave={() => void handleSaveMarkerEditWithSectionLink()}
             onClose={() => setEditingMarker(null)}
           />
         ) : null}
@@ -691,7 +725,19 @@ export function MundiMap({
             marker={selectedMapMarker.marker}
             canEdit={Boolean(selectedMapMarker.marker.canEdit)}
             sheetRef={markerSheetRef}
+            linkedSectionName={linkedSectionsByMarkerId.get(selectedMapMarker.marker.id)?.name ?? null}
             onEdit={handleEditSelectedMapMarker}
+            onMoreInfo={
+              linkedSectionsByMarkerId.get(selectedMapMarker.marker.id)?.sectionId && onOpenLinkedSection
+                ? () => {
+                    const sectionId = linkedSectionsByMarkerId.get(selectedMapMarker.marker.id)?.sectionId
+                    setSelectedMapMarker(null)
+                    if (sectionId) {
+                      onOpenLinkedSection(sectionId)
+                    }
+                  }
+                : undefined
+            }
             onClose={() => setSelectedMapMarker(null)}
           />
         ) : null}

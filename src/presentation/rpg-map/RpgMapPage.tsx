@@ -2,9 +2,11 @@
 
 import Link from "next/link"
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
+import type { ChangeEvent } from "react"
 import { toast } from "react-hot-toast"
 import { Map as MapIcon, Pencil, Plus, Search, Trash2 } from "lucide-react"
 import type {
+  JsonMapValue,
   RpgMapBreadcrumbDto,
   RpgMapDetailViewDto,
   RpgMapDto,
@@ -14,11 +16,13 @@ import type {
 import {
   createRpgMapSectionUseCase,
   createRpgMapUseCase,
+  deleteRpgMapSectionImageByUrlUseCase,
   deleteRpgMapSectionUseCase,
   deleteRpgMapUseCase,
   loadRpgMapDetailUseCase,
   loadRpgMapsUseCase,
   reorderRpgMapSectionUseCase,
+  uploadRpgMapSectionImageUseCase,
   updateRpgMapSectionUseCase,
   updateRpgMapUseCase,
 } from "@/application/rpgMap/use-cases/rpgMap"
@@ -41,6 +45,7 @@ import { MapSectionTree } from "@/presentation/rpg-map/components/MapSectionTree
 import { syncLinkedMarkerWithSection } from "@/presentation/rpg-map/services/syncLinkedMarkerWithSection"
 import { MundiMap } from "@/presentation/rpg-map/WorldMap"
 import {
+  applySectionImagesToCustomFields,
   applyLinkedMarkerToPayload,
   buildLinkedSectionSnapshots,
   buildMarkerOptions,
@@ -48,6 +53,9 @@ import {
   customFieldsToObject,
   findLinkedMarkerConflicts,
   getLinkedMarkerId,
+  SECTION_LINK_MARKER_GROUP_ID,
+  SECTION_LINK_MARKER_ID,
+  SECTION_LINK_MARKER_NAME,
   type MarkerLinkOption,
   type SectionSavePayload,
 } from "@/presentation/rpg-map/utils/sectionMarkerLinking"
@@ -127,6 +135,7 @@ export function RpgMapPage({
   const customFieldModalRef = useRef<HTMLElement | null>(null)
   const sectionNameInputRef = useRef<HTMLInputElement | null>(null)
   const customFieldKeyInputRef = useRef<HTMLInputElement | null>(null)
+  const sectionImageInputRef = useRef<HTMLInputElement | null>(null)
   const mapFeatureRef = useRef<HTMLDivElement | null>(null)
   const [maps, setMaps] = useState<RpgMapDto[]>([])
   const [selectedMapId, setSelectedMapId] = useState<string | null>(initialMapId)
@@ -141,6 +150,7 @@ export function RpgMapPage({
   const [privateMarkerOptions, setPrivateMarkerOptions] = useState<MarkerLinkOption[]>([])
   const [isMapCollapsed, setIsMapCollapsed] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [sectionImageUploading, setSectionImageUploading] = useState(false)
   const {
     closeMapModal,
     editingMap,
@@ -223,6 +233,10 @@ export function RpgMapPage({
   )
   const linkedSectionSnapshots = useMemo(
     () => buildLinkedSectionSnapshots(detail?.sections ?? []),
+    [detail?.sections],
+  )
+  const markerSectionOptions = useMemo(
+    () => (detail?.sections ?? []).map((section) => ({ id: section.id, name: section.name })),
     [detail?.sections],
   )
 
@@ -445,6 +459,73 @@ export function RpgMapPage({
     setFocusMarkerRequest({ markerId, token: Date.now() })
   }
 
+  function handleOpenSectionFromMarker(sectionId: string) {
+    openSectionDetails(sectionId, setSelectedSectionId)
+  }
+
+  function removeMarkerLinkFields(customFields: JsonMapValue | null) {
+    const nextCustomFields = { ...(customFields ?? {}) }
+    delete nextCustomFields[SECTION_LINK_MARKER_ID]
+    delete nextCustomFields[SECTION_LINK_MARKER_GROUP_ID]
+    delete nextCustomFields[SECTION_LINK_MARKER_NAME]
+    return Object.keys(nextCustomFields).length > 0 ? nextCustomFields : null
+  }
+
+  async function handleSaveMarkerSectionLink(markerId: string, sectionId: string | null) {
+    if (!selectedMapId || !detail) {
+      return
+    }
+
+    const linkedMarker = markerOptions.find((marker) => marker.id === markerId) ?? null
+    if (!linkedMarker) {
+      return
+    }
+
+    const currentLinkedSections = detail.sections.filter((section) => getLinkedMarkerId(section.customFields) === markerId)
+    const sectionsToClear = currentLinkedSections.filter((section) => section.id !== sectionId)
+
+    for (const section of sectionsToClear) {
+      await updateRpgMapSectionUseCase(httpRpgMapGateway, {
+        rpgId,
+        mapId: selectedMapId,
+        sectionId: section.id,
+        payload: {
+          name: section.name,
+          description: section.description,
+          type: section.type,
+          parentSectionId: section.parentSectionId,
+          customFields: removeMarkerLinkFields(section.customFields),
+        },
+      })
+    }
+
+    if (sectionId) {
+      const targetSection = detail.sections.find((section) => section.id === sectionId) ?? null
+      if (targetSection) {
+        const payload = applyLinkedMarkerToPayload(
+          {
+            name: targetSection.name,
+            description: targetSection.description,
+            type: targetSection.type,
+            parentSectionId: targetSection.parentSectionId,
+            customFields: removeMarkerLinkFields(targetSection.customFields),
+          },
+          linkedMarker,
+          "marker",
+        )
+
+        await updateRpgMapSectionUseCase(httpRpgMapGateway, {
+          rpgId,
+          mapId: selectedMapId,
+          sectionId: targetSection.id,
+          payload,
+        })
+      }
+    }
+
+    await loadDetail(selectedMapId, sectionId)
+  }
+
   async function handleSaveSection() {
     const trimmedName = sectionForm.name.trim()
     const payload: SectionSavePayload = {
@@ -452,7 +533,10 @@ export function RpgMapPage({
       description: sectionForm.description.trim() || null,
       type: sectionForm.type.trim() || null,
       parentSectionId: sectionForm.parentSectionId || null,
-      customFields: customFieldsToObject(sectionForm.customFields, sectionForm.aboutLink),
+      customFields: applySectionImagesToCustomFields(
+        customFieldsToObject(sectionForm.customFields),
+        sectionForm.images,
+      ),
     }
 
     const linkedMarker = markerOptions.find((marker) => marker.id === sectionForm.linkedMarkerId) ?? null
@@ -478,6 +562,64 @@ export function RpgMapPage({
 
     const mergedPayload = applyLinkedMarkerToPayload(payload, linkedMarker, "section")
     await persistSection(mergedPayload, linkedMarker)
+  }
+
+  function openSectionImagePicker() {
+    if (sectionImageUploading || sectionForm.images.length >= 5) {
+      return
+    }
+
+    sectionImageInputRef.current?.click()
+  }
+
+  async function handleSectionImageChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0]
+    event.currentTarget.value = ""
+
+    if (!file) {
+      return
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Envie uma imagem valida para a secao.")
+      return
+    }
+
+    setSectionImageUploading(true)
+    try {
+      const payload = await uploadRpgMapSectionImageUseCase(httpRpgMapGateway, { file })
+      setSectionForm((current) => ({
+        ...current,
+        images: [...current.images, payload.url].slice(0, 5),
+      }))
+      toast.success("Imagem da secao adicionada com sucesso.")
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : "Erro ao enviar imagem da secao."
+      toast.error(message)
+    } finally {
+      setSectionImageUploading(false)
+    }
+  }
+
+  async function handleRemoveSectionImage(imageUrl: string) {
+    if (sectionImageUploading) {
+      return
+    }
+
+    setSectionImageUploading(true)
+    try {
+      await deleteRpgMapSectionImageByUrlUseCase(httpRpgMapGateway, { url: imageUrl })
+      setSectionForm((current) => ({
+        ...current,
+        images: current.images.filter((image) => image !== imageUrl),
+      }))
+      toast.success("Imagem da secao removida com sucesso.")
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : "Erro ao remover imagem da secao."
+      toast.error(message)
+    } finally {
+      setSectionImageUploading(false)
+    }
   }
 
   async function handleResolveSectionConflict(preference: "marker" | "section") {
@@ -659,7 +801,10 @@ export function RpgMapPage({
                     initialMapSrc={detail.map.image}
                     initialPublicMarkerGroups={detail.markerGroups}
                     linkedSections={linkedSectionSnapshots}
+                    sectionOptions={markerSectionOptions}
                     focusMarkerRequest={focusMarkerRequest}
+                    onOpenLinkedSection={handleOpenSectionFromMarker}
+                    onSaveMarkerSectionLink={handleSaveMarkerSectionLink}
                   />
                 </div>
               ) : null}
@@ -715,10 +860,13 @@ export function RpgMapPage({
         sectionForm={sectionForm}
         sectionFormError={sectionFormError}
         saving={saving}
+        sectionImageUploading={sectionImageUploading}
         parentOptions={collectSectionOptions(detail?.sections ?? [], editingSection?.id)}
         markerOptions={markerOptions.map((marker) => ({ id: marker.id, name: marker.name }))}
         onChangeForm={(updater) => setSectionForm(updater)}
         onOpenCustomFieldModal={openCustomFieldModal}
+        onAddImage={openSectionImagePicker}
+        onRemoveImage={(imageUrl) => void handleRemoveSectionImage(imageUrl)}
         onSave={() => void handleSaveSection()}
         onClose={closeSectionModal}
         onDelete={(section) => {
@@ -751,6 +899,13 @@ export function RpgMapPage({
         onChangeDraft={setCustomFieldDraft}
         onSave={handleSaveCustomField}
         onClose={closeCustomFieldModal}
+      />
+      <input
+        ref={sectionImageInputRef}
+        type="file"
+        accept="image/*"
+        className={styles.hiddenFileInput}
+        onChange={handleSectionImageChange}
       />
     </main>
   )

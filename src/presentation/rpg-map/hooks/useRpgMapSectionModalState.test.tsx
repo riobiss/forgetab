@@ -21,8 +21,8 @@ describe("useRpgMapSectionModalState", () => {
         type: "city",
         order: 0,
         customFields: {
-          Sobre: "https://wiki.local/capital",
           MarcadorId: "marker-1",
+          ImagensSecao: ["https://imagekit.local/section-1.png"],
           Clima: {
             value: "Frio",
             type: "text",
@@ -40,8 +40,8 @@ describe("useRpgMapSectionModalState", () => {
       description: "Centro do reino",
       type: "city",
       parentSectionId: "parent-1",
-      aboutLink: "https://wiki.local/capital",
       linkedMarkerId: "marker-1",
+      images: ["https://imagekit.local/section-1.png"],
     })
     expect(result.current.sectionForm.customFields).toEqual([
       expect.objectContaining({
@@ -60,7 +60,7 @@ describe("useRpgMapSectionModalState", () => {
     act(() => {
       result.current.openCreateSectionModal()
       result.current.openCustomFieldModal()
-      result.current.setCustomFieldDraft(() => ({ key: "Sobre", value: "x", type: "text" }))
+      result.current.setCustomFieldDraft(() => ({ key: "MarcadorId", value: "x", type: "text" }))
     })
 
     act(() => {

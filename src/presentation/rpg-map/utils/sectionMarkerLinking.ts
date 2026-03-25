@@ -43,18 +43,20 @@ export const SECTION_LINK_MARKER_NAME = "MarcadorNome"
 export const SECTION_LINK_LOCATION = "Localizacao"
 export const SECTION_LINK_IMAGE = "Imagem"
 export const SECTION_LINK_COLOR = "Cor"
+export const SECTION_IMAGES = "ImagensSecao"
 
 export const RESERVED_SECTION_FIELD_NAMES = new Set([
-  "Sobre",
   SECTION_LINK_MARKER_ID,
   SECTION_LINK_MARKER_GROUP_ID,
   SECTION_LINK_MARKER_NAME,
+  SECTION_IMAGES,
 ])
 
 const INTERNAL_SECTION_FIELD_NAMES = new Set([
   SECTION_LINK_MARKER_ID,
   SECTION_LINK_MARKER_GROUP_ID,
   SECTION_LINK_MARKER_NAME,
+  SECTION_IMAGES,
 ])
 
 export function getStringValue(value: unknown) {
@@ -66,14 +68,21 @@ export function getOptionalStringValue(value: unknown) {
   return normalized.length > 0 ? normalized : null
 }
 
-export function getAboutLink(value: JsonMapValue | null | undefined) {
-  const about = value?.Sobre
-  return typeof about === "string" ? about : ""
-}
-
 export function getLinkedMarkerId(value: JsonMapValue | null | undefined) {
   const markerId = value?.[SECTION_LINK_MARKER_ID]
   return typeof markerId === "string" ? markerId : ""
+}
+
+export function getSectionImages(value: JsonMapValue | null | undefined) {
+  const images = value?.[SECTION_IMAGES]
+  if (!Array.isArray(images)) {
+    return []
+  }
+
+  return images
+    .map((image) => (typeof image === "string" ? image.trim() : ""))
+    .filter((image) => image.length > 0)
+    .slice(0, 5)
 }
 
 function parseSectionCustomFieldValue(value: unknown): SerializedSectionCustomField {
@@ -101,10 +110,7 @@ export function customFieldsToDraft(value: JsonMapValue | null | undefined) {
     }))
 }
 
-export function customFieldsToObject(
-  fields: Array<{ key: string; value: string; type: CustomFieldType }>,
-  aboutLink: string,
-) {
+export function customFieldsToObject(fields: Array<{ key: string; value: string; type: CustomFieldType }>) {
   const entries = fields
     .map((field) => ({
       key: field.key.trim(),
@@ -113,22 +119,27 @@ export function customFieldsToObject(
     }))
     .filter((field) => field.key.length > 0)
 
-  const normalizedAboutLink = aboutLink.trim()
-  if (normalizedAboutLink) {
-    entries.unshift({ key: "Sobre", value: normalizedAboutLink, type: "link" })
-  }
-
   if (entries.length === 0) {
     return null
   }
 
-  return Object.fromEntries(
-    entries.map((field) =>
-      field.key === "Sobre"
-        ? [field.key, field.value]
-        : [field.key, { value: field.value, type: field.type }],
-    ),
-  )
+  return Object.fromEntries(entries.map((field) => [field.key, { value: field.value, type: field.type }]))
+}
+
+export function applySectionImagesToCustomFields(
+  customFields: JsonMapValue | null,
+  images: string[],
+) {
+  const nextCustomFields = { ...(customFields ?? {}) }
+  const normalizedImages = images.map((image) => image.trim()).filter((image) => image.length > 0).slice(0, 5)
+
+  if (normalizedImages.length > 0) {
+    nextCustomFields[SECTION_IMAGES] = normalizedImages
+  } else {
+    delete nextCustomFields[SECTION_IMAGES]
+  }
+
+  return Object.keys(nextCustomFields).length > 0 ? nextCustomFields : null
 }
 
 export function buildMarkerOptions(detail: RpgMapDetailViewDto | null): MarkerLinkOption[] {
@@ -300,6 +311,7 @@ export function buildSectionRenderState(section: RpgMapSectionDto, linkedMarker:
     name: section.name.trim() || linkedMarker?.name || "Secao",
     description: section.description?.trim() || linkedMarker?.shortDescription || null,
     type: section.type?.trim() || null,
+    images: getSectionImages(section.customFields),
     customFields: buildMergedSectionCustomFields(section.customFields, linkedMarker),
   }
 }

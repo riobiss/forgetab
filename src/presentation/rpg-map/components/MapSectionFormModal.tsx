@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { Plus, Trash2, X } from "lucide-react"
 import type { RefObject } from "react"
 import { TypedCustomFieldEditor } from "@/components/custom-fields/TypedCustomFieldEditor"
@@ -21,10 +22,13 @@ type Props = {
   sectionForm: SectionFormState
   sectionFormError: string
   saving: boolean
+  sectionImageUploading: boolean
   parentOptions: Array<{ id: string; label: string }>
   markerOptions: MarkerLinkOption[]
   onChangeForm: (updater: (current: SectionFormState) => SectionFormState) => void
   onOpenCustomFieldModal: () => void
+  onAddImage: () => void
+  onRemoveImage: (imageUrl: string) => void
   onSave: () => void
   onClose: () => void
   onDelete: (section: RpgMapSectionDto) => void
@@ -39,10 +43,13 @@ export function MapSectionFormModal({
   sectionForm,
   sectionFormError,
   saving,
+  sectionImageUploading,
   parentOptions,
   markerOptions,
   onChangeForm,
   onOpenCustomFieldModal,
+  onAddImage,
+  onRemoveImage,
   onSave,
   onClose,
   onDelete,
@@ -115,14 +122,6 @@ export function MapSectionFormModal({
           </select>
         </label>
         <label className={styles.field}>
-          <span>Sobre</span>
-          <input
-            value={sectionForm.aboutLink}
-            onChange={(event) => onChangeForm((current) => ({ ...current, aboutLink: event.target.value }))}
-            placeholder="https://..."
-          />
-        </label>
-        <label className={styles.field}>
           <span>Vincular marcador</span>
           <select
             value={sectionForm.linkedMarkerId}
@@ -136,6 +135,49 @@ export function MapSectionFormModal({
             ))}
           </select>
         </label>
+        <div className={styles.field}>
+          <div className={styles.customFieldsHeader}>
+            <span>Imagens</span>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={onAddImage}
+              disabled={sectionImageUploading || sectionForm.images.length >= 5}
+            >
+              <Plus size={14} />
+              <span>{sectionImageUploading ? "Enviando..." : "Adicionar imagem"}</span>
+            </button>
+          </div>
+          {sectionForm.images.length > 0 ? (
+            <div className={styles.sectionImageEditorGrid}>
+              {sectionForm.images.map((imageUrl, index) => (
+                <div key={`${imageUrl}-${index}`} className={styles.sectionImageEditorCard}>
+                  <div className={styles.sectionImageEditorPreview}>
+                    <Image
+                      src={imageUrl}
+                      alt={`Imagem ${index + 1} da secao`}
+                      fill
+                      sizes="160px"
+                      unoptimized
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.iconButtonDanger}
+                    onClick={() => onRemoveImage(imageUrl)}
+                    disabled={sectionImageUploading}
+                    aria-label="Remover imagem"
+                    title="Remover imagem"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.feedback}>Nenhuma imagem adicionada.</p>
+          )}
+        </div>
         <div className={styles.field}>
           <div className={styles.customFieldsHeader}>
             <span>Campos customizados</span>

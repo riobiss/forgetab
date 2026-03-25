@@ -10,11 +10,13 @@ type Props = {
   marker: MapMarkerItem
   canEdit: boolean
   sheetRef: RefObject<HTMLDivElement | null>
+  linkedSectionName?: string | null
   onEdit: () => void
+  onMoreInfo?: () => void
   onClose: () => void
 }
 
-export function MapMarkerBottomSheet({ marker, canEdit, sheetRef, onEdit, onClose }: Props) {
+export function MapMarkerBottomSheet({ marker, canEdit, sheetRef, linkedSectionName, onEdit, onMoreInfo, onClose }: Props) {
   return (
     <div className={styles.bottomSheetOverlay} role="dialog" aria-modal="true" aria-label="Detalhes do marcador">
       <section ref={sheetRef} className={styles.bottomSheet} tabIndex={-1}>
@@ -71,6 +73,13 @@ export function MapMarkerBottomSheet({ marker, canEdit, sheetRef, onEdit, onClos
                 <p>{field.value}</p>
               </div>
             ))
+          ) : null}
+          {onMoreInfo && linkedSectionName ? (
+            <div className={styles.bottomSheetActions}>
+              <button type="button" className={styles.primaryButton} onClick={onMoreInfo}>
+                Mais informacoes
+              </button>
+            </div>
           ) : null}
         </div>
       </section>

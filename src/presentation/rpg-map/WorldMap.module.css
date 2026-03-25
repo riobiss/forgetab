@@ -792,6 +792,12 @@
   color: var(--color-text-primary);
 }
 
+.bottomSheetActions {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 0.25rem;
+}
+
 
 @media (max-width: 720px) {
   .ownerActionRow,

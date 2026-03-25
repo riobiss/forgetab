@@ -16,6 +16,8 @@ type Props = {
   markerSize: number
   markerPinStyle: MarkerPinStyle
   markerColors: string[]
+  linkedSectionId: string
+  sectionOptions: Array<{ id: string; name: string }>
   isImageUploading: boolean
   markerId: string | null
   onChangeName: (value: string) => void
@@ -24,6 +26,7 @@ type Props = {
   onChangeColor: (value: string) => void
   onChangeSize: (value: number) => void
   onChangePinStyle: (value: MarkerPinStyle) => void
+  onChangeLinkedSection: (value: string) => void
   onPickImage: (target: { mode: "editing"; markerId: string }) => void
   onDeleteImage: (target: { mode: "editing"; markerId: string }, imageUrl: string | null) => void
   onChangePosition: () => void
@@ -41,6 +44,8 @@ export function MarkerEditModal({
   markerSize,
   markerPinStyle,
   markerColors,
+  linkedSectionId,
+  sectionOptions,
   isImageUploading,
   markerId,
   onChangeName,
@@ -49,6 +54,7 @@ export function MarkerEditModal({
   onChangeColor,
   onChangeSize,
   onChangePinStyle,
+  onChangeLinkedSection,
   onPickImage,
   onDeleteImage,
   onChangePosition,
@@ -187,6 +193,17 @@ export function MarkerEditModal({
           <select value={markerPinStyle} onChange={(event) => onChangePinStyle(event.target.value as MarkerPinStyle)}>
             <option value="default">Padrao</option>
             <option value="label">Somente nome</option>
+          </select>
+        </label>
+        <label className={styles.field}>
+          <span>Vincular a secao</span>
+          <select value={linkedSectionId} onChange={(event) => onChangeLinkedSection(event.target.value)}>
+            <option value="">Nenhuma secao</option>
+            {sectionOptions.map((section) => (
+              <option key={section.id} value={section.id}>
+                {section.name}
+              </option>
+            ))}
           </select>
         </label>
         <div className={styles.modalActions}>

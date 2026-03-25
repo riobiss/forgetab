@@ -571,20 +571,6 @@
   color: var(--color-text-primary);
 }
 
-.aboutLink {
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  justify-content: center;
-  padding: 0.45rem 0.7rem;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 24%, transparent);
-  background: var(--color-brand-soft);
-  color: var(--color-brand-primary);
-  text-decoration: none;
-  font-weight: 700;
-}
-
 .breadcrumbs {
   display: flex;
   flex-wrap: wrap;
@@ -665,6 +651,10 @@
   color: var(--color-status-danger);
 }
 
+.hiddenFileInput {
+  display: none;
+}
+
 .emptyPanel {
   border-radius: 16px;
   border: 1px dashed var(--color-border-soft);
@@ -710,6 +700,144 @@
   display: flex;
   gap: 0.65rem;
   flex-wrap: wrap;
+}
+
+.sectionImageEditorGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 0.75rem;
+}
+
+.sectionImageEditorCard {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.sectionImageEditorCard > button {
+  justify-self: end;
+}
+
+.sectionImageEditorPreview,
+.sectionGalleryImageFrame,
+.sectionImageLightboxFrame {
+  position: relative;
+  overflow: hidden;
+}
+
+.sectionImageEditorPreview {
+  min-height: 8rem;
+  border-radius: 14px;
+  border: 1px solid var(--color-border-soft);
+  background: color-mix(in srgb, var(--color-bg-surface-alt) 88%, transparent);
+}
+
+.sectionImageEditorPreview :global(img),
+.sectionGalleryImageFrame :global(img) {
+  object-fit: cover;
+}
+
+.sectionGallery {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.sectionGalleryImageButton {
+  all: unset;
+  cursor: zoom-in;
+  display: block;
+}
+
+.sectionGalleryImageFrame {
+  min-height: 15rem;
+  border-radius: 18px;
+  border: 1px solid var(--color-border-soft);
+  background: color-mix(in srgb, var(--color-bg-surface-alt) 90%, transparent);
+}
+
+.sectionGalleryIndicators {
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.sectionGalleryIndicator {
+  width: 2.4rem;
+  height: 0.32rem;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-border-soft) 80%, transparent);
+  cursor: pointer;
+}
+
+.sectionGalleryIndicatorActive {
+  background: color-mix(in srgb, var(--color-brand-primary) 75%, white);
+}
+
+.sectionImageLightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, #000 82%, transparent);
+  padding: 1.2rem;
+  isolation: isolate;
+}
+
+.sectionImageLightboxFrame {
+  width: min(94vw, 88rem);
+  height: min(90dvh, 88rem);
+  border-radius: 18px;
+  background: #050608;
+  box-shadow: var(--shadow-elevation-md);
+  z-index: 1;
+}
+
+.sectionImageLightboxFrame :global(img) {
+  object-fit: contain;
+}
+
+.sectionImageLightboxClose,
+.sectionImageLightboxNav {
+  position: absolute;
+  border: 1px solid color-mix(in srgb, var(--color-border-strong) 72%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 82%, #000);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: var(--shadow-elevation-sm);
+  backdrop-filter: blur(10px);
+}
+
+.sectionImageLightboxClose {
+  top: 1rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sectionImageLightboxNav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sectionImageLightboxNavPrev {
+  left: max(1rem, calc(50vw - min(47vw, 44rem) - 1.5rem));
+}
+
+.sectionImageLightboxNavNext {
+  right: max(1rem, calc(50vw - min(47vw, 44rem) - 1.5rem));
 }
 
 @media (max-width: 1100px) {
@@ -762,6 +890,32 @@
     overflow: visible;
     text-overflow: unset;
     overflow-wrap: anywhere;
+  }
+
+  .sectionGalleryImageFrame {
+    min-height: 11.5rem;
+  }
+
+  .sectionImageLightbox {
+    padding: 1rem 0.75rem 1.25rem;
+  }
+
+  .sectionImageLightboxFrame {
+    width: min(96vw, 100%);
+    height: min(84dvh, 100%);
+  }
+
+  .sectionImageLightboxNav {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .sectionImageLightboxNavPrev {
+    left: 0.6rem;
+  }
+
+  .sectionImageLightboxNavNext {
+    right: 0.6rem;
   }
 }
 
