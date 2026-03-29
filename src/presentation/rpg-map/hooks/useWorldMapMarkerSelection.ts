@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, type Dispatch, type MutableRefObject, type SetStateAction } from "react"
+import { useEffect, useRef, useState, type Dispatch, type MutableRefObject, type SetStateAction } from "react"
 import type { WorldMapCanvasHandle } from "@/presentation/rpg-map/components/WorldMapCanvas"
 import type { MapMarkerItem, MarkerGroup } from "@/presentation/rpg-map/types/mapMarkers"
 import {
@@ -26,9 +26,14 @@ type Params = {
 export function useWorldMapMarkerSelection(params: Params) {
   const [selectedMapMarker, setSelectedMapMarker] = useState<DisplayMapMarkerSelection | null>(null)
   const [overlappingMarkers, setOverlappingMarkers] = useState<DisplayMapMarkerSelection[] | null>(null)
+  const lastHandledFocusTokenRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (!params.focusMarkerRequest) {
+      return
+    }
+
+    if (lastHandledFocusTokenRef.current === params.focusMarkerRequest.token) {
       return
     }
 
@@ -36,6 +41,8 @@ export function useWorldMapMarkerSelection(params: Params) {
     if (!match) {
       return
     }
+
+    lastHandledFocusTokenRef.current = params.focusMarkerRequest.token
 
     params.setAreMarkersVisible(true)
     params.setVisibleMarkerGroupIds((current) =>
@@ -69,7 +76,16 @@ export function useWorldMapMarkerSelection(params: Params) {
     }
 
     void focusMarker()
-  }, [params])
+  }, [
+    params.canvasRef,
+    params.closeTransientUi,
+    params.displayMarkerGroups,
+    params.focusMarkerRequest,
+    params.frameRef,
+    params.setAreMarkersVisible,
+    params.setIsInteractive,
+    params.setVisibleMarkerGroupIds,
+  ])
 
   function handleMarkerPinSelect(clickedMarker: MapMarkerItem, groupColor: string) {
     const nearbyMarkers = findNearbyMarkerSelections(

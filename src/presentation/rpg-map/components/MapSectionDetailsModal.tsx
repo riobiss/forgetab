@@ -32,7 +32,9 @@ type Props = {
   selectedSection: RpgMapSectionDto | null
   breadcrumbs: RpgMapBreadcrumbDto[]
   sectionRenderState: SectionRenderState | null
+  linkedMarkerName?: string | null
   onOpenBreadcrumb: (sectionId: string) => void
+  onGoToMap?: () => void
   onEdit: (section: RpgMapSectionDto) => void
   onClose: () => void
 }
@@ -43,7 +45,9 @@ export function MapSectionDetailsModal({
   selectedSection,
   breadcrumbs,
   sectionRenderState,
+  linkedMarkerName,
   onOpenBreadcrumb,
+  onGoToMap,
   onEdit,
   onClose,
 }: Props) {
@@ -299,6 +303,13 @@ export function MapSectionDetailsModal({
                 {renderFieldValue(value)}
               </div>
             ))
+          ) : null}
+          {onGoToMap && linkedMarkerName ? (
+            <div className={styles.detailModalActions}>
+              <button type="button" className={styles.primaryButton} onClick={onGoToMap}>
+                Ir ao mapa
+              </button>
+            </div>
           ) : null}
         </div>
       </section>

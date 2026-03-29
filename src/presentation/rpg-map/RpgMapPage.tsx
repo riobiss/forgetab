@@ -843,7 +843,16 @@ export function RpgMapPage({
         selectedSection={selectedSection}
         breadcrumbs={breadcrumbs}
         sectionRenderState={sectionRenderState}
+        linkedMarkerName={linkedSectionMarker?.name ?? null}
         onOpenBreadcrumb={(sectionId) => openSectionDetails(sectionId, setSelectedSectionId)}
+        onGoToMap={
+          linkedSectionMarker
+            ? () => {
+                closeSectionDetailsModal()
+                handleGoToMarker(linkedSectionMarker.id)
+              }
+            : undefined
+        }
         onEdit={(section) => {
           closeSectionDetailsModal()
           openEditSectionModal(section)

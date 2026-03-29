@@ -702,6 +702,12 @@
   flex-wrap: wrap;
 }
 
+.detailModalActions {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 0.25rem;
+}
+
 .sectionImageEditorGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
