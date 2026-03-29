@@ -34,6 +34,7 @@ export function useMapMarkerGroups(params: Params) {
   const [pendingMarkers, setPendingMarkers] = useState<PendingMarker[]>([])
   const [markerGroupName, setMarkerGroupName] = useState("")
   const [markerGroupColor, setMarkerGroupColor] = useState(params.markerColors[0] ?? "#f97316")
+  const [markerSelectionTargetGroupId, setMarkerSelectionTargetGroupId] = useState<string | null>(null)
   const [editingMarker, setEditingMarker] = useState<MapMarkerItem | null>(null)
   const [editingMarkerName, setEditingMarkerName] = useState("")
   const [editingMarkerLocation, setEditingMarkerLocation] = useState("")
@@ -85,10 +86,19 @@ export function useMapMarkerGroups(params: Params) {
     setSelectedMarkerGroupId("")
   }
 
-  function startMarkerSelection() {
+  function startMarkerSelection(targetGroupId?: string | null) {
+    const targetGroup = targetGroupId
+      ? allMarkerGroups.find((group) => group.id === targetGroupId) ?? null
+      : null
+
     setPendingMarkers([])
-    setMarkerGroupName(`Grupo ${privateMarkerGroups.length + 1}`)
-    setMarkerGroupColor(params.markerColors[privateMarkerGroups.length % params.markerColors.length] ?? "#f97316")
+    setMarkerSelectionTargetGroupId(targetGroup?.id ?? null)
+    setMarkerGroupName(targetGroup?.name ?? `Grupo ${privateMarkerGroups.length + 1}`)
+    setMarkerGroupColor(
+      targetGroup?.color ??
+        params.markerColors[privateMarkerGroups.length % params.markerColors.length] ??
+        "#f97316",
+    )
     setIsMarkerSelectionMode(true)
     setAreMarkersVisible(true)
     setEditingMarker(null)
@@ -97,10 +107,54 @@ export function useMapMarkerGroups(params: Params) {
   function cancelMarkerSelection() {
     setPendingMarkers([])
     setIsMarkerSelectionMode(false)
+    setMarkerSelectionTargetGroupId(null)
   }
 
   function concludeMarkerSelection() {
     if (pendingMarkers.length === 0) {
+      return false
+    }
+
+    if (markerSelectionTargetGroupId) {
+      const targetGroup = allMarkerGroups.find((group) => group.id === markerSelectionTargetGroupId) ?? null
+      if (!targetGroup?.canEdit) {
+        return false
+      }
+
+      const appendedMarkers = pendingMarkers.map((marker) => ({
+        id: marker.id,
+        name: marker.name.trim() || "Marcador",
+        location: marker.location.trim() || null,
+        shortDescription: marker.shortDescription.trim() || null,
+        image: marker.image.trim() || null,
+        color: targetGroup.color,
+        x: marker.x,
+        y: marker.y,
+        size: marker.size,
+        pinStyle: marker.pinStyle,
+        canEdit: true,
+        canDelete: true,
+      }))
+
+      const updatedGroup = {
+        ...targetGroup,
+        markers: [...targetGroup.markers, ...appendedMarkers],
+      }
+
+      if (targetGroup.visibility === "public") {
+        void persistPublicMarkerGroup(updatedGroup)
+      } else {
+        updatePrivateGroups((current) =>
+          current.map((group) => (group.id === targetGroup.id ? updatedGroup : group)),
+        )
+      }
+
+      setPendingMarkers([])
+      setIsMarkerSelectionMode(false)
+      setMarkerSelectionTargetGroupId(null)
+      setSelectedVisibility(targetGroup.visibility)
+      setSelectedMarkerGroupId(targetGroup.id)
+      toast.success("Marcadores adicionados ao grupo.")
       return false
     }
 
@@ -117,6 +171,7 @@ export function useMapMarkerGroups(params: Params) {
     setSelectedVisibility("private")
     setSelectedMarkerGroupId(nextGroup.id)
     setPendingMarkers([])
+    setMarkerSelectionTargetGroupId(null)
     return nextGroup
   }
 

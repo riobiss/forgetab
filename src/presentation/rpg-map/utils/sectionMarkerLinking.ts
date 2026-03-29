@@ -273,6 +273,7 @@ export function buildLinkedSectionSnapshots(sections: RpgMapSectionDto[]): Linke
         name: section.name.trim(),
         description: section.description?.trim() || null,
         type: section.type?.trim() || null,
+        images: getSectionImages(section.customFields),
         customFields: buildMarkerDisplayFields(section.customFields),
       }
     })
@@ -307,11 +308,12 @@ function buildMergedSectionCustomFields(
 }
 
 export function buildSectionRenderState(section: RpgMapSectionDto, linkedMarker: MarkerLinkOption | null) {
+  const sectionImages = getSectionImages(section.customFields)
   return {
     name: section.name.trim() || linkedMarker?.name || "Secao",
     description: section.description?.trim() || linkedMarker?.shortDescription || null,
     type: section.type?.trim() || null,
-    images: getSectionImages(section.customFields),
+    images: sectionImages.length > 0 ? sectionImages : linkedMarker?.image ? [linkedMarker.image] : [],
     customFields: buildMergedSectionCustomFields(section.customFields, linkedMarker),
   }
 }

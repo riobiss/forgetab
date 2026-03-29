@@ -14,6 +14,7 @@ export type MapMarkerItem = {
   location: string | null
   shortDescription: string | null
   image: string | null
+  displayImages?: string[] | null
   x: number
   y: number
   color?: string | null
@@ -53,5 +54,6 @@ export type LinkedSectionSnapshot = {
   name: string
   description: string | null
   type: string | null
+  images: string[]
   customFields: MarkerDisplayField[]
 }

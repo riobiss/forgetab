@@ -321,6 +321,7 @@
   padding: 1rem;
   display: grid;
   gap: 0.85rem;
+  align-content: start;
 }
 
 .markerEditModal {
@@ -330,7 +331,7 @@
 
 .markerGroupModal {
   width: min(560px, 100%);
-  height: min(82dvh, 42rem);
+  max-height: min(82dvh, 42rem);
   overflow-y: auto;
 }
 
@@ -604,9 +605,13 @@
 }
 
 .markerListMain {
+  all: unset;
+  cursor: pointer;
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .markerGroupPickerList {
@@ -762,6 +767,39 @@
   flex-shrink: 0;
 }
 
+.bottomSheetGallery {
+  display: grid;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.bottomSheetGalleryButton {
+  all: unset;
+  cursor: zoom-in;
+  display: block;
+  width: 100%;
+  pointer-events: auto;
+}
+
+.bottomSheetGalleryIndicators {
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.bottomSheetGalleryIndicator {
+  width: 2.2rem;
+  height: 0.32rem;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-border-soft) 80%, transparent);
+  cursor: pointer;
+}
+
+.bottomSheetGalleryIndicatorActive {
+  background: color-mix(in srgb, var(--color-brand-primary) 75%, white);
+}
+
 .bottomSheetImage {
   display: block;
   width: 100%;
@@ -798,12 +836,103 @@
   padding-top: 0.25rem;
 }
 
+.markerImageLightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, #000 82%, transparent);
+  padding: 1.2rem;
+  isolation: isolate;
+}
+
+.markerImageLightboxFrame {
+  position: relative;
+  overflow: hidden;
+  width: min(94vw, 88rem);
+  height: min(90dvh, 88rem);
+  border-radius: 18px;
+  background: #050608;
+  box-shadow: var(--shadow-elevation-md);
+  z-index: 1;
+}
+
+.markerImageLightboxFrame :global(img) {
+  object-fit: contain;
+}
+
+.markerImageLightboxClose,
+.markerImageLightboxNav {
+  position: absolute;
+  z-index: 2;
+  border: 1px solid color-mix(in srgb, var(--color-border-strong) 72%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 82%, #000);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  box-shadow: var(--shadow-elevation-sm);
+  backdrop-filter: blur(10px);
+}
+
+.markerImageLightboxClose {
+  top: 1rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.markerImageLightboxNav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.markerImageLightboxNavPrev {
+  left: max(1rem, calc(50vw - min(47vw, 44rem) - 1.5rem));
+}
+
+.markerImageLightboxNavNext {
+  right: max(1rem, calc(50vw - min(47vw, 44rem) - 1.5rem));
+}
+
 
 @media (max-width: 720px) {
   .ownerActionRow,
   .selectionBanner,
   .modalActions {
     flex-wrap: wrap;
+  }
+
+  .markerImageLightbox {
+    padding: 1rem 0.75rem 1.25rem;
+  }
+
+  .markerImageLightboxFrame {
+    width: min(96vw, 100%);
+    height: min(84dvh, 100%);
+  }
+
+  .markerImageLightboxNav {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .markerImageLightboxNavPrev {
+    left: 0.6rem;
+  }
+
+  .markerImageLightboxNavNext {
+    right: 0.6rem;
   }
 }
 

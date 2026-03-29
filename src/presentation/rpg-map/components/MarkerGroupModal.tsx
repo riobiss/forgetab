@@ -1,7 +1,7 @@
 "use client"
 
 import type { RefObject } from "react"
-import { Pencil, Trash2, X } from "lucide-react"
+import { Pencil, Plus, Trash2, X } from "lucide-react"
 import type { MarkerGroup, MapMarkerItem } from "@/presentation/rpg-map/types/mapMarkers"
 import styles from "../WorldMap.module.css"
 
@@ -15,6 +15,8 @@ type Props = {
   canPublish: boolean
   onChangeGroupName: (value: string) => void
   onChangeGroupColor: (value: string) => void
+  onAddMarkers: () => void
+  onOpenMarker: (marker: MapMarkerItem) => void
   onEditMarker: (marker: MapMarkerItem) => void
   onDeleteMarker: (markerId: string) => void
   onSaveGroup: () => void
@@ -33,6 +35,8 @@ export function MarkerGroupModal({
   canPublish,
   onChangeGroupName,
   onChangeGroupColor,
+  onAddMarkers,
+  onOpenMarker,
   onEditMarker,
   onDeleteMarker,
   onSaveGroup,
@@ -52,9 +56,16 @@ export function MarkerGroupModal({
             <h2>{group.name}</h2>
             <p className={styles.modalSubtle}>{group.markers.length} marcador(es)</p>
           </div>
-          <button type="button" className={styles.iconButton} onClick={onClose} aria-label="Fechar">
-            <X size={16} />
-          </button>
+          <div className={styles.modalHeaderActions}>
+            {group.canEdit ? (
+              <button type="button" className={styles.iconButton} onClick={onAddMarkers} aria-label="Adicionar marcadores">
+                <Plus size={16} />
+              </button>
+            ) : null}
+            <button type="button" className={styles.iconButton} onClick={onClose} aria-label="Fechar">
+              <X size={16} />
+            </button>
+          </div>
         </div>
         <label className={styles.field}>
           <span>Nome do grupo</span>
@@ -84,7 +95,11 @@ export function MarkerGroupModal({
           {group.markers.length > 0 ? (
             group.markers.map((marker, index) => (
               <article key={marker.id} className={styles.markerListItem}>
-                <div className={styles.markerListMain}>
+                <button
+                  type="button"
+                  className={styles.markerListMain}
+                  onClick={() => onOpenMarker(marker)}
+                >
                   <span
                     className={styles.markerSwatch}
                     style={{ backgroundColor: marker.color || group.color }}
@@ -93,7 +108,7 @@ export function MarkerGroupModal({
                     <strong>{marker.name}</strong>
                     <small>{marker.location || `Pino ${index + 1}`}</small>
                   </div>
-                </div>
+                </button>
                 <div className={styles.markerListActions}>
                   {marker.canEdit ? (
                     <button type="button" className={styles.iconButton} onClick={() => onEditMarker(marker)}>

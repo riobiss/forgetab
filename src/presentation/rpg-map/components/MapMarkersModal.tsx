@@ -1,7 +1,7 @@
 "use client"
 
 import type { RefObject } from "react"
-import { Pencil, Plus, Trash2, X } from "lucide-react"
+import { Plus, Trash2, X } from "lucide-react"
 import type { MarkerGroup } from "@/presentation/rpg-map/types/mapMarkers"
 import styles from "../WorldMap.module.css"
 
@@ -149,22 +149,15 @@ export function MapMarkersModal({
                     <button
                       type="button"
                       className={styles.markerGroupPickerMain}
-                      onClick={() => setSelectedMarkerGroupId(group.id)}
+                      onClick={() => {
+                        setSelectedMarkerGroupId(group.id)
+                        onEdit(group.id)
+                      }}
                     >
                       <strong>{group.name}</strong>
                       <small>{group.markers.length} marcador(es)</small>
                     </button>
                     <div className={styles.markerListActions}>
-                      {group.canEdit ? (
-                        <button
-                          type="button"
-                          className={styles.iconButton}
-                          onClick={() => onEdit(group.id)}
-                          title="Editar grupo"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                      ) : null}
                       {group.canDelete ? (
                         <button
                           type="button"

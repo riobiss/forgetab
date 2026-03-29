@@ -11,12 +11,26 @@ export function mergeMarkerWithLinkedSection(
   marker: MapMarkerItem,
   linkedSection?: LinkedSectionSnapshot,
 ): MapMarkerItem {
+  const markerImages = marker.displayImages?.filter((image) => image.trim().length > 0) ?? []
+
   if (!linkedSection) {
-    return marker
+    return {
+      ...marker,
+      displayImages: markerImages.length > 0 ? markerImages : marker.image ? [marker.image] : [],
+    }
   }
 
   return {
     ...marker,
+    image: linkedSection.images[0] ?? marker.image,
+    displayImages:
+      linkedSection.images.length > 0
+        ? linkedSection.images
+        : markerImages.length > 0
+          ? markerImages
+          : marker.image
+            ? [marker.image]
+            : [],
     name: marker.name.trim() || linkedSection.name,
     shortDescription: marker.shortDescription?.trim() || linkedSection.description || null,
     type: linkedSection.type,

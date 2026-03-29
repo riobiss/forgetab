@@ -1,8 +1,9 @@
 "use client"
 
 import Image from "next/image"
-import type { RefObject } from "react"
-import { Pencil, X } from "lucide-react"
+import { createPortal } from "react-dom"
+import { useEffect, useState, type MouseEvent, type RefObject } from "react"
+import { ChevronLeft, ChevronRight, Pencil, X } from "lucide-react"
 import type { MapMarkerItem } from "@/presentation/rpg-map/types/mapMarkers"
 import styles from "../WorldMap.module.css"
 
@@ -17,7 +18,137 @@ type Props = {
 }
 
 export function MapMarkerBottomSheet({ marker, canEdit, sheetRef, linkedSectionName, onEdit, onMoreInfo, onClose }: Props) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false)
+  const [lightboxHost, setLightboxHost] = useState<HTMLElement | null>(null)
+  const [lightboxElement, setLightboxElement] = useState<HTMLElement | null>(null)
+  const images =
+    marker.displayImages?.filter((image) => image.trim().length > 0) ??
+    (marker.image?.trim() ? [marker.image.trim()] : [])
+  const activeImage = images[currentImageIndex] ?? null
+
+  useEffect(() => {
+    setCurrentImageIndex(0)
+    setIsImageViewerOpen(false)
+  }, [marker.id])
+
+  useEffect(() => {
+    setLightboxHost(document.body)
+  }, [])
+
+  useEffect(() => {
+    if (!isImageViewerOpen || !lightboxElement) {
+      return
+    }
+
+    queueMicrotask(() => {
+      if (document.fullscreenElement) {
+        return
+      }
+
+      if (typeof lightboxElement.requestFullscreen === "function") {
+        void lightboxElement.requestFullscreen().catch(() => undefined)
+      }
+    })
+  }, [isImageViewerOpen, lightboxElement])
+
+  useEffect(() => {
+    if (!isImageViewerOpen) {
+      return
+    }
+
+    function handleFullscreenChange() {
+      if (!document.fullscreenElement) {
+        setIsImageViewerOpen(false)
+      }
+    }
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange)
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange)
+  }, [isImageViewerOpen])
+
+  function showPreviousImage() {
+    if (images.length === 0) return
+    setCurrentImageIndex((current) => (current - 1 + images.length) % images.length)
+  }
+
+  function showNextImage() {
+    if (images.length === 0) return
+    setCurrentImageIndex((current) => (current + 1) % images.length)
+  }
+
+  function handleOpenImageViewer(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsImageViewerOpen(true)
+  }
+
+  async function closeImageViewer() {
+    try {
+      if (document.fullscreenElement && typeof document.exitFullscreen === "function") {
+        await document.exitFullscreen()
+      }
+    } catch {
+      // fallback visual
+    }
+
+    setIsImageViewerOpen(false)
+  }
+
+  const lightbox =
+    isImageViewerOpen && activeImage && lightboxHost
+      ? createPortal(
+          <div
+            ref={setLightboxElement}
+            className={styles.markerImageLightbox}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Imagem do marcador em tela cheia"
+          >
+            <button
+              type="button"
+              className={styles.markerImageLightboxClose}
+              onClick={() => void closeImageViewer()}
+              aria-label="Fechar imagem"
+            >
+              <X size={18} />
+            </button>
+            {images.length > 1 ? (
+              <button
+                type="button"
+                className={`${styles.markerImageLightboxNav} ${styles.markerImageLightboxNavPrev}`}
+                onClick={showPreviousImage}
+                aria-label="Imagem anterior"
+              >
+                <ChevronLeft size={20} />
+              </button>
+            ) : null}
+            <div className={styles.markerImageLightboxFrame}>
+              <Image
+                src={activeImage}
+                alt={`Imagem ${currentImageIndex + 1} do marcador`}
+                fill
+                sizes="100vw"
+                unoptimized
+              />
+            </div>
+            {images.length > 1 ? (
+              <button
+                type="button"
+                className={`${styles.markerImageLightboxNav} ${styles.markerImageLightboxNavNext}`}
+                onClick={showNextImage}
+                aria-label="Proxima imagem"
+              >
+                <ChevronRight size={20} />
+              </button>
+            ) : null}
+          </div>,
+          lightboxHost,
+        )
+      : null
+
   return (
+    <>
     <div className={styles.bottomSheetOverlay} role="dialog" aria-modal="true" aria-label="Detalhes do marcador">
       <section ref={sheetRef} className={styles.bottomSheet} tabIndex={-1}>
         <div className={styles.bottomSheetHandle} />
@@ -34,16 +165,38 @@ export function MapMarkerBottomSheet({ marker, canEdit, sheetRef, linkedSectionN
           </button>
         </div>
 
-        {marker.image ? (
-          <div className={styles.bottomSheetImageWrap}>
-            <Image
-              src={marker.image.trim()}
-              alt={marker.name}
-              className={styles.bottomSheetImage}
-              fill
-              sizes="(max-width: 768px) 100vw, 560px"
-              unoptimized
-            />
+        {activeImage ? (
+          <div className={styles.bottomSheetGallery}>
+            <button
+              type="button"
+              className={styles.bottomSheetGalleryButton}
+              onClick={handleOpenImageViewer}
+              aria-label="Abrir imagem em tela cheia"
+            >
+              <div className={styles.bottomSheetImageWrap}>
+                <Image
+                  src={activeImage}
+                  alt={marker.name}
+                  className={styles.bottomSheetImage}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 560px"
+                  unoptimized
+                />
+              </div>
+            </button>
+            {images.length > 1 ? (
+              <div className={styles.bottomSheetGalleryIndicators} aria-label="Indicadores da galeria">
+                {images.map((image, index) => (
+                  <button
+                    key={`${image}-${index}`}
+                    type="button"
+                    className={`${styles.bottomSheetGalleryIndicator} ${index === currentImageIndex ? styles.bottomSheetGalleryIndicatorActive : ""}`}
+                    onClick={() => setCurrentImageIndex(index)}
+                    aria-label={`Mostrar imagem ${index + 1}`}
+                  />
+                ))}
+              </div>
+            ) : null}
           </div>
         ) : null}
 
@@ -84,5 +237,7 @@ export function MapMarkerBottomSheet({ marker, canEdit, sheetRef, linkedSectionN
         </div>
       </section>
     </div>
+    {lightbox}
+    </>
   )
 }

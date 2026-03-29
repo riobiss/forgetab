@@ -20,7 +20,7 @@ import { useWorldMapMarkerModalFlow } from "@/presentation/rpg-map/hooks/useWorl
 import { useModalFocusTrap } from "@/presentation/rpg-map/hooks/useModalFocusTrap"
 import { useWorldMapMarkerSelection } from "@/presentation/rpg-map/hooks/useWorldMapMarkerSelection"
 import { DEFAULT_BRUSH_COLORS, useWorldMapUiState } from "@/presentation/rpg-map/hooks/useWorldMapUiState"
-import { buildDisplayMarkerGroups } from "@/presentation/rpg-map/utils/markerDisplay"
+import { buildDisplayMarkerGroups, findMarkerSelectionById } from "@/presentation/rpg-map/utils/markerDisplay"
 import styles from "./WorldMap.module.css"
 import type { LinkedSectionSnapshot, MapMarkerItem } from "./types/mapMarkers"
 
@@ -376,6 +376,19 @@ export function MundiMap({
     await onSaveMarkerSectionLink(markerId, editingLinkedSectionId || null)
   }
 
+  function handleOpenMarkerFromGroup(markerId: string) {
+    const selection = findMarkerSelectionById(displayMarkerGroups, markerId)
+    if (!selection) {
+      return
+    }
+
+    setIsMarkerListModalOpen(false)
+    setSelectedMapMarker({
+      marker: selection.marker,
+      groupColor: selection.groupColor,
+    })
+  }
+
   return (
     <section className={styles.wrapper}>
       <div
@@ -665,6 +678,15 @@ export function MundiMap({
           canPublish={selectedMarkerGroup?.visibility === "private" && canManagePublicMarkers}
           onChangeGroupName={setEditingGroupName}
           onChangeGroupColor={setEditingGroupColor}
+          onAddMarkers={() => {
+            if (!selectedMarkerGroup) {
+              return
+            }
+
+            setIsMarkerListModalOpen(false)
+            startMarkerSelection(selectedMarkerGroup.id)
+          }}
+          onOpenMarker={(marker) => handleOpenMarkerFromGroup(marker.id)}
           onEditMarker={(marker) => {
             setIsMarkerListModalOpen(false)
             openMarkerEdit(marker)
@@ -733,6 +755,9 @@ export function MundiMap({
                     const sectionId = linkedSectionsByMarkerId.get(selectedMapMarker.marker.id)?.sectionId
                     setSelectedMapMarker(null)
                     if (sectionId) {
+                      if (isFullscreen) {
+                        toggleFullscreen()
+                      }
                       onOpenLinkedSection(sectionId)
                     }
                   }
