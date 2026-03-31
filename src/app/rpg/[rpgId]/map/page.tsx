@@ -11,5 +11,9 @@ export default async function MapPage({ params }: Params) {
   const { rpgId } = await params
   const shell = await loadMapShellData(rpgId)
 
-  return <RpgMapFeature rpgId={rpgId} rpgTitle={shell.rpgTitle} />
+  return (
+    <main>
+      <RpgMapFeature rpgId={rpgId} rpgTitle={shell.rpgTitle} />
+    </main>
+  )
 }

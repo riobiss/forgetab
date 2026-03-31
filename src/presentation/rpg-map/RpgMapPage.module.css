@@ -23,6 +23,11 @@
   align-content: start;
 }
 
+.pageContent {
+  display: grid;
+  gap: 1.5rem;
+}
+
 .header,
 .panel,
 .sidebar,
@@ -858,6 +863,10 @@
     padding: 1.4rem 1rem 2.4rem;
   }
 
+  .pageContent {
+    gap: 1.2rem;
+  }
+
   .metaGrid {
     grid-template-columns: 1fr;
   }
@@ -924,4 +933,3 @@
     right: 0.6rem;
   }
 }
-

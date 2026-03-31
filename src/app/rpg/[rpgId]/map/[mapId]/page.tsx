@@ -13,12 +13,14 @@ export default async function MapDetailPage({ params }: Params) {
   const shell = await loadMapShellData(rpgId, mapId)
 
   return (
-    <RpgMapFeature
-      rpgId={rpgId}
-      rpgTitle={shell.rpgTitle}
-      view="detail"
-      initialMapId={mapId}
-      detailTitle={shell.mapTitle}
-    />
+    <main>
+      <RpgMapFeature
+        rpgId={rpgId}
+        rpgTitle={shell.rpgTitle}
+        view="detail"
+        initialMapId={mapId}
+        detailTitle={shell.mapTitle}
+      />
+    </main>
   )
 }

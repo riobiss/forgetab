@@ -672,8 +672,8 @@ export function RpgMapPage({
   }
 
   return (
-    <main className={styles.page}>
-      <div ref={pageContentRef}>
+    <div className={styles.page}>
+      <div ref={pageContentRef} className={styles.pageContent}>
       <section className={styles.header}>
         <div className={styles.headerText}>
           <p className={styles.kicker}>{view === "detail" ? "Mapa" : rpgTitle}</p>
@@ -705,12 +705,22 @@ export function RpgMapPage({
             </div>
           </section>
 
-          {loadingMaps ? <p className={styles.feedback}>Carregando mapas...</p> : null}
-          {error && !loadingMaps ? <p className={styles.error}>{error}</p> : null}
+          {loadingMaps ? (
+            <section className={styles.groups}>
+              <p className={styles.feedback}>Carregando mapas...</p>
+            </section>
+          ) : null}
+          {error && !loadingMaps ? (
+            <section className={styles.groups}>
+              <p className={styles.error}>{error}</p>
+            </section>
+          ) : null}
 
           {!loadingMaps && filteredMaps.length === 0 ? (
-            <section className={styles.emptyPanel}>
-              <p>{maps.length === 0 ? "Nenhum mapa cadastrado ainda." : "Nenhum mapa encontrado com a busca atual."}</p>
+            <section className={styles.groups}>
+              <div className={styles.emptyPanel}>
+                <p>{maps.length === 0 ? "Nenhum mapa cadastrado ainda." : "Nenhum mapa encontrado com a busca atual."}</p>
+              </div>
             </section>
           ) : null}
 
@@ -916,6 +926,6 @@ export function RpgMapPage({
         className={styles.hiddenFileInput}
         onChange={handleSectionImageChange}
       />
-    </main>
+    </div>
   )
 }
