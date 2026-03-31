@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
 import { Menu, User, X } from "lucide-react"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 import styles from "./Header.module.css"
 
 const HIDDEN_ROUTES = new Set(["/login", "/register", "/register"])
@@ -47,9 +48,8 @@ export default function Header() {
     if (loggingOut) return
     setLoggingOut(true)
     try {
-      await fetch("/api/auth/logout", {
+      await apiFetch("/api/auth/logout", {
         method: "POST",
-        credentials: "same-origin",
         cache: "no-store",
       })
     } finally {

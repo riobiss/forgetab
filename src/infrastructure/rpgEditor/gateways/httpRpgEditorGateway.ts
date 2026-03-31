@@ -8,6 +8,7 @@ import type {
   RpgEditorTemplateFieldDto,
   UpdateRpgPayloadDto,
 } from "@/application/rpgEditor/types"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & { message?: string }
@@ -29,28 +30,28 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
       identityPayload,
       characteristicPayload,
     ] = await Promise.all([
-      fetch(`/api/rpg/${rpgId}`).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}`).then((response) =>
         parseJson<{ rpg?: RpgEditorBootstrapDto["rpg"] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/attributes`).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/attributes`).then((response) =>
         parseJson<{ attributes?: RpgEditorTemplateFieldDto[] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/statuses`).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/statuses`).then((response) =>
         parseJson<{ statuses?: RpgEditorTemplateFieldDto[] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/skills`).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/skills`).then((response) =>
         parseJson<{ skills?: RpgEditorTemplateFieldDto[] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/races`).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/races`).then((response) =>
         parseJson<{ races?: RpgEditorBootstrapDto["races"] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/classes`).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/classes`).then((response) =>
         parseJson<{ classes?: RpgEditorBootstrapDto["classes"] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/character-identity`).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/character-identity`).then((response) =>
         parseJson<{ fields?: RpgEditorIdentityFieldDto[] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/character-characteristics`).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/character-characteristics`).then((response) =>
         parseJson<{ fields?: RpgEditorIdentityFieldDto[] }>(response),
       ),
     ])
@@ -68,7 +69,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
   },
 
   async createRpg(payload: CreateRpgPayloadDto): Promise<CreatedRpgDto> {
-    const response = await fetch("/api/rpg", {
+    const response = await apiFetch("/api/rpg", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -84,7 +85,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
   },
 
   async updateRpg(rpgId: string, payload: UpdateRpgPayloadDto): Promise<void> {
-    const response = await fetch(`/api/rpg/${rpgId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -94,7 +95,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
   },
 
   async saveAttributes(rpgId: string, attributes: RpgEditorTemplateFieldDto[]): Promise<void> {
-    const response = await fetch(`/api/rpg/${rpgId}/attributes`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/attributes`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ attributes }),
@@ -104,7 +105,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
   },
 
   async saveStatuses(rpgId: string, statuses: RpgEditorTemplateFieldDto[]): Promise<void> {
-    const response = await fetch(`/api/rpg/${rpgId}/statuses`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/statuses`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ statuses }),
@@ -114,7 +115,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
   },
 
   async saveSkills(rpgId: string, skills: string[]): Promise<void> {
-    const response = await fetch(`/api/rpg/${rpgId}/skills`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/skills`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ skills }),
@@ -124,7 +125,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
   },
 
   async saveRaces(rpgId: string, races: RpgEditorCatalogOptionDto[]): Promise<void> {
-    const response = await fetch(`/api/rpg/${rpgId}/races`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/races`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -143,7 +144,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
   },
 
   async saveClasses(rpgId: string, classes: RpgEditorCatalogOptionDto[]): Promise<void> {
-    const response = await fetch(`/api/rpg/${rpgId}/classes`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/classes`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -164,7 +165,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
     rpgId: string,
     fields: RpgEditorIdentityFieldDto[],
   ): Promise<void> {
-    const response = await fetch(`/api/rpg/${rpgId}/character-identity`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/character-identity`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -179,7 +180,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
     rpgId: string,
     fields: RpgEditorIdentityFieldDto[],
   ): Promise<void> {
-    const response = await fetch(`/api/rpg/${rpgId}/character-characteristics`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/character-characteristics`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -191,7 +192,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
   },
 
   async deleteRpg(rpgId: string): Promise<void> {
-    const response = await fetch(`/api/rpg/${rpgId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}`, {
       method: "DELETE",
     })
 
@@ -201,7 +202,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
   async uploadRpgImage(file: File): Promise<{ url: string }> {
     const formData = new FormData()
     formData.append("file", file)
-    const response = await fetch("/api/uploads/rpg-image", {
+    const response = await apiFetch("/api/uploads/rpg-image", {
       method: "POST",
       body: formData,
     })
@@ -214,7 +215,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
   },
 
   async deleteRpgImageByUrl(url: string): Promise<void> {
-    const response = await fetch("/api/uploads/rpg-image", {
+    const response = await apiFetch("/api/uploads/rpg-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),

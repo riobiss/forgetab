@@ -1,5 +1,6 @@
 import type { CharacterInventoryGateway } from "@/application/characterInventory/contracts/CharacterInventoryGateway"
 import type { CharacterInventoryDataDto, CharacterInventoryItemDto } from "@/application/characterInventory/types"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & { message?: string }
@@ -11,7 +12,7 @@ async function parseJson<T>(response: Response): Promise<T> {
 
 export const httpCharacterInventoryGateway: CharacterInventoryGateway = {
   async fetchInventory(rpgId: string, characterId: string): Promise<CharacterInventoryDataDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}/inventory`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters/${characterId}/inventory`)
     const payload = await parseJson<{
       characterName?: string
       inventory?: CharacterInventoryItemDto[]
@@ -32,7 +33,7 @@ export const httpCharacterInventoryGateway: CharacterInventoryGateway = {
     characterId: string,
     params: { inventoryItemId: string; quantity: number },
   ): Promise<{ inventoryItemId: string; remainingQuantity: number }> {
-    const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}/inventory`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters/${characterId}/inventory`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params),

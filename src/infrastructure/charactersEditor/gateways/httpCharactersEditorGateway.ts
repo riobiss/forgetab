@@ -9,6 +9,7 @@ import type {
   UpdateCharacterPayloadDto,
   UpsertCharacterPayloadDto,
 } from "@/application/charactersEditor/types"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & { message?: string }
@@ -19,7 +20,7 @@ async function parseJson<T>(response: Response): Promise<T> {
 }
 
 async function fetchCharactersList(rpgId: string): Promise<CharacterEditorSummaryDto[]> {
-  const payload = await fetch(`/api/rpg/${rpgId}/characters`, { cache: "no-store" }).then((response) =>
+  const payload = await apiFetch(`/api/rpg/${rpgId}/characters`, { cache: "no-store" }).then((response) =>
     parseJson<{ characters?: CharacterEditorSummaryDto[] }>(response),
   )
   return payload.characters ?? []
@@ -42,33 +43,33 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
       identityPayload,
       characteristicsPayload,
     ] = await Promise.all([
-      fetch(`/api/rpg/${rpgId}/attributes`, { cache: "no-store" }).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/attributes`, { cache: "no-store" }).then((response) =>
         parseJson<{ attributes?: CharacterEditorTemplateFieldDto[] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/statuses`, { cache: "no-store" }).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/statuses`, { cache: "no-store" }).then((response) =>
         parseJson<{ statuses?: CharacterEditorTemplateFieldDto[] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/skills`, { cache: "no-store" }).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/skills`, { cache: "no-store" }).then((response) =>
         parseJson<{ skills?: CharacterEditorTemplateFieldDto[] }>(response),
       ),
       includeCharacters
-        ? fetch(`/api/rpg/${rpgId}/characters`, { cache: "no-store" }).then((response) =>
+        ? apiFetch(`/api/rpg/${rpgId}/characters`, { cache: "no-store" }).then((response) =>
             parseJson<{ characters?: CharacterEditorSummaryDto[] }>(response),
           )
         : Promise.resolve({ characters: [] as CharacterEditorSummaryDto[] }),
-      fetch(`/api/rpg/${rpgId}`, { cache: "no-store" }).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}`, { cache: "no-store" }).then((response) =>
         parseJson<{ rpg?: CharacterEditorRpgSettingsDto }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/races`, { cache: "no-store" }).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/races`, { cache: "no-store" }).then((response) =>
         parseJson<{ races?: CharacterOptionDto[] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/classes`, { cache: "no-store" }).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/classes`, { cache: "no-store" }).then((response) =>
         parseJson<{ classes?: CharacterOptionDto[] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/character-identity`, { cache: "no-store" }).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/character-identity`, { cache: "no-store" }).then((response) =>
         parseJson<{ fields?: CharacterIdentityFieldDto[] }>(response),
       ),
-      fetch(`/api/rpg/${rpgId}/character-characteristics`, { cache: "no-store" }).then((response) =>
+      apiFetch(`/api/rpg/${rpgId}/character-characteristics`, { cache: "no-store" }).then((response) =>
         parseJson<{ fields?: CharacterIdentityFieldDto[] }>(response),
       ),
     ])
@@ -90,7 +91,7 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
     rpgId: string,
     payload: UpsertCharacterPayloadDto,
   ): Promise<CharacterEditorSummaryDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/characters`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -102,7 +103,7 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
   },
 
   async fetchCharacter(rpgId: string, characterId: string): Promise<CharacterEditorSummaryDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters/${characterId}`, {
       cache: "no-store",
     })
     const result = await parseJson<{ character?: CharacterEditorSummaryDto } & Record<string, unknown>>(
@@ -116,7 +117,7 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
     characterId: string,
     payload: UpdateCharacterPayloadDto,
   ): Promise<CharacterEditorSummaryDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters/${characterId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -138,7 +139,7 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
   },
 
   async deleteCharacter(rpgId: string, characterId: string): Promise<void> {
-    const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters/${characterId}`, {
       method: "DELETE",
     })
     await parseJson<{ message?: string }>(response)
@@ -147,7 +148,7 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
   async uploadCharacterImage(file: File): Promise<{ url: string }> {
     const formData = new FormData()
     formData.append("file", file)
-    const response = await fetch("/api/uploads/character-image", {
+    const response = await apiFetch("/api/uploads/character-image", {
       method: "POST",
       body: formData,
     })
@@ -159,7 +160,7 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
   },
 
   async deleteCharacterImageByUrl(url: string): Promise<void> {
-    const response = await fetch("/api/uploads/character-image", {
+    const response = await apiFetch("/api/uploads/character-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),

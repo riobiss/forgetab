@@ -4,6 +4,7 @@ import type {
   EntityCatalogAbilityPurchaseResult,
   EntityCatalogTemplateRecord,
 } from "@/application/entityCatalog/types"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & { message?: string }
@@ -20,7 +21,7 @@ function getEntityEndpoint(entityType: CatalogEntityType) {
 export const httpEntityCatalogGateway: EntityCatalogGateway = {
   async fetchCollection(rpgId, entityType): Promise<EntityCatalogTemplateRecord[]> {
     const endpoint = getEntityEndpoint(entityType)
-    const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/${endpoint}`)
     const payload = await parseJson<{
       classes?: EntityCatalogTemplateRecord[]
       races?: EntityCatalogTemplateRecord[]
@@ -30,7 +31,7 @@ export const httpEntityCatalogGateway: EntityCatalogGateway = {
 
   async saveCollection(rpgId, entityType, collection): Promise<void> {
     const endpoint = getEntityEndpoint(entityType)
-    const response = await fetch(`/api/rpg/${rpgId}/${endpoint}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/${endpoint}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(entityType === "class" ? { classes: collection } : { races: collection }),
@@ -39,7 +40,7 @@ export const httpEntityCatalogGateway: EntityCatalogGateway = {
   },
 
   async buySkill(characterId, payload): Promise<EntityCatalogAbilityPurchaseResult> {
-    const response = await fetch(`/api/characters/${characterId}/buy-skill`, {
+    const response = await apiFetch(`/api/characters/${characterId}/buy-skill`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

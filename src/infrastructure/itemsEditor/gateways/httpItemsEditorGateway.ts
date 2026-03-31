@@ -1,5 +1,6 @@
 import type { ItemsEditorGateway } from "@/application/itemsEditor/contracts/ItemsEditorGateway"
 import type { ItemEditorDetailDto, UpsertItemPayloadDto } from "@/application/itemsEditor/types"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & { message?: string }
@@ -11,14 +12,14 @@ async function parseJson<T>(response: Response): Promise<T> {
 
 export const httpItemsEditorGateway: ItemsEditorGateway = {
   async fetchItem(rpgId: string, itemId: string): Promise<ItemEditorDetailDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/items/${itemId}`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/items/${itemId}`)
     const payload = await parseJson<{ item?: ItemEditorDetailDto }>(response)
     if (!payload.item) throw new Error("Nao foi possivel carregar o item.")
     return payload.item
   },
 
   async createItem(rpgId: string, payload: UpsertItemPayloadDto): Promise<ItemEditorDetailDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/items`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/items`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -29,7 +30,7 @@ export const httpItemsEditorGateway: ItemsEditorGateway = {
   },
 
   async updateItem(rpgId: string, itemId: string, payload: UpsertItemPayloadDto): Promise<ItemEditorDetailDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/items/${itemId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/items/${itemId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -42,7 +43,7 @@ export const httpItemsEditorGateway: ItemsEditorGateway = {
   async uploadItemImage(file: File): Promise<{ url: string }> {
     const formData = new FormData()
     formData.append("file", file)
-    const response = await fetch("/api/uploads/item-image", {
+    const response = await apiFetch("/api/uploads/item-image", {
       method: "POST",
       body: formData,
     })
@@ -52,7 +53,7 @@ export const httpItemsEditorGateway: ItemsEditorGateway = {
   },
 
   async deleteItemImageByUrl(url: string): Promise<void> {
-    const response = await fetch("/api/uploads/item-image", {
+    const response = await apiFetch("/api/uploads/item-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),

@@ -6,6 +6,7 @@ import type {
   NpcMonsterLoadoutItemOptionDto,
   NpcMonsterLoadoutSkillOptionDto,
 } from "@/application/npcMonsterLoadout/types"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & { message?: string }
@@ -25,7 +26,7 @@ type SkillListResponse = {
 
 export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
   async fetchInventory(rpgId, characterId): Promise<CharacterInventoryDataDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}/inventory`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters/${characterId}/inventory`)
     const payload = await parseJson<{
       characterName?: string
       inventory?: CharacterInventoryItemDto[]
@@ -42,7 +43,7 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
   },
 
   async listAvailableItems(rpgId): Promise<NpcMonsterLoadoutItemOptionDto[]> {
-    const response = await fetch(`/api/rpg/${rpgId}/items`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/items`)
     const payload = await parseJson<{
       items?: Array<{
         id?: string
@@ -67,7 +68,7 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
   },
 
   async addInventoryItem(rpgId, characterId, params) {
-    const response = await fetch(`/api/rpg/${rpgId}/items/give`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/items/give`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -81,7 +82,7 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
   },
 
   async removeInventoryItem(rpgId, characterId, params) {
-    const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}/inventory`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters/${characterId}/inventory`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params),
@@ -98,7 +99,7 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
   },
 
   async fetchAbilities(rpgId, characterId): Promise<NpcMonsterAbilitiesDataDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}/abilities`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters/${characterId}/abilities`)
     const payload = await parseJson<{
       characterName?: string
       abilities?: PurchasedAbilityViewDto[]
@@ -111,7 +112,7 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
   },
 
   async listAvailableSkills(rpgId): Promise<NpcMonsterLoadoutSkillOptionDto[]> {
-    const response = await fetch(`/api/skills?rpgId=${encodeURIComponent(rpgId)}`)
+    const response = await apiFetch(`/api/skills?rpgId=${encodeURIComponent(rpgId)}`)
     const payload = await parseJson<SkillListResponse>(response)
 
     return (payload.skills ?? [])
@@ -129,7 +130,7 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
   },
 
   async addAbility(rpgId, characterId, params) {
-    const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}/abilities`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters/${characterId}/abilities`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params),
@@ -142,7 +143,7 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
   },
 
   async removeAbility(rpgId, characterId, params) {
-    const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}/abilities`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters/${characterId}/abilities`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params),

@@ -5,6 +5,7 @@ import type {
   GiveItemPayloadDto,
 } from "@/application/itemsDashboard/types"
 import type { ItemEditorDetailDto, UpsertItemPayloadDto } from "@/application/itemsEditor/types"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & { message?: string }
@@ -18,7 +19,7 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
   async fetchDashboardData(
     rpgId: string,
   ): Promise<{ items: BaseItemDto[]; characters: CharacterSummaryDto[] }> {
-    const response = await fetch(`/api/rpg/${rpgId}/items/dashboard`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/items/dashboard`)
     const payload = await parseJson<{
       items?: BaseItemDto[]
       characters?: CharacterSummaryDto[]
@@ -30,14 +31,14 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
   },
 
   async fetchItem(rpgId: string, itemId: string): Promise<ItemEditorDetailDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/items/${itemId}`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/items/${itemId}`)
     const payload = await parseJson<{ item?: ItemEditorDetailDto }>(response)
     if (!payload.item) throw new Error("Nao foi possivel carregar o item.")
     return payload.item
   },
 
   async createItem(rpgId: string, payload: UpsertItemPayloadDto): Promise<ItemEditorDetailDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/items`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/items`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -48,7 +49,7 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
   },
 
   async updateItem(rpgId: string, itemId: string, payload: UpsertItemPayloadDto): Promise<ItemEditorDetailDto> {
-    const response = await fetch(`/api/rpg/${rpgId}/items/${itemId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/items/${itemId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -61,7 +62,7 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
   async uploadItemImage(file: File): Promise<{ url: string }> {
     const formData = new FormData()
     formData.append("file", file)
-    const response = await fetch("/api/uploads/item-image", {
+    const response = await apiFetch("/api/uploads/item-image", {
       method: "POST",
       body: formData,
     })
@@ -71,7 +72,7 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
   },
 
   async deleteItemImageByUrl(url: string): Promise<void> {
-    const response = await fetch("/api/uploads/item-image", {
+    const response = await apiFetch("/api/uploads/item-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
@@ -80,14 +81,14 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
   },
 
   async deleteItem(rpgId: string, itemId: string): Promise<void> {
-    const response = await fetch(`/api/rpg/${rpgId}/items/${itemId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/items/${itemId}`, {
       method: "DELETE",
     })
     await parseJson<{ message?: string }>(response)
   },
 
   async giveItem(rpgId: string, payload: GiveItemPayloadDto): Promise<{ message: string }> {
-    const response = await fetch(`/api/rpg/${rpgId}/items/give`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/items/give`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

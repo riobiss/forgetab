@@ -1,4 +1,5 @@
 import type { RpgDashboardGateway } from "@/application/rpgDashboard/contracts/RpgDashboardGateway"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 type ErrorPayload = { message?: string }
 
@@ -12,13 +13,13 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
 
 export const httpRpgDashboardGateway: RpgDashboardGateway = {
   async requestToJoinRpg(rpgId) {
-    const response = await fetch(`/api/rpg/${rpgId}/members`, { method: "POST" })
+    const response = await apiFetch(`/api/rpg/${rpgId}/members`, { method: "POST" })
     return parseJsonResponse(response)
   },
 
   async processMemberRequest(rpgId, memberId, action) {
     const method = action === "toggleModerator" ? "PATCH" : "PATCH"
-    const response = await fetch(`/api/rpg/${rpgId}/members/${memberId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/members/${memberId}`, {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action }),
@@ -27,7 +28,7 @@ export const httpRpgDashboardGateway: RpgDashboardGateway = {
   },
 
   async processCharacterRequest(rpgId, requestId, action) {
-    const response = await fetch(`/api/rpg/${rpgId}/character-requests/${requestId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/character-requests/${requestId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action }),
@@ -36,29 +37,29 @@ export const httpRpgDashboardGateway: RpgDashboardGateway = {
   },
 
   async expelMember(rpgId, memberId) {
-    const response = await fetch(`/api/rpg/${rpgId}/members/${memberId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/members/${memberId}`, {
       method: "DELETE",
     })
     return parseJsonResponse(response)
   },
 
   async fetchCharacters(rpgId) {
-    const response = await fetch(`/api/rpg/${rpgId}/characters`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/characters`)
     return parseJsonResponse(response)
   },
 
   async fetchClasses(rpgId) {
-    const response = await fetch(`/api/rpg/${rpgId}/classes`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/classes`)
     return parseJsonResponse(response)
   },
 
   async fetchRpg(rpgId) {
-    const response = await fetch(`/api/rpg/${rpgId}`)
+    const response = await apiFetch(`/api/rpg/${rpgId}`)
     return parseJsonResponse(response)
   },
 
   async grantPoints(characterId, amount) {
-    const response = await fetch(`/api/characters/${characterId}/grant-points`, {
+    const response = await apiFetch(`/api/characters/${characterId}/grant-points`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ amount }),
@@ -67,7 +68,7 @@ export const httpRpgDashboardGateway: RpgDashboardGateway = {
   },
 
   async grantXp(characterId, amount) {
-    const response = await fetch(`/api/characters/${characterId}/grant-xp`, {
+    const response = await apiFetch(`/api/characters/${characterId}/grant-xp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ amount }),

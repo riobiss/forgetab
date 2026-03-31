@@ -8,6 +8,7 @@ import type {
   TemplateOptionDto,
   UpdateSkillLevelPayloadDto,
 } from "@/application/skillsDashboard/types"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & { message?: string }
@@ -19,19 +20,19 @@ async function parseJson<T>(response: Response): Promise<T> {
 
 export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
   async fetchClasses(rpgId: string): Promise<TemplateOptionDto[]> {
-    const response = await fetch(`/api/rpg/${rpgId}/classes`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/classes`)
     const payload = await parseJson<{ classes?: TemplateOptionDto[] }>(response)
     return payload.classes ?? []
   },
 
   async fetchRaces(rpgId: string): Promise<TemplateOptionDto[]> {
-    const response = await fetch(`/api/rpg/${rpgId}/races`)
+    const response = await apiFetch(`/api/rpg/${rpgId}/races`)
     const payload = await parseJson<{ races?: TemplateOptionDto[] }>(response)
     return payload.races ?? []
   },
 
   async fetchSkills(rpgId: string): Promise<SkillListItemDto[]> {
-    const response = await fetch(`/api/skills?rpgId=${rpgId}`)
+    const response = await apiFetch(`/api/skills?rpgId=${rpgId}`)
     const payload = await parseJson<{ skills?: SkillListItemDto[] }>(response)
     return payload.skills ?? []
   },
@@ -41,7 +42,7 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
     rpgId?: string | null
   }): Promise<Record<string, SkillSearchIndexItemDto>> {
     if (params.skillIds.length === 0) return {}
-    const response = await fetch("/api/skills/search-index", {
+    const response = await apiFetch("/api/skills/search-index", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ skillIds: params.skillIds, rpgId: params.rpgId }),
@@ -51,13 +52,13 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
   },
 
   async fetchRpgSettings(rpgId: string): Promise<RpgSettingsDto> {
-    const response = await fetch(`/api/rpg/${rpgId}`)
+    const response = await apiFetch(`/api/rpg/${rpgId}`)
     const payload = await parseJson<{ rpg?: RpgSettingsDto }>(response)
     return payload.rpg ?? {}
   },
 
   async fetchSkillById(skillId: string): Promise<SkillDetailDto> {
-    const response = await fetch(`/api/skills/${skillId}`)
+    const response = await apiFetch(`/api/skills/${skillId}`)
     const payload = await parseJson<{ skill?: SkillDetailDto }>(response)
     if (!payload.skill) {
       throw new Error("Erro ao carregar skill.")
@@ -66,7 +67,7 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
   },
 
   async createSkill(payload: CreateOrUpdateSkillPayloadDto): Promise<SkillDetailDto> {
-    const response = await fetch("/api/skills", {
+    const response = await apiFetch("/api/skills", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -79,7 +80,7 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
   },
 
   async updateSkillMeta(skillId: string, payload: CreateOrUpdateSkillPayloadDto): Promise<SkillDetailDto> {
-    const response = await fetch(`/api/skills/${skillId}`, {
+    const response = await apiFetch(`/api/skills/${skillId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -92,7 +93,7 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
   },
 
   async createSkillLevelSnapshot(skillId: string): Promise<SkillDetailDto> {
-    const response = await fetch(`/api/skills/${skillId}/levels`, {
+    const response = await apiFetch(`/api/skills/${skillId}/levels`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({}),
@@ -109,7 +110,7 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
     levelId: string,
     payload: UpdateSkillLevelPayloadDto,
   ): Promise<SkillDetailDto> {
-    const response = await fetch(`/api/skills/${skillId}/levels/${levelId}`, {
+    const response = await apiFetch(`/api/skills/${skillId}/levels/${levelId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -122,7 +123,7 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
   },
 
   async deleteSkillLevel(skillId: string, levelId: string): Promise<SkillDetailDto> {
-    const response = await fetch(`/api/skills/${skillId}/levels/${levelId}`, {
+    const response = await apiFetch(`/api/skills/${skillId}/levels/${levelId}`, {
       method: "DELETE",
     })
     const result = await parseJson<{ skill?: SkillDetailDto }>(response)
@@ -133,7 +134,7 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
   },
 
   async deleteSkill(skillId: string): Promise<{ id: string }> {
-    const response = await fetch(`/api/skills/${skillId}`, {
+    const response = await apiFetch(`/api/skills/${skillId}`, {
       method: "DELETE",
     })
     const result = await parseJson<{ id?: string }>(response)

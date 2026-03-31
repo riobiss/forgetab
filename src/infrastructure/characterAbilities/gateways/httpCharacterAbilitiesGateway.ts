@@ -1,4 +1,5 @@
 import type { CharacterAbilitiesGateway } from "@/application/characterAbilities/contracts/CharacterAbilitiesGateway"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & { message?: string }
@@ -10,7 +11,7 @@ async function parseJson<T>(response: Response): Promise<T> {
 
 export const httpCharacterAbilitiesGateway: CharacterAbilitiesGateway = {
   async removeAbility(characterId: string, params: { skillId: string; level: number }) {
-    const response = await fetch(`/api/characters/${characterId}/buy-skill`, {
+    const response = await apiFetch(`/api/characters/${characterId}/buy-skill`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params),

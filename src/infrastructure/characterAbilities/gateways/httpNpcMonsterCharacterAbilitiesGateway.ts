@@ -1,4 +1,5 @@
 import type { CharacterAbilitiesGateway } from "@/application/characterAbilities/contracts/CharacterAbilitiesGateway"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & { message?: string }
@@ -13,7 +14,7 @@ export function createHttpNpcMonsterCharacterAbilitiesGateway(
 ): CharacterAbilitiesGateway {
   return {
     async removeAbility(characterId: string, params: { skillId: string; level: number }) {
-      const response = await fetch(`/api/rpg/${rpgId}/characters/${characterId}/abilities`, {
+      const response = await apiFetch(`/api/rpg/${rpgId}/characters/${characterId}/abilities`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(params),

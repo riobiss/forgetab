@@ -8,6 +8,7 @@ import type {
   UpsertRpgMapPayloadDto,
   UpsertRpgMapSectionPayloadDto,
 } from "@/application/rpgMap/types"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 type ErrorPayload = { message?: string; url?: string; mapImage?: string | null }
 
@@ -25,18 +26,18 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
 export const httpRpgMapGateway: RpgMapGateway = {
   async fetchMaps(rpgId) {
     return parseJsonResponse<{ maps: RpgMapDto[]; canManage: boolean }>(
-      await fetch(`/api/rpg/${rpgId}/maps`),
+      await apiFetch(`/api/rpg/${rpgId}/maps`),
     )
   },
 
   async fetchMap(rpgId, mapId) {
     return parseJsonResponse<RpgMapDetailViewDto>(
-      await fetch(`/api/rpg/${rpgId}/maps/${encodeURIComponent(mapId)}`),
+      await apiFetch(`/api/rpg/${rpgId}/maps/${encodeURIComponent(mapId)}`),
     )
   },
 
   async createMap(rpgId, payload) {
-    const response = await fetch(`/api/rpg/${rpgId}/maps`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/maps`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload satisfies UpsertRpgMapPayloadDto),
@@ -47,7 +48,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
   },
 
   async updateMap(rpgId, mapId, payload) {
-    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload satisfies UpsertRpgMapPayloadDto),
@@ -58,14 +59,14 @@ export const httpRpgMapGateway: RpgMapGateway = {
   },
 
   async deleteMap(rpgId, mapId) {
-    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
       method: "DELETE",
     })
     await parseJsonResponse<{ message?: string }>(response)
   },
 
   async createSection(rpgId, mapId, payload) {
-    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/sections`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}/sections`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload satisfies UpsertRpgMapSectionPayloadDto),
@@ -76,7 +77,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
   },
 
   async updateSection(rpgId, mapId, sectionId, payload) {
-    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/sections/${sectionId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}/sections/${sectionId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload satisfies UpsertRpgMapSectionPayloadDto),
@@ -87,14 +88,14 @@ export const httpRpgMapGateway: RpgMapGateway = {
   },
 
   async deleteSection(rpgId, mapId, sectionId) {
-    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/sections/${sectionId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}/sections/${sectionId}`, {
       method: "DELETE",
     })
     await parseJsonResponse<{ message?: string }>(response)
   },
 
   async reorderSection(rpgId, mapId, sectionId, direction) {
-    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/sections/${sectionId}/reorder`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}/sections/${sectionId}/reorder`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ direction }),
@@ -105,7 +106,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
   },
 
   async createMarkerGroup(rpgId, mapId, payload) {
-    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/marker-groups`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}/marker-groups`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload satisfies UpsertRpgMapMarkerGroupPayloadDto),
@@ -116,7 +117,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
   },
 
   async updateMarkerGroup(rpgId, mapId, groupId, payload) {
-    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/marker-groups/${groupId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}/marker-groups/${groupId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload satisfies UpsertRpgMapMarkerGroupPayloadDto),
@@ -127,7 +128,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
   },
 
   async deleteMarkerGroup(rpgId, mapId, groupId) {
-    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}/marker-groups/${groupId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}/marker-groups/${groupId}`, {
       method: "DELETE",
     })
     await parseJsonResponse<{ message?: string }>(response)
@@ -135,7 +136,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
 
   async saveMapImage(rpgId, mapId, mapImage) {
     const current = await this.fetchMap(rpgId, mapId)
-    const response = await fetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
+    const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -156,7 +157,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
       formData.append("oldUrl", oldUrl)
     }
 
-    const response = await fetch("/api/uploads/map-image", {
+    const response = await apiFetch("/api/uploads/map-image", {
       method: "POST",
       body: formData,
     })
@@ -164,7 +165,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
   },
 
   async deleteMapImage(url) {
-    const response = await fetch("/api/uploads/map-image", {
+    const response = await apiFetch("/api/uploads/map-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
@@ -179,7 +180,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
       formData.append("oldUrl", oldUrl)
     }
 
-    const response = await fetch("/api/uploads/section-image", {
+    const response = await apiFetch("/api/uploads/section-image", {
       method: "POST",
       body: formData,
     })
@@ -187,7 +188,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
   },
 
   async deleteSectionImage(url) {
-    const response = await fetch("/api/uploads/section-image", {
+    const response = await apiFetch("/api/uploads/section-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
@@ -202,7 +203,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
       formData.append("oldUrl", oldUrl)
     }
 
-    const response = await fetch("/api/uploads/marker-image", {
+    const response = await apiFetch("/api/uploads/marker-image", {
       method: "POST",
       body: formData,
     })
@@ -210,7 +211,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
   },
 
   async deleteMarkerImage(url) {
-    const response = await fetch("/api/uploads/marker-image", {
+    const response = await apiFetch("/api/uploads/marker-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
