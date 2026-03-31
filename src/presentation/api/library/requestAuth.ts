@@ -1,6 +1,5 @@
-import type { NextRequest } from "next/server"
 import { getUserIdFromRequestToken } from "@/lib/server/rpgLibraryAccess"
 
-export async function getUserIdFromRequest(request: NextRequest) {
+export async function getUserIdFromRequest(request: Request) {
   return getUserIdFromRequestToken(request)
 }

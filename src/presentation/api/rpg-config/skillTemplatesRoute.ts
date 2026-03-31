@@ -1,9 +1,8 @@
-import { NextResponse, type NextRequest } from "next/server"
-import { getSkillTemplates, updateSkillTemplates } from "@/application/rpgConfig/use-cases/rpgConfig"
-import { prismaRpgConfigRepository } from "@/infrastructure/rpgConfig/repositories/prismaRpgConfigRepository"
-import { rpgConfigAccessService } from "@/infrastructure/rpgConfig/services/rpgConfigAccessService"
-import { getUserIdFromRequest } from "@/presentation/api/rpg-config/requestAuth"
-import { toErrorResponse } from "@/presentation/api/rpg-config/toErrorResponse"
+import type { NextRequest } from "next/server"
+import {
+  getSkillTemplatesHandler,
+  updateSkillTemplatesHandler,
+} from "@/backend/routes/rpgConfig/handlers"
 
 type RouteContext = {
   params: Promise<{
@@ -12,41 +11,11 @@ type RouteContext = {
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
-  try {
-    const userId = await getUserIdFromRequest(request)
-    if (!userId) {
-      return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-    }
-
-    const { rpgId } = await context.params
-    const payload = await getSkillTemplates(rpgConfigAccessService, prismaRpgConfigRepository, {
-      rpgId,
-      userId,
-    })
-
-    return NextResponse.json(payload, { status: 200 })
-  } catch (error) {
-    return toErrorResponse(error, "Erro interno ao buscar pericias.")
-  }
+  const { rpgId } = await context.params
+  return getSkillTemplatesHandler(request, { rpgId })
 }
 
 export async function PUT(request: NextRequest, context: RouteContext) {
-  try {
-    const userId = await getUserIdFromRequest(request)
-    if (!userId) {
-      return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-    }
-
-    const { rpgId } = await context.params
-    const body = (await request.json()) as { skills?: unknown }
-    const payload = await updateSkillTemplates(rpgConfigAccessService, prismaRpgConfigRepository, {
-      rpgId,
-      userId,
-      skills: body.skills,
-    })
-
-    return NextResponse.json(payload, { status: 200 })
-  } catch (error) {
-    return toErrorResponse(error, "Erro interno ao atualizar pericias.")
-  }
+  const { rpgId } = await context.params
+  return updateSkillTemplatesHandler(request, { rpgId })
 }

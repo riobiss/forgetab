@@ -1,7 +1,3 @@
-import { createScopedImageHandlers } from "@/presentation/api/uploads/createScopedImageHandlers"
+import { libraryImageHandlers } from "@/backend/routes/uploads/handlers"
 
-export const { POST } = createScopedImageHandlers({
-  folder: "library",
-  defaultFileName: "library-image.jpg",
-  allowDelete: false,
-})
+export const POST = libraryImageHandlers.postHandler

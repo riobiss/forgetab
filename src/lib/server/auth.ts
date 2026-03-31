@@ -1,21 +1,11 @@
-import { NextRequest } from "next/server"
 import { cookies } from "next/headers"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { getUserIdFromRequest as getUserIdFromBackendRequest } from "@/backend/auth/requestAuth"
 
 export async function getUserIdFromRequest(
-  request: NextRequest,
+  request: Request,
 ): Promise<string | null> {
-  const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
-  if (!token) {
-    return null
-  }
-
-  try {
-    const payload = await verifyAuthToken(token)
-    return payload.userId
-  } catch {
-    return null
-  }
+  return getUserIdFromBackendRequest(request)
 }
 
 export async function getUserIdFromCookieStore(): Promise<string | null> {

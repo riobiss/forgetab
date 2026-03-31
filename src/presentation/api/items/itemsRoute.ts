@@ -1,15 +1,14 @@
-import { NextRequest, NextResponse } from "next/server"
-import { unstable_cache } from "next/cache"
-import { createItem } from "@/application/items/use-cases/createItem"
-import { getItems } from "@/application/items/use-cases/getItems"
-import { prismaItemRepository } from "@/infrastructure/items/repositories/prismaItemRepository"
-import { rpgPermissionService } from "@/infrastructure/items/services/rpgPermissionService"
-import { getUserIdFromRequest } from "@/presentation/api/items/requestAuth"
-import { toErrorResponse } from "@/presentation/api/items/toErrorResponse"
+import { listItemsHandler, createItemHandler } from "@/backend/routes/items/handlers"
 import {
   buildItemsListTagList,
   revalidateItemsListTags,
 } from "@/presentation/api/items/cacheTags"
+import { getUserIdFromRequest } from "@/presentation/api/items/requestAuth"
+import { unstable_cache } from "next/cache"
+import { getItems } from "@/application/items/use-cases/getItems"
+import { prismaItemRepository } from "@/infrastructure/items/repositories/prismaItemRepository"
+import { rpgPermissionService } from "@/infrastructure/items/services/rpgPermissionService"
+import { NextResponse } from "next/server"
 
 type RouteContext = {
   params: Promise<{
@@ -17,7 +16,7 @@ type RouteContext = {
   }>
 }
 
-export async function GET(request: NextRequest, context: RouteContext) {
+export async function GET(request: Request, context: RouteContext) {
   const userId = await getUserIdFromRequest(request)
   if (!userId) {
     return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
@@ -42,26 +41,16 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     return NextResponse.json(payload, { status: 200 })
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao listar itens.")
+    return listItemsHandler(request, await context.params)
   }
 }
 
-export async function POST(request: NextRequest, context: RouteContext) {
+export async function POST(request: Request, context: RouteContext) {
+  const { rpgId } = await context.params
   const userId = await getUserIdFromRequest(request)
-  if (!userId) {
-    return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-  }
-
-  try {
-    const { rpgId } = await context.params
-    const body = await request.json()
-    const payload = await createItem(
-      { repository: prismaItemRepository, permissionService: rpgPermissionService },
-      { rpgId, userId, body },
-    )
+  const response = await createItemHandler(request, { rpgId })
+  if (response.ok && userId) {
     revalidateItemsListTags({ userId, rpgId })
-    return NextResponse.json(payload, { status: 201 })
-  } catch (error) {
-    return toErrorResponse(error, "Erro interno ao criar item.")
   }
+  return response
 }

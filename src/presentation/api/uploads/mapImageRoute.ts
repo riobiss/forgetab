@@ -1,10 +1,4 @@
-import { createScopedImageHandlers } from "@/presentation/api/uploads/createScopedImageHandlers"
+import { mapImageHandlers } from "@/backend/routes/uploads/handlers"
 
-const handlers = createScopedImageHandlers({
-  folder: "maps",
-  defaultFileName: "map-image.jpg",
-  allowDelete: true,
-})
-
-export const POST = handlers.POST
-export const DELETE = handlers.DELETE!
+export const POST = mapImageHandlers.postHandler
+export const DELETE = mapImageHandlers.deleteHandler!

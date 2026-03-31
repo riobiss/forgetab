@@ -1,10 +1,6 @@
-import { NextRequest, NextResponse } from "next/server"
-import { giveItem } from "@/application/items/use-cases/giveItem"
-import { prismaItemRepository } from "@/infrastructure/items/repositories/prismaItemRepository"
-import { rpgPermissionService } from "@/infrastructure/items/services/rpgPermissionService"
+import { giveItemHandler } from "@/backend/routes/items/handlers"
 import { revalidateItemsListTags } from "@/presentation/api/items/cacheTags"
 import { getUserIdFromRequest } from "@/presentation/api/items/requestAuth"
-import { toErrorResponse } from "@/presentation/api/items/toErrorResponse"
 
 type RouteContext = {
   params: Promise<{
@@ -12,22 +8,12 @@ type RouteContext = {
   }>
 }
 
-export async function POST(request: NextRequest, context: RouteContext) {
+export async function POST(request: Request, context: RouteContext) {
+  const { rpgId } = await context.params
   const userId = await getUserIdFromRequest(request)
-  if (!userId) {
-    return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-  }
-
-  try {
-    const { rpgId } = await context.params
-    const body = await request.json()
-    const payload = await giveItem(
-      { repository: prismaItemRepository, permissionService: rpgPermissionService },
-      { rpgId, userId, body },
-    )
+  const response = await giveItemHandler(request, { rpgId })
+  if (response.ok && userId) {
     revalidateItemsListTags({ userId, rpgId })
-    return NextResponse.json(payload, { status: 201 })
-  } catch (error) {
-    return toErrorResponse(error, "Erro interno ao dar item para os players.")
   }
+  return response
 }

@@ -1,43 +1,14 @@
-import { NextResponse, type NextRequest } from "next/server"
 import {
-  getCharacterRequestsUseCase,
-  requestCharacterCreationUseCase,
-} from "@/application/rpgMembership/use-cases/rpgMembership"
-import { prismaRpgMembershipRepository } from "@/infrastructure/rpgMembership/repositories/prismaRpgMembershipRepository"
-import { rpgMembershipAccessService } from "@/infrastructure/rpgMembership/services/rpgMembershipAccessService"
-import { getUserIdFromRequest } from "@/presentation/api/rpgMembership/requestAuth"
-import { toErrorResponse } from "@/presentation/api/rpgMembership/toErrorResponse"
+  getCharacterRequestsHandler,
+  requestCharacterCreationHandler,
+} from "@/backend/routes/rpgMembership/handlers"
 
 type RouteContext = { params: Promise<{ rpgId: string }> }
 
-export async function GET(request: NextRequest, context: RouteContext) {
-  try {
-    const userId = await getUserIdFromRequest(request)
-    if (!userId) return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-    const { rpgId } = await context.params
-    const payload = await getCharacterRequestsUseCase(rpgMembershipAccessService, prismaRpgMembershipRepository, {
-      rpgId,
-      userId,
-    })
-    return NextResponse.json(payload, { status: 200 })
-  } catch (error) {
-    return toErrorResponse(error, "Erro interno ao consultar solicitacoes de personagem.")
-  }
+export async function GET(request: Request, context: RouteContext) {
+  return getCharacterRequestsHandler(request, await context.params)
 }
 
-export async function POST(request: NextRequest, context: RouteContext) {
-  try {
-    const userId = await getUserIdFromRequest(request)
-    if (!userId) return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-    const { rpgId } = await context.params
-    const payload = await requestCharacterCreationUseCase(
-      rpgMembershipAccessService,
-      prismaRpgMembershipRepository,
-      { rpgId, userId },
-    )
-    return NextResponse.json({ message: payload.message }, { status: payload.status })
-  } catch (error) {
-    return toErrorResponse(error, "Erro interno ao solicitar criacao de personagem.")
-  }
+export async function POST(request: Request, context: RouteContext) {
+  return requestCharacterCreationHandler(request, await context.params)
 }
-

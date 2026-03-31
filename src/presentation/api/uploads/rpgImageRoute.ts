@@ -1,10 +1,4 @@
-import { createScopedImageHandlers } from "@/presentation/api/uploads/createScopedImageHandlers"
+import { rpgImageHandlers } from "@/backend/routes/uploads/handlers"
 
-const handlers = createScopedImageHandlers({
-  folder: "rpgs",
-  defaultFileName: "rpg-image.jpg",
-  allowDelete: true,
-})
-
-export const POST = handlers.POST
-export const DELETE = handlers.DELETE!
+export const POST = rpgImageHandlers.postHandler
+export const DELETE = rpgImageHandlers.deleteHandler!

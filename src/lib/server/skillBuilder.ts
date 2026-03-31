@@ -1,7 +1,6 @@
-import { NextRequest } from "next/server"
 import { Prisma } from "../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { getUserIdFromRequest as getUserIdFromBackendRequest } from "@/backend/auth/requestAuth"
 import { normalizeEnabledAbilityCategories } from "@/lib/rpg/abilityCategories"
 
 type SkillRow = {
@@ -39,16 +38,8 @@ function normalizeJsonObject(value: Prisma.JsonValue) {
   return value
 }
 
-export async function getUserIdFromRequest(request: NextRequest) {
-  const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
-  if (!token) return null
-
-  try {
-    const payload = await verifyAuthToken(token)
-    return payload.userId
-  } catch {
-    return null
-  }
+export async function getUserIdFromRequest(request: Request) {
+  return getUserIdFromBackendRequest(request)
 }
 
 export async function canAccessOwnedRpg(rpgId: string, userId: string) {

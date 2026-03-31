@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { revalidateSkillsIndexTags } from "@/presentation/api/skills/cacheTags"
-import { deleteSkillLevel } from "@/application/skills/use-cases/deleteSkillLevel"
-import { updateSkillLevel } from "@/application/skills/use-cases/updateSkillLevel"
-import { prismaSkillRepository } from "@/infrastructure/skills/repositories/prismaSkillRepository"
 import { getUserIdFromRequest } from "@/lib/server/skillBuilder"
-import { AppError } from "@/shared/errors/AppError"
+import {
+  deleteSkillLevelHandler,
+  updateSkillLevelHandler,
+} from "@/backend/routes/skills/handlers"
 
 type RouteContext = {
   params: Promise<{
@@ -13,55 +13,38 @@ type RouteContext = {
   }>
 }
 
-function toErrorResponse(error: unknown, fallbackMessage: string) {
-  if (error instanceof AppError) {
-    return NextResponse.json({ message: error.message }, { status: error.status })
-  }
-
-  return NextResponse.json({ message: fallbackMessage }, { status: 500 })
-}
-
 export async function PATCH(request: NextRequest, context: RouteContext) {
   const userId = await getUserIdFromRequest(request)
-  if (!userId) {
-    return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-  }
+  const { id, levelId } = await context.params
+  const response = await updateSkillLevelHandler(request, { id, levelId })
 
-  try {
-    const { id, levelId } = await context.params
-    const body = await request.json()
-    const payload = await updateSkillLevel(
-      { repository: prismaSkillRepository },
-      { skillId: id, levelId, userId, body },
-    )
+  if (response.ok && userId) {
+    const payload = (await response.clone().json()) as {
+      skill?: { rpgId?: string | null }
+    }
     revalidateSkillsIndexTags({
       userId,
       rpgId: payload.skill?.rpgId ?? null,
     })
-    return NextResponse.json(payload, { status: 200 })
-  } catch (error) {
-    return toErrorResponse(error, "Erro interno ao atualizar level.")
   }
+
+  return response
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   const userId = await getUserIdFromRequest(request)
-  if (!userId) {
-    return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-  }
+  const { id, levelId } = await context.params
+  const response = await deleteSkillLevelHandler(request, { id, levelId })
 
-  try {
-    const { id, levelId } = await context.params
-    const payload = await deleteSkillLevel(
-      { repository: prismaSkillRepository },
-      { skillId: id, levelId, userId },
-    )
+  if (response.ok && userId) {
+    const payload = (await response.clone().json()) as {
+      skill?: { rpgId?: string | null }
+    }
     revalidateSkillsIndexTags({
       userId,
       rpgId: payload.skill?.rpgId ?? null,
     })
-    return NextResponse.json(payload, { status: 200 })
-  } catch (error) {
-    return toErrorResponse(error, "Erro interno ao remover level.")
   }
+
+  return response
 }

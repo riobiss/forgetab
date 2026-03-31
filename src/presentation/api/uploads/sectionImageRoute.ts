@@ -1,10 +1,4 @@
-import { createScopedImageHandlers } from "@/presentation/api/uploads/createScopedImageHandlers"
+import { sectionImageHandlers } from "@/backend/routes/uploads/handlers"
 
-const handlers = createScopedImageHandlers({
-  folder: "sections",
-  defaultFileName: "section-image.jpg",
-  allowDelete: true,
-})
-
-export const POST = handlers.POST
-export const DELETE = handlers.DELETE!
+export const POST = sectionImageHandlers.postHandler
+export const DELETE = sectionImageHandlers.deleteHandler!

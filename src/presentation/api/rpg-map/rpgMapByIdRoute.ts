@@ -1,69 +1,25 @@
-import { NextResponse, type NextRequest } from "next/server"
-import { deleteRpgMap, getRpgMapDetail, updateRpgMap } from "@/application/rpgMap/use-cases/rpgMap"
-import { prismaRpgMapRepository } from "@/infrastructure/rpgMap/repositories/prismaRpgMapRepository"
-import { rpgMapAccessService } from "@/infrastructure/rpgMap/services/rpgMapAccessService"
-import { getUserIdFromRequest } from "@/presentation/api/characters/requestAuth"
-import { toErrorResponse } from "@/presentation/api/characters/toErrorResponse"
+import type { NextRequest } from "next/server"
+import {
+  deleteRpgMapHandler,
+  getRpgMapDetailHandler,
+  updateRpgMapHandler,
+} from "@/backend/routes/rpgMap/handlers"
 
 type RouteContext = {
   params: Promise<{ rpgId: string; mapId: string }>
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
-  try {
-    const userId = await getUserIdFromRequest(request)
-    if (!userId) {
-      return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-    }
-
-    const { rpgId, mapId } = await context.params
-    const payload = await getRpgMapDetail(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId,
-      mapId,
-      userId,
-    })
-    return NextResponse.json(payload, { status: 200 })
-  } catch (error) {
-    return toErrorResponse(error, "Erro interno ao carregar mapa.")
-  }
+  const { rpgId, mapId } = await context.params
+  return getRpgMapDetailHandler(request, { rpgId, mapId })
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  try {
-    const userId = await getUserIdFromRequest(request)
-    if (!userId) {
-      return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-    }
-
-    const { rpgId, mapId } = await context.params
-    const body = await request.json()
-    const payload = await updateRpgMap(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId,
-      mapId,
-      userId,
-      body,
-    })
-    return NextResponse.json(payload, { status: 200 })
-  } catch (error) {
-    return toErrorResponse(error, "Erro interno ao atualizar mapa.")
-  }
+  const { rpgId, mapId } = await context.params
+  return updateRpgMapHandler(request, { rpgId, mapId })
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  try {
-    const userId = await getUserIdFromRequest(request)
-    if (!userId) {
-      return NextResponse.json({ message: "Usuario nao autenticado." }, { status: 401 })
-    }
-
-    const { rpgId, mapId } = await context.params
-    const payload = await deleteRpgMap(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId,
-      mapId,
-      userId,
-    })
-    return NextResponse.json(payload, { status: 200 })
-  } catch (error) {
-    return toErrorResponse(error, "Erro interno ao remover mapa.")
-  }
+  const { rpgId, mapId } = await context.params
+  return deleteRpgMapHandler(request, { rpgId, mapId })
 }
