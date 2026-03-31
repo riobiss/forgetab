@@ -5,7 +5,7 @@ import type {
 } from "@/application/charactersDashboard/types"
 import { prisma } from "@/lib/prisma"
 import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
-import { Prisma } from "../../../../generated/prisma"
+import { Prisma } from "../../../../generated/prisma/client.js"
 
 type DbRpgRow = CharactersDashboardRpgDto
 type DbCharacterRow = CharacterDashboardCardDto

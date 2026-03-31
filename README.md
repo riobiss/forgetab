@@ -146,6 +146,10 @@ Campos principais:
 - `DIRECT_URL`: conexao direta usada em migrations
 - `JWT_SECRET`: segredo principal do token JWT
 - `NEXTAUTH_SECRET` / `APP_SECRET_KEY`: fallback para segredo JWT
+- `NEXT_PUBLIC_API_BASE_URL`: URL base da API quando ela rodar fora do Next. Ex.: `http://localhost:4000`
+- `API_INTERNAL_BASE_URL`: URL interna usada pelo servidor do Next quando frontend e API estiverem em containers diferentes. Ex.: `http://api:4000`
+- `FRONTEND_URL`: origem do frontend autorizada pela API separada. Ex.: `http://localhost:3000`
+- `API_PORT`: porta do servidor da API separada em desenvolvimento
 - `IMAGEKIT_URL_ENDPOINT`
 - `IMAGEKIT_PUBLIC_KEY`
 - `IMAGEKIT_PRIVATE_KEY`
@@ -177,11 +181,14 @@ npm run dev
 
 5. Abra `http://localhost:3000`
 
+Se a API estiver separada do frontend, defina `NEXT_PUBLIC_API_BASE_URL` com a origem do backend. Quando essa variavel estiver vazia, o app continua usando as rotas locais em `/api`.
+
 ## Como rodar com Docker
 
 O `docker-compose.yml` sobe:
 
 - `web` (Next.js)
+- `api` (servidor HTTP separado da pasta `api/`)
 - `db` (Postgres 16)
 
 Comando:
@@ -191,6 +198,7 @@ docker compose up --build
 ```
 
 O container `web` executa install, `prisma migrate deploy`, `prisma generate` e `npm run dev`.
+O container `api` executa install, `prisma generate` e `npm run api:dev`.
 
 ## Rotas principais (UI)
 
@@ -227,6 +235,21 @@ Principais grupos:
 - `/api/uploads/*` upload e remocao de imagens
 - `/api/characters/*` acoes de pontos e compra de habilidades
 
+## Separacao da API
+
+- O frontend agora aceita uma base de API configuravel por `NEXT_PUBLIC_API_BASE_URL`.
+- Em ambiente com containers separados, o frontend server-side pode usar `API_INTERNAL_BASE_URL` para falar com a API pela rede interna do Docker.
+- Com a variavel vazia, o comportamento continua igual ao atual: Next atende `/api/*`.
+- Com a variavel preenchida, a UI passa a chamar a API externa diretamente, o que prepara a migracao gradual para um servico separado.
+- As rotas em `src/app/api` continuam funcionando como adaptadores locais durante a transicao.
+- A pasta `api/` agora contem o primeiro servidor standalone.
+- A primeira fatia extraida foi autenticacao, compartilhando handlers entre Next e o servidor separado.
+- Scripts novos:
+  - `npm run api:build`
+  - `npm run api:dev`
+  - `npm run api:start`
+  - `npm run api:check`
+
 ## Upload de imagens
 
 - Upload via endpoints backend que enviam para ImageKit
@@ -242,6 +265,9 @@ Principais grupos:
 ## Scripts
 
 - `npm run dev` inicia em desenvolvimento
+- `npm run api:build` gera o bundle Node da API separada
+- `npm run api:dev` inicia a API separada
+- `npm run api:start` gera o bundle e inicia a API separada
 - `npm run build` build de producao
 - `npm run start` inicia build de producao
 - `npm run lint` lint
