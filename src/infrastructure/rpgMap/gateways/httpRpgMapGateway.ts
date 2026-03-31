@@ -31,7 +31,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
 
   async fetchMap(rpgId, mapId) {
     return parseJsonResponse<RpgMapDetailViewDto>(
-      await fetch(`/api/rpg/${rpgId}/map?mapId=${encodeURIComponent(mapId)}`),
+      await fetch(`/api/rpg/${rpgId}/maps/${encodeURIComponent(mapId)}`),
     )
   },
 
