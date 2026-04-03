@@ -7,7 +7,12 @@ import {
   logoutHandler,
   registerHandler,
 } from "../../src/backend/routes/auth/handlers"
-import { createRpgHandler } from "../../src/backend/routes/rpg/handlers"
+import {
+  createRpgHandler,
+  deleteRpgHandler,
+  getRpgByIdHandler,
+  updateRpgHandler,
+} from "../../src/backend/routes/rpg/handlers"
 import {
   expelMemberHandler,
   getCharacterRequestsHandler,
@@ -141,6 +146,24 @@ const dynamicRoutes: Array<{
   buildParams: (match: RegExpMatchArray) => Record<string, string>
   handler: RouteHandler
 }> = [
+  {
+    method: "GET",
+    pattern: /^\/api\/rpg\/([^/]+)$/,
+    buildParams: (match) => ({ rpgId: decodeURIComponent(match[1]) }),
+    handler: (request, params) => getRpgByIdHandler(request, { rpgId: params.rpgId }),
+  },
+  {
+    method: "PATCH",
+    pattern: /^\/api\/rpg\/([^/]+)$/,
+    buildParams: (match) => ({ rpgId: decodeURIComponent(match[1]) }),
+    handler: (request, params) => updateRpgHandler(request, { rpgId: params.rpgId }),
+  },
+  {
+    method: "DELETE",
+    pattern: /^\/api\/rpg\/([^/]+)$/,
+    buildParams: (match) => ({ rpgId: decodeURIComponent(match[1]) }),
+    handler: (request, params) => deleteRpgHandler(request, { rpgId: params.rpgId }),
+  },
   {
     method: "GET",
     pattern: /^\/api\/rpg\/([^/]+)\/attributes$/,

@@ -1,1 +1,6 @@
-export { createRpgHandler } from "@/backend/rpg/handlers"
+export {
+  createRpgHandler,
+  deleteRpgHandler,
+  getRpgByIdHandler,
+  updateRpgHandler,
+} from "@/backend/rpg/handlers"

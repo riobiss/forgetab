@@ -147,6 +147,7 @@ Campos principais:
 - `JWT_SECRET`: segredo principal do token JWT
 - `NEXTAUTH_SECRET` / `APP_SECRET_KEY`: fallback para segredo JWT
 - `NEXT_PUBLIC_API_BASE_URL`: URL base da API quando ela rodar fora do Next. Ex.: `http://localhost:4000`
+- `NEXT_PUBLIC_WS_BASE_URL`: origem WebSocket usada pelo frontend em features realtime. Ex.: `ws://localhost:4000`
 - `API_INTERNAL_BASE_URL`: URL interna usada pelo servidor do Next quando frontend e API estiverem em containers diferentes. Ex.: `http://api:4000`
 - `FRONTEND_URL`: origem do frontend autorizada pela API separada. Ex.: `http://localhost:3000`
 - `API_PORT`: porta do servidor da API separada em desenvolvimento
@@ -182,6 +183,8 @@ npm run dev
 5. Abra `http://localhost:3000`
 
 Se a API estiver separada do frontend, defina `NEXT_PUBLIC_API_BASE_URL` com a origem do backend. Quando essa variavel estiver vazia, o app continua usando as rotas locais em `/api`.
+
+Se as proximas features usarem WebSocket, defina `NEXT_PUBLIC_WS_BASE_URL`. Quando ela estiver vazia, o frontend tenta derivar a origem realtime a partir de `NEXT_PUBLIC_API_BASE_URL`, convertendo `http` para `ws` e `https` para `wss`.
 
 ## Como rodar com Docker
 
@@ -238,12 +241,15 @@ Principais grupos:
 ## Separacao da API
 
 - O frontend agora aceita uma base de API configuravel por `NEXT_PUBLIC_API_BASE_URL`.
+- O frontend agora tambem aceita uma origem realtime configuravel por `NEXT_PUBLIC_WS_BASE_URL`.
 - Em ambiente com containers separados, o frontend server-side pode usar `API_INTERNAL_BASE_URL` para falar com a API pela rede interna do Docker.
 - Com a variavel vazia, o comportamento continua igual ao atual: Next atende `/api/*`.
 - Com a variavel preenchida, a UI passa a chamar a API externa diretamente, o que prepara a migracao gradual para um servico separado.
 - As rotas em `src/app/api` continuam funcionando como adaptadores locais durante a transicao.
 - A pasta `api/` agora contem o primeiro servidor standalone.
-- A primeira fatia extraida foi autenticacao, compartilhando handlers entre Next e o servidor separado.
+- O servidor standalone ja cobre as mesmas rotas HTTP que existem em `src/app/api`, compartilhando handlers em `src/backend/routes`.
+- A camada `src/app/api` continua relevante para comportamento especifico do Next, como cache e revalidate, mas deixou de ser o unico runtime possivel para o backend.
+- Para as proximas implementacoes com WebSocket, a arquitetura recomendada passa a ser frontend separado + backend Node fora da Vercel.
 - Scripts novos:
   - `npm run api:build`
   - `npm run api:dev`

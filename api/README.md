@@ -1,19 +1,19 @@
 # API separada
 
-Esta pasta marca o inicio da extracao do backend para fora do `src/app/api`.
+Esta pasta marca a consolidacao do backend fora do `src/app/api`.
 
 ## Estado atual
 
 - servidor HTTP proprio em `api/src/server.ts`
-- rotas standalone de autenticacao, personagens, itens, skills, membership e biblioteca
+- cobertura completa das rotas HTTP atuais da aplicacao
 - `GET /api/health`
 - handlers compartilhados com o Next em `src/backend/routes`
 
 ## Objetivo desta etapa
 
-- criar a base fisica da API fora de `src/app/api`
-- comecar a extrair handlers compartilhados
-- manter o projeto tipado enquanto a migracao do Prisma e dos demais modulos continua
+- manter o backend principal pronto para rodar fora da Vercel
+- preservar `src/app/api` como camada adaptadora durante a transicao
+- deixar a base pronta para adicionar transporte realtime no mesmo runtime Node
 
 ## Validacao
 
@@ -21,4 +21,5 @@ Esta pasta marca o inicio da extracao do backend para fora do `src/app/api`.
 - rode `npm run api:dev` para subir a API
 - rode `npm run api:start` para gerar o bundle e subir a API
 - rode `npm run api:check`
-- quando a extracao do acesso a dados sair da camada atual do Next, esta pasta ja tera o ponto de entrada pronto para assumir as rotas
+- configure `NEXT_PUBLIC_API_BASE_URL` no frontend para apontar para esta API
+- configure `NEXT_PUBLIC_WS_BASE_URL` quando as features realtime entrarem no projeto
