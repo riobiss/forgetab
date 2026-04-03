@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { unstable_cache } from "next/cache"
 import {
-  loadSkillsSearchIndexUseCase,
   normalizeSkillSearchIndexParams,
 } from "@/application/skillsSearchIndex/use-cases/skillsSearchIndex"
-import { prismaSkillsSearchIndexRepository } from "@/infrastructure/skillsSearchIndex/repositories/prismaSkillsSearchIndexRepository"
+import { getSkillsSearchIndexPayload } from "@/backend/routes/skills/handlers"
 import { buildSkillsIndexTagList } from "@/presentation/api/skills/cacheTags"
 import { getUserIdFromRequest } from "@/presentation/api/skills/requestAuth"
 
@@ -25,12 +24,7 @@ export async function POST(request: NextRequest) {
     const cacheKey = ["skills-search-index", userId, rpgId ?? "global", ...skillIds]
     const tags = buildSkillsIndexTagList({ userId, rpgId })
     const getCachedIndex = unstable_cache(
-      async () => {
-        return loadSkillsSearchIndexUseCase(
-          { repository: prismaSkillsSearchIndexRepository },
-          { userId, skillIds, rpgId },
-        )
-      },
+      () => getSkillsSearchIndexPayload(userId, skillIds, rpgId),
       cacheKey,
       {
         revalidate: 60,
@@ -41,10 +35,7 @@ export async function POST(request: NextRequest) {
     try {
       index = await getCachedIndex()
     } catch {
-      index = await loadSkillsSearchIndexUseCase(
-        { repository: prismaSkillsSearchIndexRepository },
-        { userId, skillIds, rpgId },
-      )
+      index = await getSkillsSearchIndexPayload(userId, skillIds, rpgId)
     }
 
     return NextResponse.json({ index }, { status: 200 })

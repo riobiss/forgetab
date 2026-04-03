@@ -1,13 +1,14 @@
-import { listItemsHandler, createItemHandler } from "@/backend/routes/items/handlers"
+import {
+  createItemHandler,
+  getItemsPayload,
+  listItemsHandler,
+} from "@/backend/routes/items/handlers"
 import {
   buildItemsListTagList,
   revalidateItemsListTags,
 } from "@/presentation/api/items/cacheTags"
 import { getUserIdFromRequest } from "@/presentation/api/items/requestAuth"
 import { unstable_cache } from "next/cache"
-import { getItems } from "@/application/items/use-cases/getItems"
-import { prismaItemRepository } from "@/infrastructure/items/repositories/prismaItemRepository"
-import { rpgPermissionService } from "@/infrastructure/items/services/rpgPermissionService"
 import { NextResponse } from "next/server"
 
 type RouteContext = {
@@ -27,7 +28,7 @@ export async function GET(request: Request, context: RouteContext) {
     const cacheKey = ["items-list", userId, rpgId]
     const tags = buildItemsListTagList({ userId, rpgId })
     const getCachedItems = unstable_cache(
-      () => getItems({ repository: prismaItemRepository, permissionService: rpgPermissionService }, { rpgId, userId }),
+      () => getItemsPayload(rpgId, userId),
       cacheKey,
       {
         revalidate: 60,
@@ -35,9 +36,7 @@ export async function GET(request: Request, context: RouteContext) {
       },
     )
 
-    const payload = await getCachedItems().catch(() =>
-      getItems({ repository: prismaItemRepository, permissionService: rpgPermissionService }, { rpgId, userId }),
-    )
+    const payload = await getCachedItems().catch(() => getItemsPayload(rpgId, userId))
 
     return NextResponse.json(payload, { status: 200 })
   } catch (error) {
