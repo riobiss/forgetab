@@ -121,12 +121,15 @@ src/
   lib/                 # autenticacao, validacoes e utilitarios
   components/          # componentes compartilhados
 api/
+  package.json         # projeto proprio da API
   src/                 # API standalone para deploy separado
+  prisma/              # schema e migrations da API
+  generated/           # client Prisma gerado para a API
 prisma/
   schema.prisma        # modelo do banco
   migrations/          # historico de migrations
 generated/
-  prisma/              # cliente Prisma gerado
+  prisma/              # cliente Prisma gerado para o app web
 ```
 
 ## Requisitos
@@ -135,9 +138,9 @@ generated/
 - npm 10+
 - PostgreSQL 16+ (ou via Docker)
 
-## Variaveis de ambiente
+## Configuracao de ambiente
 
-Use os exemplos:
+Arquivos de referencia:
 
 - `.env.example`
 - `.env.development.example`
@@ -158,40 +161,51 @@ Campos principais:
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
 
-## Como rodar localmente (sem Docker)
+## Desenvolvimento local
 
-1. Instale dependencias:
+Fluxo recomendado sem Docker:
+
+1. Instalar dependencias do frontend:
 
 ```bash
 npm install
 ```
 
-2. Configure `.env` e `.env.development` a partir dos exemplos.
+2. Instalar dependencias da API:
 
-3. Rode migrations e gere o client:
+```bash
+cd api
+npm install
+cd ..
+```
+
+3. Preparar `.env` e `.env.development` a partir dos exemplos.
+
+4. Aplicar migrations e gerar os clients Prisma:
 
 ```bash
 npx prisma migrate deploy
 npx prisma generate
+npm --prefix api run prisma:generate
 ```
 
-4. Suba o backend:
+5. Subir a API:
 
 ```bash
 npm run api:dev
 ```
 
-5. Suba o app:
+6. Subir o frontend:
 
 ```bash
 npm run dev
 ```
 
-6. Abra `http://localhost:3000`
+7. Acessar `http://localhost:3000`
 
-O frontend agora depende da API separada. Em desenvolvimento, `NEXT_PUBLIC_API_BASE_URL` aponta para `http://localhost:4000` por padrao nos arquivos de exemplo.
+O frontend depende da API separada. Em desenvolvimento, `NEXT_PUBLIC_API_BASE_URL` aponta para `http://localhost:4000` por padrao nos arquivos de exemplo.
 
-## Como rodar com Docker
+## Ambiente local com Docker
 
 O `docker-compose.yml` sobe:
 
@@ -199,14 +213,16 @@ O `docker-compose.yml` sobe:
 - `api` (servidor HTTP separado da pasta `api/`)
 - `db` (Postgres 16)
 
-Comando:
+Subida do ambiente:
 
 ```bash
 docker compose up --build
 ```
 
-O container `web` executa install, `prisma migrate deploy`, `prisma generate` e `npm run dev`.
-O container `api` executa install, `prisma generate` e `npm run api:dev`.
+Comportamento atual dos containers:
+
+- `web`: install, `prisma migrate deploy`, `prisma generate` e `npm run dev`
+- `api`: install, `npm run prisma:generate` e `npm run start`
 
 ## Rotas principais (UI)
 
@@ -243,26 +259,28 @@ Principais grupos:
 - `/api/uploads/*` upload e remocao de imagens
 - `/api/characters/*` acoes de pontos e compra de habilidades
 
-## Separacao da API
+## Arquitetura da API
 
-- O frontend agora aceita uma base de API configuravel por `NEXT_PUBLIC_API_BASE_URL`.
-- Em ambiente com containers separados, o frontend server-side pode usar `API_INTERNAL_BASE_URL` para falar com a API pela rede interna do Docker.
-- A UI passa a chamar a API externa diretamente.
+- O frontend aceita uma base de API configuravel por `NEXT_PUBLIC_API_BASE_URL`.
+- Em ambientes com containers separados, o frontend server-side pode usar `API_INTERNAL_BASE_URL` para acessar a API pela rede interna.
+- A UI passa a consumir a API externa diretamente.
 - As rotas em `src/app/api` foram removidas da aplicacao.
-- A pasta `api/` agora concentra o backend standalone.
-- O servidor standalone passa a ser o backend principal para deploys dedicados, como Railway.
-- Scripts novos:
-  - `npm run api:build`
+- A pasta `api/` concentra o backend standalone como projeto proprio.
+- O servidor standalone passa a ser o backend principal para deploys dedicados, como Fly.io.
+- Scripts relacionados:
   - `npm run api:dev`
   - `npm run api:start`
   - `npm run api:check`
+  - `npm run api:test`
 
-## Deploy da API
+## Operacao da API
 
 - A API da pasta `api/` pode ser publicada separadamente do frontend.
-- Para Railway, publique o backend Node com `npm run api:start`.
-- No frontend, configure `NEXT_PUBLIC_API_BASE_URL` com a URL publica da API hospedada.
-- Se o frontend server-side precisar de uma URL interna diferente, use `API_INTERNAL_BASE_URL`.
+- Para Fly.io, a configuracao base esta em `fly.toml` e o container usa `api/Dockerfile`.
+- O health check configurado para deploy e `GET /api/health`.
+- O deploy da API pode ser executado manualmente pela equipe ou automatizado no pipeline de entrega.
+- O frontend deve usar `NEXT_PUBLIC_API_BASE_URL` apontando para a URL publica da API hospedada.
+- Se o frontend server-side exigir uma URL interna diferente, `API_INTERNAL_BASE_URL` cobre esse cenario.
 
 ## Upload de imagens
 
@@ -270,22 +288,23 @@ Principais grupos:
 - Limite atual de 8 MB por arquivo
 - O backend valida autenticacao e tenta remover imagem anterior quando uma nova e enviada
 
-## Estado atual e observacoes
+## Estado atual
 
 - A biblioteca e o dashboard de personagens receberam o maior volume de evolucao recente
 - O projeto ja possui testes com Vitest em partes importantes da aplicacao
 - O modulo de combate continua em desenvolvimento e ainda nao representa a experiencia final do produto
 
-## Scripts
+## Scripts principais
 
 - `npm run dev` inicia em desenvolvimento
-- `npm run api:build` gera o bundle Node da API separada
+- `npm run api:build` executa `prisma generate` e a validacao da API separada
 - `npm run api:dev` inicia a API separada
-- `npm run api:start` gera o bundle e inicia a API separada
+- `npm run api:start` inicia a API separada
 - `npm run build` build de producao
 - `npm run start` inicia build de producao
 - `npm run lint` lint
 - `npm run test` executa os testes
+- `npm run api:test` executa a suite da API separada
 - `npm run test:watch` executa os testes em modo watch
 - `npm run test:ui` abre a interface do Vitest
 

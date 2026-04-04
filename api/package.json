@@ -1,0 +1,33 @@
+{
+  "name": "forgetab-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run -c vitest.config.ts",
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "prisma:migrate:deploy": "prisma migrate deploy --schema prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "6.19.2",
+    "@prisma/client": "6.19.2",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.6.1",
+    "fastify": "^5.8.4",
+    "jose": "^6.1.0",
+    "pg": "^8.16.3",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/pg": "^8.15.5",
+    "prisma": "6.19.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5",
+    "vite": "^7.1.12",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
+  }
+}
