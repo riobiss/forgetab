@@ -114,12 +114,14 @@ A proposta é ser uma plataforma leve e versátil, porque a maior parte dos usu�
 
 ```text
 src/
-  app/                 # paginas e rotas API (App Router)
+  app/                 # paginas do App Router
   application/         # casos de uso e contratos da aplicacao
   infrastructure/      # repositorios, gateways e servicos concretos
   presentation/        # features e componentes de interface
   lib/                 # autenticacao, validacoes e utilitarios
   components/          # componentes compartilhados
+api/
+  src/                 # API standalone para deploy separado
 prisma/
   schema.prisma        # modelo do banco
   migrations/          # historico de migrations
@@ -146,8 +148,7 @@ Campos principais:
 - `DIRECT_URL`: conexao direta usada em migrations
 - `JWT_SECRET`: segredo principal do token JWT
 - `NEXTAUTH_SECRET` / `APP_SECRET_KEY`: fallback para segredo JWT
-- `NEXT_PUBLIC_API_BASE_URL`: URL base da API quando ela rodar fora do Next. Ex.: `http://localhost:4000`
-- `NEXT_PUBLIC_WS_BASE_URL`: origem WebSocket usada pelo frontend em features realtime. Ex.: `ws://localhost:4000`
+- `NEXT_PUBLIC_API_BASE_URL`: URL base da API separada. Ex.: `http://localhost:4000`
 - `API_INTERNAL_BASE_URL`: URL interna usada pelo servidor do Next quando frontend e API estiverem em containers diferentes. Ex.: `http://api:4000`
 - `FRONTEND_URL`: origem do frontend autorizada pela API separada. Ex.: `http://localhost:3000`
 - `API_PORT`: porta do servidor da API separada em desenvolvimento
@@ -174,17 +175,21 @@ npx prisma migrate deploy
 npx prisma generate
 ```
 
-4. Suba o app:
+4. Suba o backend:
+
+```bash
+npm run api:dev
+```
+
+5. Suba o app:
 
 ```bash
 npm run dev
 ```
 
-5. Abra `http://localhost:3000`
+6. Abra `http://localhost:3000`
 
-Se a API estiver separada do frontend, defina `NEXT_PUBLIC_API_BASE_URL` com a origem do backend. Quando essa variavel estiver vazia, o app continua usando as rotas locais em `/api`.
-
-Se as proximas features usarem WebSocket, defina `NEXT_PUBLIC_WS_BASE_URL`. Quando ela estiver vazia, o frontend tenta derivar a origem realtime a partir de `NEXT_PUBLIC_API_BASE_URL`, convertendo `http` para `ws` e `https` para `wss`.
+O frontend agora depende da API separada. Em desenvolvimento, `NEXT_PUBLIC_API_BASE_URL` aponta para `http://localhost:4000` por padrao nos arquivos de exemplo.
 
 ## Como rodar com Docker
 
@@ -241,20 +246,23 @@ Principais grupos:
 ## Separacao da API
 
 - O frontend agora aceita uma base de API configuravel por `NEXT_PUBLIC_API_BASE_URL`.
-- O frontend agora tambem aceita uma origem realtime configuravel por `NEXT_PUBLIC_WS_BASE_URL`.
 - Em ambiente com containers separados, o frontend server-side pode usar `API_INTERNAL_BASE_URL` para falar com a API pela rede interna do Docker.
-- Com a variavel vazia, o comportamento continua igual ao atual: Next atende `/api/*`.
-- Com a variavel preenchida, a UI passa a chamar a API externa diretamente, o que prepara a migracao gradual para um servico separado.
-- As rotas em `src/app/api` continuam funcionando como adaptadores locais durante a transicao.
-- A pasta `api/` agora contem o primeiro servidor standalone.
-- O servidor standalone ja cobre as mesmas rotas HTTP que existem em `src/app/api`, compartilhando handlers em `src/backend/routes`.
-- A camada `src/app/api` continua relevante para comportamento especifico do Next, como cache e revalidate, mas deixou de ser o unico runtime possivel para o backend.
-- Para as proximas implementacoes com WebSocket, a arquitetura recomendada passa a ser frontend separado + backend Node fora da Vercel.
+- A UI passa a chamar a API externa diretamente.
+- As rotas em `src/app/api` foram removidas da aplicacao.
+- A pasta `api/` agora concentra o backend standalone.
+- O servidor standalone passa a ser o backend principal para deploys dedicados, como Railway.
 - Scripts novos:
   - `npm run api:build`
   - `npm run api:dev`
   - `npm run api:start`
   - `npm run api:check`
+
+## Deploy da API
+
+- A API da pasta `api/` pode ser publicada separadamente do frontend.
+- Para Railway, publique o backend Node com `npm run api:start`.
+- No frontend, configure `NEXT_PUBLIC_API_BASE_URL` com a URL publica da API hospedada.
+- Se o frontend server-side precisar de uma URL interna diferente, use `API_INTERNAL_BASE_URL`.
 
 ## Upload de imagens
 

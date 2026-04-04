@@ -1,11 +1,19 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "noEmit": true
+    "baseUrl": ".",
+    "noEmit": true,
+    "paths": {
+      "@api/*": [
+        "./src/*"
+      ],
+      "@/*": [
+        "../src/*"
+      ]
+    }
   },
   "include": [
     "../api/src/**/*.ts",
-    "../src/backend/**/*.ts",
     "../src/application/**/*.ts",
     "../src/infrastructure/**/*.ts",
     "../src/lib/**/*.ts",

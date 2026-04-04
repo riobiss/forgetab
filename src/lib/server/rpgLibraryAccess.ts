@@ -1,6 +1,6 @@
 import { Prisma } from "../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
-import { getUserIdFromRequest as getUserIdFromBackendRequest } from "@/backend/auth/requestAuth"
+import { getUserIdFromRequest as getUserIdFromAuthRequest } from "@/lib/auth/requestAuth"
 
 type AccessRow = {
   ownerId: string
@@ -11,7 +11,7 @@ type MemberStatusRow = {
 }
 
 export async function getUserIdFromRequestToken(request: Request) {
-  return getUserIdFromBackendRequest(request)
+  return getUserIdFromAuthRequest(request)
 }
 
 export async function getRpgVisibilityAccess(rpgId: string, userId: string) {
