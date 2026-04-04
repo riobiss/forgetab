@@ -1,0 +1,8 @@
+ALTER TABLE "baseitems"
+ALTER COLUMN "damage" TYPE TEXT
+USING "damage"::text;
+
+ALTER TABLE "baseitems"
+ADD COLUMN IF NOT EXISTS "effect_name" TEXT,
+ADD COLUMN IF NOT EXISTS "abilities" JSONB,
+ADD COLUMN IF NOT EXISTS "effects" JSONB;

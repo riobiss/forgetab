@@ -1,0 +1,2 @@
+ALTER TABLE "rpgs"
+ADD COLUMN "image" TEXT;

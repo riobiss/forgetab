@@ -1,0 +1,7 @@
+ALTER TABLE "baseitems"
+ADD COLUMN "damage" INTEGER,
+ADD COLUMN "ability" TEXT,
+ADD COLUMN "ability_name" TEXT,
+ADD COLUMN "effect" TEXT,
+ADD COLUMN "weight" DOUBLE PRECISION,
+ADD COLUMN "durability" INTEGER;

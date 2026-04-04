@@ -1,0 +1,576 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String      @id @default(cuid())
+  name         String
+  username     String      @unique
+  email        String      @unique
+  passwordHash String      @map("password_hash")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  rpgs         Rpg[]
+  rpgMembers   RpgMember[]
+  characters   RpgCharacter[]
+  characterCreationRequests RpgCharacterCreationRequest[]
+  skills       Skill[]
+
+  @@map("users")
+}
+
+enum RpgVisibility {
+  private
+  public
+  unlisted
+}
+
+enum BaseItemType {
+  equipment
+  consumable
+  material
+  tool
+  quest
+  special
+}
+
+enum BaseItemRarity {
+  common
+  uncommon
+  rare
+  epic
+  legendary
+}
+
+enum RpgMemberStatus {
+  pending
+  accepted
+  rejected
+}
+
+enum RpgMemberRole {
+  member
+  moderator
+}
+
+enum CharacterCreationRequestStatus {
+  pending
+  accepted
+  rejected
+}
+
+enum RpgCharacterType {
+  player
+  npc
+  monster
+}
+
+model Rpg {
+  id                 String                 @id @default(cuid())
+  ownerId            String                 @map("owner_id")
+  owner              User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title              String
+  description        String
+  image              String?
+  costsEnabled       Boolean                @default(false) @map("costs_enabled")
+  costResourceName   String                 @default("Skill Points") @map("cost_resource_name")
+  mapImage           String?                @map("map_image")
+  useMundiMap        Boolean                @default(false) @map("use_mundi_map")
+  visibility         RpgVisibility          @default(private)
+  useRaceBonuses     Boolean                @default(false) @map("use_race_bonuses")
+  useClassBonuses    Boolean                @default(false) @map("use_class_bonuses")
+  useClassRaceBonuses Boolean               @default(false) @map("use_class_race_bonuses")
+  useInventoryWeightLimit Boolean           @default(false) @map("use_inventory_weight_limit")
+  allowMultiplePlayerCharacters Boolean     @default(false) @map("allow_multiple_player_characters")
+  usersCanManageOwnXp Boolean               @default(true) @map("users_can_manage_own_xp")
+  allowSkillPointDistribution Boolean       @default(true) @map("allow_skill_point_distribution")
+  abilityCategoriesEnabled Boolean          @default(false) @map("ability_categories_enabled")
+  enabledAbilityCategories String[]         @default([]) @map("enabled_ability_categories")
+  progressionMode    String                 @default("xp_level") @map("progression_mode")
+  progressionTiers   Json                   @default("[{\"label\":\"Level 1\",\"required\":0},{\"label\":\"Level 2\",\"required\":100}]") @map("progression_tiers")
+  createdAt          DateTime               @default(now()) @map("created_at")
+  baseItems          BaseItem[]
+  attributeTemplates RpgAttributeTemplate[]
+  statusTemplates    RpgStatusTemplate[]
+  skillTemplates     RpgSkillTemplate[]
+  raceTemplates      RpgRaceTemplate[]
+  classTemplates     RpgClassTemplate[]
+  characterIdentityTemplates RpgCharacterIdentityTemplate[]
+  characterCharacteristicTemplates RpgCharacterCharacteristicTemplate[]
+  characters         RpgCharacter[]
+  inventoryItems     RpgCharacterInventoryItem[]
+  members            RpgMember[]
+  characterCreationRequests RpgCharacterCreationRequest[]
+  skills             Skill[]
+  librarySections    RpgLibrarySection[]
+  libraryBooks       RpgLibraryBook[]
+  maps               RpgMap[]
+  mapSections        RpgMapSection[]
+  mapMarkerGroups    RpgMapMarkerGroup[]
+  mapMarkers         RpgMapMarker[]
+
+  @@index([ownerId])
+  @@map("rpgs")
+}
+
+model RpgLibrarySection {
+  id          String           @id @default(cuid())
+  rpgId       String           @map("rpg_id")
+  createdByUserId String?      @map("created_by_user_id")
+  rpg         Rpg              @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  visibility  RpgVisibility    @default(public)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @default(now()) @map("updated_at")
+  books       RpgLibraryBook[]
+
+  @@index([rpgId])
+  @@index([createdByUserId])
+  @@map("rpg_library_sections")
+}
+
+model RpgMap {
+  id              String          @id @default(cuid())
+  rpgId           String          @map("rpg_id")
+  createdByUserId String?         @map("created_by_user_id")
+  rpg             Rpg             @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  type            String?
+  image           String?
+  position        Int             @default(0)
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @default(now()) @map("updated_at")
+  sections        RpgMapSection[]
+  markerGroups    RpgMapMarkerGroup[]
+  markers         RpgMapMarker[]
+
+  @@index([rpgId])
+  @@index([createdByUserId])
+  @@map("rpg_maps")
+}
+
+model RpgMapSection {
+  id              String           @id @default(cuid())
+  mapId           String           @map("map_id")
+  rpgId           String           @map("rpg_id")
+  parentSectionId String?          @map("parent_section_id")
+  createdByUserId String?          @map("created_by_user_id")
+  map             RpgMap           @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  rpg             Rpg              @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  parentSection   RpgMapSection?   @relation("RpgMapSectionHierarchy", fields: [parentSectionId], references: [id], onDelete: SetNull)
+  childSections   RpgMapSection[]  @relation("RpgMapSectionHierarchy")
+  name            String
+  description     String?
+  type            String?
+  position        Int              @default(0)
+  customFields    Json?            @map("custom_fields")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @default(now()) @map("updated_at")
+
+  @@index([mapId])
+  @@index([rpgId])
+  @@index([parentSectionId])
+  @@index([mapId, parentSectionId, position])
+  @@index([createdByUserId])
+  @@map("rpg_map_sections")
+}
+
+model RpgMapMarkerGroup {
+  id              String         @id @default(cuid())
+  mapId           String         @map("map_id")
+  rpgId           String         @map("rpg_id")
+  createdByUserId String?        @map("created_by_user_id")
+  map             RpgMap         @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  rpg             Rpg            @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  name            String
+  color           String
+  position        Int            @default(0)
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @default(now()) @map("updated_at")
+  markers         RpgMapMarker[]
+
+  @@index([mapId])
+  @@index([rpgId])
+  @@index([createdByUserId])
+  @@index([mapId, position])
+  @@map("rpg_map_marker_groups")
+}
+
+model RpgMapMarker {
+  id              String            @id @default(cuid())
+  groupId         String            @map("group_id")
+  mapId           String            @map("map_id")
+  rpgId           String            @map("rpg_id")
+  createdByUserId String?           @map("created_by_user_id")
+  group           RpgMapMarkerGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  map             RpgMap            @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  rpg             Rpg               @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  name            String
+  location        String?
+  shortDescription String?          @map("short_description")
+  image           String?
+  color           String?
+  x               Float
+  y               Float
+  size            Float?            @default(1)
+  pinStyle        String?           @default("default") @map("pin_style")
+  position        Int               @default(0)
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @default(now()) @map("updated_at")
+
+  @@index([groupId])
+  @@index([mapId])
+  @@index([rpgId])
+  @@index([createdByUserId])
+  @@index([groupId, position])
+  @@map("rpg_map_markers")
+}
+
+model RpgLibraryBook {
+  id         String            @id @default(cuid())
+  rpgId      String            @map("rpg_id")
+  sectionId  String            @map("section_id")
+  createdByUserId String?      @map("created_by_user_id")
+  rpg        Rpg               @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  section    RpgLibrarySection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title      String
+  description String?
+  content    Json              @default("{\"type\":\"doc\",\"content\":[]}")
+  visibility RpgVisibility     @default(private)
+  allowedCharacterIds Json     @default("[]") @map("allowed_character_ids")
+  allowedClassKeys Json        @default("[]") @map("allowed_class_keys")
+  allowedRaceKeys Json         @default("[]") @map("allowed_race_keys")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @default(now()) @map("updated_at")
+
+  @@index([rpgId])
+  @@index([sectionId])
+  @@index([createdByUserId])
+  @@map("rpg_library_books")
+}
+
+model BaseItem {
+  id        String         @id @default(cuid())
+  rpgId     String         @map("rpg_id")
+  rpg       Rpg            @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  name      String
+  image     String?
+  description String?
+  preRequirement String?   @map("pre_requirement")
+  type      BaseItemType
+  rarity    BaseItemRarity @default(common)
+  damage    String?
+  range     String?
+  ability   String?
+  abilityName String?      @map("ability_name")
+  effect    String?
+  effectName String?       @map("effect_name")
+  abilities Json?
+  effects   Json?
+  customFields Json?       @map("custom_fields")
+  weight    Float?
+  duration  String?
+  durability Int?
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @default(now()) @map("updated_at")
+  inventories RpgCharacterInventoryItem[]
+
+  @@index([rpgId])
+  @@map("baseitems")
+}
+
+model RpgAttributeTemplate {
+  id        String   @id @default(cuid())
+  rpgId     String   @map("rpg_id")
+  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key       String
+  label     String
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@unique([rpgId, key])
+  @@index([rpgId])
+  @@map("rpg_attribute_templates")
+}
+
+model RpgCharacter {
+  id            String           @id @default(cuid())
+  rpgId         String           @map("rpg_id")
+  rpg           Rpg              @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  createdByUserId String?        @map("created_by_user_id")
+  createdByUser User?            @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+  name          String
+  image         String?
+  raceKey       String?          @map("race_key")
+  classKey      String?          @map("class_key")
+  characterType RpgCharacterType @default(player) @map("character_type")
+  visibility    RpgVisibility    @default(public)
+  maxCarryWeight Float?          @map("max_carry_weight")
+  progressionMode String         @default("xp_level") @map("progression_mode")
+  progressionLabel String        @default("Level 1") @map("progression_label")
+  progressionRequired Int        @default(0) @map("progression_required")
+  progressionCurrent Int         @default(0) @map("progression_current")
+  life          Int              @default(0)
+  defense       Int              @default(0)
+  mana          Int              @default(0)
+  stamina       Int              @default(0)
+  sanity        Int              @default(0)
+  statuses      Json
+  currentStatuses Json?          @map("current_statuses")
+  attributes    Json
+  skills        Json
+  skillPoints   Int              @default(0) @map("skill_points")
+  abilities     Json             @default("[]")
+  identity      Json?            @map("identity")
+  characteristics Json?          @map("characteristics")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @default(now()) @map("updated_at")
+  inventoryItems RpgCharacterInventoryItem[]
+
+  @@index([rpgId])
+  @@index([createdByUserId])
+  @@index([rpgId, createdByUserId])
+  @@index([rpgId, raceKey])
+  @@index([rpgId, classKey])
+  @@map("rpg_characters")
+}
+
+model RpgCharacterIdentityTemplate {
+  id        String   @id @default(cuid())
+  rpgId     String   @map("rpg_id")
+  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key       String
+  label     String
+  required  Boolean  @default(true)
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@unique([rpgId, key])
+  @@index([rpgId])
+  @@map("rpg_character_identity_templates")
+}
+
+model RpgCharacterCharacteristicTemplate {
+  id        String   @id @default(cuid())
+  rpgId     String   @map("rpg_id")
+  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key       String
+  label     String
+  required  Boolean  @default(true)
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@unique([rpgId, key])
+  @@index([rpgId])
+  @@map("rpg_character_characteristic_templates")
+}
+
+model RpgCharacterInventoryItem {
+  id          String       @id @default(cuid())
+  rpgId       String       @map("rpg_id")
+  characterId String       @map("character_id")
+  baseItemId  String       @map("base_item_id")
+  quantity    Int          @default(1)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @default(now()) @map("updated_at")
+  rpg         Rpg          @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  character   RpgCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  baseItem    BaseItem     @relation(fields: [baseItemId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, baseItemId])
+  @@index([rpgId])
+  @@index([characterId])
+  @@index([baseItemId])
+  @@map("rpg_character_inventory_items")
+}
+
+model RpgStatusTemplate {
+  id        String   @id @default(cuid())
+  rpgId     String   @map("rpg_id")
+  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key       String
+  label     String
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@unique([rpgId, key])
+  @@index([rpgId])
+  @@map("rpg_status_templates")
+}
+
+model RpgSkillTemplate {
+  id        String   @id @default(cuid())
+  rpgId     String   @map("rpg_id")
+  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key       String
+  label     String
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@unique([rpgId, key])
+  @@index([rpgId])
+  @@map("rpg_skill_templates")
+}
+
+model RpgRaceTemplate {
+  id               String   @id @default(cuid())
+  rpgId            String   @map("rpg_id")
+  rpg              Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key              String
+  label            String
+  category         String?  @default("geral")
+  attributeBonuses Json     @map("attribute_bonuses")
+  skillBonuses     Json     @map("skill_bonuses")
+  lore             Json     @map("lore")
+  catalogMeta      Json     @default("{}") @map("catalog_meta")
+  position         Int
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @map("updated_at")
+  skillLinks       SkillRaceLink[]
+
+  @@unique([rpgId, key])
+  @@index([rpgId])
+  @@map("rpg_race_templates")
+}
+
+model RpgClassTemplate {
+  id               String   @id @default(cuid())
+  rpgId            String   @map("rpg_id")
+  rpg              Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key              String
+  label            String
+  category         String?  @default("geral")
+  attributeBonuses Json     @map("attribute_bonuses")
+  skillBonuses     Json     @map("skill_bonuses")
+  catalogMeta      Json     @default("{}") @map("catalog_meta")
+  position         Int
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @map("updated_at")
+  skillLinks       SkillClassLink[]
+
+  @@unique([rpgId, key])
+  @@index([rpgId])
+  @@map("rpg_class_templates")
+}
+
+model RpgMember {
+  id         String          @id @default(cuid())
+  rpgId      String          @map("rpg_id")
+  userId     String          @map("user_id")
+  status     RpgMemberStatus @default(pending)
+  role       RpgMemberRole   @default(member)
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @default(now()) @map("updated_at")
+  requestedAt DateTime       @default(now()) @map("requested_at")
+  respondedAt DateTime?      @map("responded_at")
+  rpg        Rpg             @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([rpgId, userId])
+  @@index([rpgId])
+  @@index([userId])
+  @@map("rpg_members")
+}
+
+model RpgCharacterCreationRequest {
+  id          String                         @id @default(cuid())
+  rpgId       String                         @map("rpg_id")
+  userId      String                         @map("user_id")
+  status      CharacterCreationRequestStatus @default(pending)
+  createdAt   DateTime                       @default(now()) @map("created_at")
+  updatedAt   DateTime                       @default(now()) @map("updated_at")
+  requestedAt DateTime                       @default(now()) @map("requested_at")
+  respondedAt DateTime?                      @map("responded_at")
+  rpg         Rpg                            @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  user        User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([rpgId, userId])
+  @@index([rpgId])
+  @@index([userId])
+  @@map("rpg_character_creation_requests")
+}
+
+model Skill {
+  id           String           @id @default(cuid())
+  ownerId      String           @map("owner_id")
+  owner        User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  rpgId        String?          @map("rpg_id")
+  rpg          Rpg?             @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  rpgScope     String           @default("global") @map("rpg_scope")
+  slug         String
+  tags         String[]         @default([])
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @default(now()) @map("updated_at")
+  levels       SkillLevel[]
+  classLinks   SkillClassLink[]
+  raceLinks    SkillRaceLink[]
+
+  @@unique([ownerId, rpgScope, slug])
+  @@index([ownerId, rpgId])
+  @@map("skills")
+}
+
+model SkillLevel {
+  id            String   @id @default(cuid())
+  skillId        String   @map("skill_id")
+  skill          Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  levelNumber    Int      @map("level_number")
+  levelRequired  Int      @default(1) @map("level_required")
+  summary        String?
+  stats          Json?
+  cost           Json?
+  target         Json?
+  area           Json?
+  scaling        Json?
+  requirement    Json?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @map("updated_at")
+
+  @@unique([skillId, levelNumber])
+  @@index([skillId, levelRequired])
+  @@map("skill_levels")
+}
+
+model SkillClassLink {
+  skillId         String           @map("skill_id")
+  classTemplateId String           @map("class_template_id")
+  skill           Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  classTemplate   RpgClassTemplate @relation(fields: [classTemplateId], references: [id], onDelete: Cascade)
+  createdAt       DateTime         @default(now()) @map("created_at")
+
+  @@id([skillId, classTemplateId])
+  @@index([classTemplateId])
+  @@map("skill_class_links")
+}
+
+model SkillRaceLink {
+  skillId        String          @map("skill_id")
+  raceTemplateId String          @map("race_template_id")
+  skill          Skill           @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  raceTemplate   RpgRaceTemplate @relation(fields: [raceTemplateId], references: [id], onDelete: Cascade)
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  @@id([skillId, raceTemplateId])
+  @@index([raceTemplateId])
+  @@map("skill_race_links")
+}
+
