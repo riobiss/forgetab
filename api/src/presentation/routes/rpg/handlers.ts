@@ -1,9 +1,11 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import { AppError } from "@/shared/errors/AppError"
+import { loadRpgCatalogUseCase } from "@/application/rpgCatalog/use-cases/rpgCatalog"
 import { createRpg } from "@/application/rpgManagement/use-cases/createRpg"
 import { deleteRpg } from "@/application/rpgManagement/use-cases/deleteRpg"
 import { getRpgById } from "@/application/rpgManagement/use-cases/getRpgById"
 import { updateRpg } from "@/application/rpgManagement/use-cases/updateRpg"
+import { prismaRpgCatalogRepository } from "@/infrastructure/rpgCatalog/repositories/prismaRpgCatalogRepository"
 import { imageKitGateway } from "@/infrastructure/rpgManagement/gateways/imageKitGateway"
 import { prismaRpgRepository } from "@/infrastructure/rpgManagement/repositories/prismaRpgRepository"
 import { legacyRpgPermissionService } from "@/infrastructure/rpgManagement/services/legacyRpgPermissionService"
@@ -78,6 +80,20 @@ export async function createRpgHandler(request: FastifyRequest, reply: FastifyRe
     return writeJson(reply, 201, payload)
   } catch (error) {
     return writeError(reply, error, "Erro interno ao criar RPG.")
+  }
+}
+
+export async function listRpgCatalogHandler(request: FastifyRequest, reply: FastifyReply) {
+  const authPayload = await getAuthPayloadFromFastifyRequest(request)
+
+  try {
+    const payload = await loadRpgCatalogUseCase(prismaRpgCatalogRepository, {
+      userId: authPayload?.userId ?? null,
+    })
+
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao carregar catalogo de RPGs.")
   }
 }
 

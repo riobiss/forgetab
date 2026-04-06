@@ -49,6 +49,7 @@ import {
   createRpgHandler,
   deleteRpgHandler,
   getRpgByIdHandler,
+  listRpgCatalogHandler,
   updateRpgHandler,
 } from "@api/presentation/routes/rpg/handlers"
 import {
@@ -145,6 +146,9 @@ export function registerApiRoutes(app: FastifyInstance) {
   )
   registerFastifyRoute(app, "post", "/api/auth/logout", (_request, reply) =>
     logoutHandler(reply),
+  )
+  registerFastifyRoute(app, "get", "/api/rpg", (request, reply) =>
+    listRpgCatalogHandler(request, reply),
   )
   registerFastifyRoute(app, "post", "/api/rpg", (request, reply) =>
     createRpgHandler(request, reply),

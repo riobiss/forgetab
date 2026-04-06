@@ -3,6 +3,7 @@ import { AppError } from "@/shared/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getAuthPayloadFromFastifyRequest: vi.fn(),
+  loadRpgCatalogUseCase: vi.fn(),
   createRpg: vi.fn(),
   getRpgById: vi.fn(),
   updateRpg: vi.fn(),
@@ -11,6 +12,10 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@api/presentation/http/auth/requestAuth", () => ({
   getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest,
+}))
+
+vi.mock("@/application/rpgCatalog/use-cases/rpgCatalog", () => ({
+  loadRpgCatalogUseCase: mocks.loadRpgCatalogUseCase,
 }))
 
 vi.mock("@/application/rpgManagement/use-cases/createRpg", () => ({
@@ -64,6 +69,64 @@ describe("rpg routes", () => {
 
     expect(response.statusCode).toBe(401)
     expect(response.json()).toEqual({ message: "Usuario nao autenticado." })
+  })
+
+  it("retorna 200 ao listar catalogo autenticado", async () => {
+    server = buildApiServer()
+    mocks.loadRpgCatalogUseCase.mockResolvedValue({
+      userId: "user-1",
+      createdRpgs: [{ id: "rpg-1", title: "Campanha", description: "Desc", image: null, visibility: "private", createdAt: new Date("2026-01-01T00:00:00.000Z") }],
+      publicRpgs: [],
+    })
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/api/rpg",
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(mocks.loadRpgCatalogUseCase).toHaveBeenCalledWith(expect.anything(), {
+      userId: "user-1",
+    })
+    expect(response.json()).toEqual({
+      userId: "user-1",
+      createdRpgs: [
+        {
+          id: "rpg-1",
+          title: "Campanha",
+          description: "Desc",
+          image: null,
+          visibility: "private",
+          createdAt: "2026-01-01T00:00:00.000Z",
+        },
+      ],
+      publicRpgs: [],
+    })
+  })
+
+  it("retorna 200 ao listar catalogo sem autenticacao", async () => {
+    server = buildApiServer()
+    mocks.getAuthPayloadFromFastifyRequest.mockResolvedValueOnce(null)
+    mocks.loadRpgCatalogUseCase.mockResolvedValue({
+      userId: null,
+      createdRpgs: [],
+      publicRpgs: [],
+    })
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/api/rpg",
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(mocks.loadRpgCatalogUseCase).toHaveBeenCalledWith(expect.anything(), {
+      userId: null,
+    })
+    expect(response.json()).toEqual({
+      userId: null,
+      createdRpgs: [],
+      publicRpgs: [],
+    })
   })
 
   it("retorna 201 ao criar RPG", async () => {
