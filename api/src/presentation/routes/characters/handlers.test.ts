@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { AppError } from "@/shared/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
-  getUserIdFromRequest: vi.fn(),
+  getUserIdFromFastifyRequest: vi.fn(),
   grantCharacterXpUseCase: vi.fn(),
   grantCharacterPointsUseCase: vi.fn(),
   buyCharacterSkillUseCase: vi.fn(),
@@ -23,7 +23,7 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock("@api/presentation/http/auth/requestAuth", () => ({
-  getUserIdFromRequest: mocks.getUserIdFromRequest,
+  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
 vi.mock("@/application/characterProgression/use-cases/characterProgression", () => ({
@@ -89,7 +89,7 @@ describe("characters routes", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.getUserIdFromRequest.mockResolvedValue("user-1")
+    mocks.getUserIdFromFastifyRequest.mockResolvedValue("user-1")
   })
 
   afterEach(async () => {
@@ -103,7 +103,7 @@ describe("characters routes", () => {
 
   it("retorna 401 ao listar personagens sem autenticacao", async () => {
     server = buildApiServer()
-    mocks.getUserIdFromRequest.mockResolvedValueOnce(null)
+    mocks.getUserIdFromFastifyRequest.mockResolvedValueOnce(null)
 
     const response = await server.inject({
       method: "GET",

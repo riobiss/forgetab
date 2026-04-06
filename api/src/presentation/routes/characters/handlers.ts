@@ -1,3 +1,5 @@
+import type { FastifyReply, FastifyRequest } from "fastify"
+import { AppError } from "@/shared/errors/AppError"
 import {
   grantCharacterPointsUseCase,
   grantCharacterXpUseCase,
@@ -36,22 +38,20 @@ import { prismaRpgAccessRepository } from "@/infrastructure/characters/repositor
 import { prismaRpgTemplatesRepository } from "@/infrastructure/characters/repositories/prismaRpgTemplatesRepository"
 import { legacyCharacterManagementService } from "@/infrastructure/characters/services/legacyCharacterManagementService"
 import { rpgCharacterProgressionPermissionService } from "@/infrastructure/characterProgression/services/rpgCharacterProgressionPermissionService"
-import { getUserIdFromRequest } from "@api/presentation/http/auth/requestAuth"
-import { toErrorResponse } from "@api/presentation/http/responses/errors"
-import { jsonResponse } from "@api/presentation/http/responses/jsonResponse"
+import { getUserIdFromFastifyRequest } from "@api/presentation/http/auth/requestAuth"
 import { getCharacterEditorSnapshot } from "@/lib/server/characters/getCharacterEditorSnapshot"
 import { canManageCharacter } from "@/lib/server/characters/manage/permissions"
 
-type CharacterRouteParams = {
+export type CharacterRouteParams = {
   id: string
 }
 
-type CharacterInventoryRouteParams = {
+export type CharacterInventoryRouteParams = {
   rpgId: string
   characterId: string
 }
 
-type CharactersCollectionRouteParams = {
+export type CharactersCollectionRouteParams = {
   rpgId: string
 }
 
@@ -60,14 +60,47 @@ const characterProgressionDeps = {
   permissionService: rpgCharacterProgressionPermissionService,
 }
 
-function mapCharacterInventoryError(error: unknown, fallbackMessage: string) {
+function parseJsonBody(body: unknown) {
+  if (body == null) {
+    return null
+  }
+
+  if (Buffer.isBuffer(body)) {
+    const raw = body.toString("utf8").trim()
+    return raw ? JSON.parse(raw) : null
+  }
+
+  if (typeof body === "string") {
+    const raw = body.trim()
+    return raw ? JSON.parse(raw) : null
+  }
+
+  return body
+}
+
+function writeJson(reply: FastifyReply, status: number, body: unknown) {
+  reply.code(status)
+  reply.header("Content-Type", "application/json; charset=utf-8")
+  return reply.send(body)
+}
+
+function writeError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
+  if (error instanceof AppError) {
+    return writeJson(reply, error.status, { message: error.message })
+  }
+
+  return writeJson(reply, 500, { message: fallbackMessage })
+}
+
+function mapCharacterInventoryError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
   if (
     error instanceof Error &&
     error.message.includes('relation "rpg_character_inventory_items" does not exist')
   ) {
-    return jsonResponse(
+    return writeJson(
+      reply,
+      500,
       { message: "Tabela de inventario nao existe no banco. Rode a migration." },
-      { status: 500 },
     )
   }
 
@@ -78,16 +111,17 @@ function mapCharacterInventoryError(error: unknown, fallbackMessage: string) {
       error.message.includes('column "duration" does not exist') ||
       error.message.includes('column "image" does not exist'))
   ) {
-    return jsonResponse(
+    return writeJson(
+      reply,
+      500,
       { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
-      { status: 500 },
     )
   }
 
-  return toErrorResponse(error, fallbackMessage)
+  return writeError(reply, error, fallbackMessage)
 }
 
-function mapCharacterCollectionError(error: unknown, fallbackMessage: string) {
+function mapCharacterCollectionError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
   if (
     error instanceof Error &&
     (error.message.includes('column "use_inventory_weight_limit" does not exist') ||
@@ -95,139 +129,166 @@ function mapCharacterCollectionError(error: unknown, fallbackMessage: string) {
       error.message.includes('column "progression_mode" does not exist') ||
       error.message.includes('column "progression_tiers" does not exist'))
   ) {
-    return jsonResponse(
+    return writeJson(
+      reply,
+      500,
       { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },
-      { status: 500 },
     )
   }
 
-  return toErrorResponse(error, fallbackMessage)
+  return writeError(reply, error, fallbackMessage)
 }
 
-async function requireUserId(request: Request) {
-  const userId = await getUserIdFromRequest(request)
+async function requireUserId(request: FastifyRequest, reply: FastifyReply) {
+  const userId = await getUserIdFromFastifyRequest(request)
   if (!userId) {
-    return { ok: false as const, response: jsonResponse({ message: "Usuario nao autenticado." }, { status: 401 }) }
+    return {
+      ok: false as const,
+      response: writeJson(reply, 401, { message: "Usuario nao autenticado." }),
+    }
   }
 
   return { ok: true as const, userId }
 }
 
-export async function grantCharacterXpHandler(request: Request, params: CharacterRouteParams) {
+export async function grantCharacterXpHandler(
+  request: FastifyRequest<{ Params: CharacterRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
-    const body = (await request.json()) as { amount?: unknown }
+    const body = (parseJsonBody(request.body) ?? {}) as { amount?: unknown }
     const payload = await grantCharacterXpUseCase(characterProgressionDeps, {
-      characterId: params.id,
+      characterId: request.params.id,
       userId: auth.userId,
       amount: body.amount,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao conceder XP.")
+    return writeError(reply, error, "Erro interno ao conceder XP.")
   }
 }
 
-export async function grantCharacterPointsHandler(request: Request, params: CharacterRouteParams) {
+export async function grantCharacterPointsHandler(
+  request: FastifyRequest<{ Params: CharacterRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
-    const body = (await request.json()) as { amount?: unknown }
+    const body = (parseJsonBody(request.body) ?? {}) as { amount?: unknown }
     const payload = await grantCharacterPointsUseCase(characterProgressionDeps, {
-      characterId: params.id,
+      characterId: request.params.id,
       userId: auth.userId,
       amount: body.amount,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao conceder pontos.")
+    return writeError(reply, error, "Erro interno ao conceder pontos.")
   }
 }
 
-export async function buyCharacterSkillHandler(request: Request, params: CharacterRouteParams) {
+export async function buyCharacterSkillHandler(
+  request: FastifyRequest<{ Params: CharacterRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
     const payload = await buyCharacterSkillUseCase(
       { service: legacyCharacterSkillPurchaseService },
-      { characterId: params.id, userId: auth.userId, payload: await request.json() },
+      {
+        characterId: request.params.id,
+        userId: auth.userId,
+        payload: parseJsonBody(request.body),
+      },
     )
 
-    return jsonResponse(payload, { status: payload.status })
+    return writeJson(reply, payload.status, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao comprar habilidade.")
+    return writeError(reply, error, "Erro interno ao comprar habilidade.")
   }
 }
 
-export async function removeCharacterSkillHandler(request: Request, params: CharacterRouteParams) {
+export async function removeCharacterSkillHandler(
+  request: FastifyRequest<{ Params: CharacterRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
     const payload = await removeCharacterSkillUseCase(
       { service: legacyCharacterSkillPurchaseService },
-      { characterId: params.id, userId: auth.userId, payload: await request.json() },
+      {
+        characterId: request.params.id,
+        userId: auth.userId,
+        payload: parseJsonBody(request.body),
+      },
     )
 
-    return jsonResponse(payload, { status: payload.status })
+    return writeJson(reply, payload.status, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao remover habilidade.")
+    return writeError(reply, error, "Erro interno ao remover habilidade.")
   }
 }
 
 export async function getCharacterInventoryHandler(
-  request: Request,
-  params: CharacterInventoryRouteParams,
+  request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
+  reply: FastifyReply,
 ) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
     const payload = await getCharacterInventoryUseCase(
       { repository: prismaCharacterInventoryRepository },
-      { rpgId: params.rpgId, characterId: params.characterId, userId: auth.userId },
+      {
+        rpgId: request.params.rpgId,
+        characterId: request.params.characterId,
+        userId: auth.userId,
+      },
     )
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return mapCharacterInventoryError(error, "Erro interno ao consultar inventario.")
+    return mapCharacterInventoryError(reply, error, "Erro interno ao consultar inventario.")
   }
 }
 
-export async function createCharacterInventoryHandler() {
-  return jsonResponse(
-    { message: "Dar item por esta rota foi desativado. Use a pagina de itens do RPG." },
-    { status: 405 },
-  )
+export async function createCharacterInventoryHandler(reply: FastifyReply) {
+  return writeJson(reply, 405, {
+    message: "Dar item por esta rota foi desativado. Use a pagina de itens do RPG.",
+  })
 }
 
 export async function removeCharacterInventoryHandler(
-  request: Request,
-  params: CharacterInventoryRouteParams,
+  request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
+  reply: FastifyReply,
 ) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
-    const body = (await request.json()) as {
+    const body = (parseJsonBody(request.body) ?? {}) as {
       inventoryItemId?: string
       quantity?: number
     }
@@ -235,106 +296,119 @@ export async function removeCharacterInventoryHandler(
     const payload = await removeCharacterInventoryItemApiUseCase(
       { repository: prismaCharacterInventoryRepository },
       {
-        rpgId: params.rpgId,
-        characterId: params.characterId,
+        rpgId: request.params.rpgId,
+        characterId: request.params.characterId,
         userId: auth.userId,
         inventoryItemId: body.inventoryItemId?.trim() ?? "",
         quantity: Number.isFinite(body.quantity) ? Math.floor(body.quantity as number) : 1,
       },
     )
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return mapCharacterInventoryError(error, "Erro interno ao remover item do inventario.")
+    return mapCharacterInventoryError(
+      reply,
+      error,
+      "Erro interno ao remover item do inventario.",
+    )
   }
 }
 
 export async function updateCharacterStatusCurrentHandler(
-  request: Request,
-  params: CharacterInventoryRouteParams,
+  request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
+  reply: FastifyReply,
 ) {
-  const auth = await requireUserId(request)
+  const auth = await requireUserId(request, reply)
   if (!auth.ok) {
     return auth.response
   }
 
   try {
-    const body = (await request.json()) as { key?: unknown; value?: unknown }
+    const body = (parseJsonBody(request.body) ?? {}) as { key?: unknown; value?: unknown }
 
     const payload = await updateCharacterStatusCurrentUseCase(
       prismaCharacterStatusCurrentRepository,
-      { rpgId: params.rpgId, characterId: params.characterId, userId: auth.userId, body },
+      {
+        rpgId: request.params.rpgId,
+        characterId: request.params.characterId,
+        userId: auth.userId,
+        body,
+      },
     )
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
     if (error instanceof Error && error.message.includes('relation "rpg_characters" does not exist')) {
-      return jsonResponse(
-        { message: "Tabela de personagens nao existe no banco. Rode a migration." },
-        { status: 500 },
-      )
+      return writeJson(reply, 500, {
+        message: "Tabela de personagens nao existe no banco. Rode a migration.",
+      })
     }
     if (error instanceof Error && error.message.includes('column "current_statuses" does not exist')) {
-      return jsonResponse(
-        { message: "Estrutura de personagens desatualizada. Rode a migration mais recente." },
-        { status: 500 },
-      )
+      return writeJson(reply, 500, {
+        message: "Estrutura de personagens desatualizada. Rode a migration mais recente.",
+      })
     }
 
-    return toErrorResponse(error, "Erro interno ao salvar status atual.")
+    return writeError(reply, error, "Erro interno ao salvar status atual.")
   }
 }
 
-export async function listCharactersHandler(request: Request, params: CharactersCollectionRouteParams) {
-  const auth = await requireUserId(request)
+export async function listCharactersHandler(
+  request: FastifyRequest<{ Params: CharactersCollectionRouteParams }>,
+  reply: FastifyReply,
+) {
+  const auth = await requireUserId(request, reply)
   if (!auth.ok) {
     return auth.response
   }
 
   try {
     const access = await getRpgAccess({
-      rpgId: params.rpgId,
+      rpgId: request.params.rpgId,
       userId: auth.userId,
       repository: prismaRpgAccessRepository,
     })
 
     if (!access.exists || !access.canAccess) {
-      return jsonResponse({ message: "RPG nao encontrado." }, { status: 404 })
+      return writeJson(reply, 404, { message: "RPG nao encontrado." })
     }
 
     const payload = await listCharacters({
-      rpgId: params.rpgId,
+      rpgId: request.params.rpgId,
       userId: auth.userId,
       access,
       characterRepository: prismaCharacterRepository,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return mapCharacterCollectionError(error, "Erro interno ao listar personagens.")
+    return mapCharacterCollectionError(reply, error, "Erro interno ao listar personagens.")
   }
 }
 
-export async function createCharacterHandler(request: Request, params: CharactersCollectionRouteParams) {
-  const auth = await requireUserId(request)
+export async function createCharacterHandler(
+  request: FastifyRequest<{ Params: CharactersCollectionRouteParams }>,
+  reply: FastifyReply,
+) {
+  const auth = await requireUserId(request, reply)
   if (!auth.ok) {
     return auth.response
   }
 
   try {
     const access = await getRpgAccess({
-      rpgId: params.rpgId,
+      rpgId: request.params.rpgId,
       userId: auth.userId,
       repository: prismaRpgAccessRepository,
     })
 
     if (!access.exists || !access.canAccess) {
-      return jsonResponse({ message: "RPG nao encontrado." }, { status: 404 })
+      return writeJson(reply, 404, { message: "RPG nao encontrado." })
     }
 
-    const body = await request.json()
+    const body = parseJsonBody(request.body)
     const character = await createCharacter({
-      rpgId: params.rpgId,
+      rpgId: request.params.rpgId,
       userId: auth.userId,
       access,
       payload: body,
@@ -342,68 +416,88 @@ export async function createCharacterHandler(request: Request, params: Character
       rpgTemplatesRepository: prismaRpgTemplatesRepository,
     })
 
-    return jsonResponse({ character }, { status: 201 })
+    return writeJson(reply, 201, { character })
   } catch (error) {
-    return mapCharacterCollectionError(error, "Erro interno ao criar personagem.")
+    return mapCharacterCollectionError(reply, error, "Erro interno ao criar personagem.")
   }
 }
 
-export async function getCharacterByIdHandler(request: Request, params: CharacterInventoryRouteParams) {
-  const auth = await requireUserId(request)
+export async function getCharacterByIdHandler(
+  request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
+  reply: FastifyReply,
+) {
+  const auth = await requireUserId(request, reply)
   if (!auth.ok) {
     return auth.response
   }
 
   try {
-    const permission = await canManageCharacter(params.rpgId, params.characterId, auth.userId)
+    const permission = await canManageCharacter(
+      request.params.rpgId,
+      request.params.characterId,
+      auth.userId,
+    )
     if (!permission.ok) {
-      return jsonResponse({ message: permission.message }, { status: permission.status })
+      return writeJson(reply, permission.status, { message: permission.message })
     }
 
-    const character = await getCharacterEditorSnapshot(params.rpgId, params.characterId)
+    const character = await getCharacterEditorSnapshot(
+      request.params.rpgId,
+      request.params.characterId,
+    )
     if (!character) {
-      return jsonResponse({ message: "Personagem nao encontrado." }, { status: 404 })
+      return writeJson(reply, 404, { message: "Personagem nao encontrado." })
     }
 
-    return jsonResponse({ character }, { status: 200 })
+    return writeJson(reply, 200, { character })
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao carregar personagem.")
+    return writeError(reply, error, "Erro interno ao carregar personagem.")
   }
 }
 
-export async function updateCharacterHandler(request: Request, params: CharacterInventoryRouteParams) {
-  const auth = await requireUserId(request)
+export async function updateCharacterHandler(
+  request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
+  reply: FastifyReply,
+) {
+  const auth = await requireUserId(request, reply)
   if (!auth.ok) {
     return auth.response
   }
 
   try {
-    const payload = (await request.json()) as UpdateCharacterPayload
+    const payload = parseJsonBody(request.body) as UpdateCharacterPayload
     await updateCharacter(
       { managementService: legacyCharacterManagementService },
       {
-        rpgId: params.rpgId,
-        characterId: params.characterId,
+        rpgId: request.params.rpgId,
+        characterId: request.params.characterId,
         userId: auth.userId,
         payload,
       },
     )
 
-    const updatedCharacter = await getCharacterEditorSnapshot(params.rpgId, params.characterId)
+    const updatedCharacter = await getCharacterEditorSnapshot(
+      request.params.rpgId,
+      request.params.characterId,
+    )
 
-    return jsonResponse(
+    return writeJson(
+      reply,
+      200,
       updatedCharacter
         ? { message: "Personagem atualizado com sucesso.", character: updatedCharacter }
         : { message: "Personagem atualizado com sucesso." },
-      { status: 200 },
     )
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao atualizar personagem.")
+    return writeError(reply, error, "Erro interno ao atualizar personagem.")
   }
 }
 
-export async function deleteCharacterHandler(request: Request, params: CharacterInventoryRouteParams) {
-  const auth = await requireUserId(request)
+export async function deleteCharacterHandler(
+  request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
+  reply: FastifyReply,
+) {
+  const auth = await requireUserId(request, reply)
   if (!auth.ok) {
     return auth.response
   }
@@ -412,24 +506,24 @@ export async function deleteCharacterHandler(request: Request, params: Character
     await deleteCharacter(
       { managementService: legacyCharacterManagementService },
       {
-        rpgId: params.rpgId,
-        characterId: params.characterId,
+        rpgId: request.params.rpgId,
+        characterId: request.params.characterId,
         userId: auth.userId,
       },
     )
 
-    return jsonResponse({ message: "Personagem deletado com sucesso." }, { status: 200 })
+    return writeJson(reply, 200, { message: "Personagem deletado com sucesso." })
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao deletar personagem.")
+    return writeError(reply, error, "Erro interno ao deletar personagem.")
   }
 }
 
 export async function getNpcMonsterCharacterAbilitiesHandler(
-  request: Request,
-  params: CharacterInventoryRouteParams,
+  request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
+  reply: FastifyReply,
 ) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
@@ -440,31 +534,32 @@ export async function getNpcMonsterCharacterAbilitiesHandler(
         rpgAccessRepository: prismaRpgAccessRepository,
         parserService: legacyCharacterAbilitiesParserService,
       },
-      { rpgId: params.rpgId, characterId: params.characterId, userId: auth.userId },
+      {
+        rpgId: request.params.rpgId,
+        characterId: request.params.characterId,
+        userId: auth.userId,
+      },
     )
 
     if (!payload) {
-      return jsonResponse({ message: "Personagem nao encontrado." }, { status: 404 })
+      return writeJson(reply, 404, { message: "Personagem nao encontrado." })
     }
 
-    return jsonResponse(
-      {
-        characterName: payload.characterName,
-        abilities: payload.abilities,
-      },
-      { status: 200 },
-    )
+    return writeJson(reply, 200, {
+      characterName: payload.characterName,
+      abilities: payload.abilities,
+    })
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao carregar habilidades.")
+    return writeError(reply, error, "Erro interno ao carregar habilidades.")
   }
 }
 
 export async function addNpcMonsterCharacterAbilityHandler(
-  request: Request,
-  params: CharacterInventoryRouteParams,
+  request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
+  reply: FastifyReply,
 ) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
@@ -472,25 +567,25 @@ export async function addNpcMonsterCharacterAbilityHandler(
     const payload = await addNpcMonsterCharacterAbilityUseCase(
       { service: npcMonsterCharacterAbilityService },
       {
-        rpgId: params.rpgId,
-        characterId: params.characterId,
+        rpgId: request.params.rpgId,
+        characterId: request.params.characterId,
         userId: auth.userId,
-        payload: await request.json(),
+        payload: parseJsonBody(request.body),
       },
     )
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao adicionar habilidade.")
+    return writeError(reply, error, "Erro interno ao adicionar habilidade.")
   }
 }
 
 export async function removeNpcMonsterCharacterAbilityHandler(
-  request: Request,
-  params: CharacterInventoryRouteParams,
+  request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
+  reply: FastifyReply,
 ) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
@@ -498,15 +593,15 @@ export async function removeNpcMonsterCharacterAbilityHandler(
     const payload = await removeNpcMonsterCharacterAbilityUseCase(
       { service: npcMonsterCharacterAbilityService },
       {
-        rpgId: params.rpgId,
-        characterId: params.characterId,
+        rpgId: request.params.rpgId,
+        characterId: request.params.characterId,
         userId: auth.userId,
-        payload: await request.json(),
+        payload: parseJsonBody(request.body),
       },
     )
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao remover habilidade.")
+    return writeError(reply, error, "Erro interno ao remover habilidade.")
   }
 }
