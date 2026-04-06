@@ -3,6 +3,8 @@ import { AppError } from "@/shared/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
+  loadCharactersDashboardUseCase: vi.fn(),
+  loadCharacterEditorBootstrapServerUseCase: vi.fn(),
   grantCharacterXpUseCase: vi.fn(),
   grantCharacterPointsUseCase: vi.fn(),
   buyCharacterSkillUseCase: vi.fn(),
@@ -16,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   getRpgAccess: vi.fn(),
   listCharacters: vi.fn(),
   createCharacter: vi.fn(),
+  loadCharacterDetailUseCase: vi.fn(),
   canManageCharacter: vi.fn(),
   getCharacterEditorSnapshot: vi.fn(),
   updateCharacter: vi.fn(),
@@ -24,6 +27,14 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@api/presentation/http/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
+}))
+
+vi.mock("@/application/charactersDashboard/use-cases/loadCharactersDashboard", () => ({
+  loadCharactersDashboardUseCase: mocks.loadCharactersDashboardUseCase,
+}))
+
+vi.mock("@/application/charactersEditor/use-cases/loadCharacterEditorBootstrapServer", () => ({
+  loadCharacterEditorBootstrapServerUseCase: mocks.loadCharacterEditorBootstrapServerUseCase,
 }))
 
 vi.mock("@/application/characterProgression/use-cases/characterProgression", () => ({
@@ -64,6 +75,10 @@ vi.mock("@/application/characters/use-cases/listCharacters", () => ({
 
 vi.mock("@/application/characters/use-cases/createCharacter", () => ({
   createCharacter: mocks.createCharacter,
+}))
+
+vi.mock("@/application/charactersDetail/use-cases/loadCharacterDetail", () => ({
+  loadCharacterDetailUseCase: mocks.loadCharacterDetailUseCase,
 }))
 
 vi.mock("@/lib/server/characters/manage/permissions", () => ({
@@ -112,6 +127,82 @@ describe("characters routes", () => {
 
     expect(response.statusCode).toBe(401)
     expect(response.json()).toEqual({ message: "Usuario nao autenticado." })
+  })
+
+  it("retorna 200 com dashboard de personagens", async () => {
+    server = buildApiServer()
+    mocks.loadCharacterEditorBootstrapServerUseCase.mockResolvedValue({
+      attributes: [],
+      statuses: [],
+      skills: [],
+      characters: [],
+      rpg: null,
+      races: [],
+      classes: [],
+      identityFields: [],
+      characteristicFields: [],
+    })
+    mocks.loadCharactersDashboardUseCase.mockResolvedValue({
+      status: "ok",
+      data: {
+        rpgId: "rpg-1",
+        rpgName: "Campanha",
+        filterType: "player",
+        characters: [],
+        editorBootstrap: null,
+        selectedCharacterDetail: null,
+        canCreateCharacter: true,
+        isOwner: false,
+        canManageNpcMonster: false,
+        isAcceptedMember: true,
+        ownPlayerCount: 1,
+        allowMultiplePlayerCharacters: false,
+      },
+    })
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/api/rpg/rpg-1/characters/dashboard?type=player",
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(mocks.loadCharactersDashboardUseCase).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        rpgId: "rpg-1",
+        userId: "user-1",
+        filterType: "player",
+      }),
+    )
+    expect(response.json()).toEqual({
+      rpgId: "rpg-1",
+      rpgName: "Campanha",
+      filterType: "player",
+      characters: [],
+      editorBootstrap: null,
+      selectedCharacterDetail: null,
+      canCreateCharacter: true,
+      isOwner: false,
+      canManageNpcMonster: false,
+      isAcceptedMember: true,
+      ownPlayerCount: 1,
+      allowMultiplePlayerCharacters: false,
+    })
+  })
+
+  it("retorna 404 quando dashboard do RPG nao existe", async () => {
+    server = buildApiServer()
+    mocks.loadCharactersDashboardUseCase.mockResolvedValue({
+      status: "not_found",
+    })
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/api/rpg/rpg-1/characters/dashboard",
+    })
+
+    expect(response.statusCode).toBe(404)
+    expect(response.json()).toEqual({ message: "RPG nao encontrado." })
   })
 
   it("retorna 404 quando usuario nao tem acesso ao RPG", async () => {
@@ -265,6 +356,66 @@ describe("characters routes", () => {
     expect(response.statusCode).toBe(403)
     expect(response.json()).toEqual({
       message: "Sem permissao para gerenciar personagem.",
+    })
+  })
+
+  it("retorna 200 com detalhe do personagem", async () => {
+    server = buildApiServer()
+    mocks.loadCharacterDetailUseCase.mockResolvedValue({
+      status: "ok",
+      data: {
+        rpgId: "rpg-1",
+        characterId: "char-1",
+        displayName: "Arthas",
+        image: null,
+        characterType: "player",
+        canEditCharacter: true,
+        skillPoints: 3,
+        costResourceName: "Skill Points",
+        statusEntries: [],
+        attributeEntries: [],
+        skillEntries: [],
+        usersCanManageOwnXp: true,
+        progressionLevelDisplay: "Level 1",
+        progressionCurrent: 0,
+        nextProgressionTierText: "Level 2 (100)",
+        aboutText: "",
+        identityItems: [],
+        characteristicsItems: [],
+        maskStatuses: false,
+        maskAttributes: false,
+        maskSkills: false,
+      },
+    })
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/api/rpg/rpg-1/characters/char-1/detail",
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toEqual({
+      rpgId: "rpg-1",
+      characterId: "char-1",
+      displayName: "Arthas",
+      image: null,
+      characterType: "player",
+      canEditCharacter: true,
+      skillPoints: 3,
+      costResourceName: "Skill Points",
+      statusEntries: [],
+      attributeEntries: [],
+      skillEntries: [],
+      usersCanManageOwnXp: true,
+      progressionLevelDisplay: "Level 1",
+      progressionCurrent: 0,
+      nextProgressionTierText: "Level 2 (100)",
+      aboutText: "",
+      identityItems: [],
+      characteristicsItems: [],
+      maskStatuses: false,
+      maskAttributes: false,
+      maskSkills: false,
     })
   })
 
@@ -484,7 +635,10 @@ describe("characters routes", () => {
   it("retorna 200 com habilidades do personagem", async () => {
     server = buildApiServer()
     mocks.loadCharacterAbilitiesUseCase.mockResolvedValue({
+      rpgId: "rpg-1",
+      characterId: "char-1",
       characterName: "Arthas",
+      classLabel: "Paladino",
       abilities: [{ id: "ability-1", name: "Golpe Sombrio" }],
     })
 
@@ -495,7 +649,10 @@ describe("characters routes", () => {
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
+      rpgId: "rpg-1",
+      characterId: "char-1",
       characterName: "Arthas",
+      classLabel: "Paladino",
       abilities: [{ id: "ability-1", name: "Golpe Sombrio" }],
     })
   })

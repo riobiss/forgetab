@@ -26,6 +26,9 @@ import {
   updateCharacter,
   type UpdateCharacterPayload,
 } from "@/application/characters/use-cases/updateCharacter"
+import { loadCharactersDashboardUseCase } from "@/application/charactersDashboard/use-cases/loadCharactersDashboard"
+import { loadCharacterEditorBootstrapServerUseCase } from "@/application/charactersEditor/use-cases/loadCharacterEditorBootstrapServer"
+import { loadCharacterDetailUseCase } from "@/application/charactersDetail/use-cases/loadCharacterDetail"
 import { prismaCharacterAbilitiesRepository } from "@/infrastructure/characterAbilities/repositories/prismaCharacterAbilitiesRepository"
 import { legacyCharacterAbilitiesParserService } from "@/infrastructure/characterAbilities/services/legacyCharacterAbilitiesParserService"
 import { npcMonsterCharacterAbilityService } from "@/infrastructure/characterAbilities/services/npcMonsterCharacterAbilityService"
@@ -36,8 +39,13 @@ import { prismaCharacterStatusCurrentRepository } from "@/infrastructure/charact
 import { prismaCharacterRepository } from "@/infrastructure/characters/repositories/prismaCharacterRepository"
 import { prismaRpgAccessRepository } from "@/infrastructure/characters/repositories/prismaRpgAccessRepository"
 import { prismaRpgTemplatesRepository } from "@/infrastructure/characters/repositories/prismaRpgTemplatesRepository"
+import { prismaCharactersDashboardRepository } from "@/infrastructure/charactersDashboard/repositories/prismaCharactersDashboardRepository"
+import { prismaCharacterDetailRepository } from "@/infrastructure/charactersDetail/repositories/prismaCharacterDetailRepository"
+import { legacyCharacterDetailPermissionService } from "@/infrastructure/charactersDetail/services/legacyCharacterDetailPermissionService"
 import { legacyCharacterManagementService } from "@/infrastructure/characters/services/legacyCharacterManagementService"
 import { rpgCharacterProgressionPermissionService } from "@/infrastructure/characterProgression/services/rpgCharacterProgressionPermissionService"
+import { prismaRpgConfigRepository } from "@/infrastructure/rpgConfig/repositories/prismaRpgConfigRepository"
+import { rpgConfigAccessService } from "@/infrastructure/rpgConfig/services/rpgConfigAccessService"
 import { getUserIdFromFastifyRequest } from "@api/presentation/http/auth/requestAuth"
 import { getCharacterEditorSnapshot } from "@/lib/server/characters/getCharacterEditorSnapshot"
 import { canManageCharacter } from "@/lib/server/characters/manage/permissions"
@@ -53,6 +61,13 @@ export type CharacterInventoryRouteParams = {
 
 export type CharactersCollectionRouteParams = {
   rpgId: string
+}
+
+type CharactersDashboardQuery = {
+  type?: string
+  modal?: string
+  viewer?: string
+  characterId?: string
 }
 
 const characterProgressionDeps = {
@@ -149,6 +164,84 @@ async function requireUserId(request: FastifyRequest, reply: FastifyReply) {
   }
 
   return { ok: true as const, userId }
+}
+
+function normalizeFilterType(value?: string) {
+  return value === "player" || value === "npc" || value === "monster" ? value : "all"
+}
+
+export async function getCharactersDashboardHandler(
+  request: FastifyRequest<{
+    Params: CharactersCollectionRouteParams
+    Querystring: CharactersDashboardQuery
+  }>,
+  reply: FastifyReply,
+) {
+  const userId = await getUserIdFromFastifyRequest(request)
+  const filterType = normalizeFilterType(request.query.type)
+
+  try {
+    const editorBootstrap = userId
+      ? await loadCharacterEditorBootstrapServerUseCase(
+          {
+            rpgAccessRepository: prismaRpgAccessRepository,
+            rpgTemplatesRepository: prismaRpgTemplatesRepository,
+            characterRepository: prismaCharacterRepository,
+            rpgConfigRepository: prismaRpgConfigRepository,
+            rpgConfigAccessService,
+          },
+          {
+            rpgId: request.params.rpgId,
+            userId,
+          },
+        )
+      : null
+
+    const selectedCharacterDetail =
+      request.query.modal === "view" &&
+      request.query.viewer === "character" &&
+      request.query.characterId
+        ? await (async () => {
+            const selectedCharacterId = request.query.characterId ?? ""
+            const detailResult = await loadCharacterDetailUseCase(
+              {
+                repository: prismaCharacterDetailRepository,
+                rpgAccessRepository: prismaRpgAccessRepository,
+                permissionService: legacyCharacterDetailPermissionService,
+              },
+              {
+                rpgId: request.params.rpgId,
+                characterId: selectedCharacterId,
+                userId,
+              },
+            )
+
+            return detailResult.status === "ok" ? detailResult.data : null
+          })()
+        : null
+
+    const result = await loadCharactersDashboardUseCase(
+      {
+        dashboardRepository: prismaCharactersDashboardRepository,
+        rpgAccessRepository: prismaRpgAccessRepository,
+      },
+      {
+        rpgId: request.params.rpgId,
+        userId,
+        filterType,
+        editorBootstrap,
+        selectedCharacterDetail,
+      },
+    )
+
+    if (result.status === "not_found" || result.status === "private_blocked") {
+      return writeJson(reply, 404, { message: "RPG nao encontrado." })
+    }
+
+    return writeJson(reply, 200, result.data)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao carregar dashboard de personagens.")
+  }
 }
 
 export async function grantCharacterXpHandler(
@@ -455,6 +548,39 @@ export async function getCharacterByIdHandler(
   }
 }
 
+export async function getCharacterDetailHandler(
+  request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
+  reply: FastifyReply,
+) {
+  const auth = await requireUserId(request, reply)
+  if (!auth.ok) {
+    return auth.response
+  }
+
+  try {
+    const result = await loadCharacterDetailUseCase(
+      {
+        repository: prismaCharacterDetailRepository,
+        rpgAccessRepository: prismaRpgAccessRepository,
+        permissionService: legacyCharacterDetailPermissionService,
+      },
+      {
+        rpgId: request.params.rpgId,
+        characterId: request.params.characterId,
+        userId: auth.userId,
+      },
+    )
+
+    if (result.status === "not_found" || result.status === "private_blocked") {
+      return writeJson(reply, 404, { message: "Personagem nao encontrado." })
+    }
+
+    return writeJson(reply, 200, result.data)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao carregar detalhe do personagem.")
+  }
+}
+
 export async function updateCharacterHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
   reply: FastifyReply,
@@ -546,7 +672,10 @@ export async function getNpcMonsterCharacterAbilitiesHandler(
     }
 
     return writeJson(reply, 200, {
+      rpgId: payload.rpgId,
+      characterId: payload.characterId,
       characterName: payload.characterName,
+      classLabel: payload.classLabel,
       abilities: payload.abilities,
     })
   } catch (error) {

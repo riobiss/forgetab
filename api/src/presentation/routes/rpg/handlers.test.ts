@@ -4,6 +4,7 @@ import { AppError } from "@/shared/errors/AppError"
 const mocks = vi.hoisted(() => ({
   getAuthPayloadFromFastifyRequest: vi.fn(),
   loadRpgCatalogUseCase: vi.fn(),
+  loadRpgDashboard: vi.fn(),
   createRpg: vi.fn(),
   getRpgById: vi.fn(),
   updateRpg: vi.fn(),
@@ -16,6 +17,10 @@ vi.mock("@api/presentation/http/auth/requestAuth", () => ({
 
 vi.mock("@/application/rpgCatalog/use-cases/rpgCatalog", () => ({
   loadRpgCatalogUseCase: mocks.loadRpgCatalogUseCase,
+}))
+
+vi.mock("@/application/rpgDashboard/use-cases/loadRpgDashboard", () => ({
+  loadRpgDashboard: mocks.loadRpgDashboard,
 }))
 
 vi.mock("@/application/rpgManagement/use-cases/createRpg", () => ({
@@ -196,6 +201,92 @@ describe("rpg routes", () => {
 
     expect(response.statusCode).toBe(401)
     expect(response.json()).toEqual({ message: "Usuario nao autenticado." })
+  })
+
+  it("retorna 200 com dashboard do RPG", async () => {
+    server = buildApiServer()
+    mocks.loadRpgDashboard.mockResolvedValue({
+      rpg: {
+        id: "rpg-1",
+        ownerId: "user-1",
+        ownerName: "Mestre",
+        title: "Campanha",
+        description: "Descricao",
+        visibility: "public",
+        useMundiMap: false,
+        usersCanManageOwnXp: true,
+        allowSkillPointDistribution: true,
+        createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      },
+      isAuthenticated: true,
+      isOwner: true,
+      canManageRpg: true,
+      membershipStatus: null,
+      canViewFullContent: true,
+      pendingRequests: [],
+      pendingCharacterRequests: [],
+      acceptedMembers: [],
+      acceptedMembersCount: 0,
+      hasRaces: true,
+      hasClasses: false,
+      spectatorCharacters: [],
+      attributeLabels: {},
+      skillLabels: {},
+      statusLabels: {},
+    })
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/api/rpg/rpg-1/dashboard",
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(mocks.loadRpgDashboard).toHaveBeenCalledWith(expect.anything(), expect.anything(), {
+      rpgId: "rpg-1",
+      userId: "user-1",
+    })
+    expect(response.json()).toEqual({
+      rpg: {
+        id: "rpg-1",
+        ownerId: "user-1",
+        ownerName: "Mestre",
+        title: "Campanha",
+        description: "Descricao",
+        visibility: "public",
+        useMundiMap: false,
+        usersCanManageOwnXp: true,
+        allowSkillPointDistribution: true,
+        createdAt: "2026-01-01T00:00:00.000Z",
+      },
+      isAuthenticated: true,
+      isOwner: true,
+      canManageRpg: true,
+      membershipStatus: null,
+      canViewFullContent: true,
+      pendingRequests: [],
+      pendingCharacterRequests: [],
+      acceptedMembers: [],
+      acceptedMembersCount: 0,
+      hasRaces: true,
+      hasClasses: false,
+      spectatorCharacters: [],
+      attributeLabels: {},
+      skillLabels: {},
+      statusLabels: {},
+    })
+  })
+
+  it("retorna 404 ao buscar dashboard inexistente", async () => {
+    server = buildApiServer()
+    mocks.loadRpgDashboard.mockRejectedValue(new AppError("RPG nao encontrado.", 404))
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/api/rpg/rpg-inexistente/dashboard",
+    })
+
+    expect(response.statusCode).toBe(404)
+    expect(response.json()).toEqual({ message: "RPG nao encontrado." })
   })
 
   it("retorna 200 com dados do RPG", async () => {

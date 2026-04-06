@@ -1,11 +1,14 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import { AppError } from "@/shared/errors/AppError"
 import { loadRpgCatalogUseCase } from "@/application/rpgCatalog/use-cases/rpgCatalog"
+import { loadRpgDashboard } from "@/application/rpgDashboard/use-cases/loadRpgDashboard"
 import { createRpg } from "@/application/rpgManagement/use-cases/createRpg"
 import { deleteRpg } from "@/application/rpgManagement/use-cases/deleteRpg"
 import { getRpgById } from "@/application/rpgManagement/use-cases/getRpgById"
 import { updateRpg } from "@/application/rpgManagement/use-cases/updateRpg"
 import { prismaRpgCatalogRepository } from "@/infrastructure/rpgCatalog/repositories/prismaRpgCatalogRepository"
+import { prismaRpgDashboardRepository } from "@/infrastructure/rpgDashboard/repositories/prismaRpgDashboardRepository"
+import { rpgDashboardAccessService } from "@/infrastructure/rpgDashboard/services/rpgDashboardAccessService"
 import { imageKitGateway } from "@/infrastructure/rpgManagement/gateways/imageKitGateway"
 import { prismaRpgRepository } from "@/infrastructure/rpgManagement/repositories/prismaRpgRepository"
 import { legacyRpgPermissionService } from "@/infrastructure/rpgManagement/services/legacyRpgPermissionService"
@@ -94,6 +97,28 @@ export async function listRpgCatalogHandler(request: FastifyRequest, reply: Fast
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(reply, error, "Erro interno ao carregar catalogo de RPGs.")
+  }
+}
+
+export async function getRpgDashboardHandler(
+  request: FastifyRequest<{ Params: RpgRouteParams }>,
+  reply: FastifyReply,
+) {
+  const authPayload = await getAuthPayloadFromFastifyRequest(request)
+
+  try {
+    const payload = await loadRpgDashboard(
+      prismaRpgDashboardRepository,
+      rpgDashboardAccessService,
+      {
+        rpgId: request.params.rpgId,
+        userId: authPayload?.userId ?? null,
+      },
+    )
+
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao carregar dashboard do RPG.")
   }
 }
 

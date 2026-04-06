@@ -6,12 +6,21 @@ import {
   logoutHandler,
   registerHandler,
 } from "@api/presentation/routes/auth/handlers"
+import { getProfileHandler } from "@api/presentation/routes/profile/handlers"
+import {
+  getClassCatalogDetailHandler,
+  getClassCatalogPageHandler,
+  getRaceCatalogDetailHandler,
+  getRaceCatalogPageHandler,
+} from "@api/presentation/routes/entityCatalog/handlers"
 import {
   buyCharacterSkillHandler,
   createCharacterHandler,
+  getCharacterDetailHandler,
   createCharacterInventoryHandler,
   deleteCharacterHandler,
   getCharacterByIdHandler,
+  getCharactersDashboardHandler,
   getCharacterInventoryHandler,
   getNpcMonsterCharacterAbilitiesHandler,
   grantCharacterPointsHandler,
@@ -48,6 +57,7 @@ import {
 import {
   createRpgHandler,
   deleteRpgHandler,
+  getRpgDashboardHandler,
   getRpgByIdHandler,
   listRpgCatalogHandler,
   updateRpgHandler,
@@ -147,6 +157,9 @@ export function registerApiRoutes(app: FastifyInstance) {
   registerFastifyRoute(app, "post", "/api/auth/logout", (_request, reply) =>
     logoutHandler(reply),
   )
+  registerFastifyRoute(app, "get", "/api/profile", (request, reply) =>
+    getProfileHandler(request, reply),
+  )
   registerFastifyRoute(app, "get", "/api/rpg", (request, reply) =>
     listRpgCatalogHandler(request, reply),
   )
@@ -156,6 +169,9 @@ export function registerApiRoutes(app: FastifyInstance) {
 
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId", (request, reply) =>
     getRpgByIdHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
+  )
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/dashboard", (request, reply) =>
+    getRpgDashboardHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
   registerFastifyRoute(app, "patch", "/api/rpg/:rpgId", (request, reply) =>
     updateRpgHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
@@ -185,11 +201,29 @@ export function registerApiRoutes(app: FastifyInstance) {
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId/races", (request, reply) =>
     getRaceTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/entity-catalog/races", (request, reply) =>
+    getRaceCatalogPageHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
+  )
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/entity-catalog/races/:raceKey", (request, reply) =>
+    getRaceCatalogDetailHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; raceKey: string } }>,
+      reply,
+    ),
+  )
   registerFastifyRoute(app, "put", "/api/rpg/:rpgId/races", (request, reply) =>
     updateRaceTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId/classes", (request, reply) =>
     getClassTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
+  )
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/entity-catalog/classes", (request, reply) =>
+    getClassCatalogPageHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
+  )
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/entity-catalog/classes/:classId", (request, reply) =>
+    getClassCatalogDetailHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; classId: string } }>,
+      reply,
+    ),
   )
   registerFastifyRoute(app, "put", "/api/rpg/:rpgId/classes", (request, reply) =>
     updateClassTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
@@ -442,11 +476,26 @@ export function registerApiRoutes(app: FastifyInstance) {
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId/characters", (request, reply) =>
     listCharactersHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/characters/dashboard", (request, reply) =>
+    getCharactersDashboardHandler(
+      request as FastifyRequest<{
+        Params: { rpgId: string }
+        Querystring: { type?: string; modal?: string; viewer?: string; characterId?: string }
+      }>,
+      reply,
+    ),
+  )
   registerFastifyRoute(app, "post", "/api/rpg/:rpgId/characters", (request, reply) =>
     createCharacterHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId/characters/:characterId", (request, reply) =>
     getCharacterByIdHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/characters/:characterId/detail", (request, reply) =>
+    getCharacterDetailHandler(
       request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
       reply,
     ),
