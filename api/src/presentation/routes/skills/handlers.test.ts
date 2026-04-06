@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { AppError } from "@/shared/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
-  getUserIdFromRequest: vi.fn(),
+  getUserIdFromFastifyRequest: vi.fn(),
   getSkills: vi.fn(),
   createSkill: vi.fn(),
   getSkillById: vi.fn(),
@@ -16,7 +16,7 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock("@api/presentation/http/auth/requestAuth", () => ({
-  getUserIdFromRequest: mocks.getUserIdFromRequest,
+  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
 vi.mock("@/application/skills/use-cases/getSkills", () => ({
@@ -63,7 +63,7 @@ describe("skills routes", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.getUserIdFromRequest.mockResolvedValue("user-1")
+    mocks.getUserIdFromFastifyRequest.mockResolvedValue("user-1")
     mocks.normalizeSkillSearchIndexParams.mockImplementation((body: { skillIds?: string[]; rpgId?: string }) => ({
       skillIds: Array.isArray(body.skillIds) ? body.skillIds : [],
       rpgId: body.rpgId ?? null,
@@ -81,7 +81,7 @@ describe("skills routes", () => {
 
   it("retorna 401 ao listar skills sem autenticacao", async () => {
     server = buildApiServer()
-    mocks.getUserIdFromRequest.mockResolvedValueOnce(null)
+    mocks.getUserIdFromFastifyRequest.mockResolvedValueOnce(null)
 
     const response = await server.inject({
       method: "GET",
