@@ -1,3 +1,5 @@
+import type { FastifyReply, FastifyRequest } from "fastify"
+import { AppError } from "@/shared/errors/AppError"
 import {
   createRpgMap,
   createRpgMapMarkerGroup,
@@ -14,268 +16,336 @@ import {
 } from "@/application/rpgMap/use-cases/rpgMap"
 import { prismaRpgMapRepository } from "@/infrastructure/rpgMap/repositories/prismaRpgMapRepository"
 import { rpgMapAccessService } from "@/infrastructure/rpgMap/services/rpgMapAccessService"
-import { getUserIdFromRequest } from "@api/presentation/http/auth/requestAuth"
-import { toErrorResponse } from "@api/presentation/http/responses/errors"
-import { jsonResponse } from "@api/presentation/http/responses/jsonResponse"
+import { getUserIdFromFastifyRequest } from "@api/presentation/http/auth/requestAuth"
 
 type RpgRouteParams = { rpgId: string }
 type MapRouteParams = { rpgId: string; mapId: string }
 type SectionRouteParams = { rpgId: string; mapId: string; sectionId: string }
 type GroupRouteParams = { rpgId: string; mapId: string; groupId: string }
 
-async function requireUserId(request: Request) {
-  const userId = await getUserIdFromRequest(request)
+function parseJsonBody(body: unknown) {
+  if (body == null) {
+    return null
+  }
+
+  if (Buffer.isBuffer(body)) {
+    const raw = body.toString("utf8").trim()
+    return raw ? JSON.parse(raw) : null
+  }
+
+  if (typeof body === "string") {
+    const raw = body.trim()
+    return raw ? JSON.parse(raw) : null
+  }
+
+  return body
+}
+
+function writeJson(reply: FastifyReply, status: number, body: unknown) {
+  reply.code(status)
+  reply.header("Content-Type", "application/json; charset=utf-8")
+  return reply.send(body)
+}
+
+function writeError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
+  if (error instanceof AppError) {
+    return writeJson(reply, error.status, { message: error.message })
+  }
+
+  return writeJson(reply, 500, { message: fallbackMessage })
+}
+
+async function requireUserId(request: FastifyRequest, reply: FastifyReply) {
+  const userId = await getUserIdFromFastifyRequest(request)
   if (!userId) {
+    reply.code(401)
+    reply.header("Content-Type", "application/json; charset=utf-8")
     return {
       ok: false as const,
-      response: jsonResponse({ message: "Usuario nao autenticado." }, { status: 401 }),
+      response: reply.send({ message: "Usuario nao autenticado." }),
     }
   }
 
   return { ok: true as const, userId }
 }
 
-export async function listRpgMapsHandler(request: Request, params: RpgRouteParams) {
+export async function listRpgMapsHandler(
+  request: FastifyRequest<{ Params: RpgRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
     const payload = await listRpgMaps(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
+      rpgId: request.params.rpgId,
       userId: auth.userId,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao listar mapas.")
+    return writeError(reply, error, "Erro interno ao listar mapas.")
   }
 }
 
-export async function createRpgMapHandler(request: Request, params: RpgRouteParams) {
+export async function createRpgMapHandler(
+  request: FastifyRequest<{ Params: RpgRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
-    const body = await request.json()
+    const body = parseJsonBody(request.body)
     const payload = await createRpgMap(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
+      rpgId: request.params.rpgId,
       userId: auth.userId,
       body,
     })
 
-    return jsonResponse(payload, { status: 201 })
+    return writeJson(reply, 201, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao criar mapa.")
+    return writeError(reply, error, "Erro interno ao criar mapa.")
   }
 }
 
-export async function getRpgMapDetailHandler(request: Request, params: MapRouteParams) {
+export async function getRpgMapDetailHandler(
+  request: FastifyRequest<{ Params: MapRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
     const payload = await getRpgMapDetail(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
-      mapId: params.mapId,
+      rpgId: request.params.rpgId,
+      mapId: request.params.mapId,
       userId: auth.userId,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao carregar mapa.")
+    return writeError(reply, error, "Erro interno ao carregar mapa.")
   }
 }
 
-export async function updateRpgMapHandler(request: Request, params: MapRouteParams) {
+export async function updateRpgMapHandler(
+  request: FastifyRequest<{ Params: MapRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
-    const body = await request.json()
+    const body = parseJsonBody(request.body)
     const payload = await updateRpgMap(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
-      mapId: params.mapId,
+      rpgId: request.params.rpgId,
+      mapId: request.params.mapId,
       userId: auth.userId,
       body,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao atualizar mapa.")
+    return writeError(reply, error, "Erro interno ao atualizar mapa.")
   }
 }
 
-export async function deleteRpgMapHandler(request: Request, params: MapRouteParams) {
+export async function deleteRpgMapHandler(
+  request: FastifyRequest<{ Params: MapRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
     const payload = await deleteRpgMap(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
-      mapId: params.mapId,
+      rpgId: request.params.rpgId,
+      mapId: request.params.mapId,
       userId: auth.userId,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao remover mapa.")
+    return writeError(reply, error, "Erro interno ao remover mapa.")
   }
 }
 
-export async function createRpgMapSectionHandler(request: Request, params: MapRouteParams) {
+export async function createRpgMapSectionHandler(
+  request: FastifyRequest<{ Params: MapRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
-    const body = await request.json()
+    const body = parseJsonBody(request.body)
     const payload = await createRpgMapSection(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
-      mapId: params.mapId,
+      rpgId: request.params.rpgId,
+      mapId: request.params.mapId,
       userId: auth.userId,
       body,
     })
 
-    return jsonResponse(payload, { status: 201 })
+    return writeJson(reply, 201, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao criar secao.")
+    return writeError(reply, error, "Erro interno ao criar secao.")
   }
 }
 
-export async function updateRpgMapSectionHandler(request: Request, params: SectionRouteParams) {
+export async function updateRpgMapSectionHandler(
+  request: FastifyRequest<{ Params: SectionRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
-    const body = await request.json()
+    const body = parseJsonBody(request.body)
     const payload = await updateRpgMapSection(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
-      mapId: params.mapId,
-      sectionId: params.sectionId,
+      rpgId: request.params.rpgId,
+      mapId: request.params.mapId,
+      sectionId: request.params.sectionId,
       userId: auth.userId,
       body,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao atualizar secao.")
+    return writeError(reply, error, "Erro interno ao atualizar secao.")
   }
 }
 
-export async function deleteRpgMapSectionHandler(request: Request, params: SectionRouteParams) {
+export async function deleteRpgMapSectionHandler(
+  request: FastifyRequest<{ Params: SectionRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
     const payload = await deleteRpgMapSection(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
-      mapId: params.mapId,
-      sectionId: params.sectionId,
+      rpgId: request.params.rpgId,
+      mapId: request.params.mapId,
+      sectionId: request.params.sectionId,
       userId: auth.userId,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao remover secao.")
+    return writeError(reply, error, "Erro interno ao remover secao.")
   }
 }
 
-export async function reorderRpgMapSectionHandler(request: Request, params: SectionRouteParams) {
+export async function reorderRpgMapSectionHandler(
+  request: FastifyRequest<{ Params: SectionRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
-    const body = await request.json()
+    const body = parseJsonBody(request.body)
     const payload = await reorderRpgMapSection(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
-      mapId: params.mapId,
-      sectionId: params.sectionId,
+      rpgId: request.params.rpgId,
+      mapId: request.params.mapId,
+      sectionId: request.params.sectionId,
       userId: auth.userId,
       body,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao reordenar secao.")
+    return writeError(reply, error, "Erro interno ao reordenar secao.")
   }
 }
 
-export async function createRpgMapMarkerGroupHandler(request: Request, params: MapRouteParams) {
+export async function createRpgMapMarkerGroupHandler(
+  request: FastifyRequest<{ Params: MapRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
-    const body = await request.json()
+    const body = parseJsonBody(request.body)
     const payload = await createRpgMapMarkerGroup(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
-      mapId: params.mapId,
+      rpgId: request.params.rpgId,
+      mapId: request.params.mapId,
       userId: auth.userId,
       body,
     })
 
-    return jsonResponse(payload, { status: 201 })
+    return writeJson(reply, 201, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao criar grupo de marcadores.")
+    return writeError(reply, error, "Erro interno ao criar grupo de marcadores.")
   }
 }
 
-export async function updateRpgMapMarkerGroupHandler(request: Request, params: GroupRouteParams) {
+export async function updateRpgMapMarkerGroupHandler(
+  request: FastifyRequest<{ Params: GroupRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
-    const body = await request.json()
+    const body = parseJsonBody(request.body)
     const payload = await updateRpgMapMarkerGroup(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
-      mapId: params.mapId,
-      groupId: params.groupId,
+      rpgId: request.params.rpgId,
+      mapId: request.params.mapId,
+      groupId: request.params.groupId,
       userId: auth.userId,
       body,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao atualizar grupo de marcadores.")
+    return writeError(reply, error, "Erro interno ao atualizar grupo de marcadores.")
   }
 }
 
-export async function deleteRpgMapMarkerGroupHandler(request: Request, params: GroupRouteParams) {
+export async function deleteRpgMapMarkerGroupHandler(
+  request: FastifyRequest<{ Params: GroupRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) {
       return auth.response
     }
 
     const payload = await deleteRpgMapMarkerGroup(prismaRpgMapRepository, rpgMapAccessService, {
-      rpgId: params.rpgId,
-      mapId: params.mapId,
-      groupId: params.groupId,
+      rpgId: request.params.rpgId,
+      mapId: request.params.mapId,
+      groupId: request.params.groupId,
       userId: auth.userId,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao remover grupo de marcadores.")
+    return writeError(reply, error, "Erro interno ao remover grupo de marcadores.")
   }
 }
