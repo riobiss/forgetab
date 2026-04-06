@@ -1,4 +1,16 @@
-import type { JSONContent } from "@tiptap/react"
+export type JsonContentNode = {
+  type?: string
+  attrs?: Record<string, unknown>
+  content?: JsonContentNode[]
+  marks?: Array<{
+    type: string
+    attrs?: Record<string, unknown>
+  }>
+  text?: string
+  [key: string]: unknown
+}
+
+export type JSONContent = JsonContentNode
 
 export type LibrarySectionDto = {
   id: string

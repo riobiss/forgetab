@@ -18,13 +18,13 @@
     "fastify": "^5.8.4",
     "jose": "^6.1.0",
     "pg": "^8.16.3",
+    "tsx": "^4.21.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/pg": "^8.15.5",
     "prisma": "6.19.2",
-    "tsx": "^4.21.0",
     "typescript": "^5",
     "vite": "^7.1.12",
     "vite-tsconfig-paths": "^5.1.4",

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { AppError } from "@/shared/errors/AppError"
 import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 import type { RpgDashboardAccessService } from "@/application/rpgDashboard/ports/RpgDashboardAccessService"
 import type {
@@ -39,7 +39,7 @@ export async function loadRpgDashboard(
   const dbRpg = await repository.getRpgById(params.rpgId)
 
   if (!dbRpg) {
-    notFound()
+    throw new AppError("RPG nao encontrado.", 404)
   }
 
   const isAuthenticated = Boolean(params.userId)
@@ -59,7 +59,7 @@ export async function loadRpgDashboard(
   const canViewFullContent = isOwner || isAcceptedMember
 
   if (dbRpg.visibility === "private" && !canViewFullContent) {
-    notFound()
+    throw new AppError("RPG nao encontrado.", 404)
   }
 
   let pendingRequests = [] as RpgDashboardViewModel["pendingRequests"]
@@ -191,4 +191,3 @@ export async function loadRpgDashboard(
     statusLabels,
   }
 }
-

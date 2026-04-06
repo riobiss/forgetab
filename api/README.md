@@ -27,19 +27,30 @@ Comandos principais:
 
 Na raiz do repositorio, existem scripts proxy como `npm run api:dev` e `npm run api:check` para conveniencia operacional.
 
-## Operacao no Fly.io
+## Operacao no Render
 
 Configuracao de deploy:
 
-- `fly.toml` na raiz do repositorio
+- `render.yaml` na raiz do repositorio
 - `api/Dockerfile` para a imagem da API
 
 Configuracao operacional atual:
 
-- aplicacao HTTP em `internal_port = 4000`
+- aplicacao HTTP em `PORT=4000`
 - health check em `GET /api/health`
-- release command com `npm run prisma:migrate:deploy`
 - processo principal executando `npm run start`
+
+Configuracao sugerida no painel:
+
+- `Runtime`: `Docker`
+- `Dockerfile Path`: `api/Dockerfile`
+- `Health Check Path`: `/api/health`
+- `Branch`: `main`
+
+Observacao operacional:
+
+- se o banco usar migrations automatizadas no deploy, o fluxo pode executar `npm run prisma:migrate:deploy` antes de publicar a nova versao
+- se preferir, esse passo pode ficar no pipeline em vez de rodar no startup da aplicacao
 
 Secrets obrigatorios:
 

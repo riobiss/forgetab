@@ -266,7 +266,7 @@ Principais grupos:
 - A UI passa a consumir a API externa diretamente.
 - As rotas em `src/app/api` foram removidas da aplicacao.
 - A pasta `api/` concentra o backend standalone como projeto proprio.
-- O servidor standalone passa a ser o backend principal para deploys dedicados, como Fly.io.
+- O servidor standalone passa a ser o backend principal para deploys dedicados, como Render.
 - Scripts relacionados:
   - `npm run api:dev`
   - `npm run api:start`
@@ -276,7 +276,7 @@ Principais grupos:
 ## Operacao da API
 
 - A API da pasta `api/` pode ser publicada separadamente do frontend.
-- Para Fly.io, a configuracao base esta em `fly.toml` e o container usa `api/Dockerfile`.
+- Para Render, a configuracao base pode usar `render.yaml` e o container usa `api/Dockerfile`.
 - O health check configurado para deploy e `GET /api/health`.
 - O deploy da API pode ser executado manualmente pela equipe ou automatizado no pipeline de entrega.
 - O frontend deve usar `NEXT_PUBLIC_API_BASE_URL` apontando para a URL publica da API hospedada.

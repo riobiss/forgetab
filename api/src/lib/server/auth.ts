@@ -1,5 +1,3 @@
-import { cookies } from "next/headers"
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 import { getUserIdFromRequest as getUserIdFromAuthRequest } from "@/lib/auth/requestAuth"
 
 export async function getUserIdFromRequest(
@@ -9,16 +7,5 @@ export async function getUserIdFromRequest(
 }
 
 export async function getUserIdFromCookieStore(): Promise<string | null> {
-  try {
-    const cookieStore = await cookies()
-    const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value
-    if (!token) {
-      return null
-    }
-
-    const payload = await verifyAuthToken(token)
-    return payload.userId
-  } catch {
-    return null
-  }
+  return null
 }

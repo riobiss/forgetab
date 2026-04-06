@@ -3,7 +3,7 @@ import type { IncomingHttpHeaders } from "node:http"
 import { resolveAllowedOrigin } from "@api/presentation/http/cors"
 import { registerApiRoutes } from "@api/registerApiRoutes"
 
-const apiPort = Number(process.env.API_PORT ?? 4000)
+const apiPort = Number(process.env.PORT ?? process.env.API_PORT ?? 4000)
 
 function applyCorsHeaders(
   headers: IncomingHttpHeaders | Headers,
