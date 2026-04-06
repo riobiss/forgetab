@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { AppError } from "@/shared/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
-  getAuthPayloadFromRequest: vi.fn(),
+  getAuthPayloadFromFastifyRequest: vi.fn(),
   createRpg: vi.fn(),
   getRpgById: vi.fn(),
   updateRpg: vi.fn(),
@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock("@api/presentation/http/auth/requestAuth", () => ({
-  getAuthPayloadFromRequest: mocks.getAuthPayloadFromRequest,
+  getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest,
 }))
 
 vi.mock("@/application/rpgManagement/use-cases/createRpg", () => ({
@@ -36,7 +36,7 @@ describe("rpg routes", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.getAuthPayloadFromRequest.mockResolvedValue({ userId: "user-1" })
+    mocks.getAuthPayloadFromFastifyRequest.mockResolvedValue({ userId: "user-1" })
   })
 
   afterEach(async () => {
@@ -50,7 +50,7 @@ describe("rpg routes", () => {
 
   it("retorna 401 ao criar RPG sem autenticacao", async () => {
     server = buildApiServer()
-    mocks.getAuthPayloadFromRequest.mockResolvedValueOnce(null)
+    mocks.getAuthPayloadFromFastifyRequest.mockResolvedValueOnce(null)
 
     const response = await server.inject({
       method: "POST",
@@ -124,7 +124,7 @@ describe("rpg routes", () => {
 
   it("retorna 401 ao buscar RPG sem autenticacao", async () => {
     server = buildApiServer()
-    mocks.getAuthPayloadFromRequest.mockResolvedValueOnce(null)
+    mocks.getAuthPayloadFromFastifyRequest.mockResolvedValueOnce(null)
 
     const response = await server.inject({
       method: "GET",

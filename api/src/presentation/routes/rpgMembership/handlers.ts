@@ -1,3 +1,5 @@
+import type { FastifyReply, FastifyRequest } from "fastify"
+import { AppError } from "@/shared/errors/AppError"
 import {
   expelMemberUseCase,
   getCharacterRequestsUseCase,
@@ -9,162 +11,214 @@ import {
 } from "@/application/rpgMembership/use-cases/rpgMembership"
 import { prismaRpgMembershipRepository } from "@/infrastructure/rpgMembership/repositories/prismaRpgMembershipRepository"
 import { rpgMembershipAccessService } from "@/infrastructure/rpgMembership/services/rpgMembershipAccessService"
-import { getUserIdFromRequest } from "@api/presentation/http/auth/requestAuth"
-import { toErrorResponse } from "@api/presentation/http/responses/errors"
-import { jsonResponse } from "@api/presentation/http/responses/jsonResponse"
+import { getUserIdFromFastifyRequest } from "@api/presentation/http/auth/requestAuth"
 
 type RpgRouteParams = { rpgId: string }
 type MemberRouteParams = { rpgId: string; memberId: string }
 type CharacterRequestRouteParams = { rpgId: string; requestId: string }
 
-async function requireUserId(request: Request) {
-  const userId = await getUserIdFromRequest(request)
+function parseJsonBody(body: unknown) {
+  if (body == null) {
+    return null
+  }
+
+  if (Buffer.isBuffer(body)) {
+    const raw = body.toString("utf8").trim()
+    return raw ? JSON.parse(raw) : null
+  }
+
+  if (typeof body === "string") {
+    const raw = body.trim()
+    return raw ? JSON.parse(raw) : null
+  }
+
+  return body
+}
+
+function writeJson(reply: FastifyReply, status: number, body: unknown) {
+  reply.code(status)
+  reply.header("Content-Type", "application/json; charset=utf-8")
+  return reply.send(body)
+}
+
+function writeError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
+  if (error instanceof AppError) {
+    return writeJson(reply, error.status, { message: error.message })
+  }
+
+  return writeJson(reply, 500, { message: fallbackMessage })
+}
+
+async function requireUserId(request: FastifyRequest, reply: FastifyReply) {
+  const userId = await getUserIdFromFastifyRequest(request)
   if (!userId) {
+    reply.code(401)
+    reply.header("Content-Type", "application/json; charset=utf-8")
     return {
       ok: false as const,
-      response: jsonResponse({ message: "Usuario nao autenticado." }, { status: 401 }),
+      response: reply.send({ message: "Usuario nao autenticado." }),
     }
   }
 
   return { ok: true as const, userId }
 }
 
-export async function listRpgMembersHandler(request: Request, params: RpgRouteParams) {
+export async function listRpgMembersHandler(
+  request: FastifyRequest<{ Params: RpgRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) return auth.response
 
     const payload = await listRpgMembersUseCase(prismaRpgMembershipRepository, {
-      rpgId: params.rpgId,
+      rpgId: request.params.rpgId,
       userId: auth.userId,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao listar membros.")
+    return writeError(reply, error, "Erro interno ao listar membros.")
   }
 }
 
-export async function requestJoinRpgHandler(request: Request, params: RpgRouteParams) {
+export async function requestJoinRpgHandler(
+  request: FastifyRequest<{ Params: RpgRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) return auth.response
 
     const payload = await requestJoinRpgUseCase(prismaRpgMembershipRepository, {
-      rpgId: params.rpgId,
+      rpgId: request.params.rpgId,
       userId: auth.userId,
     })
 
-    return jsonResponse({ message: payload.message }, { status: payload.status })
+    return writeJson(reply, payload.status, { message: payload.message })
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao solicitar participacao.")
+    return writeError(reply, error, "Erro interno ao solicitar participacao.")
   }
 }
 
-export async function processMemberActionHandler(request: Request, params: MemberRouteParams) {
+export async function processMemberActionHandler(
+  request: FastifyRequest<{ Params: MemberRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) return auth.response
 
-    const body = (await request.json()) as { action?: "accept" | "reject" | "toggleModerator" }
+    const body = (parseJsonBody(request.body) ?? {}) as {
+      action?: "accept" | "reject" | "toggleModerator"
+    }
     if (!body.action || !["accept", "reject", "toggleModerator"].includes(body.action)) {
-      return jsonResponse({ message: "Acao invalida." }, { status: 400 })
+      return writeJson(reply, 400, { message: "Acao invalida." })
     }
 
     const payload = await processMemberActionUseCase(
       rpgMembershipAccessService,
       prismaRpgMembershipRepository,
       {
-        rpgId: params.rpgId,
+        rpgId: request.params.rpgId,
         userId: auth.userId,
-        memberId: params.memberId,
+        memberId: request.params.memberId,
         action: body.action,
       },
     )
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao processar solicitacao.")
+    return writeError(reply, error, "Erro interno ao processar solicitacao.")
   }
 }
 
-export async function expelMemberHandler(request: Request, params: MemberRouteParams) {
+export async function expelMemberHandler(
+  request: FastifyRequest<{ Params: MemberRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) return auth.response
 
     const payload = await expelMemberUseCase(rpgMembershipAccessService, prismaRpgMembershipRepository, {
-      rpgId: params.rpgId,
+      rpgId: request.params.rpgId,
       userId: auth.userId,
-      memberId: params.memberId,
+      memberId: request.params.memberId,
     })
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao expulsar membro.")
+    return writeError(reply, error, "Erro interno ao expulsar membro.")
   }
 }
 
-export async function getCharacterRequestsHandler(request: Request, params: RpgRouteParams) {
+export async function getCharacterRequestsHandler(
+  request: FastifyRequest<{ Params: RpgRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) return auth.response
 
     const payload = await getCharacterRequestsUseCase(
       rpgMembershipAccessService,
       prismaRpgMembershipRepository,
-      { rpgId: params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId },
     )
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao consultar solicitacoes de personagem.")
+    return writeError(reply, error, "Erro interno ao consultar solicitacoes de personagem.")
   }
 }
 
-export async function requestCharacterCreationHandler(request: Request, params: RpgRouteParams) {
+export async function requestCharacterCreationHandler(
+  request: FastifyRequest<{ Params: RpgRouteParams }>,
+  reply: FastifyReply,
+) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) return auth.response
 
     const payload = await requestCharacterCreationUseCase(
       rpgMembershipAccessService,
       prismaRpgMembershipRepository,
-      { rpgId: params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId },
     )
 
-    return jsonResponse({ message: payload.message }, { status: payload.status })
+    return writeJson(reply, payload.status, { message: payload.message })
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao solicitar criacao de personagem.")
+    return writeError(reply, error, "Erro interno ao solicitar criacao de personagem.")
   }
 }
 
 export async function processCharacterRequestHandler(
-  request: Request,
-  params: CharacterRequestRouteParams,
+  request: FastifyRequest<{ Params: CharacterRequestRouteParams }>,
+  reply: FastifyReply,
 ) {
   try {
-    const auth = await requireUserId(request)
+    const auth = await requireUserId(request, reply)
     if (!auth.ok) return auth.response
 
-    const body = (await request.json()) as { action?: "accept" | "reject" }
+    const body = (parseJsonBody(request.body) ?? {}) as { action?: "accept" | "reject" }
     if (!body.action || !["accept", "reject"].includes(body.action)) {
-      return jsonResponse({ message: "Acao invalida." }, { status: 400 })
+      return writeJson(reply, 400, { message: "Acao invalida." })
     }
 
     const payload = await processCharacterRequestUseCase(
       rpgMembershipAccessService,
       prismaRpgMembershipRepository,
       {
-        rpgId: params.rpgId,
+        rpgId: request.params.rpgId,
         userId: auth.userId,
-        requestId: params.requestId,
+        requestId: request.params.requestId,
         action: body.action,
       },
     )
 
-    return jsonResponse(payload, { status: 200 })
+    return writeJson(reply, 200, payload)
   } catch (error) {
-    return toErrorResponse(error, "Erro interno ao processar solicitacao de personagem.")
+    return writeError(reply, error, "Erro interno ao processar solicitacao de personagem.")
   }
 }
