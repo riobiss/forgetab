@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation"
-import { prismaRpgAccessRepository } from "@/infrastructure/characters/repositories/prismaRpgAccessRepository"
-import { prismaCharacterAbilitiesRepository } from "@/infrastructure/characterAbilities/repositories/prismaCharacterAbilitiesRepository"
-import { legacyCharacterAbilitiesParserService } from "@/infrastructure/characterAbilities/services/legacyCharacterAbilitiesParserService"
-import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
-import { loadCharacterAbilitiesUseCase } from "@/application/characterAbilities/use-cases/characterAbilities"
+import {
+  fetchCharacterAbilitiesViewModel,
+  HttpCharacterAbilitiesError,
+} from "@/infrastructure/characterAbilities/repositories/httpCharacterAbilitiesPageRepository"
 import CharacterAbilitiesPage from "@/presentation/character-abilities/CharacterAbilitiesPage"
 
 type Params = {
@@ -15,24 +14,14 @@ type Params = {
 
 export default async function SkillsPage({ params }: Params) {
   const { rpgId, characterId } = await params
-  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
+  try {
+    const data = await fetchCharacterAbilitiesViewModel(rpgId, characterId)
+    return <CharacterAbilitiesPage data={data} />
+  } catch (error) {
+    if (error instanceof HttpCharacterAbilitiesError && error.status === 404) {
+      notFound()
+    }
 
-  const data = await loadCharacterAbilitiesUseCase(
-    {
-      repository: prismaCharacterAbilitiesRepository,
-      rpgAccessRepository: prismaRpgAccessRepository,
-      parserService: legacyCharacterAbilitiesParserService,
-    },
-    {
-      rpgId,
-      characterId,
-      userId,
-    },
-  )
-
-  if (!data) {
-    notFound()
+    throw error
   }
-
-  return <CharacterAbilitiesPage data={data} />
 }

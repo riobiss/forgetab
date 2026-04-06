@@ -1,7 +1,8 @@
-import { loadRpgDashboard } from "@/application/rpgDashboard/use-cases/loadRpgDashboard"
-import { prismaRpgDashboardRepository } from "@/infrastructure/rpgDashboard/repositories/prismaRpgDashboardRepository"
-import { rpgDashboardAccessService } from "@/infrastructure/rpgDashboard/services/rpgDashboardAccessService"
-import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
+import { notFound } from "next/navigation"
+import {
+  fetchRpgDashboardViewModel,
+  HttpApiError,
+} from "@/infrastructure/rpgDashboard/repositories/httpRpgDashboardViewModelRepository"
 import { RpgDashboardPage } from "@/presentation/rpg-dashboard/RpgDashboardPage"
 
 type Params = {
@@ -12,13 +13,17 @@ type Params = {
 
 export default async function ViewInRpg({ params }: Params) {
   const { rpgId } = await params
-  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
+  let viewModel
 
-  const viewModel = await loadRpgDashboard(
-    prismaRpgDashboardRepository,
-    rpgDashboardAccessService,
-    { rpgId, userId },
-  )
+  try {
+    viewModel = await fetchRpgDashboardViewModel(rpgId)
+  } catch (error) {
+    if (error instanceof HttpApiError && error.status === 404) {
+      notFound()
+    }
+
+    throw error
+  }
 
   return <RpgDashboardPage viewModel={viewModel} />
 }

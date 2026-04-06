@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation"
-import { loadSkillsPageUseCase } from "@/application/skillsPage/use-cases/loadSkillsPage"
-import { prismaSkillsPageRepository } from "@/infrastructure/skillsPage/repositories/prismaSkillsPageRepository"
 import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
-import { skillsPageAccessService } from "@/infrastructure/skillsPage/services/skillsPageAccessService"
+import {
+  fetchRpgPageAccess,
+  HttpPageAccessError,
+} from "@/infrastructure/rpgManagement/repositories/httpRpgPageAccessRepository"
 import SkillsDashboardFeature from "@/presentation/skills-dashboard/SkillsDashboardFeature"
 
 type PageProps = {
@@ -19,23 +20,29 @@ export default async function RpgSkillsBuilderPage({ params }: PageProps) {
     notFound()
   }
 
-  const data = await loadSkillsPageUseCase(
-    prismaSkillsPageRepository,
-    skillsPageAccessService,
-    { rpgId, userId },
-  )
+  let rpg
 
-  if (!data) {
+  try {
+    rpg = await fetchRpgPageAccess(rpgId)
+  } catch (error) {
+    if (error instanceof HttpPageAccessError && error.status === 404) {
+      notFound()
+    }
+
+    throw error
+  }
+
+  if (!rpg.canManage) {
     notFound()
   }
 
   return (
     <SkillsDashboardFeature
-      ownedRpgs={[{ id: data.rpg.id, title: data.rpg.title }]}
-      initialRpgId={data.rpg.id}
+      ownedRpgs={[{ id: rpg.id, title: rpg.title }]}
+      initialRpgId={rpg.id}
       gatewayFactory="http"
       hideRpgSelector
-      title={`Habilidades - ${data.rpg.title}`}
+      title={`Habilidades - ${rpg.title}`}
     />
   )
 }

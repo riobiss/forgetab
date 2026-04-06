@@ -1,40 +1,52 @@
 import { notFound } from "next/navigation"
-import { prismaRpgDashboardRepository } from "@/infrastructure/rpgDashboard/repositories/prismaRpgDashboardRepository"
-import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
-import { legacyLibraryAccessService } from "@/infrastructure/library/services/legacyLibraryAccessService"
-import { prismaLibraryRepository } from "@/infrastructure/library/repositories/prismaLibraryRepository"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
+import { fetchRpgDashboardViewModel } from "@/infrastructure/rpgDashboard/repositories/httpRpgDashboardViewModelRepository"
+
+type ErrorPayload = {
+  message?: string
+}
+
+async function parseJsonResponse<T>(response: Response): Promise<T> {
+  const payload = (await response.json()) as T & ErrorPayload
+  if (!response.ok) {
+    throw new Error(payload.message ?? "Erro ao carregar biblioteca.")
+  }
+  return payload
+}
 
 export async function loadLibraryShellData(rpgId: string) {
-  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
+  try {
+    const dashboard = await fetchRpgDashboardViewModel(rpgId)
 
-  if (!userId) {
+    return {
+      rpgTitle: dashboard.rpg.title,
+    }
+  } catch {
     notFound()
-  }
-
-  const [rpg, access] = await Promise.all([
-    prismaRpgDashboardRepository.getRpgById(rpgId),
-    legacyLibraryAccessService.getRpgAccess(rpgId, userId),
-  ])
-
-  if (!rpg || !access.exists || !access.canView) {
-    notFound()
-  }
-
-  return {
-    rpgTitle: rpg.title,
   }
 }
 
 export async function loadLibrarySectionShellData(rpgId: string, sectionId: string) {
-  const shell = await loadLibraryShellData(rpgId)
-  const section = await prismaLibraryRepository.findSection(rpgId, sectionId)
+  try {
+    const [shell, payload] = await Promise.all([
+      loadLibraryShellData(rpgId),
+      parseJsonResponse<{ section?: { title: string } }>(
+        await apiFetch(`/api/rpg/${rpgId}/library/sections/${sectionId}`, {
+          next: { revalidate: 0 },
+          cache: "no-store",
+        }),
+      ),
+    ])
 
-  if (!section) {
+    if (!payload.section) {
+      notFound()
+    }
+
+    return {
+      ...shell,
+      sectionTitle: payload.section.title,
+    }
+  } catch {
     notFound()
-  }
-
-  return {
-    ...shell,
-    sectionTitle: section.title,
   }
 }

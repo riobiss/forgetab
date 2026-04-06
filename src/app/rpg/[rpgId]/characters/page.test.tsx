@@ -3,35 +3,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { ReactNode } from "react"
 
 const mocks = vi.hoisted(() => ({
-  getUserIdFromCookieStore: vi.fn(),
-  getMembership: vi.fn(),
-  getRpg: vi.fn(),
-  listCharacters: vi.fn(),
-  countOwnPlayerCharacters: vi.fn(),
-  loadCharacterEditorBootstrapServer: vi.fn(),
+  fetchCharactersDashboardViewModel: vi.fn(),
   push: vi.fn(),
 }))
 
-vi.mock("@/lib/server/auth", () => ({
-  getUserIdFromCookieStore: mocks.getUserIdFromCookieStore,
-}))
-
-vi.mock("@/infrastructure/characters/repositories/prismaRpgAccessRepository", () => ({
-  prismaRpgAccessRepository: {
-    getMembership: mocks.getMembership,
+vi.mock("@/infrastructure/charactersDashboard/repositories/httpCharactersDashboardRepository", () => ({
+  fetchCharactersDashboardViewModel: mocks.fetchCharactersDashboardViewModel,
+  HttpCharactersDashboardError: class HttpCharactersDashboardError extends Error {
+    constructor(message: string, readonly status: number) {
+      super(message)
+      this.name = "HttpCharactersDashboardError"
+    }
   },
-}))
-
-vi.mock("@/infrastructure/charactersDashboard/repositories/prismaCharactersDashboardRepository", () => ({
-  prismaCharactersDashboardRepository: {
-    getRpg: mocks.getRpg,
-    listCharacters: mocks.listCharacters,
-    countOwnPlayerCharacters: mocks.countOwnPlayerCharacters,
-  },
-}))
-
-vi.mock("@/application/charactersEditor/use-cases/loadCharacterEditorBootstrapServer", () => ({
-  loadCharacterEditorBootstrapServerUseCase: mocks.loadCharacterEditorBootstrapServer,
 }))
 
 vi.mock("next/link", () => ({
@@ -69,25 +52,28 @@ import CharactersPage from "./page"
 describe("CharactersPage", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.getUserIdFromCookieStore.mockResolvedValue("user-1")
-    mocks.getMembership.mockResolvedValue({ status: "accepted", role: "player" })
-    mocks.loadCharacterEditorBootstrapServer.mockResolvedValue(null)
-    mocks.getRpg.mockResolvedValue({
-      id: "rpg-1",
-      ownerId: "owner-1",
-      visibility: "public",
+    mocks.fetchCharactersDashboardViewModel.mockResolvedValue({
+      rpgId: "rpg-1",
+      rpgName: "Campanha",
+      filterType: "all",
+      canCreateCharacter: true,
+      isOwner: false,
+      canManageNpcMonster: false,
+      isAcceptedMember: true,
+      ownPlayerCount: 1,
       allowMultiplePlayerCharacters: false,
+      characters: [
+        {
+          id: "c1",
+          name: "Player 1",
+          image: null,
+          characterType: "player",
+          createdByUserId: "user-1",
+        },
+      ],
+      selectedCharacterDetail: null,
+      editorBootstrap: null,
     })
-    mocks.listCharacters.mockResolvedValue([
-      {
-        id: "c1",
-        name: "Player 1",
-        image: null,
-        characterType: "player",
-        createdByUserId: "user-1",
-      },
-    ])
-    mocks.countOwnPlayerCharacters.mockResolvedValue(1)
   })
 
   it("nao mostra criacao extra para membro com player existente quando multiplos estao desabilitados", async () => {
@@ -105,11 +91,27 @@ describe("CharactersPage", () => {
   })
 
   it("mostra criacao extra para membro com player existente quando multiplos estao habilitados", async () => {
-    mocks.getRpg.mockResolvedValue({
-      id: "rpg-1",
-      ownerId: "owner-1",
-      visibility: "public",
+    mocks.fetchCharactersDashboardViewModel.mockResolvedValueOnce({
+      rpgId: "rpg-1",
+      rpgName: "Campanha",
+      filterType: "all",
+      canCreateCharacter: true,
+      isOwner: false,
+      canManageNpcMonster: false,
+      isAcceptedMember: true,
+      ownPlayerCount: 1,
       allowMultiplePlayerCharacters: true,
+      characters: [
+        {
+          id: "c1",
+          name: "Player 1",
+          image: null,
+          characterType: "player",
+          createdByUserId: "user-1",
+        },
+      ],
+      selectedCharacterDetail: null,
+      editorBootstrap: null,
     })
 
     render(

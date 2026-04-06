@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation"
-import { loadEntityCatalogDetailUseCase } from "@/application/entityCatalog/use-cases/loadEntityCatalogDetail"
-import { prismaEntityCatalogDetailRepository } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogDetailRepository"
-import { entityCatalogDetailAccessService } from "@/infrastructure/entityCatalog/services/entityCatalogDetailAccessService"
-import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
+import {
+  fetchEntityCatalogDetailData,
+  HttpEntityCatalogError,
+} from "@/infrastructure/entityCatalog/repositories/httpEntityCatalogDetailRepository"
 import EntityDetailsFeature from "@/presentation/entity-catalog/EntityDetailsFeature"
 
 type Props = {
@@ -14,38 +14,30 @@ type Props = {
 
 export default async function ClassPage({ params }: Props) {
   const { rpgId, classId } = await params
-  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
-  const data = await loadEntityCatalogDetailUseCase(
-    {
-      repository: prismaEntityCatalogDetailRepository,
-      accessService: entityCatalogDetailAccessService,
-    },
-    {
-      rpgId,
-      classId,
-      userId,
-      entityType: "class",
-    },
-  )
+  try {
+    const data = await fetchEntityCatalogDetailData(rpgId, "class", classId)
 
-  if (!data) {
-    notFound()
+    return (
+      <EntityDetailsFeature
+        rpgId={rpgId}
+        entityType="class"
+        title="Classe"
+        entityLabel="Classe"
+        canManage={data.canManage}
+        showCategoryField={false}
+        current={data.current}
+        attributeTemplates={data.attributeTemplates}
+        skillTemplates={data.skillTemplates}
+        abilities={data.abilities}
+        players={data.players}
+        abilityPurchase={data.abilityPurchase}
+      />
+    )
+  } catch (error) {
+    if (error instanceof HttpEntityCatalogError && error.status === 404) {
+      notFound()
+    }
+
+    throw error
   }
-
-  return (
-    <EntityDetailsFeature
-      rpgId={rpgId}
-      entityType="class"
-      title="Classe"
-      entityLabel="Classe"
-      canManage={data.canManage}
-      showCategoryField={false}
-      current={data.current}
-      attributeTemplates={data.attributeTemplates}
-      skillTemplates={data.skillTemplates}
-      abilities={data.abilities}
-      players={data.players}
-      abilityPurchase={data.abilityPurchase}
-    />
-  )
 }

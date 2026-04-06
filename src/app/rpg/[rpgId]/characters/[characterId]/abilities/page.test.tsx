@@ -3,43 +3,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { ReactNode } from "react"
 
 const mocks = vi.hoisted(() => ({
-  getUserIdFromCookieStore: vi.fn(),
-  getMembership: vi.fn(),
-  getRpg: vi.fn(),
-  getCharacter: vi.fn(),
-  getClassByKey: vi.fn(),
-  listPurchasedSkillLevels: vi.fn(),
-  listSkillClassLinks: vi.fn(),
-  listSkillRaceLinks: vi.fn(),
-  parseCharacterAbilities: vi.fn(),
-  parseCostPoints: vi.fn(),
+  fetchCharacterAbilitiesViewModel: vi.fn(),
 }))
 
-vi.mock("@/lib/server/auth", () => ({
-  getUserIdFromCookieStore: mocks.getUserIdFromCookieStore,
-}))
-
-vi.mock("@/infrastructure/characters/repositories/prismaRpgAccessRepository", () => ({
-  prismaRpgAccessRepository: {
-    getMembership: mocks.getMembership,
-  },
-}))
-
-vi.mock("@/infrastructure/characterAbilities/repositories/prismaCharacterAbilitiesRepository", () => ({
-  prismaCharacterAbilitiesRepository: {
-    getRpg: mocks.getRpg,
-    getCharacter: mocks.getCharacter,
-    getClassByKey: mocks.getClassByKey,
-    listPurchasedSkillLevels: mocks.listPurchasedSkillLevels,
-    listSkillClassLinks: mocks.listSkillClassLinks,
-    listSkillRaceLinks: mocks.listSkillRaceLinks,
-  },
-}))
-
-vi.mock("@/infrastructure/characterAbilities/services/legacyCharacterAbilitiesParserService", () => ({
-  legacyCharacterAbilitiesParserService: {
-    parseCharacterAbilities: mocks.parseCharacterAbilities,
-    parseCostPoints: mocks.parseCostPoints,
+vi.mock("@/infrastructure/characterAbilities/repositories/httpCharacterAbilitiesPageRepository", () => ({
+  fetchCharacterAbilitiesViewModel: mocks.fetchCharacterAbilitiesViewModel,
+  HttpCharacterAbilitiesError: class HttpCharacterAbilitiesError extends Error {
+    constructor(message: string, readonly status: number) {
+      super(message)
+      this.name = "HttpCharacterAbilitiesError"
+    }
   },
 }))
 
@@ -60,78 +33,68 @@ import AbilitiesPage from "./page"
 describe("AbilitiesPage", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.getUserIdFromCookieStore.mockResolvedValue("user-1")
-    mocks.getRpg.mockResolvedValue({
-      id: "rpg-1",
-      ownerId: "user-1",
-      visibility: "public",
-    })
-    mocks.getCharacter.mockResolvedValue({
-      id: "char-1",
+    mocks.fetchCharacterAbilitiesViewModel.mockResolvedValue({
       rpgId: "rpg-1",
-      name: "Arthas",
-      classKey: "warrior",
-      visibility: "public",
-      characterType: "player",
-      createdByUserId: "user-1",
-      abilities: [],
+      characterId: "char-1",
+      characterName: "Arthas",
+      classLabel: "Guerreiro",
+      abilities: [
+        {
+          skillId: "s1",
+          levelName: "Golpe Preciso",
+          skillName: "Golpe",
+          skillDescription: "Ataque corpo a corpo.",
+          levelDescription: null,
+          notesList: [],
+          customFields: [],
+          skillCategory: "tecnicas",
+          skillType: "attack",
+          skillActionType: "action",
+          skillTags: [],
+          levelNumber: 1,
+          levelRequired: 1,
+          summary: "Resumo",
+          damage: "1d8",
+          range: null,
+          cooldown: null,
+          duration: null,
+          castTime: null,
+          resourceCost: null,
+          prerequisite: null,
+          allowedClasses: ["Guerreiro"],
+          allowedRaces: ["Humano"],
+          pointsCost: null,
+          costCustom: null,
+        },
+        {
+          skillId: "s2",
+          levelName: "Raio Maior",
+          skillName: "Raio Arcano",
+          skillDescription: "Dano magico.",
+          levelDescription: null,
+          notesList: [],
+          customFields: [],
+          skillCategory: "arcana",
+          skillType: "burst",
+          skillActionType: "action",
+          skillTags: [],
+          levelNumber: 2,
+          levelRequired: 2,
+          summary: "Resumo",
+          damage: "2d6",
+          range: null,
+          cooldown: null,
+          duration: null,
+          castTime: null,
+          resourceCost: null,
+          prerequisite: null,
+          allowedClasses: ["Mago"],
+          allowedRaces: ["Elfo"],
+          pointsCost: null,
+          costCustom: null,
+        },
+      ],
     })
-    mocks.getClassByKey.mockResolvedValue({
-      id: "class-1",
-      key: "warrior",
-      label: "Guerreiro",
-    })
-    mocks.parseCharacterAbilities.mockReturnValue([
-      { skillId: "s1", level: 1 },
-      { skillId: "s2", level: 2 },
-    ])
-    mocks.parseCostPoints.mockReturnValue(null)
-    mocks.listPurchasedSkillLevels.mockResolvedValue([
-      {
-        skillId: "s1",
-        skillName: "Golpe",
-        skillDescription: "Ataque corpo a corpo.",
-        skillCategory: "tecnicas",
-        skillType: "attack",
-        skillActionType: "action",
-        skillTags: [],
-        levelNumber: 1,
-        levelRequired: 1,
-        summary: "Resumo",
-        stats: { name: "Golpe Preciso", damage: "1d8" },
-        cost: {},
-        target: {},
-        area: {},
-        scaling: {},
-        requirement: {},
-      },
-      {
-        skillId: "s2",
-        skillName: "Raio Arcano",
-        skillDescription: "Dano magico.",
-        skillCategory: "arcana",
-        skillType: "burst",
-        skillActionType: "action",
-        skillTags: [],
-        levelNumber: 2,
-        levelRequired: 2,
-        summary: "Resumo",
-        stats: { name: "Raio Maior", damage: "2d6" },
-        cost: {},
-        target: {},
-        area: {},
-        scaling: {},
-        requirement: {},
-      },
-    ])
-    mocks.listSkillClassLinks.mockResolvedValue([
-      { skillId: "s1", classLabel: "Guerreiro" },
-      { skillId: "s2", classLabel: "Mago" },
-    ])
-    mocks.listSkillRaceLinks.mockResolvedValue([
-      { skillId: "s1", raceLabel: "Humano" },
-      { skillId: "s2", raceLabel: "Elfo" },
-    ])
   })
 
   it("renderiza habilidades sem titulo estatico", async () => {

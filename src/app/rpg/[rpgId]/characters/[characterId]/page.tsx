@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation"
-import { prismaRpgAccessRepository } from "@/infrastructure/characters/repositories/prismaRpgAccessRepository"
-import { prismaCharacterDetailRepository } from "@/infrastructure/charactersDetail/repositories/prismaCharacterDetailRepository"
-import { legacyCharacterDetailPermissionService } from "@/infrastructure/charactersDetail/services/legacyCharacterDetailPermissionService"
-import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
+import {
+  fetchCharacterDetailViewModel,
+  HttpCharacterDetailError,
+} from "@/infrastructure/charactersDetail/repositories/httpCharacterDetailRepository"
 import CharacterDetailPage from "@/presentation/characters-detail/CharacterDetailPage"
-import { loadCharacterDetailUseCase } from "@/application/charactersDetail/use-cases/loadCharacterDetail"
 
 type Params = {
   params: Promise<{
@@ -15,24 +14,14 @@ type Params = {
 
 export default async function CharactersPage({ params }: Params) {
   const { rpgId, characterId } = await params
-  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
+  try {
+    const data = await fetchCharacterDetailViewModel(rpgId, characterId)
+    return <CharacterDetailPage data={data} />
+  } catch (error) {
+    if (error instanceof HttpCharacterDetailError && error.status === 404) {
+      notFound()
+    }
 
-  const result = await loadCharacterDetailUseCase(
-    {
-      repository: prismaCharacterDetailRepository,
-      rpgAccessRepository: prismaRpgAccessRepository,
-      permissionService: legacyCharacterDetailPermissionService,
-    },
-    {
-      rpgId,
-      characterId,
-      userId,
-    },
-  )
-
-  if (result.status === "not_found" || result.status === "private_blocked") {
-    notFound()
+    throw error
   }
-
-  return <CharacterDetailPage data={result.data} />
 }

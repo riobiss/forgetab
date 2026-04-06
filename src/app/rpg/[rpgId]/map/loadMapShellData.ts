@@ -1,26 +1,23 @@
-import { prismaRpgDashboardRepository } from "@/infrastructure/rpgDashboard/repositories/prismaRpgDashboardRepository"
-import { prismaRpgMapRepository } from "@/infrastructure/rpgMap/repositories/prismaRpgMapRepository"
-import { cookieCurrentUserSessionService } from "@/infrastructure/session/services/cookieCurrentUserSessionService"
-import { rpgMapAccessService } from "@/infrastructure/rpgMap/services/rpgMapAccessService"
+import { apiFetch } from "@/infrastructure/http/apiFetch"
+import { fetchRpgDashboardViewModel } from "@/infrastructure/rpgDashboard/repositories/httpRpgDashboardViewModelRepository"
+
+type ErrorPayload = {
+  message?: string
+}
+
+async function parseJsonResponse<T>(response: Response): Promise<T> {
+  const payload = (await response.json()) as T & ErrorPayload
+  if (!response.ok) {
+    throw new Error(payload.message ?? "Erro ao carregar mapas.")
+  }
+  return payload
+}
 
 export async function loadMapShellData(rpgId: string, mapId?: string) {
-  const userId = await cookieCurrentUserSessionService.getCurrentUserId()
-
-  if (!userId) {
-    return {
-      rpgTitle: "RPG",
-      mapTitle: null,
-    }
-  }
-
-  let rpg: Awaited<ReturnType<typeof prismaRpgDashboardRepository.getRpgById>> = null
-  let access: Awaited<ReturnType<typeof rpgMapAccessService.getAccess>> | null = null
+  let dashboard: Awaited<ReturnType<typeof fetchRpgDashboardViewModel>> | null = null
 
   try {
-    ;[rpg, access] = await Promise.all([
-      prismaRpgDashboardRepository.getRpgById(rpgId),
-      rpgMapAccessService.getAccess(rpgId, userId),
-    ])
+    dashboard = await fetchRpgDashboardViewModel(rpgId)
   } catch {
     return {
       rpgTitle: "RPG",
@@ -28,24 +25,23 @@ export async function loadMapShellData(rpgId: string, mapId?: string) {
     }
   }
 
-  if (!rpg || !access || !access.exists || (!access.canManage && !access.isAcceptedMember)) {
-    return {
-      rpgTitle: rpg?.title ?? "RPG",
-      mapTitle: null,
-    }
-  }
-
   let map = null
   if (mapId) {
     try {
-      map = await prismaRpgMapRepository.findMap(rpgId, mapId)
+      const payload = await parseJsonResponse<{ map?: { title: string } }>(
+        await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
+          next: { revalidate: 0 },
+          cache: "no-store",
+        }),
+      )
+      map = payload.map ?? null
     } catch {
       map = null
     }
   }
 
   return {
-    rpgTitle: rpg.title,
+    rpgTitle: dashboard.rpg.title,
     mapTitle: map?.title ?? null,
   }
 }
