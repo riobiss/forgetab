@@ -1,14 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { registerUseCase } from "@/application/auth/use-cases/register"
 
-function makeRequest(body: unknown) {
-  return new Request("http://localhost/api/auth/register", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  })
-}
-
 function makeDeps() {
   return {
     authRepository: {
@@ -25,7 +17,7 @@ function makeDeps() {
       getCookieConfig: vi.fn(() => ({ name: "auth_token", maxAge: 604800 })),
     },
     authRateLimitService: {
-      getClientIp: vi.fn(() => "127.0.0.1"),
+      getClientIp: vi.fn(),
       check: vi.fn().mockResolvedValue({
         allowed: true,
         remaining: 1,
@@ -51,12 +43,15 @@ describe("registerUseCase", () => {
     deps.authTokenService.createToken.mockResolvedValue("jwt-token")
 
     const result = await registerUseCase(
-        makeRequest({
+        {
+          body: {
           name: "User",
           username: "user_1",
           email: "USER@email.com",
           password: "12345678",
-        }),
+          },
+          clientIp: "127.0.0.1",
+        },
       deps,
     )
 
@@ -76,12 +71,15 @@ describe("registerUseCase", () => {
 
     await expect(
       registerUseCase(
-        makeRequest({
-          name: "User",
-          username: "user_1",
-          email: "user@email.com",
-          password: "12345678",
-        }),
+        {
+          body: {
+            name: "User",
+            username: "user_1",
+            email: "user@email.com",
+            password: "12345678",
+          },
+          clientIp: "127.0.0.1",
+        },
         deps,
       ),
     ).rejects.toMatchObject({ message: "Username ja esta em uso. Tente outro.", status: 409 })

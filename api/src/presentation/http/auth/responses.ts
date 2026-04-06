@@ -1,7 +1,7 @@
+import type { FastifyReply } from "fastify"
 import { AuthRateLimitError } from "@/application/auth/errors/AuthRateLimitError"
 import { AppError } from "@/shared/errors/AppError"
 import { serializeCookie } from "@api/presentation/http/cookies"
-import { jsonResponse } from "@api/presentation/http/responses/jsonResponse"
 
 type AuthCookie = {
   name: string
@@ -19,30 +19,37 @@ function createAuthCookieHeader(cookie: AuthCookie) {
   })
 }
 
-export function createAuthSuccessResponse(
+export function writeAuthSuccessResponse(
+  reply: FastifyReply,
   body: unknown,
   cookie: AuthCookie,
-  init: ResponseInit = {},
+  options: { status?: number } = {},
 ) {
-  const response = jsonResponse(body, init)
-  response.headers.set("Set-Cookie", createAuthCookieHeader(cookie))
-  return response
+  reply.code(options.status ?? 200)
+  reply.header("Content-Type", "application/json; charset=utf-8")
+  reply.header("Set-Cookie", createAuthCookieHeader(cookie))
+  return reply.send(body)
 }
 
-export function toAuthErrorResponse(error: unknown, fallbackMessage: string) {
+export function writeAuthErrorResponse(
+  reply: FastifyReply,
+  error: unknown,
+  fallbackMessage: string,
+) {
   if (error instanceof AuthRateLimitError) {
-    return jsonResponse(
-      { message: error.message },
-      {
-        status: error.status,
-        headers: { "Retry-After": String(error.retryAfterSeconds) },
-      },
-    )
+    reply.code(error.status)
+    reply.header("Content-Type", "application/json; charset=utf-8")
+    reply.header("Retry-After", String(error.retryAfterSeconds))
+    return reply.send({ message: error.message })
   }
 
   if (error instanceof AppError) {
-    return jsonResponse({ message: error.message }, { status: error.status })
+    reply.code(error.status)
+    reply.header("Content-Type", "application/json; charset=utf-8")
+    return reply.send({ message: error.message })
   }
 
-  return jsonResponse({ message: fallbackMessage }, { status: 500 })
+  reply.code(500)
+  reply.header("Content-Type", "application/json; charset=utf-8")
+  return reply.send({ message: fallbackMessage })
 }

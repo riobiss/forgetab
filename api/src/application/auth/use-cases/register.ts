@@ -17,7 +17,10 @@ const GENERIC_REGISTER_CONFLICT_MESSAGE =
 const USERNAME_CONFLICT_MESSAGE = "Username ja esta em uso. Tente outro."
 
 export async function registerUseCase(
-  request: Request,
+  input: {
+    body: unknown
+    clientIp: string
+  },
   deps: {
     authRepository: AuthRepository
     authPasswordService: AuthPasswordService
@@ -25,9 +28,8 @@ export async function registerUseCase(
     authRateLimitService: AuthRateLimitService
   },
 ) {
-  const clientIp = deps.authRateLimitService.getClientIp(request)
   const ipRate = await deps.authRateLimitService.check(
-    `register:ip:${clientIp}`,
+    `register:ip:${input.clientIp}`,
     REGISTER_RATE_LIMIT.ipLimit,
     REGISTER_RATE_LIMIT.windowMs,
   )
@@ -39,8 +41,7 @@ export async function registerUseCase(
     )
   }
 
-  const body = await request.json()
-  const parsed = registerSchema.safeParse(body)
+  const parsed = registerSchema.safeParse(input.body)
   if (!parsed.success) {
     throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
   }
@@ -50,7 +51,7 @@ export async function registerUseCase(
   const normalizedEmail = email.toLowerCase()
 
   const emailRate = await deps.authRateLimitService.check(
-    `register:email:${clientIp}:${normalizedEmail}`,
+    `register:email:${input.clientIp}:${normalizedEmail}`,
     REGISTER_RATE_LIMIT.emailPerIpLimit,
     REGISTER_RATE_LIMIT.windowMs,
   )

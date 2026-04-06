@@ -13,7 +13,10 @@ const LOGIN_RATE_LIMIT = {
 }
 
 export async function loginUseCase(
-  request: Request,
+  input: {
+    body: unknown
+    clientIp: string
+  },
   deps: {
     authRepository: AuthRepository
     authPasswordService: AuthPasswordService
@@ -21,9 +24,8 @@ export async function loginUseCase(
     authRateLimitService: AuthRateLimitService
   },
 ) {
-  const clientIp = deps.authRateLimitService.getClientIp(request)
   const ipRate = await deps.authRateLimitService.check(
-    `login:ip:${clientIp}`,
+    `login:ip:${input.clientIp}`,
     LOGIN_RATE_LIMIT.ipLimit,
     LOGIN_RATE_LIMIT.windowMs,
   )
@@ -35,8 +37,7 @@ export async function loginUseCase(
     )
   }
 
-  const body = await request.json()
-  const parsed = loginSchema.safeParse(body)
+  const parsed = loginSchema.safeParse(input.body)
   if (!parsed.success) {
     throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
   }
@@ -44,7 +45,7 @@ export async function loginUseCase(
   const { email, password } = parsed.data
   const normalizedEmail = email.toLowerCase()
   const emailRate = await deps.authRateLimitService.check(
-    `login:email:${clientIp}:${normalizedEmail}`,
+    `login:email:${input.clientIp}:${normalizedEmail}`,
     LOGIN_RATE_LIMIT.emailPerIpLimit,
     LOGIN_RATE_LIMIT.windowMs,
   )

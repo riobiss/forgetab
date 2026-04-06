@@ -1,3 +1,4 @@
+import type { FastifyRequest } from "fastify"
 import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
 
 function parseCookieHeader(cookieHeader: string | null) {
@@ -23,8 +24,20 @@ function parseCookieHeader(cookieHeader: string | null) {
   )
 }
 
+function getCookieHeaderValue(cookieHeader: string | string[] | undefined) {
+  if (Array.isArray(cookieHeader)) {
+    return cookieHeader.join("; ")
+  }
+  return cookieHeader ?? null
+}
+
 export function getCookieValueFromRequest(request: Request, name: string) {
   const cookies = parseCookieHeader(request.headers.get("cookie"))
+  return cookies.get(name) ?? null
+}
+
+export function getCookieValueFromFastifyRequest(request: FastifyRequest, name: string) {
+  const cookies = parseCookieHeader(getCookieHeaderValue(request.headers.cookie))
   return cookies.get(name) ?? null
 }
 
@@ -43,5 +56,23 @@ export async function getAuthPayloadFromRequest(request: Request) {
 
 export async function getUserIdFromRequest(request: Request) {
   const payload = await getAuthPayloadFromRequest(request)
+  return payload?.userId ?? null
+}
+
+export async function getAuthPayloadFromFastifyRequest(request: FastifyRequest) {
+  const token = getCookieValueFromFastifyRequest(request, TOKEN_COOKIE_NAME)
+  if (!token) {
+    return null
+  }
+
+  try {
+    return await verifyAuthToken(token)
+  } catch {
+    return null
+  }
+}
+
+export async function getUserIdFromFastifyRequest(request: FastifyRequest) {
+  const payload = await getAuthPayloadFromFastifyRequest(request)
   return payload?.userId ?? null
 }

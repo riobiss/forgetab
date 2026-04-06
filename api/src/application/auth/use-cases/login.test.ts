@@ -1,14 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { AppError } from "@/shared/errors/AppError"
 import { loginUseCase } from "@/application/auth/use-cases/login"
-
-function makeRequest(body: unknown) {
-  return new Request("http://localhost/api/auth/login", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  })
-}
 
 function makeDeps() {
   return {
@@ -26,7 +17,7 @@ function makeDeps() {
       getCookieConfig: vi.fn(() => ({ name: "auth_token", maxAge: 604800 })),
     },
     authRateLimitService: {
-      getClientIp: vi.fn(() => "127.0.0.1"),
+      getClientIp: vi.fn(),
       check: vi.fn().mockResolvedValue({
         allowed: true,
         remaining: 1,
@@ -51,7 +42,7 @@ describe("loginUseCase", () => {
     deps.authTokenService.createToken.mockResolvedValue("jwt-token")
 
     const result = await loginUseCase(
-      makeRequest({ email: "USER@email.com", password: "12345678" }),
+      { body: { email: "USER@email.com", password: "12345678" }, clientIp: "127.0.0.1" },
       deps,
     )
 
@@ -65,7 +56,10 @@ describe("loginUseCase", () => {
     deps.authRepository.findUserByEmail.mockResolvedValue(null)
 
     await expect(
-      loginUseCase(makeRequest({ email: "user@email.com", password: "12345678" }), deps),
-    ).rejects.toMatchObject({ message: "Credenciais invalidas.", status: 401 } satisfies Partial<AppError>)
+      loginUseCase(
+        { body: { email: "user@email.com", password: "12345678" }, clientIp: "127.0.0.1" },
+        deps,
+      ),
+    ).rejects.toMatchObject({ message: "Credenciais invalidas.", status: 401 })
   })
 })

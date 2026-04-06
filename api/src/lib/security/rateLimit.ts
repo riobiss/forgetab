@@ -1,4 +1,5 @@
 import { isIP } from "node:net"
+import type { IncomingHttpHeaders } from "node:http"
 
 type RateLimitEntry = {
   count: number
@@ -68,15 +69,23 @@ function firstValidIpFromHeader(value: string | null) {
   return null
 }
 
-export function getClientIp(request: Request) {
+function getHeaderValue(headers: IncomingHttpHeaders, name: string) {
+  const value = headers[name]
+  if (Array.isArray(value)) {
+    return value.join(",")
+  }
+  return value ?? null
+}
+
+export function getClientIp(headers: IncomingHttpHeaders) {
   // In production, trust only the edge header configured by infrastructure.
-  const trustedIp = firstValidIpFromHeader(request.headers.get(trustedIpHeader))
+  const trustedIp = firstValidIpFromHeader(getHeaderValue(headers, trustedIpHeader))
   if (trustedIp) return trustedIp
 
   // Non-production keeps broader header fallback to preserve local DX.
   if (!isProduction) {
     for (const headerName of localFallbackHeaders) {
-      const ip = firstValidIpFromHeader(request.headers.get(headerName))
+      const ip = firstValidIpFromHeader(getHeaderValue(headers, headerName))
       if (ip) return ip
     }
   }
