@@ -1,61 +1,23 @@
-import Fastify, { type FastifyReply, type FastifyRequest } from "fastify"
-import { appendCorsHeaders, createCorsPreflightResponse } from "@api/presentation/http/cors"
+import Fastify from "fastify"
+import type { IncomingHttpHeaders } from "node:http"
+import { resolveAllowedOrigin } from "@api/presentation/http/cors"
 import { registerApiRoutes } from "@api/registerApiRoutes"
 
 const apiPort = Number(process.env.API_PORT ?? 4000)
 
-function normalizeRequestBody(body: unknown) {
-  if (body == null) {
-    return undefined
+function applyCorsHeaders(
+  headers: IncomingHttpHeaders | Headers,
+  reply: { header: (name: string, value: string) => unknown },
+) {
+  const allowedOrigin = resolveAllowedOrigin(headers)
+  if (!allowedOrigin) {
+    return null
   }
 
-  if (
-    typeof body === "string" ||
-    body instanceof ArrayBuffer ||
-    ArrayBuffer.isView(body)
-  ) {
-    return body
-  }
-
-  return JSON.stringify(body)
-}
-
-function getRequestUrl(request: FastifyRequest) {
-  const protocol = request.headers["x-forwarded-proto"] ?? request.protocol ?? "http"
-  const host = request.headers.host ?? `localhost:${apiPort}`
-  return `${protocol}://${host}${request.url}`
-}
-
-function toWebRequest(request: FastifyRequest) {
-  const method = request.method ?? "GET"
-  const body = method === "GET" || method === "HEAD" ? undefined : normalizeRequestBody(request.body)
-
-  return new Request(getRequestUrl(request), {
-    method,
-    headers: new Headers(request.headers as Record<string, string>),
-    body,
-    duplex: body ? "half" : undefined,
-  } as RequestInit & { duplex?: "half" })
-}
-
-async function sendWebResponse(reply: FastifyReply, response: Response) {
-  reply.code(response.status)
-
-  response.headers.forEach((value, key) => {
-    reply.header(key, value)
-  })
-
-  const buffer = Buffer.from(await response.arrayBuffer())
-  return reply.send(buffer)
-}
-
-function createNotFoundResponse() {
-  return new Response(JSON.stringify({ message: "Rota nao encontrada." }), {
-    status: 404,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-    },
-  })
+  reply.header("Access-Control-Allow-Origin", allowedOrigin)
+  reply.header("Access-Control-Allow-Credentials", "true")
+  reply.header("Vary", "Origin")
+  return allowedOrigin
 }
 
 export function buildApiServer() {
@@ -73,16 +35,22 @@ export function buildApiServer() {
       return
     }
 
-    const webRequest = toWebRequest(request)
-    const response = appendCorsHeaders(createCorsPreflightResponse(webRequest), webRequest)
-    return sendWebResponse(reply, response)
+    const allowedOrigin = applyCorsHeaders(request.headers, reply)
+    if (!allowedOrigin) {
+      return reply.code(403).send()
+    }
+
+    reply.header("Access-Control-Allow-Methods", "GET,POST,PATCH,PUT,DELETE,OPTIONS")
+    reply.header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    return reply.code(204).send()
   })
 
-  registerApiRoutes(app, toWebRequest, sendWebResponse)
+  registerApiRoutes(app)
 
   app.setNotFoundHandler(async (request, reply) => {
-    const webRequest = toWebRequest(request)
-    return sendWebResponse(reply, appendCorsHeaders(createNotFoundResponse(), webRequest))
+    applyCorsHeaders(request.headers, reply)
+    reply.header("Content-Type", "application/json; charset=utf-8")
+    return reply.code(404).send({ message: "Rota nao encontrada." })
   })
 
   return app

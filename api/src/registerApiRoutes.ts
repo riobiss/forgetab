@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest, RouteGenericInterface } from "fastify"
-import { appendCorsHeaders, resolveAllowedOrigin } from "@api/presentation/http/cors"
+import { resolveAllowedOrigin } from "@api/presentation/http/cors"
 import {
   healthHandler,
   loginHandler,
@@ -111,43 +111,19 @@ import {
   sectionImageHandlers,
 } from "@api/presentation/routes/uploads/handlers"
 
-type WebHandler<TParams extends Record<string, string> = Record<string, string>> = (
-  request: Request,
-  params: TParams,
-) => Promise<Response>
-
-type RequestConverter = (request: FastifyRequest) => Request
-type ResponseSender = (reply: FastifyReply, response: Response) => Promise<unknown>
 type FastifyNativeHandler<TParams extends Record<string, string> = Record<string, string>> = (
   request: FastifyRequest<{ Params: TParams }>,
   reply: FastifyReply,
 ) => Promise<unknown>
 
-function registerRoute<TParams extends Record<string, string> = Record<string, string>>(
-  app: FastifyInstance,
-  method: "get" | "post" | "patch" | "put" | "delete",
-  url: string,
-  toWebRequest: RequestConverter,
-  sendWebResponse: ResponseSender,
-  handler: WebHandler<TParams>,
-) {
-  app[method]<RouteGenericInterface & { Params: TParams }>(url, async (request, reply) => {
-    const webRequest = toWebRequest(request)
-    const response = await handler(webRequest, request.params as TParams)
-    return sendWebResponse(reply, appendCorsHeaders(response, webRequest))
-  })
-}
-
 function registerFastifyRoute<TParams extends Record<string, string> = Record<string, string>>(
   app: FastifyInstance,
   method: "get" | "post" | "patch" | "put" | "delete",
   url: string,
-  toWebRequest: RequestConverter,
   handler: FastifyNativeHandler<TParams>,
 ) {
   app[method]<RouteGenericInterface & { Params: TParams }>(url, async (request, reply) => {
-    const webRequest = toWebRequest(request)
-    const allowedOrigin = resolveAllowedOrigin(webRequest)
+    const allowedOrigin = resolveAllowedOrigin(request.headers)
     if (allowedOrigin) {
       reply.header("Access-Control-Allow-Origin", allowedOrigin)
       reply.header("Access-Control-Allow-Credentials", "true")
@@ -157,386 +133,409 @@ function registerFastifyRoute<TParams extends Record<string, string> = Record<st
   })
 }
 
-export function registerApiRoutes(
-  app: FastifyInstance,
-  toWebRequest: RequestConverter,
-  sendWebResponse: ResponseSender,
-) {
-  registerFastifyRoute(app, "get", "/api/health", toWebRequest, (_request, reply) =>
+export function registerApiRoutes(app: FastifyInstance) {
+  registerFastifyRoute(app, "get", "/api/health", (_request, reply) =>
     healthHandler(reply),
   )
-  registerFastifyRoute(app, "post", "/api/auth/login", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/auth/login", (request, reply) =>
     loginHandler(request, reply),
   )
-  registerFastifyRoute(app, "post", "/api/auth/register", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/auth/register", (request, reply) =>
     registerHandler(request, reply),
   )
-  registerFastifyRoute(app, "post", "/api/auth/logout", toWebRequest, (_request, reply) =>
+  registerFastifyRoute(app, "post", "/api/auth/logout", (_request, reply) =>
     logoutHandler(reply),
   )
-  registerFastifyRoute(app, "post", "/api/rpg", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/rpg", (request, reply) =>
     createRpgHandler(request, reply),
   )
 
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId", (request, reply) =>
     getRpgByIdHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId", (request, reply) =>
     updateRpgHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId", (request, reply) =>
     deleteRpgHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
 
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/attributes", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/attributes", (request, reply) =>
     getAttributeTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/attributes", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/attributes", (request, reply) =>
     updateAttributeTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/statuses", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/statuses", (request, reply) =>
     getStatusTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/statuses", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/statuses", (request, reply) =>
     updateStatusTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/skills", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/skills", (request, reply) =>
     getSkillTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/skills", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/skills", (request, reply) =>
     updateSkillTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/races", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/races", (request, reply) =>
     getRaceTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/races", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/races", (request, reply) =>
     updateRaceTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/classes", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/classes", (request, reply) =>
     getClassTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/classes", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/classes", (request, reply) =>
     updateClassTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/character-identity", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/character-identity", (request, reply) =>
     getIdentityTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/character-identity", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/character-identity", (request, reply) =>
     updateIdentityTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/character-characteristics", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/character-characteristics", (request, reply) =>
     getCharacteristicTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/character-characteristics", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/character-characteristics", (request, reply) =>
     updateCharacteristicTemplatesHandler(
       request as FastifyRequest<{ Params: { rpgId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/maps", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/maps", (request, reply) =>
     listRpgMapsHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/maps", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/maps", (request, reply) =>
     createRpgMapHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/maps/:mapId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/maps/:mapId", (request, reply) =>
     getRpgMapDetailHandler(
       request as FastifyRequest<{ Params: { rpgId: string; mapId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/maps/:mapId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/maps/:mapId", (request, reply) =>
     updateRpgMapHandler(
       request as FastifyRequest<{ Params: { rpgId: string; mapId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/maps/:mapId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/maps/:mapId", (request, reply) =>
     deleteRpgMapHandler(
       request as FastifyRequest<{ Params: { rpgId: string; mapId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/maps/:mapId/sections", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/maps/:mapId/sections", (request, reply) =>
     createRpgMapSectionHandler(
       request as FastifyRequest<{ Params: { rpgId: string; mapId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/maps/:mapId/sections/:sectionId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/maps/:mapId/sections/:sectionId", (request, reply) =>
     updateRpgMapSectionHandler(
       request as FastifyRequest<{ Params: { rpgId: string; mapId: string; sectionId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/maps/:mapId/sections/:sectionId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/maps/:mapId/sections/:sectionId", (request, reply) =>
     deleteRpgMapSectionHandler(
       request as FastifyRequest<{ Params: { rpgId: string; mapId: string; sectionId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/maps/:mapId/sections/:sectionId/reorder", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/maps/:mapId/sections/:sectionId/reorder", (request, reply) =>
     reorderRpgMapSectionHandler(
       request as FastifyRequest<{ Params: { rpgId: string; mapId: string; sectionId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/maps/:mapId/marker-groups", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/maps/:mapId/marker-groups", (request, reply) =>
     createRpgMapMarkerGroupHandler(
       request as FastifyRequest<{ Params: { rpgId: string; mapId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/maps/:mapId/marker-groups/:groupId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/maps/:mapId/marker-groups/:groupId", (request, reply) =>
     updateRpgMapMarkerGroupHandler(
       request as FastifyRequest<{ Params: { rpgId: string; mapId: string; groupId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/maps/:mapId/marker-groups/:groupId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/maps/:mapId/marker-groups/:groupId", (request, reply) =>
     deleteRpgMapMarkerGroupHandler(
       request as FastifyRequest<{ Params: { rpgId: string; mapId: string; groupId: string } }>,
       reply,
     ),
   )
 
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/library/sections", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/library/sections", (request, reply) =>
     listLibrarySectionsHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/library/sections", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/library/sections", (request, reply) =>
     createLibrarySectionHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/library/sections/:sectionId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/library/sections/:sectionId", (request, reply) =>
     getLibrarySectionHandler(
       request as FastifyRequest<{ Params: { rpgId: string; sectionId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/library/sections/:sectionId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/library/sections/:sectionId", (request, reply) =>
     updateLibrarySectionHandler(
       request as FastifyRequest<{ Params: { rpgId: string; sectionId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/library/sections/:sectionId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/library/sections/:sectionId", (request, reply) =>
     deleteLibrarySectionHandler(
       request as FastifyRequest<{ Params: { rpgId: string; sectionId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/library/sections/:sectionId/books", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/library/sections/:sectionId/books", (request, reply) =>
     listLibrarySectionBooksHandler(
       request as FastifyRequest<{ Params: { rpgId: string; sectionId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/library/sections/:sectionId/books", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/library/sections/:sectionId/books", (request, reply) =>
     createLibraryBookHandler(
       request as FastifyRequest<{ Params: { rpgId: string; sectionId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/library/books/:bookId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/library/books/:bookId", (request, reply) =>
     getLibraryBookHandler(
       request as FastifyRequest<{ Params: { rpgId: string; bookId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/library/books/:bookId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/library/books/:bookId", (request, reply) =>
     updateLibraryBookHandler(
       request as FastifyRequest<{ Params: { rpgId: string; bookId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/library/books/:bookId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/library/books/:bookId", (request, reply) =>
     deleteLibraryBookHandler(
       request as FastifyRequest<{ Params: { rpgId: string; bookId: string } }>,
       reply,
     ),
   )
 
-  registerFastifyRoute(app, "get", "/api/skills", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/skills", (request, reply) =>
     listSkillsHandler(request as unknown as FastifyRequest<{ Querystring: { rpgId?: string } }>, reply),
   )
-  registerFastifyRoute(app, "post", "/api/skills", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/skills", (request, reply) =>
     createSkillHandler(request, reply),
   )
-  registerFastifyRoute(app, "post", "/api/skills/search-index", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/skills/search-index", (request, reply) =>
     getSkillsSearchIndexHandler(request, reply),
   )
-  registerFastifyRoute(app, "get", "/api/skills/:id", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/skills/:id", (request, reply) =>
     getSkillByIdHandler(request as FastifyRequest<{ Params: { id: string } }>, reply),
   )
-  registerFastifyRoute(app, "patch", "/api/skills/:id", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "patch", "/api/skills/:id", (request, reply) =>
     updateSkillHandler(request as FastifyRequest<{ Params: { id: string } }>, reply),
   )
-  registerFastifyRoute(app, "delete", "/api/skills/:id", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "delete", "/api/skills/:id", (request, reply) =>
     deleteSkillHandler(request as FastifyRequest<{ Params: { id: string } }>, reply),
   )
-  registerFastifyRoute(app, "post", "/api/skills/:id/levels", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/skills/:id/levels", (request, reply) =>
     createSkillLevelHandler(request as FastifyRequest<{ Params: { id: string } }>, reply),
   )
-  registerFastifyRoute(app, "patch", "/api/skills/:id/levels/:levelId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "patch", "/api/skills/:id/levels/:levelId", (request, reply) =>
     updateSkillLevelHandler(
       request as FastifyRequest<{ Params: { id: string; levelId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "delete", "/api/skills/:id/levels/:levelId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "delete", "/api/skills/:id/levels/:levelId", (request, reply) =>
     deleteSkillLevelHandler(
       request as FastifyRequest<{ Params: { id: string; levelId: string } }>,
       reply,
     ),
   )
 
-  registerRoute(app, "post", "/api/characters/:id/grant-xp", toWebRequest, sendWebResponse, (request, params: { id: string }) =>
-    grantCharacterXpHandler(request, params),
+  registerFastifyRoute(app, "post", "/api/characters/:id/grant-xp", (request, reply) =>
+    grantCharacterXpHandler(request as FastifyRequest<{ Params: { id: string } }>, reply),
   )
-  registerRoute(app, "post", "/api/characters/:id/grant-points", toWebRequest, sendWebResponse, (request, params: { id: string }) =>
-    grantCharacterPointsHandler(request, params),
+  registerFastifyRoute(app, "post", "/api/characters/:id/grant-points", (request, reply) =>
+    grantCharacterPointsHandler(request as FastifyRequest<{ Params: { id: string } }>, reply),
   )
-  registerRoute(app, "post", "/api/characters/:id/buy-skill", toWebRequest, sendWebResponse, (request, params: { id: string }) =>
-    buyCharacterSkillHandler(request, params),
+  registerFastifyRoute(app, "post", "/api/characters/:id/buy-skill", (request, reply) =>
+    buyCharacterSkillHandler(request as FastifyRequest<{ Params: { id: string } }>, reply),
   )
-  registerRoute(app, "delete", "/api/characters/:id/buy-skill", toWebRequest, sendWebResponse, (request, params: { id: string }) =>
-    removeCharacterSkillHandler(request, params),
+  registerFastifyRoute(app, "delete", "/api/characters/:id/buy-skill", (request, reply) =>
+    removeCharacterSkillHandler(request as FastifyRequest<{ Params: { id: string } }>, reply),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/items", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/items", (request, reply) =>
     listItemsHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/items", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/items", (request, reply) =>
     createItemHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/items/dashboard", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/items/dashboard", (request, reply) =>
     getItemsDashboardHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/items/give", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/items/give", (request, reply) =>
     giveItemHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/items/:itemId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/items/:itemId", (request, reply) =>
     getItemByIdHandler(
       request as FastifyRequest<{ Params: { rpgId: string; itemId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/items/:itemId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/items/:itemId", (request, reply) =>
     updateItemHandler(
       request as FastifyRequest<{ Params: { rpgId: string; itemId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/items/:itemId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/items/:itemId", (request, reply) =>
     deleteItemHandler(
       request as FastifyRequest<{ Params: { rpgId: string; itemId: string } }>,
       reply,
     ),
   )
 
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/members", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/members", (request, reply) =>
     listRpgMembersHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/members", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/members", (request, reply) =>
     requestJoinRpgHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/members/:memberId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/members/:memberId", (request, reply) =>
     processMemberActionHandler(
       request as FastifyRequest<{ Params: { rpgId: string; memberId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/members/:memberId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/members/:memberId", (request, reply) =>
     expelMemberHandler(
       request as FastifyRequest<{ Params: { rpgId: string; memberId: string } }>,
       reply,
     ),
   )
-  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/character-requests", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/character-requests", (request, reply) =>
     getCharacterRequestsHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/character-requests", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/character-requests", (request, reply) =>
     requestCharacterCreationHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/character-requests/:requestId", toWebRequest, (request, reply) =>
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/character-requests/:requestId", (request, reply) =>
     processCharacterRequestHandler(
       request as FastifyRequest<{ Params: { rpgId: string; requestId: string } }>,
       reply,
     ),
   )
 
-  registerRoute(app, "get", "/api/rpg/:rpgId/characters", toWebRequest, sendWebResponse, (request, params: { rpgId: string }) =>
-    listCharactersHandler(request, params),
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/characters", (request, reply) =>
+    listCharactersHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerRoute(app, "post", "/api/rpg/:rpgId/characters", toWebRequest, sendWebResponse, (request, params: { rpgId: string }) =>
-    createCharacterHandler(request, params),
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/characters", (request, reply) =>
+    createCharacterHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
-  registerRoute(app, "get", "/api/rpg/:rpgId/characters/:characterId", toWebRequest, sendWebResponse, (request, params: { rpgId: string; characterId: string }) =>
-    getCharacterByIdHandler(request, params),
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/characters/:characterId", (request, reply) =>
+    getCharacterByIdHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
+      reply,
+    ),
   )
-  registerRoute(app, "patch", "/api/rpg/:rpgId/characters/:characterId", toWebRequest, sendWebResponse, (request, params: { rpgId: string; characterId: string }) =>
-    updateCharacterHandler(request, params),
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/characters/:characterId", (request, reply) =>
+    updateCharacterHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
+      reply,
+    ),
   )
-  registerRoute(app, "delete", "/api/rpg/:rpgId/characters/:characterId", toWebRequest, sendWebResponse, (request, params: { rpgId: string; characterId: string }) =>
-    deleteCharacterHandler(request, params),
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/characters/:characterId", (request, reply) =>
+    deleteCharacterHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
+      reply,
+    ),
   )
-  registerRoute(app, "get", "/api/rpg/:rpgId/characters/:characterId/inventory", toWebRequest, sendWebResponse, (request, params: { rpgId: string; characterId: string }) =>
-    getCharacterInventoryHandler(request, params),
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/characters/:characterId/inventory", (request, reply) =>
+    getCharacterInventoryHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
+      reply,
+    ),
   )
-  registerRoute(app, "post", "/api/rpg/:rpgId/characters/:characterId/inventory", toWebRequest, sendWebResponse, () =>
-    createCharacterInventoryHandler(),
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/characters/:characterId/inventory", (_request, reply) =>
+    createCharacterInventoryHandler(reply),
   )
-  registerRoute(app, "delete", "/api/rpg/:rpgId/characters/:characterId/inventory", toWebRequest, sendWebResponse, (request, params: { rpgId: string; characterId: string }) =>
-    removeCharacterInventoryHandler(request, params),
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/characters/:characterId/inventory", (request, reply) =>
+    removeCharacterInventoryHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
+      reply,
+    ),
   )
-  registerRoute(app, "patch", "/api/rpg/:rpgId/characters/:characterId/status-current", toWebRequest, sendWebResponse, (request, params: { rpgId: string; characterId: string }) =>
-    updateCharacterStatusCurrentHandler(request, params),
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/characters/:characterId/status-current", (request, reply) =>
+    updateCharacterStatusCurrentHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
+      reply,
+    ),
   )
-  registerRoute(app, "get", "/api/rpg/:rpgId/characters/:characterId/abilities", toWebRequest, sendWebResponse, (request, params: { rpgId: string; characterId: string }) =>
-    getNpcMonsterCharacterAbilitiesHandler(request, params),
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/characters/:characterId/abilities", (request, reply) =>
+    getNpcMonsterCharacterAbilitiesHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
+      reply,
+    ),
   )
-  registerRoute(app, "post", "/api/rpg/:rpgId/characters/:characterId/abilities", toWebRequest, sendWebResponse, (request, params: { rpgId: string; characterId: string }) =>
-    addNpcMonsterCharacterAbilityHandler(request, params),
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/characters/:characterId/abilities", (request, reply) =>
+    addNpcMonsterCharacterAbilityHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
+      reply,
+    ),
   )
-  registerRoute(app, "delete", "/api/rpg/:rpgId/characters/:characterId/abilities", toWebRequest, sendWebResponse, (request, params: { rpgId: string; characterId: string }) =>
-    removeNpcMonsterCharacterAbilityHandler(request, params),
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/characters/:characterId/abilities", (request, reply) =>
+    removeNpcMonsterCharacterAbilityHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
+      reply,
+    ),
   )
 
-  registerRoute(app, "post", "/api/uploads/character-image", toWebRequest, sendWebResponse, (request) =>
-    characterImageHandlers.postHandler(request),
+  registerFastifyRoute(app, "post", "/api/uploads/character-image", (request, reply) =>
+    characterImageHandlers.postHandler(request, reply),
   )
-  registerRoute(app, "delete", "/api/uploads/character-image", toWebRequest, sendWebResponse, (request) =>
-    characterImageHandlers.deleteHandler!(request),
+  registerFastifyRoute(app, "delete", "/api/uploads/character-image", (request, reply) =>
+    characterImageHandlers.deleteHandler!(request, reply),
   )
-  registerRoute(app, "post", "/api/uploads/item-image", toWebRequest, sendWebResponse, (request) =>
-    itemImageHandlers.postHandler(request),
+  registerFastifyRoute(app, "post", "/api/uploads/item-image", (request, reply) =>
+    itemImageHandlers.postHandler(request, reply),
   )
-  registerRoute(app, "delete", "/api/uploads/item-image", toWebRequest, sendWebResponse, (request) =>
-    itemImageHandlers.deleteHandler!(request),
+  registerFastifyRoute(app, "delete", "/api/uploads/item-image", (request, reply) =>
+    itemImageHandlers.deleteHandler!(request, reply),
   )
-  registerRoute(app, "post", "/api/uploads/library-image", toWebRequest, sendWebResponse, (request) =>
-    libraryImageHandlers.postHandler(request),
+  registerFastifyRoute(app, "post", "/api/uploads/library-image", (request, reply) =>
+    libraryImageHandlers.postHandler(request, reply),
   )
-  registerRoute(app, "post", "/api/uploads/map-image", toWebRequest, sendWebResponse, (request) =>
-    mapImageHandlers.postHandler(request),
+  registerFastifyRoute(app, "post", "/api/uploads/map-image", (request, reply) =>
+    mapImageHandlers.postHandler(request, reply),
   )
-  registerRoute(app, "delete", "/api/uploads/map-image", toWebRequest, sendWebResponse, (request) =>
-    mapImageHandlers.deleteHandler!(request),
+  registerFastifyRoute(app, "delete", "/api/uploads/map-image", (request, reply) =>
+    mapImageHandlers.deleteHandler!(request, reply),
   )
-  registerRoute(app, "post", "/api/uploads/marker-image", toWebRequest, sendWebResponse, (request) =>
-    markerImageHandlers.postHandler(request),
+  registerFastifyRoute(app, "post", "/api/uploads/marker-image", (request, reply) =>
+    markerImageHandlers.postHandler(request, reply),
   )
-  registerRoute(app, "delete", "/api/uploads/marker-image", toWebRequest, sendWebResponse, (request) =>
-    markerImageHandlers.deleteHandler!(request),
+  registerFastifyRoute(app, "delete", "/api/uploads/marker-image", (request, reply) =>
+    markerImageHandlers.deleteHandler!(request, reply),
   )
-  registerRoute(app, "post", "/api/uploads/rpg-image", toWebRequest, sendWebResponse, (request) =>
-    rpgImageHandlers.postHandler(request),
+  registerFastifyRoute(app, "post", "/api/uploads/rpg-image", (request, reply) =>
+    rpgImageHandlers.postHandler(request, reply),
   )
-  registerRoute(app, "delete", "/api/uploads/rpg-image", toWebRequest, sendWebResponse, (request) =>
-    rpgImageHandlers.deleteHandler!(request),
+  registerFastifyRoute(app, "delete", "/api/uploads/rpg-image", (request, reply) =>
+    rpgImageHandlers.deleteHandler!(request, reply),
   )
-  registerRoute(app, "post", "/api/uploads/section-image", toWebRequest, sendWebResponse, (request) =>
-    sectionImageHandlers.postHandler(request),
+  registerFastifyRoute(app, "post", "/api/uploads/section-image", (request, reply) =>
+    sectionImageHandlers.postHandler(request, reply),
   )
-  registerRoute(app, "delete", "/api/uploads/section-image", toWebRequest, sendWebResponse, (request) =>
-    sectionImageHandlers.deleteHandler!(request),
+  registerFastifyRoute(app, "delete", "/api/uploads/section-image", (request, reply) =>
+    sectionImageHandlers.deleteHandler!(request, reply),
   )
 }
