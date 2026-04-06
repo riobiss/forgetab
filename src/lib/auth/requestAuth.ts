@@ -1,4 +1,5 @@
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { TOKEN_COOKIE_NAME } from "@/lib/auth/constants"
+import { verifyAuthToken } from "@/lib/auth/token"
 
 function parseCookieHeader(cookieHeader: string | null) {
   if (!cookieHeader) {

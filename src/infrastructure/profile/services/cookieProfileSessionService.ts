@@ -1,6 +1,7 @@
 import { cookies } from "next/headers"
 import type { ProfileSessionService } from "@/application/profile/ports/ProfileSessionService"
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { TOKEN_COOKIE_NAME } from "@/lib/auth/constants"
+import { verifyAuthToken } from "@/lib/auth/token"
 
 export const cookieProfileSessionService: ProfileSessionService = {
   async getAuthenticatedUser() {

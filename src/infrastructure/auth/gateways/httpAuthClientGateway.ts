@@ -6,11 +6,22 @@ import type {
 import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseResponse(response: Response) {
-  const payload = (await response.json()) as { message?: string }
+  const payload = (await response.json()) as {
+    message?: string
+    token?: string
+    maxAge?: number
+  }
   if (!response.ok) {
     throw new Error(payload.message ?? "Erro inesperado.")
   }
-  return payload
+  if (!payload.token || typeof payload.maxAge !== "number") {
+    throw new Error("Resposta de autenticacao invalida.")
+  }
+  return {
+    message: payload.message,
+    token: payload.token,
+    maxAge: payload.maxAge,
+  }
 }
 
 export const httpAuthClientGateway: AuthClientGateway = {

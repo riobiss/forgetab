@@ -1,9 +1,6 @@
 import type { AuthTokenService } from "@/application/auth/ports/AuthTokenService"
-import {
-  createAuthToken,
-  TOKEN_COOKIE_NAME,
-  TOKEN_EXPIRES_IN_SECONDS,
-} from "@/lib/auth/token"
+import { createAuthToken } from "@/lib/auth/token"
+import { TOKEN_COOKIE_NAME, TOKEN_EXPIRES_IN_SECONDS } from "@/lib/auth/constants"
 
 export const jwtAuthTokenService: AuthTokenService = {
   createToken: createAuthToken,

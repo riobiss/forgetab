@@ -2,15 +2,15 @@
 
 import Link from "next/link"
 import { FormEvent, Suspense, useRef, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { toast } from "react-hot-toast"
 import { registerClientUseCase } from "@/application/auth/use-cases/authClient"
 import { httpAuthClientGateway } from "@/infrastructure/auth/gateways/httpAuthClientGateway"
+import { persistClientAuthSession } from "@/infrastructure/auth/session/clientAuthSession"
 import { dismissToast } from "@/lib/toast"
 import styles from "@/presentation/auth/AuthPage.module.css"
 
 function RegisterContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [name, setName] = useState("")
   const [username, setUsername] = useState("")
@@ -45,13 +45,13 @@ function RegisterContent() {
     const loadingToastId = toast.loading("Criando conta...")
 
     try {
-      await registerClientUseCase(
+      const result = await registerClientUseCase(
         { gateway: httpAuthClientGateway },
         { name, username, email, password },
       )
+      persistClientAuthSession(result.token, result.maxAge)
       toast.success("Conta criada com sucesso.")
-      router.replace(nextPath)
-      router.refresh()
+      window.location.replace(nextPath)
     } catch (submissionError) {
       const message =
         submissionError instanceof Error

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { jwtVerify } from "jose"
-import { TOKEN_COOKIE_NAME, jwtSecret } from "@/lib/auth/token"
+import { TOKEN_COOKIE_NAME } from "@/lib/auth/constants"
+import { jwtSecret } from "@/lib/auth/token"
 
 const authPages = new Set(["/login", "/register"])
 

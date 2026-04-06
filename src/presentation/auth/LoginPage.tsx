@@ -2,15 +2,15 @@
 
 import Link from "next/link"
 import { FormEvent, Suspense, useRef, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { toast } from "react-hot-toast"
 import { loginClientUseCase } from "@/application/auth/use-cases/authClient"
 import { httpAuthClientGateway } from "@/infrastructure/auth/gateways/httpAuthClientGateway"
+import { persistClientAuthSession } from "@/infrastructure/auth/session/clientAuthSession"
 import { dismissToast } from "@/lib/toast"
 import styles from "@/presentation/auth/AuthPage.module.css"
 
 function LoginContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -34,13 +34,13 @@ function LoginContent() {
     const loadingToastId = toast.loading("Entrando...")
 
     try {
-      await loginClientUseCase(
+      const result = await loginClientUseCase(
         { gateway: httpAuthClientGateway },
         { email, password },
       )
+      persistClientAuthSession(result.token, result.maxAge)
       toast.success("Login realizado com sucesso.")
-      router.replace(nextPath)
-      router.refresh()
+      window.location.replace(nextPath)
     } catch (submissionError) {
       const message =
         submissionError instanceof Error

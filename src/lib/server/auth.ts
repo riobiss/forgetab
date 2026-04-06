@@ -1,5 +1,6 @@
 import { cookies } from "next/headers"
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { TOKEN_COOKIE_NAME } from "@/lib/auth/constants"
+import { verifyAuthToken } from "@/lib/auth/token"
 import { getUserIdFromRequest as getUserIdFromAuthRequest } from "@/lib/auth/requestAuth"
 
 export async function getUserIdFromRequest(

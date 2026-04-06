@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
 import { Menu, User, X } from "lucide-react"
 import { apiFetch } from "@/infrastructure/http/apiFetch"
+import { clearClientAuthSession } from "@/infrastructure/auth/session/clientAuthSession"
 import styles from "./Header.module.css"
 
 const HIDDEN_ROUTES = new Set(["/login", "/register", "/register"])
@@ -53,6 +54,7 @@ export default function Header() {
         cache: "no-store",
       })
     } finally {
+      clearClientAuthSession()
       setOpenUserMenu(false)
       window.location.replace("/login")
       setLoggingOut(false)
