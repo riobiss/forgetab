@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { AppError } from "@/shared/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
-  getUserIdFromRequest: vi.fn(),
+  getUserIdFromFastifyRequest: vi.fn(),
   listLibrarySections: vi.fn(),
   createLibrarySection: vi.fn(),
   getLibrarySection: vi.fn(),
@@ -16,7 +16,7 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock("@api/presentation/http/auth/requestAuth", () => ({
-  getUserIdFromRequest: mocks.getUserIdFromRequest,
+  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
 vi.mock("@/application/library/use-cases/libraryApi", () => ({
@@ -39,7 +39,7 @@ describe("library routes", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.getUserIdFromRequest.mockResolvedValue("u1")
+    mocks.getUserIdFromFastifyRequest.mockResolvedValue("u1")
   })
 
   afterEach(async () => {
@@ -53,7 +53,7 @@ describe("library routes", () => {
 
   it("retorna 401 ao listar secoes sem autenticacao", async () => {
     server = buildApiServer()
-    mocks.getUserIdFromRequest.mockResolvedValueOnce(null)
+    mocks.getUserIdFromFastifyRequest.mockResolvedValueOnce(null)
 
     const response = await server.inject({
       method: "GET",
