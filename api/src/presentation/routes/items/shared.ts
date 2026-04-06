@@ -1,15 +1,17 @@
-import { getUserIdFromRequest } from "@api/presentation/http/auth/requestAuth"
-import { jsonResponse } from "@api/presentation/http/responses/jsonResponse"
+import type { FastifyReply, FastifyRequest } from "fastify"
+import { getUserIdFromFastifyRequest } from "@api/presentation/http/auth/requestAuth"
 
 export type RpgRouteParams = { rpgId: string }
 export type ItemRouteParams = { rpgId: string; itemId: string }
 
-export async function requireUserId(request: Request) {
-  const userId = await getUserIdFromRequest(request)
+export async function requireUserId(request: FastifyRequest, reply: FastifyReply) {
+  const userId = await getUserIdFromFastifyRequest(request)
   if (!userId) {
+    reply.code(401)
+    reply.header("Content-Type", "application/json; charset=utf-8")
     return {
       ok: false as const,
-      response: jsonResponse({ message: "Usuario nao autenticado." }, { status: 401 }),
+      response: reply.send({ message: "Usuario nao autenticado." }),
     }
   }
 
