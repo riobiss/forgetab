@@ -14,25 +14,10 @@ type Props = {
 
 export default async function ClassPage({ params }: Props) {
   const { rpgId, classId } = await params
-  try {
-    const data = await fetchEntityCatalogDetailData(rpgId, "class", classId)
+  let data
 
-    return (
-      <EntityDetailsFeature
-        rpgId={rpgId}
-        entityType="class"
-        title="Classe"
-        entityLabel="Classe"
-        canManage={data.canManage}
-        showCategoryField={false}
-        current={data.current}
-        attributeTemplates={data.attributeTemplates}
-        skillTemplates={data.skillTemplates}
-        abilities={data.abilities}
-        players={data.players}
-        abilityPurchase={data.abilityPurchase}
-      />
-    )
+  try {
+    data = await fetchEntityCatalogDetailData(rpgId, "class", classId)
   } catch (error) {
     if (error instanceof HttpEntityCatalogError && error.status === 404) {
       notFound()
@@ -40,4 +25,21 @@ export default async function ClassPage({ params }: Props) {
 
     throw error
   }
+
+  return (
+    <EntityDetailsFeature
+      rpgId={rpgId}
+      entityType="class"
+      title="Classe"
+      entityLabel="Classe"
+      canManage={data.canManage}
+      showCategoryField={false}
+      current={data.current}
+      attributeTemplates={data.attributeTemplates}
+      skillTemplates={data.skillTemplates}
+      abilities={data.abilities}
+      players={data.players}
+      abilityPurchase={data.abilityPurchase}
+    />
+  )
 }

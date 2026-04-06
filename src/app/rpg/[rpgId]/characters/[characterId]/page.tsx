@@ -14,9 +14,10 @@ type Params = {
 
 export default async function CharactersPage({ params }: Params) {
   const { rpgId, characterId } = await params
+  let data
+
   try {
-    const data = await fetchCharacterDetailViewModel(rpgId, characterId)
-    return <CharacterDetailPage data={data} />
+    data = await fetchCharacterDetailViewModel(rpgId, characterId)
   } catch (error) {
     if (error instanceof HttpCharacterDetailError && error.status === 404) {
       notFound()
@@ -24,4 +25,6 @@ export default async function CharactersPage({ params }: Params) {
 
     throw error
   }
+
+  return <CharacterDetailPage data={data} />
 }

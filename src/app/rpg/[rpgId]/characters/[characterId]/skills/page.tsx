@@ -14,9 +14,10 @@ type Params = {
 
 export default async function SkillsPage({ params }: Params) {
   const { rpgId, characterId } = await params
+  let data
+
   try {
-    const data = await fetchCharacterAbilitiesViewModel(rpgId, characterId)
-    return <CharacterAbilitiesPage data={data} />
+    data = await fetchCharacterAbilitiesViewModel(rpgId, characterId)
   } catch (error) {
     if (error instanceof HttpCharacterAbilitiesError && error.status === 404) {
       notFound()
@@ -24,4 +25,6 @@ export default async function SkillsPage({ params }: Params) {
 
     throw error
   }
+
+  return <CharacterAbilitiesPage data={data} />
 }

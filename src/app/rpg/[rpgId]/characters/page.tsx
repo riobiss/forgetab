@@ -25,15 +25,15 @@ function normalizeFilterType(value?: string): CharactersDashboardFilterType {
 export default async function CharactersPage({ params, searchParams }: Params) {
   const { rpgId } = await params
   const resolvedSearchParams = await searchParams
+  let data
+
   try {
-    const data = await fetchCharactersDashboardViewModel(rpgId, {
+    data = await fetchCharactersDashboardViewModel(rpgId, {
       type: normalizeFilterType(resolvedSearchParams?.type),
       modal: resolvedSearchParams?.modal,
       viewer: resolvedSearchParams?.viewer,
       characterId: resolvedSearchParams?.characterId,
     })
-
-    return <CharactersDashboardPage data={data} />
   } catch (error) {
     if (error instanceof HttpCharactersDashboardError && error.status === 404) {
       notFound()
@@ -41,4 +41,6 @@ export default async function CharactersPage({ params, searchParams }: Params) {
 
     throw error
   }
+
+  return <CharactersDashboardPage data={data} />
 }

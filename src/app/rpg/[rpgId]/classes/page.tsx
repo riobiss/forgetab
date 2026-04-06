@@ -14,23 +14,14 @@ type Params = {
 
 export default async function ClassesPage({ params }: Params) {
   const { rpgId } = await params
+  let data
+  let dashboard
+
   try {
-    const [data, dashboard] = await Promise.all([
+    ;[data, dashboard] = await Promise.all([
       fetchEntityCatalogPageData(rpgId, "class"),
       fetchRpgDashboardViewModel(rpgId),
     ])
-
-    return (
-      <main>
-        <EntityCatalogFeature
-          rpgId={rpgId}
-          rpgTitle={dashboard.rpg.title}
-          entityType="class"
-          title="Classes"
-          data={data}
-        />
-      </main>
-    )
   } catch (error) {
     if (error instanceof HttpEntityCatalogError && error.status === 404) {
       notFound()
@@ -42,4 +33,16 @@ export default async function ClassesPage({ params }: Params) {
 
     throw error
   }
+
+  return (
+    <main>
+      <EntityCatalogFeature
+        rpgId={rpgId}
+        rpgTitle={dashboard.rpg.title}
+        entityType="class"
+        title="Classes"
+        data={data}
+      />
+    </main>
+  )
 }
