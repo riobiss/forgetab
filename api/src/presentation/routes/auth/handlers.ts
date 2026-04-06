@@ -44,7 +44,11 @@ export async function loginHandler(request: FastifyRequest, reply: FastifyReply)
       },
     )
 
-    return writeAuthSuccessResponse(reply, { user: result.user }, { ...result.cookie, value: result.token })
+    return writeAuthSuccessResponse(
+      reply,
+      { user: result.user, token: result.token, maxAge: result.cookie.maxAge },
+      { ...result.cookie, value: result.token },
+    )
   } catch (error) {
     return writeAuthErrorResponse(reply, error, "Erro interno ao autenticar usuario.")
   }
@@ -67,7 +71,7 @@ export async function registerHandler(request: FastifyRequest, reply: FastifyRep
 
     return writeAuthSuccessResponse(
       reply,
-      { user: result.user },
+      { user: result.user, token: result.token, maxAge: result.cookie.maxAge },
       { ...result.cookie, value: result.token },
       { status: 201 },
     )

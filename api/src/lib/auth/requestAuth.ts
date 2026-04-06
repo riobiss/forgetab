@@ -28,8 +28,19 @@ export function getCookieValueFromRequest(request: Request, name: string) {
   return cookies.get(name) ?? null
 }
 
+function getBearerToken(value: string | null | undefined) {
+  if (!value) {
+    return null
+  }
+
+  const match = value.match(/^Bearer\s+(.+)$/i)
+  return match?.[1]?.trim() ?? null
+}
+
 export async function getAuthPayloadFromRequest(request: Request) {
-  const token = getCookieValueFromRequest(request, TOKEN_COOKIE_NAME)
+  const token =
+    getBearerToken(request.headers.get("authorization")) ??
+    getCookieValueFromRequest(request, TOKEN_COOKIE_NAME)
   if (!token) {
     return null
   }

@@ -123,6 +123,10 @@ describe("auth routes", () => {
       email: "user@email.com",
     })
     expect(response.headers["set-cookie"]).toContain("auth_token=jwt-token")
+    expect(response.json()).toMatchObject({
+      token: "jwt-token",
+      maxAge: 604800,
+    })
   })
 
   it("retorna 429 quando limite por IP e excedido no cadastro", async () => {
@@ -202,6 +206,10 @@ describe("auth routes", () => {
       passwordHash: "hashed-password",
     })
     expect(response.headers["set-cookie"]).toContain("auth_token=jwt-token")
+    expect(response.json()).toMatchObject({
+      token: "jwt-token",
+      maxAge: 604800,
+    })
   })
 
   it("retorna ok e expira o cookie no logout", async () => {
