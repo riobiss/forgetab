@@ -19,8 +19,7 @@ const mocks = vi.hoisted(() => ({
   listCharacters: vi.fn(),
   createCharacter: vi.fn(),
   loadCharacterDetailUseCase: vi.fn(),
-  canManageCharacter: vi.fn(),
-  getCharacterEditorSnapshot: vi.fn(),
+  getEditableCharacter: vi.fn(),
   updateCharacter: vi.fn(),
   deleteCharacter: vi.fn(),
 }))
@@ -29,39 +28,39 @@ vi.mock("@api/presentation/http/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
-vi.mock("@/application/charactersDashboard/use-cases/loadCharactersDashboard", () => ({
+vi.mock("@/application/characters/dashboard/use-cases/loadCharactersDashboard", () => ({
   loadCharactersDashboardUseCase: mocks.loadCharactersDashboardUseCase,
 }))
 
-vi.mock("@/application/charactersEditor/use-cases/loadCharacterEditorBootstrapServer", () => ({
+vi.mock("@/application/characters/editor/use-cases/loadCharacterEditorBootstrapServer", () => ({
   loadCharacterEditorBootstrapServerUseCase: mocks.loadCharacterEditorBootstrapServerUseCase,
 }))
 
-vi.mock("@/application/characterProgression/use-cases/characterProgression", () => ({
+vi.mock("@/application/characters/progression/use-cases/characterProgression", () => ({
   grantCharacterXpUseCase: mocks.grantCharacterXpUseCase,
   grantCharacterPointsUseCase: mocks.grantCharacterPointsUseCase,
 }))
 
-vi.mock("@/application/characterAbilities/use-cases/characterSkillPurchase", () => ({
+vi.mock("@/application/characters/abilities/use-cases/characterSkillPurchase", () => ({
   buyCharacterSkillUseCase: mocks.buyCharacterSkillUseCase,
   removeCharacterSkillUseCase: mocks.removeCharacterSkillUseCase,
 }))
 
-vi.mock("@/application/characterAbilities/use-cases/characterAbilities", () => ({
+vi.mock("@/application/characters/abilities/use-cases/characterAbilities", () => ({
   loadCharacterAbilitiesUseCase: mocks.loadCharacterAbilitiesUseCase,
 }))
 
-vi.mock("@/application/characterAbilities/use-cases/npcMonsterCharacterAbilities", () => ({
+vi.mock("@/application/characters/abilities/use-cases/npcMonsterCharacterAbilities", () => ({
   addNpcMonsterCharacterAbilityUseCase: mocks.addNpcMonsterCharacterAbilityUseCase,
   removeNpcMonsterCharacterAbilityUseCase: mocks.removeNpcMonsterCharacterAbilityUseCase,
 }))
 
-vi.mock("@/application/characterInventory/use-cases/manageCharacterInventory", () => ({
+vi.mock("@/application/characters/inventory/use-cases/manageCharacterInventory", () => ({
   getCharacterInventoryUseCase: mocks.getCharacterInventoryUseCase,
   removeCharacterInventoryItemApiUseCase: mocks.removeCharacterInventoryItemApiUseCase,
 }))
 
-vi.mock("@/application/characterStatusCurrent/use-cases/characterStatusCurrent", () => ({
+vi.mock("@/application/characters/statusCurrent/use-cases/characterStatusCurrent", () => ({
   updateCharacterStatusCurrentUseCase: mocks.updateCharacterStatusCurrentUseCase,
 }))
 
@@ -77,16 +76,12 @@ vi.mock("@/application/characters/use-cases/createCharacter", () => ({
   createCharacter: mocks.createCharacter,
 }))
 
-vi.mock("@/application/charactersDetail/use-cases/loadCharacterDetail", () => ({
+vi.mock("@/application/characters/detail/use-cases/loadCharacterDetail", () => ({
   loadCharacterDetailUseCase: mocks.loadCharacterDetailUseCase,
 }))
 
-vi.mock("@/lib/server/characters/manage/permissions", () => ({
-  canManageCharacter: mocks.canManageCharacter,
-}))
-
-vi.mock("@/lib/server/characters/getCharacterEditorSnapshot", () => ({
-  getCharacterEditorSnapshot: mocks.getCharacterEditorSnapshot,
+vi.mock("@/application/characters/use-cases/getEditableCharacter", () => ({
+  getEditableCharacter: mocks.getEditableCharacter,
 }))
 
 vi.mock("@/application/characters/use-cases/updateCharacter", () => ({
@@ -318,8 +313,7 @@ describe("characters routes", () => {
 
   it("retorna 200 com snapshot do personagem", async () => {
     server = buildApiServer()
-    mocks.canManageCharacter.mockResolvedValue({ ok: true })
-    mocks.getCharacterEditorSnapshot.mockResolvedValue({
+    mocks.getEditableCharacter.mockResolvedValue({
       id: "char-1",
       name: "Goblin",
       characterType: "npc",
@@ -342,11 +336,9 @@ describe("characters routes", () => {
 
   it("retorna 403 quando nao pode gerenciar personagem", async () => {
     server = buildApiServer()
-    mocks.canManageCharacter.mockResolvedValue({
-      ok: false,
-      message: "Sem permissao para gerenciar personagem.",
-      status: 403,
-    })
+    mocks.getEditableCharacter.mockRejectedValue(
+      new AppError("Sem permissao para gerenciar personagem.", 403),
+    )
 
     const response = await server.inject({
       method: "GET",
@@ -423,7 +415,7 @@ describe("characters routes", () => {
     server = buildApiServer()
     const payload = { name: "Goblin Rei" }
     mocks.updateCharacter.mockResolvedValue(undefined)
-    mocks.getCharacterEditorSnapshot.mockResolvedValue({
+    mocks.getEditableCharacter.mockResolvedValue({
       id: "char-1",
       name: "Goblin Rei",
     })
@@ -710,3 +702,4 @@ describe("characters routes", () => {
     })
   })
 })
+

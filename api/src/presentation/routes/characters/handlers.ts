@@ -1,54 +1,42 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { AppError } from "@/shared/errors/AppError"
 import {
   grantCharacterPointsUseCase,
   grantCharacterXpUseCase,
-} from "@/application/characterProgression/use-cases/characterProgression"
+} from "@/application/characters/progression/use-cases/characterProgression"
 import {
   getCharacterInventoryUseCase,
   removeCharacterInventoryItemApiUseCase,
-} from "@/application/characterInventory/use-cases/manageCharacterInventory"
-import { updateCharacterStatusCurrentUseCase } from "@/application/characterStatusCurrent/use-cases/characterStatusCurrent"
-import { loadCharacterAbilitiesUseCase } from "@/application/characterAbilities/use-cases/characterAbilities"
+} from "@/application/characters/inventory/use-cases/manageCharacterInventory"
+import { updateCharacterStatusCurrentUseCase } from "@/application/characters/statusCurrent/use-cases/characterStatusCurrent"
+import { loadCharacterAbilitiesUseCase } from "@/application/characters/abilities/use-cases/characterAbilities"
 import {
   addNpcMonsterCharacterAbilityUseCase,
   removeNpcMonsterCharacterAbilityUseCase,
-} from "@/application/characterAbilities/use-cases/npcMonsterCharacterAbilities"
+} from "@/application/characters/abilities/use-cases/npcMonsterCharacterAbilities"
 import {
   buyCharacterSkillUseCase,
   removeCharacterSkillUseCase,
-} from "@/application/characterAbilities/use-cases/characterSkillPurchase"
+} from "@/application/characters/abilities/use-cases/characterSkillPurchase"
 import { createCharacter } from "@/application/characters/use-cases/createCharacter"
 import { deleteCharacter } from "@/application/characters/use-cases/deleteCharacter"
+import { getEditableCharacter } from "@/application/characters/use-cases/getEditableCharacter"
 import { getRpgAccess } from "@/application/characters/use-cases/getRpgAccess"
 import { listCharacters } from "@/application/characters/use-cases/listCharacters"
 import {
   updateCharacter,
   type UpdateCharacterPayload,
 } from "@/application/characters/use-cases/updateCharacter"
-import { loadCharactersDashboardUseCase } from "@/application/charactersDashboard/use-cases/loadCharactersDashboard"
-import { loadCharacterEditorBootstrapServerUseCase } from "@/application/charactersEditor/use-cases/loadCharacterEditorBootstrapServer"
-import { loadCharacterDetailUseCase } from "@/application/charactersDetail/use-cases/loadCharacterDetail"
-import { prismaCharacterAbilitiesRepository } from "@/infrastructure/characterAbilities/repositories/prismaCharacterAbilitiesRepository"
-import { legacyCharacterAbilitiesParserService } from "@/infrastructure/characterAbilities/services/legacyCharacterAbilitiesParserService"
-import { npcMonsterCharacterAbilityService } from "@/infrastructure/characterAbilities/services/npcMonsterCharacterAbilityService"
-import { legacyCharacterSkillPurchaseService } from "@/infrastructure/characterAbilities/services/legacyCharacterSkillPurchaseService"
-import { prismaCharacterInventoryRepository } from "@/infrastructure/characterInventory/repositories/prismaCharacterInventoryRepository"
-import { prismaCharacterProgressionRepository } from "@/infrastructure/characterProgression/repositories/prismaCharacterProgressionRepository"
-import { prismaCharacterStatusCurrentRepository } from "@/infrastructure/characterStatusCurrent/repositories/prismaCharacterStatusCurrentRepository"
-import { prismaCharacterRepository } from "@/infrastructure/characters/repositories/prismaCharacterRepository"
-import { prismaRpgAccessRepository } from "@/infrastructure/characters/repositories/prismaRpgAccessRepository"
-import { prismaRpgTemplatesRepository } from "@/infrastructure/characters/repositories/prismaRpgTemplatesRepository"
-import { prismaCharactersDashboardRepository } from "@/infrastructure/charactersDashboard/repositories/prismaCharactersDashboardRepository"
-import { prismaCharacterDetailRepository } from "@/infrastructure/charactersDetail/repositories/prismaCharacterDetailRepository"
-import { legacyCharacterDetailPermissionService } from "@/infrastructure/charactersDetail/services/legacyCharacterDetailPermissionService"
-import { legacyCharacterManagementService } from "@/infrastructure/characters/services/legacyCharacterManagementService"
-import { rpgCharacterProgressionPermissionService } from "@/infrastructure/characterProgression/services/rpgCharacterProgressionPermissionService"
-import { prismaRpgConfigRepository } from "@/infrastructure/rpgConfig/repositories/prismaRpgConfigRepository"
-import { rpgConfigAccessService } from "@/infrastructure/rpgConfig/services/rpgConfigAccessService"
-import { getUserIdFromFastifyRequest } from "@api/presentation/http/auth/requestAuth"
-import { getCharacterEditorSnapshot } from "@/lib/server/characters/getCharacterEditorSnapshot"
-import { canManageCharacter } from "@/lib/server/characters/manage/permissions"
+import { loadCharactersDashboardUseCase } from "@/application/characters/dashboard/use-cases/loadCharactersDashboard"
+import { loadCharacterDetailUseCase } from "@/application/characters/detail/use-cases/loadCharacterDetail"
+import { characterRouteDeps, loadCharactersDashboardContext } from "./dependencies"
+import {
+  mapCharacterCollectionError,
+  mapCharacterInventoryError,
+  parseJsonBody,
+  requireUserId,
+  writeError,
+  writeJson,
+} from "./http"
 
 export type CharacterRouteParams = {
   id: string
@@ -71,99 +59,8 @@ type CharactersDashboardQuery = {
 }
 
 const characterProgressionDeps = {
-  repository: prismaCharacterProgressionRepository,
-  permissionService: rpgCharacterProgressionPermissionService,
-}
-
-function parseJsonBody(body: unknown) {
-  if (body == null) {
-    return null
-  }
-
-  if (Buffer.isBuffer(body)) {
-    const raw = body.toString("utf8").trim()
-    return raw ? JSON.parse(raw) : null
-  }
-
-  if (typeof body === "string") {
-    const raw = body.trim()
-    return raw ? JSON.parse(raw) : null
-  }
-
-  return body
-}
-
-function writeJson(reply: FastifyReply, status: number, body: unknown) {
-  reply.code(status)
-  reply.header("Content-Type", "application/json; charset=utf-8")
-  return reply.send(body)
-}
-
-function writeError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
-  if (error instanceof AppError) {
-    return writeJson(reply, error.status, { message: error.message })
-  }
-
-  return writeJson(reply, 500, { message: fallbackMessage })
-}
-
-function mapCharacterInventoryError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
-  if (
-    error instanceof Error &&
-    error.message.includes('relation "rpg_character_inventory_items" does not exist')
-  ) {
-    return writeJson(
-      reply,
-      500,
-      { message: "Tabela de inventario nao existe no banco. Rode a migration." },
-    )
-  }
-
-  if (
-    error instanceof Error &&
-    (error.message.includes('column "description" does not exist') ||
-      error.message.includes('column "pre_requirement" does not exist') ||
-      error.message.includes('column "duration" does not exist') ||
-      error.message.includes('column "image" does not exist'))
-  ) {
-    return writeJson(
-      reply,
-      500,
-      { message: "Estrutura de itens desatualizada. Rode a migration mais recente." },
-    )
-  }
-
-  return writeError(reply, error, fallbackMessage)
-}
-
-function mapCharacterCollectionError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
-  if (
-    error instanceof Error &&
-    (error.message.includes('column "use_inventory_weight_limit" does not exist') ||
-      error.message.includes('column "allow_multiple_player_characters" does not exist') ||
-      error.message.includes('column "progression_mode" does not exist') ||
-      error.message.includes('column "progression_tiers" does not exist'))
-  ) {
-    return writeJson(
-      reply,
-      500,
-      { message: "Estrutura de RPG desatualizada. Rode a migration mais recente." },
-    )
-  }
-
-  return writeError(reply, error, fallbackMessage)
-}
-
-async function requireUserId(request: FastifyRequest, reply: FastifyReply) {
-  const userId = await getUserIdFromFastifyRequest(request)
-  if (!userId) {
-    return {
-      ok: false as const,
-      response: writeJson(reply, 401, { message: "Usuario nao autenticado." }),
-    }
-  }
-
-  return { ok: true as const, userId }
+  repository: characterRouteDeps.characterProgressionRepository,
+  permissionService: characterRouteDeps.characterProgressionPermissionService,
 }
 
 function normalizeFilterType(value?: string) {
@@ -177,53 +74,24 @@ export async function getCharactersDashboardHandler(
   }>,
   reply: FastifyReply,
 ) {
-  const userId = await getUserIdFromFastifyRequest(request)
+  const auth = await requireUserId(request, reply)
+  const userId = auth.ok ? auth.userId : null
   const filterType = normalizeFilterType(request.query.type)
 
   try {
-    const editorBootstrap = userId
-      ? await loadCharacterEditorBootstrapServerUseCase(
-          {
-            rpgAccessRepository: prismaRpgAccessRepository,
-            rpgTemplatesRepository: prismaRpgTemplatesRepository,
-            characterRepository: prismaCharacterRepository,
-            rpgConfigRepository: prismaRpgConfigRepository,
-            rpgConfigAccessService,
-          },
-          {
-            rpgId: request.params.rpgId,
-            userId,
-          },
-        )
-      : null
-
-    const selectedCharacterDetail =
-      request.query.modal === "view" &&
-      request.query.viewer === "character" &&
-      request.query.characterId
-        ? await (async () => {
-            const selectedCharacterId = request.query.characterId ?? ""
-            const detailResult = await loadCharacterDetailUseCase(
-              {
-                repository: prismaCharacterDetailRepository,
-                rpgAccessRepository: prismaRpgAccessRepository,
-                permissionService: legacyCharacterDetailPermissionService,
-              },
-              {
-                rpgId: request.params.rpgId,
-                characterId: selectedCharacterId,
-                userId,
-              },
-            )
-
-            return detailResult.status === "ok" ? detailResult.data : null
-          })()
-        : null
+    const { editorBootstrap, selectedCharacterDetail } = await loadCharactersDashboardContext({
+      rpgId: request.params.rpgId,
+      userId,
+      filterType,
+      modal: request.query.modal,
+      viewer: request.query.viewer,
+      characterId: request.query.characterId,
+    })
 
     const result = await loadCharactersDashboardUseCase(
       {
-        dashboardRepository: prismaCharactersDashboardRepository,
-        rpgAccessRepository: prismaRpgAccessRepository,
+        dashboardRepository: characterRouteDeps.charactersDashboardRepository,
+        rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
       },
       {
         rpgId: request.params.rpgId,
@@ -301,7 +169,7 @@ export async function buyCharacterSkillHandler(
     }
 
     const payload = await buyCharacterSkillUseCase(
-      { service: legacyCharacterSkillPurchaseService },
+      { service: characterRouteDeps.characterSkillPurchaseService },
       {
         characterId: request.params.id,
         userId: auth.userId,
@@ -326,7 +194,7 @@ export async function removeCharacterSkillHandler(
     }
 
     const payload = await removeCharacterSkillUseCase(
-      { service: legacyCharacterSkillPurchaseService },
+      { service: characterRouteDeps.characterSkillPurchaseService },
       {
         characterId: request.params.id,
         userId: auth.userId,
@@ -351,7 +219,7 @@ export async function getCharacterInventoryHandler(
     }
 
     const payload = await getCharacterInventoryUseCase(
-      { repository: prismaCharacterInventoryRepository },
+      { repository: characterRouteDeps.characterInventoryRepository },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
@@ -387,7 +255,7 @@ export async function removeCharacterInventoryHandler(
     }
 
     const payload = await removeCharacterInventoryItemApiUseCase(
-      { repository: prismaCharacterInventoryRepository },
+      { repository: characterRouteDeps.characterInventoryRepository },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
@@ -420,7 +288,7 @@ export async function updateCharacterStatusCurrentHandler(
     const body = (parseJsonBody(request.body) ?? {}) as { key?: unknown; value?: unknown }
 
     const payload = await updateCharacterStatusCurrentUseCase(
-      prismaCharacterStatusCurrentRepository,
+      characterRouteDeps.characterStatusCurrentRepository,
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
@@ -459,7 +327,7 @@ export async function listCharactersHandler(
     const access = await getRpgAccess({
       rpgId: request.params.rpgId,
       userId: auth.userId,
-      repository: prismaRpgAccessRepository,
+      repository: characterRouteDeps.rpgAccessRepository,
     })
 
     if (!access.exists || !access.canAccess) {
@@ -470,7 +338,7 @@ export async function listCharactersHandler(
       rpgId: request.params.rpgId,
       userId: auth.userId,
       access,
-      characterRepository: prismaCharacterRepository,
+      characterRepository: characterRouteDeps.characterRepository,
     })
 
     return writeJson(reply, 200, payload)
@@ -492,7 +360,7 @@ export async function createCharacterHandler(
     const access = await getRpgAccess({
       rpgId: request.params.rpgId,
       userId: auth.userId,
-      repository: prismaRpgAccessRepository,
+      repository: characterRouteDeps.rpgAccessRepository,
     })
 
     if (!access.exists || !access.canAccess) {
@@ -505,8 +373,8 @@ export async function createCharacterHandler(
       userId: auth.userId,
       access,
       payload: body,
-      characterRepository: prismaCharacterRepository,
-      rpgTemplatesRepository: prismaRpgTemplatesRepository,
+      characterRepository: characterRouteDeps.characterRepository,
+      rpgTemplatesRepository: characterRouteDeps.rpgTemplatesRepository,
     })
 
     return writeJson(reply, 201, { character })
@@ -525,22 +393,14 @@ export async function getCharacterByIdHandler(
   }
 
   try {
-    const permission = await canManageCharacter(
-      request.params.rpgId,
-      request.params.characterId,
-      auth.userId,
+    const character = await getEditableCharacter(
+      { editorService: characterRouteDeps.characterEditorService },
+      {
+        rpgId: request.params.rpgId,
+        characterId: request.params.characterId,
+        userId: auth.userId,
+      },
     )
-    if (!permission.ok) {
-      return writeJson(reply, permission.status, { message: permission.message })
-    }
-
-    const character = await getCharacterEditorSnapshot(
-      request.params.rpgId,
-      request.params.characterId,
-    )
-    if (!character) {
-      return writeJson(reply, 404, { message: "Personagem nao encontrado." })
-    }
 
     return writeJson(reply, 200, { character })
   } catch (error) {
@@ -560,9 +420,9 @@ export async function getCharacterDetailHandler(
   try {
     const result = await loadCharacterDetailUseCase(
       {
-        repository: prismaCharacterDetailRepository,
-        rpgAccessRepository: prismaRpgAccessRepository,
-        permissionService: legacyCharacterDetailPermissionService,
+        repository: characterRouteDeps.characterDetailRepository,
+        rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
+        permissionService: characterRouteDeps.characterDetailPermissionService,
       },
       {
         rpgId: request.params.rpgId,
@@ -593,7 +453,7 @@ export async function updateCharacterHandler(
   try {
     const payload = parseJsonBody(request.body) as UpdateCharacterPayload
     await updateCharacter(
-      { managementService: legacyCharacterManagementService },
+      { managementService: characterRouteDeps.characterManagementService },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
@@ -602,9 +462,13 @@ export async function updateCharacterHandler(
       },
     )
 
-    const updatedCharacter = await getCharacterEditorSnapshot(
-      request.params.rpgId,
-      request.params.characterId,
+    const updatedCharacter = await getEditableCharacter(
+      { editorService: characterRouteDeps.characterEditorService },
+      {
+        rpgId: request.params.rpgId,
+        characterId: request.params.characterId,
+        userId: auth.userId,
+      },
     )
 
     return writeJson(
@@ -630,7 +494,7 @@ export async function deleteCharacterHandler(
 
   try {
     await deleteCharacter(
-      { managementService: legacyCharacterManagementService },
+      { managementService: characterRouteDeps.characterManagementService },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
@@ -656,9 +520,9 @@ export async function getNpcMonsterCharacterAbilitiesHandler(
 
     const payload = await loadCharacterAbilitiesUseCase(
       {
-        repository: prismaCharacterAbilitiesRepository,
-        rpgAccessRepository: prismaRpgAccessRepository,
-        parserService: legacyCharacterAbilitiesParserService,
+        repository: characterRouteDeps.abilitiesRepository,
+        rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
+        parserService: characterRouteDeps.abilitiesParserService,
       },
       {
         rpgId: request.params.rpgId,
@@ -694,7 +558,7 @@ export async function addNpcMonsterCharacterAbilityHandler(
     }
 
     const payload = await addNpcMonsterCharacterAbilityUseCase(
-      { service: npcMonsterCharacterAbilityService },
+      { service: characterRouteDeps.npcMonsterCharacterAbilityService },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
@@ -720,7 +584,7 @@ export async function removeNpcMonsterCharacterAbilityHandler(
     }
 
     const payload = await removeNpcMonsterCharacterAbilityUseCase(
-      { service: npcMonsterCharacterAbilityService },
+      { service: characterRouteDeps.npcMonsterCharacterAbilityService },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
@@ -734,3 +598,4 @@ export async function removeNpcMonsterCharacterAbilityHandler(
     return writeError(reply, error, "Erro interno ao remover habilidade.")
   }
 }
+

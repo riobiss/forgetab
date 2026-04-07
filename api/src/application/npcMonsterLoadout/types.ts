@@ -1,5 +1,5 @@
-import type { PurchasedAbilityViewDto } from "@/application/characterAbilities/types"
-import type { CharacterInventoryDataDto } from "@/application/characterInventory/types"
+import type { PurchasedAbilityViewDto } from "@/application/characters/abilities/types"
+import type { CharacterInventoryDataDto } from "@/application/characters/inventory/types"
 
 export type NpcMonsterLoadoutItemOptionDto = {
   id: string

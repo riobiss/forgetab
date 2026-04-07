@@ -1,4 +1,4 @@
-import type { CharacterProgressionPermissionService } from "@/application/characterProgression/ports/CharacterProgressionPermissionService"
+import type { CharacterProgressionPermissionService } from "@/application/characters/progression/ports/CharacterProgressionPermissionService"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
 
 export const rpgCharacterProgressionPermissionService: CharacterProgressionPermissionService = {

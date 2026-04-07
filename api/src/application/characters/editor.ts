@@ -7,8 +7,8 @@ export type {
   CharacterOptionDto,
   UpdateCharacterPayloadDto,
   UpsertCharacterPayloadDto,
-} from "@/application/charactersEditor/types"
-export type { CharactersEditorDependencies } from "@/application/charactersEditor/contracts/CharactersEditorDependencies"
+} from "@/application/characters/editor/types"
+export type { CharactersEditorDependencies } from "@/application/characters/editor/contracts/CharactersEditorDependencies"
 export {
   createCharacterUseCase,
   deleteCharacterImageByUrlUseCase,
@@ -17,5 +17,6 @@ export {
   loadEditableCharacterUseCase,
   updateCharacterUseCase,
   uploadCharacterImageUseCase,
-} from "@/application/charactersEditor/use-cases/charactersEditor"
-export { loadCharacterEditorBootstrapServerUseCase } from "@/application/charactersEditor/use-cases/loadCharacterEditorBootstrapServer"
+} from "@/application/characters/editor/use-cases/charactersEditor"
+export { loadCharacterEditorBootstrapServerUseCase } from "@/application/characters/editor/use-cases/loadCharacterEditorBootstrapServer"
+

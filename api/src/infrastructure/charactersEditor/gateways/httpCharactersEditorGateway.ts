@@ -1,4 +1,4 @@
-import type { CharactersEditorGateway } from "@/application/charactersEditor/contracts/CharactersEditorGateway"
+import type { CharactersEditorGateway } from "@/application/characters/editor/contracts/CharactersEditorGateway"
 import type {
   CharacterEditorBootstrapDto,
   CharacterEditorSummaryDto,
@@ -8,7 +8,7 @@ import type {
   CharacterEditorTemplateFieldDto,
   UpdateCharacterPayloadDto,
   UpsertCharacterPayloadDto,
-} from "@/application/charactersEditor/types"
+} from "@/application/characters/editor/types"
 import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
@@ -168,3 +168,4 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
     await parseJson<{ message?: string }>(response)
   },
 }
+

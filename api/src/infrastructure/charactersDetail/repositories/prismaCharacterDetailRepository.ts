@@ -1,11 +1,11 @@
-import type { CharacterDetailRepository } from "@/application/charactersDetail/ports/CharacterDetailRepository"
+import type { CharacterDetailRepository } from "@/application/characters/detail/ports/CharacterDetailRepository"
 import type {
   CharacterDetailClassLabelDto,
   CharacterDetailLabelDto,
   CharacterDetailRowDto,
   CharacterDetailRpgDto,
   CharacterDetailTemplateFieldDto,
-} from "@/application/charactersDetail/types"
+} from "@/application/characters/detail/types"
 import { prisma } from "@/lib/prisma"
 import {
   getDefaultProgressionTiers,
@@ -265,3 +265,4 @@ export const prismaCharacterDetailRepository: CharacterDetailRepository = {
     `)
   },
 }
+

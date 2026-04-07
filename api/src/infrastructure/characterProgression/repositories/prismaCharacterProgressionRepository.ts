@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import type {
   CharacterProgressionRepository,
   CharacterProgressionSummary,
-} from "@/application/characterProgression/ports/CharacterProgressionRepository"
+} from "@/application/characters/progression/ports/CharacterProgressionRepository"
 
 type CharacterRow = CharacterProgressionSummary
 

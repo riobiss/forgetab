@@ -2,13 +2,13 @@ export type {
   CharacterInventoryDataDto,
   CharacterInventoryItemDto,
   CharacterInventoryRarityDto,
-} from "@/application/characterInventory/types"
-export type { CharacterInventoryDependencies } from "@/application/characterInventory/contracts/CharacterInventoryDependencies"
+} from "@/application/characters/inventory/types"
+export type { CharacterInventoryDependencies } from "@/application/characters/inventory/contracts/CharacterInventoryDependencies"
 export {
   loadCharacterInventoryUseCase,
   removeCharacterInventoryItemUseCase,
-} from "@/application/characterInventory/use-cases/characterInventory"
+} from "@/application/characters/inventory/use-cases/characterInventory"
 export {
   getCharacterInventoryUseCase,
   removeCharacterInventoryItemApiUseCase,
-} from "@/application/characterInventory/use-cases/manageCharacterInventory"
+} from "@/application/characters/inventory/use-cases/manageCharacterInventory"

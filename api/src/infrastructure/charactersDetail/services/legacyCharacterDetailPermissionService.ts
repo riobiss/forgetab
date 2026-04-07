@@ -1,4 +1,4 @@
-import type { CharacterDetailPermissionService } from "@/application/charactersDetail/ports/CharacterDetailPermissionService"
+import type { CharacterDetailPermissionService } from "@/application/characters/detail/ports/CharacterDetailPermissionService"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
 
 export const legacyCharacterDetailPermissionService: CharacterDetailPermissionService = {
@@ -6,3 +6,4 @@ export const legacyCharacterDetailPermissionService: CharacterDetailPermissionSe
     return getRpgPermission(rpgId, userId)
   },
 }
+

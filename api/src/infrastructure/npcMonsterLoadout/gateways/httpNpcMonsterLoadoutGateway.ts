@@ -1,5 +1,5 @@
-import type { PurchasedAbilityViewDto } from "@/application/characterAbilities/types"
-import type { CharacterInventoryDataDto, CharacterInventoryItemDto } from "@/application/characterInventory/types"
+import type { PurchasedAbilityViewDto } from "@/application/characters/abilities/types"
+import type { CharacterInventoryDataDto, CharacterInventoryItemDto } from "@/application/characters/inventory/types"
 import type { NpcMonsterLoadoutGateway } from "@/application/npcMonsterLoadout/contracts/NpcMonsterLoadoutGateway"
 import type {
   NpcMonsterAbilitiesDataDto,

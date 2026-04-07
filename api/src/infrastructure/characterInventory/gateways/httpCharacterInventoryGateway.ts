@@ -1,5 +1,5 @@
-import type { CharacterInventoryGateway } from "@/application/characterInventory/contracts/CharacterInventoryGateway"
-import type { CharacterInventoryDataDto, CharacterInventoryItemDto } from "@/application/characterInventory/types"
+import type { CharacterInventoryGateway } from "@/application/characters/inventory/contracts/CharacterInventoryGateway"
+import type { CharacterInventoryDataDto, CharacterInventoryItemDto } from "@/application/characters/inventory/types"
 import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {

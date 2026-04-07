@@ -1,8 +1,8 @@
-import type { CharactersDashboardRepository } from "@/application/charactersDashboard/ports/CharactersDashboardRepository"
+import type { CharactersDashboardRepository } from "@/application/characters/dashboard/ports/CharactersDashboardRepository"
 import type {
   CharacterDashboardCardDto,
   CharactersDashboardRpgDto,
-} from "@/application/charactersDashboard/types"
+} from "@/application/characters/dashboard/types"
 import { prisma } from "@/lib/prisma"
 import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
 import { Prisma } from "../../../../generated/prisma/client.js"
@@ -96,3 +96,4 @@ export const prismaCharactersDashboardRepository: CharactersDashboardRepository 
     return typeof rawCount === "bigint" ? Number(rawCount) : rawCount
   },
 }
+

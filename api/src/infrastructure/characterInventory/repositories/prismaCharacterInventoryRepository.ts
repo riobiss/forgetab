@@ -5,8 +5,8 @@ import type {
   CharacterInventoryCharacterRow,
   CharacterWeightContextRow,
   CharacterInventoryStoredItemRow,
-} from "@/application/characterInventory/ports/CharacterInventoryRepository"
-import type { CharacterInventoryItemDto } from "@/application/characterInventory/types"
+} from "@/application/characters/inventory/ports/CharacterInventoryRepository"
+import type { CharacterInventoryItemDto } from "@/application/characters/inventory/types"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../generated/prisma/client.js"
 

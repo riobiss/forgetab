@@ -4,8 +4,8 @@ export type {
   NpcMonsterLoadoutItemOptionDto,
   NpcMonsterLoadoutSkillOptionDto,
 } from "@/application/npcMonsterLoadout/types"
-export type { CharacterInventoryItemDto } from "@/application/characterInventory/types"
-export type { PurchasedAbilityViewDto } from "@/application/characterAbilities/types"
+export type { CharacterInventoryItemDto } from "@/application/characters/inventory/types"
+export type { PurchasedAbilityViewDto } from "@/application/characters/abilities/types"
 export {
   addNpcMonsterAbilityUseCase,
   addNpcMonsterInventoryItemUseCase,

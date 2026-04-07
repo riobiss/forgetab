@@ -1,11 +1,11 @@
-import type { CharacterAbilitiesRepository } from "@/application/characterAbilities/ports/CharacterAbilitiesRepository"
+import type { CharacterAbilitiesRepository } from "@/application/characters/abilities/ports/CharacterAbilitiesRepository"
 import type {
   CharacterAbilitiesCharacterRow,
   CharacterAbilitiesClassRow,
   CharacterAbilitiesPurchasedSkillLevelRow,
   CharacterAbilitiesSkillClassLinkRow,
   CharacterAbilitiesSkillRaceLinkRow,
-} from "@/application/characterAbilities/types"
+} from "@/application/characters/abilities/types"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../generated/prisma/client.js"
 

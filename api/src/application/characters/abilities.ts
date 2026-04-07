@@ -1,13 +1,13 @@
 export type {
   CharacterAbilitiesViewModel,
   PurchasedAbilityViewDto,
-} from "@/application/characterAbilities/types"
-export type { CharacterAbilitiesDependencies } from "@/application/characterAbilities/contracts/CharacterAbilitiesDependencies"
+} from "@/application/characters/abilities/types"
+export type { CharacterAbilitiesDependencies } from "@/application/characters/abilities/contracts/CharacterAbilitiesDependencies"
 export {
   loadCharacterAbilitiesUseCase,
   removeCharacterAbilityUseCase,
-} from "@/application/characterAbilities/use-cases/characterAbilities"
+} from "@/application/characters/abilities/use-cases/characterAbilities"
 export {
   addNpcMonsterCharacterAbilityUseCase,
   removeNpcMonsterCharacterAbilityUseCase,
-} from "@/application/characterAbilities/use-cases/npcMonsterCharacterAbilities"
+} from "@/application/characters/abilities/use-cases/npcMonsterCharacterAbilities"

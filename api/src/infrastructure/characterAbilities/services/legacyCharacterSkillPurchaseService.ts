@@ -1,5 +1,5 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
-import type { CharacterSkillPurchaseService } from "@/application/characterAbilities/ports/CharacterSkillPurchaseService"
+import type { CharacterSkillPurchaseService } from "@/application/characters/abilities/ports/CharacterSkillPurchaseService"
 import { prisma } from "@/lib/prisma"
 import { parseCharacterAbilities, parseCostPoints } from "@/lib/server/costSystem"
 import { AppError } from "@/shared/errors/AppError"

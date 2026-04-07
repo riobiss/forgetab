@@ -1,4 +1,4 @@
-import type { CharacterAbilitiesGateway } from "@/application/characterAbilities/contracts/CharacterAbilitiesGateway"
+import type { CharacterAbilitiesGateway } from "@/application/characters/abilities/contracts/CharacterAbilitiesGateway"
 import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {

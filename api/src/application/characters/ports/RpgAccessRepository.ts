@@ -1,4 +1,4 @@
-import type { Prisma } from "../../../../generated/prisma/client.js"
+import type { JsonValue } from "@/application/shared/json"
 
 export type RpgAccessRow = {
   ownerId: string
@@ -7,7 +7,7 @@ export type RpgAccessRow = {
   useInventoryWeightLimit: boolean
   allowMultiplePlayerCharacters: boolean
   progressionMode: string
-  progressionTiers: Prisma.JsonValue
+  progressionTiers: JsonValue
 }
 
 export type RpgMembershipRow = {

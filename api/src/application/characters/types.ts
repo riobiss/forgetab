@@ -1,4 +1,4 @@
-import type { Prisma } from "../../../generated/prisma/client.js"
+import type { JsonValue } from "@/application/shared/json"
 import type { ProgressionMode, ProgressionTier } from "@/lib/rpg/progression"
 
 export type CharacterRow = {
@@ -21,12 +21,12 @@ export type CharacterRow = {
   mana: number
   exhaustion: number
   sanity: number
-  statuses: Prisma.JsonValue
-  currentStatuses: Prisma.JsonValue
-  attributes: Prisma.JsonValue
-  skills: Prisma.JsonValue
-  identity: Prisma.JsonValue
-  characteristics: Prisma.JsonValue
+  statuses: JsonValue
+  currentStatuses: JsonValue
+  attributes: JsonValue
+  skills: JsonValue
+  identity: JsonValue
+  characteristics: JsonValue
   createdAt: Date
   updatedAt: Date
 }
@@ -65,8 +65,8 @@ export type CharacterCharacteristicTemplateRow = {
 
 export type IdentityTemplateRow = {
   key: string
-  attributeBonuses: Prisma.JsonValue
-  skillBonuses: Prisma.JsonValue
+  attributeBonuses: JsonValue
+  skillBonuses: JsonValue
 }
 
 export type RpgAccess = {

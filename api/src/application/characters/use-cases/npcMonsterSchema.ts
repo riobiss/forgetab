@@ -2,7 +2,7 @@ import type {
   CharacterEditorSummaryDto,
   UpdateCharacterPayloadDto,
   UpsertCharacterPayloadDto,
-} from "@/application/charactersEditor/types"
+} from "@/application/characters/editor/types"
 
 const NPC_MONSTER_NAME_KEYS = new Set(["nome", "name"])
 const NPC_MONSTER_TITLE_MATCHERS = ["titulo", "apelido", "alcunha"]
@@ -362,3 +362,4 @@ export function buildNpcMonsterBonusUpdatePayload(
     skills: normalizeNpcMonsterNumericValues(bonus.skillValues),
   }
 }
+

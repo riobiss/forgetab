@@ -1,4 +1,4 @@
-import { Prisma } from "../../../generated/prisma/client.js"
+import type { JsonValue } from "@/application/shared/json"
 import {
   DEFAULT_STATUS_KEYS,
   STATUS_CATALOG,
@@ -271,7 +271,7 @@ export function getDefaultStatusTemplate(): StatusTemplateRow[] {
   )
 }
 
-export function parseJsonBonusRecord(value: Prisma.JsonValue) {
+export function parseJsonBonusRecord(value: JsonValue) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {}
   }

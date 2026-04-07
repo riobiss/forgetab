@@ -1,4 +1,4 @@
-import type { CharacterStatusCurrentRepository } from "@/application/characterStatusCurrent/ports/CharacterStatusCurrentRepository"
+import type { CharacterStatusCurrentRepository } from "@/application/characters/statusCurrent/ports/CharacterStatusCurrentRepository"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../generated/prisma/client.js"
 
