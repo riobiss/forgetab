@@ -7,7 +7,7 @@ import {
   processMemberActionUseCase,
   requestCharacterCreationUseCase,
   requestJoinRpgUseCase,
-} from "@/application/rpgMembership/use-cases/rpgMembership"
+} from "@/application/rpg/membership/use-cases/rpgMembership"
 import { prismaRpgMembershipRepository } from "@/infrastructure/rpgMembership/repositories/prismaRpgMembershipRepository"
 import { rpgMembershipAccessService } from "@/infrastructure/rpgMembership/services/rpgMembershipAccessService"
 import {

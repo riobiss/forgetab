@@ -1,5 +1,5 @@
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
-import type { RpgMembershipAccessService } from "@/application/rpgMembership/ports/RpgMembershipAccessService"
+import type { RpgMembershipAccessService } from "@/application/rpg/membership/ports/RpgMembershipAccessService"
 
 export const rpgMembershipAccessService: RpgMembershipAccessService = {
   async getPermission(rpgId, userId) {

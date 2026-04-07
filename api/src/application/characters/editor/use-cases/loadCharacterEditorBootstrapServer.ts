@@ -6,9 +6,9 @@ import type {
   CharacterEditorBootstrapDto,
   CharacterEditorSummaryDto,
 } from "@/application/characters/editor/types"
-import type { RpgConfigAccessService } from "@/application/rpgConfig/ports/RpgConfigAccessService"
-import type { RpgConfigRepository } from "@/application/rpgConfig/ports/RpgConfigRepository"
-import { getClassTemplates, getRaceTemplates } from "@/application/rpgConfig/use-cases/rpgConfig"
+import type { RpgConfigAccessService } from "@/application/rpg/config/ports/RpgConfigAccessService"
+import type { RpgConfigRepository } from "@/application/rpg/config/ports/RpgConfigRepository"
+import { getClassTemplates, getRaceTemplates } from "@/application/rpg/config/use-cases/rpgConfig"
 
 type Dependencies = {
   rpgAccessRepository: RpgAccessRepository

@@ -1,4 +1,4 @@
-import type { RpgDashboardGateway } from "@/application/rpgDashboard/contracts/RpgDashboardGateway"
+import type { RpgDashboardGateway } from "@/application/rpg/dashboard/contracts/RpgDashboardGateway"
 import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 type ErrorPayload = { message?: string }

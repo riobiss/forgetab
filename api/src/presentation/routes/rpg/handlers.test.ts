@@ -15,27 +15,27 @@ vi.mock("@api/presentation/http/auth/requestAuth", () => ({
   getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest,
 }))
 
-vi.mock("@/application/rpgCatalog/use-cases/rpgCatalog", () => ({
+vi.mock("@/application/rpg/catalog/use-cases/rpgCatalog", () => ({
   loadRpgCatalogUseCase: mocks.loadRpgCatalogUseCase,
 }))
 
-vi.mock("@/application/rpgDashboard/use-cases/loadRpgDashboard", () => ({
+vi.mock("@/application/rpg/dashboard/use-cases/loadRpgDashboard", () => ({
   loadRpgDashboard: mocks.loadRpgDashboard,
 }))
 
-vi.mock("@/application/rpgManagement/use-cases/createRpg", () => ({
+vi.mock("@/application/rpg/management/use-cases/createRpg", () => ({
   createRpg: mocks.createRpg,
 }))
 
-vi.mock("@/application/rpgManagement/use-cases/getRpgById", () => ({
+vi.mock("@/application/rpg/management/use-cases/getRpgById", () => ({
   getRpgById: mocks.getRpgById,
 }))
 
-vi.mock("@/application/rpgManagement/use-cases/updateRpg", () => ({
+vi.mock("@/application/rpg/management/use-cases/updateRpg", () => ({
   updateRpg: mocks.updateRpg,
 }))
 
-vi.mock("@/application/rpgManagement/use-cases/deleteRpg", () => ({
+vi.mock("@/application/rpg/management/use-cases/deleteRpg", () => ({
   deleteRpg: mocks.deleteRpg,
 }))
 

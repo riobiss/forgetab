@@ -1,6 +1,6 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
-import type { RpgMembershipRepository } from "@/application/rpgMembership/ports/RpgMembershipRepository"
+import type { RpgMembershipRepository } from "@/application/rpg/membership/ports/RpgMembershipRepository"
 import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
 
 export const prismaRpgMembershipRepository: RpgMembershipRepository = {

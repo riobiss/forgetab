@@ -1,4 +1,4 @@
-import type { RpgMapGateway } from "@/application/rpgMap/contracts/RpgMapGateway"
+import type { RpgMapGateway } from "@/application/rpg/map/contracts/RpgMapGateway"
 import type {
   RpgMapDetailViewDto,
   RpgMapDto,
@@ -7,7 +7,7 @@ import type {
   UpsertRpgMapMarkerGroupPayloadDto,
   UpsertRpgMapPayloadDto,
   UpsertRpgMapSectionPayloadDto,
-} from "@/application/rpgMap/types"
+} from "@/application/rpg/map/types"
 import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 type ErrorPayload = { message?: string; url?: string; mapImage?: string | null }

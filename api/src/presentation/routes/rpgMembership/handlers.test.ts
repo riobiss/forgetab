@@ -16,7 +16,7 @@ vi.mock("@api/presentation/http/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
-vi.mock("@/application/rpgMembership/use-cases/rpgMembership", () => ({
+vi.mock("@/application/rpg/membership/use-cases/rpgMembership", () => ({
   expelMemberUseCase: mocks.expelMemberUseCase,
   getCharacterRequestsUseCase: mocks.getCharacterRequestsUseCase,
   listRpgMembersUseCase: mocks.listRpgMembersUseCase,

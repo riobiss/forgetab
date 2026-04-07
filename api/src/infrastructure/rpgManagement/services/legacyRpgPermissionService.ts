@@ -1,5 +1,5 @@
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
-import type { RpgPermissionService } from "@/application/rpgManagement/ports/RpgPermissionService"
+import type { RpgPermissionService } from "@/application/rpg/management/ports/RpgPermissionService"
 
 export const legacyRpgPermissionService: RpgPermissionService = {
   async getPermission(rpgId, userId) {

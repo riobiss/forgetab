@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
-import type { RpgConfigAccessService } from "@/application/rpgConfig/ports/RpgConfigAccessService"
+import type { RpgConfigAccessService } from "@/application/rpg/config/ports/RpgConfigAccessService"
 
 export const rpgConfigAccessService: RpgConfigAccessService = {
   async canManageRpg(rpgId, userId) {

@@ -14,7 +14,7 @@ import {
   updateRaceTemplates,
   updateSkillTemplates,
   updateStatusTemplates,
-} from "@/application/rpgConfig/use-cases/rpgConfig"
+} from "@/application/rpg/config/use-cases/rpgConfig"
 import { prismaRpgConfigRepository } from "@/infrastructure/rpgConfig/repositories/prismaRpgConfigRepository"
 import { rpgConfigAccessService } from "@/infrastructure/rpgConfig/services/rpgConfigAccessService"
 import {

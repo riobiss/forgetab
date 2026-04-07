@@ -12,7 +12,7 @@ import {
   updateRpgMap,
   updateRpgMapMarkerGroup,
   updateRpgMapSection,
-} from "@/application/rpgMap/use-cases/rpgMap"
+} from "@/application/rpg/map/use-cases/rpgMap"
 import { prismaRpgMapRepository } from "@/infrastructure/rpgMap/repositories/prismaRpgMapRepository"
 import { rpgMapAccessService } from "@/infrastructure/rpgMap/services/rpgMapAccessService"
 import {

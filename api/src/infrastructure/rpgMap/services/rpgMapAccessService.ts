@@ -1,4 +1,4 @@
-import type { RpgMapAccessService } from "@/application/rpgMap/ports/RpgMapAccessService"
+import type { RpgMapAccessService } from "@/application/rpg/map/ports/RpgMapAccessService"
 import { getMembershipStatus } from "@/lib/server/rpgAccess"
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
 

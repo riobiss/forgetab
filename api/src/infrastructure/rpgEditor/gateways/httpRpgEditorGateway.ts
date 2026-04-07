@@ -1,4 +1,4 @@
-import type { RpgEditorGateway } from "@/application/rpgEditor/contracts/RpgEditorGateway"
+import type { RpgEditorGateway } from "@/application/rpg/editor/contracts/RpgEditorGateway"
 import type {
   CreateRpgPayloadDto,
   CreatedRpgDto,
@@ -7,7 +7,7 @@ import type {
   RpgEditorIdentityFieldDto,
   RpgEditorTemplateFieldDto,
   UpdateRpgPayloadDto,
-} from "@/application/rpgEditor/types"
+} from "@/application/rpg/editor/types"
 import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {

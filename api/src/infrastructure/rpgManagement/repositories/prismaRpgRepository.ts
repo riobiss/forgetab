@@ -1,8 +1,8 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
-import { RpgManagementRepositoryError } from "@/application/rpgManagement/errors/RpgManagementRepositoryError"
+import { RpgManagementRepositoryError } from "@/application/rpg/management/errors/RpgManagementRepositoryError"
 import { prisma } from "@/lib/prisma"
 import type { ProgressionMode } from "@/lib/rpg/progression"
-import type { RpgRepository } from "@/application/rpgManagement/ports/RpgRepository"
+import type { RpgRepository } from "@/application/rpg/management/ports/RpgRepository"
 import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
 import type {
   RpgAdvancedSettingsInput,
@@ -10,7 +10,7 @@ import type {
   RpgCreateBaseInput,
   RpgCreateSettingsInput,
   RpgRow,
-} from "@/application/rpgManagement/types"
+} from "@/application/rpg/management/types"
 
 function isMissingColumn(error: unknown, column: string) {
   return error instanceof Error && error.message.includes(`column "${column}" does not exist`)

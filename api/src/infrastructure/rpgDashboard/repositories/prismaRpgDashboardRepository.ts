@@ -6,7 +6,7 @@ import type {
   RpgDashboardRepository,
   SpectatorCharacterRow,
   TemplateLabelRow,
-} from "@/application/rpgDashboard/ports/RpgDashboardRepository"
+} from "@/application/rpg/dashboard/ports/RpgDashboardRepository"
 
 export const prismaRpgDashboardRepository: RpgDashboardRepository = {
   async getRpgById(rpgId) {

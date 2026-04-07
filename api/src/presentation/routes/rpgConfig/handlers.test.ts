@@ -23,7 +23,7 @@ vi.mock("@api/presentation/http/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
-vi.mock("@/application/rpgConfig/use-cases/rpgConfig", () => ({
+vi.mock("@/application/rpg/config/use-cases/rpgConfig", () => ({
   getAttributeTemplates: mocks.getAttributeTemplates,
   updateAttributeTemplates: mocks.updateAttributeTemplates,
   getStatusTemplates: mocks.getStatusTemplates,

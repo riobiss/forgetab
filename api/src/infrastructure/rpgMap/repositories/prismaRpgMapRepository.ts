@@ -1,7 +1,7 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
-import type { RpgMapRepository } from "@/application/rpgMap/ports/RpgMapRepository"
-import type { JsonMapValue, RpgMapDto, RpgMapMarkerDto, RpgMapMarkerGroupDto, RpgMapSectionDto } from "@/application/rpgMap/types"
+import type { RpgMapRepository } from "@/application/rpg/map/ports/RpgMapRepository"
+import type { JsonMapValue, RpgMapDto, RpgMapMarkerDto, RpgMapMarkerGroupDto, RpgMapSectionDto } from "@/application/rpg/map/types"
 
 type MapRow = {
   id: string
