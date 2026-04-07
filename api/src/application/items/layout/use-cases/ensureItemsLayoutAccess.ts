@@ -1,5 +1,5 @@
 import type { RpgPermissionService } from "@/application/items/ports/RpgPermissionService"
-import type { ItemsLayoutSessionService } from "@/application/itemsLayout/ports/ItemsLayoutSessionService"
+import type { ItemsLayoutSessionService } from "@/application/items/layout/ports/ItemsLayoutSessionService"
 
 export async function ensureItemsLayoutAccessUseCase(
   deps: {

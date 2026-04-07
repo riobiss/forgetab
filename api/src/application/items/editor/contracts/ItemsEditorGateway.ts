@@ -1,4 +1,4 @@
-import type { ItemEditorDetailDto, UpsertItemPayloadDto } from "@/application/itemsEditor/types"
+import type { ItemEditorDetailDto, UpsertItemPayloadDto } from "@/application/items/editor/types"
 
 export interface ItemsEditorGateway {
   fetchItem(rpgId: string, itemId: string): Promise<ItemEditorDetailDto>

@@ -1,6 +1,6 @@
-import type { ItemsDashboardDependencies } from "@/application/itemsDashboard/contracts/ItemsDashboardDependencies"
-import type { GiveItemPayloadDto } from "@/application/itemsDashboard/types"
-import type { UpsertItemPayloadDto } from "@/application/itemsEditor/types"
+import type { ItemsDashboardDependencies } from "@/application/items/dashboard/contracts/ItemsDashboardDependencies"
+import type { GiveItemPayloadDto } from "@/application/items/dashboard/types"
+import type { UpsertItemPayloadDto } from "@/application/items/editor/types"
 
 type Dependencies = ItemsDashboardDependencies
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { ensureItemsLayoutAccessUseCase } from "@/application/itemsLayout/use-cases/ensureItemsLayoutAccess"
+import { ensureItemsLayoutAccessUseCase } from "@/application/items/layout/use-cases/ensureItemsLayoutAccess"
 
 describe("ensureItemsLayoutAccessUseCase", () => {
   it("nega acesso sem usuario autenticado", async () => {

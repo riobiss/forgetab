@@ -1,5 +1,5 @@
-import type { ItemsEditorDependencies } from "@/application/itemsEditor/contracts/ItemsEditorDependencies"
-import type { UpsertItemPayloadDto } from "@/application/itemsEditor/types"
+import type { ItemsEditorDependencies } from "@/application/items/editor/contracts/ItemsEditorDependencies"
+import type { UpsertItemPayloadDto } from "@/application/items/editor/types"
 
 type Dependencies = ItemsEditorDependencies
 

@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from "vitest"
-import type { ItemsEditorGateway } from "@/application/itemsEditor/contracts/ItemsEditorGateway"
-import type { UpsertItemPayloadDto } from "@/application/itemsEditor/types"
+import type { ItemsEditorGateway } from "@/application/items/editor/contracts/ItemsEditorGateway"
+import type { UpsertItemPayloadDto } from "@/application/items/editor/types"
 import {
   createItemUseCase,
   deleteItemImageByUrlUseCase,
   loadItemDetailUseCase,
   updateItemUseCase,
   uploadItemImageUseCase,
-} from "@/application/itemsEditor/use-cases/itemsEditor"
+} from "@/application/items/editor/use-cases/itemsEditor"
 
 function createGatewayMock(): ItemsEditorGateway {
   return {

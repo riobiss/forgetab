@@ -1,10 +1,10 @@
-import type { ItemsDashboardGateway } from "@/application/itemsDashboard/contracts/ItemsDashboardGateway"
+import type { ItemsDashboardGateway } from "@/application/items/dashboard/contracts/ItemsDashboardGateway"
 import type {
   BaseItemDto,
   CharacterSummaryDto,
   GiveItemPayloadDto,
-} from "@/application/itemsDashboard/types"
-import type { ItemEditorDetailDto, UpsertItemPayloadDto } from "@/application/itemsEditor/types"
+} from "@/application/items/dashboard/types"
+import type { ItemEditorDetailDto, UpsertItemPayloadDto } from "@/application/items/editor/types"
 import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {

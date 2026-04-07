@@ -1,5 +1,5 @@
-import type { ItemsEditorGateway } from "@/application/itemsEditor/contracts/ItemsEditorGateway"
-import type { ItemEditorDetailDto, UpsertItemPayloadDto } from "@/application/itemsEditor/types"
+import type { ItemsEditorGateway } from "@/application/items/editor/contracts/ItemsEditorGateway"
+import type { ItemEditorDetailDto, UpsertItemPayloadDto } from "@/application/items/editor/types"
 import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {

@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest"
-import type { ItemsDashboardGateway } from "@/application/itemsDashboard/contracts/ItemsDashboardGateway"
+import type { ItemsDashboardGateway } from "@/application/items/dashboard/contracts/ItemsDashboardGateway"
 import {
   deleteItemUseCase,
   giveItemUseCase,
   loadItemsDashboardData,
-} from "@/application/itemsDashboard/use-cases/itemsDashboard"
+} from "@/application/items/dashboard/use-cases/itemsDashboard"
 
 function createGatewayMock(): ItemsDashboardGateway {
   return {
