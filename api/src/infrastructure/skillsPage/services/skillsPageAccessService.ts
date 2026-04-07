@@ -1,5 +1,5 @@
 import { getRpgPermission } from "@/lib/server/rpgPermissions"
-import type { SkillsPageAccessService } from "@/application/skillsPage/ports/SkillsPageAccessService"
+import type { SkillsPageAccessService } from "@/application/skills/page/ports/SkillsPageAccessService"
 
 export const skillsPageAccessService: SkillsPageAccessService = {
   async canManageRpg(rpgId, userId) {

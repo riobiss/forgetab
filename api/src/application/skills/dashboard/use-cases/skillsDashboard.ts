@@ -1,11 +1,11 @@
-import type { SkillsDashboardDependencies } from "@/application/skillsDashboard/contracts/SkillsDashboardDependencies"
+import type { SkillsDashboardDependencies } from "@/application/skills/dashboard/contracts/SkillsDashboardDependencies"
 import type {
   CreateOrUpdateSkillPayloadDto,
   SkillDetailDto,
   SkillSearchIndexItemDto,
   SkillListItemDto,
   UpdateSkillLevelPayloadDto,
-} from "@/application/skillsDashboard/types"
+} from "@/application/skills/dashboard/types"
 
 type Dependencies = SkillsDashboardDependencies
 

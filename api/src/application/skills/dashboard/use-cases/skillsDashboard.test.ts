@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import type { SkillsDashboardGateway } from "@/application/skillsDashboard/contracts/SkillsDashboardGateway"
+import type { SkillsDashboardGateway } from "@/application/skills/dashboard/contracts/SkillsDashboardGateway"
 import {
   buildSkillsSearchIndex,
   createSkillLevelSnapshotUseCase,
@@ -11,7 +11,7 @@ import {
   parseSearchIndex,
   updateSkillLevelUseCase,
   updateSkillMetaUseCase,
-} from "@/application/skillsDashboard/use-cases/skillsDashboard"
+} from "@/application/skills/dashboard/use-cases/skillsDashboard"
 
 function createGatewayMock(): SkillsDashboardGateway {
   return {

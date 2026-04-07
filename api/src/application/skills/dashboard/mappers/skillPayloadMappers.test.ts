@@ -5,7 +5,7 @@ import {
   mapUpdateSkillMetaPayload,
   type SkillLevelInput,
   type SkillMetaInput,
-} from "@/application/skillsDashboard/mappers/skillPayloadMappers"
+} from "@/application/skills/dashboard/mappers/skillPayloadMappers"
 
 function buildMeta(overrides: Partial<SkillMetaInput> = {}): SkillMetaInput {
   return {

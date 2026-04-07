@@ -1,7 +1,7 @@
 import type {
   CreateOrUpdateSkillPayloadDto,
   UpdateSkillLevelPayloadDto,
-} from "@/application/skillsDashboard/types"
+} from "@/application/skills/dashboard/types"
 import type { SkillCategory, SkillTag, SkillType } from "@/types/skillBuilder"
 
 export type SkillMetaInput = {

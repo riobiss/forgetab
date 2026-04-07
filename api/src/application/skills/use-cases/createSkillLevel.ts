@@ -1,10 +1,13 @@
-import { deepCopyJson } from "@/lib/server/skillBuilder"
 import { skillLevelCreateSchema } from "@/lib/validators/skillBuilder"
 import type { SkillRepository } from "@/application/skills/ports/SkillRepository"
 import { AppError } from "@/shared/errors/AppError"
 
 type CreateSkillLevelDeps = {
   repository: SkillRepository
+}
+
+function deepCopyJson<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T
 }
 
 export async function createSkillLevel(

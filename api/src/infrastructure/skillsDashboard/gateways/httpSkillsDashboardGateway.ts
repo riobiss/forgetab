@@ -1,4 +1,4 @@
-import type { SkillsDashboardGateway } from "@/application/skillsDashboard/contracts/SkillsDashboardGateway"
+import type { SkillsDashboardGateway } from "@/application/skills/dashboard/contracts/SkillsDashboardGateway"
 import type {
   CreateOrUpdateSkillPayloadDto,
   RpgSettingsDto,
@@ -7,7 +7,7 @@ import type {
   SkillListItemDto,
   TemplateOptionDto,
   UpdateSkillLevelPayloadDto,
-} from "@/application/skillsDashboard/types"
+} from "@/application/skills/dashboard/types"
 import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {

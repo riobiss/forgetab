@@ -6,7 +6,7 @@ import type {
   SkillListItemDto,
   TemplateOptionDto,
   UpdateSkillLevelPayloadDto,
-} from "@/application/skillsDashboard/types"
+} from "@/application/skills/dashboard/types"
 
 export interface SkillsDashboardGateway {
   fetchClasses(rpgId: string): Promise<TemplateOptionDto[]>
