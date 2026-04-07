@@ -2,7 +2,16 @@ import { getRpgPermission } from "@/lib/server/rpgPermissions"
 import type { RpgPermissionService } from "@/application/rpgManagement/ports/RpgPermissionService"
 
 export const legacyRpgPermissionService: RpgPermissionService = {
-  getPermission(rpgId, userId) {
-    return getRpgPermission(rpgId, userId)
+  async getPermission(rpgId, userId) {
+    const permission = await getRpgPermission(rpgId, userId)
+
+    return {
+      exists: permission.exists,
+      ownerId: permission.ownerId,
+      isOwner: permission.isOwner,
+      isAcceptedMember: permission.isAcceptedMember,
+      isModerator: permission.isModerator,
+      canManage: permission.canManage,
+    }
   },
 }

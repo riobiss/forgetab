@@ -1,5 +1,5 @@
 import type { ProgressionMode, ProgressionTier } from "@/lib/rpg/progression"
-import type { Prisma } from "../../../generated/prisma/client.js"
+import type { JsonValue } from "@/application/shared/json"
 
 export type RpgRow = {
   id: string
@@ -21,7 +21,7 @@ export type RpgRow = {
   abilityCategoriesEnabled: boolean
   enabledAbilityCategories: string[]
   progressionMode: string
-  progressionTiers: Prisma.JsonValue
+  progressionTiers: JsonValue
 }
 
 export type RpgAdvancedSettingsInput = {

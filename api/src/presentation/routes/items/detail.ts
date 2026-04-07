@@ -1,44 +1,12 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { AppError } from "@/shared/errors/AppError"
 import { deleteItem } from "@/application/items/use-cases/deleteItem"
 import { getItemById } from "@/application/items/use-cases/getItemById"
 import { updateItem } from "@/application/items/use-cases/updateItem"
 import { prismaItemRepository } from "@/infrastructure/items/repositories/prismaItemRepository"
 import { imageKitItemImageStorageService } from "@/infrastructure/items/services/imageKitItemImageStorageService"
 import { rpgPermissionService } from "@/infrastructure/items/services/rpgPermissionService"
+import { parseJsonBody, writeError, writeJson } from "@api/presentation/http/fastifyJson"
 import { type ItemRouteParams, requireUserId } from "./shared"
-
-function parseJsonBody(body: unknown) {
-  if (body == null) {
-    return null
-  }
-
-  if (Buffer.isBuffer(body)) {
-    const raw = body.toString("utf8").trim()
-    return raw ? JSON.parse(raw) : null
-  }
-
-  if (typeof body === "string") {
-    const raw = body.trim()
-    return raw ? JSON.parse(raw) : null
-  }
-
-  return body
-}
-
-function writeJson(reply: FastifyReply, status: number, body: unknown) {
-  reply.code(status)
-  reply.header("Content-Type", "application/json; charset=utf-8")
-  return reply.send(body)
-}
-
-function writeError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
-  if (error instanceof AppError) {
-    return writeJson(reply, error.status, { message: error.message })
-  }
-
-  return writeJson(reply, 500, { message: fallbackMessage })
-}
 
 export async function getItemByIdHandler(
   request: FastifyRequest<{ Params: ItemRouteParams }>,

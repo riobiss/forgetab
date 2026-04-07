@@ -10,24 +10,7 @@ import {
   writeAuthErrorResponse,
   writeAuthSuccessResponse,
 } from "@api/presentation/http/auth/responses"
-
-function parseJsonBody(body: unknown) {
-  if (body == null) {
-    return null
-  }
-
-  if (Buffer.isBuffer(body)) {
-    const raw = body.toString("utf8").trim()
-    return raw ? JSON.parse(raw) : null
-  }
-
-  if (typeof body === "string") {
-    const raw = body.trim()
-    return raw ? JSON.parse(raw) : null
-  }
-
-  return body
-}
+import { parseJsonBody, writeJson } from "@api/presentation/http/fastifyJson"
 
 export async function loginHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
@@ -37,10 +20,10 @@ export async function loginHandler(request: FastifyRequest, reply: FastifyReply)
         clientIp: rateLimitAuthService.getClientIp(request.headers),
       },
       {
-      authRepository: prismaAuthRepository,
-      authPasswordService: bcryptAuthPasswordService,
-      authTokenService: jwtAuthTokenService,
-      authRateLimitService: rateLimitAuthService,
+        authRepository: prismaAuthRepository,
+        authPasswordService: bcryptAuthPasswordService,
+        authTokenService: jwtAuthTokenService,
+        authRateLimitService: rateLimitAuthService,
       },
     )
 
@@ -62,10 +45,10 @@ export async function registerHandler(request: FastifyRequest, reply: FastifyRep
         clientIp: rateLimitAuthService.getClientIp(request.headers),
       },
       {
-      authRepository: prismaAuthRepository,
-      authPasswordService: bcryptAuthPasswordService,
-      authTokenService: jwtAuthTokenService,
-      authRateLimitService: rateLimitAuthService,
+        authRepository: prismaAuthRepository,
+        authPasswordService: bcryptAuthPasswordService,
+        authTokenService: jwtAuthTokenService,
+        authRateLimitService: rateLimitAuthService,
       },
     )
 
@@ -95,7 +78,5 @@ export async function logoutHandler(reply: FastifyReply) {
 }
 
 export async function healthHandler(reply: FastifyReply) {
-  reply.code(200)
-  reply.header("Content-Type", "application/json; charset=utf-8")
-  return reply.send({ ok: true, service: "forgetab-api" })
+  return writeJson(reply, 200, { ok: true, service: "forgetab-api" })
 }

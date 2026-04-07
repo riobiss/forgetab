@@ -1,5 +1,4 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { AppError } from "@/shared/errors/AppError"
 import { loadRpgCatalogUseCase } from "@/application/rpgCatalog/use-cases/rpgCatalog"
 import { loadRpgDashboard } from "@/application/rpgDashboard/use-cases/loadRpgDashboard"
 import { createRpg } from "@/application/rpgManagement/use-cases/createRpg"
@@ -13,6 +12,7 @@ import { imageKitGateway } from "@/infrastructure/rpgManagement/gateways/imageKi
 import { prismaRpgRepository } from "@/infrastructure/rpgManagement/repositories/prismaRpgRepository"
 import { legacyRpgPermissionService } from "@/infrastructure/rpgManagement/services/legacyRpgPermissionService"
 import { getAuthPayloadFromFastifyRequest } from "@api/presentation/http/auth/requestAuth"
+import { parseJsonBody, writeError, writeJson } from "@api/presentation/http/fastifyJson"
 
 type RpgRouteParams = {
   rpgId: string
@@ -22,38 +22,6 @@ const dependencies = {
   repository: prismaRpgRepository,
   permissionService: legacyRpgPermissionService,
   imageGateway: imageKitGateway,
-}
-
-function parseJsonBody(body: unknown) {
-  if (body == null) {
-    return null
-  }
-
-  if (Buffer.isBuffer(body)) {
-    const raw = body.toString("utf8").trim()
-    return raw ? JSON.parse(raw) : null
-  }
-
-  if (typeof body === "string") {
-    const raw = body.trim()
-    return raw ? JSON.parse(raw) : null
-  }
-
-  return body
-}
-
-function writeJson(reply: FastifyReply, status: number, body: unknown) {
-  reply.code(status)
-  reply.header("Content-Type", "application/json; charset=utf-8")
-  return reply.send(body)
-}
-
-function writeError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
-  if (error instanceof AppError) {
-    return writeJson(reply, error.status, { message: error.message })
-  }
-
-  return writeJson(reply, 500, { message: fallbackMessage })
 }
 
 async function requireAuth(request: FastifyRequest, reply: FastifyReply) {

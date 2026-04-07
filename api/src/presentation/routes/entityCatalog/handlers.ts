@@ -1,12 +1,12 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import type { CatalogEntityType } from "@/domain/entityCatalog/types"
-import { AppError } from "@/shared/errors/AppError"
 import { loadEntityCatalogPageData } from "@/application/entityCatalog/use-cases/entityCatalog"
 import { loadEntityCatalogDetailUseCase } from "@/application/entityCatalog/use-cases/loadEntityCatalogDetail"
 import { prismaEntityCatalogDetailRepository } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogDetailRepository"
 import { prismaEntityCatalogRepository } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogRepository"
 import { entityCatalogDetailAccessService } from "@/infrastructure/entityCatalog/services/entityCatalogDetailAccessService"
 import { getAuthPayloadFromFastifyRequest } from "@api/presentation/http/auth/requestAuth"
+import { writeError, writeJson } from "@api/presentation/http/fastifyJson"
 
 type EntityCatalogRouteParams = {
   rpgId: string
@@ -18,20 +18,6 @@ type ClassDetailRouteParams = EntityCatalogRouteParams & {
 
 type RaceDetailRouteParams = EntityCatalogRouteParams & {
   raceKey: string
-}
-
-function writeJson(reply: FastifyReply, status: number, body: unknown) {
-  reply.code(status)
-  reply.header("Content-Type", "application/json; charset=utf-8")
-  return reply.send(body)
-}
-
-function writeError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
-  if (error instanceof AppError) {
-    return writeJson(reply, error.status, { message: error.message })
-  }
-
-  return writeJson(reply, 500, { message: fallbackMessage })
 }
 
 async function resolveUserId(request: FastifyRequest) {

@@ -1,4 +1,3 @@
-import { Prisma } from "../../../../generated/prisma/client.js"
 import { createRpgSchema } from "@/lib/validators/rpg"
 import { normalizeEnabledAbilityCategories } from "@/lib/rpg/abilityCategories"
 import {
@@ -8,6 +7,7 @@ import {
   type ProgressionMode,
 } from "@/lib/rpg/progression"
 import type { ImageGateway } from "@/application/rpgManagement/ports/ImageGateway"
+import { mapRpgManagementRepositoryError } from "@/application/rpgManagement/errors/mapRpgManagementRepositoryError"
 import type { RpgPermissionService } from "@/application/rpgManagement/ports/RpgPermissionService"
 import type { RpgRepository } from "@/application/rpgManagement/ports/RpgRepository"
 import { AppError } from "@/shared/errors/AppError"
@@ -25,27 +25,6 @@ function normalizeOptionalText(value: unknown) {
 
   const trimmed = value.trim()
   return trimmed.length > 0 ? trimmed : null
-}
-
-function isSchemaOutdatedError(error: unknown) {
-  if (!(error instanceof Error)) {
-    return false
-  }
-
-  return (
-    error.message.includes('relation "rpgs" does not exist') ||
-    error.message.includes('column "costs_enabled" does not exist') ||
-    error.message.includes('column "cost_resource_name" does not exist') ||
-    error.message.includes('column "image" does not exist') ||
-    error.message.includes('column "allow_multiple_player_characters" does not exist') ||
-    error.message.includes('column "users_can_manage_own_xp" does not exist') ||
-    error.message.includes('column "allow_skill_point_distribution" does not exist') ||
-    error.message.includes('column "ability_categories_enabled" does not exist') ||
-    error.message.includes('column "enabled_ability_categories" does not exist') ||
-    error.message.includes('column "progression_mode" does not exist') ||
-    error.message.includes('column "progression_tiers" does not exist') ||
-    error.message.includes("Could not find the table")
-  )
 }
 
 export async function updateRpg(
@@ -227,12 +206,9 @@ export async function updateRpg(
       throw error
     }
 
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") {
-      throw new AppError("Tabela de RPG nao existe no banco. Rode a migration.", 500)
-    }
-
-    if (isSchemaOutdatedError(error)) {
-      throw new AppError("Tabela de RPG nao existe no banco. Rode a migration.", 500)
+    const mapped = mapRpgManagementRepositoryError(error, "Erro interno ao atualizar RPG.")
+    if (mapped) {
+      throw mapped
     }
 
     throw new AppError("Erro interno ao atualizar RPG.", 500)

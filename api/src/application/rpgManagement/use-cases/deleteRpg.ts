@@ -1,23 +1,11 @@
-import { Prisma } from "../../../../generated/prisma/client.js"
 import type { ImageGateway } from "@/application/rpgManagement/ports/ImageGateway"
+import { mapRpgManagementRepositoryError } from "@/application/rpgManagement/errors/mapRpgManagementRepositoryError"
 import type { RpgRepository } from "@/application/rpgManagement/ports/RpgRepository"
 import { AppError } from "@/shared/errors/AppError"
 
 type DeleteRpgDependencies = {
   repository: RpgRepository
   imageGateway: ImageGateway
-}
-
-function isSchemaOutdatedError(error: unknown) {
-  if (!(error instanceof Error)) {
-    return false
-  }
-
-  return (
-    error.message.includes('relation "rpgs" does not exist') ||
-    error.message.includes('column "image" does not exist') ||
-    error.message.includes("Could not find the table")
-  )
 }
 
 export async function deleteRpg(
@@ -52,12 +40,9 @@ export async function deleteRpg(
       throw error
     }
 
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") {
-      throw new AppError("Tabela de RPG nao existe no banco. Rode a migration.", 500)
-    }
-
-    if (isSchemaOutdatedError(error)) {
-      throw new AppError("Tabela de RPG nao existe no banco. Rode a migration.", 500)
+    const mapped = mapRpgManagementRepositoryError(error, "Erro interno ao deletar RPG.")
+    if (mapped) {
+      throw mapped
     }
 
     throw new AppError("Erro interno ao deletar RPG.", 500)
