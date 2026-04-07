@@ -1,4 +1,4 @@
-import type { Prisma } from "../../../../generated/prisma/client.js"
+import type { JsonValue } from "@/application/shared/json"
 import type { LibraryBookDto, LibrarySectionDto } from "@/application/library/types"
 
 export type ViewerCharacter = {
@@ -42,7 +42,7 @@ export interface LibraryRepository {
     userId: string
     title: string
     description: string | null
-    content: Prisma.JsonValue
+    content: JsonValue
     visibility: "private" | "public" | "unlisted"
     allowedCharacterIds: string[]
     allowedClassKeys: string[]
@@ -53,7 +53,7 @@ export interface LibraryRepository {
     bookId: string
     title: string
     description: string | null
-    content: Prisma.JsonValue
+    content: JsonValue
     visibility: "private" | "public" | "unlisted"
     allowedCharacterIds: string[]
     allowedClassKeys: string[]

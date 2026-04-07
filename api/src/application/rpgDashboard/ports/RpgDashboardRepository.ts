@@ -1,4 +1,4 @@
-import type { Prisma } from "../../../../generated/prisma/client.js"
+import type { JsonValue } from "@/application/shared/json"
 import type {
   AcceptedMemberSummary,
   PendingRequestSummary,
@@ -29,10 +29,10 @@ export type SpectatorCharacterRow = {
   mana: number
   sanity: number
   exhaustion: number
-  statuses: Prisma.JsonValue
-  currentStatuses: Prisma.JsonValue
-  attributes: Prisma.JsonValue
-  skills: Prisma.JsonValue
+  statuses: JsonValue
+  currentStatuses: JsonValue
+  attributes: JsonValue
+  skills: JsonValue
 }
 
 export type TemplateLabelRow = {
@@ -54,4 +54,3 @@ export interface RpgDashboardRepository {
     statusTemplateRows: TemplateLabelRow[]
   }>
 }
-

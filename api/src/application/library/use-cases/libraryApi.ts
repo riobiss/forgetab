@@ -1,4 +1,4 @@
-import type { Prisma } from "../../../../generated/prisma/client.js"
+import type { JsonValue } from "@/application/shared/json"
 import { createLibraryBookSchema, createLibrarySectionSchema } from "@/lib/validators/library"
 import type { LibraryAccessService } from "@/application/library/ports/LibraryAccessService"
 import type { LibraryRepository, ViewerCharacter } from "@/application/library/ports/LibraryRepository"
@@ -109,7 +109,7 @@ function toBookInput(data: ReturnType<typeof parseLibraryBookBody>) {
     description: normalizeDescription(data.description),
     content: JSON.stringify(
       data.content ?? { type: "doc", content: [] as unknown[] },
-    ) as unknown as Prisma.JsonValue,
+    ) as unknown as JsonValue,
     visibility: data.visibility,
     allowedCharacterIds: normalizeTextList(data.allowedCharacterIds),
     allowedClassKeys: normalizeTextList(data.allowedClassKeys),

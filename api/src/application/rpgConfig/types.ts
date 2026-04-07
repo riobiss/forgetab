@@ -1,4 +1,4 @@
-import type { Prisma } from "../../../generated/prisma/client.js"
+import type { JsonValue } from "@/application/shared/json"
 
 export type AttributeTemplate = {
   id: string
@@ -43,9 +43,9 @@ export type ClassTemplate = {
   label: string
   category: string | null
   position: number
-  attributeBonuses: Prisma.JsonValue
-  skillBonuses: Prisma.JsonValue
-  catalogMeta?: Prisma.JsonValue
+  attributeBonuses: JsonValue
+  skillBonuses: JsonValue
+  catalogMeta?: JsonValue
 }
 
 export type RaceTemplate = {
@@ -54,8 +54,8 @@ export type RaceTemplate = {
   label: string
   category: string | null
   position: number
-  attributeBonuses: Prisma.JsonValue
-  skillBonuses: Prisma.JsonValue
-  lore?: Prisma.JsonValue
-  catalogMeta?: Prisma.JsonValue
+  attributeBonuses: JsonValue
+  skillBonuses: JsonValue
+  lore?: JsonValue
+  catalogMeta?: JsonValue
 }
