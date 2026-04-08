@@ -1,4 +1,4 @@
-import { buildApiUrl } from "@/infrastructure/http/backendUrls"
+import { buildApiUrl, resolveApiUrl } from "@/infrastructure/http/backendUrls"
 import { TOKEN_COOKIE_NAME } from "@/lib/auth/constants"
 import { getClientAuthToken } from "@/infrastructure/auth/session/clientAuthSession"
 
@@ -38,10 +38,22 @@ async function buildAuthHeaders(headers: HeadersInit | undefined) {
 
 export async function apiFetch(path: string, init: RequestInit = {}) {
   const headers = await buildAuthHeaders(init.headers)
+  const url = await resolveApiUrl(path)
 
-  return fetch(buildApiUrl(path), {
-    ...init,
-    credentials: init.credentials ?? "include",
-    headers,
-  })
+  try {
+    return await fetch(url, {
+      ...init,
+      credentials: init.credentials ?? "include",
+      headers,
+    })
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(
+        `Falha ao conectar com a API em ${url}. Verifique \`NEXT_PUBLIC_API_BASE_URL\`/\`API_INTERNAL_BASE_URL\` e se a API separada esta rodando.`,
+        { cause: error },
+      )
+    }
+
+    throw error
+  }
 }
