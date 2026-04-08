@@ -1,14 +1,13 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import { createItem } from "@/application/items/use-cases/createItem"
 import { getItems } from "@/application/items/use-cases/getItems"
-import { prismaItemRepository } from "@/infrastructure/items/repositories/prismaItemRepository"
-import { rpgPermissionService } from "@/infrastructure/items/services/rpgPermissionService"
 import { parseJsonBody, writeError, writeJson } from "@api/presentation/http/fastifyJson"
+import { itemRouteDeps } from "./dependencies"
 import { type RpgRouteParams, requireUserId } from "./shared"
 
 export function getItemsPayload(rpgId: string, userId: string) {
   return getItems(
-    { repository: prismaItemRepository, permissionService: rpgPermissionService },
+    { repository: itemRouteDeps.repository, permissionService: itemRouteDeps.permissionService },
     { rpgId, userId },
   )
 }
@@ -42,7 +41,7 @@ export async function createItemHandler(
   try {
     const body = parseJsonBody(request.body)
     const payload = await createItem(
-      { repository: prismaItemRepository, permissionService: rpgPermissionService },
+      { repository: itemRouteDeps.repository, permissionService: itemRouteDeps.permissionService },
       { rpgId: request.params.rpgId, userId: auth.userId, body },
     )
 

@@ -2,10 +2,8 @@ import type { FastifyReply, FastifyRequest } from "fastify"
 import { deleteItem } from "@/application/items/use-cases/deleteItem"
 import { getItemById } from "@/application/items/use-cases/getItemById"
 import { updateItem } from "@/application/items/use-cases/updateItem"
-import { prismaItemRepository } from "@/infrastructure/items/repositories/prismaItemRepository"
-import { imageKitItemImageStorageService } from "@/infrastructure/items/services/imageKitItemImageStorageService"
-import { rpgPermissionService } from "@/infrastructure/items/services/rpgPermissionService"
 import { parseJsonBody, writeError, writeJson } from "@api/presentation/http/fastifyJson"
+import { itemRouteDeps } from "./dependencies"
 import { type ItemRouteParams, requireUserId } from "./shared"
 
 export async function getItemByIdHandler(
@@ -19,7 +17,7 @@ export async function getItemByIdHandler(
 
   try {
     const payload = await getItemById(
-      { repository: prismaItemRepository, permissionService: rpgPermissionService },
+      { repository: itemRouteDeps.repository, permissionService: itemRouteDeps.permissionService },
       { rpgId: request.params.rpgId, itemId: request.params.itemId, userId: auth.userId },
     )
 
@@ -42,9 +40,9 @@ export async function updateItemHandler(
     const body = parseJsonBody(request.body)
     const payload = await updateItem(
       {
-        repository: prismaItemRepository,
-        permissionService: rpgPermissionService,
-        imageStorageService: imageKitItemImageStorageService,
+        repository: itemRouteDeps.repository,
+        permissionService: itemRouteDeps.permissionService,
+        imageStorageService: itemRouteDeps.imageStorageService,
       },
       {
         rpgId: request.params.rpgId,
@@ -72,9 +70,9 @@ export async function deleteItemHandler(
   try {
     const payload = await deleteItem(
       {
-        repository: prismaItemRepository,
-        permissionService: rpgPermissionService,
-        imageStorageService: imageKitItemImageStorageService,
+        repository: itemRouteDeps.repository,
+        permissionService: itemRouteDeps.permissionService,
+        imageStorageService: itemRouteDeps.imageStorageService,
       },
       { rpgId: request.params.rpgId, itemId: request.params.itemId, userId: auth.userId },
     )
