@@ -1,7 +1,7 @@
 import { prismaLibraryRepository } from "@/infrastructure/library/repositories/prismaLibraryRepository"
-import { legacyLibraryAccessService } from "@/infrastructure/library/services/legacyLibraryAccessService"
+import { libraryAccessService } from "@/infrastructure/library/services/libraryAccessService"
 
 export const libraryRouteDeps = {
   repository: prismaLibraryRepository,
-  accessService: legacyLibraryAccessService,
+  accessService: libraryAccessService,
 } as const

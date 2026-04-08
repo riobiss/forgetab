@@ -1,10 +1,12 @@
 import type { EntityCatalogDetailAccessService } from "@/application/entityCatalog/ports/EntityCatalogDetailAccessService"
-import { getMembershipStatus } from "@/lib/server/rpgAccess"
-import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import {
+  getRpgMembershipStatusByPrisma,
+  getRpgPermissionByPrisma,
+} from "@/infrastructure/rpg/services/prismaRpgAccessResolver"
 
 export const entityCatalogDetailAccessService: EntityCatalogDetailAccessService = {
   async getRpgPermission(rpgId, userId) {
-    const permission = await getRpgPermission(rpgId, userId)
+    const permission = await getRpgPermissionByPrisma(rpgId, userId)
     return {
       canManage: permission.canManage,
       isOwner: permission.isOwner,
@@ -13,6 +15,6 @@ export const entityCatalogDetailAccessService: EntityCatalogDetailAccessService 
   },
 
   async getMembershipStatus(rpgId, userId) {
-    return (await getMembershipStatus(rpgId, userId)) ?? "none"
+    return (await getRpgMembershipStatusByPrisma(rpgId, userId)) ?? "none"
   },
 }

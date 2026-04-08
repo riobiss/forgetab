@@ -1,78 +1,11 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { LibraryRepository, ViewerCharacter } from "@/application/library/ports/LibraryRepository"
-import type { LibraryBookDto, LibrarySectionDto } from "@/application/library/types"
-
-type LibrarySectionRow = {
-  id: string
-  rpgId: string
-  createdByUserId: string | null
-  title: string
-  description: string | null
-  visibility: "private" | "public"
-  createdAt: Date
-  updatedAt: Date
-  booksCount: number
-}
-
-type LibraryBookRow = {
-  id: string
-  rpgId: string
-  sectionId: string
-  createdByUserId: string | null
-  title: string
-  description: string | null
-  content: Prisma.JsonValue
-  visibility: "private" | "public" | "unlisted"
-  allowedCharacterIds: Prisma.JsonValue
-  allowedClassKeys: Prisma.JsonValue
-  allowedRaceKeys: Prisma.JsonValue
-  createdAt: Date
-  updatedAt: Date
-}
-
-function toIsoString(value: Date | string | null | undefined) {
-  if (value instanceof Date) return value.toISOString()
-  if (typeof value === "string") return value
-  return ""
-}
-
-function mapSection(row: LibrarySectionRow): LibrarySectionDto {
-  return {
-    id: row.id,
-    rpgId: row.rpgId,
-    createdByUserId: row.createdByUserId,
-    title: row.title,
-    description: row.description,
-    visibility: row.visibility,
-    booksCount: row.booksCount,
-    createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
-  }
-}
-
-function parseStringList(value: Prisma.JsonValue) {
-  if (!Array.isArray(value)) return []
-  return value.filter((entry): entry is string => typeof entry === "string")
-}
-
-function mapBook(row: LibraryBookRow): LibraryBookDto {
-  return {
-    id: row.id,
-    rpgId: row.rpgId,
-    sectionId: row.sectionId,
-    createdByUserId: row.createdByUserId,
-    title: row.title,
-    description: row.description,
-    content: (row.content ?? { type: "doc", content: [] }) as LibraryBookDto["content"],
-    visibility: row.visibility,
-    allowedCharacterIds: parseStringList(row.allowedCharacterIds),
-    allowedClassKeys: parseStringList(row.allowedClassKeys),
-    allowedRaceKeys: parseStringList(row.allowedRaceKeys),
-    createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
-  }
-}
+import { mapBook, mapSection } from "@/infrastructure/library/repositories/libraryRepositoryMappers"
+import type {
+  LibraryBookRow,
+  LibrarySectionRow,
+} from "@/infrastructure/library/repositories/libraryRepositoryRows"
 
 export const prismaLibraryRepository: LibraryRepository = {
   async listSections(rpgId) {

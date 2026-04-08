@@ -3,7 +3,7 @@ import { normalizeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
 import type { CatalogEntityType } from "@/domain/entityCatalog/types"
 import type { EntityCatalogRepository } from "@/application/entityCatalog/ports/EntityCatalogRepository"
 import { prisma } from "@/lib/prisma"
-import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import { getRpgPermissionByPrisma } from "@/infrastructure/rpg/services/prismaRpgAccessResolver"
 
 type AccessRow = {
   visibility: "private" | "public"
@@ -47,7 +47,7 @@ export const prismaEntityCatalogRepository: EntityCatalogRepository = {
       return { exists: true, canRead: rpg.visibility === "public", canManage: false }
     }
 
-    const permission = await getRpgPermission(rpgId, userId)
+    const permission = await getRpgPermissionByPrisma(rpgId, userId)
     return {
       exists: permission.exists,
       canRead: rpg.visibility === "public" || permission.isOwner || permission.isAcceptedMember,
