@@ -1,5 +1,5 @@
-import { prismaRpgMapRepository } from "@/infrastructure/rpgMap/repositories/prismaRpgMapRepository"
-import { rpgMapAccessService } from "@/infrastructure/rpgMap/services/rpgMapAccessService"
+import { prismaRpgMapRepository } from "@/infrastructure/rpg/map/repositories/prismaRpgMapRepository"
+import { rpgMapAccessService } from "@/infrastructure/rpg/map/services/rpgMapAccessService"
 
 export const rpgMapRouteDeps = {
   repository: prismaRpgMapRepository,

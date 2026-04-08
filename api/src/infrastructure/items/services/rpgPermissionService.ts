@@ -1,9 +1,9 @@
 import type { RpgPermissionService } from "@/application/items/ports/RpgPermissionService"
-import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import { getRpgPermissionByPrisma } from "@/infrastructure/rpg/services/prismaRpgAccessResolver"
 
 export const rpgPermissionService: RpgPermissionService = {
   async canManageRpg(rpgId, userId) {
-    const permission = await getRpgPermission(rpgId, userId)
+    const permission = await getRpgPermissionByPrisma(rpgId, userId)
     return permission.canManage
   },
 }
