@@ -3,5 +3,5 @@ export {
   grantCharacterPointsHandler,
   grantCharacterXpHandler,
   removeCharacterSkillHandler,
-  type CharacterRouteParams,
 } from "./handlers"
+export type { CharacterRouteParams } from "./routeTypes"

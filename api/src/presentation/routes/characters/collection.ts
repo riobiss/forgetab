@@ -1,5 +1,5 @@
 export {
   createCharacterHandler,
   listCharactersHandler,
-  type CharactersCollectionRouteParams,
 } from "./handlers"
+export type { CharactersCollectionRouteParams } from "./routeTypes"

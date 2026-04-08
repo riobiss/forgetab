@@ -3,5 +3,5 @@ export {
   getCharacterInventoryHandler,
   removeCharacterInventoryHandler,
   updateCharacterStatusCurrentHandler,
-  type CharacterInventoryRouteParams,
 } from "./handlers"
+export type { CharacterInventoryRouteParams } from "./routeTypes"
