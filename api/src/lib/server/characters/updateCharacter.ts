@@ -1,4 +1,4 @@
-import { legacyCharacterManagementService } from "@/infrastructure/characters/services/legacyCharacterManagementService"
+import { characterManagementService } from "@/infrastructure/characters/services/characterManagementService"
 import { AppError } from "@/shared/errors/AppError"
 
 export type UpdateCharacterPayload = {
@@ -39,7 +39,7 @@ function fail(status: number, message: string): never {
 
 export async function updateCharacter(input: UpdateCharacterInput): Promise<void> {
   try {
-    await legacyCharacterManagementService.updateCharacter(input)
+    await characterManagementService.updateCharacter(input)
   } catch (error) {
     if (error instanceof AppError) fail(error.status, error.message)
     throw error

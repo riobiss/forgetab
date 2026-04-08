@@ -5,15 +5,15 @@ const mocks = vi.hoisted(() => ({
   updateCharacter: vi.fn(),
 }))
 
-vi.mock("@/infrastructure/characters/services/legacyCharacterManagementService", () => ({
-  legacyCharacterManagementService: {
+vi.mock("@/infrastructure/characters/services/characterManagementService", () => ({
+  characterManagementService: {
     updateCharacter: mocks.updateCharacter,
   },
 }))
 
 import { updateCharacter } from "./updateCharacter"
 
-describe("updateCharacter legacy adapter", () => {
+describe("updateCharacter adapter", () => {
   it("delegates to the infrastructure management service", async () => {
     mocks.updateCharacter.mockResolvedValueOnce(undefined)
 

@@ -10,9 +10,9 @@ vi.mock("@/lib/prisma", () => ({
   },
 }))
 
-import { legacyCharacterManagementService } from "./legacyCharacterManagementService"
+import { characterManagementService } from "./characterManagementService"
 
-describe("legacyCharacterManagementService.updateCharacter", () => {
+describe("characterManagementService.updateCharacter", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -43,7 +43,7 @@ describe("legacyCharacterManagementService.updateCharacter", () => {
     mocks.queryRaw.mockResolvedValueOnce([{ id: "char-1" }])
 
     await expect(
-      legacyCharacterManagementService.updateCharacter({
+      characterManagementService.updateCharacter({
         rpgId: "rpg-1",
         characterId: "char-1",
         userId: "user-1",
@@ -98,7 +98,7 @@ describe("legacyCharacterManagementService.updateCharacter", () => {
     mocks.queryRaw.mockResolvedValueOnce([{ id: "char-1" }])
 
     await expect(
-      legacyCharacterManagementService.updateCharacter({
+      characterManagementService.updateCharacter({
         rpgId: "rpg-1",
         characterId: "char-1",
         userId: "user-1",

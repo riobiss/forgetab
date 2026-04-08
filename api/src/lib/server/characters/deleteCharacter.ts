@@ -1,4 +1,4 @@
-import { legacyCharacterManagementService } from "@/infrastructure/characters/services/legacyCharacterManagementService"
+import { characterManagementService } from "@/infrastructure/characters/services/characterManagementService"
 import { AppError } from "@/shared/errors/AppError"
 
 type DeleteCharacterInput = {
@@ -23,7 +23,7 @@ function fail(status: number, message: string): never {
 
 export async function deleteCharacter(input: DeleteCharacterInput): Promise<void> {
   try {
-    await legacyCharacterManagementService.deleteCharacter(input)
+    await characterManagementService.deleteCharacter(input)
   } catch (error) {
     if (error instanceof AppError) fail(error.status, error.message)
     throw error
