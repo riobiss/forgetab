@@ -1,9 +1,7 @@
-import { Prisma } from "../../../../generated/prisma/client.js"
-import { RpgManagementRepositoryError } from "@/application/rpg/management/errors/RpgManagementRepositoryError"
+import { Prisma } from "../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { ProgressionMode } from "@/lib/rpg/progression"
 import type { RpgRepository } from "@/application/rpg/management/ports/RpgRepository"
-import { normalizeRpgVisibility } from "@/infrastructure/shared/normalizeRpgVisibility"
 import type {
   RpgAdvancedSettingsInput,
   RpgCoreUpdateInput,
@@ -11,76 +9,22 @@ import type {
   RpgCreateSettingsInput,
   RpgRow,
 } from "@/application/rpg/management/types"
-
-function isMissingColumn(error: unknown, column: string) {
-  return error instanceof Error && error.message.includes(`column "${column}" does not exist`)
-}
-
-function isMissingAnyColumn(error: unknown, columns: string[]) {
-  return columns.some((column) => isMissingColumn(error, column))
-}
-
-function mapRepositoryError(error: unknown): never {
-  if (error instanceof RpgManagementRepositoryError) {
-    throw error
-  }
-
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    if (error.code === "P2021") {
-      throw new RpgManagementRepositoryError("RPG_TABLE_MISSING")
-    }
-
-    if (error.code === "P2003") {
-      throw new RpgManagementRepositoryError("USER_REFERENCE_INVALID")
-    }
-  }
-
-  if (!(error instanceof Error)) {
-    throw error
-  }
-
-  if (error.message.includes('relation "rpgs" does not exist') || error.message.includes("Could not find the table")) {
-    throw new RpgManagementRepositoryError("RPG_TABLE_MISSING")
-  }
-
-  if (isMissingColumn(error, "image")) {
-    throw new RpgManagementRepositoryError("RPG_IMAGE_COLUMN_MISSING")
-  }
-
-  if (
-    isMissingAnyColumn(error, [
-      "costs_enabled",
-      "cost_resource_name",
-      "use_race_bonuses",
-      "use_class_bonuses",
-      "use_class_race_bonuses",
-      "use_inventory_weight_limit",
-      "allow_multiple_player_characters",
-      "users_can_manage_own_xp",
-      "allow_skill_point_distribution",
-      "ability_categories_enabled",
-      "enabled_ability_categories",
-      "use_mundi_map",
-      "progression_mode",
-      "progression_tiers",
-    ])
-  ) {
-    throw new RpgManagementRepositoryError("RPG_SCHEMA_OUTDATED")
-  }
-
-  throw error
-}
+import {
+  isMissingColumn,
+  mapRpgRepositoryError,
+} from "@/infrastructure/rpg/management/repositories/rpgRepositoryErrors"
+import {
+  mapRpgCreateBaseResult,
+  mapRpgRow,
+} from "@/infrastructure/rpg/management/repositories/rpgRepositoryMappers"
 
 export const prismaRpgRepository: RpgRepository = {
   async createBase(data: RpgCreateBaseInput) {
     try {
       const row = await prisma.rpg.create({ data })
-      return {
-        ...row,
-        visibility: normalizeRpgVisibility(row.visibility),
-      }
+      return mapRpgCreateBaseResult(row)
     } catch (error) {
-      mapRepositoryError(error)
+      mapRpgRepositoryError(error)
     }
   },
 
@@ -143,7 +87,7 @@ export const prismaRpgRepository: RpgRepository = {
           // Mantem compatibilidade quando a migration ainda nao foi aplicada.
         }
       } else {
-        mapRepositoryError(error)
+        mapRpgRepositoryError(error)
       }
     }
   },
@@ -253,13 +197,11 @@ export const prismaRpgRepository: RpgRepository = {
           `)
         }
       } else {
-        mapRepositoryError(error)
+        mapRpgRepositoryError(error)
       }
     }
     const row = rows[0]
-    return row
-      ? { ...row, visibility: normalizeRpgVisibility(row.visibility) }
-      : null
+    return row ? mapRpgRow(row) : null
   },
 
   async getCurrentProgressionMode(rpgId) {
@@ -275,7 +217,7 @@ export const prismaRpgRepository: RpgRepository = {
       if (isMissingColumn(error, "progression_mode")) {
         return "xp_level"
       }
-      mapRepositoryError(error)
+      mapRpgRepositoryError(error)
     }
   },
 
@@ -290,7 +232,7 @@ export const prismaRpgRepository: RpgRepository = {
 
       return rows[0]?.image ?? null
     } catch (error) {
-      mapRepositoryError(error)
+      mapRpgRepositoryError(error)
     }
   },
 
@@ -306,7 +248,7 @@ export const prismaRpgRepository: RpgRepository = {
 
       return rows[0]?.image ?? null
     } catch (error) {
-      mapRepositoryError(error)
+      mapRpgRepositoryError(error)
     }
   },
 
@@ -319,7 +261,7 @@ export const prismaRpgRepository: RpgRepository = {
 
       return updated.count > 0
     } catch (error) {
-      mapRepositoryError(error)
+      mapRpgRepositoryError(error)
     }
   },
 
@@ -398,10 +340,10 @@ export const prismaRpgRepository: RpgRepository = {
           !error.message.includes('column "progression_mode" does not exist') &&
           !error.message.includes('column "progression_tiers" does not exist')
         ) {
-          mapRepositoryError(error)
+          mapRpgRepositoryError(error)
         }
       } else {
-        mapRepositoryError(error)
+        mapRpgRepositoryError(error)
       }
     }
   },
@@ -417,7 +359,7 @@ export const prismaRpgRepository: RpgRepository = {
 
       return rows.length > 0
     } catch (error) {
-      mapRepositoryError(error)
+      mapRpgRepositoryError(error)
     }
   },
 
@@ -426,7 +368,7 @@ export const prismaRpgRepository: RpgRepository = {
       const deleted = await prisma.rpg.deleteMany({ where: { id: rpgId, ownerId } })
       return deleted.count > 0
     } catch (error) {
-      mapRepositoryError(error)
+      mapRpgRepositoryError(error)
     }
   },
 }

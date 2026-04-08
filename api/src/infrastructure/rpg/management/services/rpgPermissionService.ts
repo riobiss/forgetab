@@ -1,9 +1,9 @@
-import { getRpgPermission } from "@/lib/server/rpgPermissions"
 import type { RpgPermissionService } from "@/application/rpg/management/ports/RpgPermissionService"
+import { getRpgPermissionByPrisma } from "@/infrastructure/rpg/services/prismaRpgAccessResolver"
 
-export const legacyRpgPermissionService: RpgPermissionService = {
+export const rpgPermissionService: RpgPermissionService = {
   async getPermission(rpgId, userId) {
-    const permission = await getRpgPermission(rpgId, userId)
+    const permission = await getRpgPermissionByPrisma(rpgId, userId)
 
     return {
       exists: permission.exists,

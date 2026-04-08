@@ -1,151 +1,17 @@
-import { Prisma } from "../../../../generated/prisma/client.js"
+import { Prisma } from "../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { RpgMapRepository } from "@/application/rpg/map/ports/RpgMapRepository"
-import type { JsonMapValue, RpgMapDto, RpgMapMarkerDto, RpgMapMarkerGroupDto, RpgMapSectionDto } from "@/application/rpg/map/types"
-
-type MapRow = {
-  id: string
-  rpgId: string
-  createdByUserId: string | null
-  title: string
-  description: string | null
-  type: string | null
-  image: string | null
-  order: number
-  sectionsCount: number
-  createdAt: Date
-  updatedAt: Date
-}
-
-type SectionRow = {
-  id: string
-  mapId: string
-  rpgId: string
-  parentSectionId: string | null
-  createdByUserId: string | null
-  name: string
-  description: string | null
-  type: string | null
-  order: number
-  customFields: Prisma.JsonValue | null
-  createdAt: Date
-  updatedAt: Date
-}
-
-type MarkerGroupRow = {
-  id: string
-  mapId: string
-  rpgId: string
-  createdByUserId: string | null
-  name: string
-  color: string
-  order: number
-  createdAt: Date
-  updatedAt: Date
-}
-
-type MarkerRow = {
-  id: string
-  groupId: string
-  mapId: string
-  rpgId: string
-  createdByUserId: string | null
-  name: string
-  location: string | null
-  shortDescription: string | null
-  image: string | null
-  color: string | null
-  x: number
-  y: number
-  size: number | null
-  pinStyle: string | null
-  order: number
-  createdAt: Date
-  updatedAt: Date
-}
-
-function toIsoString(value: Date | string | null | undefined) {
-  if (value instanceof Date) return value.toISOString()
-  if (typeof value === "string") return value
-  return ""
-}
-
-function parseObject(value: Prisma.JsonValue | null | undefined): JsonMapValue {
-  if (!value || Array.isArray(value) || typeof value !== "object") {
-    return {}
-  }
-  return value as JsonMapValue
-}
-
-function mapMap(row: MapRow): RpgMapDto {
-  return {
-    id: row.id,
-    rpgId: row.rpgId,
-    createdByUserId: row.createdByUserId,
-    title: row.title,
-    description: row.description,
-    type: row.type,
-    image: row.image,
-    order: row.order,
-    sectionsCount: row.sectionsCount,
-    createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
-  }
-}
-
-function mapSection(row: SectionRow): RpgMapSectionDto {
-  return {
-    id: row.id,
-    mapId: row.mapId,
-    rpgId: row.rpgId,
-    parentSectionId: row.parentSectionId,
-    createdByUserId: row.createdByUserId,
-    name: row.name,
-    description: row.description,
-    type: row.type,
-    order: row.order,
-    customFields: row.customFields ? parseObject(row.customFields) : null,
-    createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
-  }
-}
-
-function mapMarker(row: MarkerRow): RpgMapMarkerDto {
-  return {
-    id: row.id,
-    groupId: row.groupId,
-    mapId: row.mapId,
-    rpgId: row.rpgId,
-    createdByUserId: row.createdByUserId,
-    name: row.name,
-    location: row.location,
-    shortDescription: row.shortDescription,
-    image: row.image,
-    color: row.color,
-    x: row.x,
-    y: row.y,
-    size: row.size,
-    pinStyle: row.pinStyle,
-    order: row.order,
-    createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
-  }
-}
-
-function mapMarkerGroup(row: MarkerGroupRow, markers: MarkerRow[]): RpgMapMarkerGroupDto {
-  return {
-    id: row.id,
-    mapId: row.mapId,
-    rpgId: row.rpgId,
-    createdByUserId: row.createdByUserId,
-    name: row.name,
-    color: row.color,
-    order: row.order,
-    markers: markers.filter((marker) => marker.groupId === row.id).map(mapMarker),
-    createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
-  }
-}
+import {
+  mapMap,
+  mapMarkerGroup,
+  mapSection,
+} from "@/infrastructure/rpg/map/repositories/rpgMapRepositoryMappers"
+import type {
+  MapRow,
+  MarkerGroupRow,
+  MarkerRow,
+  SectionRow,
+} from "@/infrastructure/rpg/map/repositories/rpgMapRepositoryRows"
 
 function jsonb(value: Record<string, unknown> | null) {
   return value ? Prisma.sql`${JSON.stringify(value)}::jsonb` : Prisma.sql`null::jsonb`

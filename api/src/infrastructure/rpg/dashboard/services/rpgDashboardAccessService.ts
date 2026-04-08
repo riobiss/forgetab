@@ -1,14 +1,15 @@
-import { getMembershipStatus } from "@/lib/server/rpgAccess"
-import { getRpgPermission } from "@/lib/server/rpgPermissions"
 import type { RpgDashboardAccessService } from "@/application/rpg/dashboard/ports/RpgDashboardAccessService"
+import {
+  getRpgMembershipStatusByPrisma,
+  getRpgPermissionByPrisma,
+} from "@/infrastructure/rpg/services/prismaRpgAccessResolver"
 
 export const rpgDashboardAccessService: RpgDashboardAccessService = {
   getPermission(rpgId, userId) {
-    return getRpgPermission(rpgId, userId)
+    return getRpgPermissionByPrisma(rpgId, userId)
   },
 
   getMembershipStatus(rpgId, userId) {
-    return getMembershipStatus(rpgId, userId)
+    return getRpgMembershipStatusByPrisma(rpgId, userId)
   },
 }
-

@@ -1,5 +1,5 @@
-import { prismaRpgMembershipRepository } from "@/infrastructure/rpgMembership/repositories/prismaRpgMembershipRepository"
-import { rpgMembershipAccessService } from "@/infrastructure/rpgMembership/services/rpgMembershipAccessService"
+import { prismaRpgMembershipRepository } from "@/infrastructure/rpg/membership/repositories/prismaRpgMembershipRepository"
+import { rpgMembershipAccessService } from "@/infrastructure/rpg/membership/services/rpgMembershipAccessService"
 
 export const rpgMembershipRouteDeps = {
   repository: prismaRpgMembershipRepository,

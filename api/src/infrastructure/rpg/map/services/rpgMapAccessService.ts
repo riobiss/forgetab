@@ -1,6 +1,8 @@
 import type { RpgMapAccessService } from "@/application/rpg/map/ports/RpgMapAccessService"
-import { getMembershipStatus } from "@/lib/server/rpgAccess"
-import { getRpgPermission } from "@/lib/server/rpgPermissions"
+import {
+  getRpgMembershipStatusByPrisma,
+  getRpgPermissionByPrisma,
+} from "@/infrastructure/rpg/services/prismaRpgAccessResolver"
 
 export const rpgMapAccessService: RpgMapAccessService = {
   async getAccess(rpgId, userId) {
@@ -13,7 +15,7 @@ export const rpgMapAccessService: RpgMapAccessService = {
       }
     }
 
-    const permission = await getRpgPermission(rpgId, userId)
+    const permission = await getRpgPermissionByPrisma(rpgId, userId)
     if (permission.canManage) {
       return {
         exists: true,
@@ -23,7 +25,7 @@ export const rpgMapAccessService: RpgMapAccessService = {
       }
     }
 
-    const membershipStatus = await getMembershipStatus(rpgId, userId)
+    const membershipStatus = await getRpgMembershipStatusByPrisma(rpgId, userId)
     return {
       exists: permission.exists,
       userId,

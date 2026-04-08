@@ -1,8 +1,8 @@
 import type { CurrentUserSessionService } from "@/application/session/ports/CurrentUserSessionService"
-import { getUserIdFromCookieStore } from "@/lib/server/auth"
+import { getAnonymousCurrentUserId } from "./anonymousCurrentUserSession"
 
 export const cookieCurrentUserSessionService: CurrentUserSessionService = {
   getCurrentUserId() {
-    return getUserIdFromCookieStore()
+    return getAnonymousCurrentUserId()
   },
 }

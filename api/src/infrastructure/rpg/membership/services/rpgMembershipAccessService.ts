@@ -1,9 +1,9 @@
-import { getRpgPermission } from "@/lib/server/rpgPermissions"
 import type { RpgMembershipAccessService } from "@/application/rpg/membership/ports/RpgMembershipAccessService"
+import { getRpgPermissionByPrisma } from "@/infrastructure/rpg/services/prismaRpgAccessResolver"
 
 export const rpgMembershipAccessService: RpgMembershipAccessService = {
   async getPermission(rpgId, userId) {
-    const permission = await getRpgPermission(rpgId, userId)
+    const permission = await getRpgPermissionByPrisma(rpgId, userId)
     return {
       exists: permission.exists,
       canManage: permission.canManage,
@@ -11,4 +11,3 @@ export const rpgMembershipAccessService: RpgMembershipAccessService = {
     }
   },
 }
-
