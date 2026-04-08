@@ -1,4 +1,4 @@
-import { Prisma } from "../../../../../generated/prisma/client.js"
+import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { RpgTemplatesRepository } from "@/application/characters/ports/RpgTemplatesRepository"
 import type {

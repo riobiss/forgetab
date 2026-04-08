@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import { Prisma } from "../../../../../generated/prisma/client.js"
+import { Prisma } from "../../../../generated/prisma/client.js"
 import { fail, rethrowCharacterDeleteInfrastructureError } from "@/infrastructure/characters/services/characterManagementErrors"
 import { resolveCharacterManagementPermission } from "@/infrastructure/characters/services/characterManagementPermission"
 import { cleanupCharacterImage } from "@/infrastructure/characters/services/characterManagementSupport"

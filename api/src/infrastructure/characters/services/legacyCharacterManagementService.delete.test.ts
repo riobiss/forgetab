@@ -30,14 +30,43 @@ describe("characterManagementService.deleteCharacter", () => {
     mocks.queryRaw.mockResolvedValueOnce([
       {
         id: "char-1",
+        rpgId: "rpg-1",
         name: "Goblin",
+        image: "https://cdn.example.com/goblin.png",
+        raceKey: null,
+        classKey: null,
         characterType: "npc",
+        visibility: "private",
+        maxCarryWeight: null,
+        progressionMode: "xp_level",
+        progressionLabel: "Level 1",
+        progressionRequired: 0,
         createdByUserId: null,
+        life: 0,
+        defense: 0,
+        mana: 0,
+        exhaustion: 0,
+        sanity: 0,
+        statuses: {},
+        attributes: {},
         skills: {},
         currentStatuses: {},
         identity: {},
         characteristics: {},
         progressionCurrent: 0,
+        createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+      },
+    ])
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
+        ownerId: "user-1",
+        useRaceBonuses: false,
+        useClassBonuses: false,
+        useInventoryWeightLimit: false,
+        allowMultiplePlayerCharacters: false,
+        progressionMode: "xp_level",
+        progressionTiers: [{ label: "Level 1", required: 0 }],
       },
     ])
     mocks.queryRaw.mockResolvedValueOnce([{ image: "https://cdn.example.com/goblin.png" }])
@@ -51,7 +80,7 @@ describe("characterManagementService.deleteCharacter", () => {
       }),
     ).resolves.toBeUndefined()
 
-    expect(mocks.queryRaw).toHaveBeenCalledTimes(4)
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(5)
   })
 
   it("retorna erro quando personagem nao e encontrado na exclusao", async () => {
@@ -67,14 +96,43 @@ describe("characterManagementService.deleteCharacter", () => {
     mocks.queryRaw.mockResolvedValueOnce([
       {
         id: "char-1",
+        rpgId: "rpg-1",
         name: "Goblin",
+        image: null,
+        raceKey: null,
+        classKey: null,
         characterType: "npc",
+        visibility: "private",
+        maxCarryWeight: null,
+        progressionMode: "xp_level",
+        progressionLabel: "Level 1",
+        progressionRequired: 0,
         createdByUserId: null,
+        life: 0,
+        defense: 0,
+        mana: 0,
+        exhaustion: 0,
+        sanity: 0,
+        statuses: {},
+        attributes: {},
         skills: {},
         currentStatuses: {},
         identity: {},
         characteristics: {},
         progressionCurrent: 0,
+        createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+      },
+    ])
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
+        ownerId: "user-1",
+        useRaceBonuses: false,
+        useClassBonuses: false,
+        useInventoryWeightLimit: false,
+        allowMultiplePlayerCharacters: false,
+        progressionMode: "xp_level",
+        progressionTiers: [{ label: "Level 1", required: 0 }],
       },
     ])
     mocks.queryRaw.mockResolvedValueOnce([{ image: null }])

@@ -1,4 +1,4 @@
-import { Prisma } from "../../../../../generated/prisma/client.js"
+import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 
 export type MemberStatus = "pending" | "accepted" | "rejected"

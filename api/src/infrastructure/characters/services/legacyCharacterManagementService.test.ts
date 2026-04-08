@@ -30,14 +30,43 @@ describe("characterManagementService.updateCharacter", () => {
     mocks.queryRaw.mockResolvedValueOnce([
       {
         id: "char-1",
+        rpgId: "rpg-1",
         name: "Goblin",
+        image: null,
+        raceKey: null,
+        classKey: null,
         characterType: "npc",
+        visibility: "private",
+        maxCarryWeight: null,
+        progressionMode: "xp_level",
+        progressionLabel: "Level 1",
+        progressionRequired: 0,
         createdByUserId: null,
+        life: 9,
+        defense: 0,
+        mana: 0,
+        exhaustion: 0,
+        sanity: 0,
+        statuses: { life: 9 },
+        attributes: {},
         skills: { furtividade: 4 },
         currentStatuses: { life: 9 },
         identity: { nome: "Goblin" },
         characteristics: { descricao: "Antigo" },
         progressionCurrent: 0,
+        createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+      },
+    ])
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
+        ownerId: "user-1",
+        useRaceBonuses: false,
+        useClassBonuses: false,
+        useInventoryWeightLimit: false,
+        allowMultiplePlayerCharacters: false,
+        progressionMode: "xp_level",
+        progressionTiers: [{ label: "Level 1", required: 0 }],
       },
     ])
     mocks.queryRaw.mockResolvedValueOnce([{ id: "char-1" }])
@@ -56,7 +85,7 @@ describe("characterManagementService.updateCharacter", () => {
       }),
     ).resolves.toBeUndefined()
 
-    expect(mocks.queryRaw).toHaveBeenCalledTimes(3)
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(4)
   })
 
   it("aceita patch parcial de bonus sem exigir nome para npc", async () => {
@@ -72,9 +101,31 @@ describe("characterManagementService.updateCharacter", () => {
     mocks.queryRaw.mockResolvedValueOnce([
       {
         id: "char-1",
+        rpgId: "rpg-1",
         name: "Goblin",
+        image: null,
+        raceKey: null,
+        classKey: null,
         characterType: "npc",
+        visibility: "private",
+        maxCarryWeight: null,
+        progressionMode: "xp_level",
+        progressionLabel: "Level 1",
+        progressionRequired: 0,
         createdByUserId: null,
+        life: 10,
+        defense: 1,
+        mana: 0,
+        exhaustion: 0,
+        sanity: 0,
+        statuses: {
+          life: 10,
+          defense: 1,
+          mana: 0,
+          exhaustion: 0,
+          sanity: 0,
+        },
+        attributes: { forca: 1 },
         skills: { furtividade: 2 },
         currentStatuses: {
           life: 10,
@@ -86,12 +137,31 @@ describe("characterManagementService.updateCharacter", () => {
         identity: { nome: "Goblin" },
         characteristics: { descricao: "Velho" },
         progressionCurrent: 0,
+        createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+      },
+    ])
+    mocks.queryRaw.mockResolvedValueOnce([
+      {
+        ownerId: "user-1",
+        useRaceBonuses: false,
+        useClassBonuses: false,
+        useInventoryWeightLimit: false,
+        allowMultiplePlayerCharacters: false,
+        progressionMode: "xp_level",
+        progressionTiers: [{ label: "Level 1", required: 0 }],
       },
     ])
     mocks.queryRaw.mockResolvedValueOnce([
       { key: "forca", label: "Forca", position: 0 },
     ])
-    mocks.queryRaw.mockResolvedValueOnce([])
+    mocks.queryRaw.mockResolvedValueOnce([
+      { key: "life", label: "Vida", position: 0 },
+      { key: "defense", label: "Defesa", position: 1 },
+      { key: "mana", label: "Mana", position: 2 },
+      { key: "exhaustion", label: "Exaustao", position: 3 },
+      { key: "sanity", label: "Sanidade", position: 4 },
+    ])
     mocks.queryRaw.mockResolvedValueOnce([
       { key: "furtividade", label: "Furtividade", position: 0 },
     ])
@@ -116,6 +186,6 @@ describe("characterManagementService.updateCharacter", () => {
       }),
     ).resolves.toBeUndefined()
 
-    expect(mocks.queryRaw).toHaveBeenCalledTimes(6)
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(7)
   })
 })

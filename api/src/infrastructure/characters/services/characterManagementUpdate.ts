@@ -13,7 +13,7 @@ import {
 } from "@/application/characters/validators"
 import { prisma } from "@/lib/prisma"
 import { resolveProgressionTierByCurrent } from "@/lib/rpg/progression"
-import { Prisma } from "../../../../../generated/prisma/client.js"
+import { Prisma } from "../../../../generated/prisma/client.js"
 import { fail, rethrowCharacterManagementInfrastructureError } from "@/infrastructure/characters/services/characterManagementErrors"
 import { resolveCharacterManagementPermission } from "@/infrastructure/characters/services/characterManagementPermission"
 import {
