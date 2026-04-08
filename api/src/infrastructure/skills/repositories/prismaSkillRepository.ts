@@ -1,29 +1,28 @@
 import { Prisma } from "../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import {
-  fetchRpgAbilityCategoryConfig,
-  fetchSkillById,
-  fetchSkillList,
-  validateLinkIds,
-} from "@/lib/server/skillBuilder"
-import { createRpgScope } from "@/lib/validators/skillBuilder"
+  createRpgScope,
+  findSkillById,
+  getRpgAbilityCategoryConfig,
+  listSkillsByOwner,
+  validateSkillLinkIds,
+} from "./skillRepositoryQueries"
 import type {
   CreateSkillRecordInput,
-  SkillDetails,
   SkillRepository,
 } from "@/application/skills/ports/SkillRepository"
 
 export const prismaSkillRepository: SkillRepository = {
   async listByOwner(userId, rpgId) {
-    return fetchSkillList(userId, rpgId)
+    return listSkillsByOwner(userId, rpgId)
   },
 
   async getAbilityCategoryConfig(rpgId) {
-    return fetchRpgAbilityCategoryConfig(rpgId)
+    return getRpgAbilityCategoryConfig(rpgId)
   },
 
   async validateLinkIds(params) {
-    return validateLinkIds(params)
+    return validateSkillLinkIds(params)
   },
 
   async createSkillRecord(params: CreateSkillRecordInput) {
@@ -133,7 +132,7 @@ export const prismaSkillRepository: SkillRepository = {
   },
 
   async findById(skillId, ownerId) {
-    return (await fetchSkillById(skillId, ownerId)) as SkillDetails | null
+    return findSkillById(skillId, ownerId)
   },
 
   async updateSkillMeta(params) {

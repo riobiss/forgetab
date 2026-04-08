@@ -1,4 +1,4 @@
-import type { SkillMetaCreateInput } from "@/lib/validators/skillBuilder"
+import type { SkillLevelRecordInput } from "@/application/skills/types"
 
 export type AbilityCategoryConfig = {
   enabled: boolean
@@ -46,7 +46,7 @@ export type CreateSkillRecordInput = {
   tags: string[]
   classIds: string[]
   raceIds: string[]
-  level1: SkillMetaCreateInput["level1"]
+  level1: SkillLevelRecordInput | undefined
 }
 
 export interface SkillRepository {
