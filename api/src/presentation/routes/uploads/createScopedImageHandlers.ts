@@ -1,8 +1,12 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { AppError } from "@/shared/errors/AppError"
 import { deleteScopedImage, uploadScopedImage } from "@/application/media/use-cases/scopedImages"
 import { imageKitScopedImageService } from "@/infrastructure/media/imageKitScopedImageService"
-import { getUserIdFromFastifyRequest } from "@api/presentation/http/auth/requestAuth"
+import {
+  parseJsonBody,
+  requireUserId,
+  writeError,
+  writeJson,
+} from "@api/presentation/http/fastifyJson"
 
 type Config = {
   folder: string
@@ -11,20 +15,6 @@ type Config = {
 }
 
 export function createScopedImageHandlers(config: Config) {
-  function writeJson(reply: FastifyReply, status: number, body: unknown) {
-    reply.code(status)
-    reply.header("Content-Type", "application/json; charset=utf-8")
-    return reply.send(body)
-  }
-
-  function writeError(reply: FastifyReply, error: unknown, fallbackMessage: string) {
-    if (error instanceof AppError) {
-      return writeJson(reply, error.status, { message: error.message })
-    }
-
-    return writeJson(reply, 500, { message: fallbackMessage })
-  }
-
   function buildFormDataRequest(request: FastifyRequest) {
     const rawBody = request.body
     const body =
@@ -49,9 +39,9 @@ export function createScopedImageHandlers(config: Config) {
   }
 
   async function postHandler(request: FastifyRequest, reply: FastifyReply) {
-    const userId = await getUserIdFromFastifyRequest(request)
-    if (!userId) {
-      return writeJson(reply, 401, { message: "Usuario nao autenticado." })
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) {
+      return auth.response
     }
 
     try {
@@ -64,7 +54,7 @@ export function createScopedImageHandlers(config: Config) {
       const payload = await uploadScopedImage(
         { service: imageKitScopedImageService },
         {
-          userId,
+          userId: auth.userId,
           folder: config.folder,
           fileName,
           file,
@@ -92,24 +82,17 @@ export function createScopedImageHandlers(config: Config) {
   }
 
   async function deleteHandler(request: FastifyRequest, reply: FastifyReply) {
-    const userId = await getUserIdFromFastifyRequest(request)
-    if (!userId) {
-      return writeJson(reply, 401, { message: "Usuario nao autenticado." })
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) {
+      return auth.response
     }
 
     try {
-      const body =
-        request.body == null
-          ? {}
-          : Buffer.isBuffer(request.body)
-            ? (JSON.parse(request.body.toString("utf8")) as { url?: unknown })
-            : typeof request.body === "string"
-              ? (JSON.parse(request.body) as { url?: unknown })
-              : (request.body as { url?: unknown })
+      const body = (parseJsonBody(request.body) ?? {}) as { url?: unknown }
       await deleteScopedImage(
         { service: imageKitScopedImageService },
         {
-          userId,
+          userId: auth.userId,
           folder: config.folder,
           url: body.url,
         },
