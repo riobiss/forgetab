@@ -9,6 +9,7 @@ type CharacterLockedRow = {
   rpgId: string
   ownerId: string
   createdByUserId: string | null
+  raceKey: string | null
   classKey: string | null
   characterType: "player" | "npc" | "monster"
   skillPoints: number
@@ -44,6 +45,7 @@ export const legacyCharacterSkillPurchaseService: CharacterSkillPurchaseService 
             c.rpg_id AS "rpgId",
             r.owner_id AS "ownerId",
             c.created_by_user_id AS "createdByUserId",
+            c.race_key AS "raceKey",
             c.class_key AS "classKey",
             c.character_type AS "characterType",
             c.skill_points AS "skillPoints",
@@ -66,23 +68,70 @@ export const legacyCharacterSkillPurchaseService: CharacterSkillPurchaseService 
         if (!character.costsEnabled) {
           throw new AppError("Sistema de custos desativado neste RPG.", 400)
         }
-        if (!character.classKey) {
-          throw new AppError("Personagem sem classe definida.", 400)
-        }
 
-        const classSkillRows = await tx.$queryRaw<Array<{ skillId: string }>>(Prisma.sql`
-          SELECT s.id AS "skillId"
+        const skillAccessRows = await tx.$queryRaw<
+          Array<{
+            skillId: string
+            hasClassLink: boolean
+            classMatched: boolean
+            hasRaceLink: boolean
+            raceMatched: boolean
+          }>
+        >(Prisma.sql`
+          SELECT
+            s.id AS "skillId",
+            EXISTS(
+              SELECT 1
+              FROM skill_class_links scl
+              INNER JOIN rpg_class_templates ct ON ct.id = scl.class_template_id
+              WHERE scl.skill_id = s.id
+                AND ct.rpg_id = ${character.rpgId}
+            ) AS "hasClassLink",
+            EXISTS(
+              SELECT 1
+              FROM skill_class_links scl
+              INNER JOIN rpg_class_templates ct ON ct.id = scl.class_template_id
+              WHERE scl.skill_id = s.id
+                AND ct.rpg_id = ${character.rpgId}
+                AND (
+                  ct.key = ${character.classKey}
+                  OR ct.id = ${character.classKey}
+                )
+            ) AS "classMatched",
+            EXISTS(
+              SELECT 1
+              FROM skill_race_links srl
+              INNER JOIN rpg_race_templates rt ON rt.id = srl.race_template_id
+              WHERE srl.skill_id = s.id
+                AND rt.rpg_id = ${character.rpgId}
+            ) AS "hasRaceLink",
+            EXISTS(
+              SELECT 1
+              FROM skill_race_links srl
+              INNER JOIN rpg_race_templates rt ON rt.id = srl.race_template_id
+              WHERE srl.skill_id = s.id
+                AND rt.rpg_id = ${character.rpgId}
+                AND (
+                  rt.key = ${character.raceKey}
+                  OR rt.id = ${character.raceKey}
+                )
+            ) AS "raceMatched"
           FROM skills s
-          INNER JOIN skill_class_links scl ON scl.skill_id = s.id
-          INNER JOIN rpg_class_templates ct ON ct.id = scl.class_template_id
           WHERE s.id = ${params.skillId}
             AND s.rpg_id = ${character.rpgId}
-            AND ct.rpg_id = ${character.rpgId}
-            AND (ct.key = ${character.classKey} OR ct.id = ${character.classKey})
           LIMIT 1
         `)
-        if (classSkillRows.length === 0) {
-          throw new AppError("Nao e permitido comprar habilidade de outra classe.", 400)
+
+        const skillAccess = skillAccessRows[0]
+        if (!skillAccess) {
+          throw new AppError("Habilidade nao encontrada.", 404)
+        }
+
+        const hasRestrictions = skillAccess.hasClassLink || skillAccess.hasRaceLink
+        const canBuyByRestriction = skillAccess.classMatched || skillAccess.raceMatched
+
+        if (hasRestrictions && !canBuyByRestriction) {
+          throw new AppError("Nao e permitido comprar esta habilidade para a classe ou raca do personagem.", 400)
         }
 
         const levelRows = await tx.$queryRaw<SkillLevelRow[]>(Prisma.sql`
@@ -147,6 +196,7 @@ export const legacyCharacterSkillPurchaseService: CharacterSkillPurchaseService 
             c.rpg_id AS "rpgId",
             r.owner_id AS "ownerId",
             c.created_by_user_id AS "createdByUserId",
+            c.race_key AS "raceKey",
             c.class_key AS "classKey",
             c.character_type AS "characterType",
             c.skill_points AS "skillPoints",
