@@ -63,6 +63,17 @@ import {
   updateRpgHandler,
 } from "@api/presentation/routes/rpg/handlers"
 import {
+  createRpgCampaignHandler,
+  createRpgCampaignMessageHandler,
+  endRpgCampaignHandler,
+  getRpgCampaignRoomHandler,
+  joinRpgCampaignHandler,
+  leaveRpgCampaignHandler,
+  listRpgCampaignMessagesHandler,
+  listRpgCampaignsHandler,
+  startRpgCampaignHandler,
+} from "@api/presentation/routes/rpgCampaign/handlers"
+import {
   getAttributeTemplatesHandler,
   getCharacteristicTemplatesHandler,
   getClassTemplatesHandler,
@@ -172,6 +183,54 @@ export function registerApiRoutes(app: FastifyInstance) {
   )
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId/dashboard", (request, reply) =>
     getRpgDashboardHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
+  )
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/campaigns", (request, reply) =>
+    listRpgCampaignsHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns", (request, reply) =>
+    createRpgCampaignHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/start", (request, reply) =>
+    startRpgCampaignHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/end", (request, reply) =>
+    endRpgCampaignHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/campaigns/:campaignId/room", (request, reply) =>
+    getRpgCampaignRoomHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/join", (request, reply) =>
+    joinRpgCampaignHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/leave", (request, reply) =>
+    leaveRpgCampaignHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/campaigns/:campaignId/messages", (request, reply) =>
+    listRpgCampaignMessagesHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/messages", (request, reply) =>
+    createRpgCampaignMessageHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
+      reply,
+    ),
   )
   registerFastifyRoute(app, "patch", "/api/rpg/:rpgId", (request, reply) =>
     updateRpgHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
