@@ -27,6 +27,9 @@ model User {
   characters   RpgCharacter[]
   characterCreationRequests RpgCharacterCreationRequest[]
   skills       Skill[]
+  campaignParticipants RpgCampaignParticipant[]
+  campaignMessages RpgCampaignMessage[]
+  receivedCampaignMessages RpgCampaignMessage[] @relation("RpgCampaignMessageRecipient")
 
   @@map("users")
 }
@@ -63,6 +66,12 @@ enum RpgMemberStatus {
 enum RpgMemberRole {
   member
   moderator
+}
+
+enum RpgCampaignMessageKind {
+  campaign
+  direct
+  action
 }
 
 enum CharacterCreationRequestStatus {
@@ -120,6 +129,7 @@ model Rpg {
   mapSections        RpgMapSection[]
   mapMarkerGroups    RpgMapMarkerGroup[]
   mapMarkers         RpgMapMarker[]
+  campaigns          RpgCampaign[]
 
   @@index([ownerId])
   @@map("rpgs")
@@ -507,6 +517,57 @@ model RpgCharacterCreationRequest {
   @@index([rpgId])
   @@index([userId])
   @@map("rpg_character_creation_requests")
+}
+
+model RpgCampaign {
+  id           String                   @id @default(cuid())
+  rpgId        String                   @map("rpg_id")
+  rpg          Rpg                      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  isActive     Boolean                  @default(false) @map("is_active")
+  startedAt    DateTime?                @map("started_at")
+  createdAt    DateTime                 @default(now()) @map("created_at")
+  updatedAt    DateTime                 @default(now()) @map("updated_at")
+  participants RpgCampaignParticipant[]
+  messages     RpgCampaignMessage[]
+
+  @@index([rpgId])
+  @@index([rpgId, isActive])
+  @@map("rpg_campaigns")
+}
+
+model RpgCampaignParticipant {
+  id         String      @id @default(cuid())
+  campaignId String      @map("campaign_id")
+  userId     String      @map("user_id")
+  joinedAt   DateTime    @default(now()) @map("joined_at")
+  campaign   RpgCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, userId])
+  @@index([campaignId])
+  @@index([userId])
+  @@map("rpg_campaign_participants")
+}
+
+model RpgCampaignMessage {
+  id         String      @id @default(cuid())
+  campaignId String      @map("campaign_id")
+  userId     String      @map("user_id")
+  recipientUserId String? @map("recipient_user_id")
+  kind       RpgCampaignMessageKind @default(campaign)
+  content    String
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @default(now()) @map("updated_at")
+  campaign   RpgCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipientUser User?    @relation("RpgCampaignMessageRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([userId])
+  @@index([recipientUserId])
+  @@map("rpg_campaign_messages")
 }
 
 model Skill {
