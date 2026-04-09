@@ -50,8 +50,6 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
       ),
     [inventory],
   )
-  const isOverWeight =
-    useInventoryWeightLimit && maxCarryWeight !== null && totalWeight > maxCarryWeight
   const activeExtraFilters =
     (selectedCategory === "all" ? 0 : 1) + (selectedRarity === "all" ? 0 : 1)
   const filteredInventory = useMemo(() => {

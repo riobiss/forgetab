@@ -372,19 +372,6 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
         selectedCharacterDetail.characterType === "monster") ? (
         <CharacterDetailModal
           data={selectedCharacterDetail}
-          onEditNpcMonster={({ characterId, characterType }) => {
-            const params = new URLSearchParams(searchParams.toString())
-            params.delete("modal")
-            params.delete("viewer")
-            params.delete("characterId")
-            const next = params.toString()
-            router.push(next ? `${pathname}?${next}` : pathname)
-            setModalState({
-              mode: "edit",
-              characterId,
-              characterType,
-            })
-          }}
         />
       ) : null}
     </main>

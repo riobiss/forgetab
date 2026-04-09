@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import {
   Check,
   Filter,
@@ -41,7 +40,6 @@ export default function ItemsDashboardClient({ rpgId, deps }: ItemsDashboardClie
     setSelectedRarity,
     showCategories,
     setShowCategories,
-    deletingItemId,
     selectedCharacterId,
     setSelectedCharacterId,
     giveQuantity,

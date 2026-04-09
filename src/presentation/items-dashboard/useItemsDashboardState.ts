@@ -2,12 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { ItemsDashboardDependencies } from "@/application/itemsDashboard/contracts/ItemsDashboardDependencies"
 import { loadItemsDashboardData } from "@/application/itemsDashboard/use-cases/itemsDashboard"
 import { baseItemRarityValues, baseItemTypeValues } from "@/lib/validators/baseItem"
-import type { BaseItem, CharacterSummary, ItemType } from "./types"
+import type { BaseItem, CharacterSummary } from "./types"
 import {
   buildItemPayload,
   createEmptyNamedDescription,
   updateNamedEntry,
-  type NamedDescription,
 } from "./editorState"
 import { useItemEditorAssets } from "./useItemEditorAssets"
 import { useItemsEditorController } from "./useItemsEditorController"

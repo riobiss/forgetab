@@ -19,15 +19,11 @@ import styles from "../CharactersDashboardPage.module.css"
 
 type Props = {
   data: CharacterDetailViewModel
-  onEditNpcMonster: (params: {
-    characterId: string
-    characterType: "npc" | "monster"
-  }) => void
 }
 
 const loadoutDeps = createNpcMonsterLoadoutDependencies("http")
 
-export default function CharacterDetailModal({ data, onEditNpcMonster }: Props) {
+export default function CharacterDetailModal({ data }: Props) {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()

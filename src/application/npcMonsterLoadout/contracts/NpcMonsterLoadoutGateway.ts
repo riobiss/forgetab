@@ -1,5 +1,4 @@
 import type { PurchasedAbilityViewDto } from "@/application/characterAbilities/types"
-import type { CharacterInventoryItemDto } from "@/application/characterInventory/types"
 import type {
   NpcMonsterAbilitiesDataDto,
   NpcMonsterInventoryDataDto,

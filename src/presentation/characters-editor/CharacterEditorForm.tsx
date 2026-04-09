@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react"
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
 import type {
@@ -145,7 +145,7 @@ export default function CharacterEditorForm({
     [normalizedProgressionCurrent, progressionMode, progressionTiers],
   )
 
-  function applyBootstrap(bootstrap: CharacterEditorBootstrapDto) {
+  const applyBootstrap = useCallback((bootstrap: CharacterEditorBootstrapDto) => {
     const attributeTemplate = bootstrap.attributes
     const statusTemplate = bootstrap.statuses
     const skillTemplate = bootstrap.skills
@@ -246,7 +246,7 @@ export default function CharacterEditorForm({
         : "0",
     )
     setEditingCharacterId(editTarget?.id ?? null)
-  }
+  }, [characterId])
 
   useEffect(() => {
     async function loadTemplate() {
@@ -275,7 +275,7 @@ export default function CharacterEditorForm({
     if (rpgId) {
       void loadTemplate()
     }
-  }, [characterId, deps, initialBootstrap, rpgId])
+  }, [applyBootstrap, characterId, deps, initialBootstrap, rpgId])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
