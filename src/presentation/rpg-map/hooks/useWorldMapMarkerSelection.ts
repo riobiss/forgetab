@@ -24,36 +24,49 @@ type Params = {
 }
 
 export function useWorldMapMarkerSelection(params: Params) {
+  const {
+    allMarkerGroups,
+    canvasRef,
+    closeTransientUi,
+    displayMarkerGroups,
+    focusMarkerRequest,
+    frameRef,
+    overlapDistance,
+    setAreMarkersVisible,
+    setIsInteractive,
+    setVisibleMarkerGroupIds,
+    visibleMarkerGroupIds,
+  } = params
   const [selectedMapMarker, setSelectedMapMarker] = useState<DisplayMapMarkerSelection | null>(null)
   const [overlappingMarkers, setOverlappingMarkers] = useState<DisplayMapMarkerSelection[] | null>(null)
   const lastHandledFocusTokenRef = useRef<number | null>(null)
 
   useEffect(() => {
-    if (!params.focusMarkerRequest) {
+    if (!focusMarkerRequest) {
       return
     }
 
-    if (lastHandledFocusTokenRef.current === params.focusMarkerRequest.token) {
+    if (lastHandledFocusTokenRef.current === focusMarkerRequest.token) {
       return
     }
 
-    const match = findMarkerSelectionById(params.displayMarkerGroups, params.focusMarkerRequest.markerId)
+    const match = findMarkerSelectionById(displayMarkerGroups, focusMarkerRequest.markerId)
     if (!match) {
       return
     }
 
-    lastHandledFocusTokenRef.current = params.focusMarkerRequest.token
+    lastHandledFocusTokenRef.current = focusMarkerRequest.token
 
-    params.setAreMarkersVisible(true)
-    params.setVisibleMarkerGroupIds((current) =>
+    setAreMarkersVisible(true)
+    setVisibleMarkerGroupIds((current) =>
       current.includes(match.group.id) ? current : [...current, match.group.id],
     )
-    params.closeTransientUi()
+    closeTransientUi()
     setOverlappingMarkers(null)
     setSelectedMapMarker(null)
 
     const focusMarker = async () => {
-      const frame = params.frameRef.current
+      const frame = frameRef.current
       if (!frame) {
         return
       }
@@ -62,11 +75,11 @@ export function useWorldMapMarkerSelection(params: Params) {
         await frame.requestFullscreen()
       }
 
-      params.setIsInteractive(true)
+      setIsInteractive(true)
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          params.canvasRef.current?.focusMarker(match.marker)
+          canvasRef.current?.focusMarker(match.marker)
           setSelectedMapMarker({
             marker: match.marker,
             groupColor: match.groupColor,
@@ -77,22 +90,22 @@ export function useWorldMapMarkerSelection(params: Params) {
 
     void focusMarker()
   }, [
-    params.canvasRef,
-    params.closeTransientUi,
-    params.displayMarkerGroups,
-    params.focusMarkerRequest,
-    params.frameRef,
-    params.setAreMarkersVisible,
-    params.setIsInteractive,
-    params.setVisibleMarkerGroupIds,
+    canvasRef,
+    closeTransientUi,
+    displayMarkerGroups,
+    focusMarkerRequest,
+    frameRef,
+    setAreMarkersVisible,
+    setIsInteractive,
+    setVisibleMarkerGroupIds,
   ])
 
   function handleMarkerPinSelect(clickedMarker: MapMarkerItem, groupColor: string) {
     const nearbyMarkers = findNearbyMarkerSelections(
-      params.displayMarkerGroups,
-      params.visibleMarkerGroupIds,
+      displayMarkerGroups,
+      visibleMarkerGroupIds,
       clickedMarker,
-      params.overlapDistance,
+      overlapDistance,
     )
 
     if (nearbyMarkers.length > 1) {
@@ -113,7 +126,7 @@ export function useWorldMapMarkerSelection(params: Params) {
       return null
     }
 
-    const matchedGroup = params.allMarkerGroups.find((group) =>
+    const matchedGroup = allMarkerGroups.find((group) =>
       group.markers.some((marker) => marker.id === selectedMapMarker.marker.id),
     )
     const matchedMarker = matchedGroup?.markers.find((marker) => marker.id === selectedMapMarker.marker.id) ?? null

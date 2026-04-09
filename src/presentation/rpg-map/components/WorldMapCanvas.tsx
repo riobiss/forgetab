@@ -1,5 +1,7 @@
 "use client"
 
+/* eslint-disable react-hooks/exhaustive-deps -- Konva stage callbacks read mutable refs to avoid re-registering canvas listeners on each render. */
+
 import { forwardRef, useEffect, useImperativeHandle, useRef, type MutableRefObject } from "react"
 import Konva from "konva"
 import type { MapMarkerItem, MarkerGroup, PendingMarker } from "@/presentation/rpg-map/types/mapMarkers"

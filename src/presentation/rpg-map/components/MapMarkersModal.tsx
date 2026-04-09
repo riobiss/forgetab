@@ -12,7 +12,6 @@ type Props = {
   selectedVisibility: "private" | "public" | "active"
   selectedMarkerGroupId: string
   selectedMarkerGroups: MarkerGroup[]
-  selectedMarkerGroup: MarkerGroup | null
   allMarkerGroups: MarkerGroup[]
   visibleMarkerGroupIds: string[]
   setSelectedVisibility: (value: "private" | "public" | "active") => void
@@ -34,7 +33,6 @@ export function MapMarkersModal({
   selectedVisibility,
   selectedMarkerGroupId,
   selectedMarkerGroups,
-  selectedMarkerGroup,
   allMarkerGroups,
   visibleMarkerGroupIds,
   setSelectedVisibility,

@@ -2,7 +2,6 @@
 
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
-import { Pencil, Plus, Trash2, X } from "lucide-react"
 import type { RpgMapMarkerGroupDto } from "@/application/rpgMap/types"
 import { MapInteractionBanner } from "@/presentation/rpg-map/components/MapInteractionBanner"
 import { MapImageModal } from "@/presentation/rpg-map/components/MapImageModal"
@@ -22,7 +21,7 @@ import { useWorldMapMarkerSelection } from "@/presentation/rpg-map/hooks/useWorl
 import { DEFAULT_BRUSH_COLORS, useWorldMapUiState } from "@/presentation/rpg-map/hooks/useWorldMapUiState"
 import { buildDisplayMarkerGroups, findMarkerSelectionById } from "@/presentation/rpg-map/utils/markerDisplay"
 import styles from "./WorldMap.module.css"
-import type { LinkedSectionSnapshot, MapMarkerItem } from "./types/mapMarkers"
+import type { LinkedSectionSnapshot } from "./types/mapMarkers"
 
 const DEFAULT_MAP_SRC = "/map/world-map.png"
 const MARKER_COLORS = ["#f97316", "#f5b33b", "#60a5fa", "#34d399", "#f472b6", "#a78bfa"]
@@ -188,7 +187,6 @@ export function MundiMap({
     handleConfirmMarkerReposition,
     handleConcludeMarkerSelection,
     handleDeleteMarkerGroup,
-    handleEditSelectedMarkerGroup,
     handleEscape,
     handleMarkerReposition,
     handleOpenMarkersModal,
@@ -285,7 +283,7 @@ export function MundiMap({
     setSelectedMapMarker(null)
     setOverlappingMarkers(null)
     setIsMarkerRepositionMode(false)
-  }, [isFullscreen])
+  }, [isFullscreen, setIsMarkerRepositionMode, setOverlappingMarkers, setSelectedMapMarker])
 
   useEffect(() => {
     if (!editingMarker) {
@@ -633,7 +631,6 @@ export function MundiMap({
           selectedVisibility={selectedVisibility}
           selectedMarkerGroupId={selectedMarkerGroupId}
           selectedMarkerGroups={selectedMarkerGroups}
-          selectedMarkerGroup={selectedMarkerGroup}
           allMarkerGroups={allMarkerGroups}
           visibleMarkerGroupIds={visibleMarkerGroupIds}
           setSelectedVisibility={setSelectedVisibility}

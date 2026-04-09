@@ -21,7 +21,6 @@ import {
   deleteRpgMapUseCase,
   loadRpgMapDetailUseCase,
   loadRpgMapsUseCase,
-  reorderRpgMapSectionUseCase,
   uploadRpgMapSectionImageUseCase,
   updateRpgMapSectionUseCase,
   updateRpgMapUseCase,
@@ -650,23 +649,6 @@ export function RpgMapPage({
       toast.success("Secao removida com sucesso.")
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Erro ao remover secao."
-      toast.error(message)
-    }
-  }
-
-  async function handleReorderSection(sectionId: string, direction: "up" | "down") {
-    if (!selectedMapId) return
-
-    try {
-      await reorderRpgMapSectionUseCase(httpRpgMapGateway, {
-        rpgId,
-        mapId: selectedMapId,
-        sectionId,
-        direction,
-      })
-      await loadDetail(selectedMapId, sectionId)
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : "Erro ao reordenar secao."
       toast.error(message)
     }
   }

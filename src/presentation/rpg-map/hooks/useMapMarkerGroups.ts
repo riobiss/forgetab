@@ -47,12 +47,15 @@ export function useMapMarkerGroups(params: Params) {
   const [editingGroupColor, setEditingGroupColor] = useState(params.markerColors[0] ?? "#f97316")
   const [areMarkersVisible, setAreMarkersVisible] = useState(true)
 
-  const selectedMarkerGroups =
-    selectedVisibility === "public"
-      ? publicMarkerGroups
-      : selectedVisibility === "private"
-        ? privateMarkerGroups
-        : [...publicMarkerGroups, ...privateMarkerGroups]
+  const selectedMarkerGroups = useMemo(
+    () =>
+      selectedVisibility === "public"
+        ? publicMarkerGroups
+        : selectedVisibility === "private"
+          ? privateMarkerGroups
+          : [...publicMarkerGroups, ...privateMarkerGroups],
+    [privateMarkerGroups, publicMarkerGroups, selectedVisibility],
+  )
 
   const selectedMarkerGroup = useMemo(
     () => selectedMarkerGroups.find((group) => group.id === selectedMarkerGroupId) ?? null,

@@ -4,7 +4,6 @@ import type { RpgMapRepository } from "@/application/rpgMap/ports/RpgMapReposito
 import type {
   JsonMapValue,
   RpgMapDetailViewDto,
-  RpgMapDto,
   UpsertRpgMapMarkerGroupPayloadDto,
   RpgMapSectionDto,
   RpgMapSectionTreeNodeDto,

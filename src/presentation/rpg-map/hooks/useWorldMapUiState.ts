@@ -48,7 +48,7 @@ export function useWorldMapUiState({ frameRef, canvasRef, canEditContent }: Para
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange)
     }
-  }, [frameRef])
+  }, [canvasRef, frameRef])
 
   function handleEnableInteraction() {
     if (isFullscreen && !isInteractive) {
