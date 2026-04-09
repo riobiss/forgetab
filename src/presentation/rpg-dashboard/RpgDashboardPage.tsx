@@ -139,6 +139,11 @@ export function RpgDashboardPage({ viewModel }: { viewModel: RpgDashboardViewMod
           <span>Mapas</span>
         </Link>
 
+        <Link href={`/rpg/${viewModel.rpg.id}/campaign`} className={styles.card}>
+          <Image src="/images/bg-library.jpg" alt="Campanha" fill className={styles.cardImage} />
+          <span>Campanha</span>
+        </Link>
+
           {viewModel.canManageRpg ? (
             <Link href={`/rpg/${viewModel.rpg.id}/items`} className={styles.card}>
               <Image src="/images/bg-items.png" alt="Itens" fill className={styles.cardImage} />

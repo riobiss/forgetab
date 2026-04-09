@@ -66,7 +66,10 @@ export default function Header() {
     setOpenNav(false)
   }
 
-  if (HIDDEN_ROUTES.has(pathname)) {
+  const isCampaignRoomRoute =
+    /^\/rpg\/[^/]+\/campaign\/[^/]+$/.test(pathname)
+
+  if (HIDDEN_ROUTES.has(pathname) || isCampaignRoomRoute) {
     return null
   }
 

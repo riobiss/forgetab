@@ -1,6 +1,7 @@
 export type DashboardCharacterSummary = {
   id: string
   name: string
+  image?: string | null
   classKey: string | null
   characterType: "player" | "npc" | "monster"
   createdByUserId?: string | null
@@ -42,4 +43,3 @@ export interface RpgDashboardGateway {
     progressionRequired?: number
   }>
 }
-

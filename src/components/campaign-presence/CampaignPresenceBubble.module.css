@@ -1,0 +1,61 @@
+.bubble {
+  position: fixed;
+  left: 1rem;
+  top: calc(100vh - 6rem);
+  z-index: 60;
+  border: 1px solid color-mix(in srgb, var(--color-border-soft) 76%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-bg-surface) 94%, transparent);
+  box-shadow: 0 16px 36px color-mix(in srgb, black 16%, transparent);
+  backdrop-filter: blur(10px);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.bubbleDragging {
+  cursor: grabbing;
+}
+
+.bubbleButton {
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.95rem;
+  cursor: inherit;
+}
+
+.bubbleIcon {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, transparent);
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bubbleText {
+  display: grid;
+  gap: 0.1rem;
+  text-align: left;
+}
+
+.bubbleText strong {
+  font-size: 0.9rem;
+  line-height: 1.1;
+}
+
+.bubbleText small {
+  color: var(--color-text-muted);
+  line-height: 1.1;
+  max-width: 13rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

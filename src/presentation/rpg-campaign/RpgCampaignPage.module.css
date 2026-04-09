@@ -1,0 +1,422 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--color-brand-primary) 12%, transparent), transparent 52%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-bg-app) 86%, black 14%), var(--color-bg-app));
+}
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  display: grid;
+  gap: 1.6rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.backLink {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.eyebrow {
+  margin: 0;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.title {
+  margin: 0.3rem 0 0;
+  color: var(--color-text-primary);
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.subtitle {
+  margin: 0.6rem 0 0;
+  color: var(--color-text-muted);
+  max-width: 680px;
+  line-height: 1.7;
+}
+
+.statusBanner {
+  border: 1px solid color-mix(in srgb, var(--color-status-success) 55%, var(--color-border-soft));
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--color-status-success-soft), color-mix(in srgb, var(--color-bg-surface) 82%, transparent));
+  padding: 1rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.statusBanner strong {
+  display: block;
+  color: var(--color-text-primary);
+}
+
+.statusBanner p {
+  margin: 0.2rem 0 0;
+  color: var(--color-text-secondary);
+}
+
+.actionButton,
+.secondaryButton,
+.submitButton {
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actionButton,
+.submitButton {
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+}
+
+.secondaryButton {
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+}
+
+.actionButton:disabled,
+.secondaryButton:disabled,
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 1.4rem;
+}
+
+.panel,
+.chatPanel,
+.card,
+.createForm {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 92%, transparent));
+  box-shadow: var(--shadow-elevation-md);
+}
+
+.section {
+  display: grid;
+  gap: 1rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.92rem;
+}
+
+.createForm {
+  padding: 1rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field label {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.field input,
+.field textarea,
+.chatInputRow textarea {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  padding: 0.8rem 0.9rem;
+  resize: vertical;
+}
+
+.campaignList {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.card {
+  padding: 1rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.cardTop h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-text-secondary);
+}
+
+.pillActive {
+  border-color: var(--color-status-success);
+  background: var(--color-status-success-soft);
+  color: var(--color-status-success-contrast);
+}
+
+.cardDescription {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.muted {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.feedbackError,
+.feedbackSuccess {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.feedbackError {
+  color: var(--color-status-danger);
+}
+
+.feedbackSuccess {
+  color: var(--color-status-success);
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: color-mix(in srgb, black 48%, transparent);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.entryModal {
+  width: min(100%, 34rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 22px;
+  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 92%, transparent));
+  box-shadow: var(--shadow-elevation-md);
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.entryModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.entryModalTitle {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-primary);
+  font-size: 1.35rem;
+}
+
+.closeModalButton,
+.backStepButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+}
+
+.entryOptions,
+.entryStep,
+.characterPicker {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.entryOption,
+.characterOption {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.95rem 1rem;
+  cursor: pointer;
+}
+
+.entryOption {
+  text-align: left;
+}
+
+.entryOption strong,
+.characterOption strong {
+  color: var(--color-text-primary);
+}
+
+.entryOption span,
+.characterOption small {
+  color: var(--color-text-muted);
+}
+
+.characterOption {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.characterOption input {
+  margin: 0;
+}
+
+.chatPanel {
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  align-self: start;
+}
+
+.chatHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.chatTitle {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--color-text-primary);
+}
+
+.participants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.participant {
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 5%, transparent);
+  color: var(--color-text-secondary);
+  font-size: 0.76rem;
+}
+
+.messages {
+  display: grid;
+  gap: 0.75rem;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.messageCard {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 14px;
+  padding: 0.85rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+}
+
+.messageCard strong {
+  color: var(--color-text-primary);
+}
+
+.messageMeta {
+  margin: 0 0 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+}
+
+.messageContent {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.chatInputRow {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.emptyState {
+  border: 1px dashed var(--color-border-soft);
+  border-radius: 16px;
+  padding: 1rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
