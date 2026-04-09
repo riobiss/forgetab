@@ -31,8 +31,8 @@ services:
 
   api:
     build:
-      context: .
-      dockerfile: api/Dockerfile
+      context: ./api
+      dockerfile: Dockerfile
     container_name: forgetab-api
     ports:
       - "4000:4000"

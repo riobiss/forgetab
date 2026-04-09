@@ -27,22 +27,22 @@ Comandos principais:
 
 Na raiz do repositorio, existem scripts proxy como `npm run api:dev` e `npm run api:check` para conveniencia operacional.
 
-## Operacao no Render
+## Operacao na Railway
 
 Configuracao de deploy:
 
-- `render.yaml` na raiz do repositorio
+- `railway.json` na raiz do repositorio
 - `api/Dockerfile` para a imagem da API
 
 Configuracao operacional atual:
 
-- aplicacao HTTP em `PORT=4000`
+- aplicacao HTTP na porta definida por `PORT`, injetada pela Railway
 - health check em `GET /api/health`
 - processo principal executando `npm run start`
 
 Configuracao sugerida no painel:
 
-- `Runtime`: `Docker`
+- `Builder`: `Dockerfile`
 - `Dockerfile Path`: `api/Dockerfile`
 - `Health Check Path`: `/api/health`
 - `Branch`: `main`
@@ -62,9 +62,14 @@ Secrets obrigatorios:
 - `IMAGEKIT_PUBLIC_KEY`
 - `IMAGEKIT_PRIVATE_KEY`
 
-Variavel de ambiente definida em configuracao:
+Variavel de ambiente para uso local/fallback:
 
 - `API_PORT=4000`
+
+Observacao sobre porta:
+
+- na Railway, deixe a plataforma injetar `PORT` ou defina `PORT` manualmente se precisar fixar a porta
+- `API_PORT` continua sendo aceito pelo servidor, mas deve ficar como fallback/local para nao desalinhar o roteamento e o health check da Railway
 
 Contrato com o frontend:
 
