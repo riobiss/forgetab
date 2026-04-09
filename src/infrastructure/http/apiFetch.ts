@@ -1,4 +1,4 @@
-import { buildApiUrl, resolveApiUrl } from "@/infrastructure/http/backendUrls"
+import { resolveApiUrl } from "@/infrastructure/http/backendUrls"
 import { TOKEN_COOKIE_NAME } from "@/lib/auth/constants"
 import { getClientAuthToken } from "@/infrastructure/auth/session/clientAuthSession"
 

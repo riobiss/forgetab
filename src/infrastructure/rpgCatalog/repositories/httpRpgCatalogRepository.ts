@@ -31,12 +31,12 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
 }
 
 export const httpRpgCatalogRepository: RpgCatalogRepository = {
-  async listOwnedByUser(_userId) {
+  async listOwnedByUser() {
     const payload = await fetchCatalog()
     return payload.createdRpgs
   },
 
-  async listPublicExcludingUser(_userId) {
+  async listPublicExcludingUser() {
     const payload = await fetchCatalog()
     return payload.publicRpgs
   },
@@ -54,12 +54,12 @@ export function createHttpRpgCatalogRepository(): RpgCatalogRepository {
   }
 
   return {
-    async listOwnedByUser(_userId) {
+    async listOwnedByUser() {
       const payload = await loadCatalog()
       return payload.createdRpgs
     },
 
-    async listPublicExcludingUser(_userId) {
+    async listPublicExcludingUser() {
       const payload = await loadCatalog()
       return payload.publicRpgs
     },

@@ -32,7 +32,7 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
 }
 
 export const httpProfileRepository: ProfileRepository = {
-  async getByUserId(_userId) {
+  async getByUserId() {
     const response = await apiFetch("/api/profile", {
       next: { revalidate: 0 },
       cache: "no-store",

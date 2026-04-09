@@ -49,10 +49,16 @@ export default function Header() {
     if (loggingOut) return
     setLoggingOut(true)
     try {
-      await apiFetch("/api/auth/logout", {
-        method: "POST",
-        cache: "no-store",
-      })
+      await Promise.allSettled([
+        apiFetch("/api/auth/logout", {
+          method: "POST",
+          cache: "no-store",
+        }),
+        fetch("/api/auth/logout", {
+          method: "POST",
+          cache: "no-store",
+        }),
+      ])
     } finally {
       clearClientAuthSession()
       setOpenUserMenu(false)
