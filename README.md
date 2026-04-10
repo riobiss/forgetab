@@ -280,7 +280,7 @@ Principais grupos:
 - O health check configurado para deploy e `GET /api/health`.
 - Em deploy, a API deve ouvir a porta de `PORT`; `API_PORT` existe como fallback/local.
 - O deploy da API pode ser executado manualmente pela equipe ou automatizado no pipeline de entrega.
-- O frontend deve usar `NEXT_PUBLIC_API_BASE_URL` apontando para a URL publica da API hospedada.
+- O frontend deve usar `NEXT_PUBLIC_API_BASE_URL` apontando para a URL publica da API hospedada, com protocolo. Ex.: `https://forgetab-api-production.up.railway.app`
 - Se o frontend server-side exigir uma URL interna diferente, `API_INTERNAL_BASE_URL` cobre esse cenario.
 
 ## Upload de imagens

@@ -73,5 +73,5 @@ Observacao sobre porta:
 
 Contrato com o frontend:
 
-- `NEXT_PUBLIC_API_BASE_URL` deve apontar para a URL publica da API
+- `NEXT_PUBLIC_API_BASE_URL` deve apontar para a URL publica da API com protocolo. Ex.: `https://forgetab-api-production.up.railway.app`
 - `API_INTERNAL_BASE_URL` cobre o acesso server-side em redes internas ou containers separados

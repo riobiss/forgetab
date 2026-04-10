@@ -1,8 +1,27 @@
-const configuredApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim().replace(/\/+$/, "")
-const configuredInternalApiBaseUrl = process.env.API_INTERNAL_BASE_URL?.trim().replace(/\/+$/, "")
+const configuredApiBaseUrl = normalizeConfiguredBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL, "https")
+const configuredInternalApiBaseUrl = normalizeConfiguredBaseUrl(process.env.API_INTERNAL_BASE_URL, "http")
 
 function isAbsoluteUrl(value: string) {
   return /^https?:\/\//i.test(value)
+}
+
+function getImplicitProtocol(value: string, defaultProtocol: "http" | "https") {
+  const host = value.split(/[/?#]/)[0]?.split(":")[0]?.toLowerCase()
+  return host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0" ? "http" : defaultProtocol
+}
+
+function normalizeConfiguredBaseUrl(value: string | undefined, defaultProtocol: "http" | "https") {
+  const trimmedValue = value?.trim().replace(/\/+$/, "")
+  if (!trimmedValue) {
+    return undefined
+  }
+
+  if (isAbsoluteUrl(trimmedValue)) {
+    return trimmedValue
+  }
+
+  const normalizedValue = trimmedValue.replace(/^\/+/, "")
+  return `${getImplicitProtocol(normalizedValue, defaultProtocol)}://${normalizedValue}`
 }
 
 function ensureAbsolutePath(path: string, label: string) {

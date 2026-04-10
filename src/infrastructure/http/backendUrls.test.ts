@@ -44,6 +44,30 @@ describe("resolveApiUrl", () => {
     vi.unstubAllGlobals()
   })
 
+  it("normaliza base URL publica sem protocolo usando HTTPS", async () => {
+    vi.stubEnv("NODE_ENV", "production")
+    process.env.NEXT_PUBLIC_API_BASE_URL = "forgetab-api-production.up.railway.app/"
+    delete process.env.API_INTERNAL_BASE_URL
+    vi.stubGlobal("window", undefined)
+
+    const { resolveApiUrl } = await import("./backendUrls")
+
+    await expect(resolveApiUrl("/api/rpg")).resolves.toBe("https://forgetab-api-production.up.railway.app/api/rpg")
+    vi.unstubAllGlobals()
+  })
+
+  it("normaliza base URL local sem protocolo usando HTTP", async () => {
+    vi.stubEnv("NODE_ENV", "development")
+    process.env.NEXT_PUBLIC_API_BASE_URL = "localhost:4000/"
+    delete process.env.API_INTERNAL_BASE_URL
+    vi.stubGlobal("window", undefined)
+
+    const { resolveApiUrl } = await import("./backendUrls")
+
+    await expect(resolveApiUrl("/api/rpg")).resolves.toBe("http://localhost:4000/api/rpg")
+    vi.unstubAllGlobals()
+  })
+
   it("mantem caminho relativo no browser sem base URL publica configurada", async () => {
     vi.stubEnv("NODE_ENV", "development")
     delete process.env.NEXT_PUBLIC_API_BASE_URL
