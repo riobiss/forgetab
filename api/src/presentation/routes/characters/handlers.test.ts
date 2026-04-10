@@ -161,6 +161,7 @@ describe("characters routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
+    expect(mocks.loadCharacterEditorBootstrapServerUseCase).not.toHaveBeenCalled()
     expect(mocks.loadCharactersDashboardUseCase).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({

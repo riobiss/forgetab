@@ -322,8 +322,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
                       alt={`Imagem do personagem ${character.name}`}
                       fill
                       className={styles.image}
-                      priority
-                      sizes="(max-width: 1099px) 50vw, 33vw"
+                      sizes="(max-width: 980px) 50vw, 326px"
                     />
                   ) : (
                     <div className={styles.imageFallback} aria-hidden="true" />

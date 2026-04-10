@@ -1,4 +1,3 @@
-import { loadCharacterEditorBootstrapServerUseCase } from "@/application/characters/editor/use-cases/loadCharacterEditorBootstrapServer"
 import { loadCharacterDetailUseCase } from "@/application/characters/detail/use-cases/loadCharacterDetail"
 import { prismaCharacterAbilitiesRepository } from "@/infrastructure/characters/abilities/repositories/prismaCharacterAbilitiesRepository"
 import { characterAbilitiesParserService } from "@/infrastructure/characters/abilities/services/characterAbilitiesParserService"
@@ -48,22 +47,6 @@ export async function loadCharactersDashboardContext(params: {
   viewer?: string
   characterId?: string
 }) {
-  const editorBootstrap = params.userId
-    ? await loadCharacterEditorBootstrapServerUseCase(
-        {
-          rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
-          rpgTemplatesRepository: characterRouteDeps.rpgTemplatesRepository,
-          characterRepository: characterRouteDeps.characterRepository,
-          rpgConfigRepository: characterRouteDeps.rpgConfigRepository,
-          rpgConfigAccessService: characterRouteDeps.rpgConfigAccessService,
-        },
-        {
-          rpgId: params.rpgId,
-          userId: params.userId,
-        },
-      )
-    : null
-
   const selectedCharacterDetail =
     params.userId &&
     params.modal === "view" &&
@@ -90,7 +73,7 @@ export async function loadCharactersDashboardContext(params: {
       : null
 
   return {
-    editorBootstrap,
+    editorBootstrap: null,
     selectedCharacterDetail,
   }
 }
