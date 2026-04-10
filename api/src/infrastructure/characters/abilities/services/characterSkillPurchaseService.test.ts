@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/shared/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   transaction: vi.fn(),
@@ -130,7 +129,7 @@ describe("characterSkillPurchaseService.buySkill", () => {
         skillId: "skill-1",
         level: 1,
       }),
-    ).rejects.toMatchObject<AppError>({
+    ).rejects.toMatchObject({
       status: 400,
       message: "Nao e permitido comprar esta habilidade para a classe ou raca do personagem.",
     })

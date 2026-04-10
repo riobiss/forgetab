@@ -1,20 +1,19 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-const originalNodeEnv = process.env.NODE_ENV
 const originalApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
 const originalInternalApiBaseUrl = process.env.API_INTERNAL_BASE_URL
 
 afterEach(() => {
   vi.resetModules()
   vi.unmock("next/headers")
-  process.env.NODE_ENV = originalNodeEnv
+  vi.unstubAllEnvs()
   process.env.NEXT_PUBLIC_API_BASE_URL = originalApiBaseUrl
   process.env.API_INTERNAL_BASE_URL = originalInternalApiBaseUrl
 })
 
 describe("resolveApiUrl", () => {
   it("usa a origem da requisicao atual no server quando nao ha base URL explicita", async () => {
-    process.env.NODE_ENV = "production"
+    vi.stubEnv("NODE_ENV", "production")
     delete process.env.NEXT_PUBLIC_API_BASE_URL
     delete process.env.API_INTERNAL_BASE_URL
     vi.stubGlobal("window", undefined)
@@ -34,7 +33,7 @@ describe("resolveApiUrl", () => {
   })
 
   it("prioriza API_INTERNAL_BASE_URL no server quando configurada", async () => {
-    process.env.NODE_ENV = "production"
+    vi.stubEnv("NODE_ENV", "production")
     process.env.API_INTERNAL_BASE_URL = "http://api-internal:4000/"
     delete process.env.NEXT_PUBLIC_API_BASE_URL
     vi.stubGlobal("window", undefined)
@@ -46,7 +45,7 @@ describe("resolveApiUrl", () => {
   })
 
   it("mantem caminho relativo no browser sem base URL publica configurada", async () => {
-    process.env.NODE_ENV = "development"
+    vi.stubEnv("NODE_ENV", "development")
     delete process.env.NEXT_PUBLIC_API_BASE_URL
     delete process.env.API_INTERNAL_BASE_URL
 
