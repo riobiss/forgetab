@@ -28,6 +28,41 @@ export type RpgCampaignMessageSummary = {
   createdAt: Date
 }
 
+export type RpgCampaignCombatRole = "spectator" | "fighter"
+
+export type RpgCampaignCombatParticipantSummary = {
+  id: string
+  userId: string | null
+  name: string
+  characterId: string | null
+  characterName: string | null
+  sourceCharacterId: string | null
+  actorType: "player" | "creature"
+  role: RpgCampaignCombatRole
+  items: unknown
+  rollConfig: unknown
+  statRolls: unknown
+  joinedAt: Date
+}
+
+export type RpgCampaignCombatQueueEntrySummary = {
+  id: string
+  participantId: string
+  userId: string | null
+  label: string
+  roll: number
+  position: number
+}
+
+export type RpgCampaignCombatRoomSummary = {
+  id: string
+  name: string
+  activeTurnIndex: number
+  createdAt: Date
+  participants: RpgCampaignCombatParticipantSummary[]
+  queue: RpgCampaignCombatQueueEntrySummary[]
+}
+
 export type RpgCampaignViewModel = {
   isOwner: boolean
   canManage: boolean
@@ -54,4 +89,5 @@ export type RpgCampaignRoomViewModel = {
   campaignMessages: RpgCampaignMessageSummary[]
   actionMessages: RpgCampaignMessageSummary[]
   directMessages: RpgCampaignMessageSummary[]
+  combatRooms: RpgCampaignCombatRoomSummary[]
 }

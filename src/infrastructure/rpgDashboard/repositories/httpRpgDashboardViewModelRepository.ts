@@ -47,6 +47,17 @@ export class HttpApiError extends Error {
 }
 
 async function parseJsonResponse<T>(response: Response): Promise<T> {
+  const contentType = response.headers.get("content-type") ?? ""
+  if (!contentType.includes("application/json")) {
+    const text = await response.text()
+    throw new HttpApiError(
+      text.includes("<html")
+        ? "A API respondeu com HTML. Verifique se a URL interna da API esta apontando para o backend, nao para o Next."
+        : text || "Resposta invalida da API.",
+      response.status,
+    )
+  }
+
   const payload = (await response.json()) as T & ErrorPayload
   if (!response.ok) {
     throw new HttpApiError(payload.message ?? "Erro ao carregar dashboard do RPG.", response.status)

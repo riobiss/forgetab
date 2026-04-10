@@ -6,9 +6,10 @@
 }
 
 .container {
-  max-width: 1280px;
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
-  padding: 0.75rem 1rem 2rem;
+  padding: 0;
   display: grid;
   gap: 1rem;
 }
@@ -21,16 +22,70 @@
   gap: 0;
 }
 
-.header {
+.campaignToolbarShell {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+
+  backdrop-filter: blur(16px);
+}
+
+.campaignToolbar {
   border: 1px solid var(--color-border-soft);
-  border-radius: 16px;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 94%, transparent));
+  border-radius: 0px 0px 8px 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 92%, transparent);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.35rem;
+  overflow-x: auto;
+}
+
+.campaignToolbarButton {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
+  min-height: 2.4rem;
+  padding: 0.5rem 0.58rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.campaignToolbarButton:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 28%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
+  color: var(--color-text-primary);
+}
+
+.campaignToolbarButtonActive {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 52%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+  box-shadow: none;
+}
+
+.campaignToolbarButtonActive:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 52%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, var(--color-bg-surface));
+}
+
+.campaignToolbarButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .headerContent {
@@ -92,6 +147,10 @@
   border-radius: 0;
   padding: 1rem;
   overflow: hidden;
+}
+
+.panelChatConversationMode {
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .sectionTitle {
@@ -327,6 +386,15 @@
   background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
 }
 
+.actionStreamCard {
+  border-color: var(--color-border-soft);
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+}
+
+.actionStreamCardExpanded {
+  padding-bottom: 0.85rem;
+}
+
 .streamMeta {
   margin: 0 0 0.35rem;
   color: var(--color-text-muted);
@@ -352,6 +420,172 @@
   color: var(--color-text-muted);
   font-size: 0.72rem;
   white-space: nowrap;
+}
+
+.actionCardTopRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+  margin: -0.2rem 0 0.7rem;
+}
+
+.actionCardActor {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  padding: 0.32rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.actionCardSummary {
+  min-width: 0;
+}
+
+.actionCardControls {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.actionTypeBadge {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  padding: 0.32rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.actionExpandButton {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.actionRevokeButton {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid color-mix(in srgb, #ef4444 44%, var(--color-border-soft));
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: color-mix(in srgb, #ef4444 82%, var(--color-text-secondary));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.actionRevokeButton:hover {
+  background: color-mix(in srgb, #ef4444 14%, transparent);
+  color: color-mix(in srgb, #fca5a5 88%, var(--color-text-primary));
+}
+
+.actionExpandButton:hover {
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+  color: var(--color-text-primary);
+}
+
+.actionDetails {
+  margin-top: 0.85rem;
+  padding-bottom: 0.35rem;
+}
+
+.actionDetailsFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.actionDiceSearchButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actionDiceSearchButton:hover {
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+  color: var(--color-text-primary);
+}
+
+.actionFooterTime {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.actionSummaryTile {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--action-summary-text, var(--color-text-primary));
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0;
+  line-height: 1.4;
+  box-shadow: none;
+}
+
+.actionSummaryImage {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-soft);
+  object-fit: cover;
+  background: var(--color-bg-surface);
+}
+
+.actionSummaryText {
+  min-width: 0;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.actionSummaryName {
+  min-width: 0;
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+
+.actionSummaryMeta {
+  min-width: 0;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
 }
 
 .skillActionHeader {
@@ -395,6 +629,46 @@
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
+}
+
+.itemActionHeader {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.itemActionHeaderNoImage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.itemActionImage {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-soft);
+  object-fit: cover;
+  background: var(--color-bg-surface);
+}
+
+.itemActionIdentity {
+  min-width: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.itemActionName {
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
+  color: var(--color-text-primary);
+  padding: 0.35rem 0.75rem;
+  line-height: 1.4;
 }
 
 .chatBubble {
@@ -549,15 +823,50 @@
   box-shadow: 0 18px 40px color-mix(in srgb, black 18%, transparent);
 }
 
+.actionMenuToolbar {
+  position: fixed;
+  top: 3.35rem;
+  bottom: auto;
+  left: 0;
+  z-index: 39;
+  width: min(82vw, 20rem);
+  min-width: 0;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  padding: 0.65rem;
+  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 94%, transparent));
+  animation: actionDrawerIn 180ms ease-out both;
+}
+
+@keyframes actionDrawerIn {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .actionMenuItem {
   width: 100%;
   border: none;
-  border-radius: 12px;
-  background: transparent;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
   color: var(--color-text-secondary);
-  padding: 0.8rem 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.9rem 1rem;
   text-align: left;
   cursor: pointer;
+  font-weight: 800;
+}
+
+.actionMenuItem + .actionMenuItem {
+  margin-top: 0.35rem;
 }
 
 .actionMenuItem:hover {
@@ -565,10 +874,413 @@
   color: var(--color-text-primary);
 }
 
+.combatSection {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  display: grid;
+  gap: 0.8rem;
+  padding: 0.85rem;
+}
+
+.combatSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.combatSectionHeader h3,
+.combatArenaHeader h3,
+.combatChoiceModal h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.combatSectionHeader p,
+.combatChoiceModal p {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+}
+
+.combatRoomList {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.combatRoomCard {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.combatRoomCardActive {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 48%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 9%, var(--color-bg-surface));
+}
+
+.combatRoomSummary {
+  min-width: 0;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.combatRoomSummary strong {
+  color: var(--color-text-primary);
+}
+
+.combatRoomSummary small {
+  color: var(--color-text-muted);
+}
+
+.combatEnterButton,
+.combatPrimaryButton,
+.combatChoiceButton {
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 42%, var(--color-border-soft));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-primary) 16%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.combatPrimaryButton:disabled,
+.combatEnterButton:disabled,
+.combatChoiceButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.combatArena {
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 26%, var(--color-border-soft));
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 94%, transparent));
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+}
+
+.combatNestedHeader {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem;
+}
+
+.combatNestedHeader h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.combatBackButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.65rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.combatBackButton:hover {
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
+}
+
+.combatStickyActions {
+  position: sticky;
+  top: 3.25rem;
+  z-index: 38;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 94%, transparent);
+  backdrop-filter: blur(14px);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.4rem;
+  padding: 0.4rem;
+}
+
+.combatStickyActions .combatQueueButton,
+.combatStickyActions .combatPrimaryButton {
+  min-height: 1.95rem;
+  padding: 0.32rem 0.55rem;
+  font-size: 0.78rem;
+}
+
+.combatStickyTurn {
+  min-width: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-app) 38%, transparent);
+  display: grid;
+  place-items: center;
+  gap: 0.08rem;
+  padding: 0.25rem 0.5rem;
+  text-align: center;
+}
+
+.combatStickyTurn small {
+  color: var(--color-text-muted);
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.combatStickyTurn strong {
+  max-width: 100%;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.combatNestedGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.combatJoinInline {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.combatNestedActionsHeader h4 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.combatNestedActionsHeader small {
+  color: var(--color-text-muted);
+}
+
+.combatNestedActions {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.combatNestedActionsHeader {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.combatArenaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+@media (max-width: 760px) {
+  .combatNestedHeader,
+  .combatNestedGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .combatNestedHeader {
+    align-items: stretch;
+  }
+}
+
+.combatEyebrow {
+  margin: 0 0 0.2rem;
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.combatQueueButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.65rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.combatRoleBanner {
+  margin: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  color: var(--color-text-secondary);
+  padding: 0.65rem 0.75rem;
+}
+
+.combatTurnPanel {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-app) 44%, transparent);
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem;
+}
+
+.combatTurnPanel p,
+.combatTurnPanel small {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.combatTurnPanel strong {
+  color: var(--color-text-primary);
+  font-size: 1.08rem;
+}
+
+.combatCreateModal,
+.combatChoiceModal,
+.combatQueueModal {
+  width: min(100%, 28rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 92%, transparent));
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.combatChoiceModal {
+  position: relative;
+  padding-top: 3rem;
+}
+
+.combatChoiceModal > .closeChatButton {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+}
+
+.combatCreateField {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.combatCreateField span {
+  color: var(--color-text-secondary);
+  font-weight: 700;
+}
+
+.combatCreateField input {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  padding: 0.75rem 0.85rem;
+}
+
+.combatChoiceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.combatQueueList {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.combatQueueItem {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem;
+}
+
+.combatQueueItem > span {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.combatQueueItem strong {
+  min-width: 0;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.combatQueueItem small {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.combatQueueControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.combatQueueControls button {
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.combatQueueControls button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .modalBackdrop {
   position: fixed;
   inset: 0;
-  z-index: 40;
+  z-index: 70;
   background: color-mix(in srgb, black 48%, transparent);
   display: grid;
   place-items: center;
@@ -847,6 +1559,147 @@
   justify-content: flex-end;
 }
 
+.itemDetailsCard {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.itemDetailsHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.itemDetailsImage {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-soft);
+  object-fit: cover;
+  background: var(--color-bg-surface);
+  flex-shrink: 0;
+}
+
+.itemDetailsTitleGroup {
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.itemDetailsTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+}
+
+.itemTitleButton {
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.itemDetailsMeta {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.itemDetailsDescription,
+.itemHighlightText {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.itemHighlightBlock {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.7rem;
+  background: var(--color-bg-surface);
+}
+
+.itemHighlightTitle {
+  margin: 0;
+  color: var(--color-brand-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.itemHighlightList {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.itemHighlightItem {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.itemHighlightName {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.confirmActionModal {
+  width: min(100%, 24rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.confirmActionTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 1.05rem;
+}
+
+.confirmActionButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.confirmActionDangerButton,
+.confirmActionCancelButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.68rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirmActionDangerButton {
+  border-color: color-mix(in srgb, #ef4444 64%, var(--color-border-soft));
+  background: color-mix(in srgb, #ef4444 86%, transparent);
+  color: white;
+}
+
+.confirmActionCancelButton {
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+}
+
+.confirmActionDangerButton:disabled,
+.confirmActionCancelButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 @media (min-width: 720px) {
   .actionModal {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -941,19 +1794,11 @@
   align-items: center;
   gap: 0.8rem;
   flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .rollTotal {
   color: var(--color-text-primary);
-}
-
-.rollDetailsButton {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 999px;
-  background: var(--color-bg-surface);
-  color: var(--color-text-secondary);
-  padding: 0.35rem 0.75rem;
-  cursor: pointer;
 }
 
 .rollSequence {
@@ -978,6 +1823,123 @@
 
 .rollSequence {
   min-width: 0;
+}
+
+.creatureCombatModal {
+  width: min(56rem, calc(100vw - 1.5rem));
+  max-height: min(88vh, 52rem);
+  overflow: auto;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-panel);
+  box-shadow: var(--shadow-xl);
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.creatureCombatGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.75rem;
+}
+
+.creatureCombatField {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.creatureCombatField input,
+.creatureCombatField select {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  padding: 0.65rem 0.7rem;
+}
+
+.creatureCombatModes,
+.creatureItemList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 0.55rem;
+}
+
+.creatureCombatModes label,
+.creatureItemList label {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.creatureItemList {
+  max-height: 12rem;
+  overflow: auto;
+}
+
+.creatureRollSections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0.8rem;
+}
+
+.creatureRollSection {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.creatureRollSection h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+}
+
+.creatureRollRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4rem 2.25rem;
+  gap: 0.45rem;
+  align-items: center;
+  color: var(--color-text-secondary);
+}
+
+.creatureRollRow input {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-panel);
+  color: var(--color-text-primary);
+  padding: 0.45rem 0.5rem;
+}
+
+.creatureRollRow button {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-panel);
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.creatureRollRow small {
+  grid-column: 1 / -1;
+  color: var(--color-text-muted);
 }
 
 @media (max-width: 900px) {

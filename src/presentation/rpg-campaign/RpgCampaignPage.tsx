@@ -3,12 +3,17 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { startTransition, useState } from "react"
-import { ArrowLeft, DoorOpen, Eye, Gamepad2, Radio, Users, X } from "lucide-react"
+import { ArrowLeft, DoorOpen, Eye, Gamepad2, Radio, Square, Trash2, Users, X } from "lucide-react"
 import type { DashboardCharacterSummary } from "@/application/rpgDashboard/contracts/RpgDashboardGateway"
 import { formatDateInBrasilia } from "@/lib/date"
 import type { RpgCampaignViewModel } from "@/application/rpgCampaign/types"
 import { httpRpgDashboardGateway } from "@/infrastructure/rpgDashboard/gateways/httpRpgDashboardGateway"
-import { setCampaignSelectedCharacter } from "@/infrastructure/rpgCampaign/campaignPresence"
+import {
+  clearCampaignPresence,
+  clearCampaignSelectedCharacter,
+  getCampaignPresence,
+  setCampaignSelectedCharacter,
+} from "@/infrastructure/rpgCampaign/campaignPresence"
 import { httpRpgCampaignRepository } from "@/infrastructure/rpgCampaign/repositories/httpRpgCampaignRepository"
 import styles from "./RpgCampaignPage.module.css"
 
@@ -48,6 +53,12 @@ export function RpgCampaignPage({ rpgId, rpgTitle, initialViewModel }: Props) {
     startTransition(() => {
       setViewModel(nextViewModel)
     })
+
+    const presence = getCampaignPresence()
+    if (presence?.rpgId === rpgId && !nextViewModel.campaigns.some((campaign) => campaign.id === presence.campaignId)) {
+      clearCampaignPresence()
+      clearCampaignSelectedCharacter(presence.campaignId)
+    }
   }
 
   async function runAction(action: () => Promise<{ message?: string }>) {
@@ -135,6 +146,37 @@ export function RpgCampaignPage({ rpgId, rpgTitle, initialViewModel }: Props) {
     } finally {
       setIsBusy(false)
     }
+  }
+
+  function handleEndCampaign(campaign: { id: string; title: string }) {
+    if (!window.confirm(`Finalizar a campanha "${campaign.title}"?`)) {
+      return
+    }
+
+    void runAction(async () => {
+      const payload = await httpRpgCampaignRepository.endCampaign(rpgId, campaign.id)
+      const presence = getCampaignPresence()
+      if (presence?.campaignId === campaign.id) {
+        clearCampaignPresence()
+      }
+      return payload
+    })
+  }
+
+  function handleDeleteCampaign(campaign: { id: string; title: string }) {
+    if (!window.confirm(`Deletar a campanha "${campaign.title}"? Essa acao nao pode ser desfeita.`)) {
+      return
+    }
+
+    void runAction(async () => {
+      const payload = await httpRpgCampaignRepository.deleteCampaign(rpgId, campaign.id)
+      const presence = getCampaignPresence()
+      if (presence?.campaignId === campaign.id) {
+        clearCampaignPresence()
+      }
+      clearCampaignSelectedCharacter(campaign.id)
+      return payload
+    })
   }
 
   return (
@@ -296,6 +338,30 @@ export function RpgCampaignPage({ rpgId, rpgTitle, initialViewModel }: Props) {
                         <DoorOpen size={15} />
                         Abrir sala
                       </Link>
+                    ) : null}
+
+                    {campaign.isActive && viewModel.isOwner ? (
+                      <button
+                        type="button"
+                        className={styles.secondaryButton}
+                        onClick={() => handleEndCampaign(campaign)}
+                        disabled={isBusy}
+                      >
+                        <Square size={14} />
+                        Finalizar
+                      </button>
+                    ) : null}
+
+                    {viewModel.isOwner ? (
+                      <button
+                        type="button"
+                        className={styles.dangerButton}
+                        onClick={() => handleDeleteCampaign(campaign)}
+                        disabled={isBusy}
+                      >
+                        <Trash2 size={15} />
+                        Deletar
+                      </button>
                     ) : null}
 
                     {campaign.isActive && !viewModel.isOwner && campaign.hasJoined ? (

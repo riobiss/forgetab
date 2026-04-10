@@ -14,10 +14,14 @@ type Params = {
 
 export default async function CampaignRoomRoute({ params }: Params) {
   const { rpgId, campaignId } = await params
+  const room = await fetchCampaignRoomOrNotFound(rpgId, campaignId)
 
+  return <RpgCampaignRoomPage rpgId={rpgId} initialRoom={room} />
+}
+
+async function fetchCampaignRoomOrNotFound(rpgId: string, campaignId: string) {
   try {
-    const room = await fetchRpgCampaignRoomViewModel(rpgId, campaignId)
-    return <RpgCampaignRoomPage rpgId={rpgId} initialRoom={room} />
+    return await fetchRpgCampaignRoomViewModel(rpgId, campaignId)
   } catch (error) {
     if (error instanceof HttpApiError && error.status === 404) {
       notFound()
