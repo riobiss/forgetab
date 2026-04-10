@@ -1,13 +1,21 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import {
+  addRpgCampaignCombatCreaturesUseCase,
+  createRpgCampaignCombatQueueUseCase,
+  createRpgCampaignCombatUseCase,
+  deleteRpgCampaignActionMessageUseCase,
   createRpgCampaignMessageUseCase,
   createRpgCampaignUseCase,
+  deleteRpgCampaignUseCase,
   endRpgCampaignUseCase,
   getRpgCampaignRoomUseCase,
   joinRpgCampaignUseCase,
+  joinRpgCampaignCombatUseCase,
   leaveRpgCampaignUseCase,
   listRpgCampaignMessagesUseCase,
   listRpgCampaignsUseCase,
+  moveRpgCampaignCombatQueueEntryUseCase,
+  passRpgCampaignCombatTurnUseCase,
   startRpgCampaignUseCase,
 } from "@/application/rpg/campaign/use-cases/rpgCampaign"
 import {
@@ -18,7 +26,13 @@ import {
 } from "@api/presentation/http/fastifyJson"
 import { emitCampaignRoomRefresh } from "@api/realtime/campaignSocketServer"
 import { rpgCampaignRouteDeps } from "./dependencies"
-import type { CampaignRouteParams, RpgRouteParams } from "./routeTypes"
+import type {
+  CampaignCombatQueueRouteParams,
+  CampaignCombatRouteParams,
+  CampaignMessageRouteParams,
+  CampaignRouteParams,
+  RpgRouteParams,
+} from "./routeTypes"
 
 export async function listRpgCampaignsHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
@@ -120,6 +134,31 @@ export async function endRpgCampaignHandler(
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(reply, error, "Erro interno ao encerrar campanha.")
+  }
+}
+
+export async function deleteRpgCampaignHandler(
+  request: FastifyRequest<{ Params: CampaignRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+
+    const payload = await deleteRpgCampaignUseCase(
+      rpgCampaignRouteDeps.accessService,
+      rpgCampaignRouteDeps.repository,
+      {
+        rpgId: request.params.rpgId,
+        campaignId: request.params.campaignId,
+        userId: auth.userId,
+      },
+    )
+
+    emitCampaignRoomRefresh(request.params.campaignId)
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao deletar campanha.")
   }
 }
 
@@ -252,5 +291,217 @@ export async function createRpgCampaignMessageHandler(
     return writeJson(reply, 201, payload)
   } catch (error) {
     return writeError(reply, error, "Erro interno ao enviar mensagem da campanha.")
+  }
+}
+
+export async function deleteRpgCampaignActionMessageHandler(
+  request: FastifyRequest<{ Params: CampaignMessageRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+
+    const payload = await deleteRpgCampaignActionMessageUseCase(
+      rpgCampaignRouteDeps.accessService,
+      rpgCampaignRouteDeps.repository,
+      {
+        rpgId: request.params.rpgId,
+        campaignId: request.params.campaignId,
+        messageId: request.params.messageId,
+        userId: auth.userId,
+      },
+    )
+
+    emitCampaignRoomRefresh(request.params.campaignId)
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao revogar acao da campanha.")
+  }
+}
+
+export async function createRpgCampaignCombatHandler(
+  request: FastifyRequest<{ Params: CampaignRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+
+    const body = (parseJsonBody(request.body) ?? {}) as {
+      name?: string
+    }
+
+    const payload = await createRpgCampaignCombatUseCase(
+      rpgCampaignRouteDeps.accessService,
+      rpgCampaignRouteDeps.repository,
+      {
+        rpgId: request.params.rpgId,
+        campaignId: request.params.campaignId,
+        userId: auth.userId,
+        name: body.name ?? "",
+      },
+    )
+
+    emitCampaignRoomRefresh(request.params.campaignId)
+    return writeJson(reply, 201, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao criar combate.")
+  }
+}
+
+export async function joinRpgCampaignCombatHandler(
+  request: FastifyRequest<{ Params: CampaignCombatRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+
+    const body = (parseJsonBody(request.body) ?? {}) as {
+      characterId?: string | null
+      role?: "spectator" | "fighter"
+    }
+
+    const payload = await joinRpgCampaignCombatUseCase(
+      rpgCampaignRouteDeps.accessService,
+      rpgCampaignRouteDeps.repository,
+      {
+        rpgId: request.params.rpgId,
+        campaignId: request.params.campaignId,
+        combatId: request.params.combatId,
+        userId: auth.userId,
+        characterId: body.characterId ?? null,
+        role: body.role ?? "spectator",
+      },
+    )
+
+    emitCampaignRoomRefresh(request.params.campaignId)
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao entrar no combate.")
+  }
+}
+
+export async function addRpgCampaignCombatCreaturesHandler(
+  request: FastifyRequest<{ Params: CampaignCombatRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+
+    const body = (parseJsonBody(request.body) ?? {}) as {
+      sourceCharacterId?: string
+      quantity?: number
+      items?: unknown
+      rollConfig?: unknown
+      statRolls?: unknown
+    }
+
+    const payload = await addRpgCampaignCombatCreaturesUseCase(
+      rpgCampaignRouteDeps.accessService,
+      rpgCampaignRouteDeps.repository,
+      {
+        rpgId: request.params.rpgId,
+        campaignId: request.params.campaignId,
+        combatId: request.params.combatId,
+        userId: auth.userId,
+        sourceCharacterId: body.sourceCharacterId ?? "",
+        quantity: body.quantity ?? 1,
+        items: body.items ?? null,
+        rollConfig: body.rollConfig ?? null,
+        statRolls: body.statRolls ?? null,
+      },
+    )
+
+    emitCampaignRoomRefresh(request.params.campaignId)
+    return writeJson(reply, 201, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao adicionar criaturas ao combate.")
+  }
+}
+
+export async function createRpgCampaignCombatQueueHandler(
+  request: FastifyRequest<{ Params: CampaignCombatRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+
+    const payload = await createRpgCampaignCombatQueueUseCase(
+      rpgCampaignRouteDeps.accessService,
+      rpgCampaignRouteDeps.repository,
+      {
+        rpgId: request.params.rpgId,
+        campaignId: request.params.campaignId,
+        combatId: request.params.combatId,
+        userId: auth.userId,
+      },
+    )
+
+    emitCampaignRoomRefresh(request.params.campaignId)
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao criar fila do combate.")
+  }
+}
+
+export async function moveRpgCampaignCombatQueueEntryHandler(
+  request: FastifyRequest<{ Params: CampaignCombatQueueRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+
+    const body = (parseJsonBody(request.body) ?? {}) as {
+      direction?: -1 | 1
+    }
+
+    const payload = await moveRpgCampaignCombatQueueEntryUseCase(
+      rpgCampaignRouteDeps.accessService,
+      rpgCampaignRouteDeps.repository,
+      {
+        rpgId: request.params.rpgId,
+        campaignId: request.params.campaignId,
+        combatId: request.params.combatId,
+        entryId: request.params.entryId,
+        userId: auth.userId,
+        direction: body.direction ?? 1,
+      },
+    )
+
+    emitCampaignRoomRefresh(request.params.campaignId)
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao mudar fila do combate.")
+  }
+}
+
+export async function passRpgCampaignCombatTurnHandler(
+  request: FastifyRequest<{ Params: CampaignCombatRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+
+    const payload = await passRpgCampaignCombatTurnUseCase(
+      rpgCampaignRouteDeps.accessService,
+      rpgCampaignRouteDeps.repository,
+      {
+        rpgId: request.params.rpgId,
+        campaignId: request.params.campaignId,
+        combatId: request.params.combatId,
+        userId: auth.userId,
+      },
+    )
+
+    emitCampaignRoomRefresh(request.params.campaignId)
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao passar turno do combate.")
   }
 }

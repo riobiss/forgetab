@@ -1,9 +1,15 @@
 import { AppError } from "@/shared/errors/AppError"
 import type { RpgCampaignAccessService } from "@/application/rpg/campaign/ports/RpgCampaignAccessService"
 import type { RpgCampaignRepository } from "@/application/rpg/campaign/ports/RpgCampaignRepository"
-import type { RpgCampaignRoomViewModel, RpgCampaignViewModel } from "@/application/rpg/campaign/types"
+import type {
+  RpgCampaignCombatRole,
+  RpgCampaignRoomViewModel,
+  RpgCampaignViewModel,
+} from "@/application/rpg/campaign/types"
 
 const CAMPAIGN_MESSAGE_MAX_LENGTH = 1200
+const COMBAT_NAME_MAX_LENGTH = 80
+const COMBAT_CREATURE_MAX_QUANTITY = 20
 
 function assertCampaignAccess(permission: {
   exists: boolean
@@ -177,6 +183,29 @@ export async function endRpgCampaignUseCase(
   return { message: "Campanha encerrada." }
 }
 
+export async function deleteRpgCampaignUseCase(
+  accessService: RpgCampaignAccessService,
+  repository: RpgCampaignRepository,
+  params: { rpgId: string; campaignId: string; userId: string },
+) {
+  const permission = await accessService.getPermission(params.rpgId, params.userId)
+
+  if (!permission.exists) {
+    throw new AppError("RPG nao encontrado.", 404)
+  }
+
+  if (!permission.isOwner) {
+    throw new AppError("Somente o owner pode deletar campanhas.", 403)
+  }
+
+  const deleted = await repository.deleteCampaign(params.rpgId, params.campaignId)
+  if (!deleted) {
+    throw new AppError("Campanha nao encontrada.", 404)
+  }
+
+  return { message: "Campanha deletada." }
+}
+
 export async function joinRpgCampaignUseCase(
   accessService: RpgCampaignAccessService,
   repository: RpgCampaignRepository,
@@ -247,10 +276,11 @@ export async function getRpgCampaignRoomUseCase(
 ): Promise<RpgCampaignRoomViewModel> {
   const { permission, campaign } = await assertRoomAccess(accessService, repository, params)
 
-  const [participants, allMessages, directMessages] = await Promise.all([
+  const [participants, allMessages, directMessages, combatRooms] = await Promise.all([
     repository.listCampaignParticipants(params.campaignId),
     repository.listCampaignMessages(params.campaignId),
     repository.listDirectMessagesForUser(params.campaignId, params.userId),
+    repository.listCampaignCombats(params.campaignId),
   ])
 
   return {
@@ -262,6 +292,7 @@ export async function getRpgCampaignRoomUseCase(
     campaignMessages: allMessages.filter((message) => message.kind === "campaign"),
     actionMessages: allMessages.filter((message) => message.kind === "action"),
     directMessages,
+    combatRooms,
   }
 }
 
@@ -291,7 +322,7 @@ export async function createRpgCampaignMessageUseCase(
     recipientUserId?: string | null
   },
 ) {
-  const { permission, campaign } = await assertRoomAccess(accessService, repository, params)
+  const { campaign } = await assertRoomAccess(accessService, repository, params)
 
   const content = params.content.trim()
   if (content.length < 1) {
@@ -338,4 +369,230 @@ export async function createRpgCampaignMessageUseCase(
     kind === "direct" ? params.recipientUserId ?? null : null,
   )
   return { message: "Mensagem enviada.", chatMessage: message }
+}
+
+export async function deleteRpgCampaignActionMessageUseCase(
+  accessService: RpgCampaignAccessService,
+  repository: RpgCampaignRepository,
+  params: { rpgId: string; campaignId: string; messageId: string; userId: string },
+) {
+  const { permission, campaign } = await assertRoomAccess(accessService, repository, params)
+
+  if (!campaign.isActive) {
+    throw new AppError("A campanha foi encerrada.", 409)
+  }
+
+  const deleted = await repository.deleteCampaignActionMessage({
+    campaignId: params.campaignId,
+    messageId: params.messageId,
+    userId: params.userId,
+    canDeleteAny: permission.isOwner,
+  })
+
+  if (!deleted) {
+    throw new AppError("Somente as duas ultimas acoes podem ser revogadas.", 404)
+  }
+
+  return { message: "Acao revogada." }
+}
+
+export async function createRpgCampaignCombatUseCase(
+  accessService: RpgCampaignAccessService,
+  repository: RpgCampaignRepository,
+  params: { rpgId: string; campaignId: string; userId: string; name: string },
+) {
+  const { permission, campaign } = await assertRoomAccess(accessService, repository, params)
+
+  if (!permission.isOwner) {
+    throw new AppError("Somente o owner pode criar combates.", 403)
+  }
+
+  if (!campaign.isActive) {
+    throw new AppError("A campanha foi encerrada.", 409)
+  }
+
+  const name = params.name.trim() || "Combate"
+  if (name.length > COMBAT_NAME_MAX_LENGTH) {
+    throw new AppError(`O nome do combate pode ter no maximo ${COMBAT_NAME_MAX_LENGTH} caracteres.`, 400)
+  }
+
+  const combat = await repository.createCombatRoom({
+    campaignId: params.campaignId,
+    userId: params.userId,
+    name,
+  })
+
+  return { message: "Combate criado.", combatId: combat.id }
+}
+
+export async function joinRpgCampaignCombatUseCase(
+  accessService: RpgCampaignAccessService,
+  repository: RpgCampaignRepository,
+  params: {
+    rpgId: string
+    campaignId: string
+    combatId: string
+    userId: string
+    characterId?: string | null
+    role: RpgCampaignCombatRole
+  },
+) {
+  const { campaign } = await assertRoomAccess(accessService, repository, params)
+
+  if (!campaign.isActive) {
+    throw new AppError("A campanha foi encerrada.", 409)
+  }
+
+  if (params.role !== "spectator" && params.role !== "fighter") {
+    throw new AppError("Escolha se voce vai assistir ou batalhar.", 400)
+  }
+
+  const joined = await repository.joinCombatRoom({
+    campaignId: params.campaignId,
+    combatId: params.combatId,
+    userId: params.userId,
+    characterId: params.characterId?.trim() || null,
+    role: params.role,
+  })
+
+  if (!joined) {
+    throw new AppError("Combate nao encontrado.", 404)
+  }
+
+  return { message: params.role === "fighter" ? "Voce entrou para batalhar." : "Voce entrou para assistir." }
+}
+
+export async function addRpgCampaignCombatCreaturesUseCase(
+  accessService: RpgCampaignAccessService,
+  repository: RpgCampaignRepository,
+  params: {
+    rpgId: string
+    campaignId: string
+    combatId: string
+    userId: string
+    sourceCharacterId: string
+    quantity: number
+    items: unknown
+    rollConfig: unknown
+    statRolls: unknown
+  },
+) {
+  const { permission, campaign } = await assertRoomAccess(accessService, repository, params)
+
+  if (!permission.isOwner) {
+    throw new AppError("Somente o owner pode adicionar criaturas ao combate.", 403)
+  }
+
+  if (!campaign.isActive) {
+    throw new AppError("A campanha foi encerrada.", 409)
+  }
+
+  const quantity = Math.trunc(Number(params.quantity))
+  if (!Number.isFinite(quantity) || quantity < 1 || quantity > COMBAT_CREATURE_MAX_QUANTITY) {
+    throw new AppError(`Informe uma quantidade de 1 a ${COMBAT_CREATURE_MAX_QUANTITY} criaturas.`, 400)
+  }
+
+  const added = await repository.addCreatureCombatants({
+    campaignId: params.campaignId,
+    combatId: params.combatId,
+    sourceCharacterId: params.sourceCharacterId,
+    quantity,
+    items: params.items,
+    rollConfig: params.rollConfig,
+    statRolls: params.statRolls,
+  })
+
+  if (!added) {
+    throw new AppError("Criatura ou combate nao encontrado.", 404)
+  }
+
+  return { message: "Criaturas adicionadas ao combate." }
+}
+
+export async function createRpgCampaignCombatQueueUseCase(
+  accessService: RpgCampaignAccessService,
+  repository: RpgCampaignRepository,
+  params: { rpgId: string; campaignId: string; combatId: string; userId: string },
+) {
+  const { permission, campaign } = await assertRoomAccess(accessService, repository, params)
+
+  if (!permission.isOwner) {
+    throw new AppError("Somente o owner pode comecar a fila.", 403)
+  }
+
+  if (!campaign.isActive) {
+    throw new AppError("A campanha foi encerrada.", 409)
+  }
+
+  const created = await repository.createCombatQueue(params.campaignId, params.combatId)
+  if (!created) {
+    throw new AppError("Adicione pelo menos um batalhante antes de girar a iniciativa.", 400)
+  }
+
+  return { message: "Fila criada." }
+}
+
+export async function moveRpgCampaignCombatQueueEntryUseCase(
+  accessService: RpgCampaignAccessService,
+  repository: RpgCampaignRepository,
+  params: {
+    rpgId: string
+    campaignId: string
+    combatId: string
+    entryId: string
+    userId: string
+    direction: -1 | 1
+  },
+) {
+  const { permission, campaign } = await assertRoomAccess(accessService, repository, params)
+
+  if (!permission.isOwner) {
+    throw new AppError("Somente o owner pode mudar a fila.", 403)
+  }
+
+  if (!campaign.isActive) {
+    throw new AppError("A campanha foi encerrada.", 409)
+  }
+
+  if (params.direction !== -1 && params.direction !== 1) {
+    throw new AppError("Direcao invalida para mudar a fila.", 400)
+  }
+
+  const moved = await repository.moveCombatQueueEntry({
+    campaignId: params.campaignId,
+    combatId: params.combatId,
+    entryId: params.entryId,
+    direction: params.direction,
+  })
+
+  if (!moved) {
+    throw new AppError("Nao foi possivel mudar essa posicao da fila.", 404)
+  }
+
+  return { message: "Fila atualizada." }
+}
+
+export async function passRpgCampaignCombatTurnUseCase(
+  accessService: RpgCampaignAccessService,
+  repository: RpgCampaignRepository,
+  params: { rpgId: string; campaignId: string; combatId: string; userId: string },
+) {
+  const { permission, campaign } = await assertRoomAccess(accessService, repository, params)
+
+  if (!campaign.isActive) {
+    throw new AppError("A campanha foi encerrada.", 409)
+  }
+
+  const passed = await repository.passCombatTurn({
+    campaignId: params.campaignId,
+    combatId: params.combatId,
+    userId: params.userId,
+    canPassAny: permission.isOwner,
+  })
+
+  if (!passed) {
+    throw new AppError("Somente o jogador do turno ou o owner pode passar.", 403)
+  }
+
+  return { message: "Turno passado." }
 }

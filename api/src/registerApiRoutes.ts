@@ -63,14 +63,22 @@ import {
   updateRpgHandler,
 } from "@api/presentation/routes/rpg/handlers"
 import {
+  addRpgCampaignCombatCreaturesHandler,
+  createRpgCampaignCombatHandler,
+  createRpgCampaignCombatQueueHandler,
   createRpgCampaignHandler,
   createRpgCampaignMessageHandler,
+  deleteRpgCampaignHandler,
+  deleteRpgCampaignActionMessageHandler,
   endRpgCampaignHandler,
   getRpgCampaignRoomHandler,
   joinRpgCampaignHandler,
+  joinRpgCampaignCombatHandler,
   leaveRpgCampaignHandler,
   listRpgCampaignMessagesHandler,
   listRpgCampaignsHandler,
+  moveRpgCampaignCombatQueueEntryHandler,
+  passRpgCampaignCombatTurnHandler,
   startRpgCampaignHandler,
 } from "@api/presentation/routes/rpgCampaign/handlers"
 import {
@@ -202,6 +210,12 @@ export function registerApiRoutes(app: FastifyInstance) {
       reply,
     ),
   )
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/campaigns/:campaignId", (request, reply) =>
+    deleteRpgCampaignHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
+      reply,
+    ),
+  )
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId/campaigns/:campaignId/room", (request, reply) =>
     getRpgCampaignRoomHandler(
       request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
@@ -229,6 +243,50 @@ export function registerApiRoutes(app: FastifyInstance) {
   registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/messages", (request, reply) =>
     createRpgCampaignMessageHandler(
       request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/campaigns/:campaignId/messages/:messageId", (request, reply) =>
+    deleteRpgCampaignActionMessageHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string; messageId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/combats", (request, reply) =>
+    createRpgCampaignCombatHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/combats/:combatId/join", (request, reply) =>
+    joinRpgCampaignCombatHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string; combatId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/combats/:combatId/creatures", (request, reply) =>
+    addRpgCampaignCombatCreaturesHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string; combatId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/combats/:combatId/queue", (request, reply) =>
+    createRpgCampaignCombatQueueHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string; combatId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "patch", "/api/rpg/:rpgId/campaigns/:campaignId/combats/:combatId/queue/:entryId", (request, reply) =>
+    moveRpgCampaignCombatQueueEntryHandler(
+      request as FastifyRequest<{
+        Params: { rpgId: string; campaignId: string; combatId: string; entryId: string }
+      }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/combats/:combatId/pass", (request, reply) =>
+    passRpgCampaignCombatTurnHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string; combatId: string } }>,
       reply,
     ),
   )
