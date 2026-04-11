@@ -21,11 +21,16 @@ type DeliveryOfferPayload = {
   offerId: string
   mode: "single" | "chest"
   assets: Array<
-    | { kind: "item"; id: string; quantity: number }
-    | { kind: "skill"; id: string; level: number }
+    | { kind: "item"; id: string; name: string; image: string | null; description: string | null; quantity: number }
+    | { kind: "skill"; id: string; name: string; image: string | null; description: string | null; level: number }
   >
   recipientUserIds: string[]
   recipientCharacterIds: string[]
+  openedByUserId?: string | null
+  openedByCharacterId?: string | null
+  openedAt?: string | null
+  revealedByUserId?: string | null
+  revealedAt?: string | null
 }
 
 function assertCampaignAccess(permission: {
@@ -90,6 +95,9 @@ function parseDeliveryOffer(content: string): DeliveryOfferPayload | null {
           return {
             kind: "item" as const,
             id: asset.id,
+            name: typeof asset.name === "string" ? asset.name : asset.id,
+            image: typeof asset.image === "string" ? asset.image : null,
+            description: typeof asset.description === "string" ? asset.description : null,
             quantity: Number.isInteger(asset.quantity) && asset.quantity > 0 ? asset.quantity : 1,
           }
         }
@@ -98,6 +106,9 @@ function parseDeliveryOffer(content: string): DeliveryOfferPayload | null {
           return {
             kind: "skill" as const,
             id: asset.id,
+            name: typeof asset.name === "string" ? asset.name : asset.id,
+            image: typeof asset.image === "string" ? asset.image : null,
+            description: typeof asset.description === "string" ? asset.description : null,
             level: Number.isInteger(asset.level) && asset.level > 0 ? asset.level : 1,
           }
         }
@@ -115,6 +126,11 @@ function parseDeliveryOffer(content: string): DeliveryOfferPayload | null {
       assets,
       recipientUserIds: parsed.recipientUserIds.filter((id) => typeof id === "string"),
       recipientCharacterIds: parsed.recipientCharacterIds.filter((id) => typeof id === "string"),
+      openedByUserId: typeof parsed.openedByUserId === "string" ? parsed.openedByUserId : null,
+      openedByCharacterId: typeof parsed.openedByCharacterId === "string" ? parsed.openedByCharacterId : null,
+      openedAt: typeof parsed.openedAt === "string" ? parsed.openedAt : null,
+      revealedByUserId: typeof parsed.revealedByUserId === "string" ? parsed.revealedByUserId : null,
+      revealedAt: typeof parsed.revealedAt === "string" ? parsed.revealedAt : null,
     }
   } catch {
     return null
@@ -543,6 +559,7 @@ export async function acceptRpgCampaignDeliveryOfferUseCase(
     userId: string
     characterId: string
     offerId: string
+    revealToRoom?: boolean
   },
 ) {
   const { campaign } = await assertRoomAccess(accessService, repository, params)
@@ -565,6 +582,10 @@ export async function acceptRpgCampaignDeliveryOfferUseCase(
     throw new AppError("Entrega invalida.", 400)
   }
 
+  if (offer.mode === "chest" && offer.openedAt) {
+    throw new AppError("Este bau ja foi aberto.", 409)
+  }
+
   const isTargeted = offer.recipientUserIds.length > 0 || offer.recipientCharacterIds.length > 0
   const canReceive =
     !isTargeted ||
@@ -575,14 +596,34 @@ export async function acceptRpgCampaignDeliveryOfferUseCase(
     throw new AppError("Essa entrega nao esta destinada ao seu personagem.", 403)
   }
 
+  const openedAt = new Date().toISOString()
+  const shouldRevealToRoom = offer.mode === "chest" && params.revealToRoom === true
+  const nextOfferContent = `${DELIVERY_OFFER_PREFIX}${JSON.stringify({
+    ...offer,
+    openedByUserId: params.userId,
+    openedByCharacterId: params.characterId,
+    openedAt,
+    revealedByUserId: shouldRevealToRoom ? params.userId : null,
+    revealedAt: shouldRevealToRoom ? openedAt : null,
+  } satisfies DeliveryOfferPayload)}`
+
   const granted = await repository.grantDeliveryAssets({
     rpgId: params.rpgId,
+    campaignId: params.campaignId,
+    messageId: params.messageId,
     userId: params.userId,
     characterId: params.characterId,
+    markOfferOpened: offer.mode === "chest",
+    previousContent: message.content,
+    nextContent: nextOfferContent,
     assets: offer.assets,
   })
 
-  if (!granted) {
+  if (granted === "already_opened") {
+    throw new AppError("Este bau ja foi aberto.", 409)
+  }
+
+  if (granted !== "granted") {
     throw new AppError("Personagem ou entrega invalida.", 400)
   }
 

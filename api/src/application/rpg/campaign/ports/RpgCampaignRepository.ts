@@ -92,11 +92,16 @@ export interface RpgCampaignRepository {
   }): Promise<boolean>
   grantDeliveryAssets(params: {
     rpgId: string
+    campaignId: string
+    messageId: string
     userId: string
     characterId: string
+    markOfferOpened: boolean
+    previousContent: string
+    nextContent: string
     assets: Array<
       | { kind: "item"; id: string; quantity: number }
       | { kind: "skill"; id: string; level: number }
     >
-  }): Promise<boolean>
+  }): Promise<"granted" | "invalid" | "already_opened">
 }

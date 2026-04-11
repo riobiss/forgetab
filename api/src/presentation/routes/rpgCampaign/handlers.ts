@@ -363,6 +363,7 @@ export async function acceptRpgCampaignDeliveryOfferHandler(
     const body = (parseJsonBody(request.body) ?? {}) as {
       characterId?: string
       offerId?: string
+      revealToRoom?: boolean
     }
 
     const payload = await acceptRpgCampaignDeliveryOfferUseCase(
@@ -375,6 +376,7 @@ export async function acceptRpgCampaignDeliveryOfferHandler(
         userId: auth.userId,
         characterId: body.characterId ?? "",
         offerId: body.offerId ?? "",
+        revealToRoom: body.revealToRoom === true,
       },
     )
 

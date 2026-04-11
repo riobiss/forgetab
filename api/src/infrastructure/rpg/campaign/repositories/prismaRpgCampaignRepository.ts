@@ -938,7 +938,7 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
   },
 
   async grantDeliveryAssets(params) {
-    const rows = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const characterRows = await tx.$queryRaw<
         Array<{
           id: string
@@ -956,7 +956,7 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
 
       const character = characterRows[0]
       if (!character) {
-        return false
+        return "invalid" as const
       }
 
       let nextAbilities = parseCharacterAbilities(character.abilities)
@@ -971,7 +971,7 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
             LIMIT 1
           `)
           if (!itemRows[0]) {
-            return false
+            return "invalid" as const
           }
           continue
         }
@@ -986,7 +986,25 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
           LIMIT 1
         `)
         if (!skillRows[0]) {
-          return false
+          return "invalid" as const
+        }
+      }
+
+      if (params.markOfferOpened) {
+        const openedRows = await tx.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+          UPDATE rpg_campaign_messages
+          SET
+            content = ${params.nextContent},
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id = ${params.messageId}
+            AND campaign_id = ${params.campaignId}
+            AND kind = 'action'::"public"."RpgCampaignMessageKind"
+            AND content = ${params.previousContent}
+          RETURNING id
+        `)
+
+        if (openedRows.length === 0) {
+          return "already_opened" as const
         }
       }
 
@@ -1033,9 +1051,9 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
         },
       })
 
-      return true
+      return "granted" as const
     })
 
-    return rows
+    return result
   },
 }
