@@ -31,10 +31,13 @@
 }
 
 .actionMenuToolbar {
-  position: absolute;
-  left: 0;
+  position: fixed;
+  left: 0.35rem;
   bottom: auto;
-  top: calc(100% + 0.45rem);
+  top: 3.35rem;
+  max-height: min(calc(100dvh - 4rem), 22rem);
+  overflow-y: auto;
+  z-index: 65;
 }
 
 .actionMenuItem {

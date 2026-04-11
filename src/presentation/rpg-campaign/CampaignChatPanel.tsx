@@ -17,7 +17,7 @@ type Props = {
   isCampaignEnded: boolean
   formatTime: (date: Date) => string
   onClose: () => void
-  runAction: (action: () => Promise<{ message?: string }>) => Promise<void>
+  runAction: (action: () => Promise<{ message?: string }>) => Promise<boolean>
   appendMessageLocally: (message: CampaignRoomMessage) => void
 }
 

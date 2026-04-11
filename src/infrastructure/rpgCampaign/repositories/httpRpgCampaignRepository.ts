@@ -260,7 +260,7 @@ export const httpRpgCampaignRepository = {
     rpgId: string,
     campaignId: string,
     messageId: string,
-    payload: { characterId: string; offerId: string },
+    payload: { characterId: string; offerId: string; revealToRoom?: boolean },
   ) {
     return postWithJson(
       `/api/rpg/${rpgId}/campaigns/${campaignId}/messages/${messageId}/accept-delivery`,

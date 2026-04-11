@@ -1,5 +1,7 @@
-import { useState, type CSSProperties } from "react"
-import { ChevronDown, ChevronRight, Dice5, Gift, RotateCcw, X } from "lucide-react"
+"use client"
+
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react"
+import { ChevronDown, ChevronRight, Dice5, PackageOpen, RotateCcw, X } from "lucide-react"
 import Image from "next/image"
 import type { RpgCampaignRoomViewModel } from "@/application/rpgCampaign/types"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
@@ -11,6 +13,7 @@ import {
   parseDiceRollAction,
   parseItemUseAction,
   parseSkillUseAction,
+  toAbilityDisplayName,
   toActionTypeLabel,
 } from "./actionMessages"
 import { AbilityActionDetailCard, ItemActionDetailCard } from "./ActionDetailCards"
@@ -30,7 +33,11 @@ type Props = {
   onToggleAction: (messageId: string) => void
   onToggleRoll: (messageId: string) => void
   onRevokeAction: (messageId: string) => void
-  onAcceptDeliveryOffer: (messageId: string, offer: NonNullable<ReturnType<typeof parseDeliveryOfferAction>>) => void
+  onAcceptDeliveryOffer: (
+    messageId: string,
+    offer: NonNullable<ReturnType<typeof parseDeliveryOfferAction>>,
+    options?: { revealToRoom?: boolean },
+  ) => Promise<boolean> | boolean
   onOpenDiceFromPayload: (payload: unknown) => void
 }
 
@@ -50,6 +57,11 @@ export function CampaignActionMessageCard({
 }: Props) {
   const [isCharacterRevealDetailsOpen, setIsCharacterRevealDetailsOpen] = useState(false)
   const [isDeliveryOfferOpen, setIsDeliveryOfferOpen] = useState(false)
+  const [isChestChoiceOpen, setIsChestChoiceOpen] = useState(false)
+  const [isOpeningChest, setIsOpeningChest] = useState(false)
+  const [privateChestOffer, setPrivateChestOffer] = useState<NonNullable<ReturnType<typeof parseDeliveryOfferAction>> | null>(null)
+  const [publicChestOffer, setPublicChestOffer] = useState<NonNullable<ReturnType<typeof parseDeliveryOfferAction>> | null>(null)
+  const [chestAnimationToken, setChestAnimationToken] = useState(0)
   const diceRoll = parseDiceRollAction(message.content)
   const skillUse = parseSkillUseAction(message.content)
   const itemUse = parseItemUseAction(message.content)
@@ -63,7 +75,7 @@ export function CampaignActionMessageCard({
   if (skillUse) {
     const primaryTag = skillUse.ability.skillTags[0]
     const tagMeta = primaryTag ? getSkillTagMeta(primaryTag) : null
-    const abilityName = skillUse.ability.levelName ?? skillUse.ability.skillName
+    const abilityName = toAbilityDisplayName(skillUse.ability)
     const actionTypeLabel = toActionTypeLabel(skillUse.ability.skillActionType) ?? "Habilidade"
     const isExpanded = canOpenActionDetails && isActionExpanded
 
@@ -185,10 +197,28 @@ export function CampaignActionMessageCard({
       const isTargeted = deliveryOffer.recipientUserIds.length > 0
       const canInteract = !isOwner && (!isTargeted || deliveryOffer.recipientUserIds.includes(viewerUserId))
       const canOpenOffer = isOwner || canInteract
+      const isChest = deliveryOffer.mode === "chest"
+      const isOpened = Boolean(deliveryOffer.openedAt)
+      const isRevealed = Boolean(deliveryOffer.revealedAt)
+      const canOpenChest = canInteract && !isOpened
+      const canInspectRevealedChest = isOpened && isRevealed
+      const canInspectHiddenChest = isOpened && !isRevealed && deliveryOffer.openedByUserId === viewerUserId
+      const canInspectChest = canInspectRevealedChest || canInspectHiddenChest
 
       return (
-        <article className={`${styles.streamCard} ${cardStyles.deliveryOfferCard}`}>
-          {canRevokeAction ? (
+        <article className={`${styles.streamCard} ${isChest ? cardStyles.chestOfferCard : cardStyles.deliveryOfferCard}`}>
+          {isChest && canRevokeAction ? (
+            <div className={cardStyles.chestControls}>
+              <button
+                type="button"
+                className={`${styles.characterRevealRevokeButton} ${cardStyles.chestRevokeButton}`}
+                onClick={() => onRevokeAction(message.id)}
+                aria-label="Revogar entrega"
+              >
+                <RotateCcw size={16} />
+              </button>
+            </div>
+          ) : canRevokeAction ? (
             <button
               type="button"
               className={styles.characterRevealRevokeButton}
@@ -198,35 +228,94 @@ export function CampaignActionMessageCard({
               <RotateCcw size={16} />
             </button>
           ) : null}
-          <button
-            type="button"
-            className={cardStyles.deliveryOfferMain}
-            onClick={() => {
-              if (canOpenOffer) {
-                setIsDeliveryOfferOpen(true)
-              }
-            }}
-            disabled={!canOpenOffer}
-          >
-            <span className={cardStyles.deliveryOfferIcon}>
-              <Gift size={20} />
-            </span>
-            <span className={cardStyles.deliveryOfferText}>
-              <strong>{deliveryOffer.mode === "chest" ? "Bau" : "Entrega"}</strong>
-              <small>
-                {deliveryOffer.assets.map((asset) => asset.name).join(", ")}
-              </small>
-            </span>
-          </button>
-          {isDeliveryOfferOpen ? (
+          {isChest ? (
+            <ChestOfferButton
+              canOpenOffer={canOpenChest || canInspectChest}
+              isOpened={isOpened}
+              isRevealed={isRevealed}
+              animationToken={chestAnimationToken}
+              onOpen={() => {
+                if (canInspectRevealedChest) {
+                  setPublicChestOffer(deliveryOffer)
+                  return
+                }
+
+                if (canInspectHiddenChest) {
+                  setPrivateChestOffer(deliveryOffer)
+                  return
+                }
+
+                if (canOpenChest) {
+                  setIsChestChoiceOpen(true)
+                }
+              }}
+            />
+          ) : (
+            <button
+              type="button"
+              className={cardStyles.deliveryOfferMain}
+              onClick={() => {
+                if (canOpenOffer) {
+                  setIsDeliveryOfferOpen(true)
+                }
+              }}
+              disabled={!canOpenOffer}
+            >
+              <span className={cardStyles.deliveryOfferText}>
+                <strong>Entrega</strong>
+                <small>
+                  {deliveryOffer.assets.map((asset) => asset.name).join(", ")}
+                </small>
+              </span>
+            </button>
+          )}
+          {!isChest && isDeliveryOfferOpen ? (
             <DeliveryOfferModal
               offer={deliveryOffer}
-              canAccept={canInteract}
+              canAccept={canInteract && !isOpened}
               onAccept={() => {
-                setIsDeliveryOfferOpen(false)
                 onAcceptDeliveryOffer(message.id, deliveryOffer)
+                setIsDeliveryOfferOpen(false)
               }}
               onClose={() => setIsDeliveryOfferOpen(false)}
+            />
+          ) : null}
+          {isChest && isChestChoiceOpen ? (
+            <ChestRevealChoiceModal
+              isBusy={isOpeningChest}
+              onClose={() => setIsChestChoiceOpen(false)}
+              onReveal={async () => {
+                setIsOpeningChest(true)
+                const wasOpened = await onAcceptDeliveryOffer(message.id, deliveryOffer, { revealToRoom: true })
+                setIsOpeningChest(false)
+                if (wasOpened) {
+                  setChestAnimationToken((currentToken) => currentToken + 1)
+                  setIsChestChoiceOpen(false)
+                }
+              }}
+              onHide={async () => {
+                setIsOpeningChest(true)
+                const wasOpened = await onAcceptDeliveryOffer(message.id, deliveryOffer, { revealToRoom: false })
+                setIsOpeningChest(false)
+                if (wasOpened) {
+                  setChestAnimationToken((currentToken) => currentToken + 1)
+                  setIsChestChoiceOpen(false)
+                }
+              }}
+            />
+          ) : null}
+          {privateChestOffer ? (
+            <ChestLootModal
+              offer={privateChestOffer}
+              title="Tesouro encontrado"
+              onClose={() => setPrivateChestOffer(null)}
+            />
+          ) : null}
+          {publicChestOffer ? (
+            <ChestLootModal
+              offer={publicChestOffer}
+              title="Tesouro revelado"
+              onClose={() => setPublicChestOffer(null)}
             />
           ) : null}
           <span className={styles.streamTime}>{formatTime(message.createdAt)}</span>
@@ -339,6 +428,361 @@ export function CampaignActionMessageCard({
   )
 }
 
+function ChestOfferButton({
+  canOpenOffer,
+  isOpened,
+  isRevealed,
+  animationToken,
+  onOpen,
+}: {
+  canOpenOffer: boolean
+  isOpened: boolean
+  isRevealed: boolean
+  animationToken: number
+  onOpen: () => void
+}) {
+  type DotLottieInstance = {
+    totalFrames?: number
+    play?: () => void | Promise<void>
+    stop?: () => void | Promise<void>
+    pause?: () => void | Promise<void>
+    setFrame?: (frame: number) => void | Promise<void>
+    setSpeed?: (speed: number) => void | Promise<void>
+    addEventListener?: (type: "complete" | "load" | "ready", listener: () => void) => void
+    removeEventListener?: (type: "complete" | "load" | "ready", listener: () => void) => void
+  }
+
+  const playerRef = useRef<HTMLElement & {
+    dotLottie?: DotLottieInstance | null
+  }>(null)
+  const isPlayingOpeningRef = useRef(false)
+  const [isPlayerReady, setIsPlayerReady] = useState(false)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadPlayer() {
+      if (typeof window === "undefined") {
+        return
+      }
+
+      await import("@lottiefiles/dotlottie-wc")
+      await window.customElements.whenDefined("dotlottie-wc")
+
+      if (isMounted) {
+        setIsPlayerReady(true)
+      }
+    }
+
+    void loadPlayer()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const getPlayer = useCallback(() => {
+    if (!isPlayerReady) {
+      return null
+    }
+
+    return playerRef.current?.dotLottie ?? null
+  }, [isPlayerReady])
+
+  const lockOpenFrame = useCallback(() => {
+    const player = getPlayer()
+    const totalFrames = Number(player?.totalFrames ?? 0)
+    if (!player || totalFrames <= 1) {
+      return false
+    }
+
+    void player.pause?.()
+    void player.setFrame?.(totalFrames - 1)
+    return true
+  }, [getPlayer])
+
+  const lockOpenFrameWithRetry = useCallback(() => {
+    let attempts = 0
+    let timer: number | null = null
+
+    const tryLock = () => {
+      attempts += 1
+      if (lockOpenFrame() || attempts >= 30) {
+        return
+      }
+
+      timer = window.setTimeout(tryLock, 100)
+    }
+
+    tryLock()
+
+    return () => {
+      if (timer) {
+        window.clearTimeout(timer)
+      }
+    }
+  }, [lockOpenFrame])
+
+  const resetClosedFrame = useCallback(() => {
+    const player = playerRef.current?.dotLottie
+    if (!player) {
+      return false
+    }
+
+    void player.setSpeed?.(0.45)
+    void player.stop?.()
+    void player.setFrame?.(0)
+    return true
+  }, [])
+
+  const resetClosedFrameWithRetry = useCallback(() => {
+    let attempts = 0
+    let timer: number | null = null
+
+    const tryReset = () => {
+      attempts += 1
+      if (resetClosedFrame() || attempts >= 30) {
+        return
+      }
+
+      timer = window.setTimeout(tryReset, 100)
+    }
+
+    tryReset()
+
+    return () => {
+      if (timer) {
+        window.clearTimeout(timer)
+      }
+    }
+  }, [resetClosedFrame])
+
+  useEffect(() => {
+    if (!isPlayerReady || isOpened) {
+      return
+    }
+
+    return resetClosedFrameWithRetry()
+  }, [isOpened, isPlayerReady, resetClosedFrameWithRetry])
+
+  useEffect(() => {
+    if (!isPlayerReady || !isOpened || isPlayingOpeningRef.current) {
+      return
+    }
+
+    return lockOpenFrameWithRetry()
+  }, [isOpened, isPlayerReady, lockOpenFrameWithRetry])
+
+  useEffect(() => {
+    if (!isPlayerReady || animationToken <= 0) {
+      return
+    }
+
+    isPlayingOpeningRef.current = true
+    let retryTimer: number | null = null
+    let fallbackTimer: number | null = null
+    let animationPlayer: DotLottieInstance | null = null
+    let isCancelled = false
+
+    const handleComplete = () => {
+      if (isCancelled) {
+        return
+      }
+
+      isPlayingOpeningRef.current = false
+      lockOpenFrameWithRetry()
+      if (fallbackTimer) {
+        window.clearTimeout(fallbackTimer)
+      }
+    }
+
+    const startOpeningAnimation = (attempt = 1) => {
+      if (isCancelled) {
+        return
+      }
+
+      const player = getPlayer()
+      const totalFrames = Number(player?.totalFrames ?? 0)
+      if (!player || totalFrames <= 1) {
+        if (attempt < 30) {
+          retryTimer = window.setTimeout(() => startOpeningAnimation(attempt + 1), 100)
+        } else {
+          isPlayingOpeningRef.current = false
+          lockOpenFrameWithRetry()
+        }
+        return
+      }
+
+      animationPlayer = player
+      void player.setSpeed?.(0.45)
+      void player.stop?.()
+      void player.setFrame?.(0)
+      player.addEventListener?.("complete", handleComplete)
+      void player.play?.()
+      fallbackTimer = window.setTimeout(handleComplete, 3600)
+    }
+
+    const frameId = window.requestAnimationFrame(() => startOpeningAnimation())
+
+    return () => {
+      isCancelled = true
+      isPlayingOpeningRef.current = false
+      window.cancelAnimationFrame(frameId)
+      if (retryTimer) {
+        window.clearTimeout(retryTimer)
+      }
+      if (fallbackTimer) {
+        window.clearTimeout(fallbackTimer)
+      }
+      animationPlayer?.removeEventListener?.("complete", handleComplete)
+    }
+  }, [animationToken, getPlayer, isPlayerReady, lockOpenFrameWithRetry])
+
+  const chestPlayer = (
+    <span className={cardStyles.chestPlayerShell}>
+      {isPlayerReady ? (
+        <dotlottie-wc
+          ref={playerRef}
+          src="/animations/BrahmaChest.lottie"
+          speed={0.45}
+          className={cardStyles.chestPlayer}
+        />
+      ) : null}
+    </span>
+  )
+
+  return (
+    <div className={cardStyles.chestScene}>
+      {canOpenOffer ? (
+        <button
+          type="button"
+          className={cardStyles.chestButton}
+          onClick={onOpen}
+          aria-label={isOpened ? "Ver tesouro" : "Abrir bau"}
+        >
+          {chestPlayer}
+        </button>
+      ) : (
+        <div className={`${cardStyles.chestButton} ${cardStyles.chestButtonStatic}`} aria-label="Bau" role="img">
+          {chestPlayer}
+        </div>
+      )}
+      {!isRevealed && isOpened ? (
+        <p className={cardStyles.chestSealedHint}>O bau foi aberto em segredo.</p>
+      ) : !isOpened ? (
+        <p className={cardStyles.chestSealedHint}>O bau esta fechado.</p>
+      ) : null}
+    </div>
+  )
+}
+
+function LootPreview({
+  assets,
+  isOpened,
+}: {
+  assets: NonNullable<ReturnType<typeof parseDeliveryOfferAction>>["assets"]
+  isOpened: boolean
+}) {
+  return (
+    <div className={isOpened ? cardStyles.lootGridRevealed : cardStyles.lootGridHidden}>
+      {assets.map((asset) => (
+        <div key={`${asset.kind}:${asset.id}`} className={cardStyles.lootItem}>
+          <span className={cardStyles.lootIcon}>
+            {asset.image ? (
+              <Image src={asset.image} alt="" width={38} height={38} unoptimized />
+            ) : (
+              <PackageOpen size={20} />
+            )}
+          </span>
+          <span className={cardStyles.lootName}>{asset.name}</span>
+          {asset.description ? (
+            <p className={cardStyles.lootDescription}>{asset.description}</p>
+          ) : (
+            <p className={cardStyles.lootDescriptionMuted}>Sem descricao.</p>
+          )}
+          <small>{asset.kind === "item" ? `x${asset.quantity}` : `Nv.${asset.level}`}</small>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ChestRevealChoiceModal({
+  isBusy,
+  onReveal,
+  onHide,
+  onClose,
+}: {
+  isBusy: boolean
+  onReveal: () => void | Promise<void>
+  onHide: () => void | Promise<void>
+  onClose: () => void
+}) {
+  return (
+    <div className={styles.modalBackdrop} role="presentation" onClick={onClose}>
+      <section
+        className={cardStyles.chestChoiceModal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="chest-choice-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className={styles.actionModalHeader}>
+          <h2 id="chest-choice-title" className={styles.actionModalTitle}>
+            Abrir bau
+          </h2>
+          <button type="button" className={styles.closeChatButton} onClick={onClose} disabled={isBusy}>
+            <X size={16} />
+          </button>
+        </div>
+        <p className={cardStyles.chestChoiceText}>
+          Voce pode revelar o conteudo para a sala ou guardar a descoberta so para voce.
+        </p>
+        <div className={cardStyles.chestChoiceActions}>
+          <button type="button" className={cardStyles.chestRevealButton} onClick={onReveal} disabled={isBusy}>
+            Revelar
+          </button>
+          <button type="button" className={cardStyles.chestHideButton} onClick={onHide} disabled={isBusy}>
+            Esconder
+          </button>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function ChestLootModal({
+  offer,
+  title,
+  onClose,
+}: {
+  offer: NonNullable<ReturnType<typeof parseDeliveryOfferAction>>
+  title: string
+  onClose: () => void
+}) {
+  return (
+    <div className={styles.modalBackdrop} role="presentation" onClick={onClose}>
+      <section
+        className={cardStyles.privateLootModal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="private-loot-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className={styles.actionModalHeader}>
+          <h2 id="private-loot-title" className={styles.actionModalTitle}>
+            {title}
+          </h2>
+          <button type="button" className={styles.closeChatButton} onClick={onClose}>
+            <X size={16} />
+          </button>
+        </div>
+        <LootPreview assets={offer.assets} isOpened />
+      </section>
+    </div>
+  )
+}
+
 function DeliveryOfferModal({
   offer,
   canAccept,
@@ -360,20 +804,13 @@ function DeliveryOfferModal({
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id="delivery-offer-title" className={styles.confirmActionTitle}>
-          {offer.mode === "chest" ? "Abrir bau?" : "Aceitar entrega?"}
+          {offer.openedAt ? "Bau aberto" : offer.mode === "chest" ? "Abrir bau?" : "Aceitar entrega?"}
         </h2>
-        <div className={cardStyles.deliveryModalAssetList}>
-          {offer.assets.map((asset) => (
-            <p key={`${asset.kind}:${asset.id}`}>
-              {asset.name}
-              {asset.kind === "item" ? ` x${asset.quantity}` : ` Nv.${asset.level}`}
-            </p>
-          ))}
-        </div>
+        <LootPreview assets={offer.assets} isOpened={Boolean(offer.openedAt) || offer.mode !== "chest"} />
         <div className={styles.confirmActionButtons}>
           {canAccept ? (
             <button type="button" className={cardStyles.deliveryAcceptButton} onClick={onAccept}>
-              Aceitar
+              {offer.mode === "chest" ? "Abrir" : "Aceitar"}
             </button>
           ) : null}
           <button type="button" className={styles.confirmActionCancelButton} onClick={onClose}>

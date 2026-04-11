@@ -1,7 +1,7 @@
 "use client"
 
 import type { CSSProperties } from "react"
-import { Gift, Info, PawPrint, Plus, Send, Sparkles, Swords, X } from "lucide-react"
+import { Info, PawPrint, Plus, Send, Sparkles, Swords, X } from "lucide-react"
 import type { CampaignSelectedCharacter } from "@/infrastructure/rpgCampaign/campaignPresence"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 import { toInventoryCardItem } from "@/presentation/character-inventory/utils"
@@ -80,7 +80,7 @@ export function CampaignActionControls({
                 void actions.openDeliveryModal()
               }}
             >
-              <Gift size={16} /> Entregar
+              Entregar
             </button>
           ) : null}
           {!isOwner && selectedCharacter ? (

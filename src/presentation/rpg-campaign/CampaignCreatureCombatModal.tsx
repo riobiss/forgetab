@@ -26,7 +26,7 @@ type Props = {
   combatId: string
   isBusy: boolean
   onClose: () => void
-  runAction: (action: () => Promise<{ message?: string }>) => Promise<void>
+  runAction: (action: () => Promise<{ message?: string }>) => Promise<boolean>
 }
 
 const rarityOptions = [

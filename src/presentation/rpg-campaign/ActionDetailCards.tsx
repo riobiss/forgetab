@@ -6,7 +6,7 @@ import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 import abilityStyles from "@/presentation/character-abilities/CharacterAbilitiesPage.module.css"
 import type { InventoryCardItem } from "@/presentation/character-inventory/types"
 import { toInventoryCardItem } from "@/presentation/character-inventory/utils"
-import { toActionTypeLabel } from "./actionMessages"
+import { toAbilityDisplayName, toActionTypeLabel } from "./actionMessages"
 import styles from "./RpgCampaignRoomPage.module.css"
 
 function hasText(value: string | null | undefined) {
@@ -30,7 +30,7 @@ export function AbilityActionDetailCard({
 }: AbilityCardProps) {
   const primaryTag = ability.skillTags[0]
   const tagMeta = primaryTag ? getSkillTagMeta(primaryTag) : null
-  const abilityName = ability.levelName ?? ability.skillName
+  const abilityName = toAbilityDisplayName(ability)
   const levelDescription = hasText(ability.levelDescription)
     ? ability.levelDescription
     : hasText(ability.summary)

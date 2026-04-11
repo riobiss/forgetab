@@ -172,8 +172,10 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
     try {
       await action()
       await refreshRoom()
+      return true
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Nao foi possivel concluir a acao.")
+      return false
     } finally {
       setIsBusy(false)
     }

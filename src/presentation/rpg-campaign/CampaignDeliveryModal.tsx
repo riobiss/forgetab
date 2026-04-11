@@ -82,6 +82,7 @@ export function CampaignDeliveryModal({
       id: item.id,
       name: item.name,
       image: item.image,
+      description: item.description,
       quantity: 1,
     })),
     ...selectedSkills.map((skill) => ({
@@ -89,6 +90,7 @@ export function CampaignDeliveryModal({
       id: skill.id,
       name: skill.slug,
       image: null,
+      description: null,
       level: 1,
     })),
   ]

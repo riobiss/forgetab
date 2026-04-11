@@ -37,7 +37,7 @@ type Params = {
   activeCombatRoomId: string | null
   selectedCharacter: CampaignSelectedCharacter | null
   setError: (message: string | null) => void
-  runAction: (action: () => Promise<{ message?: string }>) => Promise<void>
+  runAction: (action: () => Promise<{ message?: string }>) => Promise<boolean>
   appendMessageLocally: (message: CampaignRoomMessage) => void
   setRoom: Dispatch<SetStateAction<RpgCampaignRoomViewModel>>
 }
@@ -394,10 +394,14 @@ export function useCampaignRoomActions({
     })
   }
 
-  async function handleAcceptDeliveryOffer(messageId: string, offer: DeliveryOfferActionPayload) {
+  async function handleAcceptDeliveryOffer(
+    messageId: string,
+    offer: DeliveryOfferActionPayload,
+    options: { revealToRoom?: boolean } = {},
+  ) {
     if (!selectedCharacter) {
       setError("Selecione um personagem para receber a entrega.")
-      return
+      return false
     }
 
     const isTargeted = offer.recipientUserIds.length > 0 || offer.recipientCharacterIds.length > 0
@@ -408,13 +412,14 @@ export function useCampaignRoomActions({
 
     if (!canReceive) {
       setError("Essa entrega nao esta destinada ao seu personagem.")
-      return
+      return false
     }
 
-    await runAction(async () => {
+    return runAction(async () => {
       return httpRpgCampaignRepository.acceptDeliveryOffer(rpgId, room.campaign.id, messageId, {
         characterId: selectedCharacter.id,
         offerId: offer.offerId,
+        revealToRoom: options.revealToRoom === true,
       })
     })
   }

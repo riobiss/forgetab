@@ -29,6 +29,7 @@ export type DeliveryOfferAsset =
       id: string
       name: string
       image: string | null
+      description?: string | null
       quantity: number
     }
   | {
@@ -36,6 +37,7 @@ export type DeliveryOfferAsset =
       id: string
       name: string
       image: string | null
+      description?: string | null
       level: number
     }
 
@@ -47,6 +49,11 @@ export type DeliveryOfferActionPayload = {
   assets: DeliveryOfferAsset[]
   recipientUserIds: string[]
   recipientCharacterIds: string[]
+  openedByUserId?: string | null
+  openedByCharacterId?: string | null
+  openedAt?: string | null
+  revealedByUserId?: string | null
+  revealedAt?: string | null
 }
 
 export type DiceRollGroup = {
@@ -132,6 +139,34 @@ const DELIVERY_OFFER_PREFIX = "__DELIVERY_OFFER__"
 export function toActionTypeLabel(value: string | null) {
   if (!value) return null
   return SKILL_ACTION_TYPE_LABEL[value] ?? value
+}
+
+function hasDisplayText(value: string | null | undefined): value is string {
+  return typeof value === "string" && value.trim().length > 0
+}
+
+function humanizeSlug(value: string) {
+  return value
+    .trim()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/^./, (letter) => letter.toUpperCase())
+}
+
+export function toAbilityDisplayName(ability: Pick<PurchasedAbilityViewDto, "levelName" | "skillName">) {
+  const rawLevelName = ability.levelName
+  const levelName = hasDisplayText(rawLevelName) ? rawLevelName.trim() : null
+  if (levelName) {
+    return levelName
+  }
+
+  const rawSkillName = ability.skillName
+  const skillName = hasDisplayText(rawSkillName) ? rawSkillName.trim() : null
+  if (skillName) {
+    return humanizeSlug(skillName)
+  }
+
+  return "Habilidade"
 }
 
 export function buildDiceRollActionContent(payload: DiceRollActionPayload) {
