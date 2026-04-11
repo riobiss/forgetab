@@ -63,6 +63,7 @@ import {
   updateRpgHandler,
 } from "@api/presentation/routes/rpg/handlers"
 import {
+  acceptRpgCampaignDeliveryOfferHandler,
   addRpgCampaignCombatCreaturesHandler,
   createRpgCampaignCombatHandler,
   createRpgCampaignCombatQueueHandler,
@@ -79,6 +80,7 @@ import {
   listRpgCampaignsHandler,
   moveRpgCampaignCombatQueueEntryHandler,
   passRpgCampaignCombatTurnHandler,
+  rollRpgCampaignDiceHandler,
   startRpgCampaignHandler,
 } from "@api/presentation/routes/rpgCampaign/handlers"
 import {
@@ -246,8 +248,20 @@ export function registerApiRoutes(app: FastifyInstance) {
       reply,
     ),
   )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/dice-roll", (request, reply) =>
+    rollRpgCampaignDiceHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string } }>,
+      reply,
+    ),
+  )
   registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/campaigns/:campaignId/messages/:messageId", (request, reply) =>
     deleteRpgCampaignActionMessageHandler(
+      request as FastifyRequest<{ Params: { rpgId: string; campaignId: string; messageId: string } }>,
+      reply,
+    ),
+  )
+  registerFastifyRoute(app, "post", "/api/rpg/:rpgId/campaigns/:campaignId/messages/:messageId/accept-delivery", (request, reply) =>
+    acceptRpgCampaignDeliveryOfferHandler(
       request as FastifyRequest<{ Params: { rpgId: string; campaignId: string; messageId: string } }>,
       reply,
     ),

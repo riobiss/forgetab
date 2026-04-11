@@ -1,5 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import {
+  acceptRpgCampaignDeliveryOfferUseCase,
   addRpgCampaignCombatCreaturesUseCase,
   createRpgCampaignCombatQueueUseCase,
   createRpgCampaignCombatUseCase,
@@ -16,6 +17,7 @@ import {
   listRpgCampaignsUseCase,
   moveRpgCampaignCombatQueueEntryUseCase,
   passRpgCampaignCombatTurnUseCase,
+  rollRpgCampaignDiceUseCase,
   startRpgCampaignUseCase,
 } from "@/application/rpg/campaign/use-cases/rpgCampaign"
 import {
@@ -294,6 +296,36 @@ export async function createRpgCampaignMessageHandler(
   }
 }
 
+export async function rollRpgCampaignDiceHandler(
+  request: FastifyRequest<{ Params: CampaignRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+
+    const body = (parseJsonBody(request.body) ?? {}) as {
+      entries?: Array<{ diceCount?: unknown; diceSides?: unknown }>
+    }
+
+    const payload = await rollRpgCampaignDiceUseCase(
+      rpgCampaignRouteDeps.accessService,
+      rpgCampaignRouteDeps.repository,
+      rpgCampaignRouteDeps.randomNumberProvider,
+      {
+        rpgId: request.params.rpgId,
+        campaignId: request.params.campaignId,
+        userId: auth.userId,
+        entries: body.entries ?? [],
+      },
+    )
+
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao girar dados da campanha.")
+  }
+}
+
 export async function deleteRpgCampaignActionMessageHandler(
   request: FastifyRequest<{ Params: CampaignMessageRouteParams }>,
   reply: FastifyReply,
@@ -317,6 +349,39 @@ export async function deleteRpgCampaignActionMessageHandler(
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(reply, error, "Erro interno ao revogar acao da campanha.")
+  }
+}
+
+export async function acceptRpgCampaignDeliveryOfferHandler(
+  request: FastifyRequest<{ Params: CampaignMessageRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+
+    const body = (parseJsonBody(request.body) ?? {}) as {
+      characterId?: string
+      offerId?: string
+    }
+
+    const payload = await acceptRpgCampaignDeliveryOfferUseCase(
+      rpgCampaignRouteDeps.accessService,
+      rpgCampaignRouteDeps.repository,
+      {
+        rpgId: request.params.rpgId,
+        campaignId: request.params.campaignId,
+        messageId: request.params.messageId,
+        userId: auth.userId,
+        characterId: body.characterId ?? "",
+        offerId: body.offerId ?? "",
+      },
+    )
+
+    emitCampaignRoomRefresh(request.params.campaignId)
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao aceitar entrega da campanha.")
   }
 }
 

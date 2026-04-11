@@ -1,4 +1,5 @@
 import { AppError } from "@/shared/errors/AppError"
+import type { RandomNumberProvider } from "@/application/random/ports/RandomNumberProvider"
 import type { RpgCampaignAccessService } from "@/application/rpg/campaign/ports/RpgCampaignAccessService"
 import type { RpgCampaignRepository } from "@/application/rpg/campaign/ports/RpgCampaignRepository"
 import type {
@@ -10,6 +11,22 @@ import type {
 const CAMPAIGN_MESSAGE_MAX_LENGTH = 1200
 const COMBAT_NAME_MAX_LENGTH = 80
 const COMBAT_CREATURE_MAX_QUANTITY = 20
+const DICE_ROLL_MAX_GROUPS = 20
+const DICE_ROLL_MAX_COUNT = 100
+const DICE_ROLL_MAX_SIDES = 1000
+const DELIVERY_OFFER_PREFIX = "__DELIVERY_OFFER__"
+
+type DeliveryOfferPayload = {
+  type: "delivery_offer"
+  offerId: string
+  mode: "single" | "chest"
+  assets: Array<
+    | { kind: "item"; id: string; quantity: number }
+    | { kind: "skill"; id: string; level: number }
+  >
+  recipientUserIds: string[]
+  recipientCharacterIds: string[]
+}
 
 function assertCampaignAccess(permission: {
   exists: boolean
@@ -47,6 +64,61 @@ async function assertRoomAccess(
   }
 
   return { permission, campaign }
+}
+
+function parseDeliveryOffer(content: string): DeliveryOfferPayload | null {
+  if (!content.startsWith(DELIVERY_OFFER_PREFIX)) {
+    return null
+  }
+
+  try {
+    const parsed = JSON.parse(content.slice(DELIVERY_OFFER_PREFIX.length)) as DeliveryOfferPayload
+    if (
+      parsed?.type !== "delivery_offer" ||
+      typeof parsed.offerId !== "string" ||
+      (parsed.mode !== "single" && parsed.mode !== "chest") ||
+      !Array.isArray(parsed.assets) ||
+      !Array.isArray(parsed.recipientUserIds) ||
+      !Array.isArray(parsed.recipientCharacterIds)
+    ) {
+      return null
+    }
+
+    const assets = parsed.assets
+      .map((asset) => {
+        if (asset?.kind === "item" && typeof asset.id === "string") {
+          return {
+            kind: "item" as const,
+            id: asset.id,
+            quantity: Number.isInteger(asset.quantity) && asset.quantity > 0 ? asset.quantity : 1,
+          }
+        }
+
+        if (asset?.kind === "skill" && typeof asset.id === "string") {
+          return {
+            kind: "skill" as const,
+            id: asset.id,
+            level: Number.isInteger(asset.level) && asset.level > 0 ? asset.level : 1,
+          }
+        }
+
+        return null
+      })
+      .filter((asset): asset is DeliveryOfferPayload["assets"][number] => Boolean(asset))
+
+    if (assets.length === 0) {
+      return null
+    }
+
+    return {
+      ...parsed,
+      assets,
+      recipientUserIds: parsed.recipientUserIds.filter((id) => typeof id === "string"),
+      recipientCharacterIds: parsed.recipientCharacterIds.filter((id) => typeof id === "string"),
+    }
+  } catch {
+    return null
+  }
 }
 
 export async function listRpgCampaignsUseCase(
@@ -371,6 +443,66 @@ export async function createRpgCampaignMessageUseCase(
   return { message: "Mensagem enviada.", chatMessage: message }
 }
 
+export async function rollRpgCampaignDiceUseCase(
+  accessService: RpgCampaignAccessService,
+  repository: RpgCampaignRepository,
+  randomNumberProvider: RandomNumberProvider,
+  params: {
+    rpgId: string
+    campaignId: string
+    userId: string
+    entries: Array<{ diceCount?: unknown; diceSides?: unknown }>
+  },
+) {
+  const { campaign } = await assertRoomAccess(accessService, repository, params)
+
+  if (!campaign.isActive) {
+    throw new AppError("A campanha foi encerrada.", 409)
+  }
+
+  if (!Array.isArray(params.entries) || params.entries.length < 1 || params.entries.length > DICE_ROLL_MAX_GROUPS) {
+    throw new AppError(`Escolha entre 1 e ${DICE_ROLL_MAX_GROUPS} linhas de dados.`, 400)
+  }
+
+  const groups = []
+  let provider: "local" | "random-org" = "local"
+
+  for (const entry of params.entries) {
+    const diceCount = Number(entry.diceCount)
+    const diceSides = Number(entry.diceSides)
+
+    if (!Number.isInteger(diceCount) || diceCount < 1 || diceCount > DICE_ROLL_MAX_COUNT) {
+      throw new AppError(`Escolha entre 1 e ${DICE_ROLL_MAX_COUNT} dados por linha.`, 400)
+    }
+
+    if (!Number.isInteger(diceSides) || diceSides < 2 || diceSides > DICE_ROLL_MAX_SIDES) {
+      throw new AppError(`Escolha um dado entre 2 e ${DICE_ROLL_MAX_SIDES} lados por linha.`, 400)
+    }
+
+    const result = await randomNumberProvider.generateIntegers({
+      count: diceCount,
+      min: 1,
+      max: diceSides,
+    })
+
+    if (result.provider === "random-org") {
+      provider = "random-org"
+    }
+
+    groups.push({
+      diceCount,
+      diceSides,
+      results: result.numbers,
+      total: result.numbers.reduce((sum, value) => sum + value, 0),
+    })
+  }
+
+  return {
+    provider,
+    groups,
+  }
+}
+
 export async function deleteRpgCampaignActionMessageUseCase(
   accessService: RpgCampaignAccessService,
   repository: RpgCampaignRepository,
@@ -390,10 +522,71 @@ export async function deleteRpgCampaignActionMessageUseCase(
   })
 
   if (!deleted) {
-    throw new AppError("Somente as duas ultimas acoes podem ser revogadas.", 404)
+    throw new AppError(
+      permission.isOwner
+        ? "Nao foi possivel encontrar essa acao para revogar."
+        : "Somente as duas ultimas acoes podem ser revogadas.",
+      404,
+    )
   }
 
   return { message: "Acao revogada." }
+}
+
+export async function acceptRpgCampaignDeliveryOfferUseCase(
+  accessService: RpgCampaignAccessService,
+  repository: RpgCampaignRepository,
+  params: {
+    rpgId: string
+    campaignId: string
+    messageId: string
+    userId: string
+    characterId: string
+    offerId: string
+  },
+) {
+  const { campaign } = await assertRoomAccess(accessService, repository, params)
+
+  if (!campaign.isActive) {
+    throw new AppError("A campanha foi encerrada.", 409)
+  }
+
+  const message = await repository.getCampaignActionMessage(params.campaignId, params.messageId)
+  if (!message) {
+    throw new AppError("Entrega nao encontrada.", 404)
+  }
+
+  if (!message.authorIsOwner) {
+    throw new AppError("Somente entregas criadas pelo owner podem ser aceitas.", 403)
+  }
+
+  const offer = parseDeliveryOffer(message.content)
+  if (!offer || offer.offerId !== params.offerId) {
+    throw new AppError("Entrega invalida.", 400)
+  }
+
+  const isTargeted = offer.recipientUserIds.length > 0 || offer.recipientCharacterIds.length > 0
+  const canReceive =
+    !isTargeted ||
+    offer.recipientUserIds.includes(params.userId) ||
+    offer.recipientCharacterIds.includes(params.characterId)
+
+  if (!canReceive) {
+    throw new AppError("Essa entrega nao esta destinada ao seu personagem.", 403)
+  }
+
+  const granted = await repository.grantDeliveryAssets({
+    rpgId: params.rpgId,
+    userId: params.userId,
+    characterId: params.characterId,
+    assets: offer.assets,
+  })
+
+  if (!granted) {
+    throw new AppError("Personagem ou entrega invalida.", 400)
+  }
+
+  return { message: offer.mode === "chest" ? "Bau recebido." : "Entrega aceita." }
 }
 
 export async function createRpgCampaignCombatUseCase(

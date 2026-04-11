@@ -33,6 +33,15 @@ export interface RpgCampaignRepository {
   listCampaignMessages(campaignId: string): Promise<RpgCampaignMessageSummary[]>
   listDirectMessagesForUser(campaignId: string, userId: string): Promise<RpgCampaignMessageSummary[]>
   listCampaignCombats(campaignId: string): Promise<RpgCampaignCombatRoomSummary[]>
+  getCampaignActionMessage(
+    campaignId: string,
+    messageId: string,
+  ): Promise<{
+    id: string
+    authorId: string
+    authorIsOwner: boolean
+    content: string
+  } | null>
   createCampaignMessage(
     campaignId: string,
     userId: string,
@@ -80,5 +89,14 @@ export interface RpgCampaignRepository {
     combatId: string
     userId: string
     canPassAny: boolean
+  }): Promise<boolean>
+  grantDeliveryAssets(params: {
+    rpgId: string
+    userId: string
+    characterId: string
+    assets: Array<
+      | { kind: "item"; id: string; quantity: number }
+      | { kind: "skill"; id: string; level: number }
+    >
   }): Promise<boolean>
 }

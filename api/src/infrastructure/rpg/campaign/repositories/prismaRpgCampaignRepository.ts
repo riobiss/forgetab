@@ -1,6 +1,7 @@
 import { Prisma } from "../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { RpgCampaignRepository } from "@/application/rpg/campaign/ports/RpgCampaignRepository"
+import { parseCharacterAbilities } from "@/infrastructure/characters/abilities/services/characterAbilityCostParser"
 
 function isLegacyCampaignMessagesSchemaError(error: unknown) {
   if (!(error instanceof Error)) {
@@ -474,6 +475,40 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
     }
   },
 
+  async getCampaignActionMessage(campaignId, messageId) {
+    const rows = await prisma
+      .$queryRaw<
+        Array<{
+          id: string
+          authorId: string
+          authorIsOwner: boolean
+          content: string
+        }>
+      >(Prisma.sql`
+        SELECT
+          m.id,
+          m.user_id AS "authorId",
+          (r.owner_id = m.user_id) AS "authorIsOwner",
+          m.content
+        FROM rpg_campaign_messages m
+        INNER JOIN rpg_campaigns c ON c.id = m.campaign_id
+        INNER JOIN rpgs r ON r.id = c.rpg_id
+        WHERE m.id = ${messageId}
+          AND m.campaign_id = ${campaignId}
+          AND m.kind = 'action'::"public"."RpgCampaignMessageKind"
+        LIMIT 1
+      `)
+      .catch((error) => {
+        if (!isLegacyCampaignMessagesSchemaError(error)) {
+          throw error
+        }
+
+        return []
+      })
+
+    return rows[0] ?? null
+  },
+
   async createCampaignMessage(campaignId, userId, kind, content, recipientUserId = null) {
     try {
       const rows = await prisma.$queryRaw<
@@ -563,14 +598,19 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
         WHERE id = ${params.messageId}
           AND campaign_id = ${params.campaignId}
           AND kind = 'action'::"public"."RpgCampaignMessageKind"
-          AND (${params.canDeleteAny} OR user_id = ${params.userId})
-          AND id IN (
-            SELECT id
-            FROM rpg_campaign_messages
-            WHERE campaign_id = ${params.campaignId}
-              AND kind = 'action'::"public"."RpgCampaignMessageKind"
-            ORDER BY created_at DESC
-            LIMIT 2
+          AND (
+            ${params.canDeleteAny}
+            OR (
+              user_id = ${params.userId}
+              AND id IN (
+                SELECT id
+                FROM rpg_campaign_messages
+                WHERE campaign_id = ${params.campaignId}
+                  AND kind = 'action'::"public"."RpgCampaignMessageKind"
+                ORDER BY created_at DESC
+                LIMIT 2
+              )
+            )
           )
         RETURNING id
       `)
@@ -895,5 +935,107 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
     `)
 
     return true
+  },
+
+  async grantDeliveryAssets(params) {
+    const rows = await prisma.$transaction(async (tx) => {
+      const characterRows = await tx.$queryRaw<
+        Array<{
+          id: string
+          abilities: Prisma.JsonValue
+        }>
+      >(Prisma.sql`
+        SELECT id, COALESCE(abilities, '[]'::jsonb) AS abilities
+        FROM rpg_characters
+        WHERE id = ${params.characterId}
+          AND rpg_id = ${params.rpgId}
+          AND created_by_user_id = ${params.userId}
+          AND character_type = 'player'::"public"."RpgCharacterType"
+        FOR UPDATE
+      `)
+
+      const character = characterRows[0]
+      if (!character) {
+        return false
+      }
+
+      let nextAbilities = parseCharacterAbilities(character.abilities)
+
+      for (const asset of params.assets) {
+        if (asset.kind === "item") {
+          const itemRows = await tx.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+            SELECT id
+            FROM baseitems
+            WHERE id = ${asset.id}
+              AND rpg_id = ${params.rpgId}
+            LIMIT 1
+          `)
+          if (!itemRows[0]) {
+            return false
+          }
+          continue
+        }
+
+        const skillRows = await tx.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+          SELECT sl.id
+          FROM skill_levels sl
+          INNER JOIN skills s ON s.id = sl.skill_id
+          WHERE s.id = ${asset.id}
+            AND s.rpg_id = ${params.rpgId}
+            AND sl.level_number = ${asset.level}
+          LIMIT 1
+        `)
+        if (!skillRows[0]) {
+          return false
+        }
+      }
+
+      for (const asset of params.assets) {
+        if (asset.kind === "item") {
+          await tx.$executeRaw(Prisma.sql`
+            INSERT INTO rpg_character_inventory_items (
+              id,
+              rpg_id,
+              character_id,
+              base_item_id,
+              quantity
+            )
+            VALUES (
+              ${crypto.randomUUID()},
+              ${params.rpgId},
+              ${params.characterId},
+              ${asset.id},
+              ${asset.quantity}
+            )
+            ON CONFLICT (character_id, base_item_id)
+            DO UPDATE SET
+              quantity = rpg_character_inventory_items.quantity + EXCLUDED.quantity,
+              updated_at = CURRENT_TIMESTAMP
+          `)
+          continue
+        }
+
+        if (nextAbilities.some((ability) => ability.skillId === asset.id && ability.level === asset.level)) {
+          continue
+        }
+
+        nextAbilities = [
+          ...nextAbilities.filter((ability) => ability.skillId !== asset.id),
+          { skillId: asset.id, level: asset.level },
+        ]
+      }
+
+      await tx.rpgCharacter.update({
+        where: { id: params.characterId },
+        data: {
+          abilities: nextAbilities as Prisma.InputJsonValue,
+          updatedAt: new Date(),
+        },
+      })
+
+      return true
+    })
+
+    return rows
   },
 }
