@@ -1,0 +1,383 @@
+.section {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  display: grid;
+  gap: 0.8rem;
+  padding: 0.85rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sectionHeader h3,
+.arenaHeader h3,
+.choiceModal h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.sectionHeader p,
+.choiceModal p {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+}
+
+.roomList {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.roomCard {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.roomCardActive {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 48%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 9%, var(--color-bg-surface));
+}
+
+.roomSummary {
+  min-width: 0;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.roomSummary strong {
+  color: var(--color-text-primary);
+}
+
+.roomSummary small {
+  color: var(--color-text-muted);
+}
+
+.enterButton,
+.primaryButton,
+.choiceButton {
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 42%, var(--color-border-soft));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-primary) 16%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.primaryButton:disabled,
+.enterButton:disabled,
+.choiceButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.arena {
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 26%, var(--color-border-soft));
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 94%, transparent));
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+}
+
+.nestedHeader {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem;
+}
+
+.nestedHeader h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.backButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.65rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.backButton:hover {
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
+}
+
+.stickyActions {
+  position: sticky;
+  top: 3.25rem;
+  z-index: 38;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 94%, transparent);
+  backdrop-filter: blur(14px);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.4rem;
+  padding: 0.4rem;
+}
+
+.stickyActions .queueButton,
+.stickyActions .primaryButton {
+  min-height: 1.95rem;
+  padding: 0.32rem 0.55rem;
+  font-size: 0.78rem;
+}
+
+.stickyTurn {
+  min-width: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-app) 38%, transparent);
+  display: grid;
+  place-items: center;
+  gap: 0.08rem;
+  padding: 0.25rem 0.5rem;
+  text-align: center;
+}
+
+.stickyTurn small {
+  color: var(--color-text-muted);
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.stickyTurn strong {
+  max-width: 100%;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nestedGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.joinInline {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.nestedActions {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.nestedActionsHeader {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.nestedActionsHeader h4 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.nestedActionsHeader small {
+  color: var(--color-text-muted);
+}
+
+.arenaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.2rem;
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.queueButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.65rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.roleBanner {
+  margin: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  color: var(--color-text-secondary);
+  padding: 0.65rem 0.75rem;
+}
+
+.turnPanel {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-app) 44%, transparent);
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem;
+}
+
+.turnPanel p,
+.turnPanel small {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.turnPanel strong {
+  color: var(--color-text-primary);
+  font-size: 1.08rem;
+}
+
+.choiceModal,
+.queueModal {
+  width: min(100%, 28rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 92%, transparent));
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.choiceModal {
+  position: relative;
+  padding-top: 3rem;
+}
+
+.choiceModalCloseButton {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+}
+
+.choiceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.queueList {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.queueItem {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem;
+}
+
+.queueItem > span {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.queueItem strong {
+  min-width: 0;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queueItem small {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.queueControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.queueControls button {
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.queueControls button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 760px) {
+  .nestedHeader,
+  .nestedGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .nestedHeader {
+    align-items: stretch;
+  }
+}

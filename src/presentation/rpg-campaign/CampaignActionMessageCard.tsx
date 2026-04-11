@@ -1,17 +1,20 @@
-import type { CSSProperties } from "react"
-import { ChevronDown, ChevronRight, Dice5, RotateCcw } from "lucide-react"
+import { useState, type CSSProperties } from "react"
+import { ChevronDown, ChevronRight, Dice5, Gift, RotateCcw, X } from "lucide-react"
 import Image from "next/image"
 import type { RpgCampaignRoomViewModel } from "@/application/rpgCampaign/types"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 import { toInventoryCardItem } from "@/presentation/character-inventory/utils"
 import {
   ITEM_RARITY_ACTION_COLOR,
+  parseCharacterRevealAction,
+  parseDeliveryOfferAction,
   parseDiceRollAction,
   parseItemUseAction,
   parseSkillUseAction,
   toActionTypeLabel,
 } from "./actionMessages"
 import { AbilityActionDetailCard, ItemActionDetailCard } from "./ActionDetailCards"
+import cardStyles from "./CampaignActionMessageCard.module.css"
 import styles from "./RpgCampaignRoomPage.module.css"
 
 type CampaignActionMessage = RpgCampaignRoomViewModel["actionMessages"][number]
@@ -27,6 +30,7 @@ type Props = {
   onToggleAction: (messageId: string) => void
   onToggleRoll: (messageId: string) => void
   onRevokeAction: (messageId: string) => void
+  onAcceptDeliveryOffer: (messageId: string, offer: NonNullable<ReturnType<typeof parseDeliveryOfferAction>>) => void
   onOpenDiceFromPayload: (payload: unknown) => void
 }
 
@@ -41,14 +45,20 @@ export function CampaignActionMessageCard({
   onToggleAction,
   onToggleRoll,
   onRevokeAction,
+  onAcceptDeliveryOffer,
   onOpenDiceFromPayload,
 }: Props) {
+  const [isCharacterRevealDetailsOpen, setIsCharacterRevealDetailsOpen] = useState(false)
+  const [isDeliveryOfferOpen, setIsDeliveryOfferOpen] = useState(false)
   const diceRoll = parseDiceRollAction(message.content)
   const skillUse = parseSkillUseAction(message.content)
   const itemUse = parseItemUseAction(message.content)
+  const characterReveal = parseCharacterRevealAction(message.content)
+  const deliveryOffer = parseDeliveryOfferAction(message.content)
   const canOpenActionDetails = isOwner || message.authorId === viewerUserId
   const canRevokeAction =
-    canOpenActionDetails && actionMessages.slice(-2).some((actionMessage) => actionMessage.id === message.id)
+    isOwner ||
+    (canOpenActionDetails && actionMessages.slice(-2).some((actionMessage) => actionMessage.id === message.id))
 
   if (skillUse) {
     const primaryTag = skillUse.ability.skillTags[0]
@@ -171,6 +181,119 @@ export function CampaignActionMessageCard({
   }
 
   if (!diceRoll) {
+    if (deliveryOffer) {
+      const isTargeted = deliveryOffer.recipientUserIds.length > 0
+      const canInteract = !isOwner && (!isTargeted || deliveryOffer.recipientUserIds.includes(viewerUserId))
+      const canOpenOffer = isOwner || canInteract
+
+      return (
+        <article className={`${styles.streamCard} ${cardStyles.deliveryOfferCard}`}>
+          {canRevokeAction ? (
+            <button
+              type="button"
+              className={styles.characterRevealRevokeButton}
+              onClick={() => onRevokeAction(message.id)}
+              aria-label="Revogar entrega"
+            >
+              <RotateCcw size={16} />
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className={cardStyles.deliveryOfferMain}
+            onClick={() => {
+              if (canOpenOffer) {
+                setIsDeliveryOfferOpen(true)
+              }
+            }}
+            disabled={!canOpenOffer}
+          >
+            <span className={cardStyles.deliveryOfferIcon}>
+              <Gift size={20} />
+            </span>
+            <span className={cardStyles.deliveryOfferText}>
+              <strong>{deliveryOffer.mode === "chest" ? "Bau" : "Entrega"}</strong>
+              <small>
+                {deliveryOffer.assets.map((asset) => asset.name).join(", ")}
+              </small>
+            </span>
+          </button>
+          {isDeliveryOfferOpen ? (
+            <DeliveryOfferModal
+              offer={deliveryOffer}
+              canAccept={canInteract}
+              onAccept={() => {
+                setIsDeliveryOfferOpen(false)
+                onAcceptDeliveryOffer(message.id, deliveryOffer)
+              }}
+              onClose={() => setIsDeliveryOfferOpen(false)}
+            />
+          ) : null}
+          <span className={styles.streamTime}>{formatTime(message.createdAt)}</span>
+        </article>
+      )
+    }
+
+    if (characterReveal) {
+      return (
+        <article className={`${styles.streamCard} ${styles.characterRevealStreamCard}`}>
+          {canRevokeAction ? (
+            <button
+              type="button"
+              className={styles.characterRevealRevokeButton}
+              onClick={() => onRevokeAction(message.id)}
+              aria-label="Revogar apresentacao"
+            >
+              <RotateCcw size={16} />
+            </button>
+          ) : null}
+          <div className={styles.characterRevealCard}>
+            <button
+              type="button"
+              className={styles.characterRevealPortraitButton}
+              onClick={() => setIsCharacterRevealDetailsOpen(true)}
+              disabled={characterReveal.sections.length === 0}
+              aria-label="Ver informacoes reveladas"
+            >
+              {characterReveal.image ? (
+                <span className={styles.characterRevealPortrait}>
+                  <Image
+                    src={characterReveal.image}
+                    alt=""
+                    fill
+                    sizes="(max-width: 760px) 100vw, 38rem"
+                    unoptimized
+                    className={styles.characterRevealImageBackdrop}
+                  />
+                  <Image
+                    src={characterReveal.image}
+                    alt=""
+                    fill
+                    sizes="(max-width: 760px) 100vw, 38rem"
+                    unoptimized
+                    className={styles.characterRevealImage}
+                  />
+                  <strong className={styles.characterRevealName}>{characterReveal.characterName}</strong>
+                </span>
+              ) : (
+                <span className={styles.characterRevealPortraitFallback}>
+                  <strong className={styles.characterRevealName}>{characterReveal.characterName}</strong>
+                </span>
+              )}
+            </button>
+          </div>
+          <span className={styles.streamTime}>{formatTime(message.createdAt)}</span>
+          {isCharacterRevealDetailsOpen ? (
+            <CharacterRevealDetailsModal
+              characterName={characterReveal.characterName}
+              sections={characterReveal.sections}
+              onClose={() => setIsCharacterRevealDetailsOpen(false)}
+            />
+          ) : null}
+        </article>
+      )
+    }
+
     return (
       <article className={styles.streamCard}>
         <p className={styles.streamContent}>{message.content}</p>
@@ -180,18 +303,20 @@ export function CampaignActionMessageCard({
   }
 
   return (
-    <article className={styles.streamCard}>
+    <article className={`${styles.streamCard} ${styles.actionStreamCard}`}>
+      {renderActionHeader({
+        actor: message.authorName || message.authorUsername,
+        actionTypeLabel: "Dado",
+        canRevokeAction,
+        canOpenActionDetails: true,
+        isExpanded: isRollExpanded,
+        expandLabel: "sequencia do dado",
+        messageId: message.id,
+        onRevokeAction,
+        onToggleAction: onToggleRoll,
+      })}
       <div className={styles.rollResultRow}>
         <strong className={styles.rollTotal}>Total: {diceRoll.total}</strong>
-        <button
-          type="button"
-          className={styles.actionExpandButton}
-          onClick={() => onToggleRoll(message.id)}
-          aria-expanded={isRollExpanded}
-          aria-label={isRollExpanded ? "Ocultar sequencia" : "Ver sequencia"}
-        >
-          {isRollExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-        </button>
       </div>
       <div className={styles.rollGroupList}>
         {diceRoll.groups.map((group, index) => (
@@ -211,6 +336,103 @@ export function CampaignActionMessageCard({
       ) : null}
       <span className={styles.streamTime}>{formatTime(message.createdAt)}</span>
     </article>
+  )
+}
+
+function DeliveryOfferModal({
+  offer,
+  canAccept,
+  onAccept,
+  onClose,
+}: {
+  offer: NonNullable<ReturnType<typeof parseDeliveryOfferAction>>
+  canAccept: boolean
+  onAccept: () => void
+  onClose: () => void
+}) {
+  return (
+    <div className={styles.modalBackdrop} role="presentation" onClick={onClose}>
+      <section
+        className={styles.confirmActionModal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delivery-offer-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2 id="delivery-offer-title" className={styles.confirmActionTitle}>
+          {offer.mode === "chest" ? "Abrir bau?" : "Aceitar entrega?"}
+        </h2>
+        <div className={cardStyles.deliveryModalAssetList}>
+          {offer.assets.map((asset) => (
+            <p key={`${asset.kind}:${asset.id}`}>
+              {asset.name}
+              {asset.kind === "item" ? ` x${asset.quantity}` : ` Nv.${asset.level}`}
+            </p>
+          ))}
+        </div>
+        <div className={styles.confirmActionButtons}>
+          {canAccept ? (
+            <button type="button" className={cardStyles.deliveryAcceptButton} onClick={onAccept}>
+              Aceitar
+            </button>
+          ) : null}
+          <button type="button" className={styles.confirmActionCancelButton} onClick={onClose}>
+            {canAccept ? "Recusar" : "Fechar"}
+          </button>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function CharacterRevealDetailsModal({
+  characterName,
+  sections,
+  onClose,
+}: {
+  characterName: string
+  sections: Array<{
+    key: string
+    title: string
+    entries: Array<{ key: string; label: string; value: string | number }>
+  }>
+  onClose: () => void
+}) {
+  return (
+    <div className={styles.modalBackdrop} role="presentation" onClick={onClose}>
+      <section
+        className={styles.characterRevealDetailsModal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="character-reveal-details-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className={styles.actionModalHeader}>
+          <h2 id="character-reveal-details-title" className={styles.actionModalTitle}>
+            {characterName}
+          </h2>
+          <button type="button" className={styles.closeChatButton} onClick={onClose}>
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className={styles.characterRevealSections}>
+          {sections.map((section) => (
+            <div key={section.key} className={styles.characterRevealSection}>
+              <h4>{section.title}</h4>
+              <dl>
+                {section.entries.map((entry) => (
+                  <div key={entry.key}>
+                    <dt>{entry.label}</dt>
+                    <dd>{entry.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
   )
 }
 

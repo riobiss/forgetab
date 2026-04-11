@@ -4,9 +4,13 @@ import { startTransition, useCallback, useEffect, useRef, useState } from "react
 import { MessageCircle, Star, UserRound, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { io, type Socket } from "socket.io-client"
+import type { CharacterDetailViewModel } from "@/application/charactersDetail/types"
+import type { DashboardCharacterSummary } from "@/application/rpgDashboard/contracts/RpgDashboardGateway"
 import type { RpgCampaignRoomViewModel } from "@/application/rpgCampaign/types"
 import { getClientAuthToken } from "@/infrastructure/auth/session/clientAuthSession"
+import { fetchCharacterDetailViewModel } from "@/infrastructure/charactersDetail/repositories/httpCharacterDetailRepository"
 import { getConfiguredApiBaseUrl } from "@/infrastructure/http/backendUrls"
+import { httpRpgDashboardGateway } from "@/infrastructure/rpgDashboard/gateways/httpRpgDashboardGateway"
 import {
   clearCampaignPresence,
   getCampaignSelectedCharacter,
@@ -14,12 +18,19 @@ import {
   type CampaignSelectedCharacter,
 } from "@/infrastructure/rpgCampaign/campaignPresence"
 import { httpRpgCampaignRepository } from "@/infrastructure/rpgCampaign/repositories/httpRpgCampaignRepository"
-import { getActionCombatId } from "./actionMessages"
+import { buildCharacterRevealActionContent, getActionCombatId } from "./actionMessages"
 import { CampaignActionControls } from "./CampaignActionControls"
 import { CampaignActionMessageCard } from "./CampaignActionMessageCard"
 import { CampaignChatPanel } from "./CampaignChatPanel"
 import { CampaignCombatPanel } from "./CampaignCombatPanel"
 import { CampaignCreatureCombatModal } from "./CampaignCreatureCombatModal"
+import { CharacterRevealModal } from "./CharacterRevealModal"
+import {
+  buildCharacterRevealSections,
+  createInitialCharacterRevealFields,
+  type CharacterRevealField,
+} from "./characterRevealActionMapper"
+import { OwnerCharacterPickerModal, type OwnerCharacterPickerMode } from "./OwnerCharacterPickerModal"
 import styles from "./RpgCampaignRoomPage.module.css"
 import { useCampaignRoomActions } from "./useCampaignRoomActions"
 
@@ -47,6 +58,15 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
   const [activeCombatRoomId, setActiveCombatRoomId] = useState<string | null>(null)
   const [isCreateCombatModalOpen, setIsCreateCombatModalOpen] = useState(false)
   const [isCreatureCombatModalOpen, setIsCreatureCombatModalOpen] = useState(false)
+  const [isOwnerCharacterModalOpen, setIsOwnerCharacterModalOpen] = useState(false)
+  const [ownerCharacterMode, setOwnerCharacterMode] = useState<OwnerCharacterPickerMode | null>(null)
+  const [ownerCharacters, setOwnerCharacters] = useState<DashboardCharacterSummary[]>([])
+  const [isLoadingOwnerCharacters, setIsLoadingOwnerCharacters] = useState(false)
+  const [revealCharacter, setRevealCharacter] = useState<CharacterDetailViewModel | null>(null)
+  const [revealFields, setRevealFields] = useState<Record<CharacterRevealField, boolean>>(
+    createInitialCharacterRevealFields,
+  )
+  const [isLoadingRevealCharacter, setIsLoadingRevealCharacter] = useState(false)
   const [combatName, setCombatName] = useState("")
   const refreshInFlightRef = useRef(false)
 
@@ -196,6 +216,83 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
     router.push(`/rpg/${rpgId}/characters/${selectedCharacter.id}`)
   }
 
+  async function openOwnerCharacterPicker() {
+    setIsOwnerCharacterModalOpen(true)
+    setOwnerCharacterMode("player")
+
+    if (ownerCharacters.length > 0) {
+      return
+    }
+
+    setIsLoadingOwnerCharacters(true)
+    setError(null)
+
+    try {
+      const payload = await httpRpgDashboardGateway.fetchCharacters(rpgId)
+      setOwnerCharacters(payload.characters ?? [])
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : "Nao foi possivel carregar os personagens.")
+    } finally {
+      setIsLoadingOwnerCharacters(false)
+    }
+  }
+
+  function openCharacterDetail(characterId: string) {
+    setIsOwnerCharacterModalOpen(false)
+    router.push(`/rpg/${rpgId}/characters/${characterId}`)
+  }
+
+  async function openRevealCharacterPanel(characterId: string) {
+    setIsLoadingRevealCharacter(true)
+    setError(null)
+
+    try {
+      const character = await fetchCharacterDetailViewModel(rpgId, characterId)
+      if (character.characterType === "player") {
+        setError("Somente NPC ou Criatura pode ser revelado na sala por aqui.")
+        return
+      }
+
+      setRevealCharacter(character)
+      setRevealFields(createInitialCharacterRevealFields())
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : "Nao foi possivel carregar esse personagem.")
+    } finally {
+      setIsLoadingRevealCharacter(false)
+    }
+  }
+
+  async function revealCharacterInRoom() {
+    if (!revealCharacter || revealCharacter.characterType === "player") {
+      return
+    }
+
+    const content = buildCharacterRevealActionContent({
+      type: "character_reveal",
+      combatId: activeCombatRoomId,
+      characterId: revealCharacter.characterId,
+      characterName: revealCharacter.displayName,
+      characterType: revealCharacter.characterType,
+      image: revealCharacter.image,
+      sections: buildCharacterRevealSections(revealCharacter, revealFields),
+    })
+
+    await runAction(async () => {
+      const payload = await httpRpgCampaignRepository.sendMessage(rpgId, room.campaign.id, {
+        content,
+        kind: "action",
+      })
+
+      if ("chatMessage" in payload && payload.chatMessage) {
+        appendMessageLocally(payload.chatMessage)
+      }
+
+      setRevealCharacter(null)
+      setIsOwnerCharacterModalOpen(false)
+      return payload
+    })
+  }
+
   async function createCombatRoom() {
     await runAction(async () => {
       const payload = await httpRpgCampaignRepository.createCombat(rpgId, room.campaign.id, {
@@ -268,6 +365,7 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
               }))
             }
             onRevokeAction={campaignActions.setRevokeActionMessageId}
+            onAcceptDeliveryOffer={campaignActions.handleAcceptDeliveryOffer}
             onOpenDiceFromPayload={campaignActions.openDiceModalFromActionPayload}
           />
         ))
@@ -324,9 +422,14 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
               aria-label="Personagem"
               onClick={() => {
                 campaignActions.setIsActionMenuOpen(false)
+                if (room.isOwner) {
+                  void openOwnerCharacterPicker()
+                  return
+                }
+
                 handleOpenCharacterSheet()
               }}
-              disabled={!selectedCharacter}
+              disabled={!room.isOwner && !selectedCharacter}
             >
               <UserRound size={17} /> Personagem
             </button>
@@ -433,6 +536,40 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
             isBusy={isBusy}
             runAction={runAction}
             onClose={() => setIsCreatureCombatModalOpen(false)}
+          />
+        ) : null}
+
+        {isOwnerCharacterModalOpen ? (
+          <OwnerCharacterPickerModal
+            characters={ownerCharacters}
+            isLoading={isLoadingOwnerCharacters}
+            isRevealLoading={isLoadingRevealCharacter}
+            mode={ownerCharacterMode}
+            participants={room.participants}
+            onClose={() => setIsOwnerCharacterModalOpen(false)}
+            onSelectCharacter={openCharacterDetail}
+            onRevealCharacter={(characterId) => {
+              void openRevealCharacterPanel(characterId)
+            }}
+            onSelectMode={setOwnerCharacterMode}
+          />
+        ) : null}
+
+        {revealCharacter ? (
+          <CharacterRevealModal
+            character={revealCharacter}
+            fields={revealFields}
+            isBusy={isBusy}
+            onClose={() => setRevealCharacter(null)}
+            onSubmit={() => {
+              void revealCharacterInRoom()
+            }}
+            onToggleField={(field) =>
+              setRevealFields((currentFields) => ({
+                ...currentFields,
+                [field]: !currentFields[field],
+              }))
+            }
           />
         ) : null}
 

@@ -1,0 +1,301 @@
+.actionFab {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  width: 3.75rem;
+  height: 3.75rem;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14px 36px color-mix(in srgb, black 36%, transparent);
+  cursor: pointer;
+  z-index: 45;
+}
+
+.actionMenu {
+  position: fixed;
+  left: 1rem;
+  bottom: 5.25rem;
+  width: min(17rem, calc(100vw - 2rem));
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 96%, transparent);
+  backdrop-filter: blur(16px);
+  padding: 0.55rem;
+  box-shadow: 0 18px 50px color-mix(in srgb, black 38%, transparent);
+  z-index: 46;
+}
+
+.actionMenuToolbar {
+  position: absolute;
+  left: 0;
+  bottom: auto;
+  top: calc(100% + 0.45rem);
+}
+
+.actionMenuItem {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.9rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.actionMenuItem + .actionMenuItem {
+  margin-top: 0.35rem;
+}
+
+.actionMenuItem:hover {
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+  color: var(--color-text-primary);
+}
+
+.actionModal {
+  width: min(100%, 40rem);
+  max-width: 40rem;
+  max-height: min(calc(100dvh - 2rem), 46rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 22px;
+  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 92%, transparent));
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-brand-primary) 38%, transparent) transparent;
+}
+
+.actionModal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.actionModal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.actionModal::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-brand-primary) 34%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.actionModal > .diceFields,
+.actionModal > .dicePreview {
+  grid-column: 1 / -1;
+}
+
+.actionModalControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.diceFields {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.dicePreview {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  min-width: 0;
+}
+
+.dicePreviewHeader {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.dicePreviewHeader strong {
+  color: var(--color-text-primary);
+}
+
+.dicePreviewHeader small {
+  color: var(--color-text-muted);
+}
+
+.dicePreviewGroups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 0.75rem;
+}
+
+.dicePreviewGroup {
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dicePreviewLabel {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.dicePreviewResults {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 4.2rem), 1fr));
+  gap: 0.5rem;
+}
+
+.dicePreviewResults input {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  padding: 0.55rem 0.65rem;
+}
+
+.addDiceButton {
+  justify-self: start;
+  width: 2.3rem;
+  height: 2.3rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.diceEntryRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.diceField {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.diceField span {
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+}
+
+.diceField input {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  padding: 0.75rem 0.85rem;
+}
+
+.skillPickerList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.skillPickerCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+}
+
+.skillPickerAbilityCard {
+  border-color: var(--skill-picker-card-border, var(--color-border-soft));
+  background: var(--skill-picker-card-bg, color-mix(in srgb, var(--color-brand-contrast) 4%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--skill-picker-card-border, transparent) 28%, transparent);
+}
+
+.skillPickerAbilityMain {
+  min-width: 0;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.skillPickerAbilityName {
+  min-width: 0;
+  color: var(--skill-picker-card-text, var(--color-text-primary));
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.skillPickerAbilityMeta {
+  color: color-mix(in srgb, var(--skill-picker-card-text, var(--color-text-muted)) 68%, var(--color-text-muted));
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.skillPickerActions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.skillPickerActionButton {
+  width: 2.15rem;
+  height: 2.15rem;
+  border: 1px solid var(--skill-picker-card-border, var(--color-border-soft));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 86%, transparent);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.skillPickerActionButton:hover {
+  background: color-mix(in srgb, var(--color-bg-surface) 72%, var(--skill-picker-card-bg, transparent));
+  color: white;
+}
+
+.skillPickerSendButton {
+  background: color-mix(in srgb, var(--skill-picker-card-text, var(--color-brand-primary)) 18%, var(--color-bg-surface));
+}
+
+.skillDetailsModal {
+  width: min(760px, 100%);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.skillDetailsTopBar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.skillDetailsActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (min-width: 720px) {
+  .actionModal {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}

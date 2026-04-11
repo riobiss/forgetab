@@ -14,14 +14,6 @@
   gap: 1rem;
 }
 
-.containerChatMode {
-  max-width: none;
-  height: 100dvh;
-  min-height: 100dvh;
-  padding: 0;
-  gap: 0;
-}
-
 .campaignToolbarShell {
   position: sticky;
   top: 0;
@@ -139,20 +131,6 @@
   min-height: 76vh;
 }
 
-.panelChatMode {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  min-height: 100dvh;
-  border: none;
-  border-radius: 0;
-  padding: 1rem;
-  overflow: hidden;
-}
-
-.panelChatConversationMode {
-  grid-template-rows: minmax(0, 1fr);
-}
-
 .sectionTitle {
   margin: 0;
   color: var(--color-text-primary);
@@ -188,154 +166,7 @@
   line-height: 1.7;
 }
 
-.chatLayout {
-  min-height: 66vh;
-}
-
-.panelChatMode .chatLayout {
-  height: 100%;
-  min-height: 0;
-}
-
-.chatListPane {
-  min-width: 0;
-  height: 100%;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--color-brand-primary) 38%, transparent) transparent;
-}
-
-.chatListPane::-webkit-scrollbar {
-  width: 8px;
-}
-
-.chatListPane::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.chatListPane::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-brand-primary) 34%, transparent);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-
-.chatPanelHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-border-soft) 72%, transparent);
-}
-
 .closeChatButton {
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 999px;
-  background: var(--color-bg-surface);
-  color: var(--color-text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.chatList {
-  display: grid;
-  gap: 0.3rem;
-  align-content: start;
-}
-
-.chatListItem {
-  border: none;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-border-soft) 75%, transparent);
-  background: transparent;
-  padding: 0.8rem 0.4rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-align: left;
-  cursor: pointer;
-}
-
-.chatListItemActive {
-  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
-  border-radius: 14px;
-  border-bottom-color: transparent;
-}
-
-.chatAvatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-brand-primary) 20%, var(--color-bg-surface-alt));
-  color: var(--color-text-primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  flex-shrink: 0;
-}
-
-.chatListText {
-  min-width: 0;
-  display: grid;
-  gap: 0.15rem;
-}
-
-.chatListText strong {
-  color: var(--color-text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.chatListText small {
-  color: var(--color-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.chatConversation {
-  min-width: 0;
-  display: grid;
-  gap: 1rem;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.conversationHeader {
-  border-bottom: 1px solid color-mix(in srgb, var(--color-border-soft) 72%, transparent);
-  padding: 0 0 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: transparent;
-}
-
-.conversationHeader small {
-  color: var(--color-text-muted);
-}
-
-.conversationIdentity {
-  min-width: 0;
-  flex: 1;
-}
-
-.conversationTitle {
-  margin: 0;
-  color: var(--color-text-primary);
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.backToChatList {
   width: 34px;
   height: 34px;
   border: 1px solid var(--color-border-soft);
@@ -353,29 +184,6 @@
   display: grid;
   gap: 0.8rem;
   padding-right: 0.25rem;
-}
-
-.chatConversation .stream {
-  min-height: 0;
-  overflow-y: auto;
-  align-content: start;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--color-brand-primary) 38%, transparent) transparent;
-}
-
-.chatConversation .stream::-webkit-scrollbar {
-  width: 8px;
-}
-
-.chatConversation .stream::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.chatConversation .stream::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-brand-primary) 34%, transparent);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
 }
 
 .streamCard {
@@ -671,89 +479,159 @@
   line-height: 1.4;
 }
 
-.chatBubble {
-  width: fit-content;
-  max-width: min(100%, 34rem);
+.characterRevealStreamCard {
+  width: min(100%, 24rem);
+  min-width: min(100%, 18rem);
+  justify-self: start;
+  padding: 0;
+  overflow: hidden;
+  background: var(--color-bg-surface);
+}
+
+.characterRevealStreamCard .streamTime {
+  right: 0.85rem;
+  bottom: 0.65rem;
+  z-index: 1;
+  color: white;
+  text-shadow: 0 1px 8px color-mix(in srgb, black 70%, transparent);
+}
+
+.characterRevealRevokeButton {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  z-index: 2;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid color-mix(in srgb, #ef4444 44%, var(--color-border-soft));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 82%, transparent);
+  color: color-mix(in srgb, #ef4444 82%, var(--color-text-secondary));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.characterRevealCard {
+  min-width: 0;
+  display: grid;
+}
+
+.characterRevealPortraitButton {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.characterRevealPortraitButton:disabled {
+  cursor: default;
+}
+
+.characterRevealPortrait,
+.characterRevealPortraitFallback {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 18rem;
+  aspect-ratio: 4 / 5;
+  background: color-mix(in srgb, var(--color-brand-primary) 14%, var(--color-bg-app));
+}
+
+.characterRevealImageBackdrop {
+  object-fit: cover;
+  filter: blur(18px) brightness(0.58);
+  transform: scale(1.08);
+}
+
+.characterRevealImage {
+  object-fit: contain;
+}
+
+.characterRevealPortrait::after,
+.characterRevealPortraitFallback::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, color-mix(in srgb, black 58%, transparent));
+}
+
+.characterRevealBody {
+  min-width: 0;
+  display: grid;
+  gap: 0.65rem;
+  padding: 0 0.85rem;
+}
+
+.characterRevealDetailsModal {
+  width: min(100%, 38rem);
+  max-height: min(calc(100dvh - 2rem), 42rem);
   border: 1px solid var(--color-border-soft);
-  border-radius: 16px;
-  padding: 0.85rem 0.95rem;
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 92%, transparent));
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.characterRevealName {
+  position: absolute;
+  left: 0.65rem;
+  right: auto;
+  bottom: 0.65rem;
+  z-index: 1;
+  max-width: calc(100% - 5rem);
+  color: white;
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.characterRevealSections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.65rem;
+}
+
+.characterRevealSection {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  padding: 0.65rem;
+}
+
+.characterRevealSection h4 {
+  margin: 0 0 0.45rem;
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+}
+
+.characterRevealSection dl {
+  margin: 0;
   display: grid;
   gap: 0.35rem;
 }
 
-.chatBubbleOwn {
-  justify-self: end;
-  background: color-mix(in srgb, var(--color-brand-primary) 18%, var(--color-bg-surface));
+.characterRevealSection dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.65rem;
 }
 
-.chatBubbleOther {
-  justify-self: start;
-  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
-}
-
-.chatBubbleMeta {
-  margin: 0;
+.characterRevealSection dt {
   color: var(--color-text-muted);
-  font-size: 0.76rem;
 }
 
-.chatBubbleMeta strong {
-  color: var(--color-text-primary);
-}
-
-.chatBubbleContent {
-  position: relative;
+.characterRevealSection dd {
   margin: 0;
-  padding-right: 2.1rem;
-  padding-bottom: 0.15rem;
   color: var(--color-text-secondary);
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.chatBubbleTime {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
-  white-space: nowrap;
-}
-
-.composer {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.6rem;
-  background: transparent;
-  padding-top: 0.5rem;
-  border-top: 1px solid color-mix(in srgb, var(--color-border-soft) 72%, transparent);
-}
-
-.composer textarea {
-  width: 100%;
-  border: none;
-  border-radius: 12px;
-  background: var(--color-bg-surface);
-  color: var(--color-text-secondary);
-  padding: 0.6rem 0.85rem;
-  min-height: 2.5rem;
-  max-height: 7.5rem;
-  overflow: hidden;
-  resize: none;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  box-shadow: none;
-  line-height: 1.35;
-}
-
-.composer textarea:focus,
-.composer textarea:focus-visible,
-.composer textarea:active {
-  border: none;
-  outline: none;
-  box-shadow: none;
+  text-align: right;
+  overflow-wrap: anywhere;
 }
 
 .submitButton {
@@ -774,24 +652,6 @@
   cursor: not-allowed;
 }
 
-.actionFab {
-  position: fixed;
-  left: 1rem;
-  bottom: 1rem;
-  width: 3.75rem;
-  height: 3.75rem;
-  border: none;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-brand-primary) 18%, var(--color-bg-surface));
-  color: var(--color-text-primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 18px 40px color-mix(in srgb, black 18%, transparent);
-  z-index: 31;
-}
-
 .chatFab {
   position: fixed;
   right: 1rem;
@@ -810,138 +670,7 @@
   z-index: 31;
 }
 
-.actionMenu {
-  position: fixed;
-  left: 1rem;
-  bottom: 5.4rem;
-  z-index: 31;
-  min-width: 12rem;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 16px;
-  background: var(--color-bg-surface);
-  padding: 0.45rem;
-  box-shadow: 0 18px 40px color-mix(in srgb, black 18%, transparent);
-}
-
-.actionMenuToolbar {
-  position: fixed;
-  top: 3.35rem;
-  bottom: auto;
-  left: 0;
-  z-index: 39;
-  width: min(82vw, 20rem);
-  min-width: 0;
-  border-left: none;
-  border-radius: 0 8px 8px 0;
-  padding: 0.65rem;
-  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 94%, transparent));
-  animation: actionDrawerIn 180ms ease-out both;
-}
-
-@keyframes actionDrawerIn {
-  from {
-    opacity: 0;
-    transform: translateX(-1rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.actionMenuItem {
-  width: 100%;
-  border: none;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
-  color: var(--color-text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.9rem 1rem;
-  text-align: left;
-  cursor: pointer;
-  font-weight: 800;
-}
-
-.actionMenuItem + .actionMenuItem {
-  margin-top: 0.35rem;
-}
-
-.actionMenuItem:hover {
-  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
-  color: var(--color-text-primary);
-}
-
-.combatSection {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
-  display: grid;
-  gap: 0.8rem;
-  padding: 0.85rem;
-}
-
-.combatSectionHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.combatSectionHeader h3,
-.combatArenaHeader h3,
-.combatChoiceModal h2 {
-  margin: 0;
-  color: var(--color-text-primary);
-}
-
-.combatSectionHeader p,
-.combatChoiceModal p {
-  margin: 0.25rem 0 0;
-  color: var(--color-text-muted);
-  font-size: 0.86rem;
-}
-
-.combatRoomList {
-  display: grid;
-  gap: 0.55rem;
-}
-
-.combatRoomCard {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: var(--color-bg-surface);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-}
-
-.combatRoomCardActive {
-  border-color: color-mix(in srgb, var(--color-brand-primary) 48%, transparent);
-  background: color-mix(in srgb, var(--color-brand-primary) 9%, var(--color-bg-surface));
-}
-
-.combatRoomSummary {
-  min-width: 0;
-  display: grid;
-  gap: 0.18rem;
-}
-
-.combatRoomSummary strong {
-  color: var(--color-text-primary);
-}
-
-.combatRoomSummary small {
-  color: var(--color-text-muted);
-}
-
-.combatEnterButton,
-.combatPrimaryButton,
-.combatChoiceButton {
+.combatPrimaryButton {
   border: 1px solid color-mix(in srgb, var(--color-brand-primary) 42%, var(--color-border-soft));
   border-radius: 8px;
   background: color-mix(in srgb, var(--color-brand-primary) 16%, var(--color-bg-surface));
@@ -955,219 +684,12 @@
   cursor: pointer;
 }
 
-.combatPrimaryButton:disabled,
-.combatEnterButton:disabled,
-.combatChoiceButton:disabled {
+.combatPrimaryButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.combatArena {
-  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 26%, var(--color-border-soft));
-  border-radius: 8px;
-  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 94%, transparent));
-  display: grid;
-  gap: 0.75rem;
-  padding: 0.85rem;
-}
-
-.combatNestedHeader {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: var(--color-bg-surface);
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.7rem;
-}
-
-.combatNestedHeader h3 {
-  margin: 0;
-  color: var(--color-text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.combatBackButton {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
-  color: var(--color-text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  min-height: 2.2rem;
-  padding: 0.45rem 0.65rem;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.combatBackButton:hover {
-  color: var(--color-text-primary);
-  background: color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
-}
-
-.combatStickyActions {
-  position: sticky;
-  top: 3.25rem;
-  z-index: 38;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-bg-surface) 94%, transparent);
-  backdrop-filter: blur(14px);
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 0.4rem;
-  padding: 0.4rem;
-}
-
-.combatStickyActions .combatQueueButton,
-.combatStickyActions .combatPrimaryButton {
-  min-height: 1.95rem;
-  padding: 0.32rem 0.55rem;
-  font-size: 0.78rem;
-}
-
-.combatStickyTurn {
-  min-width: 0;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-bg-app) 38%, transparent);
-  display: grid;
-  place-items: center;
-  gap: 0.08rem;
-  padding: 0.25rem 0.5rem;
-  text-align: center;
-}
-
-.combatStickyTurn small {
-  color: var(--color-text-muted);
-  font-size: 0.58rem;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.combatStickyTurn strong {
-  max-width: 100%;
-  color: var(--color-text-primary);
-  font-size: 0.95rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.combatNestedGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.75rem;
-  align-items: start;
-}
-
-.combatJoinInline {
-  display: grid;
-  gap: 0.55rem;
-}
-
-.combatNestedActionsHeader h4 {
-  margin: 0;
-  color: var(--color-text-primary);
-}
-
-.combatNestedActionsHeader small {
-  color: var(--color-text-muted);
-}
-
-.combatNestedActions {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: var(--color-bg-surface);
-  padding: 0.75rem;
-  display: grid;
-  gap: 0.7rem;
-}
-
-.combatNestedActionsHeader {
-  display: grid;
-  gap: 0.15rem;
-}
-
-.combatArenaHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-}
-
-@media (max-width: 760px) {
-  .combatNestedHeader,
-  .combatNestedGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .combatNestedHeader {
-    align-items: stretch;
-  }
-}
-
-.combatEyebrow {
-  margin: 0 0 0.2rem;
-  color: var(--color-text-muted);
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.combatQueueButton {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: var(--color-bg-surface);
-  color: var(--color-text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  min-height: 2.2rem;
-  padding: 0.45rem 0.65rem;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.combatRoleBanner {
-  margin: 0;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
-  color: var(--color-text-secondary);
-  padding: 0.65rem 0.75rem;
-}
-
-.combatTurnPanel {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-bg-app) 44%, transparent);
-  display: grid;
-  gap: 0.55rem;
-  padding: 0.75rem;
-}
-
-.combatTurnPanel p,
-.combatTurnPanel small {
-  margin: 0;
-  color: var(--color-text-muted);
-}
-
-.combatTurnPanel strong {
-  color: var(--color-text-primary);
-  font-size: 1.08rem;
-}
-
-.combatCreateModal,
-.combatChoiceModal,
-.combatQueueModal {
+.combatCreateModal {
   width: min(100%, 28rem);
   border: 1px solid var(--color-border-soft);
   border-radius: 8px;
@@ -1175,17 +697,6 @@
   display: grid;
   gap: 1rem;
   padding: 1rem;
-}
-
-.combatChoiceModal {
-  position: relative;
-  padding-top: 3rem;
-}
-
-.combatChoiceModal > .closeChatButton {
-  position: absolute;
-  top: 0.85rem;
-  right: 0.85rem;
 }
 
 .combatCreateField {
@@ -1206,77 +717,6 @@
   padding: 0.75rem 0.85rem;
 }
 
-.combatChoiceGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.65rem;
-}
-
-.combatQueueList {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.combatQueueItem {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.65rem;
-}
-
-.combatQueueItem > span {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-brand-primary) 18%, var(--color-bg-surface));
-  color: var(--color-text-primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-}
-
-.combatQueueItem strong {
-  min-width: 0;
-  color: var(--color-text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.combatQueueItem small {
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
-.combatQueueControls {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.combatQueueControls button {
-  width: 1.9rem;
-  height: 1.9rem;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  background: var(--color-bg-surface);
-  color: var(--color-text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.combatQueueControls button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
 .modalBackdrop {
   position: fixed;
   inset: 0;
@@ -1285,41 +725,6 @@
   display: grid;
   place-items: center;
   padding: 1rem;
-}
-
-.actionModal {
-  width: min(100%, 40rem);
-  max-width: 40rem;
-  max-height: min(calc(100dvh - 2rem), 46rem);
-  border: 1px solid var(--color-border-soft);
-  border-radius: 22px;
-  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 92%, transparent));
-  padding: 1rem;
-  display: grid;
-  gap: 1rem;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--color-brand-primary) 38%, transparent) transparent;
-}
-
-.actionModal::-webkit-scrollbar {
-  width: 8px;
-}
-
-.actionModal::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.actionModal::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-brand-primary) 34%, transparent);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-
-.actionModal > .diceFields,
-.actionModal > .dicePreview {
-  grid-column: 1 / -1;
 }
 
 .actionModalHeader {
@@ -1335,114 +740,6 @@
   font-size: 1.1rem;
 }
 
-.actionModalControls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.diceFields {
-  display: grid;
-  gap: 0.75rem;
-  min-width: 0;
-}
-
-.dicePreview {
-  display: grid;
-  gap: 0.85rem;
-  padding: 0.85rem;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
-  min-width: 0;
-}
-
-.dicePreviewHeader {
-  display: grid;
-  gap: 0.2rem;
-}
-
-.dicePreviewHeader strong {
-  color: var(--color-text-primary);
-}
-
-.dicePreviewHeader small {
-  color: var(--color-text-muted);
-}
-
-.dicePreviewGroups {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
-  gap: 0.75rem;
-}
-
-.dicePreviewGroup {
-  display: grid;
-  gap: 0.45rem;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.dicePreviewLabel {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.dicePreviewResults {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 4.2rem), 1fr));
-  gap: 0.5rem;
-}
-
-.dicePreviewResults input {
-  width: 100%;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 10px;
-  background: var(--color-bg-surface);
-  color: var(--color-text-secondary);
-  padding: 0.55rem 0.65rem;
-}
-
-.addDiceButton {
-  justify-self: start;
-  width: 2.3rem;
-  height: 2.3rem;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 999px;
-  background: var(--color-bg-surface);
-  color: var(--color-text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.diceEntryRow {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.diceField {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.diceField span {
-  color: var(--color-text-muted);
-  font-size: 0.84rem;
-}
-
-.diceField input {
-  width: 100%;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 12px;
-  background: var(--color-bg-surface);
-  color: var(--color-text-secondary);
-  padding: 0.75rem 0.85rem;
-}
-
 .rollSubmitButton {
   border: none;
   border-radius: 12px;
@@ -1456,107 +753,6 @@
 .rollSubmitButton:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
-
-.skillPickerList {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.skillPickerCard {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.75rem;
-  align-items: center;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 16px;
-  padding: 0.75rem;
-  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
-}
-
-.skillPickerMain {
-  border: none;
-  background: transparent;
-  display: grid;
-  gap: 0.35rem;
-  padding: 0;
-  text-align: left;
-  cursor: pointer;
-}
-
-.skillPickerName {
-  width: fit-content;
-  max-width: 100%;
-  border: 1px solid var(--skill-action-name-border, var(--color-border-soft));
-  border-radius: 999px;
-  background: var(--skill-action-name-bg, color-mix(in srgb, var(--color-brand-primary) 10%, transparent));
-  color: var(--skill-action-name-color, var(--color-text-primary));
-  padding: 0.35rem 0.75rem;
-  line-height: 1.4;
-}
-
-.skillPickerMeta {
-  color: var(--color-text-muted);
-  display: inline-flex;
-  align-items: center;
-  min-height: 1.2rem;
-}
-
-.skillDetailsModal {
-  width: min(760px, 100%);
-  display: grid;
-  gap: 0.75rem;
-}
-
-.skillDetailsTopBar {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.skillDetailsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
-  gap: 0.85rem;
-}
-
-.skillDetailsSection {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.skillDetailsLabel {
-  display: block;
-  color: var(--color-brand-primary);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.skillDetailsText {
-  margin: 0;
-  color: var(--color-text-secondary);
-  line-height: 1.55;
-  white-space: pre-wrap;
-}
-
-.skillTagsRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-.skillTagChip {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 999px;
-  padding: 0.35rem 0.75rem;
-  background: var(--color-bg-surface);
-  color: var(--color-text-secondary);
-}
-
-.skillDetailsActions {
-  display: flex;
-  justify-content: flex-end;
 }
 
 .itemDetailsCard {
@@ -1701,11 +897,6 @@
 }
 
 @media (min-width: 720px) {
-  .actionModal {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
-  }
-
   .rollSubmitButton {
     grid-column: 1 / -1;
   }
@@ -1942,8 +1133,3 @@
   color: var(--color-text-muted);
 }
 
-@media (max-width: 900px) {
-  .chatLayout {
-    min-height: 60vh;
-  }
-}

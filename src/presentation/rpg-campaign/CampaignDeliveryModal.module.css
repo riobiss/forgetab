@@ -1,0 +1,209 @@
+.modal {
+  width: min(100%, 42rem);
+  max-height: min(calc(100dvh - 2rem), 46rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 92%, transparent));
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.hint {
+  margin: 0.2rem 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.chestToggle {
+  width: fit-content;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  font-weight: 700;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.tab,
+.tabActive {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  padding: 0.65rem 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tabActive {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 52%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 16%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field span {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.field input {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  padding: 0.7rem 0.8rem;
+}
+
+.field :global(.campaignSelect__control) {
+  min-height: 2.55rem;
+  border-color: var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  box-shadow: none;
+}
+
+.field :global(.campaignSelect__control:hover) {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 44%, var(--color-border-soft));
+}
+
+.field :global(.campaignSelect__input-container),
+.field :global(.campaignSelect__single-value) {
+  color: var(--color-text-primary);
+}
+
+.field :global(.campaignSelect__placeholder) {
+  color: var(--color-text-muted);
+}
+
+.field :global(.campaignSelect__menu) {
+  z-index: 80;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  overflow: hidden;
+}
+
+.field :global(.campaignSelect__option) {
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+}
+
+.field :global(.campaignSelect__option--is-focused),
+.field :global(.campaignSelect__option--is-selected) {
+  background: color-mix(in srgb, var(--color-brand-primary) 16%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+}
+
+.field :global(.campaignSelect__multi-value) {
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, var(--color-bg-surface));
+}
+
+.field :global(.campaignSelect__multi-value__label) {
+  color: var(--color-text-primary);
+}
+
+.pickerList {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 18rem;
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+.pickerCard {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pickerCard:hover,
+.pickerCardActive {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 50%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+}
+
+.pickerCard span {
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
+}
+
+.pickerCard strong,
+.pickerCard small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pickerCard small {
+  color: var(--color-text-muted);
+}
+
+.pickerImage {
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-soft);
+  object-fit: cover;
+  background: var(--color-bg-surface);
+}
+
+.selectionPreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.selectionPreview span {
+  min-width: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.selectionPreview img {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}

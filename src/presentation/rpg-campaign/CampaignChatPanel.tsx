@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { ArrowLeft, SendHorizontal, X } from "lucide-react"
 import type { RpgCampaignRoomViewModel } from "@/application/rpgCampaign/types"
 import { httpRpgCampaignRepository } from "@/infrastructure/rpgCampaign/repositories/httpRpgCampaignRepository"
+import chatStyles from "./CampaignChatPanel.module.css"
 import styles from "./RpgCampaignRoomPage.module.css"
 
 type ChatTarget = { type: "campaign" } | { type: "direct"; userId: string } | null
@@ -120,16 +121,16 @@ export function CampaignChatPanel({
     return (
       <article
         key={message.id}
-        className={`${styles.chatBubble} ${isOwnMessage ? styles.chatBubbleOwn : styles.chatBubbleOther}`}
+        className={`${chatStyles.chatBubble} ${isOwnMessage ? chatStyles.chatBubbleOwn : chatStyles.chatBubbleOther}`}
       >
         {showAuthor ? (
-          <p className={styles.chatBubbleMeta}>
+          <p className={chatStyles.chatBubbleMeta}>
             <strong>{authorLabel}</strong> {!isOwnMessage ? `@${message.authorUsername}` : null}
           </p>
         ) : null}
-        <p className={styles.chatBubbleContent}>
+        <p className={chatStyles.chatBubbleContent}>
           {message.content}
-          <span className={styles.chatBubbleTime}>{formatTime(message.createdAt)}</span>
+          <span className={chatStyles.chatBubbleTime}>{formatTime(message.createdAt)}</span>
         </p>
       </article>
     )
@@ -140,12 +141,12 @@ export function CampaignChatPanel({
 
   return (
     <main className={styles.page}>
-      <div className={`${styles.container} ${styles.containerChatMode}`}>
+      <div className={`${styles.container} ${chatStyles.containerChatMode}`}>
         <section
-          className={`${styles.panel} ${styles.panelChatMode} ${isConversationOpen ? styles.panelChatConversationMode : ""}`}
+          className={`${styles.panel} ${chatStyles.panelChatMode} ${isConversationOpen ? chatStyles.panelChatConversationMode : ""}`}
         >
           {selectedChat === null ? (
-            <div className={styles.chatPanelHeader}>
+            <div className={chatStyles.chatPanelHeader}>
               <h2 className={styles.sectionTitle}>Chat</h2>
               <button type="button" className={styles.closeChatButton} onClick={onClose}>
                 <X size={16} />
@@ -153,22 +154,22 @@ export function CampaignChatPanel({
             </div>
           ) : null}
 
-          <div className={styles.chatLayout}>
+          <div className={chatStyles.chatLayout}>
             {isConversationOpen ? (
-              <div className={styles.chatConversation}>
-                <div className={styles.conversationHeader}>
-                  <button type="button" className={styles.backToChatList} onClick={() => setSelectedChat(null)}>
+              <div className={chatStyles.chatConversation}>
+                <div className={chatStyles.conversationHeader}>
+                  <button type="button" className={chatStyles.backToChatList} onClick={() => setSelectedChat(null)}>
                     <ArrowLeft size={16} />
                   </button>
-                  <div className={styles.conversationIdentity}>
-                    <h2 className={styles.conversationTitle}>{selectedConversationTitle}</h2>
+                  <div className={chatStyles.conversationIdentity}>
+                    <h2 className={chatStyles.conversationTitle}>{selectedConversationTitle}</h2>
                   </div>
                   <button type="button" className={styles.closeChatButton} onClick={onClose}>
                     <X size={16} />
                   </button>
                 </div>
 
-                <div className={styles.stream}>
+                <div className={chatStyles.stream}>
                   {selectedChat?.type === "campaign" ? (
                     room.campaignMessages.length === 0 ? (
                       <p className={styles.emptyState}>Ainda nao ha mensagens no chat da campanha.</p>
@@ -188,7 +189,7 @@ export function CampaignChatPanel({
                 </div>
 
                 <form
-                  className={styles.composer}
+                  className={chatStyles.composer}
                   onSubmit={(event) => {
                     event.preventDefault()
                     if (isCampaignEnded) return
@@ -230,11 +231,11 @@ export function CampaignChatPanel({
                 </form>
               </div>
             ) : (
-              <div className={styles.chatListPane}>
-                <div className={styles.chatList}>
-                  <button type="button" className={styles.chatListItem} onClick={() => setSelectedChat({ type: "campaign" })}>
-                    <div className={styles.chatAvatar}>C</div>
-                    <div className={styles.chatListText}>
+              <div className={chatStyles.chatListPane}>
+                <div className={chatStyles.chatList}>
+                  <button type="button" className={chatStyles.chatListItem} onClick={() => setSelectedChat({ type: "campaign" })}>
+                    <div className={chatStyles.chatAvatar}>C</div>
+                    <div className={chatStyles.chatListText}>
                       <strong>Chat da campanha</strong>
                       <small>Todos os participantes falam aqui</small>
                     </div>
@@ -244,14 +245,14 @@ export function CampaignChatPanel({
                     <button
                       key={participant.userId}
                       type="button"
-                      className={styles.chatListItem}
+                      className={chatStyles.chatListItem}
                       onClick={() => {
                         setSelectedUserId(participant.userId)
                         setSelectedChat({ type: "direct", userId: participant.userId })
                       }}
                     >
-                      <div className={styles.chatAvatar}>{participant.name.slice(0, 1).toUpperCase()}</div>
-                      <div className={styles.chatListText}>
+                      <div className={chatStyles.chatAvatar}>{participant.name.slice(0, 1).toUpperCase()}</div>
+                      <div className={chatStyles.chatListText}>
                         <strong>{participant.name}</strong>
                         <small>@{participant.username}</small>
                       </div>

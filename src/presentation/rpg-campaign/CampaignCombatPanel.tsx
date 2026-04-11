@@ -9,6 +9,7 @@ import type {
   RpgCampaignRoomViewModel,
 } from "@/application/rpgCampaign/types"
 import type { CampaignSelectedCharacter } from "@/infrastructure/rpgCampaign/campaignPresence"
+import combatStyles from "./CampaignCombatPanel.module.css"
 import styles from "./RpgCampaignRoomPage.module.css"
 
 type Props = {
@@ -63,32 +64,32 @@ export function CampaignCombatPanel({
 
   if (activeRoom) {
     return (
-      <section className={styles.combatSection}>
-        <div className={styles.combatNestedHeader}>
-          <button type="button" className={styles.combatBackButton} onClick={onExitCombat}>
+      <section className={combatStyles.section}>
+        <div className={combatStyles.nestedHeader}>
+          <button type="button" className={combatStyles.backButton} onClick={onExitCombat}>
             <ArrowLeft size={16} /> Campanha
           </button>
           <div>
-            <p className={styles.combatEyebrow}>Sala de batalha</p>
+            <p className={combatStyles.eyebrow}>Sala de batalha</p>
             <h3>{activeRoom.name}</h3>
           </div>
         </div>
 
-        <div className={styles.combatStickyActions}>
+        <div className={combatStyles.stickyActions}>
           <button
             type="button"
-            className={styles.combatQueueButton}
+            className={combatStyles.queueButton}
             onClick={() => setQueueRoomId(activeRoom.id)}
           >
             <ListOrdered size={17} /> Fila
           </button>
-          <div className={styles.combatStickyTurn}>
+          <div className={combatStyles.stickyTurn}>
             <small>Turno</small>
             <strong>{activeTurn?.label ?? "Sem turno"}</strong>
           </div>
           <button
             type="button"
-            className={styles.combatPrimaryButton}
+            className={combatStyles.primaryButton}
             onClick={() => onPassTurn(activeRoom.id)}
             disabled={!canPassTurn}
           >
@@ -96,18 +97,18 @@ export function CampaignCombatPanel({
           </button>
         </div>
 
-        <div className={styles.combatNestedGrid}>
-          <div className={styles.combatArena}>
+        <div className={combatStyles.nestedGrid}>
+          <div className={combatStyles.arena}>
             {viewerCombatParticipant ? (
-              <p className={styles.combatRoleBanner}>
+              <p className={combatStyles.roleBanner}>
                 Voce entrou como {viewerCombatParticipant.role === "fighter" ? "batalhante" : "espectador"}.
               </p>
             ) : (
-              <div className={styles.combatJoinInline}>
-                <p className={styles.combatRoleBanner}>Entre como espectador ou batalhante para acompanhar essa sala.</p>
+              <div className={combatStyles.joinInline}>
+                <p className={combatStyles.roleBanner}>Entre como espectador ou batalhante para acompanhar essa sala.</p>
                 <button
                   type="button"
-                  className={styles.combatEnterButton}
+                  className={combatStyles.enterButton}
                   onClick={() => setJoinRoomId(activeRoom.id)}
                 >
                   Entrar em combate
@@ -115,14 +116,14 @@ export function CampaignCombatPanel({
               </div>
             )}
 
-            <div className={styles.combatTurnPanel}>
+            <div className={combatStyles.turnPanel}>
               {activeRoom.queue.length === 0 ? (
                 <>
                   <p>A fila ainda nao foi criada.</p>
                   {isOwner ? (
                     <button
                       type="button"
-                      className={styles.combatPrimaryButton}
+                      className={combatStyles.primaryButton}
                       onClick={() => onCreateQueue(activeRoom.id)}
                       disabled={activeRoom.participants.filter((participant) => participant.role === "fighter").length === 0}
                     >
@@ -142,8 +143,8 @@ export function CampaignCombatPanel({
           </div>
         </div>
 
-        <div className={styles.combatNestedActions}>
-          <div className={styles.combatNestedActionsHeader}>
+        <div className={combatStyles.nestedActions}>
+          <div className={combatStyles.nestedActionsHeader}>
             <h4>Acoes do combate</h4>
             <small>Jogadas e usos feitos enquanto essa sala estiver aberta.</small>
           </div>
@@ -173,21 +174,21 @@ export function CampaignCombatPanel({
   }
 
   return (
-    <section className={styles.combatSection}>
-      <div className={styles.combatSectionHeader}>
+    <section className={combatStyles.section}>
+      <div className={combatStyles.sectionHeader}>
         <div>
           <h3>Combates</h3>
           <p>Salas separadas para batalhas em lugares diferentes.</p>
         </div>
       </div>
 
-      <div className={styles.combatRoomList}>
+      <div className={combatStyles.roomList}>
         {rooms.map((combatRoom, index) => (
           <article
             key={combatRoom.id}
-            className={`${styles.combatRoomCard} ${activeRoomId === combatRoom.id ? styles.combatRoomCardActive : ""}`}
+            className={`${combatStyles.roomCard} ${activeRoomId === combatRoom.id ? combatStyles.roomCardActive : ""}`}
           >
-            <div className={styles.combatRoomSummary}>
+            <div className={combatStyles.roomSummary}>
               <strong>{combatRoom.name || `Combate ${index + 1}`}</strong>
               <small>
                 {combatRoom.participants.filter((participant) => participant.role === "fighter").length} batalhando
@@ -197,7 +198,7 @@ export function CampaignCombatPanel({
             </div>
             <button
               type="button"
-              className={styles.combatEnterButton}
+              className={combatStyles.enterButton}
               onClick={() => {
                 onSetActiveRoomId(combatRoom.id)
                 setJoinRoomId(combatRoom.id)
@@ -247,21 +248,21 @@ function JoinCombatModal({
   return (
     <div className={styles.modalBackdrop} role="presentation" onClick={onClose}>
       <section
-        className={styles.combatChoiceModal}
+        className={combatStyles.choiceModal}
         role="dialog"
         aria-modal="true"
         aria-labelledby="combat-join-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <button type="button" className={styles.closeChatButton} onClick={onClose} aria-label="Fechar">
+        <button type="button" className={`${styles.closeChatButton} ${combatStyles.choiceModalCloseButton}`} onClick={onClose} aria-label="Fechar">
           <X size={16} />
         </button>
         <h2 id="combat-join-title">Entrar no combate</h2>
         <p>{selectedCharacter ? selectedCharacter.name : viewerName}</p>
-        <div className={styles.combatChoiceGrid}>
+        <div className={combatStyles.choiceGrid}>
           <button
             type="button"
-            className={styles.combatChoiceButton}
+            className={combatStyles.choiceButton}
             onClick={() => {
               onJoinRoom(joinRoomId, "spectator")
               onClose()
@@ -271,7 +272,7 @@ function JoinCombatModal({
           </button>
           <button
             type="button"
-            className={styles.combatChoiceButton}
+            className={combatStyles.choiceButton}
             onClick={() => {
               onJoinRoom(joinRoomId, "fighter")
               onClose()
@@ -301,7 +302,7 @@ function CombatQueueModal({
   return (
     <div className={styles.modalBackdrop} role="presentation" onClick={onClose}>
       <section
-        className={styles.combatQueueModal}
+        className={combatStyles.queueModal}
         role="dialog"
         aria-modal="true"
         aria-labelledby="combat-queue-title"
@@ -319,14 +320,14 @@ function CombatQueueModal({
         {combatRoom.queue.length === 0 ? (
           <p className={styles.emptyState}>A fila ainda nao foi criada.</p>
         ) : (
-          <div className={styles.combatQueueList}>
+          <div className={combatStyles.queueList}>
             {combatRoom.queue.map((entry, index) => (
-              <div key={entry.id} className={styles.combatQueueItem}>
+              <div key={entry.id} className={combatStyles.queueItem}>
                 <span>{index + 1}</span>
                 <strong>{entry.label}</strong>
                 <small>d20: {entry.roll}</small>
                 {isOwner ? (
-                  <div className={styles.combatQueueControls}>
+                  <div className={combatStyles.queueControls}>
                     <button
                       type="button"
                       onClick={() => onMoveQueueEntry(combatRoom.id, entry.id, -1)}

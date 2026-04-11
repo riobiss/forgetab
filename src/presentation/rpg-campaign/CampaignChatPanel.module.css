@@ -1,0 +1,263 @@
+.containerChatMode {
+  max-width: none;
+  height: 100dvh;
+  min-height: 100dvh;
+  padding: 0;
+  gap: 0;
+}
+
+.panelChatMode {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 100dvh;
+  border: none;
+  border-radius: 0;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.panelChatConversationMode {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.chatLayout {
+  min-height: 66vh;
+}
+
+.panelChatMode .chatLayout {
+  height: 100%;
+  min-height: 0;
+}
+
+.chatListPane {
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-brand-primary) 38%, transparent) transparent;
+}
+
+.chatListPane::-webkit-scrollbar,
+.stream::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chatListPane::-webkit-scrollbar-track,
+.stream::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chatListPane::-webkit-scrollbar-thumb,
+.stream::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-brand-primary) 34%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.chatPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-soft) 72%, transparent);
+}
+
+.chatList {
+  display: grid;
+  gap: 0.3rem;
+  align-content: start;
+}
+
+.chatListItem {
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-soft) 75%, transparent);
+  background: transparent;
+  padding: 0.8rem 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chatAvatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-brand-primary) 20%, var(--color-bg-surface-alt));
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.chatListText {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.chatListText strong {
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chatListText small {
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chatConversation {
+  min-width: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.conversationHeader {
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-soft) 72%, transparent);
+  padding: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: transparent;
+}
+
+.conversationIdentity {
+  min-width: 0;
+  flex: 1;
+}
+
+.conversationTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.backToChatList {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.stream {
+  display: grid;
+  gap: 0.8rem;
+  padding-right: 0.25rem;
+  min-height: 0;
+  overflow-y: auto;
+  align-content: start;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-brand-primary) 38%, transparent) transparent;
+}
+
+.chatBubble {
+  width: fit-content;
+  max-width: min(100%, 34rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  padding: 0.85rem 0.95rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.chatBubbleOwn {
+  justify-self: end;
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, var(--color-bg-surface));
+}
+
+.chatBubbleOther {
+  justify-self: start;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+}
+
+.chatBubbleMeta {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+}
+
+.chatBubbleMeta strong {
+  color: var(--color-text-primary);
+}
+
+.chatBubbleContent {
+  position: relative;
+  margin: 0;
+  padding-right: 2.1rem;
+  padding-bottom: 0.15rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.chatBubbleTime {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  background: transparent;
+  padding-top: 0.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-border-soft) 72%, transparent);
+}
+
+.composer textarea {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  padding: 0.6rem 0.85rem;
+  min-height: 2.5rem;
+  max-height: 7.5rem;
+  overflow: hidden;
+  resize: none;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: none;
+  line-height: 1.35;
+}
+
+.composer textarea:focus,
+.composer textarea:focus-visible,
+.composer textarea:active {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+@media (max-width: 900px) {
+  .chatLayout {
+    min-height: 60vh;
+  }
+}

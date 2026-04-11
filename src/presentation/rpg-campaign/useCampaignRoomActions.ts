@@ -3,15 +3,24 @@
 import { useState, type Dispatch, type SetStateAction } from "react"
 import type { CharacterInventoryItemDto } from "@/application/characterInventory/types"
 import type { PurchasedAbilityViewDto } from "@/application/characterAbilities/types"
+import type { BaseItemDto } from "@/application/itemsDashboard/types"
+import type { DashboardCharacterSummary } from "@/application/rpgDashboard/contracts/RpgDashboardGateway"
 import type { RpgCampaignRoomViewModel } from "@/application/rpgCampaign/types"
+import type { SkillListItemDto } from "@/application/skillsDashboard/types"
 import { fetchCharacterAbilitiesViewModel } from "@/infrastructure/characterAbilities/repositories/httpCharacterAbilitiesPageRepository"
 import { httpCharacterInventoryGateway } from "@/infrastructure/characterInventory/gateways/httpCharacterInventoryGateway"
+import { httpItemsDashboardGateway } from "@/infrastructure/itemsDashboard/gateways/httpItemsDashboardGateway"
+import { httpRpgDashboardGateway } from "@/infrastructure/rpgDashboard/gateways/httpRpgDashboardGateway"
 import type { CampaignSelectedCharacter } from "@/infrastructure/rpgCampaign/campaignPresence"
 import { httpRpgCampaignRepository } from "@/infrastructure/rpgCampaign/repositories/httpRpgCampaignRepository"
+import { httpSkillsDashboardGateway } from "@/infrastructure/skillsDashboard/gateways/httpSkillsDashboardGateway"
 import {
+  buildDeliveryOfferActionContent,
   buildDiceRollActionContent,
   buildItemUseActionContent,
   buildSkillUseActionContent,
+  type DeliveryOfferActionPayload,
+  type DeliveryOfferAsset,
   type DiceRollActionPayload,
   type DiceRollGroup,
   type DiceRollPreviewGroup,
@@ -45,6 +54,7 @@ export function useCampaignRoomActions({
 }: Params) {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false)
   const [isDiceModalOpen, setIsDiceModalOpen] = useState(false)
+  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false)
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false)
   const [isItemModalOpen, setIsItemModalOpen] = useState(false)
   const [diceEntries, setDiceEntries] = useState<Array<{ diceCount: string; diceSides: string }>>([
@@ -53,6 +63,10 @@ export function useCampaignRoomActions({
   const [dicePreviewGroups, setDicePreviewGroups] = useState<DiceRollPreviewGroup[] | null>(null)
   const [characterAbilities, setCharacterAbilities] = useState<PurchasedAbilityViewDto[]>([])
   const [characterItems, setCharacterItems] = useState<CharacterInventoryItemDto[]>([])
+  const [deliveryCharacters, setDeliveryCharacters] = useState<DashboardCharacterSummary[]>([])
+  const [deliveryItems, setDeliveryItems] = useState<BaseItemDto[]>([])
+  const [deliverySkills, setDeliverySkills] = useState<SkillListItemDto[]>([])
+  const [isLoadingDeliveryOptions, setIsLoadingDeliveryOptions] = useState(false)
   const [isLoadingCharacterAbilities, setIsLoadingCharacterAbilities] = useState(false)
   const [isLoadingCharacterItems, setIsLoadingCharacterItems] = useState(false)
   const [selectedAbilityDetails, setSelectedAbilityDetails] = useState<PurchasedAbilityViewDto | null>(null)
@@ -83,7 +97,7 @@ export function useCampaignRoomActions({
   }
 
   async function handleDiceRoll() {
-    const groups: DiceRollPreviewGroup[] = []
+    const entries: Array<{ diceCount: number; diceSides: number }> = []
 
     for (const entry of diceEntries) {
       const nextDiceCount = Number(entry.diceCount)
@@ -99,13 +113,25 @@ export function useCampaignRoomActions({
         return
       }
 
-      const results = Array.from({ length: nextDiceCount }, () => Math.floor(Math.random() * nextDiceSides) + 1)
-      groups.push({
+      entries.push({
         diceCount: nextDiceCount,
         diceSides: nextDiceSides,
-        results: results.map(String),
       })
     }
+
+    let payload: Awaited<ReturnType<typeof httpRpgCampaignRepository.rollDice>>
+    try {
+      payload = await httpRpgCampaignRepository.rollDice(rpgId, room.campaign.id, { entries })
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : "Nao foi possivel girar os dados.")
+      return
+    }
+
+    const groups = payload.groups.map((group) => ({
+      diceCount: group.diceCount,
+      diceSides: group.diceSides,
+      results: group.results.map(String),
+    }))
 
     if (room.isOwner) {
       setDicePreviewGroups(groups)
@@ -153,6 +179,72 @@ export function useCampaignRoomActions({
     } finally {
       setIsLoadingCharacterItems(false)
     }
+  }
+
+  async function openDeliveryModal() {
+    if (!room.isOwner) {
+      return
+    }
+
+    setIsActionMenuOpen(false)
+    setIsDeliveryModalOpen(true)
+
+    if (deliveryItems.length > 0 || deliverySkills.length > 0 || deliveryCharacters.length > 0) {
+      return
+    }
+
+    setIsLoadingDeliveryOptions(true)
+    setError(null)
+
+    try {
+      const [itemsPayload, charactersPayload, skillsPayload] = await Promise.all([
+        httpItemsDashboardGateway.fetchDashboardData(rpgId),
+        httpRpgDashboardGateway.fetchCharacters(rpgId),
+        httpSkillsDashboardGateway.fetchSkills(rpgId),
+      ])
+
+      setDeliveryItems(itemsPayload.items)
+      setDeliveryCharacters(charactersPayload.characters ?? [])
+      setDeliverySkills(skillsPayload)
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : "Nao foi possivel carregar as opcoes de entrega.")
+    } finally {
+      setIsLoadingDeliveryOptions(false)
+    }
+  }
+
+  async function submitDeliveryOffer(params: {
+    mode: "single" | "chest"
+    assets: DeliveryOfferAsset[]
+    recipients: Array<{ userId: string; characterId: string }>
+  }) {
+    if (!room.isOwner) {
+      return
+    }
+
+    const content = buildDeliveryOfferActionContent({
+      type: "delivery_offer",
+      combatId: activeCombatRoomId,
+      offerId: globalThis.crypto?.randomUUID?.() ?? `offer-${Date.now()}`,
+      mode: params.mode,
+      assets: params.assets,
+      recipientUserIds: params.recipients.map((recipient) => recipient.userId),
+      recipientCharacterIds: params.recipients.map((recipient) => recipient.characterId),
+    } satisfies DeliveryOfferActionPayload)
+
+    await runAction(async () => {
+      const payload = await httpRpgCampaignRepository.sendMessage(rpgId, room.campaign.id, {
+        content,
+        kind: "action",
+      })
+
+      if ("chatMessage" in payload && payload.chatMessage) {
+        appendMessageLocally(payload.chatMessage)
+      }
+
+      setIsDeliveryModalOpen(false)
+      return payload
+    })
   }
 
   async function openLatestAbilityDetails(params: {
@@ -302,6 +394,31 @@ export function useCampaignRoomActions({
     })
   }
 
+  async function handleAcceptDeliveryOffer(messageId: string, offer: DeliveryOfferActionPayload) {
+    if (!selectedCharacter) {
+      setError("Selecione um personagem para receber a entrega.")
+      return
+    }
+
+    const isTargeted = offer.recipientUserIds.length > 0 || offer.recipientCharacterIds.length > 0
+    const canReceive =
+      !isTargeted ||
+      offer.recipientUserIds.includes(room.viewerUserId) ||
+      offer.recipientCharacterIds.includes(selectedCharacter.id)
+
+    if (!canReceive) {
+      setError("Essa entrega nao esta destinada ao seu personagem.")
+      return
+    }
+
+    await runAction(async () => {
+      return httpRpgCampaignRepository.acceptDeliveryOffer(rpgId, room.campaign.id, messageId, {
+        characterId: selectedCharacter.id,
+        offerId: offer.offerId,
+      })
+    })
+  }
+
   async function submitDiceRoll(groupsSource: DiceRollPreviewGroup[]) {
     const groups: DiceRollGroup[] = []
 
@@ -356,19 +473,26 @@ export function useCampaignRoomActions({
     closeDiceModal,
     diceEntries,
     dicePreviewGroups,
+    deliveryCharacters,
+    deliveryItems,
+    deliverySkills,
     expandedActionIds,
     expandedRollIds,
+    handleAcceptDeliveryOffer,
     handleDiceRoll,
     handleRevokeActionMessage,
     handleUseAbility,
     handleUseItem,
     isActionMenuOpen,
+    isDeliveryModalOpen,
     isDiceModalOpen,
     isItemModalOpen,
     isLoadingCharacterAbilities,
     isLoadingCharacterItems,
+    isLoadingDeliveryOptions,
     isSkillModalOpen,
     openDiceModalFromActionPayload,
+    openDeliveryModal,
     openItemModal,
     openLatestAbilityDetails,
     openLatestItemDetails,
@@ -383,6 +507,7 @@ export function useCampaignRoomActions({
     setExpandedActionIds,
     setExpandedRollIds,
     setIsActionMenuOpen,
+    setIsDeliveryModalOpen,
     setIsDiceModalOpen,
     setIsItemModalOpen,
     setIsSkillModalOpen,
@@ -392,6 +517,7 @@ export function useCampaignRoomActions({
     setSelectedItemDetails,
     setSelectedItemDetailsMode,
     submitDiceRoll,
+    submitDeliveryOffer,
   }
 }
 

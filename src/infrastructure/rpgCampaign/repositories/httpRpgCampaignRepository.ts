@@ -232,10 +232,40 @@ export const httpRpgCampaignRepository = {
   ) {
     return postWithJson(`/api/rpg/${rpgId}/campaigns/${campaignId}/messages`, payload)
   },
+  rollDice(
+    rpgId: string,
+    campaignId: string,
+    payload: { entries: Array<{ diceCount: number; diceSides: number }> },
+  ) {
+    return apiFetch(`/api/rpg/${rpgId}/campaigns/${campaignId}/dice-roll`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).then((response) => parseJsonResponse<{
+      provider?: "local" | "random-org"
+      groups: Array<{
+        diceCount: number
+        diceSides: number
+        results: number[]
+        total: number
+      }>
+    }>(response))
+  },
   revokeActionMessage(rpgId: string, campaignId: string, messageId: string) {
     return apiFetch(`/api/rpg/${rpgId}/campaigns/${campaignId}/messages/${messageId}`, {
       method: "DELETE",
     }).then((response) => parseJsonResponse<{ message?: string }>(response))
+  },
+  acceptDeliveryOffer(
+    rpgId: string,
+    campaignId: string,
+    messageId: string,
+    payload: { characterId: string; offerId: string },
+  ) {
+    return postWithJson(
+      `/api/rpg/${rpgId}/campaigns/${campaignId}/messages/${messageId}/accept-delivery`,
+      payload,
+    )
   },
   createCombat(rpgId: string, campaignId: string, payload: { name: string }) {
     return apiFetch(`/api/rpg/${rpgId}/campaigns/${campaignId}/combats`, {

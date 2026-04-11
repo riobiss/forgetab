@@ -1,0 +1,75 @@
+.deliveryOfferCard {
+  width: min(100%, 26rem);
+  justify-self: start;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.deliveryOfferMain {
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.deliveryOfferMain:disabled {
+  cursor: default;
+}
+
+.deliveryOfferIcon {
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deliveryOfferText {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.deliveryOfferText strong {
+  color: var(--color-text-primary);
+  line-height: 1.25;
+}
+
+.deliveryOfferText small {
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deliveryModalAssetList {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.deliveryModalAssetList p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+}
+
+.deliveryAcceptButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+  padding: 0.68rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}

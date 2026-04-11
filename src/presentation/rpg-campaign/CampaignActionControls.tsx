@@ -1,12 +1,14 @@
 "use client"
 
 import type { CSSProperties } from "react"
-import { Info, PawPrint, Plus, Sparkles, Swords, X } from "lucide-react"
+import { Gift, Info, PawPrint, Plus, Send, Sparkles, Swords, X } from "lucide-react"
 import type { CampaignSelectedCharacter } from "@/infrastructure/rpgCampaign/campaignPresence"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 import { toInventoryCardItem } from "@/presentation/character-inventory/utils"
-import { toActionTypeLabel } from "./actionMessages"
+import { ITEM_RARITY_ACTION_COLOR, toActionTypeLabel } from "./actionMessages"
 import { AbilityActionDetailCard, ItemActionDetailCard } from "./ActionDetailCards"
+import controlStyles from "./CampaignActionControls.module.css"
+import { CampaignDeliveryModal } from "./CampaignDeliveryModal"
 import styles from "./RpgCampaignRoomPage.module.css"
 import type { CampaignRoomActions } from "./useCampaignRoomActions"
 
@@ -36,7 +38,7 @@ export function CampaignActionControls({
       {showFloatingButton && !isCampaignEnded ? (
         <button
           type="button"
-          className={styles.actionFab}
+          className={controlStyles.actionFab}
           onClick={() => actions.setIsActionMenuOpen((currentState) => !currentState)}
           aria-label="Abrir acoes da campanha"
         >
@@ -45,11 +47,11 @@ export function CampaignActionControls({
       ) : null}
 
       {actions.isActionMenuOpen ? (
-        <div className={`${styles.actionMenu} ${showFloatingButton ? "" : styles.actionMenuToolbar}`}>
+        <div className={`${controlStyles.actionMenu} ${showFloatingButton ? "" : controlStyles.actionMenuToolbar}`}>
           {isOwner && onOpenCreateCombat ? (
             <button
               type="button"
-              className={styles.actionMenuItem}
+              className={controlStyles.actionMenuItem}
               onClick={() => {
                 actions.setIsActionMenuOpen(false)
                 onOpenCreateCombat()
@@ -61,7 +63,7 @@ export function CampaignActionControls({
           {isOwner && onOpenCreatures ? (
             <button
               type="button"
-              className={styles.actionMenuItem}
+              className={controlStyles.actionMenuItem}
               onClick={() => {
                 actions.setIsActionMenuOpen(false)
                 onOpenCreatures()
@@ -70,10 +72,21 @@ export function CampaignActionControls({
               <PawPrint size={16} /> Criaturas
             </button>
           ) : null}
+          {isOwner ? (
+            <button
+              type="button"
+              className={controlStyles.actionMenuItem}
+              onClick={() => {
+                void actions.openDeliveryModal()
+              }}
+            >
+              <Gift size={16} /> Entregar
+            </button>
+          ) : null}
           {!isOwner && selectedCharacter ? (
             <button
               type="button"
-              className={styles.actionMenuItem}
+              className={controlStyles.actionMenuItem}
               onClick={() => {
                 actions.setIsActionMenuOpen(false)
                 void actions.openSkillModal()
@@ -85,7 +98,7 @@ export function CampaignActionControls({
           {!isOwner && selectedCharacter ? (
             <button
               type="button"
-              className={styles.actionMenuItem}
+              className={controlStyles.actionMenuItem}
               onClick={() => {
                 actions.setIsActionMenuOpen(false)
                 void actions.openItemModal()
@@ -96,7 +109,7 @@ export function CampaignActionControls({
           ) : null}
           <button
             type="button"
-            className={styles.actionMenuItem}
+            className={controlStyles.actionMenuItem}
             onClick={() => {
               actions.setIsDiceModalOpen(true)
               actions.setIsActionMenuOpen(false)
@@ -113,6 +126,20 @@ export function CampaignActionControls({
 
       {actions.isItemModalOpen ? (
         <ItemPickerModal actions={actions} selectedCharacter={selectedCharacter} />
+      ) : null}
+
+      {actions.isDeliveryModalOpen ? (
+        <CampaignDeliveryModal
+          characters={actions.deliveryCharacters}
+          items={actions.deliveryItems}
+          skills={actions.deliverySkills}
+          isBusy={isBusy}
+          isLoading={actions.isLoadingDeliveryOptions}
+          onClose={() => actions.setIsDeliveryModalOpen(false)}
+          onSubmit={(payload) => {
+            void actions.submitDeliveryOffer(payload)
+          }}
+        />
       ) : null}
 
       {actions.isDiceModalOpen ? (
@@ -144,7 +171,7 @@ function SkillPickerModal({
   return (
     <div className={styles.modalBackdrop} role="presentation" onClick={() => actions.setIsSkillModalOpen(false)}>
       <section
-        className={styles.actionModal}
+        className={controlStyles.actionModal}
         role="dialog"
         aria-modal="true"
         aria-labelledby="skill-use-title"
@@ -164,57 +191,58 @@ function SkillPickerModal({
         ) : actions.characterAbilities.length === 0 ? (
           <p className={styles.emptyState}>Esse personagem ainda nao tem habilidades para usar.</p>
         ) : (
-          <div className={styles.skillPickerList}>
+          <div className={controlStyles.skillPickerList}>
             {actions.characterAbilities.map((ability) => {
               const primaryTag = ability.skillTags[0]
               const tagMeta = primaryTag ? getSkillTagMeta(primaryTag) : null
               const abilityName = ability.levelName ?? ability.skillName
 
               return (
-                <article key={`${ability.skillId}:${ability.levelNumber}`} className={styles.skillPickerCard}>
-                  <button
-                    type="button"
-                    className={styles.skillPickerMain}
-                    onClick={() => {
-                      void actions.openLatestAbilityDetails({
-                        ability,
-                        mode: "use",
-                        characterId: selectedCharacter?.id ?? null,
-                      })
-                    }}
-                  >
-                    <strong
-                      className={styles.skillPickerName}
-                      style={
-                        tagMeta
-                          ? ({
-                              "--skill-action-name-color": tagMeta.text,
-                              "--skill-action-name-bg": tagMeta.bg,
-                              "--skill-action-name-border": tagMeta.border,
-                            } as CSSProperties)
-                          : undefined
-                      }
-                    >
-                      {abilityName}
-                    </strong>
-                    <small className={styles.skillPickerMeta}>
+                <article
+                  key={`${ability.skillId}:${ability.levelNumber}`}
+                  className={`${controlStyles.skillPickerCard} ${controlStyles.skillPickerAbilityCard}`}
+                  style={
+                    tagMeta
+                      ? ({
+                          "--skill-picker-card-bg": tagMeta.bg,
+                          "--skill-picker-card-border": tagMeta.border,
+                          "--skill-picker-card-text": tagMeta.text,
+                        } as CSSProperties)
+                      : undefined
+                  }
+                >
+                  <div className={controlStyles.skillPickerAbilityMain}>
+                    <strong className={controlStyles.skillPickerAbilityName}>{abilityName}</strong>
+                    <small className={controlStyles.skillPickerAbilityMeta}>
                       {toActionTypeLabel(ability.skillActionType) ?? "Habilidade"}
                     </small>
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.skillInfoButton}
-                    onClick={() => {
-                      void actions.openLatestAbilityDetails({
-                        ability,
-                        mode: "view",
-                        characterId: selectedCharacter?.id ?? null,
-                      })
-                    }}
-                    aria-label="Ver detalhes da habilidade"
-                  >
-                    <Info size={16} />
-                  </button>
+                  </div>
+                  <div className={controlStyles.skillPickerActions}>
+                    <button
+                      type="button"
+                      className={controlStyles.skillPickerActionButton}
+                      onClick={() => {
+                        void actions.openLatestAbilityDetails({
+                          ability,
+                          mode: "view",
+                          characterId: selectedCharacter?.id ?? null,
+                        })
+                      }}
+                      aria-label="Ver habilidade inteira"
+                    >
+                      <Info size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      className={`${controlStyles.skillPickerActionButton} ${controlStyles.skillPickerSendButton}`}
+                      onClick={() => {
+                        void actions.handleUseAbility(ability)
+                      }}
+                      aria-label="Enviar habilidade"
+                    >
+                      <Send size={16} />
+                    </button>
+                  </div>
                 </article>
               )
             })}
@@ -235,7 +263,7 @@ function ItemPickerModal({
   return (
     <div className={styles.modalBackdrop} role="presentation" onClick={() => actions.setIsItemModalOpen(false)}>
       <section
-        className={styles.actionModal}
+        className={controlStyles.actionModal}
         role="dialog"
         aria-modal="true"
         aria-labelledby="item-use-title"
@@ -255,42 +283,55 @@ function ItemPickerModal({
         ) : actions.characterItems.length === 0 ? (
           <p className={styles.emptyState}>Esse personagem ainda nao tem itens para usar.</p>
         ) : (
-          <div className={styles.skillPickerList}>
+          <div className={controlStyles.skillPickerList}>
             {actions.characterItems.map((item) => {
               const cardItem = toInventoryCardItem(item)
+              const rarityColor = ITEM_RARITY_ACTION_COLOR[item.itemRarity]
 
               return (
-                <article key={item.id} className={styles.skillPickerCard}>
-                  <button
-                    type="button"
-                    className={styles.skillPickerMain}
-                    onClick={() => {
-                      void actions.openLatestItemDetails({
-                        item,
-                        mode: "use",
-                        characterId: selectedCharacter?.id ?? null,
-                      })
-                    }}
-                  >
-                    <strong className={styles.itemActionName}>{cardItem.title}</strong>
-                    <small className={styles.skillPickerMeta}>
+                <article
+                  key={item.id}
+                  className={`${controlStyles.skillPickerCard} ${controlStyles.skillPickerAbilityCard}`}
+                  style={
+                    {
+                      "--skill-picker-card-bg": rarityColor.bg,
+                      "--skill-picker-card-border": rarityColor.border,
+                      "--skill-picker-card-text": rarityColor.text,
+                    } as CSSProperties
+                  }
+                >
+                  <div className={controlStyles.skillPickerAbilityMain}>
+                    <strong className={controlStyles.skillPickerAbilityName}>{cardItem.title}</strong>
+                    <small className={controlStyles.skillPickerAbilityMeta}>
                       {cardItem.secondaryLine ?? "Item"} - {cardItem.rarityLabel} - X.{cardItem.quantity}
                     </small>
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.skillInfoButton}
-                    onClick={() => {
-                      void actions.openLatestItemDetails({
-                        item,
-                        mode: "view",
-                        characterId: selectedCharacter?.id ?? null,
-                      })
-                    }}
-                    aria-label="Ver detalhes do item"
-                  >
-                    <Info size={16} />
-                  </button>
+                  </div>
+                  <div className={controlStyles.skillPickerActions}>
+                    <button
+                      type="button"
+                      className={controlStyles.skillPickerActionButton}
+                      onClick={() => {
+                        void actions.openLatestItemDetails({
+                          item,
+                          mode: "view",
+                          characterId: selectedCharacter?.id ?? null,
+                        })
+                      }}
+                      aria-label="Ver item inteiro"
+                    >
+                      <Info size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      className={`${controlStyles.skillPickerActionButton} ${controlStyles.skillPickerSendButton}`}
+                      onClick={() => {
+                        void actions.handleUseItem(item)
+                      }}
+                      aria-label="Enviar item"
+                    >
+                      <Send size={16} />
+                    </button>
+                  </div>
                 </article>
               )
             })}
@@ -313,7 +354,7 @@ function DiceRollModal({
   return (
     <div className={styles.modalBackdrop} role="presentation" onClick={actions.closeDiceModal}>
       <section
-        className={styles.actionModal}
+        className={controlStyles.actionModal}
         role="dialog"
         aria-modal="true"
         aria-labelledby="dice-roll-title"
@@ -323,10 +364,10 @@ function DiceRollModal({
           <h2 id="dice-roll-title" className={styles.actionModalTitle}>
             Girar dado
           </h2>
-          <div className={styles.actionModalControls}>
+          <div className={controlStyles.actionModalControls}>
             <button
               type="button"
-              className={styles.addDiceButton}
+              className={controlStyles.addDiceButton}
               onClick={() => {
                 actions.setDicePreviewGroups(null)
                 actions.setDiceEntries((currentEntries) => [
@@ -343,10 +384,10 @@ function DiceRollModal({
           </div>
         </div>
 
-        <div className={styles.diceFields}>
+        <div className={controlStyles.diceFields}>
           {actions.diceEntries.map((entry, index) => (
-            <div key={`dice-entry-${index}`} className={styles.diceEntryRow}>
-              <label className={styles.diceField}>
+            <div key={`dice-entry-${index}`} className={controlStyles.diceEntryRow}>
+              <label className={controlStyles.diceField}>
                 <span>Numero de dados</span>
                 <input
                   type="number"
@@ -366,7 +407,7 @@ function DiceRollModal({
                 />
               </label>
 
-              <label className={styles.diceField}>
+              <label className={controlStyles.diceField}>
                 <span>Lados do dado</span>
                 <input
                   type="number"
@@ -390,19 +431,19 @@ function DiceRollModal({
         </div>
 
         {isOwner && actions.dicePreviewGroups ? (
-          <div className={styles.dicePreview}>
-            <div className={styles.dicePreviewHeader}>
+          <div className={controlStyles.dicePreview}>
+            <div className={controlStyles.dicePreviewHeader}>
               <strong>Resultado antes de mostrar</strong>
               <small>Voce pode ajustar os valores abaixo.</small>
             </div>
 
-            <div className={styles.dicePreviewGroups}>
+            <div className={controlStyles.dicePreviewGroups}>
               {actions.dicePreviewGroups.map((group, groupIndex) => (
-                <div key={`preview-group-${groupIndex}`} className={styles.dicePreviewGroup}>
-                  <p className={styles.dicePreviewLabel}>
+                <div key={`preview-group-${groupIndex}`} className={controlStyles.dicePreviewGroup}>
+                  <p className={controlStyles.dicePreviewLabel}>
                     {group.diceCount}d{group.diceSides}
                   </p>
-                  <div className={styles.dicePreviewResults}>
+                  <div className={controlStyles.dicePreviewResults}>
                     {group.results.map((result, resultIndex) => (
                       <input
                         key={`preview-result-${groupIndex}-${resultIndex}`}
@@ -467,13 +508,13 @@ function AbilityDetailsModal({ actions, isBusy }: { actions: CampaignRoomActions
   return (
     <div className={styles.modalBackdrop} role="presentation" onClick={closeDetails}>
       <section
-        className={styles.skillDetailsModal}
+        className={controlStyles.skillDetailsModal}
         role="dialog"
         aria-modal="true"
         aria-labelledby="skill-details-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className={styles.skillDetailsTopBar}>
+        <div className={controlStyles.skillDetailsTopBar}>
           <button type="button" className={styles.closeChatButton} onClick={closeDetails}>
             <X size={16} />
           </button>
@@ -482,7 +523,7 @@ function AbilityDetailsModal({ actions, isBusy }: { actions: CampaignRoomActions
         <AbilityActionDetailCard ability={selectedAbility} />
 
         {actions.selectedAbilityDetailsMode === "use" ? (
-          <div className={styles.skillDetailsActions}>
+          <div className={controlStyles.skillDetailsActions}>
             <button
               type="button"
               className={styles.rollSubmitButton}
@@ -512,13 +553,13 @@ function ItemDetailsModal({ actions, isBusy }: { actions: CampaignRoomActions; i
   return (
     <div className={styles.modalBackdrop} role="presentation" onClick={closeDetails}>
       <section
-        className={styles.skillDetailsModal}
+        className={controlStyles.skillDetailsModal}
         role="dialog"
         aria-modal="true"
         aria-labelledby="item-details-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className={styles.skillDetailsTopBar}>
+        <div className={controlStyles.skillDetailsTopBar}>
           <button type="button" className={styles.closeChatButton} onClick={closeDetails}>
             <X size={16} />
           </button>
@@ -527,7 +568,7 @@ function ItemDetailsModal({ actions, isBusy }: { actions: CampaignRoomActions; i
         <ItemActionDetailCard item={selectedItem} />
 
         {actions.selectedItemDetailsMode === "use" ? (
-          <div className={styles.skillDetailsActions}>
+          <div className={controlStyles.skillDetailsActions}>
             <button
               type="button"
               className={styles.rollSubmitButton}

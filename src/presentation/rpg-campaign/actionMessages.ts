@@ -1,6 +1,54 @@
 import type { CharacterInventoryItemDto } from "@/application/characterInventory/types"
 import type { PurchasedAbilityViewDto } from "@/application/characterAbilities/types"
 
+export type CharacterRevealEntry = {
+  key: string
+  label: string
+  value: string | number
+}
+
+export type CharacterRevealSection = {
+  key: string
+  title: string
+  entries: CharacterRevealEntry[]
+}
+
+export type CharacterRevealActionPayload = {
+  type: "character_reveal"
+  combatId?: string | null
+  characterId: string
+  characterName: string
+  characterType: "npc" | "monster"
+  image: string | null
+  sections: CharacterRevealSection[]
+}
+
+export type DeliveryOfferAsset =
+  | {
+      kind: "item"
+      id: string
+      name: string
+      image: string | null
+      quantity: number
+    }
+  | {
+      kind: "skill"
+      id: string
+      name: string
+      image: string | null
+      level: number
+    }
+
+export type DeliveryOfferActionPayload = {
+  type: "delivery_offer"
+  combatId?: string | null
+  offerId: string
+  mode: "single" | "chest"
+  assets: DeliveryOfferAsset[]
+  recipientUserIds: string[]
+  recipientCharacterIds: string[]
+}
+
 export type DiceRollGroup = {
   diceCount: number
   diceSides: number
@@ -46,21 +94,31 @@ const SKILL_ACTION_TYPE_LABEL: Record<string, string> = {
 
 export const ITEM_RARITY_ACTION_COLOR: Record<
   CharacterInventoryItemDto["itemRarity"],
-  { text: string }
+  { bg: string; border: string; text: string }
 > = {
   common: {
+    bg: "color-mix(in srgb, #64748b 22%, var(--color-bg-surface))",
+    border: "color-mix(in srgb, #cbd5e1 34%, var(--color-border-soft))",
     text: "color-mix(in srgb, #dbe3ee 76%, var(--color-text-primary))",
   },
   uncommon: {
+    bg: "color-mix(in srgb, #16a34a 20%, var(--color-bg-surface))",
+    border: "color-mix(in srgb, #86efac 36%, var(--color-border-soft))",
     text: "color-mix(in srgb, #b9f0c8 74%, var(--color-text-primary))",
   },
   rare: {
+    bg: "color-mix(in srgb, #2563eb 20%, var(--color-bg-surface))",
+    border: "color-mix(in srgb, #93c5fd 38%, var(--color-border-soft))",
     text: "color-mix(in srgb, #c8d8ff 78%, var(--color-text-primary))",
   },
   epic: {
+    bg: "color-mix(in srgb, #7c3aed 20%, var(--color-bg-surface))",
+    border: "color-mix(in srgb, #c4b5fd 38%, var(--color-border-soft))",
     text: "color-mix(in srgb, #e0ccff 78%, var(--color-text-primary))",
   },
   legendary: {
+    bg: "color-mix(in srgb, #d97706 22%, var(--color-bg-surface))",
+    border: "color-mix(in srgb, #fcd34d 40%, var(--color-border-soft))",
     text: "color-mix(in srgb, #ffe0ae 82%, var(--color-text-primary))",
   },
 }
@@ -68,6 +126,8 @@ export const ITEM_RARITY_ACTION_COLOR: Record<
 const DICE_ROLL_PREFIX = "__ROLL__"
 const SKILL_USE_PREFIX = "__SKILL_USE__"
 const ITEM_USE_PREFIX = "__ITEM_USE__"
+const CHARACTER_REVEAL_PREFIX = "__CHARACTER_REVEAL__"
+const DELIVERY_OFFER_PREFIX = "__DELIVERY_OFFER__"
 
 export function toActionTypeLabel(value: string | null) {
   if (!value) return null
@@ -84,6 +144,14 @@ export function buildSkillUseActionContent(payload: SkillUseActionPayload) {
 
 export function buildItemUseActionContent(payload: ItemUseActionPayload) {
   return `${ITEM_USE_PREFIX}${JSON.stringify(payload)}`
+}
+
+export function buildCharacterRevealActionContent(payload: CharacterRevealActionPayload) {
+  return `${CHARACTER_REVEAL_PREFIX}${JSON.stringify(payload)}`
+}
+
+export function buildDeliveryOfferActionContent(payload: DeliveryOfferActionPayload) {
+  return `${DELIVERY_OFFER_PREFIX}${JSON.stringify(payload)}`
 }
 
 export function parseDiceRollAction(content: string): DiceRollActionPayload | null {
@@ -177,11 +245,60 @@ export function parseItemUseAction(content: string): ItemUseActionPayload | null
   }
 }
 
+export function parseCharacterRevealAction(content: string): CharacterRevealActionPayload | null {
+  if (!content.startsWith(CHARACTER_REVEAL_PREFIX)) {
+    return null
+  }
+
+  try {
+    const parsedContent = JSON.parse(content.slice(CHARACTER_REVEAL_PREFIX.length)) as CharacterRevealActionPayload
+    if (
+      parsedContent?.type !== "character_reveal" ||
+      typeof parsedContent.characterId !== "string" ||
+      typeof parsedContent.characterName !== "string" ||
+      (parsedContent.characterType !== "npc" && parsedContent.characterType !== "monster") ||
+      !Array.isArray(parsedContent.sections)
+    ) {
+      return null
+    }
+
+    return parsedContent
+  } catch {
+    return null
+  }
+}
+
+export function parseDeliveryOfferAction(content: string): DeliveryOfferActionPayload | null {
+  if (!content.startsWith(DELIVERY_OFFER_PREFIX)) {
+    return null
+  }
+
+  try {
+    const parsedContent = JSON.parse(content.slice(DELIVERY_OFFER_PREFIX.length)) as DeliveryOfferActionPayload
+    if (
+      parsedContent?.type !== "delivery_offer" ||
+      typeof parsedContent.offerId !== "string" ||
+      (parsedContent.mode !== "single" && parsedContent.mode !== "chest") ||
+      !Array.isArray(parsedContent.assets) ||
+      !Array.isArray(parsedContent.recipientUserIds) ||
+      !Array.isArray(parsedContent.recipientCharacterIds)
+    ) {
+      return null
+    }
+
+    return parsedContent
+  } catch {
+    return null
+  }
+}
+
 export function getActionCombatId(content: string): string | null {
   return (
     parseDiceRollAction(content)?.combatId ??
     parseSkillUseAction(content)?.combatId ??
     parseItemUseAction(content)?.combatId ??
+    parseCharacterRevealAction(content)?.combatId ??
+    parseDeliveryOfferAction(content)?.combatId ??
     null
   )
 }
