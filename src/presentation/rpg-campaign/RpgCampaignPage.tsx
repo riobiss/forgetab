@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { startTransition, useState } from "react"
 import { ArrowLeft, DoorOpen, Eye, Gamepad2, Radio, Square, Trash2, Users, X } from "lucide-react"
 import type { DashboardCharacterSummary } from "@/application/rpgDashboard/contracts/RpgDashboardGateway"
-import { formatDateInBrasilia } from "@/lib/date"
 import type { RpgCampaignViewModel } from "@/application/rpgCampaign/types"
 import { httpRpgDashboardGateway } from "@/infrastructure/rpgDashboard/gateways/httpRpgDashboardGateway"
 import {
@@ -18,12 +17,34 @@ import { httpRpgCampaignRepository } from "@/infrastructure/rpgCampaign/reposito
 import styles from "./RpgCampaignPage.module.css"
 
 function formatDateTime(date: Date | null) {
-  if (!date) return "Ainda nao iniciada"
+  if (!date) return "ainda nao iniciada"
   return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "short",
-    timeStyle: "short",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
     timeZone: "America/Sao_Paulo",
   }).format(date)
+}
+
+function getCampaignStatus(campaign: { isActive: boolean; endedAt: Date | null }) {
+  if (campaign.isActive) {
+    return { label: "Em andamento", className: styles.activeStatus }
+  }
+
+  if (campaign.endedAt) {
+    return { label: "Finalizado", className: styles.finishedStatus }
+  }
+
+  return { label: "Pendente", className: styles.pendingStatus }
+}
+
+function getCampaignStatusLabel(campaign: { isActive: boolean; endedAt: Date | null }) {
+  return getCampaignStatus(campaign).label
+}
+
+function getCampaignStatusClassName(campaign: { isActive: boolean; endedAt: Date | null }) {
+  return getCampaignStatus(campaign).className
 }
 
 type Props = {
@@ -44,9 +65,6 @@ export function RpgCampaignPage({ rpgId, rpgTitle, initialViewModel }: Props) {
   const [entryMode, setEntryMode] = useState<"choose" | "play">("choose")
   const [availableCharacters, setAvailableCharacters] = useState<DashboardCharacterSummary[]>([])
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
-
-  const activeCampaign =
-    viewModel.campaigns.find((campaign) => campaign.id === viewModel.activeCampaignId) ?? null
 
   async function refreshCampaigns() {
     const nextViewModel = await httpRpgCampaignRepository.fetchViewModel(rpgId)
@@ -191,53 +209,10 @@ export function RpgCampaignPage({ rpgId, rpgTitle, initialViewModel }: Props) {
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <p className={styles.eyebrow}>RPG / Campanha</p>
-            <h1 className={styles.title}>{rpgTitle}</h1>
-            <p className={styles.subtitle}>
-              Area para organizar campanhas, iniciar uma partida em andamento e abrir o chat entre quem entrou nela.
-            </p>
+            <p className={styles.eyebrow}>{rpgTitle}</p>
+            <h1 className={styles.title}>Campanha</h1>
           </div>
-          <Link href={`/rpg/${rpgId}`} className={styles.backLink}>
-            Voltar ao RPG
-          </Link>
         </div>
-
-        {activeCampaign ? (
-          <section className={styles.statusBanner}>
-            <div>
-              <strong>Campanha em andamento</strong>
-              <p>{activeCampaign.title}</p>
-            </div>
-
-            {!viewModel.isOwner && viewModel.isAcceptedMember && !viewModel.viewerJoinedActiveCampaign ? (
-              <button
-                type="button"
-                className={styles.actionButton}
-                onClick={() => openCampaignEntry({ id: activeCampaign.id, title: activeCampaign.title }, true)}
-                disabled={isBusy}
-              >
-                Entrar
-              </button>
-            ) : null}
-
-            {viewModel.isOwner && activeCampaign ? (
-              <Link href={`/rpg/${rpgId}/campaign/${activeCampaign.id}`} className={styles.actionButton}>
-                Abrir sala
-              </Link>
-            ) : null}
-
-            {!viewModel.isOwner && viewModel.viewerJoinedActiveCampaign && activeCampaign ? (
-              <button
-                type="button"
-                className={styles.actionButton}
-                onClick={() => openCampaignEntry({ id: activeCampaign.id, title: activeCampaign.title }, false)}
-                disabled={isBusy}
-              >
-                Abrir campanha
-              </button>
-            ) : null}
-          </section>
-        ) : null}
 
         {error ? <p className={styles.feedbackError}>{error}</p> : null}
         {success ? <p className={styles.feedbackSuccess}>{success}</p> : null}
@@ -245,7 +220,7 @@ export function RpgCampaignPage({ rpgId, rpgTitle, initialViewModel }: Props) {
         <div className={styles.grid}>
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Campanhas</h2>
+              <h2 className={styles.sectionTitle}>Sessões</h2>
             </div>
 
             {viewModel.isOwner ? (
@@ -299,101 +274,103 @@ export function RpgCampaignPage({ rpgId, rpgTitle, initialViewModel }: Props) {
               ) : null}
 
               {viewModel.campaigns.map((campaign) => (
-                <article key={campaign.id} className={styles.card}>
-                  <div className={styles.cardTop}>
-                    <div>
-                      <h3>{campaign.title}</h3>
-                      <div className={styles.meta}>
-                        <span className={`${styles.pill} ${campaign.isActive ? styles.pillActive : ""}`}>
-                          <Radio size={14} />
-                          {campaign.isActive ? "Em andamento" : "Pendente"}
-                        </span>
-                        <span className={styles.pill}>
-                          <Users size={14} />
-                          {campaign.participantsCount} participantes
-                        </span>
-                      </div>
+                <article key={campaign.id} className={styles.campaignCard}>
+                  <div className={styles.campaignMain}>
+                    <div className={styles.campaignMeta} aria-label="Status da campanha">
+                      <span className={getCampaignStatusClassName(campaign)}>
+                        <Radio size={14} />
+                        {getCampaignStatusLabel(campaign)}
+                      </span>
+                      <span aria-label={`${campaign.participantsCount} participantes`}>
+                        <Users size={14} />
+                        {campaign.participantsCount} pessoas
+                      </span>
+                    </div>
+
+                    <div className={styles.campaignContent}>
+                      <h3 className={styles.campaignTitle}>{campaign.title}</h3>
+                      <p className={styles.campaignDescription}>{campaign.description}</p>
                     </div>
                   </div>
 
-                  <p className={styles.cardDescription}>{campaign.description}</p>
+                  <div className={styles.campaignFooter}>
+                    <div className={styles.campaignActions}>
+                      {viewModel.isOwner && !campaign.isActive ? (
+                        <button
+                          type="button"
+                          className={styles.secondaryButton}
+                          onClick={() =>
+                            runAction(async () => {
+                              const payload = await httpRpgCampaignRepository.startCampaign(rpgId, campaign.id)
+                              router.push(`/rpg/${rpgId}/campaign/${campaign.id}`)
+                              return payload
+                            })
+                          }
+                          disabled={isBusy}
+                        >
+                          Comecar campanha
+                        </button>
+                      ) : null}
 
-                  <div className={styles.cardFooter}>
-                    <p className={styles.muted}>
-                      Criada em {formatDateInBrasilia(campaign.createdAt)}. Inicio: {formatDateTime(campaign.startedAt)}
+                      {(campaign.isActive && viewModel.isOwner) ? (
+                        <Link href={`/rpg/${rpgId}/campaign/${campaign.id}`} className={styles.secondaryButton}>
+                          <DoorOpen size={15} />
+                          Abrir sala
+                        </Link>
+                      ) : null}
+
+                      {campaign.isActive && viewModel.isOwner ? (
+                        <button
+                          type="button"
+                          className={styles.secondaryButton}
+                          onClick={() => handleEndCampaign(campaign)}
+                          disabled={isBusy}
+                        >
+                          <Square size={14} />
+                          Finalizar
+                        </button>
+                      ) : null}
+
+                      {viewModel.isOwner ? (
+                        <button
+                          type="button"
+                          className={styles.dangerButton}
+                          onClick={() => handleDeleteCampaign(campaign)}
+                          disabled={isBusy}
+                        >
+                          <Trash2 size={15} />
+                          Deletar
+                        </button>
+                      ) : null}
+
+                      {campaign.isActive && !viewModel.isOwner && campaign.hasJoined ? (
+                        <button
+                          type="button"
+                          className={styles.secondaryButton}
+                          onClick={() => openCampaignEntry({ id: campaign.id, title: campaign.title }, false)}
+                          disabled={isBusy}
+                        >
+                          <DoorOpen size={15} />
+                          Abrir campanha
+                        </button>
+                      ) : null}
+
+                      {campaign.isActive && !viewModel.isOwner && !campaign.hasJoined && viewModel.isAcceptedMember ? (
+                        <button
+                          type="button"
+                          className={styles.secondaryButton}
+                          onClick={() => openCampaignEntry({ id: campaign.id, title: campaign.title }, true)}
+                          disabled={isBusy}
+                        >
+                          <DoorOpen size={15} />
+                          Entrar
+                        </button>
+                      ) : null}
+                    </div>
+                    <p className={styles.campaignDate}>
+                      <span>Inicio: {formatDateTime(campaign.startedAt)}</span>
+                      {campaign.endedAt ? <span>Fim: {formatDateTime(campaign.endedAt)}</span> : null}
                     </p>
-
-                    {viewModel.isOwner && !campaign.isActive ? (
-                      <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        onClick={() =>
-                          runAction(async () => {
-                            const payload = await httpRpgCampaignRepository.startCampaign(rpgId, campaign.id)
-                            router.push(`/rpg/${rpgId}/campaign/${campaign.id}`)
-                            return payload
-                          })
-                        }
-                        disabled={isBusy}
-                      >
-                        Comecar campanha
-                      </button>
-                    ) : null}
-
-                    {(campaign.isActive && viewModel.isOwner) ? (
-                      <Link href={`/rpg/${rpgId}/campaign/${campaign.id}`} className={styles.secondaryButton}>
-                        <DoorOpen size={15} />
-                        Abrir sala
-                      </Link>
-                    ) : null}
-
-                    {campaign.isActive && viewModel.isOwner ? (
-                      <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        onClick={() => handleEndCampaign(campaign)}
-                        disabled={isBusy}
-                      >
-                        <Square size={14} />
-                        Finalizar
-                      </button>
-                    ) : null}
-
-                    {viewModel.isOwner ? (
-                      <button
-                        type="button"
-                        className={styles.dangerButton}
-                        onClick={() => handleDeleteCampaign(campaign)}
-                        disabled={isBusy}
-                      >
-                        <Trash2 size={15} />
-                        Deletar
-                      </button>
-                    ) : null}
-
-                    {campaign.isActive && !viewModel.isOwner && campaign.hasJoined ? (
-                      <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        onClick={() => openCampaignEntry({ id: campaign.id, title: campaign.title }, false)}
-                        disabled={isBusy}
-                      >
-                        <DoorOpen size={15} />
-                        Abrir campanha
-                      </button>
-                    ) : null}
-
-                    {campaign.isActive && !viewModel.isOwner && !campaign.hasJoined && viewModel.isAcceptedMember ? (
-                      <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        onClick={() => openCampaignEntry({ id: campaign.id, title: campaign.title }, true)}
-                        disabled={isBusy}
-                      >
-                        <DoorOpen size={15} />
-                        Entrar
-                      </button>
-                    ) : null}
                   </div>
                 </article>
               ))}

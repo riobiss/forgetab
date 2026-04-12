@@ -21,12 +21,6 @@
   flex-wrap: wrap;
 }
 
-.backLink {
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  font-weight: 700;
-}
-
 .eyebrow {
   margin: 0;
   letter-spacing: 0.24em;
@@ -39,35 +33,6 @@
   margin: 0.3rem 0 0;
   color: var(--color-text-primary);
   font-size: clamp(2rem, 5vw, 3rem);
-}
-
-.subtitle {
-  margin: 0.6rem 0 0;
-  color: var(--color-text-muted);
-  max-width: 680px;
-  line-height: 1.7;
-}
-
-.statusBanner {
-  border: 1px solid color-mix(in srgb, var(--color-status-success) 55%, var(--color-border-soft));
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--color-status-success-soft), color-mix(in srgb, var(--color-bg-surface) 82%, transparent));
-  padding: 1rem 1.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.statusBanner strong {
-  display: block;
-  color: var(--color-text-primary);
-}
-
-.statusBanner p {
-  margin: 0.2rem 0 0;
-  color: var(--color-text-secondary);
 }
 
 .actionButton,
@@ -116,13 +81,12 @@
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  grid-template-columns: 1fr;
   gap: 1.4rem;
 }
 
 .panel,
 .chatPanel,
-.card,
 .createForm {
   border: 1px solid var(--color-border-soft);
   border-radius: 18px;
@@ -184,66 +148,137 @@
   gap: 0.9rem;
 }
 
-.card {
-  padding: 1rem;
+.campaignCard {
+  min-height: 13.5rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-strong) 78%, transparent);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.94), var(--color-bg-surface-alt) 58%, var(--color-bg-elevated)),
+    var(--color-bg-card);
+  box-shadow: var(--shadow-elevation-md);
+  color: var(--color-text-secondary);
   display: grid;
-  gap: 0.9rem;
-}
-
-.cardTop {
-  display: flex;
-  justify-content: space-between;
+  grid-template-rows: 1fr auto;
   gap: 1rem;
-  align-items: flex-start;
+  padding: 1.15rem;
+  position: relative;
+  overflow: hidden;
 }
 
-.cardTop h3 {
+.campaignCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-brand-primary) 13%, transparent), transparent 42%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-text-primary) 5%, transparent), transparent 34%);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.campaignMain {
+  position: relative;
+  z-index: 1;
+}
+
+.campaignMain {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+}
+
+.campaignContent {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.campaignTitle {
   margin: 0;
   color: var(--color-text-primary);
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  line-height: 1.15;
 }
 
-.meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  border-radius: 999px;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border: 1px solid var(--color-border-soft);
-  color: var(--color-text-secondary);
-}
-
-.pillActive {
-  border-color: var(--color-status-success);
-  background: var(--color-status-success-soft);
-  color: var(--color-status-success-contrast);
-}
-
-.cardDescription {
+.campaignDescription {
   margin: 0;
+  max-width: 44rem;
   color: var(--color-text-secondary);
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
-.cardFooter {
+.campaignActions {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.campaignFooter {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
   justify-content: space-between;
+  gap: 1rem;
+}
+
+.campaignMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.campaignMeta span {
+  min-height: 2rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 76%, transparent);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.campaignMeta .activeStatus {
+  border-color: color-mix(in srgb, var(--color-status-success) 46%, var(--color-border-soft));
+  background: var(--color-status-success-soft);
+  color: var(--color-status-success);
+}
+
+.campaignMeta .pendingStatus {
+  border-color: color-mix(in srgb, var(--color-status-warning) 46%, var(--color-border-soft));
+  background: var(--color-status-warning-soft);
+  color: var(--color-status-warning);
+}
+
+.campaignMeta .finishedStatus {
+  border-color: color-mix(in srgb, var(--color-text-muted) 46%, var(--color-border-soft));
+  background: color-mix(in srgb, var(--color-bg-hover) 76%, transparent);
+  color: var(--color-text-muted);
+}
+
+.campaignDate {
+  margin: 0;
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 0.8rem;
   flex-wrap: wrap;
-  align-items: center;
+  font-size: 0.82rem;
+  line-height: 2.4rem;
+  margin-left: auto;
 }
 
-.muted {
-  color: var(--color-text-muted);
-  margin: 0;
+.campaignDate span {
+  white-space: nowrap;
 }
 
 .feedbackError,
@@ -431,8 +466,18 @@
   text-align: center;
 }
 
-@media (max-width: 900px) {
-  .grid {
+@media (max-width: 720px) {
+  .campaignCard {
     grid-template-columns: 1fr;
   }
+
+  .campaignFooter {
+    align-items: flex-end;
+    flex-direction: row;
+  }
+
+  .campaignDate {
+    line-height: 2.4rem;
+  }
 }
+
