@@ -57,6 +57,7 @@ export function useCampaignRoomActions({
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false)
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false)
   const [isItemModalOpen, setIsItemModalOpen] = useState(false)
+  const [isStealthMode, setIsStealthMode] = useState(false)
   const [diceEntries, setDiceEntries] = useState<Array<{ diceCount: string; diceSides: string }>>([
     { diceCount: "1", diceSides: "20" },
   ])
@@ -202,10 +203,19 @@ export function useCampaignRoomActions({
         httpRpgDashboardGateway.fetchCharacters(rpgId),
         httpSkillsDashboardGateway.fetchSkills(rpgId),
       ])
+      const skillsIndex = await httpSkillsDashboardGateway.fetchSkillsSearchIndex({
+        skillIds: skillsPayload.map((skill) => skill.id),
+        rpgId,
+      })
 
       setDeliveryItems(itemsPayload.items)
       setDeliveryCharacters(charactersPayload.characters ?? [])
-      setDeliverySkills(skillsPayload)
+      setDeliverySkills(
+        skillsPayload.map((skill) => ({
+          ...skill,
+          displayName: skillsIndex[skill.id]?.displayName ?? skill.slug,
+        })),
+      )
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Nao foi possivel carregar as opcoes de entrega.")
     } finally {
@@ -314,6 +324,7 @@ export function useCampaignRoomActions({
     const content = buildSkillUseActionContent({
       type: "skill_use",
       combatId: activeCombatRoomId,
+      stealth: isStealthMode,
       characterId: selectedCharacter.id,
       characterName: selectedCharacter.name,
       ability,
@@ -345,6 +356,7 @@ export function useCampaignRoomActions({
     const content = buildItemUseActionContent({
       type: "item_use",
       combatId: activeCombatRoomId,
+      stealth: isStealthMode,
       characterId: selectedCharacter.id,
       characterName: selectedCharacter.name,
       item,
@@ -450,6 +462,7 @@ export function useCampaignRoomActions({
     const content = buildDiceRollActionContent({
       type: "dice_roll",
       combatId: activeCombatRoomId,
+      stealth: isStealthMode && !room.isOwner,
       total,
       groups,
     } satisfies DiceRollActionPayload)
@@ -496,6 +509,7 @@ export function useCampaignRoomActions({
     isLoadingCharacterItems,
     isLoadingDeliveryOptions,
     isSkillModalOpen,
+    isStealthMode,
     openDiceModalFromActionPayload,
     openDeliveryModal,
     openItemModal,
@@ -516,6 +530,7 @@ export function useCampaignRoomActions({
     setIsDiceModalOpen,
     setIsItemModalOpen,
     setIsSkillModalOpen,
+    setIsStealthMode,
     setRevokeActionMessageId,
     setSelectedAbilityDetails,
     setSelectedAbilityDetailsMode,

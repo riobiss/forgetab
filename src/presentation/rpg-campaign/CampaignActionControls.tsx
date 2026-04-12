@@ -1,11 +1,11 @@
 "use client"
 
 import type { CSSProperties } from "react"
-import { Info, PawPrint, Plus, Send, Sparkles, Swords, X } from "lucide-react"
+import { EyeOff, Info, PawPrint, Plus, Send, Sparkles, Swords, X } from "lucide-react"
 import type { CampaignSelectedCharacter } from "@/infrastructure/rpgCampaign/campaignPresence"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 import { toInventoryCardItem } from "@/presentation/character-inventory/utils"
-import { ITEM_RARITY_ACTION_COLOR, toActionTypeLabel } from "./actionMessages"
+import { ITEM_RARITY_ACTION_COLOR, toAbilityDisplayName, toActionTypeLabel } from "./actionMessages"
 import { AbilityActionDetailCard, ItemActionDetailCard } from "./ActionDetailCards"
 import controlStyles from "./CampaignActionControls.module.css"
 import { CampaignDeliveryModal } from "./CampaignDeliveryModal"
@@ -69,7 +69,7 @@ export function CampaignActionControls({
                 onOpenCreatures()
               }}
             >
-              <PawPrint size={16} /> Criaturas
+              <PawPrint size={16} /> Bando
             </button>
           ) : null}
           {isOwner ? (
@@ -81,6 +81,16 @@ export function CampaignActionControls({
               }}
             >
               Entregar
+            </button>
+          ) : null}
+          {!isOwner && selectedCharacter ? (
+            <button
+              type="button"
+              className={`${controlStyles.actionMenuItem} ${actions.isStealthMode ? controlStyles.actionMenuItemActive : ""}`}
+              onClick={() => actions.setIsStealthMode((currentState) => !currentState)}
+              aria-pressed={actions.isStealthMode}
+            >
+              <EyeOff size={16} /> Furtivo
             </button>
           ) : null}
           {!isOwner && selectedCharacter ? (
@@ -195,7 +205,7 @@ function SkillPickerModal({
             {actions.characterAbilities.map((ability) => {
               const primaryTag = ability.skillTags[0]
               const tagMeta = primaryTag ? getSkillTagMeta(primaryTag) : null
-              const abilityName = ability.levelName ?? ability.skillName
+              const abilityName = toAbilityDisplayName(ability)
 
               return (
                 <article

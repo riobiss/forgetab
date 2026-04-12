@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react"
-import { ChevronDown, ChevronRight, Dice5, PackageOpen, RotateCcw, X } from "lucide-react"
+import { ChevronDown, ChevronRight, Dice5, RotateCcw, X } from "lucide-react"
 import Image from "next/image"
 import type { RpgCampaignRoomViewModel } from "@/application/rpgCampaign/types"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
@@ -13,6 +13,7 @@ import {
   parseDiceRollAction,
   parseItemUseAction,
   parseSkillUseAction,
+  humanizeSlug,
   toAbilityDisplayName,
   toActionTypeLabel,
 } from "./actionMessages"
@@ -67,17 +68,22 @@ export function CampaignActionMessageCard({
   const itemUse = parseItemUseAction(message.content)
   const characterReveal = parseCharacterRevealAction(message.content)
   const deliveryOffer = parseDeliveryOfferAction(message.content)
+  const isActionAuthor = message.authorId === viewerUserId
   const canOpenActionDetails = isOwner || message.authorId === viewerUserId
   const canRevokeAction =
     isOwner ||
-    (canOpenActionDetails && actionMessages.slice(-2).some((actionMessage) => actionMessage.id === message.id))
+    (message.authorId === viewerUserId && actionMessages.slice(-2).some((actionMessage) => actionMessage.id === message.id))
 
   if (skillUse) {
+    const isStealthHidden = Boolean(skillUse.stealth) && !isOwner && !isActionAuthor
     const primaryTag = skillUse.ability.skillTags[0]
-    const tagMeta = primaryTag ? getSkillTagMeta(primaryTag) : null
-    const abilityName = toAbilityDisplayName(skillUse.ability)
-    const actionTypeLabel = toActionTypeLabel(skillUse.ability.skillActionType) ?? "Habilidade"
-    const isExpanded = canOpenActionDetails && isActionExpanded
+    const tagMeta = !isStealthHidden && primaryTag ? getSkillTagMeta(primaryTag) : null
+    const abilityName = isStealthHidden ? "Ação furtiva" : toAbilityDisplayName(skillUse.ability)
+    const actionTypeLabel = isStealthHidden
+      ? "Furtivo"
+      : toActionTypeLabel(skillUse.ability.skillActionType) ?? "Habilidade"
+    const canOpenSkillDetails = isStealthHidden ? false : skillUse.stealth ? isOwner || isActionAuthor : canOpenActionDetails
+    const isExpanded = canOpenSkillDetails && isActionExpanded
 
     return (
       <article
@@ -94,7 +100,7 @@ export function CampaignActionMessageCard({
           actor: skillUse.characterName,
           actionTypeLabel,
           canRevokeAction,
-          canOpenActionDetails,
+          canOpenActionDetails: canOpenSkillDetails,
           isExpanded,
           expandLabel: "habilidade",
           messageId: message.id,
@@ -127,17 +133,19 @@ export function CampaignActionMessageCard({
   }
 
   if (itemUse) {
+    const isStealthHidden = Boolean(itemUse.stealth) && !isOwner && !isActionAuthor
     const cardItem = toInventoryCardItem(itemUse.item)
     const rarityColor = ITEM_RARITY_ACTION_COLOR[itemUse.item.itemRarity]
-    const actionTypeLabel = cardItem.secondaryLine ?? "Item"
-    const isExpanded = canOpenActionDetails && isActionExpanded
+    const actionTypeLabel = isStealthHidden ? "Furtivo" : cardItem.secondaryLine ?? "Item"
+    const canOpenItemDetails = isStealthHidden ? false : itemUse.stealth ? isOwner || isActionAuthor : canOpenActionDetails
+    const isExpanded = canOpenItemDetails && isActionExpanded
 
     return (
       <article
         className={`${styles.streamCard} ${styles.actionStreamCard} ${isExpanded ? styles.actionStreamCardExpanded : ""}`}
         style={
           {
-            "--action-summary-text": rarityColor.text,
+            "--action-summary-text": isStealthHidden ? "var(--color-text-primary)" : rarityColor.text,
           } as CSSProperties
         }
       >
@@ -145,7 +153,7 @@ export function CampaignActionMessageCard({
           actor: itemUse.characterName,
           actionTypeLabel,
           canRevokeAction,
-          canOpenActionDetails,
+          canOpenActionDetails: canOpenItemDetails,
           isExpanded,
           expandLabel: "item",
           messageId: message.id,
@@ -155,7 +163,7 @@ export function CampaignActionMessageCard({
         {!isExpanded ? (
           <div className={styles.actionCardSummary}>
             <div className={styles.actionSummaryTile}>
-              {cardItem.imageUrl ? (
+              {!isStealthHidden && cardItem.imageUrl ? (
                 <Image
                   src={cardItem.imageUrl}
                   alt=""
@@ -166,10 +174,14 @@ export function CampaignActionMessageCard({
                 />
               ) : null}
               <div className={styles.actionSummaryText}>
-                <strong className={styles.actionSummaryName}>{cardItem.title}</strong>
-                <small className={styles.actionSummaryMeta}>
-                  {cardItem.secondaryLine ?? "Item"} - {cardItem.rarityLabel}
-                </small>
+                <strong className={styles.actionSummaryName}>
+                  {isStealthHidden ? "Ação furtiva" : cardItem.title}
+                </strong>
+                {!isStealthHidden ? (
+                  <small className={styles.actionSummaryMeta}>
+                    {cardItem.secondaryLine ?? "Item"} - {cardItem.rarityLabel}
+                  </small>
+                ) : null}
               </div>
             </div>
           </div>
@@ -264,7 +276,7 @@ export function CampaignActionMessageCard({
               <span className={cardStyles.deliveryOfferText}>
                 <strong>Entrega</strong>
                 <small>
-                  {deliveryOffer.assets.map((asset) => asset.name).join(", ")}
+                  {deliveryOffer.assets.map(formatDeliveryAssetName).join(", ")}
                 </small>
               </span>
             </button>
@@ -291,6 +303,7 @@ export function CampaignActionMessageCard({
                 if (wasOpened) {
                   setChestAnimationToken((currentToken) => currentToken + 1)
                   setIsChestChoiceOpen(false)
+                  setPublicChestOffer(markChestOfferOpened(deliveryOffer, viewerUserId, true))
                 }
               }}
               onHide={async () => {
@@ -300,6 +313,7 @@ export function CampaignActionMessageCard({
                 if (wasOpened) {
                   setChestAnimationToken((currentToken) => currentToken + 1)
                   setIsChestChoiceOpen(false)
+                  setPrivateChestOffer(markChestOfferOpened(deliveryOffer, viewerUserId, false))
                 }
               }}
             />
@@ -391,14 +405,41 @@ export function CampaignActionMessageCard({
     )
   }
 
+  const isStealthRollHidden = Boolean(diceRoll.stealth) && !isOwner && !isActionAuthor
+  const canOpenRollDetails = diceRoll.stealth ? isOwner || isActionAuthor : true
+
+  if (isStealthRollHidden) {
+    return (
+      <article className={`${styles.streamCard} ${styles.actionStreamCard}`}>
+        {renderActionHeader({
+          actor: message.authorName || message.authorUsername,
+          actionTypeLabel: "Furtivo",
+          canRevokeAction,
+          canOpenActionDetails: false,
+          isExpanded: false,
+          expandLabel: "sequencia do dado",
+          messageId: message.id,
+          onRevokeAction,
+          onToggleAction: onToggleRoll,
+        })}
+        <div className={styles.actionCardSummary}>
+          <div className={styles.actionSummaryTile}>
+            <strong className={styles.actionSummaryName}>Ação furtiva</strong>
+          </div>
+        </div>
+        <span className={styles.streamTime}>{formatTime(message.createdAt)}</span>
+      </article>
+    )
+  }
+
   return (
     <article className={`${styles.streamCard} ${styles.actionStreamCard}`}>
       {renderActionHeader({
         actor: message.authorName || message.authorUsername,
         actionTypeLabel: "Dado",
         canRevokeAction,
-        canOpenActionDetails: true,
-        isExpanded: isRollExpanded,
+        canOpenActionDetails: canOpenRollDetails,
+        isExpanded: canOpenRollDetails && isRollExpanded,
         expandLabel: "sequencia do dado",
         messageId: message.id,
         onRevokeAction,
@@ -414,7 +455,7 @@ export function CampaignActionMessageCard({
           </p>
         ))}
       </div>
-      {isRollExpanded ? (
+      {canOpenRollDetails && isRollExpanded ? (
         <div className={styles.rollSequenceList}>
           {diceRoll.groups.map((group, index) => (
             <p key={`${message.id}-sequence-${index}`} className={styles.rollSequence}>
@@ -669,8 +710,6 @@ function ChestOfferButton({
       )}
       {!isRevealed && isOpened ? (
         <p className={cardStyles.chestSealedHint}>O bau foi aberto em segredo.</p>
-      ) : !isOpened ? (
-        <p className={cardStyles.chestSealedHint}>O bau esta fechado.</p>
       ) : null}
     </div>
   )
@@ -685,26 +724,38 @@ function LootPreview({
 }) {
   return (
     <div className={isOpened ? cardStyles.lootGridRevealed : cardStyles.lootGridHidden}>
-      {assets.map((asset) => (
-        <div key={`${asset.kind}:${asset.id}`} className={cardStyles.lootItem}>
-          <span className={cardStyles.lootIcon}>
-            {asset.image ? (
-              <Image src={asset.image} alt="" width={38} height={38} unoptimized />
-            ) : (
-              <PackageOpen size={20} />
-            )}
-          </span>
-          <span className={cardStyles.lootName}>{asset.name}</span>
-          {asset.description ? (
-            <p className={cardStyles.lootDescription}>{asset.description}</p>
-          ) : (
-            <p className={cardStyles.lootDescriptionMuted}>Sem descricao.</p>
-          )}
-          <small>{asset.kind === "item" ? `x${asset.quantity}` : `Nv.${asset.level}`}</small>
-        </div>
-      ))}
+      {assets.map((asset) => {
+        const assetName = formatDeliveryAssetName(asset)
+
+        return (
+          <div key={`${asset.kind}:${asset.id}`} className={cardStyles.lootItem}>
+            <span className={cardStyles.lootName}>{assetName}</span>
+            <small>{asset.kind === "item" ? `Item x${asset.quantity}` : `Habilidade Nv.${asset.level}`}</small>
+          </div>
+        )
+      })}
     </div>
   )
+}
+
+function formatDeliveryAssetName(asset: NonNullable<ReturnType<typeof parseDeliveryOfferAction>>["assets"][number]) {
+  return asset.kind === "skill" ? humanizeSlug(asset.name) : asset.name
+}
+
+function markChestOfferOpened(
+  offer: NonNullable<ReturnType<typeof parseDeliveryOfferAction>>,
+  viewerUserId: string,
+  revealToRoom: boolean,
+) {
+  const openedAt = new Date().toISOString()
+
+  return {
+    ...offer,
+    openedByUserId: viewerUserId,
+    openedAt,
+    revealedByUserId: revealToRoom ? viewerUserId : null,
+    revealedAt: revealToRoom ? openedAt : null,
+  }
 }
 
 function ChestRevealChoiceModal({
