@@ -43,6 +43,7 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
         description: string
         isActive: boolean
         startedAt: Date | null
+        endedAt: Date | null
         createdAt: Date
         participantsCount: bigint | number
         hasJoined: boolean
@@ -54,6 +55,7 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
         c.description,
         c.is_active AS "isActive",
         c.started_at AS "startedAt",
+        c.ended_at AS "endedAt",
         c.created_at AS "createdAt",
         (
           SELECT COUNT(*)
@@ -85,6 +87,7 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
         description: string
         isActive: boolean
         startedAt: Date | null
+        endedAt: Date | null
       }>
     >(Prisma.sql`
       SELECT
@@ -92,7 +95,8 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
         title,
         description,
         is_active AS "isActive",
-        started_at AS "startedAt"
+        started_at AS "startedAt",
+        ended_at AS "endedAt"
       FROM rpg_campaigns
       WHERE id = ${campaignId}
         AND rpg_id = ${rpgId}
@@ -127,6 +131,7 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
         SET
           is_active = true,
           started_at = COALESCE(started_at, CURRENT_TIMESTAMP),
+          ended_at = NULL,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ${campaignId}
           AND rpg_id = ${rpgId}
@@ -144,6 +149,7 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
       UPDATE rpg_campaigns
       SET
         is_active = false,
+        ended_at = CURRENT_TIMESTAMP,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${campaignId}
         AND rpg_id = ${rpgId}

@@ -313,11 +313,15 @@ export async function joinRpgCampaignUseCase(
 
   const joined = await repository.joinCampaign(params.campaignId, params.userId)
   if (joined) {
+    const participants = await repository.listCampaignParticipants(params.campaignId)
+    const participantName =
+      participants.find((participant) => participant.userId === params.userId)?.name.trim() || "Alguem"
+
     await repository.createCampaignMessage(
       params.campaignId,
       params.userId,
       "action",
-      "Entrou na sessao da campanha.",
+      `${participantName} entrou na sessao da campanha.`,
     )
   }
   return {

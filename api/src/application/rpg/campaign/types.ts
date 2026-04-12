@@ -4,6 +4,7 @@ export type RpgCampaignSummary = {
   description: string
   isActive: boolean
   startedAt: Date | null
+  endedAt: Date | null
   createdAt: Date
   participantsCount: number
   hasJoined: boolean
@@ -82,6 +83,7 @@ export type RpgCampaignRoomViewModel = {
     description: string
     isActive: boolean
     startedAt: Date | null
+    endedAt: Date | null
   }
   isOwner: boolean
   canManage: boolean

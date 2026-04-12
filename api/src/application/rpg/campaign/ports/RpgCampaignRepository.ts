@@ -17,6 +17,7 @@ export interface RpgCampaignRepository {
     description: string
     isActive: boolean
     startedAt: Date | null
+    endedAt: Date | null
   } | null>
   createCampaign(
     rpgId: string,

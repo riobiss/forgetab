@@ -29,8 +29,9 @@ export type CampaignItemOption = {
   rarity: string
 }
 
-type ApiCampaignSummary = Omit<RpgCampaignSummary, "startedAt" | "createdAt"> & {
+type ApiCampaignSummary = Omit<RpgCampaignSummary, "startedAt" | "endedAt" | "createdAt"> & {
   startedAt: string | null
+  endedAt: string | null
   createdAt: string
 }
 
@@ -67,8 +68,9 @@ type ApiCampaignRoomViewModel = Omit<
   RpgCampaignRoomViewModel,
   "participants" | "campaignMessages" | "actionMessages" | "directMessages" | "combatRooms"
 > & {
-  campaign: Omit<RpgCampaignRoomViewModel["campaign"], "startedAt"> & {
+  campaign: Omit<RpgCampaignRoomViewModel["campaign"], "startedAt" | "endedAt"> & {
     startedAt: string | null
+    endedAt: string | null
   }
   participants: ApiCampaignParticipantSummary[]
   campaignMessages: ApiCampaignMessageSummary[]
@@ -110,6 +112,7 @@ function toCampaignSummary(item: ApiCampaignSummary): RpgCampaignSummary {
   return {
     ...item,
     startedAt: item.startedAt ? new Date(item.startedAt) : null,
+    endedAt: item.endedAt ? new Date(item.endedAt) : null,
     createdAt: new Date(item.createdAt),
   }
 }
@@ -175,6 +178,7 @@ export async function fetchRpgCampaignRoomViewModel(
     campaign: {
       ...payload.campaign,
       startedAt: payload.campaign.startedAt ? new Date(payload.campaign.startedAt) : null,
+      endedAt: payload.campaign.endedAt ? new Date(payload.campaign.endedAt) : null,
     },
     participants: payload.participants.map(toCampaignParticipant),
     campaignMessages: payload.campaignMessages.map(toCampaignMessage),
