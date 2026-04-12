@@ -66,6 +66,7 @@ type RpgMapPageProps = {
   rpgTitle: string
   view?: "catalog" | "detail"
   initialMapId?: string | null
+  initialFocusMarkerId?: string | null
   detailTitle?: string | null
 }
 
@@ -124,6 +125,7 @@ export function RpgMapPage({
   rpgTitle,
   view = "catalog",
   initialMapId = null,
+  initialFocusMarkerId = null,
   detailTitle = null,
 }: RpgMapPageProps) {
   const sectionNameInputId = useId()
@@ -133,6 +135,7 @@ export function RpgMapPage({
   const sectionConflictModalRef = useRef<HTMLElement | null>(null)
   const sectionDetailsModalRef = useRef<HTMLElement | null>(null)
   const customFieldModalRef = useRef<HTMLElement | null>(null)
+  const initialFocusMarkerHandledRef = useRef(false)
   const sectionNameInputRef = useRef<HTMLInputElement | null>(null)
   const customFieldKeyInputRef = useRef<HTMLInputElement | null>(null)
   const sectionImageInputRef = useRef<HTMLInputElement | null>(null)
@@ -454,10 +457,30 @@ export function RpgMapPage({
     }
   }
 
-  function handleGoToMarker(markerId: string) {
-    mapFeatureRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-    setFocusMarkerRequest({ markerId, token: Date.now() })
-  }
+  const handleGoToMarker = useCallback((markerId: string) => {
+    setIsMapCollapsed(false)
+
+    requestAnimationFrame(() => {
+      mapFeatureRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+      setFocusMarkerRequest({ markerId, token: Date.now() })
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!initialFocusMarkerId || !detail || initialFocusMarkerHandledRef.current) {
+      return
+    }
+
+    const hasMarker = detail.markerGroups.some((group) =>
+      group.markers.some((marker) => marker.id === initialFocusMarkerId),
+    )
+    if (!hasMarker) {
+      return
+    }
+
+    initialFocusMarkerHandledRef.current = true
+    handleGoToMarker(initialFocusMarkerId)
+  }, [detail, handleGoToMarker, initialFocusMarkerId])
 
   function handleOpenSectionFromMarker(sectionId: string) {
     openSectionDetails(sectionId, setSelectedSectionId)

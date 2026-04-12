@@ -59,7 +59,11 @@ export function useWorldMapMarkerSelection(params: Params) {
       }
 
       if (document.fullscreenElement !== frame) {
-        await frame.requestFullscreen()
+        try {
+          await frame.requestFullscreen()
+        } catch {
+          // Deep links may focus a marker without a fresh user gesture.
+        }
       }
 
       params.setIsInteractive(true)
