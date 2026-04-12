@@ -1,7 +1,7 @@
 "use client"
 
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { ChevronsDown, MessageCircle, Star, UserRound, X } from "lucide-react"
+import { ArrowLeft, ChevronsDown, MessageCircle, Star, UserRound, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { io, type Socket } from "socket.io-client"
 import type { CharacterDetailViewModel } from "@/application/charactersDetail/types"
@@ -24,6 +24,7 @@ import { CampaignActionMessageCard } from "./CampaignActionMessageCard"
 import { CampaignChatPanel } from "./CampaignChatPanel"
 import { CampaignCombatPanel } from "./CampaignCombatPanel"
 import { CampaignCreatureCombatModal } from "./CampaignCreatureCombatModal"
+import { CampaignNotePanel } from "./CampaignNotePanel"
 import { CharacterRevealModal } from "./CharacterRevealModal"
 import {
   buildCharacterRevealSections,
@@ -51,6 +52,7 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
   const router = useRouter()
   const [room, setRoom] = useState(initialRoom)
   const [isChatOpen, setIsChatOpen] = useState(false)
+  const [isNoteOpen, setIsNoteOpen] = useState(false)
   const [isBusy, setIsBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -507,12 +509,19 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
               className={`${styles.campaignToolbarButton} ${campaignActions.isActionMenuOpen ? styles.campaignToolbarButtonActive : ""}`}
               aria-label="Ferramentas"
               onClick={() => {
+                if (isNoteOpen) {
+                  setIsNoteOpen(false)
+                  campaignActions.setIsActionMenuOpen(false)
+                  return
+                }
+
                 setIsChatOpen(false)
                 campaignActions.setIsActionMenuOpen((currentState) => !currentState)
               }}
-              disabled={isCampaignEnded}
+              disabled={!isNoteOpen && isCampaignEnded}
             >
-              <Star size={17} /> Ferramenta
+              {isNoteOpen ? <ArrowLeft size={17} /> : <Star size={17} />}
+              {isNoteOpen ? "Campanha" : "Ferramenta"}
             </button>
             <button
               type="button"
@@ -520,6 +529,7 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
               aria-label="Chat"
               onClick={() => {
                 campaignActions.setIsActionMenuOpen(false)
+                setIsNoteOpen(false)
                 setIsChatOpen(true)
               }}
             >
@@ -565,6 +575,7 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
                 }
               : undefined
           }
+          onOpenNote={() => setIsNoteOpen(true)}
           showFloatingButton={false}
           selectedCharacter={selectedCharacter}
         />
@@ -576,7 +587,7 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
         ) : null}
 
         <div className={styles.contentGrid}>
-          <section className={styles.panel}>
+          <section className={styles.panel} hidden={isNoteOpen}>
             {activeCombatRoomId ? null : <h2 className={styles.sectionTitle}>Campanha</h2>}
             <CampaignCombatPanel
               rooms={room.combatRooms}
@@ -593,6 +604,14 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
               onPassTurn={passCombatTurn}
             />
             {activeCombatRoomId ? null : actionStream}
+          </section>
+
+          <section className={`${styles.panel} ${styles.notePanel}`} hidden={!isNoteOpen}>
+            <CampaignNotePanel
+              campaignId={room.campaign.id}
+              viewerUserId={room.viewerUserId}
+              formatTime={formatTime}
+            />
           </section>
         </div>
 

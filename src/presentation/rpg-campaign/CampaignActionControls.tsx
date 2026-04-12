@@ -1,7 +1,7 @@
 "use client"
 
 import type { CSSProperties } from "react"
-import { EyeOff, Info, PawPrint, Plus, Send, Sparkles, Swords, X } from "lucide-react"
+import { EyeOff, Info, NotebookText, PawPrint, Plus, Send, Sparkles, Swords, X } from "lucide-react"
 import type { CampaignSelectedCharacter } from "@/infrastructure/rpgCampaign/campaignPresence"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 import { toInventoryCardItem } from "@/presentation/character-inventory/utils"
@@ -19,6 +19,7 @@ type Props = {
   isOwner: boolean
   onOpenCreateCombat?: () => void
   onOpenCreatures?: () => void
+  onOpenNote?: () => void
   showFloatingButton?: boolean
   selectedCharacter: CampaignSelectedCharacter | null
 }
@@ -30,6 +31,7 @@ export function CampaignActionControls({
   isOwner,
   onOpenCreateCombat,
   onOpenCreatures,
+  onOpenNote,
   showFloatingButton = true,
   selectedCharacter,
 }: Props) {
@@ -81,6 +83,18 @@ export function CampaignActionControls({
               }}
             >
               Entregar
+            </button>
+          ) : null}
+          {onOpenNote ? (
+            <button
+              type="button"
+              className={controlStyles.actionMenuItem}
+              onClick={() => {
+                actions.setIsActionMenuOpen(false)
+                onOpenNote()
+              }}
+            >
+              <NotebookText size={16} /> Nota
             </button>
           ) : null}
           {!isOwner && selectedCharacter ? (

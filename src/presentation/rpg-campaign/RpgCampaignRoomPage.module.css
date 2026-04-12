@@ -132,6 +132,17 @@
   min-height: 76vh;
 }
 
+.panel[hidden] {
+  display: none;
+}
+
+.notePanel {
+  height: calc(100dvh - 4.1rem);
+  min-height: 30rem;
+  align-content: stretch;
+  overflow: hidden;
+}
+
 .sectionTitle {
   margin: 0;
   color: var(--color-text-primary);
