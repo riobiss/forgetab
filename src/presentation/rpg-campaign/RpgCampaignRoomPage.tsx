@@ -1,7 +1,7 @@
 "use client"
 
-import { startTransition, useCallback, useEffect, useRef, useState } from "react"
-import { MessageCircle, Star, UserRound, X } from "lucide-react"
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { ChevronsDown, MessageCircle, Star, UserRound, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { io, type Socket } from "socket.io-client"
 import type { CharacterDetailViewModel } from "@/application/charactersDetail/types"
@@ -69,6 +69,12 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
   const [isLoadingRevealCharacter, setIsLoadingRevealCharacter] = useState(false)
   const [combatName, setCombatName] = useState("")
   const refreshInFlightRef = useRef(false)
+  const actionStreamEndRef = useRef<HTMLDivElement | null>(null)
+  const previousActionStreamKeyRef = useRef<string | null>(null)
+  const previousLatestActionMessageIdRef = useRef<string | null>(null)
+  const isNearLatestActionRef = useRef(true)
+  const [showLatestActionButton, setShowLatestActionButton] = useState(false)
+  const [newActionCount, setNewActionCount] = useState(0)
 
   const isCampaignEnded = !room.campaign.isActive
 
@@ -230,8 +236,17 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
     setError(null)
 
     try {
-      const payload = await httpRpgDashboardGateway.fetchCharacters(rpgId)
-      setOwnerCharacters(payload.characters ?? [])
+      const [charactersPayload, classesPayload] = await Promise.all([
+        httpRpgDashboardGateway.fetchCharacters(rpgId),
+        httpRpgDashboardGateway.fetchClasses(rpgId),
+      ])
+      const classLabelByKey = new Map((classesPayload.classes ?? []).map((classItem) => [classItem.key, classItem.label]))
+      setOwnerCharacters(
+        (charactersPayload.characters ?? []).map((character) => ({
+          ...character,
+          classLabel: character.classKey ? classLabelByKey.get(character.classKey) ?? character.classKey : null,
+        })),
+      )
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Nao foi possivel carregar os personagens.")
     } finally {
@@ -332,13 +347,90 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
     await runAction(() => httpRpgCampaignRepository.passCombatTurn(rpgId, room.campaign.id, roomId))
   }
 
-  const visibleActionMessages = room.actionMessages.filter((message) => {
+  const visibleActionMessages = useMemo(() => room.actionMessages.filter((message) => {
     const messageCombatId = getActionCombatId(message.content)
     return activeCombatRoomId ? messageCombatId === activeCombatRoomId : !messageCombatId
-  })
+  }), [activeCombatRoomId, room.actionMessages])
+  const latestVisibleActionMessageId = visibleActionMessages.at(-1)?.id ?? null
+  const visibleActionMessageIds = useMemo(
+    () => visibleActionMessages.map((message) => message.id),
+    [visibleActionMessages],
+  )
+  const actionStreamKey = activeCombatRoomId ?? "campaign"
+
+  const isNearLatestAction = useCallback(() => {
+    const marker = actionStreamEndRef.current
+    if (!marker) {
+      return true
+    }
+
+    return marker.getBoundingClientRect().bottom - window.innerHeight < 260
+  }, [])
+
+  const scrollToLatestAction = useCallback((behavior: ScrollBehavior = "smooth") => {
+    actionStreamEndRef.current?.scrollIntoView({ behavior, block: "end" })
+    isNearLatestActionRef.current = true
+    setShowLatestActionButton(false)
+    setNewActionCount(0)
+  }, [])
+
+  useEffect(() => {
+    function syncNearLatestActionState() {
+      const isNearLatest = isNearLatestAction()
+      isNearLatestActionRef.current = isNearLatest
+
+      if (isNearLatest) {
+        setShowLatestActionButton(false)
+        setNewActionCount(0)
+        return
+      }
+
+      setShowLatestActionButton(Boolean(latestVisibleActionMessageId))
+    }
+
+    syncNearLatestActionState()
+    window.addEventListener("scroll", syncNearLatestActionState, { passive: true })
+    window.addEventListener("resize", syncNearLatestActionState)
+
+    return () => {
+      window.removeEventListener("scroll", syncNearLatestActionState)
+      window.removeEventListener("resize", syncNearLatestActionState)
+    }
+  }, [isNearLatestAction, latestVisibleActionMessageId])
+
+  useEffect(() => {
+    if (previousActionStreamKeyRef.current !== actionStreamKey) {
+      previousActionStreamKeyRef.current = actionStreamKey
+      previousLatestActionMessageIdRef.current = latestVisibleActionMessageId
+      setShowLatestActionButton(false)
+      setNewActionCount(0)
+      return
+    }
+
+    const previousLatestActionMessageId = previousLatestActionMessageIdRef.current
+    previousLatestActionMessageIdRef.current = latestVisibleActionMessageId
+
+    if (!latestVisibleActionMessageId || previousLatestActionMessageId === latestVisibleActionMessageId) {
+      return
+    }
+
+    if (!previousLatestActionMessageId || isNearLatestActionRef.current) {
+      window.requestAnimationFrame(() => scrollToLatestAction("smooth"))
+      return
+    }
+
+    const previousLatestIndex = visibleActionMessageIds.indexOf(previousLatestActionMessageId)
+    const nextNewActionCount = previousLatestIndex >= 0
+      ? visibleActionMessageIds.length - previousLatestIndex - 1
+      : 1
+
+    setNewActionCount((currentCount) => currentCount + Math.max(nextNewActionCount, 1))
+    setShowLatestActionButton(true)
+  }, [actionStreamKey, latestVisibleActionMessageId, scrollToLatestAction, visibleActionMessageIds])
 
   const actionStream = (
-    <div className={styles.stream}>
+    <div className={styles.actionStreamShell}>
+      <div className={styles.stream}>
       {visibleActionMessages.length === 0 ? (
         <p className={styles.emptyState}>
           Nenhuma acao registrada ainda.
@@ -372,6 +464,21 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
           />
         ))
       )}
+        <div ref={actionStreamEndRef} className={styles.actionStreamEndMarker} aria-hidden="true" />
+      </div>
+      {showLatestActionButton ? (
+        <button
+          type="button"
+          className={styles.latestActionButton}
+          onClick={() => scrollToLatestAction()}
+          aria-label="Ver acao recente"
+        >
+          <ChevronsDown size={20} />
+          {newActionCount > 0 ? (
+            <span className={styles.latestActionCount}>{newActionCount > 99 ? "99+" : newActionCount}</span>
+          ) : null}
+        </button>
+      ) : null}
     </div>
   )
 
@@ -443,10 +550,14 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
           isBusy={isBusy}
           isCampaignEnded={isCampaignEnded}
           isOwner={room.isOwner}
-          onOpenCreateCombat={() => {
-            setCombatName("")
-            setIsCreateCombatModalOpen(true)
-          }}
+          onOpenCreateCombat={
+            activeCombatRoomId
+              ? undefined
+              : () => {
+                  setCombatName("")
+                  setIsCreateCombatModalOpen(true)
+                }
+          }
           onOpenCreatures={
             activeCombatRoomId
               ? () => {
