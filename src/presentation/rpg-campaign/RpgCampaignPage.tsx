@@ -133,10 +133,17 @@ export function RpgCampaignPage({ rpgId, rpgTitle, initialViewModel }: Props) {
     setError(null)
 
     try {
-      const payload = await httpRpgDashboardGateway.fetchCharacters(rpgId)
-      const playerCharacters = (payload.characters ?? []).filter(
+      const [charactersPayload, classesPayload] = await Promise.all([
+        httpRpgDashboardGateway.fetchCharacters(rpgId),
+        httpRpgDashboardGateway.fetchClasses(rpgId),
+      ])
+      const classLabelByKey = new Map((classesPayload.classes ?? []).map((classItem) => [classItem.key, classItem.label]))
+      const playerCharacters = (charactersPayload.characters ?? []).filter(
         (character) => character.characterType === "player",
-      )
+      ).map((character) => ({
+        ...character,
+        classLabel: character.classKey ? classLabelByKey.get(character.classKey) ?? character.classKey : null,
+      }))
 
       setAvailableCharacters(playerCharacters)
       setSelectedCharacterId(playerCharacters[0]?.id ?? null)
@@ -466,7 +473,7 @@ export function RpgCampaignPage({ rpgId, rpgTitle, initialViewModel }: Props) {
                           />
                           <div>
                             <strong>{character.name}</strong>
-                            <small>{character.classKey ? `Classe: ${character.classKey}` : "Sem classe definida"}</small>
+                            <small>{character.classKey ? `Classe: ${character.classLabel ?? character.classKey}` : "Sem classe definida"}</small>
                           </div>
                         </label>
                       ))}

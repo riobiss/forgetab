@@ -121,7 +121,7 @@ export function OwnerCharacterPickerModal({
                       <strong>{character.name}</strong>
                       <small>
                         {ownerName ? `${ownerName} - ` : ""}
-                        {character.classKey ? `Classe: ${character.classKey}` : "Sem classe definida"}
+                        {character.classKey ? `Classe: ${character.classLabel ?? character.classKey}` : "Sem classe definida"}
                       </small>
                     </div>
                     <div className={modalStyles.optionActions}>

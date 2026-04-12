@@ -7,7 +7,7 @@ import Select, { type MultiValue } from "react-select"
 import type { BaseItemDto } from "@/application/itemsDashboard/types"
 import type { DashboardCharacterSummary } from "@/application/rpgDashboard/contracts/RpgDashboardGateway"
 import type { SkillListItemDto } from "@/application/skillsDashboard/types"
-import type { DeliveryOfferAsset } from "./actionMessages"
+import { humanizeSlug, type DeliveryOfferAsset } from "./actionMessages"
 import modalStyles from "./CampaignDeliveryModal.module.css"
 import styles from "./RpgCampaignRoomPage.module.css"
 
@@ -74,7 +74,13 @@ export function CampaignDeliveryModal({
       )
     : items
   const visibleSkills = normalizedSearchTerm
-    ? skills.filter((skill) => skill.slug.toLowerCase().includes(normalizedSearchTerm))
+    ? skills.filter((skill) =>
+        [skill.displayName, skill.slug]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(normalizedSearchTerm),
+      )
     : skills
   const selectedAssets: DeliveryOfferAsset[] = [
     ...selectedItems.map((item) => ({
@@ -88,7 +94,7 @@ export function CampaignDeliveryModal({
     ...selectedSkills.map((skill) => ({
       kind: "skill" as const,
       id: skill.id,
-      name: skill.slug,
+      name: skill.displayName ?? humanizeSlug(skill.slug),
       image: null,
       description: null,
       level: 1,
@@ -217,7 +223,7 @@ export function CampaignDeliveryModal({
                     onClick={() => toggleSelected(skill.id, selectedSkillIds, setSelectedSkillIds)}
                   >
                     <span>
-                      <strong>{skill.slug}</strong>
+                      <strong>{skill.displayName ?? humanizeSlug(skill.slug)}</strong>
                       <small>Habilidade</small>
                     </span>
                   </button>

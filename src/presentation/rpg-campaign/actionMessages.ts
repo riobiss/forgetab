@@ -66,6 +66,7 @@ export type DiceRollGroup = {
 export type DiceRollActionPayload = {
   type: "dice_roll"
   combatId?: string | null
+  stealth?: boolean
   total: number
   groups: DiceRollGroup[]
 }
@@ -73,6 +74,7 @@ export type DiceRollActionPayload = {
 export type SkillUseActionPayload = {
   type: "skill_use"
   combatId?: string | null
+  stealth?: boolean
   characterId?: string
   characterName: string
   ability: PurchasedAbilityViewDto
@@ -81,6 +83,7 @@ export type SkillUseActionPayload = {
 export type ItemUseActionPayload = {
   type: "item_use"
   combatId?: string | null
+  stealth?: boolean
   characterId?: string
   characterName: string
   item: CharacterInventoryItemDto
@@ -145,7 +148,7 @@ function hasDisplayText(value: string | null | undefined): value is string {
   return typeof value === "string" && value.trim().length > 0
 }
 
-function humanizeSlug(value: string) {
+export function humanizeSlug(value: string) {
   return value
     .trim()
     .replace(/[_-]+/g, " ")

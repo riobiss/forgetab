@@ -11,6 +11,7 @@ export type RpgSettingsDto = {
 export type SkillListItemDto = {
   id: string
   slug: string
+  displayName?: string
   updatedAt: string
 }
 
