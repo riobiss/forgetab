@@ -3,15 +3,24 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react"
 import { ChevronDown, ChevronRight, Dice5, RotateCcw, X } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import type { RpgCampaignRoomViewModel } from "@/application/rpgCampaign/types"
+import { httpRpgMapGateway } from "@/infrastructure/rpgMap/gateways/httpRpgMapGateway"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 import { toInventoryCardItem } from "@/presentation/character-inventory/utils"
 import {
+  SECTION_LINK_IMAGE,
+  getLinkedMarkerId,
+  getSectionImages,
+} from "@/presentation/rpg-map/utils/sectionMarkerLinking"
+import {
   ITEM_RARITY_ACTION_COLOR,
+  type LocationActionPayload,
   parseCharacterRevealAction,
   parseDeliveryOfferAction,
   parseDiceRollAction,
   parseItemUseAction,
+  parseLocationAction,
   parseSkillUseAction,
   humanizeSlug,
   toAbilityDisplayName,
@@ -24,6 +33,7 @@ import styles from "./RpgCampaignRoomPage.module.css"
 type CampaignActionMessage = RpgCampaignRoomViewModel["actionMessages"][number]
 
 type Props = {
+  rpgId: string
   message: CampaignActionMessage
   actionMessages: CampaignActionMessage[]
   isOwner: boolean
@@ -43,6 +53,7 @@ type Props = {
 }
 
 export function CampaignActionMessageCard({
+  rpgId,
   message,
   actionMessages,
   isOwner,
@@ -68,6 +79,7 @@ export function CampaignActionMessageCard({
   const itemUse = parseItemUseAction(message.content)
   const characterReveal = parseCharacterRevealAction(message.content)
   const deliveryOffer = parseDeliveryOfferAction(message.content)
+  const locationAction = parseLocationAction(message.content)
   const isActionAuthor = message.authorId === viewerUserId
   const canOpenActionDetails = isOwner || message.authorId === viewerUserId
   const canRevokeAction =
@@ -205,6 +217,19 @@ export function CampaignActionMessageCard({
   }
 
   if (!diceRoll) {
+    if (locationAction) {
+      return (
+        <LocationActionCard
+          rpgId={rpgId}
+          messageId={message.id}
+          payload={locationAction}
+          canRevokeAction={canRevokeAction}
+          time={formatTime(message.createdAt)}
+          onRevokeAction={onRevokeAction}
+        />
+      )
+    }
+
     if (deliveryOffer) {
       const isTargeted = deliveryOffer.recipientUserIds.length > 0
       const canInteract = !isOwner && (!isTargeted || deliveryOffer.recipientUserIds.includes(viewerUserId))
@@ -756,6 +781,139 @@ function markChestOfferOpened(
     revealedByUserId: revealToRoom ? viewerUserId : null,
     revealedAt: revealToRoom ? openedAt : null,
   }
+}
+
+function getActionCustomFieldText(value: unknown) {
+  if (typeof value === "string") {
+    return value.trim()
+  }
+
+  if (!value || Array.isArray(value) || typeof value !== "object") {
+    return ""
+  }
+
+  const fieldValue = (value as { value?: unknown }).value
+  return typeof fieldValue === "string" ? fieldValue.trim() : ""
+}
+
+function LocationActionCard({
+  rpgId,
+  messageId,
+  payload,
+  canRevokeAction,
+  time,
+  onRevokeAction,
+}: {
+  rpgId: string
+  messageId: string
+  payload: LocationActionPayload
+  canRevokeAction: boolean
+  time: string
+  onRevokeAction: (messageId: string) => void
+}) {
+  const [resolvedImage, setResolvedImage] = useState(payload.image?.trim() || "")
+  const hasPinnedMarker = Boolean(payload.mapId && payload.markerId)
+  const locationHref = hasPinnedMarker
+    ? `/rpg/${rpgId}/map/${payload.mapId}?markerId=${encodeURIComponent(payload.markerId ?? "")}`
+    : payload.mapId
+      ? `/rpg/${rpgId}/map/${payload.mapId}`
+      : null
+  const hasDescription = Boolean(payload.description?.trim())
+
+  useEffect(() => {
+    const directImage = payload.image?.trim()
+    if (directImage) {
+      setResolvedImage(directImage)
+      return
+    }
+
+    if (!payload.mapId) {
+      setResolvedImage("")
+      return
+    }
+
+    let isMounted = true
+
+    async function resolveMapImage() {
+      try {
+        const detail = await httpRpgMapGateway.fetchMap(rpgId, payload.mapId ?? "")
+        const linkedSection = payload.markerId
+          ? detail.sections.find((section) => getLinkedMarkerId(section.customFields) === payload.markerId)
+          : null
+        const marker = payload.markerId
+          ? detail.markerGroups
+              .flatMap((group) => group.markers)
+              .find((item) => item.id === payload.markerId)
+          : null
+
+        const sectionImages = getSectionImages(linkedSection?.customFields)
+        const linkedSectionImage = getActionCustomFieldText(linkedSection?.customFields?.[SECTION_LINK_IMAGE])
+        const nextImage = sectionImages[0] || linkedSectionImage || marker?.image || detail.map.image || ""
+
+        if (isMounted) {
+          setResolvedImage(nextImage)
+        }
+      } catch {
+        if (isMounted) {
+          setResolvedImage("")
+        }
+      }
+    }
+
+    void resolveMapImage()
+
+    return () => {
+      isMounted = false
+    }
+  }, [payload.image, payload.mapId, payload.markerId, rpgId])
+
+  const cardContent = (
+    <>
+      {resolvedImage ? (
+        <span className={cardStyles.locationImageShell}>
+          <Image
+            src={resolvedImage}
+            alt=""
+            fill
+            sizes="(max-width: 760px) 100vw, 28rem"
+            unoptimized
+            className={cardStyles.locationImage}
+          />
+        </span>
+      ) : null}
+      <span
+        className={`${cardStyles.locationText} ${
+          hasDescription ? cardStyles.locationTextWithDescription : cardStyles.locationTextNameOnly
+        }`}
+      >
+        <strong>{payload.title}</strong>
+        {payload.description ? <span>{payload.description}</span> : null}
+      </span>
+    </>
+  )
+
+  return (
+    <article className={`${styles.streamCard} ${cardStyles.locationCard}`}>
+      {canRevokeAction ? (
+        <button
+          type="button"
+          className={styles.characterRevealRevokeButton}
+          onClick={() => onRevokeAction(messageId)}
+          aria-label="Revogar local"
+        >
+          <RotateCcw size={16} />
+        </button>
+      ) : null}
+      {locationHref ? (
+        <Link href={locationHref} className={cardStyles.locationMain}>
+          {cardContent}
+        </Link>
+      ) : (
+        <div className={cardStyles.locationMain}>{cardContent}</div>
+      )}
+      <span className={`${styles.streamTime} ${cardStyles.locationTime}`}>{time}</span>
+    </article>
+  )
 }
 
 function ChestRevealChoiceModal({

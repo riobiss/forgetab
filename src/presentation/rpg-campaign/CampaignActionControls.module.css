@@ -341,9 +341,210 @@
   justify-content: flex-end;
 }
 
+.locationModal {
+  width: min(58rem, calc(100vw - 1.5rem));
+  max-height: min(88dvh, 48rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 92%, transparent));
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  overflow: auto;
+}
+
+.locationLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.88fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.locationLayoutSearchMode {
+  grid-template-columns: 1fr;
+}
+
+.locationSearchPanel,
+.locationDraftPanel {
+  min-width: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.locationSearchPanel {
+  align-content: start;
+}
+
+.locationSearchToggle {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.7rem 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.locationSearchToggle:hover,
+.locationSearchToggleActive {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 44%, var(--color-border-soft));
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+}
+
+.locationField {
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.locationField span {
+  color: var(--color-text-secondary);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.locationField input,
+.locationField textarea {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  padding: 0.72rem 0.8rem;
+}
+
+.locationField textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.locationOptionList {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 25rem;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.locationOption {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.55rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.locationOptionActive {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 54%, var(--color-border-soft));
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+}
+
+.locationOptionImage,
+.locationOptionFallback {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  flex-shrink: 0;
+}
+
+.locationOptionImage {
+  object-fit: cover;
+}
+
+.locationOptionFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.locationOptionText {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.locationOptionText strong,
+.locationOptionText small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.locationOptionText strong {
+  color: inherit;
+}
+
+.locationOptionText small {
+  color: var(--color-text-muted);
+}
+
+.locationImagePicker {
+  position: relative;
+  width: 100%;
+  min-height: 14rem;
+  border: 1px dashed var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.locationImagePicker input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.locationDraftImage {
+  object-fit: cover;
+}
+
+.locationImagePlaceholder {
+  color: var(--color-text-muted);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 800;
+}
+
 @media (min-width: 720px) {
   .actionModal {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .locationLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .locationOptionList {
+    max-height: 16rem;
   }
 }

@@ -4,6 +4,7 @@ import { useState, type Dispatch, type SetStateAction } from "react"
 import type { CharacterInventoryItemDto } from "@/application/characterInventory/types"
 import type { PurchasedAbilityViewDto } from "@/application/characterAbilities/types"
 import type { BaseItemDto } from "@/application/itemsDashboard/types"
+import type { RpgMapDetailViewDto } from "@/application/rpgMap/types"
 import type { DashboardCharacterSummary } from "@/application/rpgDashboard/contracts/RpgDashboardGateway"
 import type { RpgCampaignRoomViewModel } from "@/application/rpgCampaign/types"
 import type { SkillListItemDto } from "@/application/skillsDashboard/types"
@@ -13,11 +14,18 @@ import { httpItemsDashboardGateway } from "@/infrastructure/itemsDashboard/gatew
 import { httpRpgDashboardGateway } from "@/infrastructure/rpgDashboard/gateways/httpRpgDashboardGateway"
 import type { CampaignSelectedCharacter } from "@/infrastructure/rpgCampaign/campaignPresence"
 import { httpRpgCampaignRepository } from "@/infrastructure/rpgCampaign/repositories/httpRpgCampaignRepository"
+import { httpRpgMapGateway } from "@/infrastructure/rpgMap/gateways/httpRpgMapGateway"
 import { httpSkillsDashboardGateway } from "@/infrastructure/skillsDashboard/gateways/httpSkillsDashboardGateway"
+import {
+  SECTION_LINK_IMAGE,
+  getLinkedMarkerId,
+  getSectionImages,
+} from "@/presentation/rpg-map/utils/sectionMarkerLinking"
 import {
   buildDeliveryOfferActionContent,
   buildDiceRollActionContent,
   buildItemUseActionContent,
+  buildLocationActionContent,
   buildSkillUseActionContent,
   type DeliveryOfferActionPayload,
   type DeliveryOfferAsset,
@@ -26,10 +34,36 @@ import {
   type DiceRollPreviewGroup,
   findDiceEntriesInValue,
   type ItemUseActionPayload,
+  type LocationActionPayload,
   type SkillUseActionPayload,
 } from "./actionMessages"
 
 type CampaignRoomMessage = RpgCampaignRoomViewModel["campaignMessages"][number]
+
+function getCustomFieldText(value: unknown) {
+  if (typeof value === "string") {
+    return value.trim()
+  }
+
+  if (!value || Array.isArray(value) || typeof value !== "object") {
+    return ""
+  }
+
+  const fieldValue = (value as { value?: unknown }).value
+  return typeof fieldValue === "string" ? fieldValue.trim() : ""
+}
+
+export type CampaignLocationOption = {
+  id: string
+  sourceKind: "map" | "section" | "marker"
+  mapId: string
+  mapTitle: string
+  title: string
+  location: string | null
+  description: string | null
+  image: string | null
+  markerId: string | null
+}
 
 type Params = {
   rpgId: string
@@ -55,6 +89,7 @@ export function useCampaignRoomActions({
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false)
   const [isDiceModalOpen, setIsDiceModalOpen] = useState(false)
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false)
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false)
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false)
   const [isItemModalOpen, setIsItemModalOpen] = useState(false)
   const [isStealthMode, setIsStealthMode] = useState(false)
@@ -67,7 +102,10 @@ export function useCampaignRoomActions({
   const [deliveryCharacters, setDeliveryCharacters] = useState<DashboardCharacterSummary[]>([])
   const [deliveryItems, setDeliveryItems] = useState<BaseItemDto[]>([])
   const [deliverySkills, setDeliverySkills] = useState<SkillListItemDto[]>([])
+  const [locationOptions, setLocationOptions] = useState<CampaignLocationOption[]>([])
   const [isLoadingDeliveryOptions, setIsLoadingDeliveryOptions] = useState(false)
+  const [isLoadingLocationOptions, setIsLoadingLocationOptions] = useState(false)
+  const [isUploadingLocationImage, setIsUploadingLocationImage] = useState(false)
   const [isLoadingCharacterAbilities, setIsLoadingCharacterAbilities] = useState(false)
   const [isLoadingCharacterItems, setIsLoadingCharacterItems] = useState(false)
   const [selectedAbilityDetails, setSelectedAbilityDetails] = useState<PurchasedAbilityViewDto | null>(null)
@@ -221,6 +259,154 @@ export function useCampaignRoomActions({
     } finally {
       setIsLoadingDeliveryOptions(false)
     }
+  }
+
+  function buildLocationOptions(detail: RpgMapDetailViewDto): CampaignLocationOption[] {
+    const markerById = new Map(
+      detail.markerGroups.flatMap((group) =>
+        group.markers.map((marker) => [marker.id, marker] as const),
+      ),
+    )
+    const linkedMarkerIds = new Set(
+      detail.sections
+        .map((section) => getLinkedMarkerId(section.customFields))
+        .filter((markerId) => markerId.length > 0),
+    )
+
+    const mapOption: CampaignLocationOption = {
+      id: `map:${detail.map.id}`,
+      sourceKind: "map",
+      mapId: detail.map.id,
+      mapTitle: detail.map.title,
+      title: detail.map.title,
+      location: detail.map.type,
+      description: detail.map.description,
+      image: detail.map.image,
+      markerId: null,
+    }
+
+    const markerOptions: CampaignLocationOption[] = detail.markerGroups.flatMap((group) =>
+      group.markers
+        .filter((marker) => !linkedMarkerIds.has(marker.id))
+        .map((marker) => ({
+          id: `marker:${marker.id}`,
+          sourceKind: "marker" as const,
+          mapId: detail.map.id,
+          mapTitle: detail.map.title,
+          title: marker.name,
+          location: marker.location,
+          description: marker.shortDescription,
+          image: marker.image,
+          markerId: marker.id,
+        })),
+    )
+
+    const sectionOptions: CampaignLocationOption[] = detail.sections.map((section) => {
+      const linkedMarkerId = getLinkedMarkerId(section.customFields)
+      const linkedMarker = linkedMarkerId ? markerById.get(linkedMarkerId) ?? null : null
+      const sectionImages = getSectionImages(section.customFields)
+      const linkedSectionImage = getCustomFieldText(section.customFields?.[SECTION_LINK_IMAGE])
+      const resolvedImage = sectionImages[0] || linkedSectionImage || linkedMarker?.image || null
+
+      return {
+        id: `section:${section.id}`,
+        sourceKind: "section" as const,
+        mapId: detail.map.id,
+        mapTitle: detail.map.title,
+        title: section.name.trim() || linkedMarker?.name || "Local",
+        location: section.type || linkedMarker?.location || null,
+        description: section.description || linkedMarker?.shortDescription || null,
+        image: resolvedImage,
+        markerId: linkedMarker?.id ?? null,
+      }
+    })
+
+    return [mapOption, ...markerOptions, ...sectionOptions]
+  }
+
+  async function openLocationModal() {
+    if (!room.isOwner) {
+      return
+    }
+
+    setIsActionMenuOpen(false)
+    setIsLocationModalOpen(true)
+
+    if (locationOptions.length > 0) {
+      return
+    }
+
+    setIsLoadingLocationOptions(true)
+    setError(null)
+
+    try {
+      const mapsPayload = await httpRpgMapGateway.fetchMaps(rpgId)
+      const details = await Promise.all(
+        mapsPayload.maps.map((map) =>
+          httpRpgMapGateway.fetchMap(rpgId, map.id).catch(() => null),
+        ),
+      )
+      setLocationOptions(details.flatMap((detail) => (detail ? buildLocationOptions(detail) : [])))
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : "Nao foi possivel carregar os locais.")
+    } finally {
+      setIsLoadingLocationOptions(false)
+    }
+  }
+
+  async function uploadLocationImage(file: File) {
+    if (!room.isOwner) {
+      return null
+    }
+
+    setIsUploadingLocationImage(true)
+    setError(null)
+
+    try {
+      const payload = await httpRpgMapGateway.uploadMarkerImage(file)
+      return payload.url
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : "Nao foi possivel enviar a imagem do local.")
+      return null
+    } finally {
+      setIsUploadingLocationImage(false)
+    }
+  }
+
+  async function submitLocation(payload: Omit<LocationActionPayload, "type" | "combatId">) {
+    if (!room.isOwner) {
+      return
+    }
+
+    const title = payload.title.trim()
+    if (!title) {
+      setError("Informe um nome para o local.")
+      return
+    }
+
+    const content = buildLocationActionContent({
+      ...payload,
+      type: "location",
+      combatId: activeCombatRoomId,
+      title,
+      description: payload.description?.trim() || null,
+      image: payload.image?.trim() || null,
+      location: payload.location?.trim() || null,
+    } satisfies LocationActionPayload)
+
+    await runAction(async () => {
+      const response = await httpRpgCampaignRepository.sendMessage(rpgId, room.campaign.id, {
+        content,
+        kind: "action",
+      })
+
+      if ("chatMessage" in response && response.chatMessage) {
+        appendMessageLocally(response.chatMessage)
+      }
+
+      setIsLocationModalOpen(false)
+      return response
+    })
   }
 
   async function submitDeliveryOffer(params: {
@@ -508,11 +694,16 @@ export function useCampaignRoomActions({
     isLoadingCharacterAbilities,
     isLoadingCharacterItems,
     isLoadingDeliveryOptions,
+    isLoadingLocationOptions,
     isSkillModalOpen,
     isStealthMode,
+    isLocationModalOpen,
+    isUploadingLocationImage,
+    locationOptions,
     openDiceModalFromActionPayload,
     openDeliveryModal,
     openItemModal,
+    openLocationModal,
     openLatestAbilityDetails,
     openLatestItemDetails,
     openSkillModal,
@@ -529,6 +720,7 @@ export function useCampaignRoomActions({
     setIsDeliveryModalOpen,
     setIsDiceModalOpen,
     setIsItemModalOpen,
+    setIsLocationModalOpen,
     setIsSkillModalOpen,
     setIsStealthMode,
     setRevokeActionMessageId,
@@ -538,6 +730,8 @@ export function useCampaignRoomActions({
     setSelectedItemDetailsMode,
     submitDiceRoll,
     submitDeliveryOffer,
+    submitLocation,
+    uploadLocationImage,
   }
 }
 

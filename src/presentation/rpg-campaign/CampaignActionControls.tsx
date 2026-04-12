@@ -1,7 +1,8 @@
 "use client"
 
-import type { CSSProperties } from "react"
-import { EyeOff, Info, NotebookText, PawPrint, Plus, Send, Sparkles, Swords, X } from "lucide-react"
+import { useMemo, useState, type ChangeEvent, type CSSProperties } from "react"
+import { ArrowLeft, Dice5, EyeOff, Gift, ImagePlus, Info, MapPin, NotebookText, PawPrint, Plus, Search, Send, Sparkles, Swords, X } from "lucide-react"
+import Image from "next/image"
 import type { CampaignSelectedCharacter } from "@/infrastructure/rpgCampaign/campaignPresence"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 import { toInventoryCardItem } from "@/presentation/character-inventory/utils"
@@ -10,7 +11,7 @@ import { AbilityActionDetailCard, ItemActionDetailCard } from "./ActionDetailCar
 import controlStyles from "./CampaignActionControls.module.css"
 import { CampaignDeliveryModal } from "./CampaignDeliveryModal"
 import styles from "./RpgCampaignRoomPage.module.css"
-import type { CampaignRoomActions } from "./useCampaignRoomActions"
+import type { CampaignLocationOption, CampaignRoomActions } from "./useCampaignRoomActions"
 
 type Props = {
   actions: CampaignRoomActions
@@ -19,6 +20,7 @@ type Props = {
   isOwner: boolean
   onOpenCreateCombat?: () => void
   onOpenCreatures?: () => void
+  onBackToCampaign?: () => void
   onOpenNote?: () => void
   showFloatingButton?: boolean
   selectedCharacter: CampaignSelectedCharacter | null
@@ -31,6 +33,7 @@ export function CampaignActionControls({
   isOwner,
   onOpenCreateCombat,
   onOpenCreatures,
+  onBackToCampaign,
   onOpenNote,
   showFloatingButton = true,
   selectedCharacter,
@@ -50,6 +53,18 @@ export function CampaignActionControls({
 
       {actions.isActionMenuOpen ? (
         <div className={`${controlStyles.actionMenu} ${showFloatingButton ? "" : controlStyles.actionMenuToolbar}`}>
+          {onBackToCampaign ? (
+            <button
+              type="button"
+              className={controlStyles.actionMenuItem}
+              onClick={() => {
+                actions.setIsActionMenuOpen(false)
+                onBackToCampaign()
+              }}
+            >
+              <ArrowLeft size={16} /> Voltar
+            </button>
+          ) : null}
           {isOwner && onOpenCreateCombat ? (
             <button
               type="button"
@@ -82,7 +97,18 @@ export function CampaignActionControls({
                 void actions.openDeliveryModal()
               }}
             >
-              Entregar
+              <Gift size={16} /> Entregar
+            </button>
+          ) : null}
+          {isOwner ? (
+            <button
+              type="button"
+              className={controlStyles.actionMenuItem}
+              onClick={() => {
+                void actions.openLocationModal()
+              }}
+            >
+              <MapPin size={16} /> Local
             </button>
           ) : null}
           {onOpenNote ? (
@@ -139,7 +165,7 @@ export function CampaignActionControls({
               actions.setIsActionMenuOpen(false)
             }}
           >
-            Girar dado
+            <Dice5 size={16} /> Girar dado
           </button>
         </div>
       ) : null}
@@ -166,6 +192,10 @@ export function CampaignActionControls({
         />
       ) : null}
 
+      {actions.isLocationModalOpen ? (
+        <LocationPickerModal actions={actions} isBusy={isBusy} />
+      ) : null}
+
       {actions.isDiceModalOpen ? (
         <DiceRollModal actions={actions} isBusy={isBusy} isOwner={isOwner} />
       ) : null}
@@ -182,6 +212,191 @@ export function CampaignActionControls({
         <RevokeActionModal actions={actions} isBusy={isBusy} />
       ) : null}
     </>
+  )
+}
+
+function LocationPickerModal({ actions, isBusy }: { actions: CampaignRoomActions; isBusy: boolean }) {
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [query, setQuery] = useState("")
+  const [selectedOption, setSelectedOption] = useState<CampaignLocationOption | null>(null)
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [image, setImage] = useState("")
+
+  const filteredOptions = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase()
+    if (!normalizedQuery) {
+      return actions.locationOptions
+    }
+
+    return actions.locationOptions.filter((option) =>
+      [option.title, option.location, option.description, option.mapTitle]
+        .some((value) => value?.toLowerCase().includes(normalizedQuery)),
+    )
+  }, [actions.locationOptions, query])
+
+  function applyOption(option: CampaignLocationOption) {
+    setSelectedOption(option)
+    setTitle(option.title)
+    setDescription(option.description ?? "")
+    setImage(option.image ?? "")
+    setIsSearchOpen(false)
+  }
+
+  async function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0] ?? null
+    event.currentTarget.value = ""
+    if (!file) {
+      return
+    }
+
+    const uploadedUrl = await actions.uploadLocationImage(file)
+    if (uploadedUrl) {
+      setImage(uploadedUrl)
+      setSelectedOption(null)
+    }
+  }
+
+  return (
+    <div className={styles.modalBackdrop} role="presentation" onClick={() => actions.setIsLocationModalOpen(false)}>
+      <section
+        className={controlStyles.locationModal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="location-send-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className={styles.actionModalHeader}>
+          <h2 id="location-send-title" className={styles.actionModalTitle}>
+            Local
+          </h2>
+          <button type="button" className={styles.closeChatButton} onClick={() => actions.setIsLocationModalOpen(false)}>
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className={`${controlStyles.locationLayout} ${isSearchOpen ? controlStyles.locationLayoutSearchMode : ""}`}>
+          <div className={controlStyles.locationSearchPanel}>
+            <button
+              type="button"
+              className={`${controlStyles.locationSearchToggle} ${isSearchOpen ? controlStyles.locationSearchToggleActive : ""}`}
+              onClick={() => setIsSearchOpen((currentState) => !currentState)}
+              aria-expanded={isSearchOpen}
+            >
+              <Search size={16} />
+              Pesquisar no mapa
+            </button>
+
+            {isSearchOpen ? (
+              <>
+                <label className={controlStyles.locationField}>
+                  <span>Busca</span>
+                  <input
+                    type="search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Nome, mapa ou localizacao"
+                  />
+                </label>
+
+                <div className={controlStyles.locationOptionList}>
+                  {actions.isLoadingLocationOptions ? (
+                    <p className={styles.emptyState}>Carregando locais...</p>
+                  ) : filteredOptions.length === 0 ? (
+                    <p className={styles.emptyState}>Nenhum local encontrado.</p>
+                  ) : (
+                    filteredOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        className={`${controlStyles.locationOption} ${selectedOption?.id === option.id ? controlStyles.locationOptionActive : ""}`}
+                        onClick={() => applyOption(option)}
+                      >
+                        {option.image ? (
+                          <Image
+                            src={option.image}
+                            alt=""
+                            width={44}
+                            height={44}
+                            unoptimized
+                            className={controlStyles.locationOptionImage}
+                          />
+                        ) : (
+                          <span className={controlStyles.locationOptionFallback}><MapPin size={18} /></span>
+                        )}
+                        <span className={controlStyles.locationOptionText}>
+                          <strong>{option.title}</strong>
+                          <small>
+                            {option.mapTitle}{option.markerId ? " - pinado" : ""}
+                          </small>
+                        </span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </>
+            ) : null}
+          </div>
+
+          {!isSearchOpen ? (
+            <div className={controlStyles.locationDraftPanel}>
+            <label className={controlStyles.locationImagePicker}>
+              {image ? (
+                <Image
+                  src={image}
+                  alt=""
+                  fill
+                  sizes="(max-width: 720px) 100vw, 20rem"
+                  unoptimized
+                  className={controlStyles.locationDraftImage}
+                />
+              ) : (
+                <span className={controlStyles.locationImagePlaceholder}>
+                  <ImagePlus size={22} />
+                  Imagem do local
+                </span>
+              )}
+              <input type="file" accept="image/*" onChange={(event) => void handleImageChange(event)} />
+            </label>
+
+            <label className={controlStyles.locationField}>
+              <span>Nome</span>
+              <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Nome do local" />
+            </label>
+
+            <label className={controlStyles.locationField}>
+              <span>Descricao</span>
+              <textarea
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder="Algo que a sala precisa saber"
+              />
+            </label>
+
+            <button
+              type="button"
+              className={styles.rollSubmitButton}
+              onClick={() => {
+                void actions.submitLocation({
+                  title,
+                  description,
+                  image,
+                  mapId: selectedOption?.mapId ?? null,
+                  mapTitle: selectedOption?.mapTitle ?? null,
+                  markerId: selectedOption?.markerId ?? null,
+                  location: selectedOption?.location ?? null,
+                  sourceKind: selectedOption?.sourceKind ?? "image",
+                })
+              }}
+              disabled={isBusy || actions.isUploadingLocationImage || actions.isLoadingLocationOptions}
+            >
+              {actions.isUploadingLocationImage ? "Enviando..." : "Enviar local"}
+            </button>
+            </div>
+          ) : null}
+        </div>
+      </section>
+    </div>
   )
 }
 

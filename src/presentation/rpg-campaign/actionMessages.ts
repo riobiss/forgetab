@@ -89,6 +89,19 @@ export type ItemUseActionPayload = {
   item: CharacterInventoryItemDto
 }
 
+export type LocationActionPayload = {
+  type: "location"
+  combatId?: string | null
+  title: string
+  description?: string | null
+  image?: string | null
+  mapId?: string | null
+  mapTitle?: string | null
+  markerId?: string | null
+  location?: string | null
+  sourceKind?: "map" | "section" | "marker" | "image"
+}
+
 export type DiceRollPreviewGroup = {
   diceCount: number
   diceSides: number
@@ -138,6 +151,7 @@ const SKILL_USE_PREFIX = "__SKILL_USE__"
 const ITEM_USE_PREFIX = "__ITEM_USE__"
 const CHARACTER_REVEAL_PREFIX = "__CHARACTER_REVEAL__"
 const DELIVERY_OFFER_PREFIX = "__DELIVERY_OFFER__"
+const LOCATION_PREFIX = "__LOCATION__"
 
 export function toActionTypeLabel(value: string | null) {
   if (!value) return null
@@ -190,6 +204,10 @@ export function buildCharacterRevealActionContent(payload: CharacterRevealAction
 
 export function buildDeliveryOfferActionContent(payload: DeliveryOfferActionPayload) {
   return `${DELIVERY_OFFER_PREFIX}${JSON.stringify(payload)}`
+}
+
+export function buildLocationActionContent(payload: LocationActionPayload) {
+  return `${LOCATION_PREFIX}${JSON.stringify(payload)}`
 }
 
 export function parseDiceRollAction(content: string): DiceRollActionPayload | null {
@@ -330,6 +348,27 @@ export function parseDeliveryOfferAction(content: string): DeliveryOfferActionPa
   }
 }
 
+export function parseLocationAction(content: string): LocationActionPayload | null {
+  if (!content.startsWith(LOCATION_PREFIX)) {
+    return null
+  }
+
+  try {
+    const parsedContent = JSON.parse(content.slice(LOCATION_PREFIX.length)) as LocationActionPayload
+    if (
+      parsedContent?.type !== "location" ||
+      typeof parsedContent.title !== "string" ||
+      parsedContent.title.trim().length === 0
+    ) {
+      return null
+    }
+
+    return parsedContent
+  } catch {
+    return null
+  }
+}
+
 export function getActionCombatId(content: string): string | null {
   return (
     parseDiceRollAction(content)?.combatId ??
@@ -337,6 +376,7 @@ export function getActionCombatId(content: string): string | null {
     parseItemUseAction(content)?.combatId ??
     parseCharacterRevealAction(content)?.combatId ??
     parseDeliveryOfferAction(content)?.combatId ??
+    parseLocationAction(content)?.combatId ??
     null
   )
 }

@@ -441,6 +441,7 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
         visibleActionMessages.map((message) => (
           <CampaignActionMessageCard
             key={message.id}
+            rpgId={rpgId}
             message={message}
             actionMessages={visibleActionMessages}
             isOwner={room.isOwner}
@@ -560,6 +561,7 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
           isBusy={isBusy}
           isCampaignEnded={isCampaignEnded}
           isOwner={room.isOwner}
+          onBackToCampaign={() => router.push(`/rpg/${rpgId}/campaign`)}
           onOpenCreateCombat={
             activeCombatRoomId
               ? undefined
