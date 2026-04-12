@@ -577,12 +577,7 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
 
         <div className={styles.contentGrid}>
           <section className={styles.panel}>
-            {activeCombatRoomId ? null : (
-              <>
-                <h2 className={styles.sectionTitle}>Campanha</h2>
-                <p className={styles.campaignDescription}>{room.campaign.description}</p>
-              </>
-            )}
+            {activeCombatRoomId ? null : <h2 className={styles.sectionTitle}>Campanha</h2>}
             <CampaignCombatPanel
               rooms={room.combatRooms}
               activeRoomId={activeCombatRoomId}

@@ -436,6 +436,23 @@ function DiceRollModal({
                   }}
                 />
               </label>
+
+              <button
+                type="button"
+                className={controlStyles.removeDiceButton}
+                onClick={() => {
+                  actions.setDicePreviewGroups(null)
+                  actions.setDiceEntries((currentEntries) =>
+                    currentEntries.length > 1
+                      ? currentEntries.filter((_, currentIndex) => currentIndex !== index)
+                      : currentEntries,
+                  )
+                }}
+                disabled={actions.diceEntries.length <= 1}
+                aria-label="Remover dado"
+              >
+                <X size={16} />
+              </button>
             </div>
           ))}
         </div>
