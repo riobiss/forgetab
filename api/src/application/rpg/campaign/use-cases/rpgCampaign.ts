@@ -8,7 +8,8 @@ import type {
   RpgCampaignViewModel,
 } from "@/application/rpg/campaign/types"
 
-const CAMPAIGN_MESSAGE_MAX_LENGTH = 1200
+const CAMPAIGN_TEXT_MESSAGE_MAX_LENGTH = 4000
+const CAMPAIGN_ACTION_MESSAGE_MAX_LENGTH = 8000
 const COMBAT_NAME_MAX_LENGTH = 80
 const COMBAT_CREATURE_MAX_QUANTITY = 20
 const DICE_ROLL_MAX_GROUPS = 20
@@ -421,9 +422,12 @@ export async function createRpgCampaignMessageUseCase(
     throw new AppError("Digite uma mensagem antes de enviar.", 400)
   }
 
-  if (content.length > CAMPAIGN_MESSAGE_MAX_LENGTH) {
+  const kind = params.kind ?? "campaign"
+  const messageMaxLength = kind === "action" ? CAMPAIGN_ACTION_MESSAGE_MAX_LENGTH : CAMPAIGN_TEXT_MESSAGE_MAX_LENGTH
+
+  if (content.length > messageMaxLength) {
     throw new AppError(
-      `A mensagem pode ter no maximo ${CAMPAIGN_MESSAGE_MAX_LENGTH} caracteres.`,
+      `A mensagem pode ter no maximo ${messageMaxLength} caracteres.`,
       400,
     )
   }
@@ -431,8 +435,6 @@ export async function createRpgCampaignMessageUseCase(
   if (!campaign.isActive) {
     throw new AppError("A campanha foi encerrada.", 409)
   }
-
-  const kind = params.kind ?? "campaign"
 
   if (kind === "direct") {
     if (!params.recipientUserId) {
