@@ -1,13 +1,14 @@
 "use client"
 
 import { useMemo, useState, type ChangeEvent, type CSSProperties } from "react"
-import { ArrowLeft, Dice5, EyeOff, Gift, ImagePlus, Info, MapPin, NotebookText, PawPrint, Plus, Search, Send, Sparkles, Swords, X } from "lucide-react"
+import { ArrowLeft, Dice5, EyeOff, Gift, ImagePlus, Info, MapPin, NotebookText, PawPrint, Plus, ScrollText, Search, Send, Sparkles, Swords, X } from "lucide-react"
 import Image from "next/image"
 import type { CampaignSelectedCharacter } from "@/infrastructure/rpgCampaign/campaignPresence"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 import { toInventoryCardItem } from "@/presentation/character-inventory/utils"
 import { ITEM_RARITY_ACTION_COLOR, toAbilityDisplayName, toActionTypeLabel } from "./actionMessages"
 import { AbilityActionDetailCard, ItemActionDetailCard } from "./ActionDetailCards"
+import { CampaignParchmentModal, type CampaignParchmentDraft } from "./CampaignParchmentModal"
 import controlStyles from "./CampaignActionControls.module.css"
 import { CampaignDeliveryModal } from "./CampaignDeliveryModal"
 import styles from "./RpgCampaignRoomPage.module.css"
@@ -22,6 +23,12 @@ type Props = {
   onOpenCreatures?: () => void
   onBackToCampaign?: () => void
   onOpenNote?: () => void
+  onSubmitParchment?: (draft: CampaignParchmentDraft) => void
+  onUploadParchmentImage?: (file: File) => Promise<string | null>
+  isParchmentModalOpen?: boolean
+  isUploadingParchmentImage?: boolean
+  onOpenParchment?: () => void
+  onCloseParchment?: () => void
   showFloatingButton?: boolean
   selectedCharacter: CampaignSelectedCharacter | null
 }
@@ -35,6 +42,12 @@ export function CampaignActionControls({
   onOpenCreatures,
   onBackToCampaign,
   onOpenNote,
+  onSubmitParchment,
+  onUploadParchmentImage,
+  isParchmentModalOpen = false,
+  isUploadingParchmentImage = false,
+  onOpenParchment,
+  onCloseParchment,
   showFloatingButton = true,
   selectedCharacter,
 }: Props) {
@@ -65,6 +78,26 @@ export function CampaignActionControls({
               <ArrowLeft size={16} /> Voltar
             </button>
           ) : null}
+                  {!isOwner && selectedCharacter ? (
+            <button
+              type="button"
+              className={`${controlStyles.actionMenuItem} ${actions.isStealthMode ? controlStyles.actionMenuItemActive : ""}`}
+              onClick={() => actions.setIsStealthMode((currentState) => !currentState)}
+              aria-pressed={actions.isStealthMode}
+            >
+              <EyeOff size={16} /> Furtivo
+            </button>
+          ) : null}
+                    <button
+            type="button"
+            className={controlStyles.actionMenuItem}
+            onClick={() => {
+              actions.setIsDiceModalOpen(true)
+              actions.setIsActionMenuOpen(false)
+            }}
+          >
+            <Dice5 size={16} /> Girar dado
+          </button>
           {isOwner && onOpenCreateCombat ? (
             <button
               type="button"
@@ -123,16 +156,19 @@ export function CampaignActionControls({
               <NotebookText size={16} /> Nota
             </button>
           ) : null}
-          {!isOwner && selectedCharacter ? (
+          {isOwner && onOpenParchment ? (
             <button
               type="button"
-              className={`${controlStyles.actionMenuItem} ${actions.isStealthMode ? controlStyles.actionMenuItemActive : ""}`}
-              onClick={() => actions.setIsStealthMode((currentState) => !currentState)}
-              aria-pressed={actions.isStealthMode}
+              className={controlStyles.actionMenuItem}
+              onClick={() => {
+                actions.setIsActionMenuOpen(false)
+                onOpenParchment()
+              }}
             >
-              <EyeOff size={16} /> Furtivo
+              <ScrollText size={16} /> Pergaminho
             </button>
           ) : null}
+  
           {!isOwner && selectedCharacter ? (
             <button
               type="button"
@@ -157,16 +193,7 @@ export function CampaignActionControls({
               Usar item
             </button>
           ) : null}
-          <button
-            type="button"
-            className={controlStyles.actionMenuItem}
-            onClick={() => {
-              actions.setIsDiceModalOpen(true)
-              actions.setIsActionMenuOpen(false)
-            }}
-          >
-            <Dice5 size={16} /> Girar dado
-          </button>
+
         </div>
       ) : null}
 
@@ -198,6 +225,16 @@ export function CampaignActionControls({
 
       {actions.isDiceModalOpen ? (
         <DiceRollModal actions={actions} isBusy={isBusy} isOwner={isOwner} />
+      ) : null}
+
+      {isParchmentModalOpen && onSubmitParchment && onUploadParchmentImage && onCloseParchment ? (
+        <CampaignParchmentModal
+          isBusy={isBusy}
+          isUploading={isUploadingParchmentImage}
+          onClose={onCloseParchment}
+          onUploadImage={onUploadParchmentImage}
+          onSubmit={onSubmitParchment}
+        />
       ) : null}
 
       {actions.selectedAbilityDetails ? (

@@ -16,17 +16,20 @@ import {
 import {
   ITEM_RARITY_ACTION_COLOR,
   type LocationActionPayload,
+  type ParchmentActionPayload,
   parseCharacterRevealAction,
   parseDeliveryOfferAction,
   parseDiceRollAction,
   parseItemUseAction,
   parseLocationAction,
+  parseParchmentAction,
   parseSkillUseAction,
   humanizeSlug,
   toAbilityDisplayName,
   toActionTypeLabel,
 } from "./actionMessages"
 import { AbilityActionDetailCard, ItemActionDetailCard } from "./ActionDetailCards"
+import { CampaignParchmentPreview } from "./CampaignParchmentModal"
 import cardStyles from "./CampaignActionMessageCard.module.css"
 import styles from "./RpgCampaignRoomPage.module.css"
 
@@ -80,6 +83,7 @@ export function CampaignActionMessageCard({
   const characterReveal = parseCharacterRevealAction(message.content)
   const deliveryOffer = parseDeliveryOfferAction(message.content)
   const locationAction = parseLocationAction(message.content)
+  const parchmentAction = parseParchmentAction(message.content)
   const isActionAuthor = message.authorId === viewerUserId
   const canOpenActionDetails = isOwner || message.authorId === viewerUserId
   const canRevokeAction =
@@ -223,6 +227,19 @@ export function CampaignActionMessageCard({
           rpgId={rpgId}
           messageId={message.id}
           payload={locationAction}
+          canRevokeAction={canRevokeAction}
+          time={formatTime(message.createdAt)}
+          onRevokeAction={onRevokeAction}
+        />
+      )
+    }
+
+    if (parchmentAction) {
+      return (
+        <ParchmentActionCard
+          rpgId={rpgId}
+          messageId={message.id}
+          payload={parchmentAction}
           canRevokeAction={canRevokeAction}
           time={formatTime(message.createdAt)}
           onRevokeAction={onRevokeAction}
@@ -490,6 +507,52 @@ export function CampaignActionMessageCard({
         </div>
       ) : null}
       <span className={styles.streamTime}>{formatTime(message.createdAt)}</span>
+    </article>
+  )
+}
+
+function ParchmentActionCard({
+  rpgId,
+  messageId,
+  payload,
+  canRevokeAction,
+  time,
+  onRevokeAction,
+}: {
+  rpgId: string
+  messageId: string
+  payload: ParchmentActionPayload
+  canRevokeAction: boolean
+  time: string
+  onRevokeAction: (messageId: string) => void
+}) {
+  return (
+    <article className={`${styles.streamCard} ${cardStyles.parchmentCard}`}>
+      {canRevokeAction ? (
+        <button
+          type="button"
+          className={styles.characterRevealRevokeButton}
+          onClick={() => onRevokeAction(messageId)}
+          aria-label="Revogar pergaminho"
+        >
+          <RotateCcw size={16} />
+        </button>
+      ) : null}
+      <Link href={`/rpg/${rpgId}/library/${payload.sectionId}/books/${payload.bookId}`} className={cardStyles.parchmentLink}>
+        <CampaignParchmentPreview
+          compact
+          parchment={{
+            template: payload.template ?? "classic",
+            title: payload.title,
+            font: payload.font ?? "cinzel",
+            crestImage: payload.crestImage ?? payload.senderImage ?? "",
+            text: payload.text,
+            signature: payload.signature ?? payload.senderName ?? "",
+            signatureImage: payload.signatureImage ?? "",
+          }}
+        />
+      </Link>
+      <span className={`${styles.streamTime} ${cardStyles.parchmentTime}`}>{time}</span>
     </article>
   )
 }

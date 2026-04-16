@@ -5,6 +5,32 @@
   gap: 0.65rem;
 }
 
+.parchmentCard {
+  width: min(100%, 44rem);
+  justify-self: start;
+  padding: 0.45rem 0.45rem 2.1rem;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, #fff7d6 8%, transparent), transparent 52%),
+    color-mix(in srgb, var(--color-bg-surface) 82%, transparent);
+}
+
+.parchmentLink {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.parchmentLink:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+.parchmentTime {
+  right: 0.95rem;
+  bottom: 0.65rem;
+}
+
 .locationCard {
   width: min(100%, 28rem);
   justify-self: start;

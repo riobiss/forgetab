@@ -4,12 +4,21 @@ import { startTransition, useCallback, useEffect, useMemo, useRef, useState } fr
 import { ArrowLeft, ChevronsDown, MessageCircle, Star, UserRound, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { io, type Socket } from "socket.io-client"
+import { toast } from "react-hot-toast"
+import type { JSONContent } from "@tiptap/react"
 import type { CharacterDetailViewModel } from "@/application/charactersDetail/types"
+import {
+  createLibraryBookUseCase,
+  createLibrarySectionUseCase,
+  loadLibrarySectionsUseCase,
+  uploadLibraryImageUseCase,
+} from "@/application/library/use-cases/library"
 import type { DashboardCharacterSummary } from "@/application/rpgDashboard/contracts/RpgDashboardGateway"
 import type { RpgCampaignRoomViewModel } from "@/application/rpgCampaign/types"
 import { getClientAuthToken } from "@/infrastructure/auth/session/clientAuthSession"
 import { fetchCharacterDetailViewModel } from "@/infrastructure/charactersDetail/repositories/httpCharacterDetailRepository"
 import { getConfiguredApiBaseUrl } from "@/infrastructure/http/backendUrls"
+import { httpLibraryGateway } from "@/infrastructure/library/gateways/httpLibraryGateway"
 import { httpRpgDashboardGateway } from "@/infrastructure/rpgDashboard/gateways/httpRpgDashboardGateway"
 import {
   clearCampaignPresence,
@@ -18,13 +27,14 @@ import {
   type CampaignSelectedCharacter,
 } from "@/infrastructure/rpgCampaign/campaignPresence"
 import { httpRpgCampaignRepository } from "@/infrastructure/rpgCampaign/repositories/httpRpgCampaignRepository"
-import { buildCharacterRevealActionContent, getActionCombatId } from "./actionMessages"
+import { buildCharacterRevealActionContent, buildParchmentActionContent, getActionCombatId } from "./actionMessages"
 import { CampaignActionControls } from "./CampaignActionControls"
 import { CampaignActionMessageCard } from "./CampaignActionMessageCard"
 import { CampaignChatPanel } from "./CampaignChatPanel"
 import { CampaignCombatPanel } from "./CampaignCombatPanel"
 import { CampaignCreatureCombatModal } from "./CampaignCreatureCombatModal"
 import { CampaignNotePanel } from "./CampaignNotePanel"
+import type { CampaignParchmentDraft } from "./CampaignParchmentModal"
 import { CharacterRevealModal } from "./CharacterRevealModal"
 import {
   buildCharacterRevealSections,
@@ -48,18 +58,89 @@ type Props = {
   initialRoom: RpgCampaignRoomViewModel
 }
 
+const worldNotesSectionTitle = "Notas do mundo"
+
+const libraryDeps = {
+  gateway: httpLibraryGateway,
+}
+
+function toTextNode(text: string): JSONContent {
+  return {
+    type: "text",
+    text,
+  }
+}
+
+function toParagraph(text: string): JSONContent {
+  return {
+    type: "paragraph",
+    content: [toTextNode(text)],
+  }
+}
+
+function toImageNode(src: string): JSONContent {
+  return {
+    type: "image",
+    attrs: {
+      src,
+      alt: "",
+      title: null,
+    },
+  }
+}
+
+function buildParchmentBookContent(draft: CampaignParchmentDraft): JSONContent {
+  const content: JSONContent[] = []
+
+  if (draft.title.trim()) {
+    content.push({
+      type: "heading",
+      attrs: { level: 1 },
+      content: [toTextNode(draft.title.trim())],
+    })
+  }
+
+  if (draft.crestImage.trim()) {
+    content.push(toImageNode(draft.crestImage.trim()))
+  }
+
+  draft.text
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .forEach((paragraph) => content.push(toParagraph(paragraph)))
+
+  if (draft.signatureImage.trim()) {
+    content.push(toImageNode(draft.signatureImage.trim()))
+  }
+
+  if (draft.signature.trim()) {
+    content.push(toParagraph(draft.signature.trim()))
+  }
+
+  return {
+    type: "doc",
+    content,
+  }
+}
+
+function buildParchmentDescription(draft: CampaignParchmentDraft) {
+  const firstLine = draft.text.trim().split(/\n+/)[0]?.trim()
+  return firstLine ? firstLine.slice(0, 260) : null
+}
+
 export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
   const router = useRouter()
   const [room, setRoom] = useState(initialRoom)
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [isNoteOpen, setIsNoteOpen] = useState(false)
   const [isBusy, setIsBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
   const [selectedCharacter, setSelectedCharacter] = useState<CampaignSelectedCharacter | null>(null)
   const [activeCombatRoomId, setActiveCombatRoomId] = useState<string | null>(null)
   const [isCreateCombatModalOpen, setIsCreateCombatModalOpen] = useState(false)
   const [isCreatureCombatModalOpen, setIsCreatureCombatModalOpen] = useState(false)
+  const [isParchmentModalOpen, setIsParchmentModalOpen] = useState(false)
+  const [isUploadingParchmentImage, setIsUploadingParchmentImage] = useState(false)
   const [isOwnerCharacterModalOpen, setIsOwnerCharacterModalOpen] = useState(false)
   const [ownerCharacterMode, setOwnerCharacterMode] = useState<OwnerCharacterPickerMode | null>(null)
   const [ownerCharacters, setOwnerCharacters] = useState<DashboardCharacterSummary[]>([])
@@ -79,6 +160,11 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
   const [newActionCount, setNewActionCount] = useState(0)
 
   const isCampaignEnded = !room.campaign.isActive
+  const showError = useCallback((message: string | null) => {
+    if (message) {
+      toast.error(message)
+    }
+  }, [])
 
   function appendMessageLocally(message: RpgCampaignRoomViewModel["campaignMessages"][number]) {
     startTransition(() => {
@@ -174,15 +260,13 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
 
   async function runAction(action: () => Promise<{ message?: string }>) {
     setIsBusy(true)
-    setError(null)
-    setSuccess(null)
 
     try {
       await action()
       await refreshRoom()
       return true
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "Nao foi possivel concluir a acao.")
+      showError(actionError instanceof Error ? actionError.message : "Nao foi possivel concluir a acao.")
       return false
     } finally {
       setIsBusy(false)
@@ -194,7 +278,7 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
     room,
     activeCombatRoomId,
     selectedCharacter,
-    setError,
+    setError: showError,
     runAction,
     appendMessageLocally,
     setRoom,
@@ -219,7 +303,7 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
 
   function handleOpenCharacterSheet() {
     if (!selectedCharacter) {
-      setError("Selecione um personagem para abrir a ficha.")
+      showError("Selecione um personagem para abrir a ficha.")
       return
     }
 
@@ -235,7 +319,6 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
     }
 
     setIsLoadingOwnerCharacters(true)
-    setError(null)
 
     try {
       const [charactersPayload, classesPayload] = await Promise.all([
@@ -250,7 +333,7 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
         })),
       )
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "Nao foi possivel carregar os personagens.")
+      showError(actionError instanceof Error ? actionError.message : "Nao foi possivel carregar os personagens.")
     } finally {
       setIsLoadingOwnerCharacters(false)
     }
@@ -263,19 +346,18 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
 
   async function openRevealCharacterPanel(characterId: string) {
     setIsLoadingRevealCharacter(true)
-    setError(null)
 
     try {
       const character = await fetchCharacterDetailViewModel(rpgId, characterId)
       if (character.characterType === "player") {
-        setError("Somente NPC ou Criatura pode ser revelado na sala por aqui.")
+        showError("Somente NPC ou Criatura pode ser revelado na sala por aqui.")
         return
       }
 
       setRevealCharacter(character)
       setRevealFields(createInitialCharacterRevealFields())
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "Nao foi possivel carregar esse personagem.")
+      showError(actionError instanceof Error ? actionError.message : "Nao foi possivel carregar esse personagem.")
     } finally {
       setIsLoadingRevealCharacter(false)
     }
@@ -324,6 +406,83 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
       setIsCreateCombatModalOpen(false)
       return payload
     })
+  }
+
+  async function uploadParchmentImage(file: File) {
+    setIsUploadingParchmentImage(true)
+
+    try {
+      const payload = await uploadLibraryImageUseCase(libraryDeps, { file })
+      return payload.url
+    } catch (actionError) {
+      showError(actionError instanceof Error ? actionError.message : "Nao foi possivel enviar a imagem.")
+      return null
+    } finally {
+      setIsUploadingParchmentImage(false)
+    }
+  }
+
+  async function createParchmentBook(draft: CampaignParchmentDraft) {
+    setIsBusy(true)
+
+    try {
+      const sectionsPayload = await loadLibrarySectionsUseCase(libraryDeps, { rpgId })
+      const existingSection = sectionsPayload.sections.find(
+        (section) => section.title.trim().toLowerCase() === worldNotesSectionTitle.toLowerCase(),
+      )
+      const section = existingSection ?? (await createLibrarySectionUseCase(libraryDeps, {
+        rpgId,
+        payload: {
+          title: worldNotesSectionTitle,
+          description: "Pergaminhos, rumores e registros que pertencem ao mundo da campanha.",
+          visibility: "public",
+        },
+      }))
+
+      const book = await createLibraryBookUseCase(libraryDeps, {
+        rpgId,
+        sectionId: section.id,
+        payload: {
+          title: draft.title.trim() || "Pergaminho",
+          description: buildParchmentDescription(draft),
+          content: buildParchmentBookContent(draft),
+          visibility: "public",
+          allowedCharacterIds: [],
+          allowedClassKeys: [],
+          allowedRaceKeys: [],
+        },
+      })
+
+      const content = buildParchmentActionContent({
+        type: "parchment",
+        combatId: activeCombatRoomId,
+        bookId: book.id,
+        sectionId: section.id,
+        template: draft.template,
+        title: draft.title.trim() || "Pergaminho",
+        font: draft.font,
+        crestImage: draft.crestImage.trim() || null,
+        text: draft.text.trim(),
+        signature: draft.template === "scroll" ? null : draft.signature.trim() || null,
+        signatureImage: draft.signatureImage.trim() || null,
+      })
+
+      const messagePayload = await httpRpgCampaignRepository.sendMessage(rpgId, room.campaign.id, {
+        content,
+        kind: "action",
+      })
+
+      if ("chatMessage" in messagePayload && messagePayload.chatMessage) {
+        appendMessageLocally(messagePayload.chatMessage)
+      }
+
+      setIsParchmentModalOpen(false)
+      toast.success("Pergaminho criado em Notas do mundo e enviado para a sala.")
+    } catch (actionError) {
+      showError(actionError instanceof Error ? actionError.message : "Nao foi possivel criar o pergaminho.")
+    } finally {
+      setIsBusy(false)
+    }
   }
 
   async function joinCombatRoom(roomId: string, role: "spectator" | "fighter") {
@@ -578,12 +737,18 @@ export function RpgCampaignRoomPage({ rpgId, initialRoom }: Props) {
               : undefined
           }
           onOpenNote={() => setIsNoteOpen(true)}
+          onOpenParchment={() => setIsParchmentModalOpen(true)}
+          onCloseParchment={() => setIsParchmentModalOpen(false)}
+          onSubmitParchment={(draft) => {
+            void createParchmentBook(draft)
+          }}
+          onUploadParchmentImage={uploadParchmentImage}
+          isParchmentModalOpen={isParchmentModalOpen}
+          isUploadingParchmentImage={isUploadingParchmentImage}
           showFloatingButton={false}
           selectedCharacter={selectedCharacter}
         />
 
-        {error ? <p className={styles.feedbackError}>{error}</p> : null}
-        {success ? <p className={styles.feedbackSuccess}>{success}</p> : null}
         {isCampaignEnded ? (
           <p className={styles.endedBanner}>Campanha encerrada</p>
         ) : null}
