@@ -10,9 +10,9 @@ export {
   getCharacterDetailHandler,
   updateCharacterHandler,
   deleteCharacterHandler,
-  getNpcMonsterCharacterAbilitiesHandler,
-  addNpcMonsterCharacterAbilityHandler,
-  removeNpcMonsterCharacterAbilityHandler,
+  getNpcCreatureCharacterAbilitiesHandler,
+  addNpcCreatureCharacterAbilityHandler,
+  removeNpcCreatureCharacterAbilityHandler,
 } from "./detailAbilityHandlers"
 export {
   createCharacterInventoryHandler,

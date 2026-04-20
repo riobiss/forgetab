@@ -213,7 +213,7 @@ export function validateCharacteristicsPayload(
 }
 
 export function isValidCharacterType(value: unknown): value is CharacterRow["characterType"] {
-  return value === "player" || value === "npc" || value === "monster"
+  return value === "player" || value === "npc" || value === "creature"
 }
 
 export function isValidVisibility(value: unknown): value is CharacterRow["visibility"] {

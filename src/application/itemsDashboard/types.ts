@@ -34,7 +34,7 @@ export type BaseItemDto = {
 export type CharacterSummaryDto = {
   id: string
   name: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
 }
 
 export type GiveItemPayloadDto = {

@@ -10,8 +10,8 @@ const mocks = vi.hoisted(() => ({
   buyCharacterSkillUseCase: vi.fn(),
   removeCharacterSkillUseCase: vi.fn(),
   loadCharacterAbilitiesUseCase: vi.fn(),
-  addNpcMonsterCharacterAbilityUseCase: vi.fn(),
-  removeNpcMonsterCharacterAbilityUseCase: vi.fn(),
+  addNpcCreatureCharacterAbilityUseCase: vi.fn(),
+  removeNpcCreatureCharacterAbilityUseCase: vi.fn(),
   getCharacterInventoryUseCase: vi.fn(),
   removeCharacterInventoryItemApiUseCase: vi.fn(),
   updateCharacterStatusCurrentUseCase: vi.fn(),
@@ -50,9 +50,9 @@ vi.mock("@/application/characters/abilities/use-cases/characterAbilities", () =>
   loadCharacterAbilitiesUseCase: mocks.loadCharacterAbilitiesUseCase,
 }))
 
-vi.mock("@/application/characters/abilities/use-cases/npcMonsterCharacterAbilities", () => ({
-  addNpcMonsterCharacterAbilityUseCase: mocks.addNpcMonsterCharacterAbilityUseCase,
-  removeNpcMonsterCharacterAbilityUseCase: mocks.removeNpcMonsterCharacterAbilityUseCase,
+vi.mock("@/application/characters/abilities/use-cases/npcCreatureCharacterAbilities", () => ({
+  addNpcCreatureCharacterAbilityUseCase: mocks.addNpcCreatureCharacterAbilityUseCase,
+  removeNpcCreatureCharacterAbilityUseCase: mocks.removeNpcCreatureCharacterAbilityUseCase,
 }))
 
 vi.mock("@/application/characters/inventory/use-cases/manageCharacterInventory", () => ({
@@ -148,7 +148,7 @@ describe("characters routes", () => {
         selectedCharacterDetail: null,
         canCreateCharacter: true,
         isOwner: false,
-        canManageNpcMonster: false,
+        canManageNpcCreature: false,
         isAcceptedMember: true,
         ownPlayerCount: 1,
         allowMultiplePlayerCharacters: false,
@@ -178,7 +178,7 @@ describe("characters routes", () => {
       selectedCharacterDetail: null,
       canCreateCharacter: true,
       isOwner: false,
-      canManageNpcMonster: false,
+      canManageNpcCreature: false,
       isAcceptedMember: true,
       ownPlayerCount: 1,
       allowMultiplePlayerCharacters: false,
@@ -662,9 +662,9 @@ describe("characters routes", () => {
     expect(response.json()).toEqual({ message: "Personagem nao encontrado." })
   })
 
-  it("retorna 200 ao adicionar habilidade de npc/monster", async () => {
+  it("retorna 200 ao adicionar habilidade de npc/creature", async () => {
     server = buildApiServer()
-    mocks.addNpcMonsterCharacterAbilityUseCase.mockResolvedValue({
+    mocks.addNpcCreatureCharacterAbilityUseCase.mockResolvedValue({
       message: "Habilidade adicionada com sucesso.",
       ability: { id: "ability-1", name: "Mordida" },
     })
@@ -682,9 +682,9 @@ describe("characters routes", () => {
     })
   })
 
-  it("retorna 200 ao remover habilidade de npc/monster", async () => {
+  it("retorna 200 ao remover habilidade de npc/creature", async () => {
     server = buildApiServer()
-    mocks.removeNpcMonsterCharacterAbilityUseCase.mockResolvedValue({
+    mocks.removeNpcCreatureCharacterAbilityUseCase.mockResolvedValue({
       message: "Habilidade removida com sucesso.",
       removedAbilityId: "ability-1",
     })

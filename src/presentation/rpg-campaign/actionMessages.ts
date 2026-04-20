@@ -18,7 +18,7 @@ export type CharacterRevealActionPayload = {
   combatId?: string | null
   characterId: string
   characterName: string
-  characterType: "npc" | "monster"
+  characterType: "npc" | "creature"
   image: string | null
   sections: CharacterRevealSection[]
 }
@@ -333,7 +333,7 @@ export function parseCharacterRevealAction(content: string): CharacterRevealActi
       parsedContent?.type !== "character_reveal" ||
       typeof parsedContent.characterId !== "string" ||
       typeof parsedContent.characterName !== "string" ||
-      (parsedContent.characterType !== "npc" && parsedContent.characterType !== "monster") ||
+      (parsedContent.characterType !== "npc" && parsedContent.characterType !== "creature") ||
       !Array.isArray(parsedContent.sections)
     ) {
       return null

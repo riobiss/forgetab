@@ -6,7 +6,7 @@ export type CharacterAbilitiesCharacterRow = {
   name: string
   classKey: string | null
   visibility: "private" | "public"
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   createdByUserId: string | null
   abilities: JsonValue
 }

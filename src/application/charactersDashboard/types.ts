@@ -1,13 +1,13 @@
 import type { CharacterEditorBootstrapDto } from "@/application/charactersEditor/types"
 import type { CharacterDetailViewModel } from "@/application/charactersDetail/types"
 
-export type CharactersDashboardFilterType = "all" | "player" | "npc" | "monster"
+export type CharactersDashboardFilterType = "all" | "player" | "npc" | "creature"
 
 export type CharacterDashboardCardDto = {
   id: string
   name: string
   image: string | null
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   createdByUserId: string | null
 }
 
@@ -28,7 +28,7 @@ export type CharactersDashboardViewModel = {
   selectedCharacterDetail: CharacterDetailViewModel | null
   canCreateCharacter: boolean
   isOwner: boolean
-  canManageNpcMonster: boolean
+  canManageNpcCreature: boolean
   isAcceptedMember: boolean
   ownPlayerCount: number
   allowMultiplePlayerCharacters: boolean

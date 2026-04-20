@@ -6,7 +6,7 @@ import type {
   LoadCharacterDetailResult,
 } from "@/application/charactersDetail/types"
 import {
-  buildNpcMonsterTextSections,
+  buildNpcCreatureTextSections,
   getProgressionLevelDisplay,
   normalizeLegacyStatusKeys,
   toLabeledEntries,
@@ -207,7 +207,7 @@ export async function loadCharacterDetailUseCase(
       value: Number(value),
     }))
 
-  const textSections = buildNpcMonsterTextSections({
+  const textSections = buildNpcCreatureTextSections({
     rpgId: params.rpgId,
     rowName: row.name,
     characterType: row.characterType,

@@ -18,7 +18,7 @@ export type CharacterOptionDto = {
   label: string
 }
 
-export type CharacterEditorCharacterTypeDto = "player" | "npc" | "monster"
+export type CharacterEditorCharacterTypeDto = "player" | "npc" | "creature"
 export type CharacterEditorVisibilityDto = "private" | "public"
 
 export type CharacterEditorSummaryDto = {

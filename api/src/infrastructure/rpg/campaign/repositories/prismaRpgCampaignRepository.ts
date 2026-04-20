@@ -718,7 +718,7 @@ export const prismaRpgCampaignRepository: RpgCampaignRepository = {
       INNER JOIN rpg_campaigns c ON c.rpg_id = ch.rpg_id
       WHERE c.id = ${params.campaignId}
         AND ch.id = ${params.sourceCharacterId}
-        AND ch.character_type = 'monster'::"public"."RpgCharacterType"
+        AND ch.character_type = 'creature'::"public"."RpgCharacterType"
       LIMIT 1
     `)
 

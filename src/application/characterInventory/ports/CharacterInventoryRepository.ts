@@ -13,7 +13,7 @@ export type CharacterInventoryMembershipRow = {
 export type CharacterInventoryCharacterRow = {
   id: string
   name: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   createdByUserId: string | null
 }
 

@@ -1,9 +1,9 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import { loadCharacterAbilitiesUseCase } from "@/application/characters/abilities/use-cases/characterAbilities"
 import {
-  addNpcMonsterCharacterAbilityUseCase,
-  removeNpcMonsterCharacterAbilityUseCase,
-} from "@/application/characters/abilities/use-cases/npcMonsterCharacterAbilities"
+  addNpcCreatureCharacterAbilityUseCase,
+  removeNpcCreatureCharacterAbilityUseCase,
+} from "@/application/characters/abilities/use-cases/npcCreatureCharacterAbilities"
 import {
   buyCharacterSkillUseCase,
   removeCharacterSkillUseCase,
@@ -194,7 +194,7 @@ export async function deleteCharacterHandler(
   }
 }
 
-export async function getNpcMonsterCharacterAbilitiesHandler(
+export async function getNpcCreatureCharacterAbilitiesHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
   reply: FastifyReply,
 ) {
@@ -233,7 +233,7 @@ export async function getNpcMonsterCharacterAbilitiesHandler(
   }
 }
 
-export async function addNpcMonsterCharacterAbilityHandler(
+export async function addNpcCreatureCharacterAbilityHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
   reply: FastifyReply,
 ) {
@@ -243,8 +243,8 @@ export async function addNpcMonsterCharacterAbilityHandler(
       return auth.response
     }
 
-    const payload = await addNpcMonsterCharacterAbilityUseCase(
-      { service: characterRouteDeps.npcMonsterCharacterAbilityService },
+    const payload = await addNpcCreatureCharacterAbilityUseCase(
+      { service: characterRouteDeps.npcCreatureCharacterAbilityService },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
@@ -259,7 +259,7 @@ export async function addNpcMonsterCharacterAbilityHandler(
   }
 }
 
-export async function removeNpcMonsterCharacterAbilityHandler(
+export async function removeNpcCreatureCharacterAbilityHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
   reply: FastifyReply,
 ) {
@@ -269,8 +269,8 @@ export async function removeNpcMonsterCharacterAbilityHandler(
       return auth.response
     }
 
-    const payload = await removeNpcMonsterCharacterAbilityUseCase(
-      { service: characterRouteDeps.npcMonsterCharacterAbilityService },
+    const payload = await removeNpcCreatureCharacterAbilityUseCase(
+      { service: characterRouteDeps.npcCreatureCharacterAbilityService },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,

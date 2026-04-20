@@ -4,7 +4,7 @@ import type { RpgCampaignRoomViewModel } from "@/application/rpgCampaign/types"
 import modalStyles from "./OwnerCharacterPickerModal.module.css"
 import styles from "./RpgCampaignRoomPage.module.css"
 
-export type OwnerCharacterPickerMode = "player" | "npc" | "monster"
+export type OwnerCharacterPickerMode = "player" | "npc" | "creature"
 
 type Props = {
   characters: DashboardCharacterSummary[]
@@ -48,7 +48,7 @@ export function OwnerCharacterPickerModal({
       ? "Players na partida"
       : mode === "npc"
         ? "NPCs"
-        : mode === "monster"
+        : mode === "creature"
           ? "Criaturas"
           : "Escolha o tipo"
 
@@ -95,8 +95,8 @@ export function OwnerCharacterPickerModal({
           </button>
           <button
             type="button"
-            className={`${modalStyles.modeButton} ${mode === "monster" ? modalStyles.modeButtonActive : ""}`}
-            onClick={() => onSelectMode("monster")}
+            className={`${modalStyles.modeButton} ${mode === "creature" ? modalStyles.modeButtonActive : ""}`}
+            onClick={() => onSelectMode("creature")}
           >
             Criatura
           </button>

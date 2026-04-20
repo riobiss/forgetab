@@ -8,6 +8,6 @@ export {
   removeCharacterAbilityUseCase,
 } from "@/application/characterAbilities/use-cases/characterAbilities"
 export {
-  addNpcMonsterCharacterAbilityUseCase,
-  removeNpcMonsterCharacterAbilityUseCase,
-} from "@/application/characterAbilities/use-cases/npcMonsterCharacterAbilities"
+  addNpcCreatureCharacterAbilityUseCase,
+  removeNpcCreatureCharacterAbilityUseCase,
+} from "@/application/characterAbilities/use-cases/npcCreatureCharacterAbilities"

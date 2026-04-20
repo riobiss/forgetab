@@ -17,7 +17,7 @@ import type {
 const CHARACTER_TYPE_LABEL: Record<CharacterEditorCharacterTypeDto, string> = {
   player: "Player",
   npc: "NPC",
-  monster: "Criatura",
+  creature: "Criatura",
 }
 
 type Props = {
@@ -205,7 +205,7 @@ export default function CharacterEditorIdentitySection({
             >
               <option value="player">Player</option>
               <option value="npc">NPC</option>
-              <option value="monster">Criatura</option>
+              <option value="creature">Criatura</option>
             </NativeSelectField>
           )}
         </label>

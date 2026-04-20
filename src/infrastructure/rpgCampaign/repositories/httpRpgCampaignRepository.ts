@@ -16,7 +16,7 @@ type ErrorPayload = {
 export type CampaignCreatureOption = {
   id: string
   name: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   progressionCurrent?: number
   statuses?: unknown
   attributes?: unknown
@@ -311,7 +311,7 @@ export const httpRpgCampaignRepository = {
       cache: "no-store",
     })
     const payload = await parseJsonResponse<{ characters?: CampaignCreatureOption[] }>(response)
-    return (payload.characters ?? []).filter((character) => character.characterType === "monster")
+    return (payload.characters ?? []).filter((character) => character.characterType === "creature")
   },
   async fetchCombatItemOptions(rpgId: string) {
     const response = await apiFetch(`/api/rpg/${rpgId}/items`, {

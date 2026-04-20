@@ -8,7 +8,7 @@ import { Pencil, Plus, Search, Star } from "lucide-react"
 import type { CharactersDashboardViewModel } from "@/application/charactersDashboard/types"
 import CharacterCreationPermission from "./components/CharacterCreationPermission"
 import CharacterDetailModal from "./components/CharacterDetailModal"
-import NpcMonsterCharacterModal from "./components/NpcMonsterCharacterModal"
+import NpcCreatureCharacterModal from "./components/NpcCreatureCharacterModal"
 import PlayerCharacterModal from "./components/PlayerCharacterModal"
 import styles from "./CharactersDashboardPage.module.css"
 
@@ -25,15 +25,15 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
   const [favoritesOnly, setFavoritesOnly] = useState(false)
   const [modalState, setModalState] = useState<{
     mode: "create" | "edit"
-    characterType: "npc" | "monster"
+    characterType: "npc" | "creature"
     characterId?: string | null
   } | null>(null)
   const deferredSearch = useDeferredValue(search)
   const favoriteStorageKey = `characters:favorites:${data.rpgId}`
 
-  const isNpcOrMonsterFilter = data.filterType === "npc" || data.filterType === "monster"
+  const isNpcOrCreatureFilter = data.filterType === "npc" || data.filterType === "creature"
   const canShowCreateButton =
-    isNpcOrMonsterFilter ? data.canCreateCharacter && data.canManageNpcMonster : data.canCreateCharacter
+    isNpcOrCreatureFilter ? data.canCreateCharacter && data.canManageNpcCreature : data.canCreateCharacter
   const modal = searchParams.get("modal")
   const editor = searchParams.get("editor")
   const viewer = searchParams.get("viewer")
@@ -56,9 +56,9 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
     router.push(next ? `${pathname}?${next}` : pathname)
   }
 
-  const openNpcMonsterModal = (next: {
+  const openNpcCreatureModal = (next: {
     mode: "create" | "edit"
-    characterType: "npc" | "monster"
+    characterType: "npc" | "creature"
     characterId?: string | null
   }) => {
     setModalState(next)
@@ -136,7 +136,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
       acc[character.characterType] += 1
       return acc
     },
-    { all: 0, player: 0, npc: 0, monster: 0 },
+    { all: 0, player: 0, npc: 0, creature: 0 },
   )
 
   return (
@@ -159,14 +159,14 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
                 <Star size={18} fill={favoritesOnly ? "currentColor" : "none"} />
               </button>
               {canShowCreateButton ? (
-                isNpcOrMonsterFilter ? (
+                isNpcOrCreatureFilter ? (
                   <button
                     type="button"
                     className={`${styles.iconButton} ${styles.createButton}`}
                     onClick={() =>
                       setModalState({
                         mode: "create",
-                        characterType: data.filterType === "monster" ? "monster" : "npc",
+                        characterType: data.filterType === "creature" ? "creature" : "npc",
                       })
                     }
                     aria-label="Criar personagem"
@@ -225,8 +225,8 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
             NPC
           </Link>
           <Link
-            href={`/rpg/${data.rpgId}/characters?type=monster`}
-            className={`${styles.filterButton} ${data.filterType === "monster" ? styles.filterActive : ""}`}
+            href={`/rpg/${data.rpgId}/characters?type=creature`}
+            className={`${styles.filterButton} ${data.filterType === "creature" ? styles.filterActive : ""}`}
           >
             Criatura
           </Link>
@@ -273,16 +273,16 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
                 >
                   <Star size={16} fill={favoriteIdSet.has(character.id) ? "currentColor" : "none"} />
                 </button>
-                {data.canManageNpcMonster ? (
-                  character.characterType === "npc" || character.characterType === "monster" ? (
+                {data.canManageNpcCreature ? (
+                  character.characterType === "npc" || character.characterType === "creature" ? (
                     <button
                       type="button"
                       className={styles.editFab}
                       onClick={() =>
-                        openNpcMonsterModal({
+                        openNpcCreatureModal({
                           mode: "edit",
                           characterType:
-                            character.characterType === "monster" ? "monster" : "npc",
+                            character.characterType === "creature" ? "creature" : "npc",
                           characterId: character.id,
                         })
                       }
@@ -346,7 +346,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
       ) : null}
 
       {modalState ? (
-        <NpcMonsterCharacterModal
+        <NpcCreatureCharacterModal
           rpgId={data.rpgId}
           isOpen
           mode={modalState.mode}
@@ -369,10 +369,10 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
 
       {selectedCharacterDetail &&
       (selectedCharacterDetail.characterType === "npc" ||
-        selectedCharacterDetail.characterType === "monster") ? (
+        selectedCharacterDetail.characterType === "creature") ? (
         <CharacterDetailModal
           data={selectedCharacterDetail}
-          onEditNpcMonster={({ characterId, characterType }) => {
+          onEditNpcCreature={({ characterId, characterType }) => {
             const params = new URLSearchParams(searchParams.toString())
             params.delete("modal")
             params.delete("viewer")

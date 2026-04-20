@@ -4,30 +4,30 @@ import { useEffect, useMemo, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import type { CharacterDetailViewModel } from "@/application/charactersDetail/types"
 import {
-  loadNpcMonsterAbilitiesUseCase,
-  loadNpcMonsterInventoryUseCase,
+  loadNpcCreatureAbilitiesUseCase,
+  loadNpcCreatureInventoryUseCase,
   type CharacterInventoryItemDto,
   type PurchasedAbilityViewDto,
 } from "@/application/characters/loadout"
 import InventoryCards from "@/presentation/character-inventory/components/InventoryCards"
 import { toInventoryCardItem } from "@/presentation/character-inventory/utils"
 import AbilitiesFiltersClient from "@/presentation/character-abilities/AbilitiesFiltersClient"
-import { createHttpNpcMonsterCharacterAbilitiesGateway } from "@/infrastructure/characterAbilities/gateways/httpNpcMonsterCharacterAbilitiesGateway"
-import { createNpcMonsterLoadoutDependencies } from "@/presentation/characters/loadout"
+import { createHttpNpcCreatureCharacterAbilitiesGateway } from "@/infrastructure/characterAbilities/gateways/httpNpcCreatureCharacterAbilitiesGateway"
+import { createNpcCreatureLoadoutDependencies } from "@/presentation/characters/loadout"
 import CharacterDetailPage from "@/presentation/characters-detail/CharacterDetailPage"
 import styles from "../CharactersDashboardPage.module.css"
 
 type Props = {
   data: CharacterDetailViewModel
-  onEditNpcMonster: (params: {
+  onEditNpcCreature: (params: {
     characterId: string
-    characterType: "npc" | "monster"
+    characterType: "npc" | "creature"
   }) => void
 }
 
-const loadoutDeps = createNpcMonsterLoadoutDependencies("http")
+const loadoutDeps = createNpcCreatureLoadoutDependencies("http")
 
-export default function CharacterDetailModal({ data, onEditNpcMonster }: Props) {
+export default function CharacterDetailModal({ data, onEditNpcCreature }: Props) {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -41,7 +41,7 @@ export default function CharacterDetailModal({ data, onEditNpcMonster }: Props) 
   const canInspectLoadout =
     data.characterType !== "player" && data.canEditCharacter
   const abilityDeps = useMemo(
-    () => ({ gateway: createHttpNpcMonsterCharacterAbilitiesGateway(data.rpgId) }),
+    () => ({ gateway: createHttpNpcCreatureCharacterAbilitiesGateway(data.rpgId) }),
     [data.rpgId],
   )
 
@@ -77,11 +77,11 @@ export default function CharacterDetailModal({ data, onEditNpcMonster }: Props) 
         setAbilitiesError("")
 
         const [inventoryResult, abilitiesResult] = await Promise.allSettled([
-          loadNpcMonsterInventoryUseCase(loadoutDeps, {
+          loadNpcCreatureInventoryUseCase(loadoutDeps, {
             rpgId: data.rpgId,
             characterId: data.characterId,
           }),
-          loadNpcMonsterAbilitiesUseCase(loadoutDeps, {
+          loadNpcCreatureAbilitiesUseCase(loadoutDeps, {
             rpgId: data.rpgId,
             characterId: data.characterId,
           }),
@@ -176,6 +176,12 @@ export default function CharacterDetailModal({ data, onEditNpcMonster }: Props) 
           data={data}
           presentation="modal"
           onClose={handleClose}
+          onEdit={() =>
+            onEditNpcCreature({
+              characterId: data.characterId,
+              characterType: data.characterType === "creature" ? "creature" : "npc",
+            })
+          }
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={(tabKey) => {

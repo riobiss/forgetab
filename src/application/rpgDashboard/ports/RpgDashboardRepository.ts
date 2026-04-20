@@ -24,7 +24,7 @@ export type CountRow = {
 export type SpectatorCharacterRow = {
   id: string
   name: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   life: number
   mana: number
   sanity: number

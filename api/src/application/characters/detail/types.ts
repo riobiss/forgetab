@@ -9,7 +9,7 @@ export type CharacterDetailRowDto = {
   classKey: string | null
   skillPoints: number
   costResourceName: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   visibility: "private" | "public"
   progressionMode: string
   progressionLabel: string
@@ -81,7 +81,7 @@ export type CharacterDetailViewModel = {
   characterId: string
   displayName: string
   image: string | null
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   canEditCharacter: boolean
   skillPoints: number
   costResourceName: string

@@ -14,7 +14,7 @@ import {
 import type { CharactersCollectionRouteParams, CharactersDashboardQuery } from "./routeTypes"
 
 function normalizeFilterType(value?: string) {
-  return value === "player" || value === "npc" || value === "monster" ? value : "all"
+  return value === "player" || value === "npc" || value === "creature" ? value : "all"
 }
 
 export async function getCharactersDashboardHandler(

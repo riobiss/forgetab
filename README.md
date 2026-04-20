@@ -46,9 +46,9 @@ A proposta é ser uma plataforma leve e versátil, porque a maior parte dos usu�
 
 ### 3) Personagens
 
-- Dashboard com filtros por `player`, `npc` e `monster`
+- Dashboard com filtros por `player`, `npc` e `creature`
 - Criacao e edicao de player em fluxo dedicado
-- Criacao e edicao de `npc` e `monster` em modal
+- Criacao e edicao de `npc` e `creature` em modal
 - Visualizacao detalhada de personagem em modal
 - Favoritos locais para acesso rapido no dashboard
 - Permissao para criacao de personagem via solicitacao ao mestre
@@ -76,7 +76,7 @@ A proposta é ser uma plataforma leve e versátil, porque a maior parte dos usu�
 - Campos de combate e progressao
 - Compra e gerenciamento de habilidades por personagem
 - Pagina dedicada para habilidades de personagem
-- Suporte a habilidades para player, npc e monster
+- Suporte a habilidades para player, npc e creature
 
 ### 6) Itens e inventario
 
@@ -84,7 +84,7 @@ A proposta é ser uma plataforma leve e versátil, porque a maior parte dos usu�
 - Entrega de item para personagens com quantidade
 - Inventario por personagem com operacoes de adicionar/remover
 - Paginas dedicadas para itens e inventario da ficha
-- Suporte de loadout para npc e monster em evolucao
+- Suporte de loadout para npc e creature em evolucao
 
 ### 7) Biblioteca e lore
 

@@ -14,7 +14,7 @@ type CreateCharacterRowInput = {
   image: string | null
   raceKey: string | null
   classKey: string | null
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   visibility: "private" | "public"
   maxCarryWeight: number | null
   progressionMode: string

@@ -15,7 +15,7 @@ export type CharacterPermission = {
   progressionMode: ProgressionMode
   progressionTiers: ProgressionTier[]
   currentName: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   currentSkills: JsonValue
   currentCurrentStatuses: JsonValue
   currentIdentity: JsonValue

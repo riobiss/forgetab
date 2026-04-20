@@ -21,7 +21,7 @@ type CanManageCharacterResult =
       progressionMode: ProgressionMode
       progressionTiers: Array<{ label: string; required: number }>
       currentName: string
-      characterType: "player" | "npc" | "monster"
+      characterType: "player" | "npc" | "creature"
       currentSkills: Prisma.JsonValue
       currentCurrentStatuses: Prisma.JsonValue
       currentIdentity: Prisma.JsonValue
@@ -95,7 +95,7 @@ export async function canManageCharacter(
     Array<{
       id: string
       name: string
-      characterType: "player" | "npc" | "monster"
+      characterType: "player" | "npc" | "creature"
       createdByUserId: string | null
       skills: Prisma.JsonValue
       currentStatuses: Prisma.JsonValue

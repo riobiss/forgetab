@@ -1,1 +1,1 @@
-export { createNpcMonsterLoadoutDependencies } from "@/presentation/npc-monster-loadout/dependencies"
+export { createNpcCreatureLoadoutDependencies } from "@/presentation/npc-creature-loadout/dependencies"

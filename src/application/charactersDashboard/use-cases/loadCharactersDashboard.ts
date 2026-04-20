@@ -65,7 +65,7 @@ export async function loadCharactersDashboardUseCase(
       selectedCharacterDetail: params.selectedCharacterDetail ?? null,
       canCreateCharacter: Boolean(params.userId && (isOwner || isAcceptedMember)),
       isOwner,
-      canManageNpcMonster: isOwner || isModerator,
+      canManageNpcCreature: isOwner || isModerator,
       isAcceptedMember,
       ownPlayerCount,
       allowMultiplePlayerCharacters: Boolean(rpg.allowMultiplePlayerCharacters),

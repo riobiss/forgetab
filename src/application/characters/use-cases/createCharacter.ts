@@ -43,7 +43,7 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
     }
 
     if (!isValidCharacterType(input.payload.characterType)) {
-      fail(400, "Tipo invalido. Use player, npc ou monster.")
+      fail(400, "Tipo invalido. Use player, npc ou creature.")
     }
 
     if (input.payload.visibility !== undefined && !isValidVisibility(input.payload.visibility)) {

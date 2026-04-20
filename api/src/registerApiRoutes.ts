@@ -22,14 +22,14 @@ import {
   getCharacterByIdHandler,
   getCharactersDashboardHandler,
   getCharacterInventoryHandler,
-  getNpcMonsterCharacterAbilitiesHandler,
+  getNpcCreatureCharacterAbilitiesHandler,
   grantCharacterPointsHandler,
   grantCharacterXpHandler,
   listCharactersHandler,
   removeCharacterInventoryHandler,
   removeCharacterSkillHandler,
-  removeNpcMonsterCharacterAbilityHandler,
-  addNpcMonsterCharacterAbilityHandler,
+  removeNpcCreatureCharacterAbilityHandler,
+  addNpcCreatureCharacterAbilityHandler,
   updateCharacterHandler,
   updateCharacterStatusCurrentHandler,
 } from "@api/presentation/routes/characters/handlers"
@@ -665,19 +665,19 @@ export function registerApiRoutes(app: FastifyInstance) {
     ),
   )
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId/characters/:characterId/abilities", (request, reply) =>
-    getNpcMonsterCharacterAbilitiesHandler(
+    getNpcCreatureCharacterAbilitiesHandler(
       request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
       reply,
     ),
   )
   registerFastifyRoute(app, "post", "/api/rpg/:rpgId/characters/:characterId/abilities", (request, reply) =>
-    addNpcMonsterCharacterAbilityHandler(
+    addNpcCreatureCharacterAbilityHandler(
       request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
       reply,
     ),
   )
   registerFastifyRoute(app, "delete", "/api/rpg/:rpgId/characters/:characterId/abilities", (request, reply) =>
-    removeNpcMonsterCharacterAbilityHandler(
+    removeNpcCreatureCharacterAbilityHandler(
       request as FastifyRequest<{ Params: { rpgId: string; characterId: string } }>,
       reply,
     ),

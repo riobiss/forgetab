@@ -4,7 +4,7 @@ export type DashboardCharacterSummary = {
   image?: string | null
   classKey: string | null
   classLabel?: string | null
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   createdByUserId?: string | null
 }
 

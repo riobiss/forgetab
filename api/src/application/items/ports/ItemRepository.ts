@@ -75,7 +75,7 @@ export type GiveItemInput = {
 export type ItemCharacterSummary = {
   id: string
   name: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
 }
 
 export interface ItemRepository {

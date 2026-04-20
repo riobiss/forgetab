@@ -3,7 +3,7 @@ import type { Prisma } from "../../../../generated/prisma/client.js"
 export type CharacterProgressionSummary = {
   id: string
   rpgId: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   progressionMode?: string
   progressionTiers?: Prisma.JsonValue
   progressionCurrent?: number

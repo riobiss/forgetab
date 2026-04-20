@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import styles from "../RpgDashboardPage.module.css"
 
-type CharacterType = "player" | "npc" | "monster"
+type CharacterType = "player" | "npc" | "creature"
 type DetailTab = "attributes" | "skills" | "status"
 
 type StatusItem = {
@@ -32,7 +32,7 @@ type Props = {
 
 const CATEGORY_OPTIONS: Array<{ key: CharacterType; label: string }> = [
   { key: "player", label: "Players" },
-  { key: "monster", label: "Criaturas" },
+  { key: "creature", label: "Criaturas" },
   { key: "npc", label: "Npc" },
 ]
 

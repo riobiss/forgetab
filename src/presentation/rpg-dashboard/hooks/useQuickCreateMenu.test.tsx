@@ -23,7 +23,7 @@ function createDeps(): RpgDashboardDependencies {
             id: "char-2",
             name: "Goblin",
             classKey: null,
-            characterType: "monster",
+            characterType: "creature",
           },
         ],
       }),

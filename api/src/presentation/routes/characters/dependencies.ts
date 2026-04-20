@@ -2,7 +2,7 @@ import { loadCharacterEditorBootstrapServerUseCase } from "@/application/charact
 import { loadCharacterDetailUseCase } from "@/application/characters/detail/use-cases/loadCharacterDetail"
 import { prismaCharacterAbilitiesRepository } from "@/infrastructure/characters/abilities/repositories/prismaCharacterAbilitiesRepository"
 import { characterAbilitiesParserService } from "@/infrastructure/characters/abilities/services/characterAbilitiesParserService"
-import { npcMonsterCharacterAbilityService } from "@/infrastructure/characters/abilities/services/npcMonsterCharacterAbilityService"
+import { npcCreatureCharacterAbilityService } from "@/infrastructure/characters/abilities/services/npcCreatureCharacterAbilityService"
 import { characterSkillPurchaseService } from "@/infrastructure/characters/abilities/services/characterSkillPurchaseService"
 import { prismaCharacterInventoryRepository } from "@/infrastructure/characters/inventory/repositories/prismaCharacterInventoryRepository"
 import { prismaCharacterProgressionRepository } from "@/infrastructure/characters/progression/repositories/prismaCharacterProgressionRepository"
@@ -22,7 +22,7 @@ import { rpgConfigAccessService } from "@/infrastructure/rpg/config/services/rpg
 export const characterRouteDeps = {
   abilitiesRepository: prismaCharacterAbilitiesRepository,
   abilitiesParserService: characterAbilitiesParserService,
-  npcMonsterCharacterAbilityService,
+  npcCreatureCharacterAbilityService,
   characterSkillPurchaseService,
   characterInventoryRepository: prismaCharacterInventoryRepository,
   characterProgressionRepository: prismaCharacterProgressionRepository,
@@ -43,7 +43,7 @@ export const characterRouteDeps = {
 export async function loadCharactersDashboardContext(params: {
   rpgId: string
   userId: string | null
-  filterType: "player" | "npc" | "monster" | "all"
+  filterType: "player" | "npc" | "creature" | "all"
   modal?: string
   viewer?: string
   characterId?: string

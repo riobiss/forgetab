@@ -30,7 +30,7 @@ export type BaseItem = {
 export type CharacterSummary = {
   id: string
   name: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
 }
 
 export type ApiListPayload = {

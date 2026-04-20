@@ -23,7 +23,7 @@ export type SpectatorStatusItem = {
 export type SpectatorCharacterSummary = {
   id: string
   name: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   statusItems: SpectatorStatusItem[]
   attributes: Record<string, number>
   skills: Record<string, number>

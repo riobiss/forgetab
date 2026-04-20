@@ -2,7 +2,7 @@ export type DashboardCharacterSummary = {
   id: string
   name: string
   classKey: string | null
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   createdByUserId?: string | null
 }
 

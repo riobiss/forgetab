@@ -72,7 +72,7 @@ describe("rpgDashboardActions use-cases", () => {
           id: "c2",
           name: "Goblin",
           classKey: null,
-          characterType: "monster",
+          characterType: "creature",
         },
       ],
       classes: [{ key: "mage", label: "Maga" }],

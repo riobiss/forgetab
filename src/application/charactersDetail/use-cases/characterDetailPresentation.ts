@@ -1,11 +1,11 @@
 import {
-  getNpcMonsterClassLabel,
-  getNpcMonsterNarrativeStatus,
-  getNpcMonsterRaceLabel,
-  getNpcMonsterSecretFieldKeys,
-  NPC_MONSTER_CHARACTERISTIC_KEYS,
-  NPC_MONSTER_IDENTITY_KEYS,
-} from "@/application/characters/npcMonster"
+  getNpcCreatureClassLabel,
+  getNpcCreatureNarrativeStatus,
+  getNpcCreatureRaceLabel,
+  getNpcCreatureSecretFieldKeys,
+  NPC_CREATURE_CHARACTERISTIC_KEYS,
+  NPC_CREATURE_IDENTITY_KEYS,
+} from "@/application/characters/npcCreature"
 import type {
   CharacterDetailIdentityItemDto,
   CharacterDetailLabeledValueDto,
@@ -63,13 +63,13 @@ function maskIfSecret(value: string, shouldMask: boolean) {
 
 function mapIdentityItemToSecretKey(key: string): string | null {
   const normalizedKey = key.trim().toLowerCase()
-  if (normalizedKey === "race-free" || normalizedKey === NPC_MONSTER_IDENTITY_KEYS.raceLabel) {
+  if (normalizedKey === "race-free" || normalizedKey === NPC_CREATURE_IDENTITY_KEYS.raceLabel) {
     return "raceLabel"
   }
-  if (normalizedKey === "class-free" || normalizedKey === NPC_MONSTER_IDENTITY_KEYS.classLabel) {
+  if (normalizedKey === "class-free" || normalizedKey === NPC_CREATURE_IDENTITY_KEYS.classLabel) {
     return "classLabel"
   }
-  if (normalizedKey === NPC_MONSTER_IDENTITY_KEYS.titleNickname || normalizedKey.includes("apelido")) {
+  if (normalizedKey === NPC_CREATURE_IDENTITY_KEYS.titleNickname || normalizedKey.includes("apelido")) {
     return "titleNickname"
   }
   if (normalizedKey === "nome" || normalizedKey === "name") {
@@ -79,10 +79,10 @@ function mapIdentityItemToSecretKey(key: string): string | null {
 }
 
 function mapCharacteristicItemToSecretKey(key: string): string | null {
-  if (key === NPC_MONSTER_CHARACTERISTIC_KEYS.description || key === "description") {
+  if (key === NPC_CREATURE_CHARACTERISTIC_KEYS.description || key === "description") {
     return "description"
   }
-  if (key === NPC_MONSTER_CHARACTERISTIC_KEYS.narrativeStatus) {
+  if (key === NPC_CREATURE_CHARACTERISTIC_KEYS.narrativeStatus) {
     return "narrativeStatus"
   }
   return `extra:${key}`
@@ -90,7 +90,7 @@ function mapCharacteristicItemToSecretKey(key: string): string | null {
 
 function getCharacteristicItemLabel(item: CharacterDetailIdentityItemDto) {
   if (
-    item.key === NPC_MONSTER_CHARACTERISTIC_KEYS.description ||
+    item.key === NPC_CREATURE_CHARACTERISTIC_KEYS.description ||
     item.key === "description" ||
     item.key === "descricao-curta"
   ) {
@@ -143,8 +143,8 @@ export function toIdentityItems(
       .filter(
         ([key]) =>
           !templateKeys.has(key) &&
-          key !== NPC_MONSTER_IDENTITY_KEYS.raceLabel &&
-          key !== NPC_MONSTER_IDENTITY_KEYS.classLabel,
+          key !== NPC_CREATURE_IDENTITY_KEYS.raceLabel &&
+          key !== NPC_CREATURE_IDENTITY_KEYS.classLabel,
       )
       .map(([key, value]) => ({
         key,
@@ -162,10 +162,10 @@ export function toIdentityItems(
   }))
 }
 
-type BuildNpcMonsterTextSectionsParams = {
+type BuildNpcCreatureTextSectionsParams = {
   rpgId: string
   rowName: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   raceKey: string | null
   classKey: string | null
   identity: Record<string, string>
@@ -178,16 +178,16 @@ type BuildNpcMonsterTextSectionsParams = {
   classTemplateIdByKey: Map<string, string>
 }
 
-export function buildNpcMonsterTextSections(params: BuildNpcMonsterTextSectionsParams) {
-  const secretFieldKeys = new Set<string>(getNpcMonsterSecretFieldKeys(params.characteristics))
+export function buildNpcCreatureTextSections(params: BuildNpcCreatureTextSectionsParams) {
+  const secretFieldKeys = new Set<string>(getNpcCreatureSecretFieldKeys(params.characteristics))
   const shouldMaskSecretFields =
     params.characterType !== "player" &&
-    getNpcMonsterNarrativeStatus(params.characteristics) === "secreto" &&
+    getNpcCreatureNarrativeStatus(params.characteristics) === "secreto" &&
     !params.canEditCharacter
 
   const identityItems = toIdentityItems(params.identity, params.identityTemplateFields)
-  const freeRaceLabel = getNpcMonsterRaceLabel(params.identity)
-  const freeClassLabel = getNpcMonsterClassLabel(params.identity)
+  const freeRaceLabel = getNpcCreatureRaceLabel(params.identity)
+  const freeClassLabel = getNpcCreatureClassLabel(params.identity)
   const identityItemsWithRaceClass = [
     ...identityItems,
     ...(params.raceKey
@@ -225,7 +225,7 @@ export function buildNpcMonsterTextSections(params: BuildNpcMonsterTextSectionsP
   }))
 
   const characteristicItems = toIdentityItems(params.characteristics, params.characteristicTemplateFields)
-    .filter((item) => item.key !== NPC_MONSTER_CHARACTERISTIC_KEYS.secretFields)
+    .filter((item) => item.key !== NPC_CREATURE_CHARACTERISTIC_KEYS.secretFields)
     .map((item) => ({
       ...item,
       label: getCharacteristicItemLabel(item),

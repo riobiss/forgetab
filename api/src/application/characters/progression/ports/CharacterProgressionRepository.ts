@@ -3,7 +3,7 @@ import type { JsonValue } from "@/application/shared/json"
 export type CharacterProgressionSummary = {
   id: string
   rpgId: string
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   progressionMode?: string
   progressionTiers?: JsonValue
   progressionCurrent?: number

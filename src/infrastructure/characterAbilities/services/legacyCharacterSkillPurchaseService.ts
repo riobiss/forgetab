@@ -11,7 +11,7 @@ type CharacterLockedRow = {
   createdByUserId: string | null
   raceKey: string | null
   classKey: string | null
-  characterType: "player" | "npc" | "monster"
+  characterType: "player" | "npc" | "creature"
   skillPoints: number
   abilities: Prisma.JsonValue
   costsEnabled: boolean
