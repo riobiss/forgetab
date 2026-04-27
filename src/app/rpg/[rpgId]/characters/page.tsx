@@ -19,7 +19,7 @@ type Params = {
 }
 
 function normalizeFilterType(value?: string): CharactersDashboardFilterType {
-  return value === "player" || value === "npc" || value === "creature" ? value : "all"
+  return value === "player" || value === "npc" ? value : "all"
 }
 
 export default async function CharactersPage({ params, searchParams }: Params) {

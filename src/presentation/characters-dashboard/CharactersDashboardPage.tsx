@@ -31,7 +31,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
   const deferredSearch = useDeferredValue(search)
   const favoriteStorageKey = `characters:favorites:${data.rpgId}`
 
-  const isNpcOrCreatureFilter = data.filterType === "npc" || data.filterType === "creature"
+  const isNpcOrCreatureFilter = data.filterType === "npc"
   const canShowCreateButton =
     isNpcOrCreatureFilter ? data.canCreateCharacter && data.canManageNpcCreature : data.canCreateCharacter
   const modal = searchParams.get("modal")
@@ -166,7 +166,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
                     onClick={() =>
                       setModalState({
                         mode: "create",
-                        characterType: data.filterType === "creature" ? "creature" : "npc",
+                        characterType: "npc",
                       })
                     }
                     aria-label="Criar personagem"
@@ -223,12 +223,6 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
             className={`${styles.filterButton} ${data.filterType === "npc" ? styles.filterActive : ""}`}
           >
             NPC
-          </Link>
-          <Link
-            href={`/rpg/${data.rpgId}/characters?type=creature`}
-            className={`${styles.filterButton} ${data.filterType === "creature" ? styles.filterActive : ""}`}
-          >
-            Criatura
           </Link>
         </div>
 

@@ -77,7 +77,7 @@ export const prismaCharactersDashboardRepository: CharactersDashboardRepository 
         ${
           filterType !== "all"
             ? Prisma.sql`AND character_type = ${filterType}::"RpgCharacterType"`
-            : Prisma.empty
+            : Prisma.sql`AND character_type <> 'creature'::"RpgCharacterType"`
         }
       ORDER BY created_at DESC
     `)

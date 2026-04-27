@@ -113,6 +113,13 @@ export function RpgDashboardPage({ viewModel }: { viewModel: RpgDashboardViewMod
             <span>Personagens</span>
           </Link>
 
+          {viewModel.canManageRpg ? (
+            <Link href={`/rpg/${viewModel.rpg.id}/creatures`} className={styles.card}>
+              <Image src="/images/bg-characters.jpg" alt="Criaturas" fill className={styles.cardImage} />
+              <span>Criaturas</span>
+            </Link>
+          ) : null}
+
           {viewModel.hasRaces ? (
             <Link href={`/rpg/${viewModel.rpg.id}/races`} className={styles.card}>
               <Image src="/images/bg-races.jpg" alt="Racas" fill className={styles.cardImage} />
