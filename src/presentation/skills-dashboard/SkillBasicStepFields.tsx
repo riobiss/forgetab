@@ -47,6 +47,7 @@ export function SkillBasicStepFields({
       <label className={`${styles.field} ${styles.spanTwo}`}>
         <span>Descricao</span>
         <textarea
+          className={styles.descriptionTextarea}
           rows={5}
           value={metaForm.description}
           onChange={(event) => setMetaForm((prev) => ({ ...prev, description: event.target.value }))}

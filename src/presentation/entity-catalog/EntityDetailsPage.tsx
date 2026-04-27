@@ -557,6 +557,7 @@ function parseBonusRecord(record: Record<string, string | number>): Record<strin
                 <label className={styles.field}>
                   <span>Descricao basica</span>
                   <textarea
+                    className={styles.descriptionTextarea}
                     rows={4}
                     value={shortDescription}
                     onChange={(event) => {

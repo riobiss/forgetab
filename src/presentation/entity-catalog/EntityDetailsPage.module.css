@@ -50,6 +50,39 @@
 .subtitle {
   margin: 0.35rem 0 0;
   color: var(--color-text-secondary);
+  min-height: 2.7rem;
+  max-height: 7.9rem;
+  overflow-y: auto;
+  white-space: pre-line;
+  padding-right: 0.3rem;
+  scrollbar-color: var(--color-brand-primary) var(--color-bg-overlay-soft);
+  scrollbar-width: thin;
+}
+
+.subtitle::-webkit-scrollbar,
+.editorShell::-webkit-scrollbar,
+.descriptionTextarea::-webkit-scrollbar {
+  width: 0.45rem;
+}
+
+.subtitle::-webkit-scrollbar-track,
+.editorShell::-webkit-scrollbar-track,
+.descriptionTextarea::-webkit-scrollbar-track {
+  background: var(--color-bg-overlay-soft);
+  border-radius: 999px;
+}
+
+.subtitle::-webkit-scrollbar-thumb,
+.editorShell::-webkit-scrollbar-thumb,
+.descriptionTextarea::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-brand-primary) 72%, var(--color-border-soft));
+  border-radius: 999px;
+}
+
+.subtitle::-webkit-scrollbar-thumb:hover,
+.editorShell::-webkit-scrollbar-thumb:hover,
+.descriptionTextarea::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-primary);
 }
 
 .headerActions {
@@ -99,6 +132,19 @@
   box-shadow: var(--shadow-elevation-sm);
   overflow: auto;
   padding: 0.35rem 0.45rem 0.45rem;
+  min-height: 14rem;
+  max-height: 34rem;
+  scrollbar-color: var(--color-brand-primary) var(--color-bg-overlay-soft);
+  scrollbar-width: thin;
+}
+
+.editorShell :global(.simple-editor-wrapper),
+.editorShell :global(.simple-editor-content) {
+  min-height: 0;
+}
+
+.editorShell :global(.simple-editor-content .tiptap.ProseMirror.simple-editor) {
+  min-height: 12rem;
 }
 
 .contentShell {
@@ -316,6 +362,14 @@
 
 .field textarea {
   resize: vertical;
+}
+
+.descriptionTextarea {
+  min-height: 7rem;
+  max-height: 14rem;
+  overflow-y: auto;
+  scrollbar-color: var(--color-brand-primary) var(--color-bg-overlay-soft);
+  scrollbar-width: thin;
 }
 
 .grid {

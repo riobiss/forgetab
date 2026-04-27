@@ -324,7 +324,7 @@
 .cardHeader {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-start;
   margin-bottom: 0.35rem;
 }
 
@@ -375,7 +375,30 @@
   line-height: 1.6;
   margin: 1rem 0;
   min-height: 60px;
+  max-height: 150px;
+  overflow-y: auto;
   white-space: pre-line;
+  padding-right: 0.3rem;
+  scrollbar-color: var(--color-brand-primary) var(--color-bg-overlay-soft);
+  scrollbar-width: thin;
+}
+
+.cardBodyItalic::-webkit-scrollbar {
+  width: 0.45rem;
+}
+
+.cardBodyItalic::-webkit-scrollbar-track {
+  background: var(--color-bg-overlay-soft);
+  border-radius: 999px;
+}
+
+.cardBodyItalic::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-brand-primary) 72%, var(--color-border-soft));
+  border-radius: 999px;
+}
+
+.cardBodyItalic::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-primary);
 }
 
 /* DETALHES */

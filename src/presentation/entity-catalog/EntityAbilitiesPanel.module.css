@@ -102,7 +102,31 @@
   line-height: 1.6;
   margin: 0 0 0.85rem;
   font-style: italic;
+  min-height: 3.2rem;
+  max-height: 9.5rem;
+  overflow-y: auto;
   white-space: pre-line;
+  padding-right: 0.3rem;
+  scrollbar-color: var(--color-brand-primary) var(--color-bg-overlay-soft);
+  scrollbar-width: thin;
+}
+
+.abilityDescription::-webkit-scrollbar {
+  width: 0.45rem;
+}
+
+.abilityDescription::-webkit-scrollbar-track {
+  background: var(--color-bg-overlay-soft);
+  border-radius: 999px;
+}
+
+.abilityDescription::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-brand-primary) 72%, var(--color-border-soft));
+  border-radius: 999px;
+}
+
+.abilityDescription::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-primary);
 }
 
 .abilityStats {

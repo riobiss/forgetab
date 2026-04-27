@@ -326,7 +326,7 @@ export default function EntityCatalogClient({
                                 </div>
                               </div>
 
-                            {excerpt ? <p className={styles.description}>{excerpt}</p> : null}
+                            <p className={`${styles.description} ${styles.cardDescription}`}>{excerpt ?? ""}</p>
                           </div>
                         </Link>
                       )
@@ -394,6 +394,7 @@ export default function EntityCatalogClient({
             <label className={styles.field}>
               <span>Descricao basica</span>
               <textarea
+                className={styles.descriptionTextarea}
                 rows={4}
                 value={createDescription}
                 onChange={(event) => setCreateDescription(event.target.value)}

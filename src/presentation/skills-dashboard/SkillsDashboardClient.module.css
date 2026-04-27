@@ -430,6 +430,32 @@
   resize: vertical;
 }
 
+.descriptionTextarea {
+  min-height: 7.5rem;
+  max-height: 16rem;
+  overflow-y: auto;
+  scrollbar-color: var(--color-brand-primary) var(--color-bg-overlay-soft);
+  scrollbar-width: thin;
+}
+
+.descriptionTextarea::-webkit-scrollbar {
+  width: 0.45rem;
+}
+
+.descriptionTextarea::-webkit-scrollbar-track {
+  background: var(--color-bg-overlay-soft);
+  border-radius: 999px;
+}
+
+.descriptionTextarea::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-brand-primary) 72%, var(--color-border-soft));
+  border-radius: 999px;
+}
+
+.descriptionTextarea::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-primary);
+}
+
 .customFieldRow {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
