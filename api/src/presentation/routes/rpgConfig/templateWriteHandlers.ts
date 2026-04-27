@@ -3,6 +3,7 @@ import {
   updateAttributeTemplates,
   updateCharacteristicTemplates,
   updateClassTemplates,
+  updateCreatureTemplates,
   updateIdentityTemplates,
   updateRaceTemplates,
   updateSkillTemplates,
@@ -147,5 +148,24 @@ export async function updateCharacteristicTemplatesHandler(
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(reply, error, "Erro interno ao salvar campos de caracteristicas.")
+  }
+}
+
+export async function updateCreatureTemplatesHandler(
+  request: FastifyRequest<{ Params: RpgRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+    const body = (parseJsonBody(request.body) ?? {}) as { categories?: unknown }
+    const payload = await updateCreatureTemplates(
+      rpgConfigRouteDeps.accessService,
+      rpgConfigRouteDeps.repository,
+      { rpgId: request.params.rpgId, userId: auth.userId, categories: body.categories },
+    )
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao salvar configuracao de criaturas.")
   }
 }

@@ -299,6 +299,68 @@ export const prismaRpgConfigRepository: RpgConfigRepository = {
     `)
   },
 
+  async listCreatureTemplates(rpgId) {
+    const [categories, fields] = await Promise.all([
+      prisma.$queryRaw<Array<{ id: string; key: string; label: string; position: number }>>(Prisma.sql`
+        SELECT id, key, label, position
+        FROM rpg_creature_template_categories
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `),
+      prisma.$queryRaw<Array<{ id: string; categoryId: string; key: string; label: string; fieldType: "text" | "number"; position: number }>>(Prisma.sql`
+        SELECT id, category_id AS "categoryId", key, label, COALESCE(field_type, 'text') AS "fieldType", position
+        FROM rpg_creature_template_fields
+        WHERE rpg_id = ${rpgId}
+        ORDER BY position ASC
+      `),
+    ])
+
+    return categories.map((category) => ({
+      ...category,
+      fields: fields.filter((field) => field.categoryId === category.id),
+    }))
+  },
+
+  async replaceCreatureTemplates(rpgId, items) {
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw(Prisma.sql`
+        DELETE FROM rpg_creature_template_categories
+        WHERE rpg_id = ${rpgId}
+      `)
+
+      if (items.length === 0) {
+        return
+      }
+
+      const categoriesWithIds = items.map((item) => ({
+        ...item,
+        resolvedId: item.id ?? crypto.randomUUID(),
+      }))
+
+      const categoryRows = categoriesWithIds.map((item, index) =>
+        Prisma.sql`(${item.resolvedId}, ${rpgId}, ${item.key}, ${item.label}, ${index})`,
+      )
+
+      await tx.$executeRaw(Prisma.sql`
+        INSERT INTO rpg_creature_template_categories (id, rpg_id, key, label, position)
+        VALUES ${Prisma.join(categoryRows)}
+      `)
+
+      const fieldRows = categoriesWithIds.flatMap((item) =>
+        item.fields.map((field, index) =>
+          Prisma.sql`(${field.id ?? crypto.randomUUID()}, ${rpgId}, ${item.resolvedId}, ${field.key}, ${field.label}, ${field.fieldType}, ${index})`,
+        ),
+      )
+
+      if (fieldRows.length > 0) {
+        await tx.$executeRaw(Prisma.sql`
+          INSERT INTO rpg_creature_template_fields (id, rpg_id, category_id, key, label, field_type, position)
+          VALUES ${Prisma.join(fieldRows)}
+        `)
+      }
+    })
+  },
+
   async listAttributeKeys(rpgId) {
     try {
       const rows = await prisma.$queryRaw<Array<{ key: string }>>(Prisma.sql`

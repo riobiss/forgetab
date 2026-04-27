@@ -4,11 +4,13 @@ import type { RpgConfigRepository } from "@/application/rpg/config/ports/RpgConf
 import {
   getAttributeTemplates,
   getClassTemplates,
+  getCreatureTemplates,
   getSkillTemplates,
   getStatusTemplates,
   updateAttributeTemplates,
   updateCharacteristicTemplates,
   updateClassTemplates,
+  updateCreatureTemplates,
   updateIdentityTemplates,
   updateRaceTemplates,
   updateSkillTemplates,
@@ -38,6 +40,8 @@ function createRepositoryMock(): RpgConfigRepository {
     replaceIdentityTemplates: vi.fn().mockResolvedValue(undefined),
     listCharacteristicTemplates: vi.fn().mockResolvedValue([]),
     replaceCharacteristicTemplates: vi.fn().mockResolvedValue(undefined),
+    listCreatureTemplates: vi.fn().mockResolvedValue([]),
+    replaceCreatureTemplates: vi.fn().mockResolvedValue(undefined),
     listAttributeKeys: vi.fn().mockResolvedValue(["str"]),
     listSkillKeys: vi.fn().mockResolvedValue(["fight"]),
   }
@@ -237,5 +241,35 @@ describe("rpgConfig use-cases", () => {
       message: "atributos fora do padrao: agi.",
       status: 400,
     })
+  })
+
+  it("getCreatureTemplates retorna categorias", async () => {
+    const access = createAccessMock()
+    const repository = createRepositoryMock()
+    ;(repository.listCreatureTemplates as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: "cat-1", key: "aparencia", label: "Aparencia", position: 0, fields: [] },
+    ])
+
+    const result = await getCreatureTemplates(access, repository, {
+      rpgId: "rpg-1",
+      userId: "u1",
+    })
+
+    expect(result).toEqual({
+      categories: [{ id: "cat-1", key: "aparencia", label: "Aparencia", position: 0, fields: [] }],
+    })
+  })
+
+  it("updateCreatureTemplates salva categorias e campos", async () => {
+    const access = createAccessMock()
+    const repository = createRepositoryMock()
+
+    await updateCreatureTemplates(access, repository, {
+      rpgId: "rpg-1",
+      userId: "u1",
+      categories: [{ label: "Aparencia", fields: [{ label: "Cor" }] }],
+    })
+
+    expect(repository.replaceCreatureTemplates).toHaveBeenCalled()
   })
 })

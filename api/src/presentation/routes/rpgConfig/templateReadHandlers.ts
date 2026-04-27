@@ -3,6 +3,7 @@ import {
   getAttributeTemplates,
   getCharacteristicTemplates,
   getClassTemplates,
+  getCreatureTemplates,
   getIdentityTemplates,
   getRaceTemplates,
   getSkillTemplates,
@@ -135,5 +136,23 @@ export async function getCharacteristicTemplatesHandler(
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(reply, error, "Erro interno ao buscar campos de caracteristicas.")
+  }
+}
+
+export async function getCreatureTemplatesHandler(
+  request: FastifyRequest<{ Params: RpgRouteParams }>,
+  reply: FastifyReply,
+) {
+  try {
+    const auth = await requireUserId(request, reply)
+    if (!auth.ok) return auth.response
+    const payload = await getCreatureTemplates(
+      rpgConfigRouteDeps.accessService,
+      rpgConfigRouteDeps.repository,
+      { rpgId: request.params.rpgId, userId: auth.userId },
+    )
+    return writeJson(reply, 200, payload)
+  } catch (error) {
+    return writeError(reply, error, "Erro interno ao buscar configuracao de criaturas.")
   }
 }

@@ -120,6 +120,8 @@ model Rpg {
   classTemplates     RpgClassTemplate[]
   characterIdentityTemplates RpgCharacterIdentityTemplate[]
   characterCharacteristicTemplates RpgCharacterCharacteristicTemplate[]
+  creatureTemplateCategories RpgCreatureTemplateCategory[]
+  creatureTemplateFields RpgCreatureTemplateField[]
   characters         RpgCharacter[]
   inventoryItems     RpgCharacterInventoryItem[]
   members            RpgMember[]
@@ -393,6 +395,37 @@ model RpgCharacterCharacteristicTemplate {
   @@unique([rpgId, key])
   @@index([rpgId])
   @@map("rpg_character_characteristic_templates")
+}
+
+model RpgCreatureTemplateCategory {
+  id        String                   @id @default(cuid())
+  rpgId     String                   @map("rpg_id")
+  rpg       Rpg                      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key       String
+  label     String
+  position  Int                      @default(0)
+  fields    RpgCreatureTemplateField[]
+
+  @@index([rpgId])
+  @@unique([rpgId, key])
+  @@map("rpg_creature_template_categories")
+}
+
+model RpgCreatureTemplateField {
+  id         String                    @id @default(cuid())
+  rpgId      String                    @map("rpg_id")
+  categoryId String                    @map("category_id")
+  rpg        Rpg                       @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  category   RpgCreatureTemplateCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  key        String
+  label      String
+  fieldType  String                    @default("text") @map("field_type")
+  position   Int                       @default(0)
+
+  @@index([rpgId])
+  @@index([categoryId])
+  @@unique([categoryId, key])
+  @@map("rpg_creature_template_fields")
 }
 
 model RpgCharacterInventoryItem {

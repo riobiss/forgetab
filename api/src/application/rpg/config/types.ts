@@ -37,6 +37,22 @@ export type CharacteristicTemplate = {
   position: number
 }
 
+export type CreatureTemplateField = {
+  id: string
+  key: string
+  label: string
+  fieldType: "text" | "number"
+  position: number
+}
+
+export type CreatureTemplateCategory = {
+  id: string
+  key: string
+  label: string
+  position: number
+  fields: CreatureTemplateField[]
+}
+
 export type ClassTemplate = {
   id: string
   key: string

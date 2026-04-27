@@ -87,6 +87,7 @@ import {
   getAttributeTemplatesHandler,
   getCharacteristicTemplatesHandler,
   getClassTemplatesHandler,
+  getCreatureTemplatesHandler,
   getIdentityTemplatesHandler,
   getRaceTemplatesHandler,
   getSkillTemplatesHandler,
@@ -94,6 +95,7 @@ import {
   updateAttributeTemplatesHandler,
   updateCharacteristicTemplatesHandler,
   updateClassTemplatesHandler,
+  updateCreatureTemplatesHandler,
   updateIdentityTemplatesHandler,
   updateRaceTemplatesHandler,
   updateSkillTemplatesHandler,
@@ -373,6 +375,12 @@ export function registerApiRoutes(app: FastifyInstance) {
       request as FastifyRequest<{ Params: { rpgId: string } }>,
       reply,
     ),
+  )
+  registerFastifyRoute(app, "get", "/api/rpg/:rpgId/creature-templates", (request, reply) =>
+    getCreatureTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
+  )
+  registerFastifyRoute(app, "put", "/api/rpg/:rpgId/creature-templates", (request, reply) =>
+    updateCreatureTemplatesHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId/maps", (request, reply) =>
     listRpgMapsHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),

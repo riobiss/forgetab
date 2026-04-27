@@ -246,6 +246,52 @@ function normalizeTemplateFields(
   return values
 }
 
+function normalizeCreatureTemplates(input: unknown) {
+  const categories = Array.isArray(input) ? input : []
+  const usedCategoryKeys = new Set<string>()
+
+  return categories.map((category, categoryIndex) => {
+    if (!category || typeof category !== "object" || Array.isArray(category)) {
+      throw new AppError("Categoria de criatura invalida.", 400)
+    }
+
+    const rawCategory = category as { id?: unknown; label?: unknown; fields?: unknown }
+    const label = typeof rawCategory.label === "string" ? rawCategory.label.trim() : ""
+    if (label.length < 2) {
+      throw new AppError("Cada categoria de criatura precisa ter nome com pelo menos 2 caracteres.", 400)
+    }
+
+    const categoryKey = createStableTemplateKey(rawCategory, label, usedCategoryKeys, `categoria-${categoryIndex + 1}`)
+    const usedFieldKeys = new Set<string>()
+    const fields = Array.isArray(rawCategory.fields) ? rawCategory.fields : []
+
+    return {
+      id: readOptionalTemplateId(rawCategory),
+      key: categoryKey,
+      label,
+      fields: fields.map((field, fieldIndex) => {
+        if (!field || typeof field !== "object" || Array.isArray(field)) {
+          throw new AppError(`Campo invalido na categoria ${label}.`, 400)
+        }
+
+        const rawField = field as { id?: unknown; label?: unknown; key?: unknown; fieldType?: unknown }
+        const fieldLabel = typeof rawField.label === "string" ? rawField.label.trim() : ""
+        const fieldType: "text" | "number" = rawField.fieldType === "number" ? "number" : "text"
+        if (fieldLabel.length < 1) {
+          throw new AppError(`Cada chave da categoria ${label} precisa ter nome.`, 400)
+        }
+
+        return {
+          id: readOptionalTemplateId(rawField),
+          key: createStableTemplateKey(rawField, fieldLabel, usedFieldKeys, `chave-${fieldIndex + 1}`),
+          label: fieldLabel,
+          fieldType,
+        }
+      }),
+    }
+  })
+}
+
 export async function getAttributeTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
@@ -556,5 +602,32 @@ export async function updateCharacteristicTemplates(
     return { message: "Campos de caracteristicas atualizados." }
   } catch (error) {
     wrapCharacteristicError(error, "Erro interno ao salvar campos de caracteristicas.")
+  }
+}
+
+export async function getCreatureTemplates(
+  access: RpgConfigAccessService,
+  repository: RpgConfigRepository,
+  params: { rpgId: string; userId: string },
+) {
+  try {
+    assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
+    return { categories: await repository.listCreatureTemplates(params.rpgId) }
+  } catch (error) {
+    wrapCharacteristicError(error, "Erro interno ao buscar configuracao de criaturas.")
+  }
+}
+
+export async function updateCreatureTemplates(
+  access: RpgConfigAccessService,
+  repository: RpgConfigRepository,
+  params: { rpgId: string; userId: string; categories: unknown },
+) {
+  try {
+    assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
+    await repository.replaceCreatureTemplates(params.rpgId, normalizeCreatureTemplates(params.categories))
+    return { message: "Configuracao de criaturas atualizada." }
+  } catch (error) {
+    wrapCharacteristicError(error, "Erro interno ao salvar configuracao de criaturas.")
   }
 }

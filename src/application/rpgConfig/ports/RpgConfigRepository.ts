@@ -2,6 +2,7 @@ import type {
   AttributeTemplate,
   CharacteristicTemplate,
   ClassTemplate,
+  CreatureTemplateCategory,
   IdentityTemplate,
   RaceTemplate,
   SkillTemplate,
@@ -67,6 +68,17 @@ export interface RpgConfigRepository {
   replaceCharacteristicTemplates(
     rpgId: string,
     items: Array<{ key: string; label: string; required: boolean }>,
+  ): Promise<void>
+
+  listCreatureTemplates(rpgId: string): Promise<CreatureTemplateCategory[]>
+  replaceCreatureTemplates(
+    rpgId: string,
+    items: Array<{
+      id?: string
+      key: string
+      label: string
+      fields: Array<{ id?: string; key: string; label: string; fieldType: "text" | "number" }>
+    }>,
   ): Promise<void>
 
   listAttributeKeys(rpgId: string): Promise<string[]>
