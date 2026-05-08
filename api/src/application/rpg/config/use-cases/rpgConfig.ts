@@ -292,6 +292,36 @@ function normalizeCreatureTemplates(input: unknown) {
   })
 }
 
+function normalizeCreatureTemplateExtras(input: unknown) {
+  const rawExtras = input && typeof input === "object" && !Array.isArray(input) ? input : {}
+  const rawDangerLevels = (rawExtras as { dangerLevels?: unknown }).dangerLevels
+  const dangerLevels = Array.isArray(rawDangerLevels) ? rawDangerLevels : []
+  const usedKeys = new Set<string>()
+
+  return {
+    dangerLevels: dangerLevels.map((level, index) => {
+      if (!level || typeof level !== "object" || Array.isArray(level)) {
+        throw new AppError("Nivel de perigo invalido.", 400)
+      }
+
+      const rawLevel = level as { id?: unknown; key?: unknown; label?: unknown }
+      const label = typeof rawLevel.label === "string" ? rawLevel.label.trim() : ""
+      if (label.length < 1) {
+        throw new AppError("Cada nivel de perigo precisa ter nome.", 400)
+      }
+
+      const key = createStableTemplateKey(rawLevel, label, usedKeys, `perigo-${index + 1}`)
+
+      return {
+        id: readOptionalTemplateId(rawLevel) ?? key,
+        key,
+        label,
+        position: index,
+      }
+    }),
+  }
+}
+
 export async function getAttributeTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
@@ -612,7 +642,11 @@ export async function getCreatureTemplates(
 ) {
   try {
     assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
-    return { categories: await repository.listCreatureTemplates(params.rpgId) }
+    const [categories, extras] = await Promise.all([
+      repository.listCreatureTemplates(params.rpgId),
+      repository.listCreatureTemplateExtras(params.rpgId),
+    ])
+    return { categories, extras }
   } catch (error) {
     wrapCharacteristicError(error, "Erro interno ao buscar configuracao de criaturas.")
   }
@@ -621,11 +655,15 @@ export async function getCreatureTemplates(
 export async function updateCreatureTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string; categories: unknown },
+  params: { rpgId: string; userId: string; categories: unknown; extras?: unknown },
 ) {
   try {
     assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
-    await repository.replaceCreatureTemplates(params.rpgId, normalizeCreatureTemplates(params.categories))
+    await repository.replaceCreatureTemplates(
+      params.rpgId,
+      normalizeCreatureTemplates(params.categories),
+      normalizeCreatureTemplateExtras(params.extras),
+    )
     return { message: "Configuracao de criaturas atualizada." }
   } catch (error) {
     wrapCharacteristicError(error, "Erro interno ao salvar configuracao de criaturas.")

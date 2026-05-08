@@ -122,6 +122,7 @@ model Rpg {
   characterCharacteristicTemplates RpgCharacterCharacteristicTemplate[]
   creatureTemplateCategories RpgCreatureTemplateCategory[]
   creatureTemplateFields RpgCreatureTemplateField[]
+  creatureDangerLevels RpgCreatureDangerLevel[]
   characters         RpgCharacter[]
   inventoryItems     RpgCharacterInventoryItem[]
   members            RpgMember[]
@@ -426,6 +427,19 @@ model RpgCreatureTemplateField {
   @@index([categoryId])
   @@unique([categoryId, key])
   @@map("rpg_creature_template_fields")
+}
+
+model RpgCreatureDangerLevel {
+  id        String   @id @default(cuid())
+  rpgId     String   @map("rpg_id")
+  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  key       String
+  label     String
+  position  Int      @default(0)
+
+  @@index([rpgId])
+  @@unique([rpgId, key])
+  @@map("rpg_creature_danger_levels")
 }
 
 model RpgCharacterInventoryItem {

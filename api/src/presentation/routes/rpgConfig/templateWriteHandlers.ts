@@ -158,11 +158,11 @@ export async function updateCreatureTemplatesHandler(
   try {
     const auth = await requireUserId(request, reply)
     if (!auth.ok) return auth.response
-    const body = (parseJsonBody(request.body) ?? {}) as { categories?: unknown }
+    const body = (parseJsonBody(request.body) ?? {}) as { categories?: unknown; extras?: unknown }
     const payload = await updateCreatureTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId, categories: body.categories },
+      { rpgId: request.params.rpgId, userId: auth.userId, categories: body.categories, extras: body.extras },
     )
     return writeJson(reply, 200, payload)
   } catch (error) {

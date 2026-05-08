@@ -53,6 +53,17 @@ export type CreatureTemplateCategory = {
   fields: CreatureTemplateField[]
 }
 
+export type CreatureDangerLevel = {
+  id: string
+  key: string
+  label: string
+  position: number
+}
+
+export type CreatureTemplateExtras = {
+  dangerLevels: CreatureDangerLevel[]
+}
+
 export type ClassTemplate = {
   id: string
   key: string

@@ -1,6 +1,7 @@
 import type {
   AttributeTemplate,
   CharacteristicTemplate,
+  CreatureTemplateExtras,
   ClassTemplate,
   CreatureTemplateCategory,
   IdentityTemplate,
@@ -71,6 +72,7 @@ export interface RpgConfigRepository {
   ): Promise<void>
 
   listCreatureTemplates(rpgId: string): Promise<CreatureTemplateCategory[]>
+  listCreatureTemplateExtras(rpgId: string): Promise<CreatureTemplateExtras>
   replaceCreatureTemplates(
     rpgId: string,
     items: Array<{
@@ -79,6 +81,7 @@ export interface RpgConfigRepository {
       label: string
       fields: Array<{ id?: string; key: string; label: string; fieldType: "text" | "number" }>
     }>,
+    extras?: CreatureTemplateExtras,
   ): Promise<void>
 
   listAttributeKeys(rpgId: string): Promise<string[]>

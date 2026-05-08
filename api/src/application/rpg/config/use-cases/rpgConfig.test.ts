@@ -41,6 +41,7 @@ function createRepositoryMock(): RpgConfigRepository {
     listCharacteristicTemplates: vi.fn().mockResolvedValue([]),
     replaceCharacteristicTemplates: vi.fn().mockResolvedValue(undefined),
     listCreatureTemplates: vi.fn().mockResolvedValue([]),
+    listCreatureTemplateExtras: vi.fn().mockResolvedValue({ dangerLevels: [] }),
     replaceCreatureTemplates: vi.fn().mockResolvedValue(undefined),
     listAttributeKeys: vi.fn().mockResolvedValue(["str"]),
     listSkillKeys: vi.fn().mockResolvedValue(["fight"]),
@@ -249,6 +250,9 @@ describe("rpgConfig use-cases", () => {
     ;(repository.listCreatureTemplates as ReturnType<typeof vi.fn>).mockResolvedValue([
       { id: "cat-1", key: "aparencia", label: "Aparencia", position: 0, fields: [] },
     ])
+    ;(repository.listCreatureTemplateExtras as ReturnType<typeof vi.fn>).mockResolvedValue({
+      dangerLevels: [{ id: "weak", key: "fraco", label: "Fraco", position: 0 }],
+    })
 
     const result = await getCreatureTemplates(access, repository, {
       rpgId: "rpg-1",
@@ -257,10 +261,11 @@ describe("rpgConfig use-cases", () => {
 
     expect(result).toEqual({
       categories: [{ id: "cat-1", key: "aparencia", label: "Aparencia", position: 0, fields: [] }],
+      extras: { dangerLevels: [{ id: "weak", key: "fraco", label: "Fraco", position: 0 }] },
     })
   })
 
-  it("updateCreatureTemplates salva categorias e campos", async () => {
+  it("updateCreatureTemplates salva categorias, campos e extras", async () => {
     const access = createAccessMock()
     const repository = createRepositoryMock()
 
@@ -268,8 +273,25 @@ describe("rpgConfig use-cases", () => {
       rpgId: "rpg-1",
       userId: "u1",
       categories: [{ label: "Aparencia", fields: [{ label: "Cor" }] }],
+      extras: { dangerLevels: [{ label: "Fraco" }, { label: "Nivel Deus" }] },
     })
 
-    expect(repository.replaceCreatureTemplates).toHaveBeenCalled()
+    expect(repository.replaceCreatureTemplates).toHaveBeenCalledWith(
+      "rpg-1",
+      [
+        {
+          key: "aparencia",
+          label: "Aparencia",
+          fields: [{ key: "cor", label: "Cor", fieldType: "text", id: undefined }],
+          id: undefined,
+        },
+      ],
+      {
+        dangerLevels: [
+          { id: "fraco", key: "fraco", label: "Fraco", position: 0 },
+          { id: "nivel-deus", key: "nivel-deus", label: "Nivel Deus", position: 1 },
+        ],
+      },
+    )
   })
 })

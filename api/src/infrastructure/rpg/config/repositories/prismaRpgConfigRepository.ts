@@ -321,16 +321,41 @@ export const prismaRpgConfigRepository: RpgConfigRepository = {
     }))
   },
 
-  async replaceCreatureTemplates(rpgId, items) {
+  async listCreatureTemplateExtras(rpgId) {
+    const dangerLevels = await prisma.$queryRaw<Array<{ id: string; key: string; label: string; position: number }>>(Prisma.sql`
+      SELECT id, key, label, position
+      FROM rpg_creature_danger_levels
+      WHERE rpg_id = ${rpgId}
+      ORDER BY position ASC
+    `)
+
+    return { dangerLevels }
+  },
+
+  async replaceCreatureTemplates(rpgId, items, extras) {
     await prisma.$transaction(async (tx) => {
       await tx.$executeRaw(Prisma.sql`
         DELETE FROM rpg_creature_template_categories
         WHERE rpg_id = ${rpgId}
       `)
 
-      if (items.length === 0) {
-        return
+      await tx.$executeRaw(Prisma.sql`
+        DELETE FROM rpg_creature_danger_levels
+        WHERE rpg_id = ${rpgId}
+      `)
+
+      const dangerRows = (extras?.dangerLevels ?? []).map((level, index) =>
+        Prisma.sql`(${level.id}, ${rpgId}, ${level.key}, ${level.label}, ${index})`,
+      )
+
+      if (dangerRows.length > 0) {
+        await tx.$executeRaw(Prisma.sql`
+          INSERT INTO rpg_creature_danger_levels (id, rpg_id, key, label, position)
+          VALUES ${Prisma.join(dangerRows)}
+        `)
       }
+
+      if (items.length === 0) return
 
       const categoriesWithIds = items.map((item) => ({
         ...item,
