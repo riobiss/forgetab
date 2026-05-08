@@ -24,5 +24,5 @@ export default async function CreatureConfigRoute({ params }: Props) {
     throw error
   }
 
-  return <CreatureConfigPage rpgId={rpgId} initialCategories={data.categories} />
+  return <CreatureConfigPage rpgId={rpgId} initialCategories={data.categories} initialExtras={data.extras} />
 }

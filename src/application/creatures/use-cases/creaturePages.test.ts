@@ -34,6 +34,7 @@ function createDeps(canManageNpcCreature = true): CreaturesDependencies {
         characteristicFields: [],
       }),
       fetchTemplates: vi.fn().mockResolvedValue([]),
+      fetchTemplatesConfig: vi.fn().mockResolvedValue({ categories: [], extras: { dangerLevels: [] } }),
       updateTemplates: vi.fn(),
       fetchCreature: vi.fn().mockResolvedValue({
         id: "creature-1",

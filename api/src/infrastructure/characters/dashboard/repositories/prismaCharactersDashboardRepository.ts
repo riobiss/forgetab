@@ -63,6 +63,13 @@ export const prismaCharactersDashboardRepository: CharactersDashboardRepository 
         id,
         name,
         image,
+        COALESCE(
+          NULLIF(characteristics->>'categoria', ''),
+          NULLIF(characteristics->>'grupo', ''),
+          NULLIF(characteristics->>'category', ''),
+          NULLIF(characteristics->>'group', ''),
+          'geral'
+        ) AS category,
         character_type AS "characterType",
         created_by_user_id AS "createdByUserId"
       FROM rpg_characters

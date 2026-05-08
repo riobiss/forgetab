@@ -7,6 +7,7 @@ export type CharacterDashboardCardDto = {
   id: string
   name: string
   image: string | null
+  category?: string | null
   characterType: "player" | "npc" | "creature"
   createdByUserId: string | null
 }

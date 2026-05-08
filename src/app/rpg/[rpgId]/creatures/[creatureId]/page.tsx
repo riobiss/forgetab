@@ -24,5 +24,12 @@ export default async function CreatureDetailRoute({ params }: Props) {
     throw error
   }
 
-  return <CreatureDetailPage rpgId={rpgId} creature={data.creature} categories={data.categories} />
+  return (
+    <CreatureDetailPage
+      rpgId={rpgId}
+      creature={data.creature}
+      categories={data.categories}
+      canManage={data.canManage}
+    />
+  )
 }

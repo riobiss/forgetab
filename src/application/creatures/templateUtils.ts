@@ -15,6 +15,57 @@ export type CreatureGroupedValues = {
   items: Array<{ key: string; label: string; value: string }>
 }
 
+export const CREATURE_SECRET_FIELDS_KEY = "campos-secretos"
+
+export type CreatureVisibilityFieldKey =
+  | "name"
+  | "image"
+  | "description"
+  | "visibility"
+  | `identity:${string}`
+
+export type CreatureSecretVisibility = {
+  configured: boolean
+  keys: Set<CreatureVisibilityFieldKey>
+}
+
+function isCreatureVisibilityFieldKey(value: unknown): value is CreatureVisibilityFieldKey {
+  return (
+    value === "name" ||
+    value === "image" ||
+    value === "description" ||
+    value === "visibility" ||
+    (typeof value === "string" && value.startsWith("identity:"))
+  )
+}
+
+export function getCreatureIdentityVisibilityKey(categoryKey: string, fieldKey: string): CreatureVisibilityFieldKey {
+  return `identity:${buildCreatureIdentityKey(categoryKey, fieldKey)}`
+}
+
+export function readCreatureSecretVisibility(
+  characteristics: Record<string, string> | undefined,
+): CreatureSecretVisibility {
+  const rawValue = characteristics?.[CREATURE_SECRET_FIELDS_KEY]
+  if (typeof rawValue !== "string" || !rawValue.trim()) {
+    return { configured: false, keys: new Set() }
+  }
+
+  try {
+    const parsed = JSON.parse(rawValue)
+    if (!Array.isArray(parsed)) {
+      return { configured: false, keys: new Set() }
+    }
+
+    return {
+      configured: true,
+      keys: new Set(parsed.filter(isCreatureVisibilityFieldKey)),
+    }
+  } catch {
+    return { configured: false, keys: new Set() }
+  }
+}
+
 export function createUniqueCreatureTemplateKey(
   label: string,
   usedKeys: Iterable<string>,
@@ -112,6 +163,25 @@ export function updateCreatureTemplateField(
               ? field
               : { ...field, label: params.label, fieldType: params.fieldType },
           ),
+        },
+  )
+}
+
+export function deleteCreatureTemplateField(
+  categories: CreatureTemplateCategoryDto[],
+  params: {
+    categoryKey: string
+    fieldId: string
+  },
+) {
+  return categories.map((category) =>
+    category.key !== params.categoryKey
+      ? category
+      : {
+          ...category,
+          fields: category.fields
+            .filter((field) => field.id !== params.fieldId)
+            .map((field, position) => ({ ...field, position })),
         },
   )
 }

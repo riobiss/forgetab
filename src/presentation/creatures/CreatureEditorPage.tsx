@@ -3,9 +3,11 @@
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
+import { ChevronDown, ChevronRight, Eye, X } from "lucide-react"
 import { ReactSelectField, type ReactSelectOption } from "@/components/select/ReactSelectField"
 import type { CharacterEditorBootstrapDto, CharacterEditorSummaryDto } from "@/application/characters/editor"
 import {
+  CREATURE_SECRET_FIELDS_KEY,
   createCreatureUseCase,
   createCreatureTemplateCategory,
   createCreatureTemplateField,
@@ -14,12 +16,15 @@ import {
   type CreaturesDependencies,
   type CreatureAttributeRow,
   type CreatureTemplateCategoryDto,
+  type CreatureVisibilityFieldKey,
   buildCreatureIdentityPayload,
   buildCreatureRowsFromCharacter,
   buildCreatureRowsFromTemplates,
   buildEmptyNumericRecord,
   findCreatureTemplateRow,
+  getCreatureIdentityVisibilityKey,
   getCreatureTemplateRowId,
+  readCreatureSecretVisibility,
   updateCreatureTemplatesUseCase,
   updateCreatureUseCase,
   uploadCreatureImageUseCase,
@@ -36,6 +41,59 @@ type Props = {
 }
 
 const defaultDeps = createCreaturesDependencies("http")
+const creatureDescriptionKey = "descricao"
+
+type VisibilityFieldOption = {
+  key: CreatureVisibilityFieldKey
+  label: string
+  categoryKey?: string
+}
+
+function buildVisibilityFieldOptions(
+  categories: CreatureTemplateCategoryDto[],
+  rows: CreatureAttributeRow[],
+): VisibilityFieldOption[] {
+  const options: VisibilityFieldOption[] = [
+    { key: "name", label: "Nome" },
+    { key: "image", label: "Imagem" },
+    { key: "description", label: "Descricao" },
+    { key: "visibility", label: "Visibilidade" },
+  ]
+  const usedKeys = new Set<CreatureVisibilityFieldKey>(options.map((option) => option.key))
+
+  categories.forEach((category) => {
+    category.fields.forEach((field) => {
+      const key = getCreatureIdentityVisibilityKey(category.key, field.key)
+      if (usedKeys.has(key)) return
+      usedKeys.add(key)
+      options.push({ key, label: `${category.label} - ${field.label}`, categoryKey: category.key })
+    })
+  })
+
+  rows.forEach((row) => {
+    const key = getCreatureIdentityVisibilityKey(row.categoryKey, row.fieldKey)
+    if (usedKeys.has(key)) return
+    usedKeys.add(key)
+    options.push({ key, label: `${row.categoryKey} - ${row.fieldKey}`, categoryKey: row.categoryKey })
+  })
+
+  return options
+}
+
+function getInitialVisibleFieldKeys(
+  creature: CharacterEditorSummaryDto | null,
+  categories: CreatureTemplateCategoryDto[],
+) {
+  const secretVisibility = readCreatureSecretVisibility(creature?.characteristics)
+  if (!secretVisibility.configured) {
+    return ["name"] as CreatureVisibilityFieldKey[]
+  }
+
+  const initialRows = buildCreatureRowsFromTemplates(categories, buildCreatureRowsFromCharacter(creature))
+  return buildVisibilityFieldOptions(categories, initialRows)
+    .map((option) => option.key)
+    .filter((key) => !secretVisibility.keys.has(key))
+}
 
 export default function CreatureEditorPage({
   rpgId,
@@ -51,7 +109,13 @@ export default function CreatureEditorPage({
   const [selectedCategoryKey, setSelectedCategoryKey] = useState("")
   const [templatesDirty, setTemplatesDirty] = useState(false)
   const [templateModalOpen, setTemplateModalOpen] = useState(false)
+  const [visibilityModalOpen, setVisibilityModalOpen] = useState(false)
+  const [expandedVisibilityCategories, setExpandedVisibilityCategories] = useState<Record<string, boolean>>({})
+  const [visibleFieldKeys, setVisibleFieldKeys] = useState<CreatureVisibilityFieldKey[]>(() =>
+    getInitialVisibleFieldKeys(creature, categories),
+  )
   const [name, setName] = useState(creature?.name ?? "")
+  const [description, setDescription] = useState(creature?.characteristics?.[creatureDescriptionKey] ?? "")
   const [image, setImage] = useState(creature?.image ?? "")
   const [visibility, setVisibility] = useState<"public" | "private">(creature?.visibility ?? "public")
   const [rows, setRows] = useState<CreatureAttributeRow[]>(() => {
@@ -66,6 +130,62 @@ export default function CreatureEditorPage({
     () => templateCategories.map((category) => ({ value: category.key, label: category.label })),
     [templateCategories],
   )
+  const visibilityFieldOptions = useMemo(
+    () => buildVisibilityFieldOptions(templateCategories, rows),
+    [rows, templateCategories],
+  )
+  const visibleFieldKeySet = useMemo(() => new Set(visibleFieldKeys), [visibleFieldKeys])
+  const visibilityCategoryOptions = useMemo(
+    () =>
+      templateCategories
+        .filter((category) =>
+          visibilityFieldOptions.some((option) => option.categoryKey === category.key),
+        )
+        .map((category) => ({
+          key: category.key,
+          label: category.label,
+          fieldKeys: visibilityFieldOptions
+            .filter((option) => option.categoryKey === category.key)
+            .map((option) => option.key),
+        })),
+    [templateCategories, visibilityFieldOptions],
+  )
+
+  function toggleVisibleField(key: CreatureVisibilityFieldKey) {
+    if (key === "name") {
+      return
+    }
+
+    setVisibleFieldKeys((current) =>
+      current.includes(key)
+        ? current.filter((item) => item !== key)
+        : [...current, key],
+    )
+  }
+
+  function toggleVisibleCategory(fieldKeys: CreatureVisibilityFieldKey[]) {
+    const allVisible = fieldKeys.every((key) => visibleFieldKeySet.has(key))
+
+    setVisibleFieldKeys((current) => {
+      const currentSet = new Set(current)
+      fieldKeys.forEach((key) => {
+        if (allVisible) {
+          currentSet.delete(key)
+        } else {
+          currentSet.add(key)
+        }
+      })
+      currentSet.add("name")
+      return Array.from(currentSet)
+    })
+  }
+
+  function toggleVisibilityCategoryOpen(categoryKey: string) {
+    setExpandedVisibilityCategories((current) => ({
+      ...current,
+      [categoryKey]: !(current[categoryKey] ?? false),
+    }))
+  }
 
   function updateTemplateFieldValue(
     category: CreatureTemplateCategoryDto,
@@ -158,6 +278,10 @@ export default function CreatureEditorPage({
         await updateCreatureTemplatesUseCase(deps, { rpgId, categories: templateCategories })
       }
 
+      const hiddenFieldKeys = visibilityFieldOptions
+        .map((option) => option.key)
+        .filter((key) => !visibleFieldKeySet.has(key))
+
       const payload: CreateCreaturePayloadDto = {
         name: name.trim(),
         image: image.trim() || null,
@@ -167,7 +291,11 @@ export default function CreatureEditorPage({
         statuses: buildEmptyNumericRecord(bootstrap.statuses),
         attributes: buildEmptyNumericRecord(bootstrap.attributes),
         skills: buildEmptyNumericRecord(bootstrap.skills),
-        characteristics: {},
+        characteristics: {
+          ...(creature?.characteristics ?? {}),
+          [creatureDescriptionKey]: description.trim(),
+          [CREATURE_SECRET_FIELDS_KEY]: JSON.stringify(hiddenFieldKeys),
+        },
         identity: buildCreatureIdentityPayload(rows),
       }
 
@@ -212,6 +340,14 @@ export default function CreatureEditorPage({
           <h1>{creature ? creature.name : "Nova criatura"}</h1>
         </div>
         <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            onClick={() => setVisibilityModalOpen(true)}
+          >
+            <Eye size={16} />
+            Visibilidade
+          </button>
           <button type="button" className={styles.button} onClick={handleSave} disabled={saving}>
             {saving ? "Salvando..." : "Salvar"}
           </button>
@@ -238,6 +374,16 @@ export default function CreatureEditorPage({
               </select>
             </label>
           </div>
+
+          <label className={styles.label}>
+            <span>Descricao</span>
+            <textarea
+              className={styles.textarea}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Descricao da criatura"
+            />
+          </label>
 
           <div className={styles.rowTwo}>
             <label className={styles.label}>
@@ -307,13 +453,11 @@ export default function CreatureEditorPage({
             aria-labelledby="creature-template-modal-title"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className={styles.modalHeader}>
-              <div>
-                <p className={styles.modalKicker}>Modelo</p>
-                <h2 id="creature-template-modal-title" className={styles.modalTitle}>
-                  Categorias e atributos
-                </h2>
-              </div>
+            <header className={styles.modalHeader}>
+              <p className={styles.modalKicker}>Modelo</p>
+              <h2 id="creature-template-modal-title" className={styles.modalTitle}>
+                Categorias e atributos
+              </h2>
               <button
                 type="button"
                 className={styles.modalCloseButton}
@@ -322,58 +466,135 @@ export default function CreatureEditorPage({
               >
                 x
               </button>
-            </div>
+            </header>
 
-            <div className={styles.modalBody}>
-              <section className={styles.modalSection}>
-                <div className={styles.modalSectionHeader}>
-                  <h3>Adicionar categoria</h3>
-                </div>
-                <div className={styles.modalGrid}>
-                  <label className={styles.modalField}>
-                    <span>Categoria</span>
-                    <input
-                      value={newCategoryLabel}
-                      onChange={(event) => setNewCategoryLabel(event.target.value)}
-                      placeholder="Nome da categoria"
-                    />
-                  </label>
-                  <div className={styles.modalFieldAction}>
-                    <button type="button" className={styles.modalPrimaryButton} onClick={addCategory}>
-                      + Categoria
-                    </button>
-                  </div>
-                </div>
-              </section>
+            <section className={styles.modalBody}>
+              <h3>Adicionar categoria</h3>
+              <label className={styles.modalField}>
+                <span>Categoria</span>
+                <input
+                  value={newCategoryLabel}
+                  onChange={(event) => setNewCategoryLabel(event.target.value)}
+                  placeholder="Nome da categoria"
+                />
+              </label>
+              <button type="button" className={styles.modalPrimaryButton} onClick={addCategory}>
+                + Categoria
+              </button>
 
-              <section className={styles.modalSection}>
-                <div className={styles.modalSectionHeader}>
-                  <h3>Adicionar atributo</h3>
-                </div>
-                <div className={styles.modalGrid}>
-                  <ReactSelectField
-                    label="Categoria existente"
-                    options={categoryOptions}
-                    value={categoryOptions.find((option) => option.value === selectedCategoryKey) ?? null}
-                    onChange={(option) => setSelectedCategoryKey(option?.value ?? "")}
-                    placeholder="Selecione"
-                  />
-                  <label className={styles.modalField}>
-                    <span>Atributo</span>
+              <h3>Adicionar atributo</h3>
+              <ReactSelectField
+                label="Categoria existente"
+                options={categoryOptions}
+                value={categoryOptions.find((option) => option.value === selectedCategoryKey) ?? null}
+                onChange={(option) => setSelectedCategoryKey(option?.value ?? "")}
+                placeholder="Selecione"
+              />
+              <label className={styles.modalField}>
+                <span>Atributo</span>
+                <input
+                  value={newFieldLabel}
+                  onChange={(event) => setNewFieldLabel(event.target.value)}
+                  placeholder="Nome do atributo"
+                />
+              </label>
+              <button type="button" className={styles.modalPrimaryButton} onClick={addField}>
+                + Atributo
+              </button>
+            </section>
+          </section>
+        </div>
+      ) : null}
+
+      {visibilityModalOpen ? (
+        <div className={styles.modalBackdrop} role="presentation" onClick={() => setVisibilityModalOpen(false)}>
+          <section
+            className={styles.modalShell}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="creature-visibility-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className={styles.modalHeader}>
+              <p className={styles.modalKicker}>Jogadores</p>
+              <h2 id="creature-visibility-modal-title" className={styles.modalTitle}>
+                Campos visiveis
+              </h2>
+              <button
+                type="button"
+                className={styles.modalCloseButton}
+                onClick={() => setVisibilityModalOpen(false)}
+                aria-label="Fechar modal"
+              >
+                <X size={16} />
+              </button>
+            </header>
+
+            <section className={styles.modalBody}>
+              <p className={styles.helper}>
+                Nome fica sempre visivel. Marque os outros dados que jogadores podem ver ao abrir a criatura.
+              </p>
+              <div className={styles.visibilityChecklist}>
+                {visibilityFieldOptions.filter((option) => !option.categoryKey).map((option) => (
+                  <label key={option.key} className={styles.visibilityCheckItem}>
                     <input
-                      value={newFieldLabel}
-                      onChange={(event) => setNewFieldLabel(event.target.value)}
-                      placeholder="Nome do atributo"
+                      type="checkbox"
+                      checked={visibleFieldKeySet.has(option.key)}
+                      disabled={option.key === "name"}
+                      onChange={() => toggleVisibleField(option.key)}
                     />
+                    <span>{option.label}</span>
                   </label>
-                  <div className={styles.modalFieldAction}>
-                    <button type="button" className={styles.modalPrimaryButton} onClick={addField}>
-                      + Atributo
-                    </button>
-                  </div>
-                </div>
-              </section>
-            </div>
+                ))}
+                {visibilityCategoryOptions.map((option) => {
+                  const allVisible = option.fieldKeys.every((key) => visibleFieldKeySet.has(key))
+                  const someVisible = option.fieldKeys.some((key) => visibleFieldKeySet.has(key))
+                  const expanded = expandedVisibilityCategories[option.key] ?? false
+
+                  return (
+                    <article key={option.key} className={styles.visibilityCategoryBlock}>
+                      <div className={`${styles.visibilityCheckItem} ${styles.visibilityCategoryItem}`}>
+                        <button
+                          type="button"
+                          className={styles.visibilityCategoryToggle}
+                          onClick={() => toggleVisibilityCategoryOpen(option.key)}
+                          aria-expanded={expanded}
+                          aria-label={`${expanded ? "Recolher" : "Expandir"} ${option.label}`}
+                        >
+                          {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                        </button>
+                        <span>{option.label}</span>
+                        {someVisible && !allVisible ? <small>Parcial</small> : null}
+                        <button
+                          type="button"
+                          className={styles.visibilitySelectButton}
+                          onClick={() => toggleVisibleCategory(option.fieldKeys)}
+                        >
+                          {allVisible ? "Limpar" : "Selecionar"}
+                        </button>
+                      </div>
+
+                      {expanded ? (
+                        <div className={styles.visibilityCategoryFields}>
+                          {visibilityFieldOptions
+                            .filter((fieldOption) => fieldOption.categoryKey === option.key)
+                            .map((fieldOption) => (
+                              <label key={fieldOption.key} className={styles.visibilityCheckItem}>
+                                <input
+                                  type="checkbox"
+                                  checked={visibleFieldKeySet.has(fieldOption.key)}
+                                  onChange={() => toggleVisibleField(fieldOption.key)}
+                                />
+                                <span>{fieldOption.label}</span>
+                              </label>
+                            ))}
+                        </div>
+                      ) : null}
+                    </article>
+                  )
+                })}
+              </div>
+            </section>
           </section>
         </div>
       ) : null}

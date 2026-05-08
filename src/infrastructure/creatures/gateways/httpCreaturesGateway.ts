@@ -4,6 +4,8 @@ import type {
   CreateCreaturePayloadDto,
   CreaturesGateway,
   CreatureTemplateCategoryDto,
+  CreatureTemplateExtrasDto,
+  CreatureTemplatesConfigDto,
   UpdateCreaturePayloadDto,
 } from "@/application/creatures"
 import { CreatureGatewayError } from "@/application/creatures"
@@ -41,26 +43,40 @@ export async function fetchCreaturesDashboardViewModel(rpgId: string) {
 }
 
 export async function fetchCreatureTemplates(rpgId: string) {
+  const payload = await fetchCreatureTemplatesConfig(rpgId)
+  return payload.categories
+}
+
+export async function fetchCreatureTemplatesConfig(rpgId: string): Promise<CreatureTemplatesConfigDto> {
   const response = await apiFetch(`/api/rpg/${rpgId}/creature-templates`, {
     cache: "no-store",
     next: { revalidate: 0 },
   })
 
-  const payload = await parseJsonResponse<{ categories?: CreatureTemplateCategoryDto[] }>(
+  const payload = await parseJsonResponse<{
+    categories?: CreatureTemplateCategoryDto[]
+    extras?: Partial<CreatureTemplateExtrasDto>
+  }>(
     response,
     "Erro ao carregar configuracao de criaturas.",
   )
-  return payload.categories ?? []
+  return {
+    categories: payload.categories ?? [],
+    extras: {
+      dangerLevels: payload.extras?.dangerLevels ?? [],
+    },
+  }
 }
 
 export async function updateCreatureTemplates(
   rpgId: string,
   categories: CreatureTemplateCategoryDto[],
+  extras?: CreatureTemplateExtrasDto,
 ) {
   const response = await apiFetch(`/api/rpg/${rpgId}/creature-templates`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ categories }),
+    body: JSON.stringify({ categories, extras }),
   })
 
   return parseJsonResponse<{ message?: string }>(
@@ -182,8 +198,9 @@ export const httpCreaturesGateway: CreaturesGateway = {
   fetchDashboard: fetchCreaturesDashboardViewModel,
   fetchBootstrap: fetchCreatureBootstrap,
   fetchTemplates: fetchCreatureTemplates,
-  updateTemplates: async (rpgId, categories) => {
-    await updateCreatureTemplates(rpgId, categories)
+  fetchTemplatesConfig: fetchCreatureTemplatesConfig,
+  updateTemplates: async (rpgId, categories, extras) => {
+    await updateCreatureTemplates(rpgId, categories, extras)
   },
   fetchCreature: fetchEditableCreature,
   createCreature,

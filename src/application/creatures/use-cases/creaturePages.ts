@@ -2,11 +2,6 @@ import type { CreaturesDependencies } from "@/application/creatures/contracts/Cr
 
 type Dependencies = CreaturesDependencies
 
-async function loadManageSnapshot(deps: Dependencies, rpgId: string) {
-  const dashboard = await deps.gateway.fetchDashboard(rpgId)
-  return dashboard.canManageNpcCreature ? dashboard : null
-}
-
 export async function loadCreaturesDashboardPageUseCase(
   deps: Dependencies,
   params: { rpgId: string },
@@ -53,16 +48,16 @@ export async function loadCreatureConfigPageUseCase(
   deps: Dependencies,
   params: { rpgId: string },
 ) {
-  const [dashboard, categories] = await Promise.all([
+  const [dashboard, config] = await Promise.all([
     deps.gateway.fetchDashboard(params.rpgId),
-    deps.gateway.fetchTemplates(params.rpgId),
+    deps.gateway.fetchTemplatesConfig(params.rpgId),
   ])
 
   if (!dashboard.canManageNpcCreature) {
     return null
   }
 
-  return { categories }
+  return config
 }
 
 export async function loadCreatureDetailPageUseCase(
@@ -76,8 +71,10 @@ export async function loadCreatureDetailPageUseCase(
   ])
 
   if (!dashboard.canManageNpcCreature) {
-    return null
+    if (creature.visibility !== "public") {
+      return null
+    }
   }
 
-  return { creature, categories }
+  return { creature, categories, canManage: dashboard.canManageNpcCreature }
 }

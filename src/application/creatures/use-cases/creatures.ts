@@ -1,6 +1,7 @@
 import type { CreaturesDependencies } from "@/application/creatures/contracts/CreaturesDependencies"
 import type {
   CreateCreaturePayloadDto,
+  CreatureTemplateExtrasDto,
   CreatureTemplateCategoryDto,
   UpdateCreaturePayloadDto,
 } from "@/application/creatures/types"
@@ -19,11 +20,15 @@ export function loadCreatureTemplatesUseCase(deps: Dependencies, params: { rpgId
   return deps.gateway.fetchTemplates(params.rpgId)
 }
 
+export function loadCreatureTemplatesConfigUseCase(deps: Dependencies, params: { rpgId: string }) {
+  return deps.gateway.fetchTemplatesConfig(params.rpgId)
+}
+
 export function updateCreatureTemplatesUseCase(
   deps: Dependencies,
-  params: { rpgId: string; categories: CreatureTemplateCategoryDto[] },
+  params: { rpgId: string; categories: CreatureTemplateCategoryDto[]; extras?: CreatureTemplateExtrasDto },
 ) {
-  return deps.gateway.updateTemplates(params.rpgId, params.categories)
+  return deps.gateway.updateTemplates(params.rpgId, params.categories, params.extras)
 }
 
 export function loadEditableCreatureUseCase(
