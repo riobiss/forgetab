@@ -8,8 +8,8 @@ export default function HomePage() {
       description: "Crie campanhas com mapa, raças, classes, itens e biblioteca própria.",
     },
     {
-      title: "Combate tático",
-      description: "Organize turnos, ataques e status com fluxo rápido para mesa online.",
+      title: "Dados confiáveis",
+      description: "Role dados com random.org e mantenha resultados claros para a mesa.",
     },
     {
       title: "Progressão sólida",
@@ -32,8 +32,8 @@ export default function HomePage() {
             <Link href="/rpg" className={styles.primaryAction}>
               Explorar campanhas
             </Link>
-            <Link href="/combat" className={styles.secondaryAction}>
-              Ir para combate
+            <Link href="/dices" className={styles.secondaryAction}>
+              Rolar dados
             </Link>
           </div>
         </section>

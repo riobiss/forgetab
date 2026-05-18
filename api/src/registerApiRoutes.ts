@@ -13,6 +13,7 @@ import {
   getRaceCatalogDetailHandler,
   getRaceCatalogPageHandler,
 } from "@api/presentation/routes/entityCatalog/handlers"
+import { rollDicesHandler } from "@api/presentation/routes/dices/handlers"
 import {
   buyCharacterSkillHandler,
   createCharacterHandler,
@@ -159,6 +160,9 @@ export function registerApiRoutes(app: FastifyInstance) {
   )
   registerFastifyRoute(app, "get", "/api/profile", (request, reply) =>
     getProfileHandler(request, reply),
+  )
+  registerFastifyRoute(app, "post", "/api/dices/roll", (request, reply) =>
+    rollDicesHandler(request, reply),
   )
   registerFastifyRoute(app, "get", "/api/rpg", (request, reply) =>
     listRpgCatalogHandler(request, reply),
