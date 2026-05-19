@@ -1,45 +1,44 @@
 import { apiFetch } from "@/infrastructure/http/apiFetch"
+import type { DicesRepository } from "@/application/dices/ports/DicesRepository"
+import type { DiceRollResponse } from "@/application/dices/types"
 
-export type DiceRollEntry = {
-  diceCount: number
-  diceSides: number
-}
-
-export type DiceRollGroup = DiceRollEntry & {
-  results: number[]
-  total: number
-}
-
-export type DiceRollResponse = {
-  provider?: "local" | "random-org"
-  groups: DiceRollGroup[]
-}
+const GENERIC_DICE_ROLL_ERROR = "Nao foi possivel girar os dados agora. Tente novamente."
 
 type ErrorPayload = {
   message?: string
 }
 
+class SafeDicesRepositoryError extends Error {}
+
 async function parseJsonResponse<T>(response: Response): Promise<T> {
   const contentType = response.headers.get("content-type") ?? ""
   if (!contentType.includes("application/json")) {
-    const text = await response.text()
-    throw new Error(text || "Resposta invalida da API.")
+    throw new SafeDicesRepositoryError(GENERIC_DICE_ROLL_ERROR)
   }
 
   const payload = (await response.json()) as T & ErrorPayload
   if (!response.ok) {
-    throw new Error(payload.message ?? "Erro ao girar dados.")
+    throw new SafeDicesRepositoryError(payload.message ?? GENERIC_DICE_ROLL_ERROR)
   }
 
   return payload
 }
 
-export const httpDicesRepository = {
-  roll(payload: { entries: DiceRollEntry[] }) {
-    return apiFetch("/api/dices/roll", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }).then((response) => parseJsonResponse<DiceRollResponse>(response))
+export const httpDicesRepository: DicesRepository = {
+  async roll(payload) {
+    try {
+      const response = await apiFetch("/api/dices/roll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      return await parseJsonResponse<DiceRollResponse>(response)
+    } catch (error) {
+      if (error instanceof SafeDicesRepositoryError) {
+        throw error
+      }
+
+      throw new Error(GENERIC_DICE_ROLL_ERROR)
+    }
   },
 }
