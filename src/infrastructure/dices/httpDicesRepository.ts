@@ -8,17 +8,22 @@ type ErrorPayload = {
   message?: string
 }
 
-class SafeDicesRepositoryError extends Error {}
+export class DicesTechnicalError extends Error {}
+export class DicesValidationError extends Error {}
 
 async function parseJsonResponse<T>(response: Response): Promise<T> {
   const contentType = response.headers.get("content-type") ?? ""
   if (!contentType.includes("application/json")) {
-    throw new SafeDicesRepositoryError(GENERIC_DICE_ROLL_ERROR)
+    throw new DicesTechnicalError(GENERIC_DICE_ROLL_ERROR)
   }
 
   const payload = (await response.json()) as T & ErrorPayload
   if (!response.ok) {
-    throw new SafeDicesRepositoryError(payload.message ?? GENERIC_DICE_ROLL_ERROR)
+    if (payload.message) {
+      throw new DicesValidationError(payload.message)
+    }
+
+    throw new DicesTechnicalError(GENERIC_DICE_ROLL_ERROR)
   }
 
   return payload
@@ -34,11 +39,11 @@ export const httpDicesRepository: DicesRepository = {
       })
       return await parseJsonResponse<DiceRollResponse>(response)
     } catch (error) {
-      if (error instanceof SafeDicesRepositoryError) {
+      if (error instanceof DicesTechnicalError || error instanceof DicesValidationError) {
         throw error
       }
 
-      throw new Error(GENERIC_DICE_ROLL_ERROR)
+      throw new DicesTechnicalError(GENERIC_DICE_ROLL_ERROR)
     }
   },
 }

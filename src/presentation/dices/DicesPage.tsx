@@ -19,7 +19,7 @@ import {
   type RollHistoryItem,
 } from "@/application/dices/types"
 import { rollDicesUseCase } from "@/application/dices/use-cases/rollDices"
-import { httpDicesRepository } from "@/infrastructure/dices/httpDicesRepository"
+import { dicesRepository } from "@/infrastructure/dices/dicesRepository"
 import { DiceControls } from "@/presentation/dices/components/DiceControls"
 import { DiceHistoryPanel } from "@/presentation/dices/components/DiceHistoryPanel"
 import { DicesPageHeader } from "@/presentation/dices/components/DicesPageHeader"
@@ -190,7 +190,7 @@ export function DicesPage() {
     try {
       const roll = await rollDicesUseCase(
         {
-          dicesRepository: httpDicesRepository,
+          dicesRepository,
           createHistoryId,
           now: () => new Date(),
         },
