@@ -26,6 +26,10 @@ export function RollResultStream({
   onOpenStats,
   onCloseStats,
 }: RollResultStreamProps) {
+  const shouldShowResultGrid = latestRoll
+    ? latestRoll.modifier !== 0 || latestRoll.groups.some((group) => group.results.length > 1 || group.diceCount > 1)
+    : false
+
   return (
     <section className={styles.resultStream} aria-label="Resultados">
       {latestRoll ? (
@@ -42,8 +46,13 @@ export function RollResultStream({
             <span className={styles.streamTimeInline}>{formatTime(latestRoll.rolledAt)}</span>
           </div>
 
-          <RollSummary roll={latestRoll} recentSingleRollResults={recentSingleRollResults} />
-          <DiceResultGrid rollId={latestRoll.id} groups={latestRoll.groups} keyPrefix="latest" />
+          <RollSummary
+            roll={latestRoll}
+            recentSingleRollResults={recentSingleRollResults}
+          />
+          {shouldShowResultGrid ? (
+            <DiceResultGrid rollId={latestRoll.id} groups={latestRoll.groups} keyPrefix="latest" />
+          ) : null}
 
           {isStatsModalOpen && stats ? (
             <RollStatsModal stats={stats} onClose={onCloseStats} />

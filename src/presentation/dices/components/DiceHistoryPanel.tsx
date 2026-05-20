@@ -13,6 +13,10 @@ type DiceHistoryPanelProps = {
   onToggleHistoryCard: (rollId: string) => void
 }
 
+function shouldShowResultGrid(roll: RollHistoryItem) {
+  return roll.modifier !== 0 || roll.groups.some((group) => group.results.length > 1 || group.diceCount > 1)
+}
+
 export function DiceHistoryPanel({
   history,
   expandedHistoryId,
@@ -56,7 +60,9 @@ export function DiceHistoryPanel({
               {expandedHistoryId === roll.id ? (
                 <div className={styles.historyExpandedDetails}>
                   <RollSummary roll={roll} />
-                  <DiceResultGrid rollId={roll.id} groups={roll.groups} keyPrefix="history" />
+                  {shouldShowResultGrid(roll) ? (
+                    <DiceResultGrid rollId={roll.id} groups={roll.groups} keyPrefix="history" />
+                  ) : null}
                 </div>
               ) : null}
             </article>

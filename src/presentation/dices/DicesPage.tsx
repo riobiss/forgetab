@@ -48,7 +48,7 @@ function getSingleDiceRollResult(roll: RollHistoryItem) {
   const [group] = roll.groups
   if (group.diceCount !== 1 || group.results.length !== 1) return null
 
-  return group.results[0] ?? null
+  return roll.total
 }
 
 export function DicesPage() {
