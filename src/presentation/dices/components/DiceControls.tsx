@@ -1,5 +1,5 @@
 import type { FormEvent } from "react"
-import { Dice5 } from "lucide-react"
+import { Dice5, Plus, RotateCcw } from "lucide-react"
 import {
   DICE_ROLL_MAX_COUNT,
   DICE_ROLL_MAX_SIDES,
@@ -24,6 +24,7 @@ type DiceControlsProps = {
   onUpdateDiceCount: (value: string) => void
   onAdjustModifier: (delta: number) => void
   onUpdateModifier: (value: string) => void
+  onResetRoll: () => void
   onSelectDiceSides: (diceSides: number) => void
   onToggleCustomDice: () => void
   onUpdateCustomDiceSidesDraft: (value: string) => void
@@ -48,6 +49,7 @@ export function DiceControls({
   onUpdateDiceCount,
   onAdjustModifier,
   onUpdateModifier,
+  onResetRoll,
   onSelectDiceSides,
   onToggleCustomDice,
   onUpdateCustomDiceSidesDraft,
@@ -126,6 +128,15 @@ export function DiceControls({
             </button>
           </div>
         </div>
+
+        <button
+          type="button"
+          className={styles.resetRollButton}
+          onClick={onResetRoll}
+          aria-label="Resetar para 1d20"
+        >
+          <RotateCcw size={18} />
+        </button>
       </form>
 
       <div className={styles.dicePicker} aria-label="Lados do dado">
@@ -161,8 +172,13 @@ export function DiceControls({
                 onChange={(event) => onUpdateCustomDiceSidesDraft(event.target.value)}
               />
             </label>
-            <button type="button" className={styles.customDiceAddButton} onClick={onAddCustomDiceSides}>
-              Adicionar
+            <button
+              type="button"
+              className={styles.customDiceAddButton}
+              onClick={onAddCustomDiceSides}
+              aria-label="Adicionar dado customizado"
+            >
+              <Plus size={18} />
             </button>
           </div>
 

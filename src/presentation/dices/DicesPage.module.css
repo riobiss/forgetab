@@ -1,15 +1,38 @@
 .page {
-  min-height: calc(100vh - 72px);
+  width: 100%;
+  min-height: calc(100dvh - 72px);
   background:
     radial-gradient(circle at top, color-mix(in srgb, var(--color-brand-primary) 14%, transparent), transparent 45%),
     linear-gradient(180deg, color-mix(in srgb, var(--color-bg-surface) 82%, black 18%), var(--color-bg-app));
+  display: flex;
 }
 
 .panel {
-  width: min(100%, 46rem);
+  width: 100%;
+  min-height: 0;
+  flex: 1;
   margin: 0 auto;
-  background: linear-gradient(180deg, var(--color-bg-surface), color-mix(in srgb, var(--color-bg-app) 94%, transparent));
+  background: transparent;
   padding: 1rem;
+}
+
+.workspace {
+  min-height: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.controlsColumn,
+.streamColumn {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.controlsPanel {
+  min-width: 0;
   display: grid;
   gap: 1rem;
 }
@@ -17,7 +40,7 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 0.75rem;
   flex-wrap: wrap;
 }
@@ -121,7 +144,7 @@
 
 .rollForm {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   align-items: end;
   gap: 0.75rem;
 }
@@ -245,6 +268,28 @@
   opacity: 0.65;
 }
 
+.resetRollButton {
+  width: 2.8rem;
+  min-height: 2.8rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.resetRollButton:hover {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 42%, var(--color-border-soft));
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+}
+
 .dicePicker,
 .customDiceList {
   display: flex;
@@ -262,6 +307,18 @@
   padding: 0.45rem 0.72rem;
   font-weight: 800;
   cursor: pointer;
+}
+
+.customDiceAddButton {
+  min-width: 2.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem;
+}
+
+.customDiceAddButton svg {
+  flex: 0 0 auto;
 }
 
 .dicePresetButton:hover,
@@ -310,11 +367,15 @@
 }
 
 .resultStream {
+  min-width: 0;
+  min-height: 0;
   display: grid;
   gap: 0.8rem;
 }
 
 .historyPanel {
+  min-width: 0;
+  min-height: 0;
   display: grid;
   gap: 0.8rem;
 }
@@ -347,6 +408,7 @@
   background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
   padding: 0.85rem 0.95rem 1.9rem;
   display: grid;
+  align-content: start;
   gap: 0.75rem;
 }
 
@@ -464,6 +526,43 @@
     0 0 36px color-mix(in srgb, #f59e0b 24%, transparent);
 }
 
+.recentRollsPanel {
+  grid-column: 3;
+  justify-self: start;
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+  color: color-mix(in srgb, var(--color-text-muted) 78%, transparent);
+  opacity: 0.72;
+}
+
+.recentRollsPanel span {
+  color: color-mix(in srgb, var(--color-text-muted) 82%, transparent);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.recentRollsPanel div {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  flex-wrap: wrap;
+}
+
+.recentRollsPanel strong {
+  min-width: 1.8rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-soft) 78%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 62%, transparent);
+  color: color-mix(in srgb, var(--color-text-secondary) 76%, transparent);
+  padding: 0.28rem 0.42rem;
+  font-size: 0.9rem;
+  line-height: 1;
+  text-align: center;
+}
+
 .diceResultGrid,
 .historyList {
   display: grid;
@@ -471,12 +570,13 @@
 }
 
 .diceResultGrid {
-  grid-template-columns: repeat(auto-fill, minmax(4.4rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(4.4rem, 4.4rem));
+  justify-content: center;
   align-content: start;
   align-items: start;
   max-height: min(42vh, 24rem);
   overflow-y: auto;
-  padding-right: 0.25rem;
+  padding: 0.45rem 0.35rem 0.65rem;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--color-brand-primary) 38%, transparent) transparent;
 }
@@ -498,7 +598,8 @@
 
 .diceResultCard {
   min-width: 0;
-  min-height: 1rem;
+  width: 4.4rem;
+  min-height: 2.65rem;
   border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   background: var(--color-bg-surface);
@@ -563,7 +664,6 @@
     0 0 20px color-mix(in srgb, #facc15 28%, transparent),
     0 0 42px color-mix(in srgb, #f59e0b 16%, transparent);
 }
-
 .diceResultExtremeHigh strong {
   color: #fef3c7;
   text-shadow:
@@ -766,6 +866,18 @@
 }
 
 @media (max-width: 640px) {
+  .page {
+    min-height: calc(100dvh - 72px);
+  }
+
+  .panel {
+    padding: 0.85rem;
+  }
+
+  .controlsPanelHiddenOnMobile {
+    display: none;
+  }
+
   .headerTabs {
     width: 100%;
   }
@@ -775,27 +887,72 @@
   }
 
   .rollForm {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 2.8rem;
+  }
+
+  .resetRollButton {
+    grid-column: auto;
+    width: 2.8rem;
   }
 
   .rollMetrics {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(2.5rem, 0.35fr) minmax(0, 1fr) minmax(4.8rem, 0.35fr);
   }
 
   .totalPanel {
-    grid-column: 1;
+    grid-column: 2;
+  }
+
+  .recentRollHiddenOnMobile {
+    display: none;
   }
 
   .customDiceControls {
-    grid-template-columns: 1fr;
-  }
-
-  .customDiceAddButton {
-    width: 100%;
+    grid-template-columns: minmax(0, 1fr) 2.35rem;
   }
 
   .historyCardTop {
     grid-template-columns: minmax(0, 1fr) 5.5rem 2.1rem;
   }
 
+}
+
+@media (min-width: 960px) {
+  .page {
+    padding: 1.25rem;
+  }
+
+  .panel {
+    width: min(100%, 88rem);
+    padding: 0;
+  }
+
+  .workspace {
+    grid-template-columns: minmax(22rem, 0.9fr) minmax(28rem, 1.35fr);
+    align-items: start;
+  }
+
+  .controlsColumn {
+    position: sticky;
+    top: calc(72px + 1.25rem);
+  }
+
+  .streamColumn,
+  .resultStream,
+  .historyPanel {
+    min-height: 0;
+  }
+
+  .emptyState {
+    min-height: min(42rem, calc(100dvh - 10rem));
+  }
+
+  .historyList {
+    display: grid;
+    align-content: start;
+    gap: 0.85rem;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
 }

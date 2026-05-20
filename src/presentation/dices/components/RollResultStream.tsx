@@ -7,6 +7,7 @@ import styles from "../DicesPage.module.css"
 
 type RollResultStreamProps = {
   latestRoll: RollHistoryItem | null
+  recentSingleRollResults: number[]
   canShowStats: boolean
   isStatsModalOpen: boolean
   stats: DiceRollStats | null
@@ -17,6 +18,7 @@ type RollResultStreamProps = {
 
 export function RollResultStream({
   latestRoll,
+  recentSingleRollResults,
   canShowStats,
   isStatsModalOpen,
   stats,
@@ -40,7 +42,7 @@ export function RollResultStream({
             <span className={styles.streamTimeInline}>{formatTime(latestRoll.rolledAt)}</span>
           </div>
 
-          <RollSummary roll={latestRoll} />
+          <RollSummary roll={latestRoll} recentSingleRollResults={recentSingleRollResults} />
           <DiceResultGrid rollId={latestRoll.id} groups={latestRoll.groups} keyPrefix="latest" />
 
           {isStatsModalOpen && stats ? (

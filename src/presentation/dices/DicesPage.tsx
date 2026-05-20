@@ -42,6 +42,15 @@ function formatTime(date: Date) {
   })
 }
 
+function getSingleDiceRollResult(roll: RollHistoryItem) {
+  if (roll.groups.length !== 1) return null
+
+  const [group] = roll.groups
+  if (group.diceCount !== 1 || group.results.length !== 1) return null
+
+  return group.results[0] ?? null
+}
+
 export function DicesPage() {
   const [diceCount, setDiceCount] = useState("1")
   const [diceSides, setDiceSides] = useState("20")
@@ -62,12 +71,17 @@ export function DicesPage() {
   const latestRoll = history[0] ?? null
   const currentFormula = formatCurrentRollFormula(diceCount, diceSides, modifier)
   const latestResults = flattenDiceResults(latestRoll)
-  const canShowLatestStats = latestResults.length > 1
   const latestStats = calculateDiceRollStats(
     latestResults,
     isHighDiceResult,
     isLowDiceResult,
   )
+  const canShowLatestStats = latestResults.length > 1 && latestStats !== null
+  const recentSingleRollResults = history
+    .filter((roll) => roll.id !== latestRoll?.id)
+    .map(getSingleDiceRollResult)
+    .filter((result): result is number => result !== null)
+    .slice(0, 3)
 
   useEffect(() => {
     const storedState = parseDicesStorageState(localStorage.getItem(DICES_STORAGE_KEY))
@@ -170,6 +184,13 @@ export function DicesPage() {
     setError(null)
   }
 
+  function resetRollForm() {
+    setDiceCount("1")
+    setDiceSides("20")
+    setModifier("0")
+    setError(null)
+  }
+
   function addCustomDiceSides() {
     const nextDiceSides = Number(customDiceSidesDraft)
     if (!Number.isInteger(nextDiceSides) || nextDiceSides < 2 || nextDiceSides > DICE_ROLL_MAX_SIDES) {
@@ -184,6 +205,7 @@ export function DicesPage() {
   }
 
   async function rollDices() {
+    setActiveView("dices")
     setIsRolling(true)
     setError(null)
 
@@ -230,56 +252,68 @@ export function DicesPage() {
   return (
     <main className={styles.page}>
       <section className={styles.panel} aria-labelledby="dices-title">
-        <DicesPageHeader activeView={activeView} onChangeView={setActiveView} />
+        <div className={styles.workspace}>
+          <div className={styles.controlsColumn}>
+            <DicesPageHeader activeView={activeView} onChangeView={setActiveView} />
 
-        {activeView === "dices" ? (
-          <>
-            <DiceControls
-              currentFormula={currentFormula}
-              diceCount={diceCount}
-              diceSides={diceSides}
-              modifier={modifier}
-              customSides={customSides}
-              customDiceSidesDraft={customDiceSidesDraft}
-              error={error}
-              isCustomDiceOpen={isCustomDiceOpen}
-              isRolling={isRolling}
-              onSubmit={handleSubmit}
-              onStartHold={startHoldIncrement}
-              onStopHold={stopHoldIncrement}
-              onAdjustDiceCount={adjustDiceCount}
-              onUpdateDiceCount={updateDiceCountInput}
-              onAdjustModifier={adjustModifier}
-              onUpdateModifier={(value) => {
-                setModifier(value)
-                setError(null)
-              }}
-              onSelectDiceSides={selectDiceSides}
-              onToggleCustomDice={() => setIsCustomDiceOpen((currentState) => !currentState)}
-              onUpdateCustomDiceSidesDraft={setCustomDiceSidesDraft}
-              onAddCustomDiceSides={addCustomDiceSides}
-              onRoll={() => void rollDices()}
-            />
+            <div
+              className={`${styles.controlsPanel} ${
+                activeView === "history" ? styles.controlsPanelHiddenOnMobile : ""
+              }`}
+            >
+              <DiceControls
+                currentFormula={currentFormula}
+                diceCount={diceCount}
+                diceSides={diceSides}
+                modifier={modifier}
+                customSides={customSides}
+                customDiceSidesDraft={customDiceSidesDraft}
+                error={error}
+                isCustomDiceOpen={isCustomDiceOpen}
+                isRolling={isRolling}
+                onSubmit={handleSubmit}
+                onStartHold={startHoldIncrement}
+                onStopHold={stopHoldIncrement}
+                onAdjustDiceCount={adjustDiceCount}
+                onUpdateDiceCount={updateDiceCountInput}
+                onAdjustModifier={adjustModifier}
+                onUpdateModifier={(value) => {
+                  setModifier(value)
+                  setError(null)
+                }}
+                onResetRoll={resetRollForm}
+                onSelectDiceSides={selectDiceSides}
+                onToggleCustomDice={() => setIsCustomDiceOpen((currentState) => !currentState)}
+                onUpdateCustomDiceSidesDraft={setCustomDiceSidesDraft}
+                onAddCustomDiceSides={addCustomDiceSides}
+                onRoll={() => void rollDices()}
+              />
+            </div>
+          </div>
 
-            <RollResultStream
-              latestRoll={latestRoll}
-              canShowStats={canShowLatestStats}
-              isStatsModalOpen={isRollStatsModalOpen}
-              stats={latestStats}
-              formatTime={formatTime}
-              onOpenStats={() => setIsRollStatsModalOpen(true)}
-              onCloseStats={() => setIsRollStatsModalOpen(false)}
-            />
-          </>
-        ) : (
-          <DiceHistoryPanel
-            history={history}
-            expandedHistoryId={expandedHistoryId}
-            formatTime={formatTime}
-            onClearHistory={clearPreviousRolls}
-            onToggleHistoryCard={toggleHistoryCard}
-          />
-        )}
+          <div className={styles.streamColumn}>
+            {activeView === "dices" ? (
+              <RollResultStream
+                latestRoll={latestRoll}
+                recentSingleRollResults={recentSingleRollResults}
+                canShowStats={canShowLatestStats}
+                isStatsModalOpen={isRollStatsModalOpen}
+                stats={latestStats}
+                formatTime={formatTime}
+                onOpenStats={() => setIsRollStatsModalOpen(true)}
+                onCloseStats={() => setIsRollStatsModalOpen(false)}
+              />
+            ) : (
+              <DiceHistoryPanel
+                history={history}
+                expandedHistoryId={expandedHistoryId}
+                formatTime={formatTime}
+                onClearHistory={clearPreviousRolls}
+                onToggleHistoryCard={toggleHistoryCard}
+              />
+            )}
+          </div>
+        </div>
       </section>
     </main>
   )
