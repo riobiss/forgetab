@@ -6,7 +6,11 @@ import {
   logoutHandler,
   registerHandler,
 } from "@api/presentation/routes/auth/handlers"
-import { getProfileHandler } from "@api/presentation/routes/profile/handlers"
+import {
+  getProfileHandler,
+  updateProfileHandler,
+  updateRpgProfileHandler,
+} from "@api/presentation/routes/profile/handlers"
 import {
   getClassCatalogDetailHandler,
   getClassCatalogPageHandler,
@@ -160,6 +164,12 @@ export function registerApiRoutes(app: FastifyInstance) {
   )
   registerFastifyRoute(app, "get", "/api/profile", (request, reply) =>
     getProfileHandler(request, reply),
+  )
+  registerFastifyRoute(app, "patch", "/api/profile", (request, reply) =>
+    updateProfileHandler(request, reply),
+  )
+  registerFastifyRoute(app, "patch", "/api/profile/rpg/:rpgId", (request, reply) =>
+    updateRpgProfileHandler(request as FastifyRequest<{ Params: { rpgId: string } }>, reply),
   )
   registerFastifyRoute(app, "post", "/api/dices/roll", (request, reply) =>
     rollDicesHandler(request, reply),

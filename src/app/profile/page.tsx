@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { loadProfilePageUseCase } from "@/application/profile/use-cases/loadProfilePage"
 import {
-  httpProfileRepository,
+  httpProfileReader,
   HttpProfileError,
 } from "@/infrastructure/profile/repositories/httpProfileRepository"
 import { cookieProfileSessionService } from "@/infrastructure/profile/services/cookieProfileSessionService"
@@ -12,7 +12,7 @@ export default async function PerfilPage() {
 
   try {
     result = await loadProfilePageUseCase({
-      repository: httpProfileRepository,
+      reader: httpProfileReader,
       sessionService: cookieProfileSessionService,
     })
   } catch (error) {

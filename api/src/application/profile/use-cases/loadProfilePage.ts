@@ -1,10 +1,11 @@
-import type { ProfileRepository } from "@/application/profile/ports/ProfileRepository"
+import type { ProfileReader } from "@/application/profile/ports/ProfileReader"
 import type { ProfileSessionService } from "@/application/profile/ports/ProfileSessionService"
 import type { ProfileViewData } from "@/application/profile/types"
+import { buildProfileViewData } from "@/application/profile/use-cases/profileViewData"
 
 export async function loadProfilePageUseCase(
   deps: {
-    repository: ProfileRepository
+    repository: ProfileReader
     sessionService: ProfileSessionService
   },
 ): Promise<{ status: "unauthenticated" } | { status: "ok"; data: ProfileViewData }> {
@@ -18,11 +19,6 @@ export async function loadProfilePageUseCase(
 
   return {
     status: "ok",
-    data: {
-      name: user?.name ?? null,
-      username: user?.username ?? null,
-      email: user?.email ?? session.email,
-      createdAt: user?.createdAt ?? null,
-    },
+    data: buildProfileViewData({ user, fallbackEmail: session.email }),
   }
 }
