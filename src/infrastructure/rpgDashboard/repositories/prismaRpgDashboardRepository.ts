@@ -17,7 +17,7 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
         SELECT
           r.id,
           r.owner_id AS "ownerId",
-          COALESCE(u.name, u.username, 'Mestre') AS "ownerName",
+          COALESCE(NULLIF(p.display_name, ''), u.name, u.username, 'Mestre') AS "ownerName",
           r.title,
           r.description,
           r.visibility,
@@ -27,6 +27,7 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
           r.created_at AS "createdAt"
         FROM rpgs r
         LEFT JOIN users u ON u.id = r.owner_id
+        LEFT JOIN rpg_user_profiles p ON p.rpg_id = r.id AND p.user_id = u.id
         WHERE r.id = ${rpgId}
         LIMIT 1
       `)
@@ -41,7 +42,7 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
           SELECT
             r.id,
             r.owner_id AS "ownerId",
-            COALESCE(u.name, u.username, 'Mestre') AS "ownerName",
+            COALESCE(NULLIF(p.display_name, ''), u.name, u.username, 'Mestre') AS "ownerName",
             r.title,
             r.description,
             r.visibility,
@@ -51,6 +52,7 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
             r.created_at AS "createdAt"
           FROM rpgs r
           LEFT JOIN users u ON u.id = r.owner_id
+          LEFT JOIN rpg_user_profiles p ON p.rpg_id = r.id AND p.user_id = u.id
           WHERE r.id = ${rpgId}
           LIMIT 1
         `)
@@ -69,10 +71,11 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
       SELECT
         m.id,
         u.username AS "userUsername",
-        u.name AS "userName",
+        COALESCE(NULLIF(p.display_name, ''), u.name) AS "userName",
         m.requested_at AS "requestedAt"
       FROM rpg_members m
       INNER JOIN users u ON u.id = m.user_id
+      LEFT JOIN rpg_user_profiles p ON p.rpg_id = m.rpg_id AND p.user_id = u.id
       WHERE m.rpg_id = ${rpgId}
         AND m.status = 'pending'::"public"."RpgMemberStatus"
       ORDER BY m.requested_at ASC
@@ -84,10 +87,11 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
       SELECT
         r.id,
         u.username AS "userUsername",
-        u.name AS "userName",
+        COALESCE(NULLIF(p.display_name, ''), u.name) AS "userName",
         r.requested_at AS "requestedAt"
       FROM rpg_character_creation_requests r
       INNER JOIN users u ON u.id = r.user_id
+      LEFT JOIN rpg_user_profiles p ON p.rpg_id = r.rpg_id AND p.user_id = u.id
       WHERE r.rpg_id = ${rpgId}
         AND r.status = 'pending'::"public"."CharacterCreationRequestStatus"
       ORDER BY r.requested_at ASC
@@ -100,13 +104,14 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
         m.id,
         m.user_id AS "userId",
         u.username AS "userUsername",
-        u.name AS "userName",
+        COALESCE(NULLIF(p.display_name, ''), u.name) AS "userName",
         m.role::text AS role
       FROM rpg_members m
       INNER JOIN users u ON u.id = m.user_id
+      LEFT JOIN rpg_user_profiles p ON p.rpg_id = m.rpg_id AND p.user_id = u.id
       WHERE m.rpg_id = ${rpgId}
         AND m.status = 'accepted'::"public"."RpgMemberStatus"
-      ORDER BY u.name ASC
+      ORDER BY COALESCE(NULLIF(p.display_name, ''), u.name) ASC
     `)
   },
 

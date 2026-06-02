@@ -46,7 +46,7 @@ export const prismaRpgMembershipRepository: RpgMembershipRepository = {
       SELECT DISTINCT
         u.id,
         u.username,
-        u.name
+        COALESCE(NULLIF(p.display_name, ''), u.name) AS name
       FROM users u
       INNER JOIN (
         SELECT owner_id AS user_id
@@ -58,7 +58,8 @@ export const prismaRpgMembershipRepository: RpgMembershipRepository = {
         WHERE rpg_id = ${rpgId}
           AND status = 'accepted'::"public"."RpgMemberStatus"
       ) allowed_users ON allowed_users.user_id = u.id
-      ORDER BY u.name ASC
+      LEFT JOIN rpg_user_profiles p ON p.rpg_id = ${rpgId} AND p.user_id = u.id
+      ORDER BY COALESCE(NULLIF(p.display_name, ''), u.name) ASC
     `)
   },
 
@@ -132,10 +133,11 @@ export const prismaRpgMembershipRepository: RpgMembershipRepository = {
         r.id,
         r.user_id AS "userId",
         u.username AS "userUsername",
-        u.name AS "userName",
+        COALESCE(NULLIF(p.display_name, ''), u.name) AS "userName",
         r.requested_at AS "requestedAt"
       FROM rpg_character_creation_requests r
       INNER JOIN users u ON u.id = r.user_id
+      LEFT JOIN rpg_user_profiles p ON p.rpg_id = r.rpg_id AND p.user_id = u.id
       WHERE r.rpg_id = ${rpgId}
         AND r.status = 'pending'::"public"."CharacterCreationRequestStatus"
       ORDER BY r.requested_at DESC

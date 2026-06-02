@@ -22,6 +22,7 @@ model User {
   createdAt    DateTime    @default(now()) @map("created_at")
   rpgs         Rpg[]
   rpgMembers   RpgMember[]
+  rpgProfiles   RpgUserProfile[]
   characters   RpgCharacter[]
   characterCreationRequests RpgCharacterCreationRequest[]
   skills       Skill[]
@@ -110,6 +111,7 @@ model Rpg {
   characters         RpgCharacter[]
   inventoryItems     RpgCharacterInventoryItem[]
   members            RpgMember[]
+  userProfiles       RpgUserProfile[]
   characterCreationRequests RpgCharacterCreationRequest[]
   skills             Skill[]
   librarySections    RpgLibrarySection[]
@@ -487,6 +489,21 @@ model RpgMember {
   @@index([rpgId])
   @@index([userId])
   @@map("rpg_members")
+}
+
+model RpgUserProfile {
+  id          String   @id @default(cuid())
+  rpgId       String   @map("rpg_id")
+  userId      String   @map("user_id")
+  displayName String?  @map("display_name")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+  rpg         Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([rpgId, userId])
+  @@index([userId])
+  @@map("rpg_user_profiles")
 }
 
 model RpgCharacterCreationRequest {
