@@ -21,6 +21,13 @@ export type PendingCharacterRequestSummary = {
   requestedAt: Date
 }
 
+export type PendingCharacterOfferSummary = {
+  id: string
+  characterId: string
+  allowMultiplePlayerCharacters: boolean
+  existingPlayers: number
+}
+
 export interface RpgMembershipRepository {
   getRpgSummary(rpgId: string): Promise<RpgSummary | null>
   getMembership(rpgId: string, userId: string): Promise<{ id: string; status: MembershipStatus } | null>
@@ -50,5 +57,15 @@ export interface RpgMembershipRepository {
     requestId: string,
     nextStatus: "accepted" | "rejected",
   ): Promise<boolean>
+  getPendingCharacterOffer(
+    rpgId: string,
+    offerId: string,
+    userId: string,
+  ): Promise<PendingCharacterOfferSummary | null>
+  processCharacterOffer(
+    rpgId: string,
+    offerId: string,
+    userId: string,
+    nextStatus: "accepted" | "rejected",
+  ): Promise<boolean>
 }
-

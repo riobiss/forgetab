@@ -19,6 +19,10 @@ function makeRepository(): CharacterRepository {
   return {
     listByRpg: vi.fn(),
     countPlayersByCreator: vi.fn(),
+    listAssignablePlayers: vi.fn(),
+    isAcceptedMember: vi.fn(),
+    createCharacterOffer: vi.fn(),
+    createWithOffer: vi.fn(),
     create: vi.fn(),
   }
 }

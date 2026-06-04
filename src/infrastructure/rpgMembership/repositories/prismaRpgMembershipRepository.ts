@@ -193,4 +193,97 @@ export const prismaRpgMembershipRepository: RpgMembershipRepository = {
     `)
     return rows.length > 0
   },
+
+  async getPendingCharacterOffer(rpgId, offerId, userId) {
+    const offerRows = await prisma.$queryRaw<
+      Array<{
+        id: string
+        characterId: string
+        allowMultiplePlayerCharacters: boolean
+        existingPlayers: number
+      }>
+    >(Prisma.sql`
+      SELECT
+        o.id,
+        o.character_id AS "characterId",
+        COALESCE(r.allow_multiple_player_characters, false) AS "allowMultiplePlayerCharacters",
+        (
+          SELECT COUNT(*)::int
+          FROM rpg_characters existing
+          WHERE existing.rpg_id = o.rpg_id
+            AND existing.created_by_user_id = o.user_id
+            AND existing.character_type = 'player'::"public"."RpgCharacterType"
+        ) AS "existingPlayers"
+      FROM rpg_character_offers o
+      INNER JOIN rpgs r ON r.id = o.rpg_id
+      INNER JOIN rpg_characters c ON c.id = o.character_id
+      WHERE o.id = ${offerId}
+        AND o.rpg_id = ${rpgId}
+        AND o.user_id = ${userId}
+        AND o.status = 'pending'::"public"."CharacterCreationRequestStatus"
+        AND c.character_type = 'player'::"public"."RpgCharacterType"
+      LIMIT 1
+    `)
+    return offerRows[0] ?? null
+  },
+
+  async processCharacterOffer(rpgId, offerId, userId, nextStatus) {
+    const rows = await prisma.$transaction(async (tx) => {
+      const offerRows = await tx.$queryRaw<Array<{ id: string; characterId: string }>>(Prisma.sql`
+        SELECT
+          o.id,
+          o.character_id AS "characterId"
+        FROM rpg_character_offers o
+        INNER JOIN rpg_characters c ON c.id = o.character_id
+        WHERE o.id = ${offerId}
+          AND o.rpg_id = ${rpgId}
+          AND o.user_id = ${userId}
+          AND o.status = 'pending'::"public"."CharacterCreationRequestStatus"
+          AND c.character_type = 'player'::"public"."RpgCharacterType"
+        LIMIT 1
+      `)
+      const offer = offerRows[0]
+      if (!offer) return []
+
+      const updatedOffers = await tx.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+        UPDATE rpg_character_offers
+        SET
+          status = ${nextStatus}::"public"."CharacterCreationRequestStatus",
+          responded_at = CURRENT_TIMESTAMP,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${offerId}
+          AND rpg_id = ${rpgId}
+          AND user_id = ${userId}
+          AND status = 'pending'::"public"."CharacterCreationRequestStatus"
+        RETURNING id
+      `)
+
+      if (nextStatus === "accepted" && updatedOffers.length > 0) {
+        await tx.$executeRaw(Prisma.sql`
+          UPDATE rpg_characters
+          SET
+            created_by_user_id = ${userId},
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id = ${offer.characterId}
+            AND rpg_id = ${rpgId}
+            AND character_type = 'player'::"public"."RpgCharacterType"
+        `)
+        await tx.$executeRaw(Prisma.sql`
+          UPDATE rpg_character_offers
+          SET
+            status = 'rejected'::"public"."CharacterCreationRequestStatus",
+            responded_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE rpg_id = ${rpgId}
+            AND character_id = ${offer.characterId}
+            AND id <> ${offerId}
+            AND status = 'pending'::"public"."CharacterCreationRequestStatus"
+        `)
+      }
+
+      return updatedOffers
+    })
+
+    return rows.length > 0
+  },
 }

@@ -1,6 +1,7 @@
 import type { Prisma } from "../../../../generated/prisma/client.js"
 import type {
   AcceptedMemberSummary,
+  PendingCharacterOfferSummary,
   PendingRequestSummary,
 } from "@/application/rpgDashboard/types"
 
@@ -44,6 +45,7 @@ export interface RpgDashboardRepository {
   getRpgById(rpgId: string): Promise<DbRpgRow | null>
   listPendingRequests(rpgId: string): Promise<PendingRequestSummary[]>
   listPendingCharacterRequests(rpgId: string): Promise<PendingRequestSummary[]>
+  listPendingCharacterOffers(rpgId: string, userId: string): Promise<PendingCharacterOfferSummary[]>
   listAcceptedMembers(rpgId: string): Promise<AcceptedMemberSummary[]>
   countAcceptedMembers(rpgId: string): Promise<number>
   getTemplatesPresence(rpgId: string): Promise<{ hasRaces: boolean; hasClasses: boolean }>

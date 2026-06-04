@@ -39,6 +39,13 @@ function createRepositoryMock(): RpgMembershipRepository {
     createPendingCharacterRequest: vi.fn().mockResolvedValue(undefined),
     resendCharacterRequest: vi.fn().mockResolvedValue(undefined),
     processCharacterRequest: vi.fn().mockResolvedValue(true),
+    getPendingCharacterOffer: vi.fn().mockResolvedValue({
+      id: "offer-1",
+      characterId: "char-1",
+      allowMultiplePlayerCharacters: false,
+      existingPlayers: 0,
+    }),
+    processCharacterOffer: vi.fn().mockResolvedValue(true),
   }
 }
 
@@ -193,5 +200,70 @@ describe("rpgMembership use-cases", () => {
     expect(result).toEqual({
       message: "Solicitacao aprovada.",
     })
+  })
+
+  it("processCharacterRequestUseCase permite jogador aceitar proposta de personagem", async () => {
+    const access = createAccessMock()
+    const repository = createRepositoryMock()
+    ;(access.getPermission as ReturnType<typeof vi.fn>).mockResolvedValue({
+      exists: true,
+      canManage: false,
+      ownerId: "owner-1",
+    })
+    ;(repository.getMembership as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "member-1",
+      status: "accepted",
+    })
+
+    const result = await processCharacterRequestUseCase(access, repository, {
+      rpgId: "rpg-1",
+      userId: "player-1",
+      requestId: "offer-1",
+      action: "accept",
+    })
+
+    expect(repository.getPendingCharacterOffer).toHaveBeenCalledWith("rpg-1", "offer-1", "player-1")
+    expect(repository.processCharacterOffer).toHaveBeenCalledWith(
+      "rpg-1",
+      "offer-1",
+      "player-1",
+      "accepted",
+    )
+    expect(result).toEqual({
+      message: "Personagem aceito.",
+    })
+  })
+
+  it("processCharacterRequestUseCase bloqueia proposta quando jogador ja possui player", async () => {
+    const access = createAccessMock()
+    const repository = createRepositoryMock()
+    ;(access.getPermission as ReturnType<typeof vi.fn>).mockResolvedValue({
+      exists: true,
+      canManage: false,
+      ownerId: "owner-1",
+    })
+    ;(repository.getMembership as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "member-1",
+      status: "accepted",
+    })
+    ;(repository.getPendingCharacterOffer as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "offer-1",
+      characterId: "char-1",
+      allowMultiplePlayerCharacters: false,
+      existingPlayers: 1,
+    })
+
+    await expect(
+      processCharacterRequestUseCase(access, repository, {
+        rpgId: "rpg-1",
+        userId: "player-1",
+        requestId: "offer-1",
+        action: "accept",
+      }),
+    ).rejects.toMatchObject({
+      status: 409,
+      message: "Voce ja possui um personagem player neste RPG.",
+    })
+    expect(repository.processCharacterOffer).not.toHaveBeenCalled()
   })
 })

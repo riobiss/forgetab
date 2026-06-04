@@ -18,6 +18,12 @@ export type CharacterOptionDto = {
   label: string
 }
 
+export type AssignablePlayerDto = {
+  userId: string
+  username: string
+  name: string
+}
+
 export type CharacterEditorCharacterTypeDto = "player" | "npc" | "monster"
 export type CharacterEditorVisibilityDto = "private" | "public"
 
@@ -51,6 +57,7 @@ export type CharacterEditorRpgSettingsDto = {
   progressionTiers?: ProgressionTier[]
   canManage?: boolean
   canDelete?: boolean
+  allowMultiplePlayerCharacters?: boolean
 }
 
 export type CharacterEditorBootstrapDto = {
@@ -63,6 +70,7 @@ export type CharacterEditorBootstrapDto = {
   classes: CharacterOptionDto[]
   identityFields: CharacterIdentityFieldDto[]
   characteristicFields: CharacterIdentityFieldDto[]
+  assignablePlayers: AssignablePlayerDto[]
 }
 
 export type UpsertCharacterPayloadDto = {
@@ -79,6 +87,7 @@ export type UpsertCharacterPayloadDto = {
   identity: Record<string, string>
   characteristics: Record<string, string>
   skills?: Record<string, number>
+  offerToUserId?: string | null
 }
 
 export type UpdateCharacterPayloadDto = Partial<UpsertCharacterPayloadDto>

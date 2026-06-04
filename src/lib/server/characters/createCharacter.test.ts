@@ -20,6 +20,38 @@ function makeCharacterRepository(): CharacterRepository {
   return {
     listByRpg: vi.fn(),
     countPlayersByCreator: vi.fn().mockResolvedValue(0),
+    listAssignablePlayers: vi.fn().mockResolvedValue([]),
+    isAcceptedMember: vi.fn().mockResolvedValue(true),
+    createCharacterOffer: vi.fn().mockResolvedValue(undefined),
+    createWithOffer: vi.fn().mockResolvedValue({
+      id: "char-1",
+      rpgId: "rpg-1",
+      name: "Heroi",
+      image: null,
+      raceKey: null,
+      classKey: null,
+      characterType: "player",
+      visibility: "public",
+      maxCarryWeight: null,
+      progressionMode: "xp_level",
+      progressionLabel: "Level 1",
+      progressionRequired: 0,
+      progressionCurrent: 0,
+      createdByUserId: null,
+      life: 0,
+      defense: 0,
+      mana: 0,
+      exhaustion: 0,
+      sanity: 0,
+      statuses: {},
+      currentStatuses: {},
+      attributes: {},
+      skills: {},
+      identity: {},
+      characteristics: {},
+      createdAt: new Date("2026-02-26T00:00:00.000Z"),
+      updatedAt: new Date("2026-02-26T00:00:00.000Z"),
+    }),
     create: vi.fn().mockResolvedValue({
       id: "char-1",
       rpgId: "rpg-1",
@@ -143,5 +175,31 @@ describe("createCharacter", () => {
 
     expect(result.name).toBe("Heroi")
     expect(characterRepository.create).toHaveBeenCalledTimes(1)
+  })
+
+  it("cria proposta quando mestre seleciona jogador", async () => {
+    const characterRepository = makeCharacterRepository()
+    const rpgTemplatesRepository = makeTemplatesRepository()
+
+    await createCharacter({
+      rpgId: "rpg-1",
+      userId: "owner-1",
+      access: baseAccess,
+      payload: {
+        name: "Heroi",
+        characterType: "player",
+        offerToUserId: "player-1",
+      },
+      characterRepository,
+      rpgTemplatesRepository,
+    })
+
+    expect(characterRepository.isAcceptedMember).toHaveBeenCalledWith("rpg-1", "player-1")
+    expect(characterRepository.countPlayersByCreator).toHaveBeenCalledWith("rpg-1", "player-1")
+    expect(characterRepository.createWithOffer).toHaveBeenCalledWith(
+      expect.objectContaining({ rpgId: "rpg-1", name: "Heroi" }),
+      "player-1",
+    )
+    expect(characterRepository.createCharacterOffer).not.toHaveBeenCalled()
   })
 })

@@ -37,7 +37,14 @@ type CreateCharacterRowInput = {
 export interface CharacterRepository {
   listByRpg(input: ListCharactersInput): Promise<CharacterRow[]>
   countPlayersByCreator(rpgId: string, userId: string): Promise<number>
+  listAssignablePlayers(
+    rpgId: string,
+    allowMultiplePlayerCharacters: boolean,
+  ): Promise<Array<{ userId: string; username: string; name: string }>>
+  isAcceptedMember(rpgId: string, userId: string): Promise<boolean>
+  createCharacterOffer(rpgId: string, characterId: string, userId: string): Promise<void>
   create(input: CreateCharacterRowInput): Promise<CharacterRow>
+  createWithOffer(input: CreateCharacterRowInput, offerUserId: string): Promise<CharacterRow>
 }
 
 const buildVisibilityCondition = (isOwner: boolean, userId: string) =>
@@ -111,6 +118,62 @@ export const prismaCharacterRepository: CharacterRepository = {
     return Number(rows[0]?.total ?? 0)
   },
 
+  listAssignablePlayers(rpgId, allowMultiplePlayerCharacters) {
+    return prisma.$queryRaw(Prisma.sql`
+      SELECT
+        m.user_id AS "userId",
+        u.username,
+        COALESCE(NULLIF(p.display_name, ''), u.name) AS name
+      FROM rpg_members m
+      INNER JOIN users u ON u.id = m.user_id
+      LEFT JOIN rpg_user_profiles p ON p.rpg_id = m.rpg_id AND p.user_id = u.id
+      WHERE m.rpg_id = ${rpgId}
+        AND m.status = 'accepted'::"RpgMemberStatus"
+        AND (
+          ${allowMultiplePlayerCharacters}
+          OR NOT EXISTS (
+            SELECT 1
+            FROM rpg_characters c
+            WHERE c.rpg_id = m.rpg_id
+              AND c.created_by_user_id = m.user_id
+              AND c.character_type = 'player'::"RpgCharacterType"
+          )
+        )
+      ORDER BY COALESCE(NULLIF(p.display_name, ''), u.name) ASC
+    `)
+  },
+
+  async isAcceptedMember(rpgId, userId) {
+    const rows = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+      SELECT id
+      FROM rpg_members
+      WHERE rpg_id = ${rpgId}
+        AND user_id = ${userId}
+        AND status = 'accepted'::"RpgMemberStatus"
+      LIMIT 1
+    `)
+    return rows.length > 0
+  },
+
+  async createCharacterOffer(rpgId, characterId, userId) {
+    await prisma.$executeRaw(Prisma.sql`
+      INSERT INTO rpg_character_offers (id, rpg_id, character_id, user_id, status)
+      VALUES (
+        ${crypto.randomUUID()},
+        ${rpgId},
+        ${characterId},
+        ${userId},
+        'pending'::"CharacterCreationRequestStatus"
+      )
+      ON CONFLICT (rpg_id, character_id, user_id)
+      DO UPDATE SET
+        status = 'pending'::"CharacterCreationRequestStatus",
+        requested_at = CURRENT_TIMESTAMP,
+        responded_at = NULL,
+        updated_at = CURRENT_TIMESTAMP
+    `)
+  },
+
   async create(input) {
     const created = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
       INSERT INTO rpg_characters (
@@ -174,5 +237,89 @@ export const prismaCharacterRepository: CharacterRepository = {
     `)
 
     return created[0]
+  },
+
+  async createWithOffer(input, offerUserId) {
+    return prisma.$transaction(async (transaction) => {
+      const created = await transaction.$queryRaw<CharacterRow[]>(Prisma.sql`
+        INSERT INTO rpg_characters (
+          id, rpg_id, name, image, race_key, class_key, character_type, visibility, max_carry_weight, progression_mode, progression_label, progression_required, progression_current, created_by_user_id, life, defense, mana, stamina, sanity, statuses, current_statuses, attributes, skills, identity, characteristics
+        )
+        VALUES (
+          ${crypto.randomUUID()},
+          ${input.rpgId},
+          ${input.name},
+          ${input.image},
+          ${input.raceKey},
+          ${input.classKey},
+          ${input.characterType}::"RpgCharacterType",
+          ${input.visibility}::"RpgVisibility",
+          ${input.maxCarryWeight},
+          ${input.progressionMode},
+          ${input.progressionLabel},
+          ${input.progressionRequired},
+          ${input.progressionCurrent},
+          ${input.createdByUserId},
+          ${input.life},
+          ${input.defense},
+          ${input.mana},
+          ${input.exhaustion},
+          ${input.sanity},
+          ${JSON.stringify(input.statuses)}::jsonb,
+          ${JSON.stringify(input.statuses)}::jsonb,
+          ${JSON.stringify(input.attributes)}::jsonb,
+          ${JSON.stringify(input.skills)}::jsonb,
+          ${JSON.stringify(input.identity)}::jsonb,
+          ${JSON.stringify(input.characteristics)}::jsonb
+        )
+        RETURNING
+          id,
+          rpg_id AS "rpgId",
+          name,
+          image,
+          race_key AS "raceKey",
+          class_key AS "classKey",
+          character_type AS "characterType",
+          visibility,
+          max_carry_weight AS "maxCarryWeight",
+          COALESCE(progression_mode, 'xp_level') AS "progressionMode",
+          COALESCE(progression_label, 'Level 1') AS "progressionLabel",
+          COALESCE(progression_required, 0) AS "progressionRequired",
+          COALESCE(progression_current, 0) AS "progressionCurrent",
+          created_by_user_id AS "createdByUserId",
+          life,
+          defense,
+          mana,
+          stamina AS exhaustion,
+          sanity,
+          statuses,
+          COALESCE(current_statuses, '{}'::jsonb) AS "currentStatuses",
+          attributes,
+          skills,
+          identity,
+          characteristics,
+          created_at AS "createdAt",
+          updated_at AS "updatedAt"
+      `)
+
+      await transaction.$executeRaw(Prisma.sql`
+        INSERT INTO rpg_character_offers (id, rpg_id, character_id, user_id, status)
+        VALUES (
+          ${crypto.randomUUID()},
+          ${input.rpgId},
+          ${created[0].id},
+          ${offerUserId},
+          'pending'::"CharacterCreationRequestStatus"
+        )
+        ON CONFLICT (rpg_id, character_id, user_id)
+        DO UPDATE SET
+          status = 'pending'::"CharacterCreationRequestStatus",
+          requested_at = CURRENT_TIMESTAMP,
+          responded_at = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      `)
+
+      return created[0]
+    })
   },
 }

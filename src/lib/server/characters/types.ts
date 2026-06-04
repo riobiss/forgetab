@@ -101,6 +101,7 @@ export type CreateCharacterPayload = {
   raceKey?: string
   classKey?: string
   progressionCurrent?: number
+  offerToUserId?: string | null
 }
 
 export type ListCharactersResult = {

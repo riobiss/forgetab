@@ -5,6 +5,12 @@ export type PendingRequestSummary = {
   requestedAt: Date
 }
 
+export type PendingCharacterOfferSummary = {
+  id: string
+  characterName: string
+  requestedAt: Date
+}
+
 export type AcceptedMemberSummary = {
   id: string
   userId: string
@@ -49,6 +55,7 @@ export type RpgDashboardViewModel = {
   canViewFullContent: boolean
   pendingRequests: PendingRequestSummary[]
   pendingCharacterRequests: PendingRequestSummary[]
+  pendingCharacterOffers: PendingCharacterOfferSummary[]
   acceptedMembers: AcceptedMemberSummary[]
   acceptedMembersCount: number
   hasRaces: boolean

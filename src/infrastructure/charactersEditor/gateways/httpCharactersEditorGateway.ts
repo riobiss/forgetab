@@ -26,12 +26,40 @@ async function fetchCharactersList(rpgId: string): Promise<CharacterEditorSummar
   return payload.characters ?? []
 }
 
+type MemberUserDto = {
+  id: string
+  username: string
+  name: string
+}
+
+function buildAssignablePlayers(params: {
+  users: MemberUserDto[]
+  characters: CharacterEditorSummaryDto[]
+  rpg: CharacterEditorRpgSettingsDto | null
+}) {
+  if (!params.rpg?.canManage) return []
+  const assignedUserIds = new Set(
+    params.characters
+      .filter((character) => character.characterType === "player" && character.createdByUserId)
+      .map((character) => character.createdByUserId as string),
+  )
+  const allowMultiple = Boolean(params.rpg.allowMultiplePlayerCharacters)
+
+  return params.users
+    .filter((user) => allowMultiple || !assignedUserIds.has(user.id))
+    .map((user) => ({
+      userId: user.id,
+      username: user.username,
+      name: user.name,
+    }))
+}
+
 export const httpCharactersEditorGateway: CharactersEditorGateway = {
   async fetchBootstrap(
     rpgId: string,
     options?: { includeCharacters?: boolean },
   ): Promise<CharacterEditorBootstrapDto> {
-    const includeCharacters = options?.includeCharacters ?? true
+    void options
     const [
       attributesPayload,
       statusesPayload,
@@ -42,6 +70,7 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
       classesPayload,
       identityPayload,
       characteristicsPayload,
+      membersPayload,
     ] = await Promise.all([
       apiFetch(`/api/rpg/${rpgId}/attributes`, { cache: "no-store" }).then((response) =>
         parseJson<{ attributes?: CharacterEditorTemplateFieldDto[] }>(response),
@@ -52,11 +81,9 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
       apiFetch(`/api/rpg/${rpgId}/skills`, { cache: "no-store" }).then((response) =>
         parseJson<{ skills?: CharacterEditorTemplateFieldDto[] }>(response),
       ),
-      includeCharacters
-        ? apiFetch(`/api/rpg/${rpgId}/characters`, { cache: "no-store" }).then((response) =>
-            parseJson<{ characters?: CharacterEditorSummaryDto[] }>(response),
-          )
-        : Promise.resolve({ characters: [] as CharacterEditorSummaryDto[] }),
+      apiFetch(`/api/rpg/${rpgId}/characters`, { cache: "no-store" }).then((response) =>
+        parseJson<{ characters?: CharacterEditorSummaryDto[] }>(response),
+      ),
       apiFetch(`/api/rpg/${rpgId}`, { cache: "no-store" }).then((response) =>
         parseJson<{ rpg?: CharacterEditorRpgSettingsDto }>(response),
       ),
@@ -72,18 +99,28 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
       apiFetch(`/api/rpg/${rpgId}/character-characteristics`, { cache: "no-store" }).then((response) =>
         parseJson<{ fields?: CharacterIdentityFieldDto[] }>(response),
       ),
+      apiFetch(`/api/rpg/${rpgId}/members`, { cache: "no-store" })
+        .then((response) => parseJson<{ users?: MemberUserDto[] }>(response))
+        .catch(() => ({ users: [] as MemberUserDto[] })),
     ])
+    const rpg = rpgPayload.rpg ?? null
+    const characters = charactersPayload.characters ?? []
 
     return {
       attributes: attributesPayload.attributes ?? [],
       statuses: statusesPayload.statuses ?? [],
       skills: skillsPayload.skills ?? [],
-      characters: charactersPayload.characters ?? [],
-      rpg: rpgPayload.rpg ?? null,
+      characters,
+      rpg,
       races: racesPayload.races ?? [],
       classes: classesPayload.classes ?? [],
       identityFields: identityPayload.fields ?? [],
       characteristicFields: characteristicsPayload.fields ?? [],
+      assignablePlayers: buildAssignablePlayers({
+        users: membersPayload.users ?? [],
+        characters,
+        rpg,
+      }),
     }
   },
 

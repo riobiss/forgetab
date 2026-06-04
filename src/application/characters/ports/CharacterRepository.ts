@@ -32,8 +32,18 @@ type CreateCharacterRowInput = {
   characteristics: Record<string, string>
 }
 
+export type AssignablePlayerRow = {
+  userId: string
+  username: string
+  name: string
+}
+
 export interface CharacterRepository {
   listByRpg(input: ListCharactersInput): Promise<CharacterRow[]>
   countPlayersByCreator(rpgId: string, userId: string): Promise<number>
+  listAssignablePlayers(rpgId: string, allowMultiplePlayerCharacters: boolean): Promise<AssignablePlayerRow[]>
+  isAcceptedMember(rpgId: string, userId: string): Promise<boolean>
+  createCharacterOffer(rpgId: string, characterId: string, userId: string): Promise<void>
   create(input: CreateCharacterRowInput): Promise<CharacterRow>
+  createWithOffer(input: CreateCharacterRowInput, offerUserId: string): Promise<CharacterRow>
 }

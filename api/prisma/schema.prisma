@@ -25,6 +25,7 @@ model User {
   rpgProfiles   RpgUserProfile[]
   characters   RpgCharacter[]
   characterCreationRequests RpgCharacterCreationRequest[]
+  characterOffers RpgCharacterOffer[]
   skills       Skill[]
 
   @@map("users")
@@ -113,6 +114,7 @@ model Rpg {
   members            RpgMember[]
   userProfiles       RpgUserProfile[]
   characterCreationRequests RpgCharacterCreationRequest[]
+  characterOffers    RpgCharacterOffer[]
   skills             Skill[]
   librarySections    RpgLibrarySection[]
   libraryBooks       RpgLibraryBook[]
@@ -341,6 +343,7 @@ model RpgCharacter {
   createdAt     DateTime         @default(now()) @map("created_at")
   updatedAt     DateTime         @default(now()) @map("updated_at")
   inventoryItems RpgCharacterInventoryItem[]
+  offers        RpgCharacterOffer[]
 
   @@index([rpgId])
   @@index([createdByUserId])
@@ -523,6 +526,27 @@ model RpgCharacterCreationRequest {
   @@index([rpgId])
   @@index([userId])
   @@map("rpg_character_creation_requests")
+}
+
+model RpgCharacterOffer {
+  id          String                         @id @default(cuid())
+  rpgId       String                         @map("rpg_id")
+  characterId String                         @map("character_id")
+  userId      String                         @map("user_id")
+  status      CharacterCreationRequestStatus @default(pending)
+  createdAt   DateTime                       @default(now()) @map("created_at")
+  updatedAt   DateTime                       @default(now()) @map("updated_at")
+  requestedAt DateTime                       @default(now()) @map("requested_at")
+  respondedAt DateTime?                      @map("responded_at")
+  rpg         Rpg                            @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  character   RpgCharacter                   @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  user        User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([rpgId, characterId, userId])
+  @@index([rpgId])
+  @@index([userId])
+  @@index([characterId])
+  @@map("rpg_character_offers")
 }
 
 model Skill {

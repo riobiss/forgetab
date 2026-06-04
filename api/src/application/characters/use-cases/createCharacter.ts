@@ -215,9 +215,27 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
       classAttributeBonuses,
     )
     const finalSkills = addBonusToBase(parsedSkills.value, raceSkillBonuses, classSkillBonuses)
+    const offerToUserId = input.payload.offerToUserId?.trim() || null
+    if (offerToUserId) {
+      if (!input.access.isOwner) {
+        fail(403, "Somente mestre ou moderador podem enviar personagem a um jogador.")
+      }
+      if (input.payload.characterType !== "player") {
+        fail(400, "Somente personagens player podem ser enviados a jogadores.")
+      }
+      const isAcceptedMember = await input.characterRepository.isAcceptedMember(input.rpgId, offerToUserId)
+      if (!isAcceptedMember) {
+        fail(400, "Jogador invalido para receber personagem.")
+      }
+      const targetPlayers = await input.characterRepository.countPlayersByCreator(input.rpgId, offerToUserId)
+      if (targetPlayers > 0 && !input.access.allowMultiplePlayerCharacters) {
+        fail(409, "Este jogador ja possui um personagem player neste RPG.")
+      }
+    }
+
     const createdByUserId = input.access.isOwner ? null : input.userId
 
-    return input.characterRepository.create({
+    const characterInput = {
       rpgId: input.rpgId,
       name,
       image,
@@ -241,7 +259,11 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
       skills: finalSkills,
       identity: parsedIdentity.value,
       characteristics: parsedCharacteristics.value,
-    })
+    }
+
+    return offerToUserId
+      ? input.characterRepository.createWithOffer(characterInput, offerToUserId)
+      : input.characterRepository.create(characterInput)
   } catch (error) {
     if (error instanceof AppError) {
       throw error

@@ -55,7 +55,17 @@ export async function loadCharacterEditorBootstrapServerUseCase(
     return null
   }
 
-  const [attributes, statuses, skills, characters, racePayload, classPayload, identityFields, characteristicFields] =
+  const [
+    attributes,
+    statuses,
+    skills,
+    characters,
+    racePayload,
+    classPayload,
+    identityFields,
+    characteristicFields,
+    assignablePlayers,
+  ] =
     await Promise.all([
       deps.rpgTemplatesRepository.getAttributeTemplates(params.rpgId),
       deps.rpgTemplatesRepository.getStatusTemplates(params.rpgId),
@@ -75,6 +85,12 @@ export async function loadCharacterEditorBootstrapServerUseCase(
       }),
       deps.rpgTemplatesRepository.getIdentityTemplates(params.rpgId),
       deps.rpgTemplatesRepository.getCharacteristicTemplates(params.rpgId),
+      access.isOwner
+        ? deps.characterRepository.listAssignablePlayers(
+            params.rpgId,
+            access.allowMultiplePlayerCharacters,
+          )
+        : Promise.resolve([]),
     ])
 
   return {
@@ -91,6 +107,7 @@ export async function loadCharacterEditorBootstrapServerUseCase(
       progressionTiers: access.progressionTiers,
       canManage: access.isOwner,
       canDelete: access.isOwner,
+      allowMultiplePlayerCharacters: access.allowMultiplePlayerCharacters,
     },
     races: (racePayload?.races ?? []).map((item) => ({
       key: item.key,
@@ -102,5 +119,6 @@ export async function loadCharacterEditorBootstrapServerUseCase(
     })),
     identityFields,
     characteristicFields,
+    assignablePlayers,
   }
 }

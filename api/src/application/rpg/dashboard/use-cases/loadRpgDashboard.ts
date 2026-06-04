@@ -64,6 +64,7 @@ export async function loadRpgDashboard(
 
   let pendingRequests = [] as RpgDashboardViewModel["pendingRequests"]
   let pendingCharacterRequests = [] as RpgDashboardViewModel["pendingCharacterRequests"]
+  let pendingCharacterOffers = [] as RpgDashboardViewModel["pendingCharacterOffers"]
   let acceptedMembers = [] as RpgDashboardViewModel["acceptedMembers"]
   let acceptedMembersCount = 0
 
@@ -76,6 +77,9 @@ export async function loadRpgDashboard(
     acceptedMembersCount = acceptedMembers.length
   } else {
     acceptedMembersCount = await repository.countAcceptedMembers(params.rpgId)
+    if (params.userId && isAcceptedMember) {
+      pendingCharacterOffers = await repository.listPendingCharacterOffers(params.rpgId, params.userId)
+    }
   }
 
   const { hasRaces, hasClasses } = await repository.getTemplatesPresence(params.rpgId)
@@ -181,6 +185,7 @@ export async function loadRpgDashboard(
     canViewFullContent,
     pendingRequests,
     pendingCharacterRequests,
+    pendingCharacterOffers,
     acceptedMembers,
     acceptedMembersCount,
     hasRaces,

@@ -201,7 +201,7 @@ export async function requestCharacterCreationUseCase(
   }
 }
 
-export async function processCharacterRequestUseCase(
+export async function processCharacterCreationRequestUseCase(
   access: RpgMembershipAccessService,
   repository: RpgMembershipRepository,
   params: { rpgId: string; userId: string; requestId: string; action: "accept" | "reject" },
@@ -210,7 +210,7 @@ export async function processCharacterRequestUseCase(
     const permission = await access.getPermission(params.rpgId, params.userId)
     if (!permission.exists) throw new AppError("RPG nao encontrado.", 404)
     if (!permission.canManage) {
-      throw new AppError("Somente mestre ou moderador podem gerenciar solicitacoes de personagem.", 403)
+      throw new AppError("Somente mestre ou moderador podem processar solicitacoes.", 403)
     }
 
     const updated = await repository.processCharacterRequest(
@@ -227,3 +227,70 @@ export async function processCharacterRequestUseCase(
   }
 }
 
+export async function processCharacterOfferUseCase(
+  access: RpgMembershipAccessService,
+  repository: RpgMembershipRepository,
+  params: { rpgId: string; userId: string; offerId: string; action: "accept" | "reject" },
+) {
+  try {
+    const permission = await access.getPermission(params.rpgId, params.userId)
+    if (!permission.exists) throw new AppError("RPG nao encontrado.", 404)
+    if (permission.canManage) {
+      throw new AppError("Somente o jogador pode responder a proposta de personagem.", 403)
+    }
+
+    const membership = await repository.getMembership(params.rpgId, params.userId)
+    if (membership?.status !== "accepted") {
+      throw new AppError("RPG nao encontrado.", 404)
+    }
+
+    const offer = await repository.getPendingCharacterOffer(params.rpgId, params.offerId, params.userId)
+    if (!offer) {
+      throw new AppError("Proposta de personagem nao encontrada ou ja processada.", 404)
+    }
+    if (
+      params.action === "accept" &&
+      !offer.allowMultiplePlayerCharacters &&
+      Number(offer.existingPlayers) > 0
+    ) {
+      throw new AppError("Voce ja possui um personagem player neste RPG.", 409)
+    }
+
+    const updated = await repository.processCharacterOffer(
+      params.rpgId,
+      params.offerId,
+      params.userId,
+      params.action === "accept" ? "accepted" : "rejected",
+    )
+    if (!updated) throw new AppError("Proposta de personagem nao encontrada ou ja processada.", 404)
+    return {
+      message: params.action === "accept" ? "Personagem aceito." : "Personagem recusado.",
+    }
+  } catch (error) {
+    wrapCharacterRequestsError(error, "Erro interno ao processar proposta de personagem.")
+  }
+}
+
+export async function processCharacterRequestUseCase(
+  access: RpgMembershipAccessService,
+  repository: RpgMembershipRepository,
+  params: { rpgId: string; userId: string; requestId: string; action: "accept" | "reject" },
+) {
+  try {
+    const permission = await access.getPermission(params.rpgId, params.userId)
+    if (permission.canManage) {
+      return processCharacterCreationRequestUseCase(
+        { getPermission: async () => permission },
+        repository,
+        params,
+      )
+    }
+    return processCharacterOfferUseCase(
+      { getPermission: async () => permission },
+      repository,
+      { ...params, offerId: params.requestId },
+    )
+  } catch (error) {
+    wrapCharacterRequestsError(error, "Erro interno ao processar solicitacao de personagem.")
+  }
+}

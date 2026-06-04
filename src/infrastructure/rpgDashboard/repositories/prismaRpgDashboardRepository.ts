@@ -98,6 +98,21 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
     `)
   },
 
+  listPendingCharacterOffers(rpgId, userId) {
+    return prisma.$queryRaw(Prisma.sql`
+      SELECT
+        o.id,
+        c.name AS "characterName",
+        o.requested_at AS "requestedAt"
+      FROM rpg_character_offers o
+      INNER JOIN rpg_characters c ON c.id = o.character_id
+      WHERE o.rpg_id = ${rpgId}
+        AND o.user_id = ${userId}
+        AND o.status = 'pending'::"public"."CharacterCreationRequestStatus"
+      ORDER BY o.requested_at ASC
+    `)
+  },
+
   listAcceptedMembers(rpgId) {
     return prisma.$queryRaw(Prisma.sql`
       SELECT
