@@ -24,6 +24,7 @@ type BuildCharacterPayloadParams = {
   statusValues: Record<string, number | "">
   attributeValues: Record<string, number | "">
   skillValues: Record<string, number | "">
+  offerToUserId?: string
 }
 
 export function buildCharacterPayload({
@@ -46,6 +47,7 @@ export function buildCharacterPayload({
   statusValues,
   attributeValues,
   skillValues,
+  offerToUserId,
 }: BuildCharacterPayloadParams): UpsertCharacterPayloadDto {
   const isEditing = Boolean(editingCharacterId)
   const resolvedName = identityNameFieldKey
@@ -88,5 +90,6 @@ export function buildCharacterPayload({
     identity: identityValues,
     characteristics: characteristicsValues,
     ...(!isEditing || canManageCharacters ? { skills: normalizeNumericValues(skillValues) } : {}),
+    ...(!isEditing && offerToUserId ? { offerToUserId } : {}),
   }
 }

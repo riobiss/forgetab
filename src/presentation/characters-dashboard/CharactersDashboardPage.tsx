@@ -22,6 +22,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
   const searchParams = useSearchParams()
   const [search, setSearch] = useState("")
   const [favoriteIds, setFavoriteIds] = useState<string[]>([])
+  const [favoritesLoaded, setFavoritesLoaded] = useState(false)
   const [favoritesOnly, setFavoritesOnly] = useState(false)
   const [modalState, setModalState] = useState<{
     mode: "create" | "edit"
@@ -39,13 +40,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
   const viewer = searchParams.get("viewer")
   const editCharacterId = searchParams.get("characterId") ?? undefined
 
-  const createPlayerHref = useMemo(() => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("modal", "create")
-    params.set("editor", "player")
-    params.delete("characterId")
-    return `${pathname}?${params.toString()}`
-  }, [pathname, searchParams])
+  const createPlayerHref = `/rpg/${data.rpgId}/characters/new`
 
   const closePlayerModal = () => {
     const params = new URLSearchParams(searchParams.toString())
@@ -79,6 +74,8 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
   }
 
   useEffect(() => {
+    setFavoritesLoaded(false)
+
     if (typeof window === "undefined") {
       return
     }
@@ -86,6 +83,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
     const rawFavorites = window.localStorage.getItem(favoriteStorageKey)
     if (!rawFavorites) {
       setFavoriteIds([])
+      setFavoritesLoaded(true)
       return
     }
 
@@ -94,16 +92,18 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
       setFavoriteIds(Array.isArray(parsedFavorites) ? parsedFavorites.filter(Boolean) : [])
     } catch {
       setFavoriteIds([])
+    } finally {
+      setFavoritesLoaded(true)
     }
   }, [favoriteStorageKey])
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || !favoritesLoaded) {
       return
     }
 
     window.localStorage.setItem(favoriteStorageKey, JSON.stringify(favoriteIds))
-  }, [favoriteIds, favoriteStorageKey])
+  }, [favoriteIds, favoriteStorageKey, favoritesLoaded])
 
   const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds])
 
@@ -121,13 +121,19 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
       ? data.characters.filter((character) => favoriteIdSet.has(character.id))
       : data.characters
 
-    if (!normalizedSearch) {
-      return filteredByFavorites
-    }
+    const filteredBySearch = normalizedSearch
+      ? filteredByFavorites.filter((character) =>
+          character.name.trim().toLowerCase().includes(normalizedSearch),
+        )
+      : filteredByFavorites
 
-    return filteredByFavorites.filter((character) =>
-      character.name.trim().toLowerCase().includes(normalizedSearch),
-    )
+    return [...filteredBySearch].sort((a, b) => {
+      const aFavorite = favoriteIdSet.has(a.id)
+      const bFavorite = favoriteIdSet.has(b.id)
+
+      if (aFavorite === bFavorite) return 0
+      return aFavorite ? -1 : 1
+    })
   }, [data.characters, deferredSearch, favoriteIdSet, favoritesOnly])
 
   const visibleCounts = visibleCharacters.reduce(
@@ -293,13 +299,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
                     </button>
                   ) : (
                     <Link
-                      href={`${pathname}?${(() => {
-                        const params = new URLSearchParams(searchParams.toString())
-                        params.set("modal", "edit")
-                        params.set("editor", "player")
-                        params.set("characterId", character.id)
-                        return params.toString()
-                      })()}`}
+                      href={`/rpg/${data.rpgId}/characters/${character.id}/edit`}
                       className={styles.editFab}
                       aria-label={`Editar ${character.name}`}
                       title={`Editar ${character.name}`}

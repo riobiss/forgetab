@@ -137,6 +137,60 @@
   font-size: 0.93rem;
 }
 
+.editableField {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.editableFieldLabel {
+  color: var(--color-text-secondary);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.editableFieldRow {
+  min-height: 42px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 9px;
+  padding: 0.34rem 0.38rem 0.34rem 0.7rem;
+  background: var(--color-bg-hover);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.editableFieldValue {
+  color: var(--color-text-secondary);
+  font-size: 0.93rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editableFieldButton {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.editableFieldButton:hover {
+  border-color: var(--color-border-brand);
+  color: var(--color-brand-primary);
+}
+
+.editableFieldButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .progressionPickerButton {
   border: 1px solid var(--color-border-soft);
   border-radius: 9px;
@@ -317,6 +371,12 @@
   color: var(--color-text-primary);
 }
 
+.modalTitle {
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
 .modalCard p {
   margin: 0;
   color: var(--color-text-muted);
@@ -353,6 +413,22 @@
   background: var(--color-bg-hover);
   color: var(--color-text-secondary);
   justify-self: end;
+  cursor: pointer;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.modalActions button {
+  border: none;
+  border-radius: 9px;
+  padding: 0.54rem 0.82rem;
+  background: var(--color-brand-primary);
+  color: var(--color-bg-app);
+  font-weight: 700;
   cursor: pointer;
 }
 

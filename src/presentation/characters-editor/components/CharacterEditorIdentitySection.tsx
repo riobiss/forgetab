@@ -1,13 +1,15 @@
 "use client"
 
 import { ImagePlus, Paperclip, Trash2 } from "lucide-react"
-import { NativeSelectField } from "@/components/select/NativeSelectField"
+import ReactSelect from "react-select"
+import type { SingleValue, StylesConfig } from "react-select"
 import {
   getProgressionModeLabel,
   type ProgressionMode,
   type ProgressionTier,
 } from "@/lib/rpg/progression"
 import styles from "../CharacterEditorForm.module.css"
+import EditableModalField from "./EditableModalField"
 import type {
   CharacterEditorCharacterTypeDto,
   CharacterIdentityFieldDto,
@@ -57,6 +59,49 @@ type Props = {
   onIdentityFieldChange: (key: string, value: string) => void
 }
 
+type SelectOption = {
+  value: string
+  label: string
+}
+
+const reactSelectStyles: StylesConfig<SelectOption, false> = {
+  control: (base, state) => ({
+    ...base,
+    minHeight: 42,
+    borderRadius: 9,
+    borderColor: state.isFocused ? "var(--color-brand-primary)" : "var(--color-border-soft)",
+    backgroundColor: "var(--color-bg-hover)",
+    boxShadow: state.isFocused ? "var(--shadow-brand-glow)" : "none",
+    ":hover": {
+      borderColor: "var(--color-brand-primary)",
+    },
+  }),
+  menu: (base) => ({
+    ...base,
+    backgroundColor: "var(--color-bg-surface)",
+    border: "1px solid var(--color-border-soft)",
+    zIndex: 50,
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isFocused ? "var(--color-bg-hover)" : "var(--color-bg-surface)",
+    color: "var(--color-text-secondary)",
+    cursor: "pointer",
+  }),
+  input: (base) => ({
+    ...base,
+    color: "var(--color-text-secondary)",
+  }),
+  placeholder: (base) => ({
+    ...base,
+    color: "var(--color-text-muted)",
+  }),
+  singleValue: (base) => ({
+    ...base,
+    color: "var(--color-text-secondary)",
+  }),
+}
+
 export default function CharacterEditorIdentitySection({
   identityNameField,
   name,
@@ -93,21 +138,64 @@ export default function CharacterEditorIdentitySection({
   onVisibilityChange,
   onIdentityFieldChange,
 }: Props) {
+  const isEditing = Boolean(editingCharacterId)
+  const raceOptions = [
+    { value: "", label: "Sem raca" },
+    ...raceTemplates.map((item) => ({ value: item.key, label: item.label })),
+  ]
+  const selectedRaceOption = raceOptions.find((option) => option.value === raceKey) ?? raceOptions[0]
+  const classOptions = [
+    { value: "", label: "Sem classe" },
+    ...classTemplates.map((item) => ({ value: item.key, label: item.label })),
+  ]
+  const selectedClassOption = classOptions.find((option) => option.value === classKey) ?? classOptions[0]
+  const characterTypeOptions = [
+    { value: "player", label: "Player" },
+    { value: "npc", label: "NPC" },
+    { value: "monster", label: "Criatura" },
+  ]
+  const selectedCharacterTypeOption =
+    characterTypeOptions.find((option) => option.value === characterType) ?? characterTypeOptions[0]
+
+  function handleRaceChange(option: SingleValue<SelectOption>) {
+    onRaceChange(option?.value ?? "")
+  }
+
+  function handleClassChange(option: SingleValue<SelectOption>) {
+    onClassChange(option?.value ?? "")
+  }
+
+  function handleCharacterTypeChange(option: SingleValue<SelectOption>) {
+    const value = option?.value
+    if (value === "player" || value === "npc" || value === "monster") {
+      onCharacterTypeChange(value)
+    }
+  }
+
   return (
-    <section className={styles.section}>
+    <section className={`${styles.section} characterEditorSection`}>
       <h2>Identificacao</h2>
       <div className={styles.identityGrid}>
         {!identityNameField ? (
-          <label className={styles.field}>
-            <span>Nome</span>
-            <input
-              type="text"
+          isEditing ? (
+            <EditableModalField
+              label="Nome"
               value={name}
-              onChange={(event) => onNameChange(event.target.value)}
-              minLength={2}
               required
+              onSave={onNameChange}
             />
-          </label>
+          ) : (
+            <label className={styles.field}>
+              <span>Nome</span>
+              <input
+                type="text"
+                value={name}
+                onChange={(event) => onNameChange(event.target.value)}
+                minLength={2}
+                required
+              />
+            </label>
+          )
         ) : null}
 
         <div className={styles.field}>
@@ -160,14 +248,17 @@ export default function CharacterEditorIdentitySection({
                 readOnly
               />
             ) : (
-              <NativeSelectField value={raceKey} onChange={(event) => onRaceChange(event.target.value)}>
-                <option value="">Sem raca</option>
-                {raceTemplates.map((item) => (
-                  <option key={item.key} value={item.key}>
-                    {item.label}
-                  </option>
-                ))}
-              </NativeSelectField>
+              <ReactSelect<SelectOption, false>
+                instanceId="character-race-select"
+                inputId="character-race-select"
+                options={raceOptions}
+                value={selectedRaceOption}
+                onChange={handleRaceChange}
+                isDisabled={saving || deleting}
+                placeholder="Sem raca"
+                noOptionsMessage={() => "Nenhuma raca disponivel"}
+                styles={reactSelectStyles}
+              />
             )}
           </label>
         ) : null}
@@ -182,14 +273,17 @@ export default function CharacterEditorIdentitySection({
                 readOnly
               />
             ) : (
-              <NativeSelectField value={classKey} onChange={(event) => onClassChange(event.target.value)}>
-                <option value="">Sem classe</option>
-                {classTemplates.map((item) => (
-                  <option key={item.key} value={item.key}>
-                    {item.label}
-                  </option>
-                ))}
-              </NativeSelectField>
+              <ReactSelect<SelectOption, false>
+                instanceId="character-class-select"
+                inputId="character-class-select"
+                options={classOptions}
+                value={selectedClassOption}
+                onChange={handleClassChange}
+                isDisabled={saving || deleting}
+                placeholder="Sem classe"
+                noOptionsMessage={() => "Nenhuma classe disponivel"}
+                styles={reactSelectStyles}
+              />
             )}
           </label>
         ) : null}
@@ -199,14 +293,16 @@ export default function CharacterEditorIdentitySection({
           {editingCharacterId ? (
             <input type="text" value={CHARACTER_TYPE_LABEL[characterType]} readOnly />
           ) : (
-            <NativeSelectField
-              value={characterType}
-              onChange={(event) => onCharacterTypeChange(event.target.value as CharacterEditorCharacterTypeDto)}
-            >
-              <option value="player">Player</option>
-              <option value="npc">NPC</option>
-              <option value="monster">Criatura</option>
-            </NativeSelectField>
+            <ReactSelect<SelectOption, false>
+              instanceId="character-type-select"
+              inputId="character-type-select"
+              options={characterTypeOptions}
+              value={selectedCharacterTypeOption}
+              onChange={handleCharacterTypeChange}
+              isDisabled={saving || deleting}
+              isSearchable={false}
+              styles={reactSelectStyles}
+            />
           )}
         </label>
 
@@ -225,19 +321,32 @@ export default function CharacterEditorIdentitySection({
         </label>
 
         {useInventoryWeightLimit && characterType === "player" ? (
-          <label className={styles.field}>
-            <span>Peso maximo (kg)</span>
-            <input
+          isEditing ? (
+            <EditableModalField
+              label="Peso maximo (kg)"
               type="number"
-              onWheel={(event) => event.currentTarget.blur()}
               min={0}
               step="0.1"
               value={maxCarryWeight}
-              onChange={(event) => onMaxCarryWeightChange(event.target.value)}
               placeholder="Ex.: 30"
               required
+              onSave={onMaxCarryWeightChange}
             />
-          </label>
+          ) : (
+            <label className={styles.field}>
+              <span>Peso maximo (kg)</span>
+              <input
+                type="number"
+                onWheel={(event) => event.currentTarget.blur()}
+                min={0}
+                step="0.1"
+                value={maxCarryWeight}
+                onChange={(event) => onMaxCarryWeightChange(event.target.value)}
+                placeholder="Ex.: 30"
+                required
+              />
+            </label>
+          )
         ) : null}
 
         {editingCharacterId ? (
@@ -270,17 +379,27 @@ export default function CharacterEditorIdentitySection({
           </div>
         ) : null}
 
-        {identityTemplates.map((field) => (
-          <label className={styles.field} key={`identity-${field.key}`}>
-            <span>{field.label}</span>
-            <input
-              type="text"
+        {identityTemplates.map((field) =>
+          isEditing ? (
+            <EditableModalField
+              key={`identity-${field.key}`}
+              label={field.label}
               value={identityValues[field.key] ?? ""}
-              onChange={(event) => onIdentityFieldChange(field.key, event.target.value)}
               required={field.required}
+              onSave={(value) => onIdentityFieldChange(field.key, value)}
             />
-          </label>
-        ))}
+          ) : (
+            <label className={styles.field} key={`identity-${field.key}`}>
+              <span>{field.label}</span>
+              <input
+                type="text"
+                value={identityValues[field.key] ?? ""}
+                onChange={(event) => onIdentityFieldChange(field.key, event.target.value)}
+                required={field.required}
+              />
+            </label>
+          ),
+        )}
       </div>
     </section>
   )

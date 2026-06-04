@@ -76,7 +76,7 @@ export default function CharacterDetailPage({
               data.characterType === "player" ? (
                 <Link
                   className={styles.editInlineButton}
-                  href={`/rpg/${data.rpgId}/characters?modal=edit&editor=player&characterId=${data.characterId}`}
+                  href={`/rpg/${data.rpgId}/characters/${data.characterId}/edit`}
                 >
                   Editar
                 </Link>

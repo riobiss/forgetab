@@ -2,6 +2,8 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
+import ReactSelect from "react-select"
+import type { SingleValue } from "react-select"
 import { toast } from "react-hot-toast"
 import type {
   CharacterEditorBootstrapDto,
@@ -43,6 +45,11 @@ import {
   parseNumericInputValue,
   resolveEditTarget,
 } from "./utils"
+
+type PlayerSelectOption = {
+  value: string
+  label: string
+}
 
 type CharacterEditorFormProps = {
   rpgId: string
@@ -87,6 +94,9 @@ export default function CharacterEditorForm({
   const [progressionCurrent, setProgressionCurrent] = useState("0")
   const [raceTemplates, setRaceTemplates] = useState<CharacterOptionDto[]>([])
   const [classTemplates, setClassTemplates] = useState<CharacterOptionDto[]>([])
+  const [assignablePlayers, setAssignablePlayers] = useState<
+    CharacterEditorBootstrapDto["assignablePlayers"]
+  >([])
   const [identityTemplates, setIdentityTemplates] = useState<CharacterIdentityFieldDto[]>([])
   const [identityValues, setIdentityValues] = useState<Record<string, string>>({})
   const [characteristicsTemplates, setCharacteristicsTemplates] = useState<CharacterIdentityFieldDto[]>([])
@@ -100,6 +110,7 @@ export default function CharacterEditorForm({
   const [characterVisibility, setCharacterVisibility] = useState<"private" | "public">(
     "public",
   )
+  const [offerToUserId, setOfferToUserId] = useState("")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -114,6 +125,16 @@ export default function CharacterEditorForm({
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const savingRef = useRef(false)
   const deletingRef = useRef(false)
+  const assignablePlayerOptions = useMemo(
+    () =>
+      assignablePlayers.map((player) => ({
+        value: player.userId,
+        label: `${player.name} (@${player.username})`,
+      })),
+    [assignablePlayers],
+  )
+  const selectedOfferPlayer =
+    assignablePlayerOptions.find((option) => option.value === offerToUserId) ?? null
   const identityNameField = identityTemplates.find((field) => isIdentityNameField(field)) ?? null
   const imageStatusText = useMemo(() => {
     if (selectedImageName.trim().length > 0) {
@@ -167,6 +188,7 @@ export default function CharacterEditorForm({
     setClassTemplates(classes)
     setIdentityTemplates(identityFields)
     setCharacteristicsTemplates(characteristicsFields)
+    setAssignablePlayers(bootstrap.assignablePlayers ?? [])
     const legacyClassRaceFlag = Boolean(bootstrap.rpg?.useClassRaceBonuses)
     setUseRaceBonuses(
       typeof bootstrap.rpg?.useRaceBonuses === "boolean"
@@ -240,6 +262,7 @@ export default function CharacterEditorForm({
         : String(editTarget.maxCarryWeight),
     )
     setCharacterVisibility(editTarget?.visibility ?? "public")
+    setOfferToUserId("")
     setProgressionCurrent(
       typeof editTarget?.progressionCurrent === "number"
         ? String(editTarget.progressionCurrent)
@@ -328,6 +351,7 @@ export default function CharacterEditorForm({
         statusValues,
         attributeValues: values,
         skillValues,
+        offerToUserId,
       })
 
       try {
@@ -431,6 +455,10 @@ export default function CharacterEditorForm({
     setUploadError("")
   }
 
+  function handleOfferPlayerChange(option: SingleValue<PlayerSelectOption>) {
+    setOfferToUserId(option?.value ?? "")
+  }
+
   async function handleDeleteCharacter() {
     if (!editingCharacterId) return
     if (deletingRef.current) return
@@ -504,8 +532,78 @@ export default function CharacterEditorForm({
         title="Caracteristicas"
         fields={characteristicsTemplates}
         values={characteristicsValues}
+        editInModal={Boolean(editingCharacterId)}
         onFieldChange={updateCharacteristicsField}
       />
+
+      {!editingCharacterId && canManageCharacters && characterType === "player" ? (
+        <section className={`${styles.section} characterEditorSection`}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <h2>Enviar ao jogador</h2>
+            </div>
+          </div>
+          <label className={styles.field}>
+            <span>Jogador</span>
+            <ReactSelect<PlayerSelectOption, false>
+              instanceId={`character-offer-player-${rpgId}`}
+              inputId={`character-offer-player-${rpgId}`}
+              options={assignablePlayerOptions}
+              value={selectedOfferPlayer}
+              onChange={handleOfferPlayerChange}
+              isClearable
+              isDisabled={saving || assignablePlayerOptions.length === 0}
+              placeholder={
+                assignablePlayerOptions.length === 0
+                  ? "Nenhum jogador disponivel"
+                  : "Nao enviar agora"
+              }
+              noOptionsMessage={() => "Nenhum jogador disponivel"}
+              styles={{
+                control: (base, state) => ({
+                  ...base,
+                  minHeight: 42,
+                  borderRadius: 9,
+                  borderColor: state.isFocused
+                    ? "var(--color-brand-primary)"
+                    : "var(--color-border-soft)",
+                  backgroundColor: "var(--color-bg-hover)",
+                  boxShadow: state.isFocused ? "var(--shadow-brand-glow)" : "none",
+                  ":hover": {
+                    borderColor: "var(--color-brand-primary)",
+                  },
+                }),
+                menu: (base) => ({
+                  ...base,
+                  backgroundColor: "var(--color-bg-surface)",
+                  border: "1px solid var(--color-border-soft)",
+                  zIndex: 50,
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  backgroundColor: state.isFocused
+                    ? "var(--color-bg-hover)"
+                    : "var(--color-bg-surface)",
+                  color: "var(--color-text-secondary)",
+                  cursor: "pointer",
+                }),
+                input: (base) => ({
+                  ...base,
+                  color: "var(--color-text-secondary)",
+                }),
+                placeholder: (base) => ({
+                  ...base,
+                  color: "var(--color-text-muted)",
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  color: "var(--color-text-secondary)",
+                }),
+              }}
+            />
+          </label>
+        </section>
+      ) : null}
 
       <CharacterEditorNumericSection
         title="Status"
@@ -514,6 +612,7 @@ export default function CharacterEditorForm({
         visible={showStatusSection}
         keyPrefix="character-status"
         min={0}
+        editInModal={Boolean(editingCharacterId)}
         onToggle={() => setShowStatusSection((prev) => !prev)}
         onChange={updateStatus}
       />
@@ -524,6 +623,7 @@ export default function CharacterEditorForm({
         values={values}
         visible={showAttributeSection}
         keyPrefix="character-attribute"
+        editInModal={Boolean(editingCharacterId)}
         onToggle={() => setShowAttributeSection((prev) => !prev)}
         onChange={updateAttribute}
       />
@@ -536,6 +636,7 @@ export default function CharacterEditorForm({
           visible={showSkillSection}
           keyPrefix="character-skill"
           min={0}
+          editInModal={Boolean(editingCharacterId)}
           onToggle={() => setShowSkillSection((prev) => !prev)}
           onChange={updateSkill}
         />

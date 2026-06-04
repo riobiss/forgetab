@@ -3,6 +3,7 @@
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
 import styles from "../CharacterEditorForm.module.css"
 import type { CharacterEditorTemplateFieldDto } from "@/application/characters/editor"
+import EditableModalField from "./EditableModalField"
 
 type NumericInputValue = number | ""
 
@@ -13,6 +14,7 @@ type Props = {
   visible: boolean
   keyPrefix: string
   min?: number
+  editInModal?: boolean
   onToggle: () => void
   onChange: (key: string, value: string) => void
 }
@@ -24,6 +26,7 @@ export default function CharacterEditorNumericSection({
   visible,
   keyPrefix,
   min,
+  editInModal = false,
   onToggle,
   onChange,
 }: Props) {
@@ -32,14 +35,27 @@ export default function CharacterEditorNumericSection({
   }
 
   return (
-    <section className={styles.section}>
+    <section className={`${styles.section} characterEditorSection`}>
       <div className={styles.sectionHeader}>
         <h2>{title}</h2>
         <button type="button" className={styles.sectionToggleButton} onClick={onToggle}>
           {visible ? "Ocultar" : "Mostrar"}
         </button>
       </div>
-      {visible ? (
+      {visible && editInModal ? (
+        <div className={styles.valuesGrid}>
+          {items.map((item) => (
+            <EditableModalField
+              key={`${keyPrefix}-${item.key}`}
+              label={item.label}
+              type="number"
+              min={min}
+              value={values[item.key] ?? ""}
+              onSave={(value) => onChange(item.key, value)}
+            />
+          ))}
+        </div>
+      ) : visible ? (
         <NumericTemplateGrid
           items={items.map((item) => ({
             key: item.key,

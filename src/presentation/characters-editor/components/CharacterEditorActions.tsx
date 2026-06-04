@@ -49,7 +49,7 @@ export default function CharacterEditorActions({
           >
             Cancelar
           </button>
-        ) : (
+        ) : editingCharacterId ? null : (
           <Link href={`/rpg/${rpgId}/characters`}>Cancelar</Link>
         )}
         {editingCharacterId ? (

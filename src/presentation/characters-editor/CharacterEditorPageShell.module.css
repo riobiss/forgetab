@@ -1,0 +1,29 @@
+.page {
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--color-brand-primary) 16%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 20% 30%,
+      color-mix(in srgb, var(--color-brand-contrast) 6%, transparent),
+      transparent 60%
+    );
+  display: grid;
+  align-content: start;
+  min-height: 100vh;
+  padding: 2.2rem 1.4rem 3.4rem;
+  color: var(--color-text-secondary);
+}
+
+.editorSurface {
+  display: block;
+}
+
+.editorSurface :global(.characterEditorSection) {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
