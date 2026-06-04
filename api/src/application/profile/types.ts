@@ -7,6 +7,7 @@ export type ProfileRpgSummary = {
   id: string
   title: string
   nickname: string | null
+  profileImageUrl: string | null
   joinedAt: Date | null
   characters: ProfileRpgCharacter[]
 }
@@ -31,6 +32,7 @@ export type ProfileUserRecord = {
   rpgDisplayNames: Array<{
     rpgId: string
     displayName: string | null
+    profileImageUrl: string | null
   }>
   characters: Array<{
     id: string

@@ -54,6 +54,7 @@ export const prismaProfileReader: ProfileReader = {
         select: {
           rpgId: true,
           displayName: true,
+          profileImageUrl: true,
         },
       }),
     ])

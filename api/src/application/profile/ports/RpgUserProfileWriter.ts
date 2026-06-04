@@ -1,7 +1,10 @@
 export type RpgUserProfileWriter = {
-  updateRpgDisplayName(
+  updateRpgProfile(
     userId: string,
     rpgId: string,
-    displayName: string | null,
-  ): Promise<{ rpgId: string; nickname: string | null }>
+    values: {
+      displayName?: string | null
+      profileImageUrl?: string | null
+    },
+  ): Promise<{ rpgId: string; nickname: string | null; profileImageUrl: string | null }>
 }

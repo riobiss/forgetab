@@ -492,14 +492,15 @@ model RpgMember {
 }
 
 model RpgUserProfile {
-  id          String   @id @default(cuid())
-  rpgId       String   @map("rpg_id")
-  userId      String   @map("user_id")
-  displayName String?  @map("display_name")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @map("updated_at")
-  rpg         Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String   @id @default(cuid())
+  rpgId           String   @map("rpg_id")
+  userId          String   @map("user_id")
+  displayName     String?  @map("display_name")
+  profileImageUrl String?  @map("profile_image_url")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @map("updated_at")
+  rpg             Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([rpgId, userId])
   @@index([userId])

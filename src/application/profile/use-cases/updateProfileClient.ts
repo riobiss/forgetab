@@ -2,6 +2,7 @@ import type { ProfileDependencies } from "@/application/profile/contracts/Profil
 import type {
   UpdateProfilePayload,
   UpdateRpgProfilePayload,
+  UploadRpgProfileImagePayload,
 } from "@/application/profile/contracts/ProfileGateway"
 
 export async function updateProfileClientUseCase(
@@ -16,4 +17,11 @@ export async function updateRpgProfileClientUseCase(
   params: { rpgId: string; payload: UpdateRpgProfilePayload },
 ) {
   return deps.gateway.updateRpgProfile(params.rpgId, params.payload)
+}
+
+export async function uploadRpgProfileImageClientUseCase(
+  deps: ProfileDependencies,
+  payload: UploadRpgProfileImagePayload,
+) {
+  return deps.gateway.uploadRpgProfileImage(payload)
 }

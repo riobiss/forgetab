@@ -123,6 +123,7 @@ import {
   libraryImageHandlers,
   mapImageHandlers,
   markerImageHandlers,
+  profileImageHandlers,
   rpgImageHandlers,
   sectionImageHandlers,
 } from "@api/presentation/routes/uploads/handlers"
@@ -592,6 +593,12 @@ export function registerApiRoutes(app: FastifyInstance) {
   )
   registerFastifyRoute(app, "delete", "/api/uploads/marker-image", (request, reply) =>
     markerImageHandlers.deleteHandler!(request, reply),
+  )
+  registerFastifyRoute(app, "post", "/api/uploads/profile-image", (request, reply) =>
+    profileImageHandlers.postHandler(request, reply),
+  )
+  registerFastifyRoute(app, "delete", "/api/uploads/profile-image", (request, reply) =>
+    profileImageHandlers.deleteHandler!(request, reply),
   )
   registerFastifyRoute(app, "post", "/api/uploads/rpg-image", (request, reply) =>
     rpgImageHandlers.postHandler(request, reply),

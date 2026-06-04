@@ -14,6 +14,7 @@ type ApiProfilePayload = {
     id: string
     title: string
     nickname: string | null
+    profileImageUrl: string | null
     joinedAt: string | null
     characters: Array<{
       id: string
@@ -63,6 +64,7 @@ export const httpProfileReader: ProfileReader = {
       rpgDisplayNames: (payload.rpgProfiles ?? []).map((rpg) => ({
         rpgId: rpg.id,
         displayName: rpg.nickname,
+        profileImageUrl: rpg.profileImageUrl,
       })),
       characters: (payload.rpgProfiles ?? []).flatMap((rpg) =>
         rpg.characters.map((character) => ({

@@ -2,11 +2,16 @@ import type {
   ProfileGateway,
   UpdateProfilePayload,
   UpdateRpgProfilePayload,
+  UploadRpgProfileImagePayload,
 } from "@/application/profile/contracts/ProfileGateway"
 import { apiFetch } from "@/infrastructure/http/apiFetch"
 
 type ErrorPayload = {
   message?: string
+}
+
+type UploadImagePayload = ErrorPayload & {
+  url?: string
 }
 
 export class HttpProfileGatewayError extends Error {
@@ -49,6 +54,30 @@ export const httpProfileGateway: ProfileGateway = {
       body: JSON.stringify(payload),
     })
 
-    await parseMutationResponse(response, "Erro ao atualizar apelido.")
+    await parseMutationResponse(response, "Erro ao atualizar perfil do RPG.")
+  },
+
+  async uploadRpgProfileImage(payload: UploadRpgProfileImagePayload) {
+    const formData = new FormData()
+    formData.append("file", payload.file)
+
+    if (payload.oldUrl) {
+      formData.append("oldUrl", payload.oldUrl)
+    }
+
+    const response = await apiFetch("/api/uploads/profile-image", {
+      method: "POST",
+      body: formData,
+    })
+    const responsePayload = (await response.json().catch(() => ({}))) as UploadImagePayload
+
+    if (!response.ok || !responsePayload.url) {
+      throw new HttpProfileGatewayError(
+        responsePayload.message ?? "Erro ao enviar imagem.",
+        response.status,
+      )
+    }
+
+    return { url: responsePayload.url }
   },
 }

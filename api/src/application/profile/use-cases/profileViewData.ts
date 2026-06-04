@@ -15,6 +15,9 @@ export function buildProfileRpgProfiles(user: ProfileUserRecord | null): Profile
   const displayNameByRpgId = new Map(
     user.rpgDisplayNames.map((profile) => [profile.rpgId, profile.displayName?.trim() || null]),
   )
+  const profileImageByRpgId = new Map(
+    user.rpgDisplayNames.map((profile) => [profile.rpgId, profile.profileImageUrl?.trim() || null]),
+  )
 
   const rpgProfilesById = new Map<string, ProfileRpgSummary>()
 
@@ -23,6 +26,7 @@ export function buildProfileRpgProfiles(user: ProfileUserRecord | null): Profile
       id: rpg.id,
       title: rpg.title,
       nickname: displayNameByRpgId.get(rpg.id) ?? null,
+      profileImageUrl: profileImageByRpgId.get(rpg.id) ?? null,
       joinedAt: rpg.createdAt,
       characters: charactersByRpgId.get(rpg.id) ?? [],
     })
@@ -37,6 +41,7 @@ export function buildProfileRpgProfiles(user: ProfileUserRecord | null): Profile
       id: membership.rpgId,
       title: membership.rpgTitle,
       nickname: displayNameByRpgId.get(membership.rpgId) ?? null,
+      profileImageUrl: profileImageByRpgId.get(membership.rpgId) ?? null,
       joinedAt: membership.respondedAt ?? membership.requestedAt ?? membership.createdAt,
       characters: charactersByRpgId.get(membership.rpgId) ?? [],
     })

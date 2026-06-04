@@ -2,6 +2,7 @@ import { ChevronRight } from "lucide-react"
 import { formatDateInBrasilia } from "@/lib/date"
 import type { ProfileViewData } from "@/application/profile/types"
 import ProfileEditableField from "./ProfileEditableField"
+import ProfileRpgImageField from "./ProfileRpgImageField"
 import ProfileRpgNicknameField from "./ProfileRpgNicknameField"
 import styles from "./ProfilePage.module.css"
 
@@ -88,6 +89,15 @@ export default function ProfilePage({ data }: Props) {
                       <div>
                         <span>Apelido no RPG</span>
                         <ProfileRpgNicknameField rpgId={rpg.id} nickname={rpg.nickname} />
+                      </div>
+
+                      <div>
+                        <span>Imagem</span>
+                        <ProfileRpgImageField
+                          rpgId={rpg.id}
+                          imageUrl={rpg.profileImageUrl}
+                          fallbackName={rpg.nickname ?? data.name ?? data.username ?? data.email}
+                        />
                       </div>
 
                       <div>

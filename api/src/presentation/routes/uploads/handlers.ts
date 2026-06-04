@@ -30,6 +30,12 @@ export const markerImageHandlers = createScopedImageHandlers({
   allowDelete: true,
 })
 
+export const profileImageHandlers = createScopedImageHandlers({
+  folder: "profiles",
+  defaultFileName: "profile-image.png",
+  allowDelete: true,
+})
+
 export const rpgImageHandlers = createScopedImageHandlers({
   folder: "rpgs",
   defaultFileName: "rpg-image.jpg",

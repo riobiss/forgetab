@@ -77,7 +77,10 @@ export async function updateRpgProfileHandler(
   try {
     const body = (parseJsonBody(request.body) ?? {}) as {
       displayName?: unknown
+      profileImageUrl?: unknown
     }
+    const hasDisplayName = Object.prototype.hasOwnProperty.call(body, "displayName")
+    const hasProfileImageUrl = Object.prototype.hasOwnProperty.call(body, "profileImageUrl")
 
     const result = await updateRpgProfileUseCase(
       {
@@ -87,7 +90,15 @@ export async function updateRpgProfileHandler(
       {
         userId: auth.userId,
         rpgId: request.params.rpgId,
-        displayName: typeof body.displayName === "string" ? body.displayName : null,
+        ...(hasDisplayName
+          ? { displayName: typeof body.displayName === "string" ? body.displayName : null }
+          : {}),
+        ...(hasProfileImageUrl
+          ? {
+              profileImageUrl:
+                typeof body.profileImageUrl === "string" ? body.profileImageUrl : null,
+            }
+          : {}),
       },
     )
 
