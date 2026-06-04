@@ -45,6 +45,7 @@ export function RpgDashboardPage({ viewModel }: { viewModel: RpgDashboardViewMod
             membershipStatus={viewModel.membershipStatus}
             pendingRequests={[]}
             pendingCharacterRequests={[]}
+            pendingCharacterOffers={[]}
             simpleJoin
           />
         </div>
@@ -66,6 +67,10 @@ export function RpgDashboardPage({ viewModel }: { viewModel: RpgDashboardViewMod
               requestedAt: item.requestedAt.toISOString(),
             }))}
             pendingCharacterRequests={viewModel.pendingCharacterRequests.map((item) => ({
+              ...item,
+              requestedAt: item.requestedAt.toISOString(),
+            }))}
+            pendingCharacterOffers={viewModel.pendingCharacterOffers.map((item) => ({
               ...item,
               requestedAt: item.requestedAt.toISOString(),
             }))}

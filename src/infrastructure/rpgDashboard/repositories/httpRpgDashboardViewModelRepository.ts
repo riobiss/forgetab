@@ -1,5 +1,6 @@
 import type {
   AcceptedMemberSummary,
+  PendingCharacterOfferSummary,
   PendingRequestSummary,
   RpgDashboardViewModel,
   SpectatorCharacterSummary,
@@ -17,6 +18,10 @@ type ApiPendingRequestSummary = Omit<PendingRequestSummary, "requestedAt"> & {
   requestedAt: DateString
 }
 
+type ApiPendingCharacterOfferSummary = Omit<PendingCharacterOfferSummary, "requestedAt"> & {
+  requestedAt: DateString
+}
+
 type ApiSpectatorStatusItem = SpectatorStatusItem
 
 type ApiSpectatorCharacterSummary = Omit<SpectatorCharacterSummary, "statusItems"> & {
@@ -25,13 +30,18 @@ type ApiSpectatorCharacterSummary = Omit<SpectatorCharacterSummary, "statusItems
 
 type ApiRpgDashboardViewModel = Omit<
   RpgDashboardViewModel,
-  "pendingRequests" | "pendingCharacterRequests" | "acceptedMembers" | "spectatorCharacters"
+  | "pendingRequests"
+  | "pendingCharacterRequests"
+  | "pendingCharacterOffers"
+  | "acceptedMembers"
+  | "spectatorCharacters"
 > & {
   rpg: Omit<RpgDashboardViewModel["rpg"], "createdAt"> & {
     createdAt: DateString
   }
   pendingRequests: ApiPendingRequestSummary[]
   pendingCharacterRequests: ApiPendingRequestSummary[]
+  pendingCharacterOffers: ApiPendingCharacterOfferSummary[]
   acceptedMembers: AcceptedMemberSummary[]
   spectatorCharacters: ApiSpectatorCharacterSummary[]
 }
@@ -61,6 +71,15 @@ function toPendingRequestSummary(item: ApiPendingRequestSummary): PendingRequest
   }
 }
 
+function toPendingCharacterOfferSummary(
+  item: ApiPendingCharacterOfferSummary,
+): PendingCharacterOfferSummary {
+  return {
+    ...item,
+    requestedAt: new Date(item.requestedAt),
+  }
+}
+
 export async function fetchRpgDashboardViewModel(rpgId: string): Promise<RpgDashboardViewModel> {
   const response = await apiFetch(`/api/rpg/${rpgId}/dashboard`, {
     next: { revalidate: 0 },
@@ -76,6 +95,7 @@ export async function fetchRpgDashboardViewModel(rpgId: string): Promise<RpgDash
     },
     pendingRequests: payload.pendingRequests.map(toPendingRequestSummary),
     pendingCharacterRequests: payload.pendingCharacterRequests.map(toPendingRequestSummary),
+    pendingCharacterOffers: payload.pendingCharacterOffers.map(toPendingCharacterOfferSummary),
     acceptedMembers: payload.acceptedMembers,
     spectatorCharacters: payload.spectatorCharacters,
   }

@@ -8,8 +8,14 @@ yarn-error.log*
 pnpm-debug.log*
 coverage
 dist
+generated
+api/generated
+api/node_modules
+api/dist
+api/coverage
 docker-compose*.yml
 .env*
 !.env.example
 !.env.development.example
 tsconfig.tsbuildinfo
+api/tsconfig.tsbuildinfo

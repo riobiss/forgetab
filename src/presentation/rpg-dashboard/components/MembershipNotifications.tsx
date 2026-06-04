@@ -21,6 +21,12 @@ type PendingCharacterRequest = {
   requestedAt: string
 }
 
+type PendingCharacterOffer = {
+  id: string
+  characterName: string
+  requestedAt: string
+}
+
 type Props = {
   rpgId: string
   isOwner: boolean
@@ -28,6 +34,7 @@ type Props = {
   membershipStatus: "pending" | "accepted" | "rejected" | null
   pendingRequests: PendingRequest[]
   pendingCharacterRequests: PendingCharacterRequest[]
+  pendingCharacterOffers: PendingCharacterOffer[]
   compact?: boolean
   simpleJoin?: boolean
 }
@@ -41,6 +48,7 @@ export default function MembershipNotifications({
   membershipStatus,
   pendingRequests,
   pendingCharacterRequests,
+  pendingCharacterOffers,
   compact = false,
   simpleJoin = false,
 }: Props) {
@@ -57,7 +65,7 @@ export default function MembershipNotifications({
 
   const notificationsCount = isOwner
     ? pendingRequests.length + pendingCharacterRequests.length
-    : 0
+    : pendingCharacterOffers.length
 
   if (simpleJoin) {
     return (
@@ -181,6 +189,35 @@ export default function MembershipNotifications({
               <h3>Participacao no RPG</h3>
               {!isAuthenticated ? (
                 <p>Faca login para solicitar participacao nesta campanha.</p>
+              ) : pendingCharacterOffers.length > 0 ? (
+                <div className={styles.noticeList}>
+                  {pendingCharacterOffers.map((offer) => (
+                    <article key={offer.id} className={styles.noticeCard}>
+                      <div>
+                        <strong>{offer.characterName}</strong>
+                        <small>
+                          Recebido em {formatDateInBrasilia(offer.requestedAt)}
+                        </small>
+                      </div>
+                      <div className={styles.noticeActions}>
+                        <button
+                          type="button"
+                          onClick={() => processCharacterRequest(offer.id, "accept")}
+                          disabled={processingId === offer.id}
+                        >
+                          Aceitar personagem
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => processCharacterRequest(offer.id, "reject")}
+                          disabled={processingId === offer.id}
+                        >
+                          Recusar
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
               ) : membershipStatus === "accepted" ? (
                 <p>Voce ja e membro deste RPG.</p>
               ) : membershipStatus === "pending" ? (

@@ -10,6 +10,7 @@ RUN npm ci
 COPY . ./
 
 RUN npm run prisma:generate
+RUN npm prune --omit=dev
 
 EXPOSE 4000
 
