@@ -1,0 +1,100 @@
+.page {
+  min-height: calc(100vh - 72px);
+  display: grid;
+  place-items: center;
+  padding: clamp(2rem, 5vw, 4rem) 1rem;
+  background:
+    radial-gradient(circle at 25% 18%, rgba(255, 106, 0, 0.18), transparent 34%),
+    linear-gradient(180deg, rgba(15, 15, 17, 0.96), rgba(15, 15, 17, 1));
+}
+
+.globalPage {
+  min-height: 100vh;
+}
+
+.panel {
+  width: min(620px, 100%);
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary, #ff6a00) 28%, var(--color-border-default, #2a2e36));
+  border-radius: 8px;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--color-bg-surface, #16181c) 88%, transparent),
+    color-mix(in srgb, var(--color-bg-surface-alt, #1d2026) 74%, transparent)
+  );
+  box-shadow: var(--shadow-elevation-md, 0 6px 18px rgba(0, 0, 0, 0.45));
+}
+
+.eyebrow {
+  margin-bottom: 0.75rem;
+  color: var(--color-text-brand, #ff7a1a);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  color: var(--color-text-primary, #f5f5f5);
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  line-height: 1.15;
+}
+
+.description {
+  margin-top: 0.85rem;
+  color: var(--color-text-secondary, #c9cdd3);
+  line-height: 1.6;
+}
+
+.actions {
+  margin-top: 1.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.primaryAction {
+  border: 1px solid var(--color-border-brand, #ff6a00);
+  color: var(--color-text-on-brand, #ffffff);
+  background: linear-gradient(120deg, var(--color-brand-primary, #ff6a00), var(--color-brand-strong, #e65100));
+  box-shadow: var(--shadow-brand-glow, 0 0 12px rgba(255, 106, 0, 0.5));
+}
+
+.secondaryAction {
+  border: 1px solid var(--color-border-strong, #3a3f48);
+  color: var(--color-text-primary, #f5f5f5);
+  background: color-mix(in srgb, var(--color-bg-surface-alt, #1d2026) 80%, transparent);
+}
+
+.primaryAction:hover,
+.secondaryAction:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 520px) {
+  .actions {
+    flex-direction: column;
+  }
+
+  .primaryAction,
+  .secondaryAction {
+    width: 100%;
+  }
+}
