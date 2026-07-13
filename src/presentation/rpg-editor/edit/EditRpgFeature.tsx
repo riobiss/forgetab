@@ -576,12 +576,12 @@ export default function EditRpgFeature({
               rpgId={rpgId}
               showRaceList={state.showRaceList}
               onToggleRaceList={() => state.setShowRaceList((prev) => !prev)}
-              onCreateRace={() => router.push(`/rpg/${rpgId}/edit/advanced/race/new`)}
+              onCreateRace={() => router.push(`/rpg/${rpgId}/races`)}
               raceDrafts={state.raceDrafts}
               onRaceDraftsChange={state.setRaceDrafts}
               showClassList={state.showClassList}
               onToggleClassList={() => state.setShowClassList((prev) => !prev)}
-              onCreateClass={() => router.push(`/rpg/${rpgId}/edit/advanced/class/new`)}
+              onCreateClass={() => router.push(`/rpg/${rpgId}/classes`)}
               classDrafts={state.classDrafts}
               onClassDraftsChange={state.setClassDrafts}
             />
