@@ -1,0 +1,111 @@
+import type { ProgressionMode, ProgressionTier } from "@/lib/rpg/progression"
+
+type JsonValue = unknown
+
+export type CharacterRow = {
+  id: string
+  rpgId: string
+  name: string
+  image: string | null
+  raceKey: string | null
+  classKey: string | null
+  characterType: "player" | "npc" | "monster"
+  visibility: "private" | "public"
+  maxCarryWeight: number | null
+  progressionMode: string
+  progressionLabel: string
+  progressionRequired: number
+  progressionCurrent: number
+  createdByUserId: string | null
+  life: number
+  defense: number
+  mana: number
+  exhaustion: number
+  sanity: number
+  statuses: JsonValue
+  currentStatuses: JsonValue
+  attributes: JsonValue
+  skills: JsonValue
+  identity: JsonValue
+  characteristics: JsonValue
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type AttributeTemplateRow = {
+  key: string
+  label: string
+  position: number
+}
+
+export type StatusTemplateRow = {
+  key: string
+  label: string
+  position: number
+}
+
+export type SkillTemplateRow = {
+  key: string
+  label: string
+  position: number
+}
+
+export type CharacterIdentityTemplateRow = {
+  key: string
+  label: string
+  required: boolean
+  position: number
+}
+
+export type CharacterCharacteristicTemplateRow = {
+  key: string
+  label: string
+  required: boolean
+  position: number
+}
+
+export type IdentityTemplateRow = {
+  key: string
+  attributeBonuses: JsonValue
+  skillBonuses: JsonValue
+}
+
+export type RpgAccess = {
+  exists: boolean
+  canAccess: boolean
+  isOwner: boolean
+  useRaceBonuses: boolean
+  useClassBonuses: boolean
+  useInventoryWeightLimit: boolean
+  allowMultiplePlayerCharacters: boolean
+  progressionMode: ProgressionMode
+  progressionTiers: ProgressionTier[]
+}
+
+export type CreateCharacterPayload = {
+  name?: string
+  image?: string
+  characterType?: CharacterRow["characterType"]
+  visibility?: CharacterRow["visibility"]
+  maxCarryWeight?: number | null
+  statuses?: Record<string, number>
+  attributes?: Record<string, number>
+  skills?: Record<string, number>
+  identity?: Record<string, string>
+  characteristics?: Record<string, string>
+  raceKey?: string
+  classKey?: string
+  progressionCurrent?: number
+  offerToUserId?: string | null
+}
+
+export type ListCharactersResult = {
+  characters: CharacterRow[]
+  isOwner: boolean
+  useRaceBonuses: boolean
+  useClassBonuses: boolean
+  useInventoryWeightLimit: boolean
+  allowMultiplePlayerCharacters: boolean
+  progressionMode: ProgressionMode
+  progressionTiers: ProgressionTier[]
+}

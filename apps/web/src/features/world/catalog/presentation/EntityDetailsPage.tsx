@@ -1,0 +1,678 @@
+"use client"
+
+import { useEffect, useMemo, useRef, useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import type { JSONContent } from "@tiptap/react"
+import { Keyboard } from "lucide-react"
+import { Save } from "lucide-react"
+import { SlidersHorizontal } from "lucide-react"
+import { toast } from "react-hot-toast"
+import type { EntityCatalogAbilityView } from "@/features/world/catalog/application/use-cases/entityCatalogAbilities"
+import type { EntityCatalogPlayerItem } from "@/features/world/catalog/application/types"
+import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor"
+import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
+import {
+  createRichTextDocumentFromText,
+  EMPTY_RICH_TEXT_DOCUMENT,
+} from "@/features/world/catalog/domain/catalogMeta"
+import type {
+  CatalogEntityType,
+  EntityCatalogMeta,
+} from "@/features/world/catalog/domain/types"
+import { dismissToast } from "@/lib/toast"
+import { useEntityDetailsActions } from "@/features/world/catalog/presentation/useEntityDetailsActions"
+import EntityAbilitiesPanel from "./EntityAbilitiesPanel"
+import styles from "./EntityDetailsPage.module.css"
+
+type TemplateOption = {
+  key: string
+  label: string
+}
+
+type IdentityTemplateRecord = {
+  id: string
+  key: string
+  label: string
+  category: string
+  shortDescription: string | null
+  content: JSONContent
+  attributeBonuses: Record<string, string | number>
+  skillBonuses: Record<string, string | number>
+  catalogMeta: EntityCatalogMeta
+  lore?: unknown
+}
+
+type Props = {
+  rpgId: string
+  entityType: CatalogEntityType
+  title: string
+  entityLabel: string
+  canManage: boolean
+  showCategoryField?: boolean
+  current: IdentityTemplateRecord
+  attributeTemplates: TemplateOption[]
+  skillTemplates: TemplateOption[]
+  abilities?: EntityCatalogAbilityView[]
+  players?: EntityCatalogPlayerItem[]
+  abilityPurchase?: {
+    characterId: string | null
+    costsEnabled: boolean
+    costResourceName: string
+    initialPoints: number
+    initialOwnedBySkill: Record<string, number[]>
+  }
+}
+
+type ConfigStage = "basic" | "attributes" | "skills"
+type ContentTab = "content" | "abilities" | "bonuses" | "players"
+
+export default function EntityDetailsPage({
+  rpgId,
+  entityType,
+  title,
+  entityLabel,
+  canManage,
+  showCategoryField = true,
+  current,
+  attributeTemplates,
+  skillTemplates,
+  abilities = [],
+  players = [],
+  abilityPurchase,
+}: Props) {
+  const router = useRouter()
+  const actions = useEntityDetailsActions({
+    rpgId,
+    entityType,
+    templateKey: current.key,
+  })
+  const [editorContent, setEditorContent] = useState<JSONContent>(
+    current.content ?? (EMPTY_RICH_TEXT_DOCUMENT as JSONContent),
+  )
+  const [shortDescription, setShortDescription] = useState(
+    current.shortDescription ?? "",
+  )
+  const [name, setName] = useState(current.label)
+  const [category, setCategory] = useState(current.category)
+  const [attributeBonuses, setAttributeBonuses] = useState<
+    Record<string, string | number>
+  >(current.attributeBonuses)
+  const [skillBonuses, setSkillBonuses] = useState<
+    Record<string, string | number>
+  >(current.skillBonuses)
+  const [configModalOpen, setConfigModalOpen] = useState(false)
+  const [contentEditing, setContentEditing] = useState(false)
+  const [syncDescriptionToEditor, setSyncDescriptionToEditor] = useState(
+    !current.catalogMeta.richText.description,
+  )
+  const [saving, setSaving] = useState(false)
+  const [activeTab, setActiveTab] = useState<ContentTab>("content")
+  const [configStage, setConfigStage] = useState<ConfigStage>("basic")
+  const configModalRef = useRef<HTMLElement | null>(null)
+  const previousFocusedElementRef = useRef<HTMLElement | null>(null)
+
+  const categoryOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(["geral", category, current.category].filter(Boolean)),
+      ),
+    [category, current.category],
+  )
+  const hasAttributeTemplates = attributeTemplates.length > 0
+  const hasSkillTemplates = skillTemplates.length > 0
+  const hasAbilities = abilities.length > 0
+  const hasPlayers = players.length > 0
+  const activeAttributeBonuses = useMemo(
+    () =>
+      attributeTemplates
+        .map((item) => ({
+          key: item.key,
+          label: item.label,
+          value: Number(attributeBonuses[item.key] ?? 0),
+        }))
+        .filter((item) => item.value !== 0),
+    [attributeBonuses, attributeTemplates],
+  )
+  const activeSkillBonuses = useMemo(
+    () =>
+      skillTemplates
+        .map((item) => ({
+          key: item.key,
+          label: item.label,
+          value: Number(skillBonuses[item.key] ?? 0),
+        }))
+        .filter((item) => item.value !== 0),
+    [skillBonuses, skillTemplates],
+  )
+  const hasBonuses =
+    activeAttributeBonuses.length > 0 || activeSkillBonuses.length > 0
+
+  useEffect(() => {
+    if (!configModalOpen) {
+      return
+    }
+
+    previousFocusedElementRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null
+  }, [configModalOpen])
+
+  useEffect(() => {
+    if (!configModalOpen) {
+      previousFocusedElementRef.current?.focus()
+      return
+    }
+
+    const modalElement = configModalRef.current
+    if (!modalElement) {
+      return
+    }
+
+    const previousBodyOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    const focusableSelectors = [
+      "button:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "[tabindex]:not([tabindex='-1'])",
+    ].join(", ")
+
+    const getFocusableElements = () => {
+      const currentModal = configModalRef.current
+      if (!currentModal) {
+        return []
+      }
+
+      return Array.from(
+        currentModal.querySelectorAll<HTMLElement>(focusableSelectors),
+      ).filter(
+        (element) =>
+          !element.hasAttribute("disabled") &&
+          element.getAttribute("aria-hidden") !== "true",
+      )
+    }
+
+    const initialFocusTarget = getFocusableElements()[0] ?? modalElement
+    queueMicrotask(() => {
+      initialFocusTarget.focus()
+    })
+
+    function handleFocusIn(event: FocusEvent) {
+      const currentModal = configModalRef.current
+      if (!currentModal) {
+        return
+      }
+
+      if (
+        event.target instanceof HTMLElement &&
+        currentModal.contains(event.target)
+      ) {
+        return
+      }
+
+      const firstFocusableElement = getFocusableElements()[0] ?? currentModal
+      firstFocusableElement.focus()
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      const currentModal = configModalRef.current
+      if (!currentModal) {
+        return
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault()
+        setConfigModalOpen(false)
+        return
+      }
+
+      if (event.key !== "Tab") {
+        return
+      }
+
+      const focusableElements = getFocusableElements()
+      if (focusableElements.length === 0) {
+        event.preventDefault()
+        currentModal.focus()
+        return
+      }
+
+      const firstElement = focusableElements[0]
+      const lastElement = focusableElements[focusableElements.length - 1]
+      const activeElement = document.activeElement
+
+      if (event.shiftKey && activeElement === firstElement) {
+        event.preventDefault()
+        lastElement.focus()
+      } else if (!event.shiftKey && activeElement === lastElement) {
+        event.preventDefault()
+        firstElement.focus()
+      }
+    }
+
+    document.addEventListener("focusin", handleFocusIn)
+    document.addEventListener("keydown", handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow
+      document.removeEventListener("focusin", handleFocusIn)
+      document.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [configModalOpen])
+
+  function openBindingsModal() {
+    setConfigStage("basic")
+    setConfigModalOpen(true)
+  }
+
+  async function saveTemplate(nextTemplate: IdentityTemplateRecord) {
+    await actions.saveTemplate(nextTemplate)
+  }
+  function parseBonusRecord(
+    record: Record<string, string | number>,
+  ): Record<string, number> {
+    return Object.fromEntries(
+      Object.entries(record).map(([key, val]) => [
+        key,
+        val === "" ? 0 : Number(val),
+      ]),
+    )
+  }
+  async function handleSave() {
+    if (!canManage || saving) return
+    setSaving(true)
+    const loadingToastId = toast.loading("Salvando...")
+
+    try {
+      const nextTemplate: IdentityTemplateRecord = {
+        ...current,
+        label: name.trim(),
+        category: category.trim() || "geral",
+        shortDescription: shortDescription.trim() || null,
+        content: editorContent,
+        attributeBonuses: parseBonusRecord(attributeBonuses),
+        skillBonuses: parseBonusRecord(skillBonuses),
+        catalogMeta: {
+          ...current.catalogMeta,
+          shortDescription: shortDescription.trim() || null,
+          richText: {
+            ...current.catalogMeta.richText,
+            description: editorContent,
+          },
+        },
+      }
+
+      await saveTemplate(nextTemplate)
+      toast.success(`${entityLabel} salva com sucesso.`)
+      setConfigModalOpen(false)
+      router.refresh()
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "Erro ao salvar.")
+    } finally {
+      dismissToast(loadingToastId)
+      setSaving(false)
+    }
+  }
+
+  return (
+    <main className={styles.page}>
+      <div className={styles.header}>
+        <div>
+          <p className={styles.kicker}>{title}</p>
+          <h1 className={styles.title}>{name}</h1>
+          {shortDescription ? (
+            <p className={styles.subtitle}>{shortDescription}</p>
+          ) : null}
+        </div>
+
+        {canManage ? (
+          <div className={styles.headerActions}>
+            <button
+              type="button"
+              className={
+                contentEditing ? styles.primaryButton : styles.ghostButton
+              }
+              onClick={() =>
+                setContentEditing((currentValue) => {
+                  const nextValue = !currentValue
+                  if (nextValue) {
+                    setSyncDescriptionToEditor(false)
+                  }
+                  return nextValue
+                })
+              }
+              aria-label={
+                contentEditing ? "Parar edicao de conteudo" : "Editar conteudo"
+              }
+              title={contentEditing ? "Parar edicao" : "Digitar"}
+            >
+              <Keyboard size={16} />
+            </button>
+
+            <button
+              type="button"
+              className={styles.ghostButton}
+              onClick={openBindingsModal}
+              aria-label="Abrir configuracoes"
+              title="Configurar"
+            >
+              <SlidersHorizontal size={16} />
+            </button>
+
+            <button
+              type="button"
+              className={styles.primaryButton}
+              onClick={() => void handleSave()}
+              disabled={saving}
+              aria-label={saving ? "Salvando" : "Salvar"}
+              title={saving ? "Salvando..." : "Salvar"}
+            >
+              <Save size={16} />
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      <section className={styles.contentShell}>
+        <div
+          className={styles.contentTabs}
+          role="tablist"
+          aria-label="Conteudo da entidade"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "content"}
+            className={`${styles.contentTab} ${activeTab === "content" ? styles.contentTabActive : ""}`}
+            onClick={() => setActiveTab("content")}
+          >
+            Sobre
+          </button>
+          {hasAbilities ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "abilities"}
+              className={`${styles.contentTab} ${activeTab === "abilities" ? styles.contentTabActive : ""}`}
+              onClick={() => setActiveTab("abilities")}
+            >
+              Habilidades
+            </button>
+          ) : null}
+          {hasBonuses ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "bonuses"}
+              className={`${styles.contentTab} ${activeTab === "bonuses" ? styles.contentTabActive : ""}`}
+              onClick={() => setActiveTab("bonuses")}
+            >
+              Bonus
+            </button>
+          ) : null}
+          {hasPlayers ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "players"}
+              className={`${styles.contentTab} ${activeTab === "players" ? styles.contentTabActive : ""}`}
+              onClick={() => setActiveTab("players")}
+            >
+              Players
+            </button>
+          ) : null}
+        </div>
+
+        {activeTab === "content" ? (
+          <section className={styles.editorShell}>
+            <SimpleEditor
+              initialContent={editorContent}
+              onJsonChange={setEditorContent}
+              disabled={!canManage || !contentEditing}
+              className="library-book-editor"
+            />
+          </section>
+        ) : activeTab === "bonuses" ? (
+          <section className={styles.abilitiesShell}>
+            <div className={styles.bonusGrid}>
+              {activeAttributeBonuses.length > 0 ? (
+                <section className={styles.bonusCard}>
+                  <header className={styles.bonusHeader}>
+                    <h2 className={styles.bonusTitle}>Atributos</h2>
+                    <span className={styles.bonusCount}>
+                      {activeAttributeBonuses.length}
+                    </span>
+                  </header>
+                  <div className={styles.bonusList}>
+                    {activeAttributeBonuses.map((item) => (
+                      <div key={item.key} className={styles.bonusItem}>
+                        <span>{item.label}</span>
+                        <strong>
+                          {item.value > 0 ? `+${item.value}` : item.value}
+                        </strong>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
+              {activeSkillBonuses.length > 0 ? (
+                <section className={styles.bonusCard}>
+                  <header className={styles.bonusHeader}>
+                    <h2 className={styles.bonusTitle}>Pericias</h2>
+                    <span className={styles.bonusCount}>
+                      {activeSkillBonuses.length}
+                    </span>
+                  </header>
+                  <div className={styles.bonusList}>
+                    {activeSkillBonuses.map((item) => (
+                      <div key={item.key} className={styles.bonusItem}>
+                        <span>{item.label}</span>
+                        <strong>
+                          {item.value > 0 ? `+${item.value}` : item.value}
+                        </strong>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+            </div>
+          </section>
+        ) : activeTab === "players" ? (
+          <section className={styles.abilitiesShell}>
+            <div className={styles.playerGrid}>
+              {players.map((player) => (
+                <Link
+                  key={player.id}
+                  href={`/rpg/${rpgId}/characters/${player.id}`}
+                  className={styles.playerCard}
+                >
+                  <div className={styles.playerAvatar}>
+                    {player.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={player.image} alt={player.name} />
+                    ) : (
+                      <span>{player.name.slice(0, 1).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <div className={styles.playerMeta}>
+                    <strong>{player.name}</strong>
+                    <span>Player</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className={styles.abilitiesShell}>
+            <EntityAbilitiesPanel
+              skills={abilities}
+              purchase={abilityPurchase}
+            />
+          </section>
+        )}
+      </section>
+
+      {configModalOpen ? (
+        <div
+          className={styles.modalOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Configurar ${entityLabel.toLowerCase()}`}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setConfigModalOpen(false)
+            }
+          }}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              event.preventDefault()
+            }
+          }}
+        >
+          <section
+            ref={configModalRef}
+            className={styles.modal}
+            tabIndex={-1}
+            onClick={(event) => event.stopPropagation()}
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <h2 className={styles.modalTitle}>
+              Configurar {entityLabel.toLowerCase()}
+            </h2>
+
+            <div
+              className={styles.stageTabs}
+              role="tablist"
+              aria-label="Etapas de configuracao"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected={configStage === "basic"}
+                className={`${styles.stageTab} ${configStage === "basic" ? styles.stageTabActive : ""}`}
+                onClick={() => setConfigStage("basic")}
+              >
+                Basico
+              </button>
+              {hasAttributeTemplates ? (
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={configStage === "attributes"}
+                  className={`${styles.stageTab} ${configStage === "attributes" ? styles.stageTabActive : ""}`}
+                  onClick={() => setConfigStage("attributes")}
+                >
+                  Atributos
+                </button>
+              ) : null}
+              {hasSkillTemplates ? (
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={configStage === "skills"}
+                  className={`${styles.stageTab} ${configStage === "skills" ? styles.stageTabActive : ""}`}
+                  onClick={() => setConfigStage("skills")}
+                >
+                  Pericias
+                </button>
+              ) : null}
+            </div>
+
+            {configStage === "basic" ? (
+              <>
+                <label className={styles.field}>
+                  <span>Nome</span>
+                  <input
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                  />
+                </label>
+
+                {showCategoryField ? (
+                  <label className={styles.field}>
+                    <span>Categoria</span>
+                    <select
+                      value={category}
+                      onChange={(event) => setCategory(event.target.value)}
+                    >
+                      {categoryOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
+
+                <label className={styles.field}>
+                  <span>Descricao basica</span>
+                  <textarea
+                    className={styles.descriptionTextarea}
+                    rows={4}
+                    value={shortDescription}
+                    onChange={(event) => {
+                      const nextValue = event.target.value
+                      setShortDescription(nextValue)
+                      if (syncDescriptionToEditor) {
+                        setEditorContent(
+                          createRichTextDocumentFromText(
+                            nextValue,
+                          ) as JSONContent,
+                        )
+                      }
+                    }}
+                  />
+                </label>
+              </>
+            ) : (
+              <NumericTemplateGrid
+                items={(configStage === "attributes"
+                  ? attributeTemplates
+                  : skillTemplates
+                ).map((item) => ({
+                  key: item.key,
+                  label: item.label,
+                }))}
+                values={
+                  configStage === "attributes" ? attributeBonuses : skillBonuses
+                }
+                onChange={(key, value) =>
+                  configStage === "attributes"
+                    ? setAttributeBonuses((prev) => ({ ...prev, [key]: value }))
+                    : setSkillBonuses((prev) => ({ ...prev, [key]: value }))
+                }
+                gridClassName={styles.grid}
+                fieldClassName={styles.field}
+                keyPrefix={`${current.key}-${configStage}`}
+              />
+            )}
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                className={styles.primaryButton}
+                onClick={() => void handleSave()}
+                disabled={saving}
+              >
+                {saving ? "Salvando..." : "Salvar"}
+              </button>
+              <button
+                type="button"
+                className={styles.ghostButton}
+                onClick={() => setConfigModalOpen(false)}
+                disabled={saving}
+              >
+                Fechar
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+    </main>
+  )
+}

@@ -1,0 +1,19 @@
+import RpgMapFeature from "@/features/world/location/presentation/RpgMapFeature"
+import { loadMapShellData } from "./loadMapShellData"
+
+type Params = {
+  params: Promise<{
+    rpgId: string
+  }>
+}
+
+export default async function MapPage({ params }: Params) {
+  const { rpgId } = await params
+  const shell = await loadMapShellData(rpgId)
+
+  return (
+    <main>
+      <RpgMapFeature rpgId={rpgId} rpgTitle={shell.rpgTitle} />
+    </main>
+  )
+}

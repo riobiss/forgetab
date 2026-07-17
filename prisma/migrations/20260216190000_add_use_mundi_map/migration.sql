@@ -1,2 +1,0 @@
-ALTER TABLE "rpgs"
-ADD COLUMN "use_mundi_map" BOOLEAN NOT NULL DEFAULT false;

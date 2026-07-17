@@ -1,0 +1,73 @@
+import type { ImageGateway } from "@/features/world/application/management/ports/ImageGateway"
+import type { RpgRepository } from "@/features/world/application/management/ports/RpgRepository"
+import { AppError } from "@/shared/errors/AppError"
+
+type DeleteRpgDependencies = {
+  repository: RpgRepository
+  imageGateway: ImageGateway
+}
+
+function isSchemaOutdatedError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false
+  }
+
+  return (
+    error.message.includes('relation "rpgs" does not exist') ||
+    error.message.includes('column "image" does not exist') ||
+    error.message.includes("Could not find the table")
+  )
+}
+
+function isKnownRequestCode(error: unknown, code: string) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === code
+  )
+}
+
+export async function deleteRpg(
+  deps: DeleteRpgDependencies,
+  params: { rpgId: string; userId: string },
+) {
+  try {
+    let imageUrl: string | null = null
+
+    try {
+      imageUrl = await deps.repository.getOwnedImage(params.rpgId, params.userId)
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.includes('column "image" does not exist')) {
+        throw error
+      }
+    }
+
+    const deleted = await deps.repository.deleteOwned(params.rpgId, params.userId)
+    if (!deleted) {
+      throw new AppError("RPG nao encontrado.", 404)
+    }
+
+    try {
+      await deps.imageGateway.deleteRpgImageByUrl({ ownerId: params.userId, imageUrl })
+    } catch {
+      // Nao bloqueia a exclusao do RPG caso a limpeza da imagem falhe.
+    }
+
+    return { message: "RPG deletado com sucesso." }
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error
+    }
+
+    if (isKnownRequestCode(error, "P2021")) {
+      throw new AppError("Tabela de RPG nao existe no banco. Rode a migration.", 500)
+    }
+
+    if (isSchemaOutdatedError(error)) {
+      throw new AppError("Tabela de RPG nao existe no banco. Rode a migration.", 500)
+    }
+
+    throw new AppError("Erro interno ao deletar RPG.", 500)
+  }
+}

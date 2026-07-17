@@ -24,10 +24,7 @@
     ],
     "paths": {
       "@/*": [
-        "./src/*"
-      ],
-      "@api/*": [
-        "./api/src/*"
+        "./apps/web/src/*"
       ]
     }
   },
@@ -41,6 +38,14 @@
   ],
   "exclude": [
     "node_modules",
-    "api"
+    "**/.next",
+    "api",
+    "apps/web/src/lib/prisma.ts",
+    "apps/web/src/lib/server",
+    "apps/web/src/features/**/prisma*.ts",
+    "apps/web/src/features/**/legacy*.ts",
+    "apps/web/src/features/world/**/infrastructure/**/services/*AccessService.ts",
+    "apps/web/src/features/world/**/infrastructure/**/services/*PermissionService.ts",
+    "apps/web/src/features/world/characters/infrastructure/abilities/services/npcMonsterCharacterAbilityService.ts"
   ]
 }

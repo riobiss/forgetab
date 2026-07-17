@@ -1,2 +1,0 @@
-ALTER TABLE "skills"
-DROP COLUMN IF EXISTS "school";

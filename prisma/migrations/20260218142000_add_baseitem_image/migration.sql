@@ -1,2 +1,0 @@
-ALTER TABLE "baseitems"
-ADD COLUMN IF NOT EXISTS "image" TEXT;

@@ -1,2 +1,0 @@
-ALTER TABLE "skills"
-ADD COLUMN IF NOT EXISTS "action_type" TEXT;
