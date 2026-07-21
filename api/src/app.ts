@@ -1,6 +1,6 @@
 import Fastify from "fastify"
 import type { IncomingHttpHeaders } from "node:http"
-import { resolveAllowedOrigin } from "@api/presentation/http/cors"
+import { resolveAllowedOrigin } from "@/features/http/presentation/cors"
 import { registerApiRoutes } from "@api/registerApiRoutes"
 
 const apiPort = Number(process.env.PORT ?? process.env.API_PORT ?? 4000)
@@ -26,9 +26,13 @@ export function buildApiServer() {
   })
 
   app.removeAllContentTypeParsers()
-  app.addContentTypeParser("*", { parseAs: "buffer" }, (_request, body, done) => {
-    done(null, body)
-  })
+  app.addContentTypeParser(
+    "*",
+    { parseAs: "buffer" },
+    (_request, body, done) => {
+      done(null, body)
+    },
+  )
 
   app.addHook("onRequest", async (request, reply) => {
     if (request.method !== "OPTIONS") {
@@ -40,7 +44,10 @@ export function buildApiServer() {
       return reply.code(403).send()
     }
 
-    reply.header("Access-Control-Allow-Methods", "GET,POST,PATCH,PUT,DELETE,OPTIONS")
+    reply.header(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PATCH,PUT,DELETE,OPTIONS",
+    )
     reply.header("Access-Control-Allow-Headers", "Content-Type, Authorization")
     return reply.code(204).send()
   })
