@@ -1,1 +1,0 @@
-(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,23961,t=>{"use strict";t.i(43476),t.i(71645);let e=Error("Cannot find module '@/components/tiptap-templates/simple/simple-editor'");throw e.code="MODULE_NOT_FOUND",e}]);
