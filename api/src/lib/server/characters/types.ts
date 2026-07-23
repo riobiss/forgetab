@@ -9,7 +9,7 @@ export type {
   RpgAccess,
   CreateCharacterPayload,
   ListCharactersResult,
-} from "@/application/characters/types"
+} from "@/features/world/character/application/types"
 
 export type RouteContext = {
   params: Promise<{

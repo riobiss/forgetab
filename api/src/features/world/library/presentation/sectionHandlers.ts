@@ -6,7 +6,7 @@ import {
   listLibrarySectionBooks,
   listLibrarySections,
   updateLibrarySection,
-} from "@/application/library/use-cases/libraryApi"
+} from "@/features/world/library/application/use-cases/libraryApi"
 import {
   parseJsonBody,
   requireUserId,

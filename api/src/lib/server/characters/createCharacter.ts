@@ -1,14 +1,8 @@
-import {
-  createCharacter as createCharacterUseCase,
-} from "@/application/characters/use-cases/createCharacter"
-import type { CharacterRepository as ApplicationCharacterRepository } from "@/application/characters/ports/CharacterRepository"
-import type { RpgTemplatesRepository as ApplicationRpgTemplatesRepository } from "@/application/characters/ports/RpgTemplatesRepository"
-import { AppError } from "@/shared/errors/AppError"
-import type {
-  CharacterRow,
-  CreateCharacterPayload,
-  RpgAccess,
-} from "./types"
+import { createCharacter as createCharacterUseCase } from "@/features/world/character/application/use-cases/createCharacter"
+import type { CharacterRepository as ApplicationCharacterRepository } from "@/features/world/character/application/ports/CharacterRepository"
+import type { RpgTemplatesRepository as ApplicationRpgTemplatesRepository } from "@/features/world/character/application/ports/RpgTemplatesRepository"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import type { CharacterRow, CreateCharacterPayload, RpgAccess } from "./types"
 import {
   prismaCharacterRepository,
   type CharacterRepository,
@@ -41,7 +35,9 @@ function toLegacyCreateCharacterError(error: AppError) {
   return new CreateCharacterError(error.status, error.message)
 }
 
-export async function createCharacter(input: CreateCharacterInput): Promise<CharacterRow> {
+export async function createCharacter(
+  input: CreateCharacterInput,
+): Promise<CharacterRow> {
   const {
     rpgId,
     userId,
@@ -57,8 +53,10 @@ export async function createCharacter(input: CreateCharacterInput): Promise<Char
       userId,
       access,
       payload,
-      characterRepository: characterRepository as ApplicationCharacterRepository,
-      rpgTemplatesRepository: rpgTemplatesRepository as ApplicationRpgTemplatesRepository,
+      characterRepository:
+        characterRepository as ApplicationCharacterRepository,
+      rpgTemplatesRepository:
+        rpgTemplatesRepository as ApplicationRpgTemplatesRepository,
     })
   } catch (error) {
     if (error instanceof AppError) {

@@ -1,5 +1,5 @@
-import { prismaRpgConfigRepository } from "@/infrastructure/rpg/config/repositories/prismaRpgConfigRepository"
-import { rpgConfigAccessService } from "@/infrastructure/rpg/config/services/rpgConfigAccessService"
+import { prismaRpgConfigRepository } from "@/features/world/infrastructure/config/repositories/prismaRpgConfigRepository"
+import { rpgConfigAccessService } from "@/features/world/infrastructure/config/services/rpgConfigAccessService"
 
 export const rpgConfigRouteDeps = {
   accessService: rpgConfigAccessService,

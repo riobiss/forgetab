@@ -1,5 +1,5 @@
-import { characterManagementService } from "@/infrastructure/characters/services/characterManagementService"
-import { AppError } from "@/shared/errors/AppError"
+import { characterManagementService } from "@/features/world/character/infrastructure/services/characterManagementService"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 export type UpdateCharacterPayload = {
   name?: string
@@ -37,7 +37,9 @@ function fail(status: number, message: string): never {
   throw new UpdateCharacterError(status, message)
 }
 
-export async function updateCharacter(input: UpdateCharacterInput): Promise<void> {
+export async function updateCharacter(
+  input: UpdateCharacterInput,
+): Promise<void> {
   try {
     await characterManagementService.updateCharacter(input)
   } catch (error) {

@@ -1,7 +1,7 @@
-import { prismaProfileReader } from "@/infrastructure/profile/repositories/prismaProfileReader"
-import { prismaProfileWriter } from "@/infrastructure/profile/repositories/prismaProfileWriter"
-import { prismaRpgUserProfileWriter } from "@/infrastructure/profile/repositories/prismaRpgUserProfileWriter"
-import { prismaRpgProfileAccessService } from "@/infrastructure/profile/services/prismaRpgProfileAccessService"
+import { prismaProfileReader } from "@/features/profile/infrastructure/repositories/prismaProfileReader"
+import { prismaProfileWriter } from "@/features/profile/infrastructure/repositories/prismaProfileWriter"
+import { prismaRpgUserProfileWriter } from "@/features/profile/infrastructure/repositories/prismaRpgUserProfileWriter"
+import { prismaRpgProfileAccessService } from "@/features/profile/infrastructure/services/prismaRpgProfileAccessService"
 
 export const profileRouteDeps = {
   reader: prismaProfileReader,

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/shared/errors/AppError"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
@@ -123,7 +123,9 @@ describe("items routes", () => {
 
   it("retorna 400 para payload invalido ao criar item", async () => {
     server = buildApiServer()
-    mocks.createItem.mockRejectedValue(new AppError("Nome do item e obrigatorio.", 400))
+    mocks.createItem.mockRejectedValue(
+      new AppError("Nome do item e obrigatorio.", 400),
+    )
 
     const response = await server.inject({
       method: "POST",
@@ -159,7 +161,9 @@ describe("items routes", () => {
 
   it("retorna 404 quando item nao existe", async () => {
     server = buildApiServer()
-    mocks.getItemById.mockRejectedValue(new AppError("Item nao encontrado.", 404))
+    mocks.getItemById.mockRejectedValue(
+      new AppError("Item nao encontrado.", 404),
+    )
 
     const response = await server.inject({
       method: "GET",
@@ -197,7 +201,9 @@ describe("items routes", () => {
 
   it("retorna 200 ao remover item", async () => {
     server = buildApiServer()
-    mocks.deleteItem.mockResolvedValue({ message: "Item deletado com sucesso." })
+    mocks.deleteItem.mockResolvedValue({
+      message: "Item deletado com sucesso.",
+    })
 
     const response = await server.inject({
       method: "DELETE",
@@ -226,10 +232,13 @@ describe("items routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(mocks.getItemsDashboardData).toHaveBeenCalledWith(expect.anything(), {
-      rpgId: "rpg-1",
-      userId: "user-1",
-    })
+    expect(mocks.getItemsDashboardData).toHaveBeenCalledWith(
+      expect.anything(),
+      {
+        rpgId: "rpg-1",
+        userId: "user-1",
+      },
+    )
     expect(response.json()).toEqual({
       items: [{ id: "item-1", name: "Espada" }],
       characters: [{ id: "char-1", name: "Aria", characterType: "player" }],
@@ -264,7 +273,9 @@ describe("items routes", () => {
 
   it("retorna 400 ao dar item sem item base", async () => {
     server = buildApiServer()
-    mocks.giveItem.mockRejectedValue(new AppError("Item base e obrigatorio.", 400))
+    mocks.giveItem.mockRejectedValue(
+      new AppError("Item base e obrigatorio.", 400),
+    )
 
     const response = await server.inject({
       method: "POST",

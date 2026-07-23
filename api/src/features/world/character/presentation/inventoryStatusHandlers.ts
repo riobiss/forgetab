@@ -2,8 +2,8 @@ import type { FastifyReply, FastifyRequest } from "fastify"
 import {
   getCharacterInventoryUseCase,
   removeCharacterInventoryItemApiUseCase,
-} from "@/application/characters/inventory/use-cases/manageCharacterInventory"
-import { updateCharacterStatusCurrentUseCase } from "@/application/characters/statusCurrent/use-cases/characterStatusCurrent"
+} from "@/features/world/character/application/inventory/use-cases/manageCharacterInventory"
+import { updateCharacterStatusCurrentUseCase } from "@/features/world/character/application/statusCurrent/use-cases/characterStatusCurrent"
 import { characterRouteDeps } from "./dependencies"
 import {
   mapCharacterInventoryError,
@@ -35,13 +35,18 @@ export async function getCharacterInventoryHandler(
 
     return writeJson(reply, 200, payload)
   } catch (error) {
-    return mapCharacterInventoryError(reply, error, "Erro interno ao consultar inventario.")
+    return mapCharacterInventoryError(
+      reply,
+      error,
+      "Erro interno ao consultar inventario.",
+    )
   }
 }
 
 export async function createCharacterInventoryHandler(reply: FastifyReply) {
   return writeJson(reply, 405, {
-    message: "Dar item por esta rota foi desativado. Use a pagina de itens do RPG.",
+    message:
+      "Dar item por esta rota foi desativado. Use a pagina de itens do RPG.",
   })
 }
 
@@ -67,7 +72,9 @@ export async function removeCharacterInventoryHandler(
         characterId: request.params.characterId,
         userId: auth.userId,
         inventoryItemId: body.inventoryItemId?.trim() ?? "",
-        quantity: Number.isFinite(body.quantity) ? Math.floor(body.quantity as number) : 1,
+        quantity: Number.isFinite(body.quantity)
+          ? Math.floor(body.quantity as number)
+          : 1,
       },
     )
 
@@ -91,7 +98,10 @@ export async function updateCharacterStatusCurrentHandler(
   }
 
   try {
-    const body = (parseJsonBody(request.body) ?? {}) as { key?: unknown; value?: unknown }
+    const body = (parseJsonBody(request.body) ?? {}) as {
+      key?: unknown
+      value?: unknown
+    }
 
     const payload = await updateCharacterStatusCurrentUseCase(
       characterRouteDeps.characterStatusCurrentRepository,
@@ -105,14 +115,21 @@ export async function updateCharacterStatusCurrentHandler(
 
     return writeJson(reply, 200, payload)
   } catch (error) {
-    if (error instanceof Error && error.message.includes('relation "rpg_characters" does not exist')) {
+    if (
+      error instanceof Error &&
+      error.message.includes('relation "rpg_characters" does not exist')
+    ) {
       return writeJson(reply, 500, {
         message: "Tabela de personagens nao existe no banco. Rode a migration.",
       })
     }
-    if (error instanceof Error && error.message.includes('column "current_statuses" does not exist')) {
+    if (
+      error instanceof Error &&
+      error.message.includes('column "current_statuses" does not exist')
+    ) {
       return writeJson(reply, 500, {
-        message: "Estrutura de personagens desatualizada. Rode a migration mais recente.",
+        message:
+          "Estrutura de personagens desatualizada. Rode a migration mais recente.",
       })
     }
 

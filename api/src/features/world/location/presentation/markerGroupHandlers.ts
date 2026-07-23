@@ -3,7 +3,7 @@ import {
   createRpgMapMarkerGroup,
   deleteRpgMapMarkerGroup,
   updateRpgMapMarkerGroup,
-} from "@/application/rpg/map/use-cases/rpgMap"
+} from "@/features/world/application/map/use-cases/rpgMap"
 import {
   parseJsonBody,
   requireUserId,

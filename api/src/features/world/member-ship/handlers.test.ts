@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/shared/errors/AppError"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
@@ -60,7 +60,9 @@ describe("rpg membership routes", () => {
 
   it("retorna 404 quando nao encontra membros do RPG", async () => {
     server = buildApiServer()
-    mocks.listRpgMembersUseCase.mockRejectedValueOnce(new AppError("RPG nao encontrado.", 404))
+    mocks.listRpgMembersUseCase.mockRejectedValueOnce(
+      new AppError("RPG nao encontrado.", 404),
+    )
 
     const response = await server.inject({
       method: "GET",
@@ -113,7 +115,10 @@ describe("rpg membership routes", () => {
   it("retorna 409 quando ja existe solicitacao pendente para entrar no RPG", async () => {
     server = buildApiServer()
     mocks.requestJoinRpgUseCase.mockRejectedValueOnce(
-      new AppError("Voce ja possui uma solicitacao pendente para este RPG.", 409),
+      new AppError(
+        "Voce ja possui uma solicitacao pendente para este RPG.",
+        409,
+      ),
     )
 
     const response = await server.inject({
@@ -140,11 +145,16 @@ describe("rpg membership routes", () => {
     })
 
     expect(response.statusCode).toBe(201)
-    expect(mocks.requestJoinRpgUseCase).toHaveBeenCalledWith(expect.anything(), {
-      rpgId: "rpg-1",
-      userId: "user-1",
+    expect(mocks.requestJoinRpgUseCase).toHaveBeenCalledWith(
+      expect.anything(),
+      {
+        rpgId: "rpg-1",
+        userId: "user-1",
+      },
+    )
+    expect(response.json()).toEqual({
+      message: "Solicitacao enviada com sucesso.",
     })
-    expect(response.json()).toEqual({ message: "Solicitacao enviada com sucesso." })
   })
 
   it("retorna 400 quando acao de membro e invalida", async () => {
@@ -198,7 +208,9 @@ describe("rpg membership routes", () => {
 
   it("retorna 404 ao expulsar membro inexistente", async () => {
     server = buildApiServer()
-    mocks.expelMemberUseCase.mockRejectedValueOnce(new AppError("Membro nao encontrado.", 404))
+    mocks.expelMemberUseCase.mockRejectedValueOnce(
+      new AppError("Membro nao encontrado.", 404),
+    )
 
     const response = await server.inject({
       method: "DELETE",
@@ -262,7 +274,10 @@ describe("rpg membership routes", () => {
   it("retorna 409 quando ja existe solicitacao pendente de personagem", async () => {
     server = buildApiServer()
     mocks.requestCharacterCreationUseCase.mockRejectedValueOnce(
-      new AppError("Ja existe uma solicitacao pendente para criar personagem.", 409),
+      new AppError(
+        "Ja existe uma solicitacao pendente para criar personagem.",
+        409,
+      ),
     )
 
     const response = await server.inject({

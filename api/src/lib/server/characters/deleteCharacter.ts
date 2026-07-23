@@ -1,5 +1,5 @@
-import { characterManagementService } from "@/infrastructure/characters/services/characterManagementService"
-import { AppError } from "@/shared/errors/AppError"
+import { characterManagementService } from "@/features/world/character/infrastructure/services/characterManagementService"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 type DeleteCharacterInput = {
   rpgId: string
@@ -21,7 +21,9 @@ function fail(status: number, message: string): never {
   throw new DeleteCharacterError(status, message)
 }
 
-export async function deleteCharacter(input: DeleteCharacterInput): Promise<void> {
+export async function deleteCharacter(
+  input: DeleteCharacterInput,
+): Promise<void> {
   try {
     await characterManagementService.deleteCharacter(input)
   } catch (error) {

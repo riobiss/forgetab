@@ -5,7 +5,7 @@ import {
   writeError,
   writeJson,
 } from "@/features/http/presentation/fastifyJson"
-import { randomOrgRandomNumberProvider } from "@api/infrastructure/random/randomOrgRandomNumberProvider"
+import { randomOrgRandomNumberProvider } from "@/features/dices/random/infrastructure/randomOrgRandomNumberProvider"
 
 export async function rollDicesHandler(
   request: FastifyRequest,

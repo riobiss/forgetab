@@ -1,15 +1,18 @@
 import { describe, expect, it, vi } from "vitest"
-import { AppError } from "@/shared/errors/AppError"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   deleteCharacter: vi.fn(),
 }))
 
-vi.mock("@/infrastructure/characters/services/characterManagementService", () => ({
-  characterManagementService: {
-    deleteCharacter: mocks.deleteCharacter,
-  },
-}))
+vi.mock(
+  "@/infrastructure/characters/services/characterManagementService",
+  () => ({
+    characterManagementService: {
+      deleteCharacter: mocks.deleteCharacter,
+    },
+  }),
+)
 
 import { deleteCharacter } from "./deleteCharacter"
 
@@ -33,7 +36,9 @@ describe("deleteCharacter adapter", () => {
   })
 
   it("converte AppError para DeleteCharacterError legado", async () => {
-    mocks.deleteCharacter.mockRejectedValueOnce(new AppError("Personagem nao encontrado.", 404))
+    mocks.deleteCharacter.mockRejectedValueOnce(
+      new AppError("Personagem nao encontrado.", 404),
+    )
 
     await expect(
       deleteCharacter({

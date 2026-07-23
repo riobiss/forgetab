@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/shared/errors/AppError"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
@@ -64,10 +64,12 @@ describe("skills routes", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.getUserIdFromFastifyRequest.mockResolvedValue("user-1")
-    mocks.normalizeSkillSearchIndexParams.mockImplementation((body: { skillIds?: string[]; rpgId?: string }) => ({
-      skillIds: Array.isArray(body.skillIds) ? body.skillIds : [],
-      rpgId: body.rpgId ?? null,
-    }))
+    mocks.normalizeSkillSearchIndexParams.mockImplementation(
+      (body: { skillIds?: string[]; rpgId?: string }) => ({
+        skillIds: Array.isArray(body.skillIds) ? body.skillIds : [],
+        rpgId: body.rpgId ?? null,
+      }),
+    )
   })
 
   afterEach(async () => {
@@ -137,7 +139,9 @@ describe("skills routes", () => {
 
   it("retorna erro de dominio ao criar skill", async () => {
     server = buildApiServer()
-    mocks.createSkill.mockRejectedValue(new AppError("Slug ja utilizado neste escopo (owner + rpg).", 409))
+    mocks.createSkill.mockRejectedValue(
+      new AppError("Slug ja utilizado neste escopo (owner + rpg).", 409),
+    )
 
     const response = await server.inject({
       method: "POST",
@@ -297,11 +301,14 @@ describe("skills routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(mocks.loadSkillsSearchIndexUseCase).toHaveBeenCalledWith(expect.anything(), {
-      userId: "user-1",
-      skillIds: ["s1"],
-      rpgId: "rpg-1",
-    })
+    expect(mocks.loadSkillsSearchIndexUseCase).toHaveBeenCalledWith(
+      expect.anything(),
+      {
+        userId: "user-1",
+        skillIds: ["s1"],
+        rpgId: "rpg-1",
+      },
+    )
     expect(response.json()).toEqual({
       index: {
         s1: {

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/shared/errors/AppError"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
@@ -81,10 +81,14 @@ describe("rpg map routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(mocks.listRpgMaps).toHaveBeenCalledWith(expect.anything(), expect.anything(), {
-      rpgId: "rpg-1",
-      userId: "user-1",
-    })
+    expect(mocks.listRpgMaps).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      {
+        rpgId: "rpg-1",
+        userId: "user-1",
+      },
+    )
     expect(response.json()).toEqual({
       maps: [{ id: "map-1", title: "Mundo", canEdit: true }],
       canManage: true,
@@ -93,7 +97,11 @@ describe("rpg map routes", () => {
 
   it("retorna 201 ao criar mapa", async () => {
     server = buildApiServer()
-    const body = { title: "Mundo", type: "world", image: "https://img.com/map.png" }
+    const body = {
+      title: "Mundo",
+      type: "world",
+      image: "https://img.com/map.png",
+    }
     mocks.createRpgMap.mockResolvedValueOnce({
       map: { id: "map-1", title: "Mundo" },
     })
@@ -105,11 +113,15 @@ describe("rpg map routes", () => {
     })
 
     expect(response.statusCode).toBe(201)
-    expect(mocks.createRpgMap).toHaveBeenCalledWith(expect.anything(), expect.anything(), {
-      rpgId: "rpg-1",
-      userId: "user-1",
-      body,
-    })
+    expect(mocks.createRpgMap).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      {
+        rpgId: "rpg-1",
+        userId: "user-1",
+        body,
+      },
+    )
     expect(response.json()).toEqual({
       map: { id: "map-1", title: "Mundo" },
     })
@@ -138,7 +150,9 @@ describe("rpg map routes", () => {
 
   it("retorna 404 quando mapa nao existe", async () => {
     server = buildApiServer()
-    mocks.getRpgMapDetail.mockRejectedValueOnce(new AppError("Mapa nao encontrado.", 404))
+    mocks.getRpgMapDetail.mockRejectedValueOnce(
+      new AppError("Mapa nao encontrado.", 404),
+    )
 
     const response = await server.inject({
       method: "GET",
@@ -164,12 +178,16 @@ describe("rpg map routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(mocks.updateRpgMap).toHaveBeenCalledWith(expect.anything(), expect.anything(), {
-      rpgId: "rpg-1",
-      mapId: "map-1",
-      userId: "user-1",
-      body,
-    })
+    expect(mocks.updateRpgMap).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      {
+        rpgId: "rpg-1",
+        mapId: "map-1",
+        userId: "user-1",
+        body,
+      },
+    )
     expect(response.json()).toEqual({
       message: "Mapa atualizado com sucesso.",
       map: { id: "map-1", title: "Mundo Atualizado" },
@@ -178,7 +196,9 @@ describe("rpg map routes", () => {
 
   it("retorna 200 ao remover mapa", async () => {
     server = buildApiServer()
-    mocks.deleteRpgMap.mockResolvedValueOnce({ message: "Mapa removido com sucesso." })
+    mocks.deleteRpgMap.mockResolvedValueOnce({
+      message: "Mapa removido com sucesso.",
+    })
 
     const response = await server.inject({
       method: "DELETE",
@@ -191,7 +211,11 @@ describe("rpg map routes", () => {
 
   it("retorna 201 ao criar secao do mapa", async () => {
     server = buildApiServer()
-    const body = { name: "Continente", type: "continent", parentSectionId: null }
+    const body = {
+      name: "Continente",
+      type: "continent",
+      parentSectionId: null,
+    }
     mocks.createRpgMapSection.mockResolvedValueOnce({
       section: { id: "section-1", name: "Continente" },
     })
@@ -258,14 +282,20 @@ describe("rpg map routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(mocks.reorderRpgMapSection).toHaveBeenCalledWith(expect.anything(), expect.anything(), {
-      rpgId: "rpg-1",
-      mapId: "map-1",
-      sectionId: "section-1",
-      userId: "user-1",
-      body,
+    expect(mocks.reorderRpgMapSection).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      {
+        rpgId: "rpg-1",
+        mapId: "map-1",
+        sectionId: "section-1",
+        userId: "user-1",
+        body,
+      },
+    )
+    expect(response.json()).toEqual({
+      message: "Secao reordenada com sucesso.",
     })
-    expect(response.json()).toEqual({ message: "Secao reordenada com sucesso." })
   })
 
   it("retorna 201 ao criar grupo de marcadores", async () => {

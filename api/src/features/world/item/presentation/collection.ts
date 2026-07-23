@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { createItem } from "@/application/items/use-cases/createItem"
-import { getItems } from "@/application/items/use-cases/getItems"
+import { createItem } from "@/features/world/item/application/use-cases/createItem"
+import { getItems } from "@/features/world/item/application/use-cases/getItems"
 import {
   parseJsonBody,
   writeError,

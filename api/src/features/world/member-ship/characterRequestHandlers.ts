@@ -3,7 +3,7 @@ import {
   getCharacterRequestsUseCase,
   processCharacterRequestUseCase,
   requestCharacterCreationUseCase,
-} from "@/application/rpg/membership/use-cases/rpgMembership"
+} from "@/features/world/application/membership/use-cases/rpgMembership"
 import {
   parseJsonBody,
   requireUserId,

@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { loadEntityCatalogDetailUseCase } from "@/application/entityCatalog/use-cases/loadEntityCatalogDetail"
+import { loadEntityCatalogDetailUseCase } from "@/features/world/catalog/application/use-cases/loadEntityCatalogDetail"
 import { writeError, writeJson } from "@/features/http/presentation/fastifyJson"
 import { resolveUserId } from "./auth"
 import { entityCatalogRouteDeps } from "./dependencies"

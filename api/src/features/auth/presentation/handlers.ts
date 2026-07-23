@@ -1,11 +1,11 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { loginUseCase } from "@/application/auth/use-cases/login"
-import { logoutUseCase } from "@/application/auth/use-cases/logout"
-import { registerUseCase } from "@/application/auth/use-cases/register"
-import { prismaAuthRepository } from "@/infrastructure/auth/repositories/prismaAuthRepository"
-import { bcryptAuthPasswordService } from "@/infrastructure/auth/services/bcryptAuthPasswordService"
-import { jwtAuthTokenService } from "@/infrastructure/auth/services/jwtAuthTokenService"
-import { rateLimitAuthService } from "@/infrastructure/auth/services/rateLimitAuthService"
+import { loginUseCase } from "@/features/auth/application/use-cases/login"
+import { logoutUseCase } from "@/features/auth/application/use-cases/logout"
+import { registerUseCase } from "@/features/auth/application/use-cases/register"
+import { prismaAuthRepository } from "@/features/auth/infrastructure/repositories/prismaAuthRepository"
+import { bcryptAuthPasswordService } from "@/features/auth/infrastructure/services/bcryptAuthPasswordService"
+import { jwtAuthTokenService } from "@/features/auth/infrastructure/services/jwtAuthTokenService"
+import { rateLimitAuthService } from "@/features/auth/infrastructure/services/rateLimitAuthService"
 import {
   writeAuthErrorResponse,
   writeAuthSuccessResponse,

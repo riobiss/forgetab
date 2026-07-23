@@ -1,23 +1,26 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { loadCharacterAbilitiesUseCase } from "@/application/characters/abilities/use-cases/characterAbilities"
+import { loadCharacterAbilitiesUseCase } from "@/features/world/character/application/abilities/use-cases/characterAbilities"
 import {
   addNpcMonsterCharacterAbilityUseCase,
   removeNpcMonsterCharacterAbilityUseCase,
-} from "@/application/characters/abilities/use-cases/npcMonsterCharacterAbilities"
+} from "@/features/world/character/application/abilities/use-cases/npcMonsterCharacterAbilities"
 import {
   buyCharacterSkillUseCase,
   removeCharacterSkillUseCase,
-} from "@/application/characters/abilities/use-cases/characterSkillPurchase"
-import { deleteCharacter } from "@/application/characters/use-cases/deleteCharacter"
-import { getEditableCharacter } from "@/application/characters/use-cases/getEditableCharacter"
+} from "@/features/world/character/application/abilities/use-cases/characterSkillPurchase"
+import { deleteCharacter } from "@/features/world/character/application/use-cases/deleteCharacter"
+import { getEditableCharacter } from "@/features/world/character/application/use-cases/getEditableCharacter"
 import {
   updateCharacter,
   type UpdateCharacterPayload,
-} from "@/application/characters/use-cases/updateCharacter"
-import { loadCharacterDetailUseCase } from "@/application/characters/detail/use-cases/loadCharacterDetail"
+} from "@/features/world/character/application/use-cases/updateCharacter"
+import { loadCharacterDetailUseCase } from "@/features/world/character/application/detail/use-cases/loadCharacterDetail"
 import { characterRouteDeps } from "./dependencies"
 import { parseJsonBody, requireUserId, writeError, writeJson } from "./http"
-import type { CharacterInventoryRouteParams, CharacterRouteParams } from "./routeTypes"
+import type {
+  CharacterInventoryRouteParams,
+  CharacterRouteParams,
+} from "./routeTypes"
 
 export async function buyCharacterSkillHandler(
   request: FastifyRequest<{ Params: CharacterRouteParams }>,
@@ -123,7 +126,11 @@ export async function getCharacterDetailHandler(
 
     return writeJson(reply, 200, result.data)
   } catch (error) {
-    return writeError(reply, error, "Erro interno ao carregar detalhe do personagem.")
+    return writeError(
+      reply,
+      error,
+      "Erro interno ao carregar detalhe do personagem.",
+    )
   }
 }
 
@@ -161,7 +168,10 @@ export async function updateCharacterHandler(
       reply,
       200,
       updatedCharacter
-        ? { message: "Personagem atualizado com sucesso.", character: updatedCharacter }
+        ? {
+            message: "Personagem atualizado com sucesso.",
+            character: updatedCharacter,
+          }
         : { message: "Personagem atualizado com sucesso." },
     )
   } catch (error) {
@@ -188,7 +198,9 @@ export async function deleteCharacterHandler(
       },
     )
 
-    return writeJson(reply, 200, { message: "Personagem deletado com sucesso." })
+    return writeJson(reply, 200, {
+      message: "Personagem deletado com sucesso.",
+    })
   } catch (error) {
     return writeError(reply, error, "Erro interno ao deletar personagem.")
   }

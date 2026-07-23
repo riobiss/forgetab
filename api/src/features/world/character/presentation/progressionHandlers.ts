@@ -2,7 +2,7 @@ import type { FastifyReply, FastifyRequest } from "fastify"
 import {
   grantCharacterPointsUseCase,
   grantCharacterXpUseCase,
-} from "@/application/characters/progression/use-cases/characterProgression"
+} from "@/features/world/character/application/progression/use-cases/characterProgression"
 import { characterRouteDeps } from "./dependencies"
 import { parseJsonBody, requireUserId, writeError, writeJson } from "./http"
 import type { CharacterRouteParams } from "./routeTypes"
@@ -46,11 +46,14 @@ export async function grantCharacterPointsHandler(
     }
 
     const body = (parseJsonBody(request.body) ?? {}) as { amount?: unknown }
-    const payload = await grantCharacterPointsUseCase(characterProgressionDeps, {
-      characterId: request.params.id,
-      userId: auth.userId,
-      amount: body.amount,
-    })
+    const payload = await grantCharacterPointsUseCase(
+      characterProgressionDeps,
+      {
+        characterId: request.params.id,
+        userId: auth.userId,
+        amount: body.amount,
+      },
+    )
 
     return writeJson(reply, 200, payload)
   } catch (error) {

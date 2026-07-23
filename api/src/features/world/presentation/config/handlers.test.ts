@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/shared/errors/AppError"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
@@ -93,7 +93,9 @@ describe("rpg config routes", () => {
 
   it("retorna 200 ao atualizar atributos", async () => {
     server = buildApiServer()
-    mocks.updateAttributeTemplates.mockResolvedValue({ message: "Padrao de atributos atualizado." })
+    mocks.updateAttributeTemplates.mockResolvedValue({
+      message: "Padrao de atributos atualizado.",
+    })
 
     const response = await server.inject({
       method: "PUT",
@@ -102,7 +104,9 @@ describe("rpg config routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ message: "Padrao de atributos atualizado." })
+    expect(response.json()).toEqual({
+      message: "Padrao de atributos atualizado.",
+    })
   })
 
   it("retorna 200 com fallback default nos status", async () => {
@@ -126,7 +130,9 @@ describe("rpg config routes", () => {
 
   it("retorna 400 para payload invalido ao atualizar status", async () => {
     server = buildApiServer()
-    mocks.updateStatusTemplates.mockRejectedValue(new AppError("Payload invalido.", 400))
+    mocks.updateStatusTemplates.mockRejectedValue(
+      new AppError("Payload invalido.", 400),
+    )
 
     const response = await server.inject({
       method: "PUT",
@@ -141,7 +147,9 @@ describe("rpg config routes", () => {
   it("retorna 200 com pericias", async () => {
     server = buildApiServer()
     mocks.getSkillTemplates.mockResolvedValue({
-      skills: [{ id: "s1", key: "furtividade", label: "Furtividade", position: 0 }],
+      skills: [
+        { id: "s1", key: "furtividade", label: "Furtividade", position: 0 },
+      ],
       isDefault: false,
     })
 
@@ -152,14 +160,18 @@ describe("rpg config routes", () => {
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      skills: [{ id: "s1", key: "furtividade", label: "Furtividade", position: 0 }],
+      skills: [
+        { id: "s1", key: "furtividade", label: "Furtividade", position: 0 },
+      ],
       isDefault: false,
     })
   })
 
   it("retorna 200 ao atualizar pericias", async () => {
     server = buildApiServer()
-    mocks.updateSkillTemplates.mockResolvedValue({ message: "Padrao de pericias atualizado." })
+    mocks.updateSkillTemplates.mockResolvedValue({
+      message: "Padrao de pericias atualizado.",
+    })
 
     const response = await server.inject({
       method: "PUT",
@@ -168,7 +180,9 @@ describe("rpg config routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ message: "Padrao de pericias atualizado." })
+    expect(response.json()).toEqual({
+      message: "Padrao de pericias atualizado.",
+    })
   })
 
   it("retorna 200 com racas", async () => {
@@ -192,7 +206,9 @@ describe("rpg config routes", () => {
 
   it("retorna 404 ao atualizar racas sem permissao", async () => {
     server = buildApiServer()
-    mocks.updateRaceTemplates.mockRejectedValue(new AppError("RPG nao encontrado.", 404))
+    mocks.updateRaceTemplates.mockRejectedValue(
+      new AppError("RPG nao encontrado.", 404),
+    )
 
     const response = await server.inject({
       method: "PUT",
@@ -207,7 +223,9 @@ describe("rpg config routes", () => {
   it("retorna 200 com classes", async () => {
     server = buildApiServer()
     mocks.getClassTemplates.mockResolvedValue({
-      classes: [{ id: "c1", key: "guerreiro", label: "Guerreiro", position: 0 }],
+      classes: [
+        { id: "c1", key: "guerreiro", label: "Guerreiro", position: 0 },
+      ],
       isDefault: false,
     })
 
@@ -218,14 +236,18 @@ describe("rpg config routes", () => {
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      classes: [{ id: "c1", key: "guerreiro", label: "Guerreiro", position: 0 }],
+      classes: [
+        { id: "c1", key: "guerreiro", label: "Guerreiro", position: 0 },
+      ],
       isDefault: false,
     })
   })
 
   it("retorna 200 ao atualizar classes", async () => {
     server = buildApiServer()
-    mocks.updateClassTemplates.mockResolvedValue({ message: "Padrao de classes atualizado." })
+    mocks.updateClassTemplates.mockResolvedValue({
+      message: "Padrao de classes atualizado.",
+    })
 
     const response = await server.inject({
       method: "PUT",
@@ -234,13 +256,17 @@ describe("rpg config routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ message: "Padrao de classes atualizado." })
+    expect(response.json()).toEqual({
+      message: "Padrao de classes atualizado.",
+    })
   })
 
   it("retorna 200 com campos de identidade", async () => {
     server = buildApiServer()
     mocks.getIdentityTemplates.mockResolvedValue({
-      fields: [{ id: "f1", key: "nome", label: "Nome", required: true, position: 0 }],
+      fields: [
+        { id: "f1", key: "nome", label: "Nome", required: true, position: 0 },
+      ],
       isDefault: false,
     })
 
@@ -251,7 +277,9 @@ describe("rpg config routes", () => {
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      fields: [{ id: "f1", key: "nome", label: "Nome", required: true, position: 0 }],
+      fields: [
+        { id: "f1", key: "nome", label: "Nome", required: true, position: 0 },
+      ],
       isDefault: false,
     })
   })
@@ -277,7 +305,15 @@ describe("rpg config routes", () => {
   it("retorna 200 com campos de caracteristicas", async () => {
     server = buildApiServer()
     mocks.getCharacteristicTemplates.mockResolvedValue({
-      fields: [{ id: "f1", key: "idade", label: "Idade", required: false, position: 0 }],
+      fields: [
+        {
+          id: "f1",
+          key: "idade",
+          label: "Idade",
+          required: false,
+          position: 0,
+        },
+      ],
       isDefault: false,
     })
 
@@ -288,7 +324,15 @@ describe("rpg config routes", () => {
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      fields: [{ id: "f1", key: "idade", label: "Idade", required: false, position: 0 }],
+      fields: [
+        {
+          id: "f1",
+          key: "idade",
+          label: "Idade",
+          required: false,
+          position: 0,
+        },
+      ],
       isDefault: false,
     })
   })

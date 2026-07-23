@@ -7,7 +7,7 @@ import {
   updateRaceTemplates,
   updateSkillTemplates,
   updateStatusTemplates,
-} from "@/application/rpg/config/use-cases/rpgConfig"
+} from "@/features/world/application/config/use-cases/rpgConfig"
 import {
   parseJsonBody,
   requireUserId,

@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { getItemsDashboardData } from "@/application/items/use-cases/getItemsDashboardData"
-import { giveItem } from "@/application/items/use-cases/giveItem"
+import { getItemsDashboardData } from "@/features/world/item/application/use-cases/getItemsDashboardData"
+import { giveItem } from "@/features/world/item/application/use-cases/giveItem"
 import {
   parseJsonBody,
   writeError,

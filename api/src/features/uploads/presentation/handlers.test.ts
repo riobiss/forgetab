@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/shared/errors/AppError"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   jwtSecret: (process.env.JWT_SECRET = process.env.JWT_SECRET ?? "test-secret"),
@@ -21,7 +21,10 @@ import { buildApiServer } from "@api/app"
 
 async function createMultipartPayload() {
   const formData = new FormData()
-  formData.append("file", new File(["fake-image-content"], "avatar.png", { type: "image/png" }))
+  formData.append(
+    "file",
+    new File(["fake-image-content"], "avatar.png", { type: "image/png" }),
+  )
   formData.append("oldUrl", "https://cdn.example.com/old.png")
 
   const request = new Request("http://localhost/api/uploads/image", {
@@ -109,7 +112,9 @@ describe("upload routes", () => {
 
   it("retorna 400 ao enviar imagem invalida", async () => {
     server = buildApiServer()
-    mocks.uploadScopedImage.mockRejectedValueOnce(new AppError("Arquivo de imagem invalido.", 400))
+    mocks.uploadScopedImage.mockRejectedValueOnce(
+      new AppError("Arquivo de imagem invalido.", 400),
+    )
     const multipart = await createMultipartPayload()
 
     const response = await server.inject({
@@ -216,7 +221,9 @@ describe("upload routes", () => {
     })
 
     expect(response.statusCode).toBe(403)
-    expect(response.json()).toEqual({ message: "Voce nao pode remover esta imagem." })
+    expect(response.json()).toEqual({
+      message: "Voce nao pode remover esta imagem.",
+    })
   })
 
   it("retorna 200 ao remover imagem de RPG", async () => {

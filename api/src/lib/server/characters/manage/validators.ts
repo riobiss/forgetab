@@ -11,4 +11,4 @@ export {
   validateSkillsPayload,
   validateStat,
   validateStatusesPayload,
-} from "@/application/characters/validators"
+} from "@/features/world/character/application/validators"

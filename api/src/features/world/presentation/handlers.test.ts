@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/shared/errors/AppError"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getAuthPayloadFromFastifyRequest: vi.fn(),
@@ -46,7 +46,9 @@ describe("rpg routes", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.getAuthPayloadFromFastifyRequest.mockResolvedValue({ userId: "user-1" })
+    mocks.getAuthPayloadFromFastifyRequest.mockResolvedValue({
+      userId: "user-1",
+    })
   })
 
   afterEach(async () => {
@@ -80,7 +82,16 @@ describe("rpg routes", () => {
     server = buildApiServer()
     mocks.loadRpgCatalogUseCase.mockResolvedValue({
       userId: "user-1",
-      createdRpgs: [{ id: "rpg-1", title: "Campanha", description: "Desc", image: null, visibility: "private", createdAt: new Date("2026-01-01T00:00:00.000Z") }],
+      createdRpgs: [
+        {
+          id: "rpg-1",
+          title: "Campanha",
+          description: "Desc",
+          image: null,
+          visibility: "private",
+          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        },
+      ],
       publicRpgs: [],
     })
 
@@ -90,9 +101,12 @@ describe("rpg routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(mocks.loadRpgCatalogUseCase).toHaveBeenCalledWith(expect.anything(), {
-      userId: "user-1",
-    })
+    expect(mocks.loadRpgCatalogUseCase).toHaveBeenCalledWith(
+      expect.anything(),
+      {
+        userId: "user-1",
+      },
+    )
     expect(response.json()).toEqual({
       userId: "user-1",
       createdRpgs: [
@@ -124,9 +138,12 @@ describe("rpg routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(mocks.loadRpgCatalogUseCase).toHaveBeenCalledWith(expect.anything(), {
-      userId: null,
-    })
+    expect(mocks.loadRpgCatalogUseCase).toHaveBeenCalledWith(
+      expect.anything(),
+      {
+        userId: null,
+      },
+    )
     expect(response.json()).toEqual({
       userId: null,
       createdRpgs: [],
@@ -172,7 +189,9 @@ describe("rpg routes", () => {
 
   it("retorna 400 para erro de validacao ao criar RPG", async () => {
     server = buildApiServer()
-    mocks.createRpg.mockRejectedValue(new AppError("Titulo deve ter pelo menos 3 caracteres.", 400))
+    mocks.createRpg.mockRejectedValue(
+      new AppError("Titulo deve ter pelo menos 3 caracteres.", 400),
+    )
 
     const response = await server.inject({
       method: "POST",
@@ -241,10 +260,14 @@ describe("rpg routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(mocks.loadRpgDashboard).toHaveBeenCalledWith(expect.anything(), expect.anything(), {
-      rpgId: "rpg-1",
-      userId: "user-1",
-    })
+    expect(mocks.loadRpgDashboard).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      {
+        rpgId: "rpg-1",
+        userId: "user-1",
+      },
+    )
     expect(response.json()).toEqual({
       rpg: {
         id: "rpg-1",
@@ -278,7 +301,9 @@ describe("rpg routes", () => {
 
   it("retorna 404 ao buscar dashboard inexistente", async () => {
     server = buildApiServer()
-    mocks.loadRpgDashboard.mockRejectedValue(new AppError("RPG nao encontrado.", 404))
+    mocks.loadRpgDashboard.mockRejectedValue(
+      new AppError("RPG nao encontrado.", 404),
+    )
 
     const response = await server.inject({
       method: "GET",
@@ -334,7 +359,10 @@ describe("rpg routes", () => {
   it("retorna 400 ao tentar alterar custos na edicao", async () => {
     server = buildApiServer()
     mocks.updateRpg.mockRejectedValue(
-      new AppError("Configuracao de custos disponivel apenas na criacao do RPG.", 400),
+      new AppError(
+        "Configuracao de custos disponivel apenas na criacao do RPG.",
+        400,
+      ),
     )
 
     const response = await server.inject({
@@ -356,7 +384,9 @@ describe("rpg routes", () => {
 
   it("retorna 403 sem permissao para editar RPG", async () => {
     server = buildApiServer()
-    mocks.updateRpg.mockRejectedValue(new AppError("Voce nao pode editar este RPG.", 403))
+    mocks.updateRpg.mockRejectedValue(
+      new AppError("Voce nao pode editar este RPG.", 403),
+    )
 
     const response = await server.inject({
       method: "PATCH",
@@ -369,7 +399,9 @@ describe("rpg routes", () => {
     })
 
     expect(response.statusCode).toBe(403)
-    expect(response.json()).toEqual({ message: "Voce nao pode editar este RPG." })
+    expect(response.json()).toEqual({
+      message: "Voce nao pode editar este RPG.",
+    })
   })
 
   it("retorna 200 ao atualizar RPG", async () => {
@@ -379,7 +411,9 @@ describe("rpg routes", () => {
       description: "Descricao com mais de 10 caracteres.",
       visibility: "private",
     }
-    mocks.updateRpg.mockResolvedValue({ message: "RPG atualizado com sucesso." })
+    mocks.updateRpg.mockResolvedValue({
+      message: "RPG atualizado com sucesso.",
+    })
 
     const response = await server.inject({
       method: "PATCH",

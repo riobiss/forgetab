@@ -1,15 +1,18 @@
 import { describe, expect, it, vi } from "vitest"
-import { AppError } from "@/shared/errors/AppError"
+import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   updateCharacter: vi.fn(),
 }))
 
-vi.mock("@/infrastructure/characters/services/characterManagementService", () => ({
-  characterManagementService: {
-    updateCharacter: mocks.updateCharacter,
-  },
-}))
+vi.mock(
+  "@/infrastructure/characters/services/characterManagementService",
+  () => ({
+    characterManagementService: {
+      updateCharacter: mocks.updateCharacter,
+    },
+  }),
+)
 
 import { updateCharacter } from "./updateCharacter"
 
@@ -35,7 +38,9 @@ describe("updateCharacter adapter", () => {
   })
 
   it("converte AppError para UpdateCharacterError legado", async () => {
-    mocks.updateCharacter.mockRejectedValueOnce(new AppError("Personagem nao encontrado.", 404))
+    mocks.updateCharacter.mockRejectedValueOnce(
+      new AppError("Personagem nao encontrado.", 404),
+    )
 
     await expect(
       updateCharacter({

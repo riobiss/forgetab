@@ -1,9 +1,12 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { createCharacter } from "@/application/characters/use-cases/createCharacter"
-import { getRpgAccess } from "@/application/characters/use-cases/getRpgAccess"
-import { listCharacters } from "@/application/characters/use-cases/listCharacters"
-import { loadCharactersDashboardUseCase } from "@/application/characters/dashboard/use-cases/loadCharactersDashboard"
-import { characterRouteDeps, loadCharactersDashboardContext } from "./dependencies"
+import { createCharacter } from "@/features/world/character/application/use-cases/createCharacter"
+import { getRpgAccess } from "@/features/world/character/application/use-cases/getRpgAccess"
+import { listCharacters } from "@/features/world/character/application/use-cases/listCharacters"
+import { loadCharactersDashboardUseCase } from "@/features/world/character/application/dashboard/use-cases/loadCharactersDashboard"
+import {
+  characterRouteDeps,
+  loadCharactersDashboardContext,
+} from "./dependencies"
 import {
   mapCharacterCollectionError,
   parseJsonBody,
@@ -11,10 +14,15 @@ import {
   writeError,
   writeJson,
 } from "./http"
-import type { CharactersCollectionRouteParams, CharactersDashboardQuery } from "./routeTypes"
+import type {
+  CharactersCollectionRouteParams,
+  CharactersDashboardQuery,
+} from "./routeTypes"
 
 function normalizeFilterType(value?: string) {
-  return value === "player" || value === "npc" || value === "monster" ? value : "all"
+  return value === "player" || value === "npc" || value === "monster"
+    ? value
+    : "all"
 }
 
 export async function getCharactersDashboardHandler(
@@ -29,14 +37,15 @@ export async function getCharactersDashboardHandler(
   const filterType = normalizeFilterType(request.query.type)
 
   try {
-    const { editorBootstrap, selectedCharacterDetail } = await loadCharactersDashboardContext({
-      rpgId: request.params.rpgId,
-      userId,
-      filterType,
-      modal: request.query.modal,
-      viewer: request.query.viewer,
-      characterId: request.query.characterId,
-    })
+    const { editorBootstrap, selectedCharacterDetail } =
+      await loadCharactersDashboardContext({
+        rpgId: request.params.rpgId,
+        userId,
+        filterType,
+        modal: request.query.modal,
+        viewer: request.query.viewer,
+        characterId: request.query.characterId,
+      })
 
     const result = await loadCharactersDashboardUseCase(
       {
@@ -58,7 +67,11 @@ export async function getCharactersDashboardHandler(
 
     return writeJson(reply, 200, result.data)
   } catch (error) {
-    return writeError(reply, error, "Erro interno ao carregar dashboard de personagens.")
+    return writeError(
+      reply,
+      error,
+      "Erro interno ao carregar dashboard de personagens.",
+    )
   }
 }
 
@@ -91,7 +104,11 @@ export async function listCharactersHandler(
 
     return writeJson(reply, 200, payload)
   } catch (error) {
-    return mapCharacterCollectionError(reply, error, "Erro interno ao listar personagens.")
+    return mapCharacterCollectionError(
+      reply,
+      error,
+      "Erro interno ao listar personagens.",
+    )
   }
 }
 
@@ -127,6 +144,10 @@ export async function createCharacterHandler(
 
     return writeJson(reply, 201, { character })
   } catch (error) {
-    return mapCharacterCollectionError(reply, error, "Erro interno ao criar personagem.")
+    return mapCharacterCollectionError(
+      reply,
+      error,
+      "Erro interno ao criar personagem.",
+    )
   }
 }

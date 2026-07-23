@@ -3,7 +3,7 @@ import {
   deleteScopedImage,
   uploadScopedImage,
 } from "@/application/media/use-cases/scopedImages"
-import { imageKitScopedImageService } from "@/infrastructure/media/imageKitScopedImageService"
+import { imageKitScopedImageService } from "@/features/media/infrastructure/imageKitScopedImageService"
 import {
   parseJsonBody,
   requireUserId,

@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { deleteItem } from "@/application/items/use-cases/deleteItem"
-import { getItemById } from "@/application/items/use-cases/getItemById"
-import { updateItem } from "@/application/items/use-cases/updateItem"
+import { deleteItem } from "@/features/world/item/application/use-cases/deleteItem"
+import { getItemById } from "@/features/world/item/application/use-cases/getItemById"
+import { updateItem } from "@/features/world/item/application/use-cases/updateItem"
 import {
   parseJsonBody,
   writeError,

@@ -1,8 +1,8 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { createRpg } from "@/application/rpg/management/use-cases/createRpg"
-import { deleteRpg } from "@/application/rpg/management/use-cases/deleteRpg"
-import { getRpgById } from "@/application/rpg/management/use-cases/getRpgById"
-import { updateRpg } from "@/application/rpg/management/use-cases/updateRpg"
+import { createRpg } from "@/features/world/application/management/use-cases/createRpg"
+import { deleteRpg } from "@/features/world/application/management/use-cases/deleteRpg"
+import { getRpgById } from "@/features/world/application/management/use-cases/getRpgById"
+import { updateRpg } from "@/features/world/application/management/use-cases/updateRpg"
 import {
   parseJsonBody,
   writeError,

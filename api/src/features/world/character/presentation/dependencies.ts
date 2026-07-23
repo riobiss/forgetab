@@ -1,22 +1,22 @@
-import { loadCharacterDetailUseCase } from "@/application/characters/detail/use-cases/loadCharacterDetail"
-import { prismaCharacterAbilitiesRepository } from "@/infrastructure/characters/abilities/repositories/prismaCharacterAbilitiesRepository"
-import { characterAbilitiesParserService } from "@/infrastructure/characters/abilities/services/characterAbilitiesParserService"
-import { npcMonsterCharacterAbilityService } from "@/infrastructure/characters/abilities/services/npcMonsterCharacterAbilityService"
-import { characterSkillPurchaseService } from "@/infrastructure/characters/abilities/services/characterSkillPurchaseService"
-import { prismaCharacterInventoryRepository } from "@/infrastructure/characters/inventory/repositories/prismaCharacterInventoryRepository"
-import { prismaCharacterProgressionRepository } from "@/infrastructure/characters/progression/repositories/prismaCharacterProgressionRepository"
-import { rpgCharacterProgressionPermissionService } from "@/infrastructure/characters/progression/services/rpgCharacterProgressionPermissionService"
-import { prismaCharacterStatusCurrentRepository } from "@/infrastructure/characters/statusCurrent/repositories/prismaCharacterStatusCurrentRepository"
-import { prismaCharacterRepository } from "@/infrastructure/characters/repositories/prismaCharacterRepository"
-import { prismaRpgAccessRepository } from "@/infrastructure/characters/repositories/prismaRpgAccessRepository"
-import { prismaRpgTemplatesRepository } from "@/infrastructure/characters/repositories/prismaRpgTemplatesRepository"
-import { characterManagementService } from "@/infrastructure/characters/services/characterManagementService"
-import { prismaCharacterEditorService } from "@/infrastructure/characters/services/prismaCharacterEditorService"
-import { prismaCharactersDashboardRepository } from "@/infrastructure/characters/dashboard/repositories/prismaCharactersDashboardRepository"
-import { prismaCharacterDetailRepository } from "@/infrastructure/characters/detail/repositories/prismaCharacterDetailRepository"
-import { characterDetailPermissionService } from "@/infrastructure/characters/detail/services/characterDetailPermissionService"
-import { prismaRpgConfigRepository } from "@/infrastructure/rpg/config/repositories/prismaRpgConfigRepository"
-import { rpgConfigAccessService } from "@/infrastructure/rpg/config/services/rpgConfigAccessService"
+import { loadCharacterDetailUseCase } from "@/features/world/character/application/detail/use-cases/loadCharacterDetail"
+import { prismaCharacterAbilitiesRepository } from "@/features/world/character/infrastructure/abilities/repositories/prismaCharacterAbilitiesRepository"
+import { characterAbilitiesParserService } from "@/features/world/character/infrastructure/abilities/services/characterAbilitiesParserService"
+import { npcMonsterCharacterAbilityService } from "@/features/world/character/infrastructure/abilities/services/npcMonsterCharacterAbilityService"
+import { characterSkillPurchaseService } from "@/features/world/character/infrastructure/abilities/services/characterSkillPurchaseService"
+import { prismaCharacterInventoryRepository } from "@/features/world/character/infrastructure/inventory/repositories/prismaCharacterInventoryRepository"
+import { prismaCharacterProgressionRepository } from "@/features/world/character/infrastructure/progression/repositories/prismaCharacterProgressionRepository"
+import { rpgCharacterProgressionPermissionService } from "@/features/world/character/infrastructure/progression/services/rpgCharacterProgressionPermissionService"
+import { prismaCharacterStatusCurrentRepository } from "@/features/world/character/infrastructure/statusCurrent/repositories/prismaCharacterStatusCurrentRepository"
+import { prismaCharacterRepository } from "@/features/world/character/infrastructure/repositories/prismaCharacterRepository"
+import { prismaRpgAccessRepository } from "@/features/world/character/infrastructure/repositories/prismaRpgAccessRepository"
+import { prismaRpgTemplatesRepository } from "@/features/world/character/infrastructure/repositories/prismaRpgTemplatesRepository"
+import { characterManagementService } from "@/features/world/character/infrastructure/services/characterManagementService"
+import { prismaCharacterEditorService } from "@/features/world/character/infrastructure/services/prismaCharacterEditorService"
+import { prismaCharactersDashboardRepository } from "@/features/world/character/infrastructure/dashboard/repositories/prismaCharactersDashboardRepository"
+import { prismaCharacterDetailRepository } from "@/features/world/character/infrastructure/detail/repositories/prismaCharacterDetailRepository"
+import { characterDetailPermissionService } from "@/features/world/character/infrastructure/detail/services/characterDetailPermissionService"
+import { prismaRpgConfigRepository } from "@/features/world/infrastructure/config/repositories/prismaRpgConfigRepository"
+import { rpgConfigAccessService } from "@/features/world/infrastructure/config/services/rpgConfigAccessService"
 
 export const characterRouteDeps = {
   abilitiesRepository: prismaCharacterAbilitiesRepository,
@@ -25,7 +25,8 @@ export const characterRouteDeps = {
   characterSkillPurchaseService,
   characterInventoryRepository: prismaCharacterInventoryRepository,
   characterProgressionRepository: prismaCharacterProgressionRepository,
-  characterProgressionPermissionService: rpgCharacterProgressionPermissionService,
+  characterProgressionPermissionService:
+    rpgCharacterProgressionPermissionService,
   characterStatusCurrentRepository: prismaCharacterStatusCurrentRepository,
   characterRepository: prismaCharacterRepository,
   rpgAccessRepository: prismaRpgAccessRepository,
@@ -59,7 +60,8 @@ export async function loadCharactersDashboardContext(params: {
             {
               repository: characterRouteDeps.characterDetailRepository,
               rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
-              permissionService: characterRouteDeps.characterDetailPermissionService,
+              permissionService:
+                characterRouteDeps.characterDetailPermissionService,
             },
             {
               rpgId: params.rpgId,
@@ -77,4 +79,3 @@ export async function loadCharactersDashboardContext(params: {
     selectedCharacterDetail,
   }
 }
-
