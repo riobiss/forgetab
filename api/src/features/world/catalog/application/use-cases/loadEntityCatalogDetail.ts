@@ -1,6 +1,6 @@
 import type { EntityCatalogDetailAccessService } from "@/features/world/catalog/application/ports/EntityCatalogDetailAccessService"
 import type { EntityCatalogDetailRepository } from "@/features/world/catalog/application/ports/EntityCatalogDetailRepository"
-import type { EntityCatalogDetailData } from "@/application/entityCatalog/types"
+import type { EntityCatalogDetailData } from "@/features/world/catalog/application/types"
 
 type Deps = {
   repository: EntityCatalogDetailRepository

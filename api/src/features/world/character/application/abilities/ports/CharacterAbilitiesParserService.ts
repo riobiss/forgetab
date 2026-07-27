@@ -1,4 +1,4 @@
-import type { JsonValue } from "@/application/shared/json"
+import type { JsonValue } from "@/features/shared/application/json"
 
 export interface CharacterAbilitiesParserService {
   parseCharacterAbilities(value: JsonValue): Array<{ skillId: string; level: number }>

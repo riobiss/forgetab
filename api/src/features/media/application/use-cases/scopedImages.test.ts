@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { deleteScopedImage, uploadScopedImage } from "@/application/media/use-cases/scopedImages"
+import { deleteScopedImage, uploadScopedImage } from "@/features/media/application/use-cases/scopedImages"
 
 const service = {
   upload: vi.fn(),

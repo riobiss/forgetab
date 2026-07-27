@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import type { SkillsPageRepository } from "@/application/skills/page/ports/SkillsPageRepository"
+import type { SkillsPageRepository } from "@/features/world/skill/application/page/ports/SkillsPageRepository"
 
 export const prismaSkillsPageRepository: SkillsPageRepository = {
   async getRpgSummary(rpgId) {

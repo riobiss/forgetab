@@ -1,10 +1,10 @@
-import type { CatalogEntityType } from "@/domain/entityCatalog/types"
+import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import slugify from "@/utils/slugify"
 import type { EntityCatalogDependencies } from "@/features/world/catalog/application/contracts/EntityCatalogDependencies"
 import type {
   EntityCatalogAbilityPurchaseResult,
   EntityCatalogTemplateRecord,
-} from "@/application/entityCatalog/types"
+} from "@/features/world/catalog/application/types"
 
 type CollectionParams = {
   rpgId: string

@@ -1,4 +1,4 @@
-import type { SkillsPageAccessService } from "@/application/skills/page/ports/SkillsPageAccessService"
+import type { SkillsPageAccessService } from "@/features/world/skill/application/page/ports/SkillsPageAccessService"
 import { getRpgPermissionByPrisma } from "@/features/world/infrastructure/services/prismaRpgAccessResolver"
 
 export const skillsPageAccessService: SkillsPageAccessService = {

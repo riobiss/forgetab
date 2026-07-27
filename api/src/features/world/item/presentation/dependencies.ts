@@ -1,6 +1,6 @@
-import { prismaItemRepository } from "@/infrastructure/items/repositories/prismaItemRepository"
-import { imageKitItemImageStorageService } from "@/infrastructure/items/services/imageKitItemImageStorageService"
-import { rpgPermissionService } from "@/infrastructure/items/services/rpgPermissionService"
+import { prismaItemRepository } from "@/features/world/item/infrastructure/repositories/prismaItemRepository"
+import { imageKitItemImageStorageService } from "@/features/world/item/infrastructure/services/imageKitItemImageStorageService"
+import { rpgPermissionService } from "@/features/world/item/infrastructure/services/rpgPermissionService"
 
 export const itemRouteDeps = {
   repository: prismaItemRepository,

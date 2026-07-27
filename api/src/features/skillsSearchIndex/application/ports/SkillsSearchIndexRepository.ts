@@ -1,4 +1,4 @@
-import type { SkillSearchIndexRow } from "@/application/skillsSearchIndex/types"
+import type { SkillSearchIndexRow } from "@/features/skillsSearchIndex/application/types"
 
 export interface SkillsSearchIndexRepository {
   listSkillRows(params: {

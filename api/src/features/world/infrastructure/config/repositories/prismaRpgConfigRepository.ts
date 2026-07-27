@@ -1,5 +1,5 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
-import { serializeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
+import { serializeEntityCatalogMeta } from "@/features/world/catalog/domain/catalogMeta"
 import { prisma } from "@/lib/prisma"
 import type { RpgConfigRepository } from "@/features/world/application/config/ports/RpgConfigRepository.js"
 

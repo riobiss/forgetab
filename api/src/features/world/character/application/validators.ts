@@ -1,8 +1,5 @@
-import type { JsonValue } from "@/application/shared/json"
-import {
-  DEFAULT_STATUS_KEYS,
-  STATUS_CATALOG,
-} from "@/lib/rpg/statusCatalog"
+import type { JsonValue } from "@/features/shared/application/json"
+import { DEFAULT_STATUS_KEYS, STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 import type {
   AttributeTemplateRow,
   CharacterCharacteristicTemplateRow,
@@ -62,13 +59,12 @@ function validateNumericPayload(
   },
 ): ValidationResult<Record<string, number>> {
   const normalizeKey = options?.normalizeKey ?? ((key: string) => key)
-  const sourceRecord = Object.entries(toObjectRecord(incoming)).reduce<Record<string, unknown>>(
-    (acc, [rawKey, value]) => {
-      acc[normalizeKey(rawKey)] = value
-      return acc
-    },
-    {},
-  )
+  const sourceRecord = Object.entries(toObjectRecord(incoming)).reduce<
+    Record<string, unknown>
+  >((acc, [rawKey, value]) => {
+    acc[normalizeKey(rawKey)] = value
+    return acc
+  }, {})
   const allowedKeys = template.map((item) => normalizeKey(item.key))
   const record = buildNumericRecord(sourceRecord, allowedKeys)
 
@@ -79,7 +75,9 @@ function validateNumericPayload(
     }
   }
 
-  const extraKey = Object.keys(sourceRecord).find((key) => !allowedKeys.includes(key))
+  const extraKey = Object.keys(sourceRecord).find(
+    (key) => !allowedKeys.includes(key),
+  )
   if (extraKey) {
     return { ok: false, message: labels.extraKey(extraKey) }
   }
@@ -127,18 +125,24 @@ function validateTemplateTextPayload(
     return { ok: false, message: `Valor invalido para ${invalidExtraKey[0]}.` }
   }
 
-  const normalizedFromTemplate = template.reduce<Record<string, string>>((acc, item) => {
-    const value = record[item.key]
-    acc[item.key] = typeof value === "string" ? value.trim() : ""
-    return acc
-  }, {})
+  const normalizedFromTemplate = template.reduce<Record<string, string>>(
+    (acc, item) => {
+      const value = record[item.key]
+      acc[item.key] = typeof value === "string" ? value.trim() : ""
+      return acc
+    },
+    {},
+  )
 
-  const extraFields = Object.entries(record).reduce<Record<string, string>>((acc, [key, value]) => {
-    if (!allowedKeys.includes(key) && typeof value === "string") {
-      acc[key] = value.trim()
-    }
-    return acc
-  }, {})
+  const extraFields = Object.entries(record).reduce<Record<string, string>>(
+    (acc, [key, value]) => {
+      if (!allowedKeys.includes(key) && typeof value === "string") {
+        acc[key] = value.trim()
+      }
+      return acc
+    },
+    {},
+  )
 
   return { ok: true, value: { ...normalizedFromTemplate, ...extraFields } }
 }
@@ -209,14 +213,22 @@ export function validateCharacteristicsPayload(
   incoming: unknown,
   template: CharacterCharacteristicTemplateRow[],
 ) {
-  return validateTemplateTextPayload(incoming, template, "Caracteristicas invalidas.")
+  return validateTemplateTextPayload(
+    incoming,
+    template,
+    "Caracteristicas invalidas.",
+  )
 }
 
-export function isValidCharacterType(value: unknown): value is CharacterRow["characterType"] {
+export function isValidCharacterType(
+  value: unknown,
+): value is CharacterRow["characterType"] {
   return value === "player" || value === "npc" || value === "monster"
 }
 
-export function isValidVisibility(value: unknown): value is CharacterRow["visibility"] {
+export function isValidVisibility(
+  value: unknown,
+): value is CharacterRow["visibility"] {
   return value === "private" || value === "public"
 }
 
@@ -246,7 +258,10 @@ export function validateProgressionCurrent(value: unknown) {
   }
 
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
-    return { ok: false as const, message: "Valor atual de progressao invalido." }
+    return {
+      ok: false as const,
+      message: "Valor atual de progressao invalido.",
+    }
   }
 
   return { ok: true as const, value: Math.floor(value) }
@@ -262,13 +277,13 @@ export function normalizeOptionalText(value: unknown) {
 }
 
 export function getDefaultStatusTemplate(): StatusTemplateRow[] {
-  return STATUS_CATALOG.filter((item) => DEFAULT_STATUS_KEYS.includes(item.key)).map(
-    (item, index) => ({
-      key: item.key,
-      label: item.label,
-      position: index,
-    }),
-  )
+  return STATUS_CATALOG.filter((item) =>
+    DEFAULT_STATUS_KEYS.includes(item.key),
+  ).map((item, index) => ({
+    key: item.key,
+    label: item.label,
+    position: index,
+  }))
 }
 
 export function parseJsonBonusRecord(value: JsonValue) {
@@ -276,13 +291,12 @@ export function parseJsonBonusRecord(value: JsonValue) {
     return {}
   }
 
-  return Object.entries(value as Record<string, unknown>).reduce<Record<string, number>>(
-    (acc, [key, current]) => {
-      if (typeof current === "number" && Number.isFinite(current)) {
-        acc[key] = Math.floor(current)
-      }
-      return acc
-    },
-    {},
-  )
+  return Object.entries(value as Record<string, unknown>).reduce<
+    Record<string, number>
+  >((acc, [key, current]) => {
+    if (typeof current === "number" && Number.isFinite(current)) {
+      acc[key] = Math.floor(current)
+    }
+    return acc
+  }, {})
 }

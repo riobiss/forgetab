@@ -2,8 +2,8 @@ import type { FastifyReply, FastifyRequest } from "fastify"
 import { loadRpgCatalogUseCase } from "@/features/world/application/catalog/use-cases/rpgCatalog"
 import { loadRpgDashboard } from "@/features/world/application/dashboard/use-cases/loadRpgDashboard"
 import { writeError, writeJson } from "@/features/http/presentation/fastifyJson"
-import { resolveOptionalUserId } from "../../../presentation/routes/rpg/auth"
-import { rpgRouteDeps } from "../../../presentation/routes/rpg/dependencies"
+import { resolveOptionalUserId } from "@/features/world/presentation/auth"
+import { rpgRouteDeps } from "@/features/world/presentation/dependencies"
 import type { RpgRouteParams } from "./routeTypes"
 
 export async function listRpgCatalogHandler(

@@ -1,4 +1,4 @@
-import type { ProfileWriter } from "@/application/profile/ports/ProfileWriter"
+import type { ProfileWriter } from "@/features/profile/application//ports/ProfileWriter"
 
 export type UpdateProfileInput = {
   userId: string

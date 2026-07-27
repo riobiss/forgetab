@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import type { SkillsDashboardGateway } from "@/application/skills/dashboard/contracts/SkillsDashboardGateway"
+import type { SkillsDashboardGateway } from "@/features/world/skill/application/dashboard/contracts/SkillsDashboardGateway"
 import {
   buildSkillsSearchIndex,
   createSkillLevelSnapshotUseCase,
@@ -11,7 +11,7 @@ import {
   parseSearchIndex,
   updateSkillLevelUseCase,
   updateSkillMetaUseCase,
-} from "@/application/skills/dashboard/use-cases/skillsDashboard"
+} from "@/features/world/skill/application/dashboard/use-cases/skillsDashboard"
 
 function createGatewayMock(): SkillsDashboardGateway {
   return {
@@ -33,8 +33,12 @@ function createGatewayMock(): SkillsDashboardGateway {
 describe("skillsDashboard use-cases", () => {
   it("loadDashboardData agrega dados do gateway", async () => {
     const gateway = createGatewayMock()
-    ;(gateway.fetchClasses as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: "c1", label: "Mage" }])
-    ;(gateway.fetchRaces as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: "r1", label: "Elf" }])
+    ;(gateway.fetchClasses as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: "c1", label: "Mage" },
+    ])
+    ;(gateway.fetchRaces as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: "r1", label: "Elf" },
+    ])
     ;(gateway.fetchSkills as ReturnType<typeof vi.fn>).mockResolvedValue([
       { id: "s1", slug: "fireball", updatedAt: "2026-03-04T00:00:00.000Z" },
     ])
@@ -49,7 +53,9 @@ describe("skillsDashboard use-cases", () => {
     expect(result).toEqual({
       classes: [{ id: "c1", label: "Mage" }],
       races: [{ id: "r1", label: "Elf" }],
-      skills: [{ id: "s1", slug: "fireball", updatedAt: "2026-03-04T00:00:00.000Z" }],
+      skills: [
+        { id: "s1", slug: "fireball", updatedAt: "2026-03-04T00:00:00.000Z" },
+      ],
       rpgSettings: {
         costResourceName: "Mana",
         abilityCategoriesEnabled: true,
@@ -64,7 +70,9 @@ describe("skillsDashboard use-cases", () => {
 
   it("buildSkillsSearchIndex usa indice batch e aplica fallback para ids ausentes", async () => {
     const gateway = createGatewayMock()
-    ;(gateway.fetchSkillsSearchIndex as ReturnType<typeof vi.fn>).mockResolvedValue({
+    ;(
+      gateway.fetchSkillsSearchIndex as ReturnType<typeof vi.fn>
+    ).mockResolvedValue({
       s1: {
         searchBlob: "fireball explode",
         displayName: "Bola de Fogo",
@@ -82,7 +90,11 @@ describe("skillsDashboard use-cases", () => {
       {
         skills: [
           { id: "s1", slug: "fireball", updatedAt: "2026-03-04T00:00:00.000Z" },
-          { id: "s2", slug: "ice-shard", updatedAt: "2026-03-04T00:00:00.000Z" },
+          {
+            id: "s2",
+            slug: "ice-shard",
+            updatedAt: "2026-03-04T00:00:00.000Z",
+          },
         ],
       },
     )
@@ -162,7 +174,9 @@ describe("skillsDashboard use-cases", () => {
       raceIds: ["r1"],
       levels: [],
     })
-    ;(gateway.createSkillLevelSnapshot as ReturnType<typeof vi.fn>).mockResolvedValue({
+    ;(
+      gateway.createSkillLevelSnapshot as ReturnType<typeof vi.fn>
+    ).mockResolvedValue({
       id: "s1",
       slug: "fireball",
       tags: [],
@@ -186,31 +200,41 @@ describe("skillsDashboard use-cases", () => {
       raceIds: [],
       levels: [],
     })
-    ;(gateway.deleteSkill as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "s1" })
+    ;(gateway.deleteSkill as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "s1",
+    })
 
     await loadSkillDetail({ gateway }, { skillId: "s1" })
     await createSkillUseCase({ gateway }, { payload: { rpgId: "rpg-1" } })
-    await updateSkillMetaUseCase({ gateway }, { skillId: "s1", payload: { tags: ["arcane"] } })
+    await updateSkillMetaUseCase(
+      { gateway },
+      { skillId: "s1", payload: { tags: ["arcane"] } },
+    )
     await createSkillLevelSnapshotUseCase({ gateway }, { skillId: "s1" })
-    await updateSkillLevelUseCase({
-      gateway,
-    }, {
-      skillId: "s1",
-      levelId: "l1",
-      payload: {
-        levelRequired: 1,
-        summary: null,
-        stats: {},
-        cost: {},
-        requirement: {},
+    await updateSkillLevelUseCase(
+      {
+        gateway,
       },
-    })
+      {
+        skillId: "s1",
+        levelId: "l1",
+        payload: {
+          levelRequired: 1,
+          summary: null,
+          stats: {},
+          cost: {},
+          requirement: {},
+        },
+      },
+    )
     await deleteSkillLevelUseCase({ gateway }, { skillId: "s1", levelId: "l1" })
     await deleteSkillUseCase({ gateway }, { skillId: "s1" })
 
     expect(gateway.fetchSkillById).toHaveBeenCalledWith("s1")
     expect(gateway.createSkill).toHaveBeenCalledWith({ rpgId: "rpg-1" })
-    expect(gateway.updateSkillMeta).toHaveBeenCalledWith("s1", { tags: ["arcane"] })
+    expect(gateway.updateSkillMeta).toHaveBeenCalledWith("s1", {
+      tags: ["arcane"],
+    })
     expect(gateway.createSkillLevelSnapshot).toHaveBeenCalledWith("s1")
     expect(gateway.updateSkillLevel).toHaveBeenCalledWith("s1", "l1", {
       levelRequired: 1,

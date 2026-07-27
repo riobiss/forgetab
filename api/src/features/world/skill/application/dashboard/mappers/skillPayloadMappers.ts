@@ -1,7 +1,7 @@
 import type {
   CreateOrUpdateSkillPayloadDto,
   UpdateSkillLevelPayloadDto,
-} from "@/application/skills/dashboard/types"
+} from "@/features/world/skill/application/dashboard/types"
 import type { SkillCategory, SkillTag, SkillType } from "@/types/skillBuilder"
 
 export type SkillMetaInput = {
@@ -57,7 +57,8 @@ function buildLevelPayload(
   fallbackLevelRequired: number,
 ): UpdateSkillLevelPayloadDto {
   return {
-    levelRequired: toOptionalNumber(level.levelRequired) ?? fallbackLevelRequired,
+    levelRequired:
+      toOptionalNumber(level.levelRequired) ?? fallbackLevelRequired,
     summary: toOptionalText(level.summary),
     stats: {
       name: toOptionalText(meta.name),
@@ -104,7 +105,9 @@ export function mapCreateSkillPayload(params: {
   }
 }
 
-export function mapUpdateSkillMetaPayload(meta: SkillMetaInput): CreateOrUpdateSkillPayloadDto {
+export function mapUpdateSkillMetaPayload(
+  meta: SkillMetaInput,
+): CreateOrUpdateSkillPayloadDto {
   return {
     tags: meta.tags,
     classIds: meta.classIds,
@@ -117,5 +120,9 @@ export function mapUpdateSkillLevelPayload(params: {
   level: SkillLevelInput
   fallbackLevelRequired: number
 }): UpdateSkillLevelPayloadDto {
-  return buildLevelPayload(params.meta, params.level, params.fallbackLevelRequired)
+  return buildLevelPayload(
+    params.meta,
+    params.level,
+    params.fallbackLevelRequired,
+  )
 }

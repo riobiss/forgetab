@@ -1,4 +1,4 @@
-import type { NpcMonsterLoadoutDependencies } from "@/application/npcMonsterLoadout/contracts/NpcMonsterLoadoutDependencies"
+import type { NpcMonsterLoadoutDependencies } from "@/features/npcMonsterLoadout/application/contracts/NpcMonsterLoadoutDependencies"
 
 type Dependencies = NpcMonsterLoadoutDependencies
 

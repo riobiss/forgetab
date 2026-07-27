@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import type { ProfileReader } from "@/application/profile/ports/ProfileReader"
+import type { ProfileReader } from "@//features/profile/application/ports/ProfileReader"
 
 export const prismaProfileReader: ProfileReader = {
   async getByUserId(userId) {

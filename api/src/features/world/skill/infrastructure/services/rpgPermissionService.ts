@@ -1,4 +1,4 @@
-import type { RpgPermissionService } from "@/application/skills/ports/RpgPermissionService"
+import type { RpgPermissionService } from "@/features/world/skill/application/ports/RpgPermissionService"
 import { getRpgPermissionByPrisma } from "@/features/world/infrastructure/services/prismaRpgAccessResolver"
 
 export const rpgPermissionService: RpgPermissionService = {

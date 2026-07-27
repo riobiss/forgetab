@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { rollDicesUseCase } from "@/application/dices/use-cases/rollDices"
+import { rollDicesUseCase } from "@/features/dices/application/use-cases/rollDices"
 import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 import { rollDicesHandler } from "@/features/dices/presentation/handlers"
 

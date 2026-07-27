@@ -1,5 +1,5 @@
 import type { Prisma } from "../../../../../../generated/prisma/client.js"
-import type { SkillLevelDetails } from "@/application/skills/ports/SkillRepository"
+import type { SkillLevelDetails } from "@/features/world/skill/application/ports/SkillRepository"
 import type { SkillLevelRow } from "@/features/world/skill/infrastructure/repositories/skillRepositoryRows.js"
 
 function normalizeJsonObject(value: Prisma.JsonValue) {

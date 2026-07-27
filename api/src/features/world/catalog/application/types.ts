@@ -1,7 +1,7 @@
 import type {
   CatalogEntityType,
   EntityCatalogMeta,
-} from "@/domain/entityCatalog/types"
+} from "@/features/world/catalog/domain/types"
 import type { EntityCatalogAbilityView } from "@/features/world/catalog/application/use-cases/entityCatalogAbilities"
 
 export type EntityCatalogItem = {

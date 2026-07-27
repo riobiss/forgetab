@@ -11,7 +11,7 @@ import type {
   CreateSkillRecordInput,
   SkillDetails,
   SkillRepository,
-} from "@/features/world/skills/application/skills/ports/SkillRepository"
+} from "@/features/world/skills/features/world/skill/ports/SkillRepository"
 
 export const prismaSkillRepository: SkillRepository = {
   async listByOwner(userId, rpgId) {
@@ -53,7 +53,10 @@ export const prismaSkillRepository: SkillRepository = {
           )
         `)
       } catch (error) {
-        if (!(error instanceof Error) || !error.message.includes('column "tags" does not exist')) {
+        if (
+          !(error instanceof Error) ||
+          !error.message.includes('column "tags" does not exist')
+        ) {
           throw error
         }
 
@@ -99,18 +102,22 @@ export const prismaSkillRepository: SkillRepository = {
           ${level1?.cost ? Prisma.sql`${JSON.stringify(level1.cost)}::jsonb` : Prisma.sql`NULL`},
           ${level1?.target ? Prisma.sql`${JSON.stringify(level1.target)}::jsonb` : Prisma.sql`NULL`},
           ${level1?.area ? Prisma.sql`${JSON.stringify(level1.area)}::jsonb` : Prisma.sql`NULL`},
-          ${level1?.scaling
-            ? Prisma.sql`${JSON.stringify(level1.scaling)}::jsonb`
-            : Prisma.sql`NULL`},
-          ${level1?.requirement
-            ? Prisma.sql`${JSON.stringify(level1.requirement)}::jsonb`
-            : Prisma.sql`NULL`}
+          ${
+            level1?.scaling
+              ? Prisma.sql`${JSON.stringify(level1.scaling)}::jsonb`
+              : Prisma.sql`NULL`
+          },
+          ${
+            level1?.requirement
+              ? Prisma.sql`${JSON.stringify(level1.requirement)}::jsonb`
+              : Prisma.sql`NULL`
+          }
         )
       `)
 
       if (params.classIds.length > 0) {
-        const classValues = params.classIds.map((classId) =>
-          Prisma.sql`(${createdSkillId}, ${classId})`,
+        const classValues = params.classIds.map(
+          (classId) => Prisma.sql`(${createdSkillId}, ${classId})`,
         )
         await tx.$executeRaw(Prisma.sql`
           INSERT INTO skill_class_links (skill_id, class_template_id)
@@ -119,8 +126,8 @@ export const prismaSkillRepository: SkillRepository = {
       }
 
       if (params.raceIds.length > 0) {
-        const raceValues = params.raceIds.map((raceId) =>
-          Prisma.sql`(${createdSkillId}, ${raceId})`,
+        const raceValues = params.raceIds.map(
+          (raceId) => Prisma.sql`(${createdSkillId}, ${raceId})`,
         )
         await tx.$executeRaw(Prisma.sql`
           INSERT INTO skill_race_links (skill_id, race_template_id)
@@ -149,7 +156,10 @@ export const prismaSkillRepository: SkillRepository = {
             AND owner_id = ${params.ownerId}
         `)
       } catch (error) {
-        if (!(error instanceof Error) || !error.message.includes('column "tags" does not exist')) {
+        if (
+          !(error instanceof Error) ||
+          !error.message.includes('column "tags" does not exist')
+        ) {
           throw error
         }
 
@@ -170,7 +180,9 @@ export const prismaSkillRepository: SkillRepository = {
         `)
 
         if (params.classIds.length > 0) {
-          const values = params.classIds.map((classId) => Prisma.sql`(${params.skillId}, ${classId})`)
+          const values = params.classIds.map(
+            (classId) => Prisma.sql`(${params.skillId}, ${classId})`,
+          )
           await tx.$executeRaw(Prisma.sql`
             INSERT INTO skill_class_links (skill_id, class_template_id)
             VALUES ${Prisma.join(values)}
@@ -185,7 +197,9 @@ export const prismaSkillRepository: SkillRepository = {
         `)
 
         if (params.raceIds.length > 0) {
-          const values = params.raceIds.map((raceId) => Prisma.sql`(${params.skillId}, ${raceId})`)
+          const values = params.raceIds.map(
+            (raceId) => Prisma.sql`(${params.skillId}, ${raceId})`,
+          )
           await tx.$executeRaw(Prisma.sql`
             INSERT INTO skill_race_links (skill_id, race_template_id)
             VALUES ${Prisma.join(values)}
@@ -246,9 +260,11 @@ export const prismaSkillRepository: SkillRepository = {
         ${params.target ? Prisma.sql`${JSON.stringify(params.target)}::jsonb` : Prisma.sql`NULL`},
         ${params.area ? Prisma.sql`${JSON.stringify(params.area)}::jsonb` : Prisma.sql`NULL`},
         ${params.scaling ? Prisma.sql`${JSON.stringify(params.scaling)}::jsonb` : Prisma.sql`NULL`},
-        ${params.requirement
-          ? Prisma.sql`${JSON.stringify(params.requirement)}::jsonb`
-          : Prisma.sql`NULL`}
+        ${
+          params.requirement
+            ? Prisma.sql`${JSON.stringify(params.requirement)}::jsonb`
+            : Prisma.sql`NULL`
+        }
       )
     `)
   },
@@ -263,12 +279,16 @@ export const prismaSkillRepository: SkillRepository = {
         cost = ${params.cost ? Prisma.sql`${JSON.stringify(params.cost)}::jsonb` : Prisma.sql`NULL`},
         target = ${params.target ? Prisma.sql`${JSON.stringify(params.target)}::jsonb` : Prisma.sql`NULL`},
         area = ${params.area ? Prisma.sql`${JSON.stringify(params.area)}::jsonb` : Prisma.sql`NULL`},
-        scaling = ${params.scaling
-          ? Prisma.sql`${JSON.stringify(params.scaling)}::jsonb`
-          : Prisma.sql`NULL`},
-        requirement = ${params.requirement
-          ? Prisma.sql`${JSON.stringify(params.requirement)}::jsonb`
-          : Prisma.sql`NULL`},
+        scaling = ${
+          params.scaling
+            ? Prisma.sql`${JSON.stringify(params.scaling)}::jsonb`
+            : Prisma.sql`NULL`
+        },
+        requirement = ${
+          params.requirement
+            ? Prisma.sql`${JSON.stringify(params.requirement)}::jsonb`
+            : Prisma.sql`NULL`
+        },
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${params.levelId}
         AND skill_id = ${params.skillId}

@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { createSkill } from "@/application/skills/use-cases/createSkill"
-import { getSkills } from "@/application/skills/use-cases/getSkills"
+import { createSkill } from "@/features/world/skill/application/use-cases/createSkill"
+import { getSkills } from "@/features/world/skill/application/use-cases/getSkills"
 import {
   parseJsonBody,
   writeError,

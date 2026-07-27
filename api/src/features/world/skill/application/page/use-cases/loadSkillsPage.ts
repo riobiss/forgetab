@@ -1,5 +1,5 @@
-import type { SkillsPageAccessService } from "@/application/skills/page/ports/SkillsPageAccessService"
-import type { SkillsPageRepository } from "@/application/skills/page/ports/SkillsPageRepository"
+import type { SkillsPageAccessService } from "@/features/world/skill/application/page/ports/SkillsPageAccessService"
+import type { SkillsPageRepository } from "@/features/world/skill/application/page/ports/SkillsPageRepository"
 
 export async function loadSkillsPageUseCase(
   repository: SkillsPageRepository,

@@ -19,42 +19,45 @@ vi.mock("@api/presentation/http/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
-vi.mock("@/application/skills/use-cases/getSkills", () => ({
+vi.mock("@/features/world/skill/use-cases/getSkills", () => ({
   getSkills: mocks.getSkills,
 }))
 
-vi.mock("@/application/skills/use-cases/createSkill", () => ({
+vi.mock("@/features/world/skill/use-cases/createSkill", () => ({
   createSkill: mocks.createSkill,
 }))
 
-vi.mock("@/application/skills/use-cases/getSkillById", () => ({
+vi.mock("@/features/world/skill/use-cases/getSkillById", () => ({
   getSkillById: mocks.getSkillById,
 }))
 
-vi.mock("@/application/skills/use-cases/updateSkill", () => ({
+vi.mock("@/features/world/skill/use-cases/updateSkill", () => ({
   updateSkill: mocks.updateSkill,
 }))
 
-vi.mock("@/application/skills/use-cases/deleteSkill", () => ({
+vi.mock("@/features/world/skill/use-cases/deleteSkill", () => ({
   deleteSkill: mocks.deleteSkill,
 }))
 
-vi.mock("@/application/skills/use-cases/createSkillLevel", () => ({
+vi.mock("@/features/world/skill/use-cases/createSkillLevel", () => ({
   createSkillLevel: mocks.createSkillLevel,
 }))
 
-vi.mock("@/application/skills/use-cases/updateSkillLevel", () => ({
+vi.mock("@/features/world/skill/use-cases/updateSkillLevel", () => ({
   updateSkillLevel: mocks.updateSkillLevel,
 }))
 
-vi.mock("@/application/skills/use-cases/deleteSkillLevel", () => ({
+vi.mock("@/features/world/skill/use-cases/deleteSkillLevel", () => ({
   deleteSkillLevel: mocks.deleteSkillLevel,
 }))
 
-vi.mock("@/application/skillsSearchIndex/use-cases/skillsSearchIndex", () => ({
-  normalizeSkillSearchIndexParams: mocks.normalizeSkillSearchIndexParams,
-  loadSkillsSearchIndexUseCase: mocks.loadSkillsSearchIndexUseCase,
-}))
+vi.mock(
+  "@/features/world/skillSearchIndex/use-cases/skillsSearchIndex",
+  () => ({
+    normalizeSkillSearchIndexParams: mocks.normalizeSkillSearchIndexParams,
+    loadSkillsSearchIndexUseCase: mocks.loadSkillsSearchIndexUseCase,
+  }),
+)
 
 import { buildApiServer } from "@api/app"
 

@@ -1,4 +1,4 @@
-import type { SkillLevelRecordInput } from "@/application/skills/types"
+import type { SkillLevelRecordInput } from "@/features/world/skill/application/types"
 
 export type AbilityCategoryConfig = {
   enabled: boolean

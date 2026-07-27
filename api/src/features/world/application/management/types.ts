@@ -1,5 +1,5 @@
 import type { ProgressionMode, ProgressionTier } from "@/lib/rpg/progression"
-import type { JsonValue } from "@/application/shared/json"
+import type { JsonValue } from "@/features/shared/application/json"
 
 export type RpgRow = {
   id: string

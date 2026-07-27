@@ -1,4 +1,4 @@
-import type { ProfileRpgSummary, ProfileUserRecord, ProfileViewData } from "@/application/profile/types"
+import type { ProfileRpgSummary, ProfileUserRecord, ProfileViewData } from "@/features/profile/application/types"
 
 export function buildProfileRpgProfiles(user: ProfileUserRecord | null): ProfileRpgSummary[] {
   if (!user) {

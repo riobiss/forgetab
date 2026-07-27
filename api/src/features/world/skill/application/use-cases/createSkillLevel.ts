@@ -1,5 +1,5 @@
 import { skillLevelCreateSchema } from "@/lib/validators/skillBuilder"
-import type { SkillRepository } from "@/application/skills/ports/SkillRepository"
+import type { SkillRepository } from "@/features/world/skill/application/ports/SkillRepository"
 import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 type CreateSkillLevelDeps = {
@@ -22,39 +22,58 @@ export async function createSkillLevel(
 
     const parsed = skillLevelCreateSchema.safeParse(params.body)
     if (!parsed.success) {
-      throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
+      throw new AppError(
+        parsed.error.issues[0]?.message ?? "Dados invalidos.",
+        400,
+      )
     }
 
     const lastLevel = skill.levels[skill.levels.length - 1]
     const nextLevelNumber = (lastLevel?.levelNumber ?? 0) + 1
     const payload = parsed.data
 
-    const nextSummary = payload.summary !== undefined ? payload.summary : lastLevel?.summary ?? null
+    const nextSummary =
+      payload.summary !== undefined
+        ? payload.summary
+        : (lastLevel?.summary ?? null)
     const nextLevelRequired =
       payload.levelRequired !== undefined
         ? payload.levelRequired
         : (lastLevel?.levelRequired ?? nextLevelNumber)
     const nextStats =
-      payload.stats !== undefined ? payload.stats : deepCopyJson(lastLevel?.stats ?? null)
-    const nextCost = payload.cost !== undefined ? payload.cost : deepCopyJson(lastLevel?.cost ?? null)
+      payload.stats !== undefined
+        ? payload.stats
+        : deepCopyJson(lastLevel?.stats ?? null)
+    const nextCost =
+      payload.cost !== undefined
+        ? payload.cost
+        : deepCopyJson(lastLevel?.cost ?? null)
     const nextTarget =
-      payload.target !== undefined ? payload.target : deepCopyJson(lastLevel?.target ?? null)
-    const nextArea = payload.area !== undefined ? payload.area : deepCopyJson(lastLevel?.area ?? null)
+      payload.target !== undefined
+        ? payload.target
+        : deepCopyJson(lastLevel?.target ?? null)
+    const nextArea =
+      payload.area !== undefined
+        ? payload.area
+        : deepCopyJson(lastLevel?.area ?? null)
     const nextScaling =
-      payload.scaling !== undefined ? payload.scaling : deepCopyJson(lastLevel?.scaling ?? null)
+      payload.scaling !== undefined
+        ? payload.scaling
+        : deepCopyJson(lastLevel?.scaling ?? null)
     const nextRequirement =
       payload.requirement !== undefined
         ? payload.requirement
         : deepCopyJson(lastLevel?.requirement ?? null)
-    const nextRequirementWithUpgrade =
-      lastLevel
-        ? {
-            ...(nextRequirement && typeof nextRequirement === "object" ? nextRequirement : {}),
-            upgradeFromSkillId: params.skillId,
-            upgradeFromLevelId: lastLevel.id,
-            upgradeFromLevelNumber: lastLevel.levelNumber,
-          }
-        : nextRequirement
+    const nextRequirementWithUpgrade = lastLevel
+      ? {
+          ...(nextRequirement && typeof nextRequirement === "object"
+            ? nextRequirement
+            : {}),
+          upgradeFromSkillId: params.skillId,
+          upgradeFromLevelId: lastLevel.id,
+          upgradeFromLevelNumber: lastLevel.levelNumber,
+        }
+      : nextRequirement
 
     await deps.repository.createLevel({
       skillId: params.skillId,
@@ -69,15 +88,24 @@ export async function createSkillLevel(
       requirement: nextRequirementWithUpgrade,
     })
 
-    const updatedSkill = await deps.repository.findById(params.skillId, params.userId)
+    const updatedSkill = await deps.repository.findById(
+      params.skillId,
+      params.userId,
+    )
     return { skill: updatedSkill }
   } catch (error) {
     if (error instanceof AppError) {
       throw error
     }
 
-    if (error instanceof Error && error.message.includes('relation "skill_levels" does not exist')) {
-      throw new AppError("Tabela skill_levels nao existe no banco. Rode a migration.", 500)
+    if (
+      error instanceof Error &&
+      error.message.includes('relation "skill_levels" does not exist')
+    ) {
+      throw new AppError(
+        "Tabela skill_levels nao existe no banco. Rode a migration.",
+        500,
+      )
     }
 
     throw new AppError("Erro interno ao criar level.", 500)

@@ -2,7 +2,7 @@ import type { FastifyReply, FastifyRequest } from "fastify"
 import {
   deleteScopedImage,
   uploadScopedImage,
-} from "@/application/media/use-cases/scopedImages"
+} from "@/features/media/application/use-cases/scopedImages"
 import { imageKitScopedImageService } from "@/features/media/infrastructure/imageKitScopedImageService"
 import {
   parseJsonBody,

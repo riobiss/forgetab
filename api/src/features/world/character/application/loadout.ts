@@ -1,9 +1,9 @@
-export type { NpcMonsterLoadoutDependencies } from "@/application/npcMonsterLoadout/contracts/NpcMonsterLoadoutDependencies"
+export type { NpcMonsterLoadoutDependencies } from "@/features/npcMonsterLoadout/application/contracts/NpcMonsterLoadoutDependencies"
 export type {
   NpcMonsterAbilitiesDataDto,
   NpcMonsterLoadoutItemOptionDto,
   NpcMonsterLoadoutSkillOptionDto,
-} from "@/application/npcMonsterLoadout/types"
+} from "@/features/npcMonsterLoadout/application/types"
 export type { CharacterInventoryItemDto } from "@/features/world/character/application/inventory/types"
 export type { PurchasedAbilityViewDto } from "@/features/world/character/application/abilities/types"
 export {
@@ -15,4 +15,4 @@ export {
   loadNpcMonsterInventoryUseCase,
   removeNpcMonsterAbilityUseCase,
   removeNpcMonsterInventoryItemUseCase,
-} from "@/application/npcMonsterLoadout/use-cases"
+} from "@/features/npcMonsterLoadout/application/use-cases"

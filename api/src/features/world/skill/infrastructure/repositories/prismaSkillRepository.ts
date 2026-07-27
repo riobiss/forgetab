@@ -10,7 +10,7 @@ import {
 import type {
   CreateSkillRecordInput,
   SkillRepository,
-} from "@/application/skills/ports/SkillRepository"
+} from "@/features/world/skill/application/ports/SkillRepository"
 
 export const prismaSkillRepository: SkillRepository = {
   async listByOwner(userId, rpgId) {

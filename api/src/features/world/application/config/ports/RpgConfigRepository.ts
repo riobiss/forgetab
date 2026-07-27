@@ -7,7 +7,7 @@ import type {
   SkillTemplate,
   StatusTemplate,
 } from "@/features/world/application/config/types"
-import type { EntityCatalogMeta } from "@/domain/entityCatalog/types"
+import type { EntityCatalogMeta } from "@/features/world/catalog/domain/types"
 
 export interface RpgConfigRepository {
   listAttributeTemplates(rpgId: string): Promise<AttributeTemplate[]>

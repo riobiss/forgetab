@@ -3,7 +3,7 @@ import {
   buildSkillSearchIndex,
   loadSkillsSearchIndexUseCase,
   normalizeSkillSearchIndexParams,
-} from "@/application/skillsSearchIndex/use-cases/skillsSearchIndex"
+} from "@/features/skillsSearchIndex/application/use-cases/skillsSearchIndex"
 
 describe("skillsSearchIndex", () => {
   it("normaliza ids e rpgId", () => {

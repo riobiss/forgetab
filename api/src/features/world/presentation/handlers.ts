@@ -1,7 +1,7 @@
 export {
   listRpgCatalogHandler,
   getRpgDashboardHandler,
-} from "../../../presentation/routes/rpg/catalogDashboardHandlers"
+} from "@/features/world/presentation/catalogDashboardHandlers"
 export {
   createRpgHandler,
   deleteRpgHandler,

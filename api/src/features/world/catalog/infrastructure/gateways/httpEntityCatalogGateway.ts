@@ -1,9 +1,9 @@
-import type { CatalogEntityType } from "@/domain/entityCatalog/types"
+import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import type { EntityCatalogGateway } from "@/features/world/catalog/application/contracts/EntityCatalogGateway"
 import type {
   EntityCatalogAbilityPurchaseResult,
   EntityCatalogTemplateRecord,
-} from "@/application/entityCatalog/types"
+} from "@/features/world/catalog/application/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {

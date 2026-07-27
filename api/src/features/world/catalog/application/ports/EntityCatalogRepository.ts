@@ -1,11 +1,8 @@
-import type { CatalogEntityType } from "@/domain/entityCatalog/types"
-import type { EntityCatalogMeta } from "@/domain/entityCatalog/types"
+import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
+import type { EntityCatalogMeta } from "@/features/world/catalog/domain/types"
 
 export interface EntityCatalogRepository {
-  getAccessSnapshot(params: {
-    rpgId: string
-    userId: string | null
-  }): Promise<{
+  getAccessSnapshot(params: { rpgId: string; userId: string | null }): Promise<{
     exists: boolean
     canRead: boolean
     canManage: boolean
@@ -26,4 +23,3 @@ export interface EntityCatalogRepository {
     }>
   >
 }
-

@@ -1,5 +1,5 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
-import type { EntityCatalogPlayerItem } from "@/application/entityCatalog/types"
+import type { EntityCatalogPlayerItem } from "@/features/world/catalog/application/types"
 import { prisma } from "@/lib/prisma"
 
 const buildVisibilityCondition = (isOwner: boolean, userId: string | null) =>

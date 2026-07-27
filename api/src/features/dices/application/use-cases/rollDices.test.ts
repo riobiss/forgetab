@@ -3,7 +3,7 @@ import type { RandomNumberProvider } from "@/features/dices/random/application/p
 import {
   DICE_ROLL_MAX_GROUPS,
   rollDicesUseCase,
-} from "@/application/dices/use-cases/rollDices"
+} from "@/features/dices/application/use-cases/rollDices"
 
 function makeRandomNumberProvider(): RandomNumberProvider {
   return {

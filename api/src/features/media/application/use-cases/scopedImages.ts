@@ -1,4 +1,4 @@
-import type { ScopedImageService } from "@/application/media/ports/ScopedImageService"
+import type { ScopedImageService } from "@/features/media/application/ports/ScopedImageService"
 import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024

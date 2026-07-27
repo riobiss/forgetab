@@ -1,4 +1,4 @@
-import { normalizeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
+import { normalizeEntityCatalogMeta } from "@/features/world/catalog/domain/catalogMeta"
 import { DEFAULT_STATUS_KEYS, STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 import { normalizeClassRaceTemplates } from "@/lib/rpg/classRaceBonuses"
 import { normalizeRaceLore } from "@/lib/rpg/raceLore"

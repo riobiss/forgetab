@@ -1,4 +1,4 @@
-import type { JsonValue } from "@/application/shared/json"
+import type { JsonValue } from "@/features/shared/application/json"
 import type { CharacterRow } from "@/features/world/character/application/types"
 import { getRpgAccess } from "@/features/world/character/application/use-cases/getRpgAccess"
 import { getCharacterSnapshotById } from "@/features/world/character/infrastructure/repositories/prismaCharacterSnapshotRepository"

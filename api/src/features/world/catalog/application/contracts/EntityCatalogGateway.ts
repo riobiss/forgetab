@@ -1,8 +1,8 @@
-import type { CatalogEntityType } from "@/domain/entityCatalog/types"
+import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import type {
   EntityCatalogAbilityPurchaseResult,
   EntityCatalogTemplateRecord,
-} from "@/application/entityCatalog/types"
+} from "@/features/world/catalog/application/types"
 
 export type EntityCatalogGateway = {
   fetchCollection(rpgId: string, entityType: CatalogEntityType): Promise<EntityCatalogTemplateRecord[]>

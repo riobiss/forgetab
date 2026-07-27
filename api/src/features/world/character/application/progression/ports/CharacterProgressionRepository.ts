@@ -1,4 +1,4 @@
-import type { JsonValue } from "@/application/shared/json"
+import type { JsonValue } from "@/features/shared/application/json"
 
 export type CharacterProgressionSummary = {
   id: string
@@ -11,7 +11,10 @@ export type CharacterProgressionSummary = {
 
 export interface CharacterProgressionRepository {
   findById(characterId: string): Promise<CharacterProgressionSummary | null>
-  updateSkillPoints(characterId: string, amount: number): Promise<{ skillPoints: number }>
+  updateSkillPoints(
+    characterId: string,
+    amount: number,
+  ): Promise<{ skillPoints: number }>
   updateProgression(params: {
     characterId: string
     progressionCurrent: number

@@ -1,6 +1,6 @@
-import { prismaEntityCatalogDetailRepository } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogDetailRepository"
-import { prismaEntityCatalogRepository } from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogRepository"
-import { entityCatalogDetailAccessService } from "@/infrastructure/entityCatalog/services/entityCatalogDetailAccessService"
+import { prismaEntityCatalogDetailRepository } from "@/features/world/catalog/infrastructure/repositories/prismaEntityCatalogDetailRepository"
+import { prismaEntityCatalogRepository } from "@/features/world/catalog/infrastructure/repositories/prismaEntityCatalogRepository"
+import { entityCatalogDetailAccessService } from "@/features/world/catalog/infrastructure/services/entityCatalogDetailAccessService"
 
 export const entityCatalogRouteDeps = {
   repository: prismaEntityCatalogRepository,

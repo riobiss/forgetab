@@ -5,7 +5,7 @@ import type {
   NpcMonsterInventoryDataDto,
   NpcMonsterLoadoutItemOptionDto,
   NpcMonsterLoadoutSkillOptionDto,
-} from "@/application/npcMonsterLoadout/types"
+} from "@/features/npcMonsterLoadout/application/types"
 
 export interface NpcMonsterLoadoutGateway {
   fetchInventory(

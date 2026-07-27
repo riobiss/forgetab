@@ -8,8 +8,8 @@ import {
   writeError,
   writeJson,
 } from "@/features/http/presentation/fastifyJson"
-import { requireAuth } from "../../../presentation/routes/rpg/auth"
-import { rpgRouteDeps } from "../../../presentation/routes/rpg/dependencies"
+import { requireAuth } from "@/features/world/presentation/auth"
+import { rpgRouteDeps } from "@/features/world/presentation/dependencies"
 import type { RpgRouteParams } from "./routeTypes"
 
 export async function createRpgHandler(

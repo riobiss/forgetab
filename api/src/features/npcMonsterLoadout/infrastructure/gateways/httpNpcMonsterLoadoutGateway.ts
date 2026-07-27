@@ -3,12 +3,12 @@ import type {
   CharacterInventoryDataDto,
   CharacterInventoryItemDto,
 } from "@/features/world/character/application/inventory/types"
-import type { NpcMonsterLoadoutGateway } from "@/application/npcMonsterLoadout/contracts/NpcMonsterLoadoutGateway"
+import type { NpcMonsterLoadoutGateway } from "@/features/npcMonsterLoadout/application/contracts/NpcMonsterLoadoutGateway"
 import type {
   NpcMonsterAbilitiesDataDto,
   NpcMonsterLoadoutItemOptionDto,
   NpcMonsterLoadoutSkillOptionDto,
-} from "@/application/npcMonsterLoadout/types"
+} from "@/features/npcMonsterLoadout/application/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {

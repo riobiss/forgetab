@@ -2,7 +2,7 @@ import type {
   ScopedImageDeleteInput,
   ScopedImageService,
   ScopedImageUploadInput,
-} from "@/application/media/ports/ScopedImageService"
+} from "@/features/media/application/ports/ScopedImageService"
 import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 function getImageKitConfig(): { privateKey: string; urlEndpoint: string } {

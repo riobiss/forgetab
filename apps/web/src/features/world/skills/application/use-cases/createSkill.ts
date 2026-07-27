@@ -3,8 +3,8 @@ import {
   skillMetaCreateSchema,
   type SkillMetaCreateInput,
 } from "@/lib/validators/skillBuilder"
-import type { RpgPermissionService } from "@/features/world/skills/application/skills/ports/RpgPermissionService"
-import type { SkillRepository } from "@/features/world/skills/application/skills/ports/SkillRepository"
+import type { RpgPermissionService } from "@/features/world/skills/application/ports/RpgPermissionService"
+import type { SkillRepository } from "@/features/world/skills/application/ports/SkillRepository"
 import { AppError } from "@/shared/errors/AppError"
 
 type CreateSkillDeps = {
@@ -30,23 +30,36 @@ function readLevel1Name(input: SkillMetaCreateInput) {
   return typeof name === "string" ? name : null
 }
 
-export async function createSkill(deps: CreateSkillDeps, params: { userId: string; body: unknown }) {
+export async function createSkill(
+  deps: CreateSkillDeps,
+  params: { userId: string; body: unknown },
+) {
   try {
     const parsed = skillMetaCreateSchema.safeParse(params.body)
     if (!parsed.success) {
-      throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
+      throw new AppError(
+        parsed.error.issues[0]?.message ?? "Dados invalidos.",
+        400,
+      )
     }
 
     const rpgId = parsed.data.rpgId ?? null
     if (rpgId) {
-      const canManage = await deps.permissionService.canManageRpg(rpgId, params.userId)
+      const canManage = await deps.permissionService.canManageRpg(
+        rpgId,
+        params.userId,
+      )
       if (!canManage) {
         throw new AppError("RPG nao encontrado.", 404)
       }
     }
 
-    const abilityCategoryConfig = await deps.repository.getAbilityCategoryConfig(rpgId)
-    if (abilityCategoryConfig.enabled && abilityCategoryConfig.categories.length === 0) {
+    const abilityCategoryConfig =
+      await deps.repository.getAbilityCategoryConfig(rpgId)
+    if (
+      abilityCategoryConfig.enabled &&
+      abilityCategoryConfig.categories.length === 0
+    ) {
       throw new AppError("Ative pelo menos uma categoria", 400)
     }
 
@@ -82,19 +95,31 @@ export async function createSkill(deps: CreateSkillDeps, params: { userId: strin
       level1: parsed.data.level1,
     })
 
-    const created = await deps.repository.findById(createdSkillId, params.userId)
+    const created = await deps.repository.findById(
+      createdSkillId,
+      params.userId,
+    )
     return { skill: created }
   } catch (error) {
     if (error instanceof AppError) {
       throw error
     }
 
-    if (error instanceof Error && error.message.includes("skills_owner_id_rpg_scope_slug_key")) {
+    if (
+      error instanceof Error &&
+      error.message.includes("skills_owner_id_rpg_scope_slug_key")
+    ) {
       throw new AppError("Slug ja utilizado neste escopo (owner + rpg).", 409)
     }
 
-    if (error instanceof Error && error.message.includes('relation "skills" does not exist')) {
-      throw new AppError("Tabela skills nao existe no banco. Rode a migration.", 500)
+    if (
+      error instanceof Error &&
+      error.message.includes('relation "skills" does not exist')
+    ) {
+      throw new AppError(
+        "Tabela skills nao existe no banco. Rode a migration.",
+        500,
+      )
     }
 
     throw new AppError("Erro interno ao criar skill.", 500)

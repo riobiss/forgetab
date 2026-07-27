@@ -6,7 +6,7 @@ import { entityCatalogRouteDeps } from "./dependencies"
 import type {
   ClassDetailRouteParams,
   RaceDetailRouteParams,
-} from "../routeTypes"
+} from "./routeTypes"
 
 export async function getClassCatalogDetailHandler(
   request: FastifyRequest<{ Params: ClassDetailRouteParams }>,

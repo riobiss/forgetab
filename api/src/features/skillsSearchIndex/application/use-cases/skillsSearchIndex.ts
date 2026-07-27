@@ -1,8 +1,8 @@
 import type {
   SkillSearchIndexEntry,
   SkillSearchIndexRow,
-} from "@/application/skillsSearchIndex/types"
-import type { SkillsSearchIndexRepository } from "@/application/skillsSearchIndex/ports/SkillsSearchIndexRepository"
+} from "@/features/skillsSearchIndex/application/types"
+import type { SkillsSearchIndexRepository } from "@/features/skillsSearchIndex/application/ports/SkillsSearchIndexRepository"
 
 function normalizeStats(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {

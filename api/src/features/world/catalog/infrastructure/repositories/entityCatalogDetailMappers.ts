@@ -1,16 +1,16 @@
 import type { Prisma } from "../../../../../../generated/prisma/client.js"
-import { normalizeEntityCatalogMeta } from "@/domain/entityCatalog/catalogMeta"
+import { normalizeEntityCatalogMeta } from "@/features/world/catalog/domain/catalogMeta"
 import type {
   EntityCatalogAbilityPurchaseState,
   EntityCatalogTemplateOption,
-} from "@/application/entityCatalog/types"
+} from "@/features/world/catalog/application/types"
 import type { EntityCatalogDetailSnapshot } from "@/features/world/catalog/application/ports/EntityCatalogDetailRepository.js"
 import { parseCharacterAbilities } from "@/features/world/character/infrastructure/abilities/services/characterAbilityCostParser.js"
 import { normalizeRpgVisibility } from "@/features/world/infrastructure/shared/normalizeRpgVisibility.js"
 import type {
   DbClassRow,
   DbRaceRow,
-} from "@/infrastructure/entityCatalog/repositories/entityCatalogDetailRows"
+} from "@/features/world/catalog/infrastructure/repositories/entityCatalogDetailRows"
 
 export function toTemplateOptions(
   rows: Array<{ key: string; label: string }>,

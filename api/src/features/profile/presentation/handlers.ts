@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { loadProfilePageUseCase } from "@/application/profile/use-cases/loadProfilePage"
-import { updateProfileUseCase } from "@/application/profile/use-cases/updateProfile"
-import { updateRpgProfileUseCase } from "@/application/profile/use-cases/updateRpgProfile"
+import { loadProfilePageUseCase } from "@/features/profile/application/use-cases/loadProfilePage"
+import { updateProfileUseCase } from "@/features/profile/application/use-cases/updateProfile"
+import { updateRpgProfileUseCase } from "@/features/profile/application/use-cases/updateRpgProfile"
 import { getAuthPayloadFromFastifyRequest } from "@/features/http/presentation/auth/requestAuth"
 import {
   parseJsonBody,

@@ -4,7 +4,7 @@ import {
   deleteRpgMapSection,
   reorderRpgMapSection,
   updateRpgMapSection,
-} from "@/features/world/application/map/use-cases/rpgMap"
+} from "@/features/world/location/application/use-cases/rpgMap"
 import {
   parseJsonBody,
   requireUserId,

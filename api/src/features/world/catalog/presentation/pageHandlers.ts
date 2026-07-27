@@ -1,10 +1,10 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import type { CatalogEntityType } from "@/domain/entityCatalog/types"
+import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import { loadEntityCatalogPageData } from "@/features/world/catalog/application/use-cases/entityCatalog"
 import { writeError, writeJson } from "@/features/http/presentation/fastifyJson"
 import { resolveUserId } from "./auth"
 import { entityCatalogRouteDeps } from "./dependencies"
-import type { EntityCatalogRouteParams } from "../routeTypes"
+import type { EntityCatalogRouteParams } from "./routeTypes"
 
 async function loadCatalog(
   request: FastifyRequest<{ Params: EntityCatalogRouteParams }>,

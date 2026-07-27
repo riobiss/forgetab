@@ -1,4 +1,4 @@
-import type { NpcMonsterLoadoutGateway } from "@/application/npcMonsterLoadout/contracts/NpcMonsterLoadoutGateway"
+import type { NpcMonsterLoadoutGateway } from "@/features/npcMonsterLoadout/application/contracts/NpcMonsterLoadoutGateway"
 
 export type NpcMonsterLoadoutDependencies = {
   gateway: NpcMonsterLoadoutGateway

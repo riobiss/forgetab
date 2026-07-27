@@ -2,7 +2,7 @@ import type { FastifyReply, FastifyRequest } from "fastify"
 import {
   loadSkillsSearchIndexUseCase,
   normalizeSkillSearchIndexParams,
-} from "@/application/skillsSearchIndex/use-cases/skillsSearchIndex"
+} from "@/features/skillsSearchIndex/application/use-cases/skillsSearchIndex"
 import {
   parseJsonBody,
   writeError,

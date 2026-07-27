@@ -6,7 +6,7 @@ import type {
   AbilityCategoryConfig,
   LinkValidationResult,
   SkillDetails,
-} from "@/application/skills/ports/SkillRepository"
+} from "@/features/world/skill/application/ports/SkillRepository"
 import { mapSkillLevel } from "@/features/world/skill/infrastructure/repositories/skillRepositoryMappers.js"
 import type {
   SkillLevelRow,

@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { rollDicesUseCase } from "@/application/dices/use-cases/rollDices"
+import { rollDicesUseCase } from "@/features/dices/application/use-cases/rollDices"
 import {
   parseJsonBody,
   writeError,

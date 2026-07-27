@@ -1,6 +1,6 @@
 import { Prisma } from "../../../../../generated/prisma/client.js"
-import type { SkillsSearchIndexRepository } from "@/application/skillsSearchIndex/ports/SkillsSearchIndexRepository"
-import type { SkillSearchIndexRow } from "@/application/skillsSearchIndex/types"
+import type { SkillsSearchIndexRepository } from "@/features/skillsSearchIndex/application/ports/SkillsSearchIndexRepository"
+import type { SkillSearchIndexRow } from "@/features/skillsSearchIndex/application/types"
 import { prisma } from "@/lib/prisma"
 
 export const prismaSkillsSearchIndexRepository: SkillsSearchIndexRepository = {

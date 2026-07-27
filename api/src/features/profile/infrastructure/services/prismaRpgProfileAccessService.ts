@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import type { RpgProfileAccessService } from "@/application/profile/ports/RpgProfileAccessService"
+import type { RpgProfileAccessService } from "@/features/profile/application/ports/RpgProfileAccessService"
 
 export const prismaRpgProfileAccessService: RpgProfileAccessService = {
   async canEditRpgProfile(rpgId, userId) {

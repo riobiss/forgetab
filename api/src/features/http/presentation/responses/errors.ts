@@ -1,5 +1,5 @@
 import { AppError } from "@/features/shared/infrastructure/errors/AppError"
-import { jsonResponse } from "@/features/http/responses/jsonResponse"
+import { jsonResponse } from "@/features/http/presentation/responses/jsonResponse"
 
 export function toErrorResponse(error: unknown, fallbackMessage: string) {
   if (error instanceof AppError) {

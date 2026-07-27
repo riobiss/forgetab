@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { createSkillLevel } from "@/application/skills/use-cases/createSkillLevel"
-import { deleteSkillLevel } from "@/application/skills/use-cases/deleteSkillLevel"
-import { updateSkillLevel } from "@/application/skills/use-cases/updateSkillLevel"
+import { createSkillLevel } from "@/features/world/skill/application/use-cases/createSkillLevel"
+import { deleteSkillLevel } from "@/features/world/skill/application/use-cases/deleteSkillLevel"
+import { updateSkillLevel } from "@/features/world/skill/application/use-cases/updateSkillLevel"
 import {
   parseJsonBody,
   writeError,

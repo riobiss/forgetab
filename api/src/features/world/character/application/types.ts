@@ -1,4 +1,4 @@
-import type { JsonValue } from "@/application/shared/json"
+import type { JsonValue } from "@/features/shared/application/json"
 import type { ProgressionMode, ProgressionTier } from "@/lib/rpg/progression"
 
 export type CharacterRow = {

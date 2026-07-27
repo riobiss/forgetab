@@ -1,5 +1,5 @@
 import { skillLevelPatchSchema } from "@/lib/validators/skillBuilder"
-import type { SkillRepository } from "@/features/world/skills/application/skills/ports/SkillRepository"
+import type { SkillRepository } from "@/features/world/skills/application/ports/SkillRepository"
 import { AppError } from "@/shared/errors/AppError"
 
 type UpdateSkillLevelDeps = {
@@ -28,18 +28,29 @@ export async function updateSkillLevel(
 
     const parsed = skillLevelPatchSchema.safeParse(params.body)
     if (!parsed.success) {
-      throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
+      throw new AppError(
+        parsed.error.issues[0]?.message ?? "Dados invalidos.",
+        400,
+      )
     }
 
     const nextLevelRequired = parsed.data.levelRequired ?? level.levelRequired
-    const nextSummary = parsed.data.summary !== undefined ? parsed.data.summary : level.summary
-    const nextStats = parsed.data.stats !== undefined ? parsed.data.stats : level.stats
-    const nextCost = parsed.data.cost !== undefined ? parsed.data.cost : level.cost
-    const nextTarget = parsed.data.target !== undefined ? parsed.data.target : level.target
-    const nextArea = parsed.data.area !== undefined ? parsed.data.area : level.area
-    const nextScaling = parsed.data.scaling !== undefined ? parsed.data.scaling : level.scaling
+    const nextSummary =
+      parsed.data.summary !== undefined ? parsed.data.summary : level.summary
+    const nextStats =
+      parsed.data.stats !== undefined ? parsed.data.stats : level.stats
+    const nextCost =
+      parsed.data.cost !== undefined ? parsed.data.cost : level.cost
+    const nextTarget =
+      parsed.data.target !== undefined ? parsed.data.target : level.target
+    const nextArea =
+      parsed.data.area !== undefined ? parsed.data.area : level.area
+    const nextScaling =
+      parsed.data.scaling !== undefined ? parsed.data.scaling : level.scaling
     const nextRequirement =
-      parsed.data.requirement !== undefined ? parsed.data.requirement : level.requirement
+      parsed.data.requirement !== undefined
+        ? parsed.data.requirement
+        : level.requirement
 
     await deps.repository.updateLevel({
       skillId: params.skillId,
@@ -54,15 +65,24 @@ export async function updateSkillLevel(
       requirement: nextRequirement,
     })
 
-    const updatedSkill = await deps.repository.findById(params.skillId, params.userId)
+    const updatedSkill = await deps.repository.findById(
+      params.skillId,
+      params.userId,
+    )
     return { skill: updatedSkill }
   } catch (error) {
     if (error instanceof AppError) {
       throw error
     }
 
-    if (error instanceof Error && error.message.includes('relation "skill_levels" does not exist')) {
-      throw new AppError("Tabela skill_levels nao existe no banco. Rode a migration.", 500)
+    if (
+      error instanceof Error &&
+      error.message.includes('relation "skill_levels" does not exist')
+    ) {
+      throw new AppError(
+        "Tabela skill_levels nao existe no banco. Rode a migration.",
+        500,
+      )
     }
 
     throw new AppError("Erro interno ao atualizar level.", 500)

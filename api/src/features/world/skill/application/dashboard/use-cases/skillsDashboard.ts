@@ -1,15 +1,18 @@
-import type { SkillsDashboardDependencies } from "@/application/skills/dashboard/contracts/SkillsDashboardDependencies"
+import type { SkillsDashboardDependencies } from "@/features/world/skill/application/dashboard/contracts/SkillsDashboardDependencies"
 import type {
   CreateOrUpdateSkillPayloadDto,
   SkillDetailDto,
   SkillSearchIndexItemDto,
   SkillListItemDto,
   UpdateSkillLevelPayloadDto,
-} from "@/application/skills/dashboard/types"
+} from "@/features/world/skill/application/dashboard/types"
 
 type Dependencies = SkillsDashboardDependencies
 
-export async function loadDashboardData(deps: Dependencies, params: { rpgId: string }) {
+export async function loadDashboardData(
+  deps: Dependencies,
+  params: { rpgId: string },
+) {
   const [classes, races, skills, rpgSettings] = await Promise.all([
     deps.gateway.fetchClasses(params.rpgId),
     deps.gateway.fetchRaces(params.rpgId),
@@ -23,9 +26,7 @@ export async function loadDashboardData(deps: Dependencies, params: { rpgId: str
 export async function buildSkillsSearchIndex(
   deps: Dependencies,
   params: { skills: SkillListItemDto[]; rpgId?: string | null },
-): Promise<
-  Record<string, SkillSearchIndexItemDto>
-> {
+): Promise<Record<string, SkillSearchIndexItemDto>> {
   const skillIds = params.skills.map((skill) => skill.id)
   const fetchedIndex = await deps.gateway.fetchSkillsSearchIndex({
     skillIds,
@@ -44,15 +45,26 @@ export async function buildSkillsSearchIndex(
   )
 }
 
-export function parseSearchIndex(index: Awaited<ReturnType<typeof buildSkillsSearchIndex>>) {
+export function parseSearchIndex(
+  index: Awaited<ReturnType<typeof buildSkillsSearchIndex>>,
+) {
   return {
-    skillSearchIndex: Object.fromEntries(Object.entries(index).map(([id, item]) => [id, item.searchBlob])),
-    skillDisplayNameById: Object.fromEntries(Object.entries(index).map(([id, item]) => [id, item.displayName])),
-    skillFilterMetaById: Object.fromEntries(Object.entries(index).map(([id, item]) => [id, item.filters])),
+    skillSearchIndex: Object.fromEntries(
+      Object.entries(index).map(([id, item]) => [id, item.searchBlob]),
+    ),
+    skillDisplayNameById: Object.fromEntries(
+      Object.entries(index).map(([id, item]) => [id, item.displayName]),
+    ),
+    skillFilterMetaById: Object.fromEntries(
+      Object.entries(index).map(([id, item]) => [id, item.filters]),
+    ),
   }
 }
 
-export async function loadSkillDetail(deps: Dependencies, params: { skillId: string }): Promise<SkillDetailDto> {
+export async function loadSkillDetail(
+  deps: Dependencies,
+  params: { skillId: string },
+): Promise<SkillDetailDto> {
   return deps.gateway.fetchSkillById(params.skillId)
 }
 
@@ -79,9 +91,17 @@ export async function createSkillLevelSnapshotUseCase(
 
 export async function updateSkillLevelUseCase(
   deps: Dependencies,
-  params: { skillId: string; levelId: string; payload: UpdateSkillLevelPayloadDto },
+  params: {
+    skillId: string
+    levelId: string
+    payload: UpdateSkillLevelPayloadDto
+  },
 ): Promise<SkillDetailDto> {
-  return deps.gateway.updateSkillLevel(params.skillId, params.levelId, params.payload)
+  return deps.gateway.updateSkillLevel(
+    params.skillId,
+    params.levelId,
+    params.payload,
+  )
 }
 
 export async function deleteSkillLevelUseCase(

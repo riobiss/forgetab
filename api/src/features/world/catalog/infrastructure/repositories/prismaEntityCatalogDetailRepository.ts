@@ -3,7 +3,7 @@ import type {
   EntityCatalogDetailRepository,
   EntityCatalogDetailSnapshot,
 } from "@/features/world/catalog/application/ports/EntityCatalogDetailRepository.js"
-import type { EntityCatalogAbilityPurchaseState } from "@/application/entityCatalog/types"
+import type { EntityCatalogAbilityPurchaseState } from "@/features/world/catalog/application/types"
 import { prisma } from "@/lib/prisma"
 import {
   emptyPurchaseState,
@@ -12,19 +12,19 @@ import {
   mapRaceDetailRow,
   toOwnedBySkill,
   toTemplateOptions,
-} from "@/infrastructure/entityCatalog/repositories/entityCatalogDetailMappers"
+} from "@/features/world/catalog/infrastructure/repositories/entityCatalogDetailMappers"
 import type {
   DbClassRow,
   DbRaceRow,
-} from "@/infrastructure/entityCatalog/repositories/entityCatalogDetailRows"
+} from "@/features/world/catalog/infrastructure/repositories/entityCatalogDetailRows"
 import {
   listClassCatalogAbilities,
   listRaceCatalogAbilities,
-} from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogAbilitiesRepository"
+} from "@/features/world/catalog/infrastructure/repositories/prismaEntityCatalogAbilitiesRepository"
 import {
   listClassCatalogPlayers,
   listRaceCatalogPlayers,
-} from "@/infrastructure/entityCatalog/repositories/prismaEntityCatalogPlayersRepository"
+} from "@/features/world/catalog/infrastructure/repositories/prismaEntityCatalogPlayersRepository"
 
 async function queryAttributeTemplates(rpgId: string) {
   return prisma.$queryRaw<Array<{ key: string; label: string }>>(Prisma.sql`

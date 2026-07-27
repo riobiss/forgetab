@@ -1,11 +1,13 @@
-import type { JsonValue } from "@/application/shared/json"
+import type { JsonValue } from "@/features/shared/application/json"
 
 export type CharacterAbilityPurchase = {
   skillId: string
   level: number
 }
 
-export function parseCharacterAbilities(value: JsonValue): CharacterAbilityPurchase[] {
+export function parseCharacterAbilities(
+  value: JsonValue,
+): CharacterAbilityPurchase[] {
   if (!Array.isArray(value)) {
     return []
   }

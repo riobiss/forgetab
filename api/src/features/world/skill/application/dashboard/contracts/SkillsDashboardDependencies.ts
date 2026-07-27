@@ -1,4 +1,4 @@
-import type { SkillsDashboardGateway } from "@/application/skills/dashboard/contracts/SkillsDashboardGateway"
+import type { SkillsDashboardGateway } from "@/features/world/skill/application/dashboard/contracts/SkillsDashboardGateway"
 
 export type SkillsDashboardDependencies = {
   gateway: SkillsDashboardGateway

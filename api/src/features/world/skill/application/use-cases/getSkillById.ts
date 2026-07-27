@@ -1,4 +1,4 @@
-import type { SkillRepository } from "@/application/skills/ports/SkillRepository"
+import type { SkillRepository } from "@/features/world/skill/application/ports/SkillRepository"
 import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
 type GetSkillByIdDeps = {
@@ -21,8 +21,14 @@ export async function getSkillById(
       throw error
     }
 
-    if (error instanceof Error && error.message.includes('relation "skills" does not exist')) {
-      throw new AppError("Tabela skills nao existe no banco. Rode a migration.", 500)
+    if (
+      error instanceof Error &&
+      error.message.includes('relation "skills" does not exist')
+    ) {
+      throw new AppError(
+        "Tabela skills nao existe no banco. Rode a migration.",
+        500,
+      )
     }
 
     throw new AppError("Erro interno ao buscar skill.", 500)

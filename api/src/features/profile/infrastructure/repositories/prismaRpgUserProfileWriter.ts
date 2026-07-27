@@ -1,4 +1,4 @@
-import type { RpgUserProfileWriter } from "@/application/profile/ports/RpgUserProfileWriter"
+import type { RpgUserProfileWriter } from "@/features/profile/application/ports/RpgUserProfileWriter"
 import { prisma } from "@/lib/prisma"
 
 export const prismaRpgUserProfileWriter: RpgUserProfileWriter = {
