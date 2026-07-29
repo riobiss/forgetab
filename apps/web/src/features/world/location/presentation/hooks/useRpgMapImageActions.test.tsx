@@ -8,11 +8,14 @@ const mocks = vi.hoisted(() => ({
   deleteRpgMapImageByUrlUseCase: vi.fn(),
 }))
 
-vi.mock("@/features/world/location/application/use-cases/rpgMap", () => ({
+vi.mock(
+  "@/features/world/location/application/use-cases/rpgMapImages.client",
+  () => ({
   uploadRpgMapImageUseCase: mocks.uploadRpgMapImageUseCase,
   persistRpgMapImageUseCase: mocks.persistRpgMapImageUseCase,
   deleteRpgMapImageByUrlUseCase: mocks.deleteRpgMapImageByUrlUseCase,
-}))
+  }),
+)
 
 describe("useRpgMapImageActions", () => {
   beforeEach(() => {

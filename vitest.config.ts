@@ -5,10 +5,17 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     environment: "jsdom",
-    setupFiles: ["./src/test/setup.ts"],
+    setupFiles: ["./apps/web/src/test/setup.ts"],
     include: [
-      "src/**/*.test.{ts,tsx}",
-      "src/**/*.spec.{ts,tsx}"
+      "apps/web/src/**/*.test.{ts,tsx}",
+      "apps/web/src/**/*.spec.{ts,tsx}"
+    ],
+    exclude: [
+      "**/node_modules/**",
+      "**/.git/**",
+      "**/.next/**",
+      "apps/web/src/lib/server/**",
+      "apps/web/src/features/**/legacy*.test.{ts,tsx}"
     ],
     css: true,
   },

@@ -6,13 +6,13 @@ import {
   type CustomFieldType,
 } from "@/components/custom-fields/typedCustomField"
 import type { RpgMapSectionDto } from "@/features/world/location/application/types"
+import type { SectionSavePayload } from "@/features/world/location/application/services/sectionMarkerReconciliation"
 import {
   getSectionImages,
   RESERVED_SECTION_FIELD_NAMES,
   customFieldsToDraft,
   getLinkedMarkerId,
   type MarkerLinkOption,
-  type SectionSavePayload,
 } from "@/features/world/location/presentation/utils/sectionMarkerLinking"
 
 export type SectionFormState = {

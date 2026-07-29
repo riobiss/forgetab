@@ -8,11 +8,11 @@ const mocks = vi.hoisted(() => ({
   deleteScopedImage: vi.fn(),
 }))
 
-vi.mock("@api/presentation/http/auth/requestAuth", () => ({
+vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
-vi.mock("@/application/media/use-cases/scopedImages", () => ({
+vi.mock("@/features/media/application/use-cases/scopedImages", () => ({
   uploadScopedImage: mocks.uploadScopedImage,
   deleteScopedImage: mocks.deleteScopedImage,
 }))

@@ -1,104 +1,26 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "react-hot-toast"
 import type { RpgMapMarkerGroupDto } from "@/features/world/location/application/types"
+import { deleteRpgMapMarkerGroupUseCase } from "@/features/world/location/application/use-cases/rpgMapMarkerGroups.client"
+import { savePublicMarkerGroupUseCase } from "@/features/world/location/application/use-cases/savePublicMarkerGroup"
 import {
-  createRpgMapMarkerGroupUseCase,
-  deleteRpgMapMarkerGroupUseCase,
-  updateRpgMapMarkerGroupUseCase,
-} from "@/features/world/location/application/use-cases/rpgMap"
-import { httpRpgMapGateway } from "@/features/world/location/infrastructure/gateways/httpRpgMapGateway"
+  createPrivateMarkerGroup,
+  removeMarkerGroup,
+} from "@/features/world/location/application/services/markerGroupMutations"
+import { fromPublicMarkerGroupDto } from "@/features/world/location/application/services/markerGroupSerialization"
+import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import type {
   MarkerGroup,
-  MarkerPinStyle,
   PendingMarker,
 } from "@/features/world/location/presentation/types/mapMarkers"
-
-export const MARKER_STORAGE_PREFIX = "forgetab:rpg-map-markers:"
-export const MARKER_STORAGE_UPDATED_EVENT = "forgetab:rpg-map-markers:updated"
-const DEFAULT_MARKER_SIZE = 1
-const DEFAULT_MARKER_PIN_STYLE: MarkerPinStyle = "default"
 
 type Params = {
   rpgId: string
   mapId: string
   markerColors: string[]
   initialPublicMarkerGroups: RpgMapMarkerGroupDto[]
-}
-
-export function parsePrivateMarkerGroupsFromStorage(
-  raw: string | null,
-  markerColors: string[],
-) {
-  if (!raw) {
-    return []
-  }
-
-  const parsed = JSON.parse(raw)
-  if (!Array.isArray(parsed)) {
-    return []
-  }
-
-  return parsed
-    .filter((value): value is MarkerGroup =>
-      Boolean(value && typeof value === "object"),
-    )
-    .map((group) => ({
-      id: String(group.id),
-      name: String(group.name ?? "Marcadores"),
-      color:
-        typeof group.color === "string"
-          ? group.color
-          : (markerColors[0] ?? "#f97316"),
-      visibility: "private" as const,
-      canEdit: true,
-      canDelete: true,
-      markers: Array.isArray(group.markers)
-        ? group.markers.map((marker) => ({
-            id: String(marker.id),
-            name: String(marker.name ?? "Marcador"),
-            location:
-              typeof marker.location === "string" ? marker.location : null,
-            shortDescription:
-              typeof marker.shortDescription === "string"
-                ? marker.shortDescription
-                : null,
-            image: typeof marker.image === "string" ? marker.image : null,
-            x: Number(marker.x ?? 0),
-            y: Number(marker.y ?? 0),
-            color: typeof marker.color === "string" ? marker.color : null,
-            size:
-              typeof marker.size === "number"
-                ? marker.size
-                : DEFAULT_MARKER_SIZE,
-            pinStyle:
-              marker.pinStyle === "label" ? "label" : DEFAULT_MARKER_PIN_STYLE,
-            canEdit: true,
-            canDelete: true,
-          }))
-        : [],
-    }))
-}
-
-export function persistPrivateMarkerGroupsToStorage(
-  mapId: string,
-  groups: MarkerGroup[],
-  options?: { notify?: boolean },
-) {
-  window.localStorage.setItem(
-    `${MARKER_STORAGE_PREFIX}${mapId}`,
-    JSON.stringify(groups),
-  )
-  if (options?.notify === false) {
-    return
-  }
-
-  window.dispatchEvent(
-    new CustomEvent(MARKER_STORAGE_UPDATED_EVENT, {
-      detail: { mapId },
-    }),
-  )
 }
 
 export function useMapMarkerGroupStore(params: Params) {
@@ -110,6 +32,9 @@ export function useMapMarkerGroupStore(params: Params) {
   )
   const [hasLoadedPrivateMarkerGroups, setHasLoadedPrivateMarkerGroups] =
     useState(false)
+  const [isMarkerGroupOperationPending, setIsMarkerGroupOperationPending] =
+    useState(false)
+  const markerGroupOperationRef = useRef(false)
 
   const allMarkerGroups = useMemo(
     () => [...publicMarkerGroups, ...privateMarkerGroups],
@@ -120,11 +45,11 @@ export function useMapMarkerGroupStore(params: Params) {
     setHasLoadedPrivateMarkerGroups(false)
 
     try {
-      const raw = window.localStorage.getItem(
-        `${MARKER_STORAGE_PREFIX}${params.mapId}`,
-      )
       setPrivateMarkerGroups(
-        parsePrivateMarkerGroupsFromStorage(raw, params.markerColors),
+        rpgMapPresentationDeps.privateMarkerGroupStorage.load(
+          params.mapId,
+          params.markerColors,
+        ),
       )
     } catch {
       setPrivateMarkerGroups([])
@@ -138,128 +63,55 @@ export function useMapMarkerGroupStore(params: Params) {
       return
     }
 
-    persistPrivateMarkerGroupsToStorage(params.mapId, privateMarkerGroups, {
-      notify: false,
-    })
+    rpgMapPresentationDeps.privateMarkerGroupStorage.save(
+      params.mapId,
+      privateMarkerGroups,
+    )
   }, [hasLoadedPrivateMarkerGroups, params.mapId, privateMarkerGroups])
 
   useEffect(() => {
-    function handlePrivateGroupsUpdated(event: Event) {
-      const customEvent = event as CustomEvent<{ mapId?: string }>
-      if (customEvent.detail?.mapId !== params.mapId) {
-        return
-      }
-
-      try {
-        const raw = window.localStorage.getItem(
-          `${MARKER_STORAGE_PREFIX}${params.mapId}`,
-        )
-        setPrivateMarkerGroups(
-          parsePrivateMarkerGroupsFromStorage(raw, params.markerColors),
-        )
-      } catch {
-        setPrivateMarkerGroups([])
-      } finally {
-        setHasLoadedPrivateMarkerGroups(true)
-      }
-    }
-
-    window.addEventListener(
-      MARKER_STORAGE_UPDATED_EVENT,
-      handlePrivateGroupsUpdated,
+    return rpgMapPresentationDeps.privateMarkerGroupStorage.subscribe(
+      params.mapId,
+      () => {
+        try {
+          const loadedGroups =
+            rpgMapPresentationDeps.privateMarkerGroupStorage.load(
+              params.mapId,
+              params.markerColors,
+            )
+          setPrivateMarkerGroups((current) =>
+            JSON.stringify(current) === JSON.stringify(loadedGroups)
+              ? current
+              : loadedGroups,
+          )
+        } catch {
+          setPrivateMarkerGroups([])
+        } finally {
+          setHasLoadedPrivateMarkerGroups(true)
+        }
+      },
     )
-    return () => {
-      window.removeEventListener(
-        MARKER_STORAGE_UPDATED_EVENT,
-        handlePrivateGroupsUpdated,
-      )
-    }
   }, [params.mapId, params.markerColors])
 
   useEffect(() => {
     setPublicMarkerGroups(
-      params.initialPublicMarkerGroups.map((group) => ({
-        id: group.id,
-        name: group.name,
-        color: group.color,
-        visibility: "public" as const,
-        canEdit: group.canEdit ?? false,
-        canDelete: group.canDelete ?? false,
-        markers: group.markers.map((marker) => ({
-          id: marker.id,
-          name: marker.name,
-          location: marker.location,
-          shortDescription: marker.shortDescription,
-          image: marker.image,
-          color: marker.color,
-          x: marker.x,
-          y: marker.y,
-          size: marker.size ?? DEFAULT_MARKER_SIZE,
-          pinStyle:
-            marker.pinStyle === "label" ? "label" : DEFAULT_MARKER_PIN_STYLE,
-          canEdit: marker.canEdit ?? false,
-          canDelete: marker.canDelete ?? false,
-        })),
-      })),
+      params.initialPublicMarkerGroups.map(fromPublicMarkerGroupDto),
     )
   }, [params.initialPublicMarkerGroups])
 
   async function persistPublicMarkerGroup(group: MarkerGroup) {
+    if (markerGroupOperationRef.current) return null
+    markerGroupOperationRef.current = true
+    setIsMarkerGroupOperationPending(true)
     try {
-      const payload = {
-        name: group.name,
-        color: group.color,
-        markers: group.markers.map((marker) => ({
-          id: marker.id,
-          name: marker.name,
-          location: marker.location,
-          shortDescription: marker.shortDescription,
-          image: marker.image,
-          color: marker.color ?? null,
-          x: marker.x,
-          y: marker.y,
-          size: marker.size ?? DEFAULT_MARKER_SIZE,
-          pinStyle: marker.pinStyle ?? DEFAULT_MARKER_PIN_STYLE,
-        })),
-      }
-
-      const savedGroup =
-        group.visibility === "public"
-          ? await updateRpgMapMarkerGroupUseCase(httpRpgMapGateway, {
-              rpgId: params.rpgId,
-              mapId: params.mapId,
-              groupId: group.id,
-              payload,
-            })
-          : await createRpgMapMarkerGroupUseCase(httpRpgMapGateway, {
-              rpgId: params.rpgId,
-              mapId: params.mapId,
-              payload,
-            })
-
-      const normalizedGroup: MarkerGroup = {
-        id: savedGroup.id,
-        name: savedGroup.name,
-        color: savedGroup.color,
-        visibility: "public",
-        canEdit: savedGroup.canEdit ?? false,
-        canDelete: savedGroup.canDelete ?? false,
-        markers: savedGroup.markers.map((marker) => ({
-          id: marker.id,
-          name: marker.name,
-          location: marker.location,
-          shortDescription: marker.shortDescription,
-          image: marker.image,
-          color: marker.color,
-          x: marker.x,
-          y: marker.y,
-          size: marker.size ?? DEFAULT_MARKER_SIZE,
-          pinStyle:
-            marker.pinStyle === "label" ? "label" : DEFAULT_MARKER_PIN_STYLE,
-          canEdit: marker.canEdit ?? false,
-          canDelete: marker.canDelete ?? false,
-        })),
-      }
+      const normalizedGroup = await savePublicMarkerGroupUseCase(
+        rpgMapPresentationDeps.rpgMapGateway,
+        {
+          rpgId: params.rpgId,
+          mapId: params.mapId,
+          group,
+        },
+      )
 
       setPublicMarkerGroups((current) => {
         const withoutCurrent = current.filter(
@@ -270,7 +122,7 @@ export function useMapMarkerGroupStore(params: Params) {
 
       if (group.visibility === "private") {
         setPrivateMarkerGroups((current) =>
-          current.filter((item) => item.id !== group.id),
+          removeMarkerGroup(current, group.id),
         )
       }
 
@@ -287,19 +139,26 @@ export function useMapMarkerGroupStore(params: Params) {
           : "Erro ao salvar grupo publico.",
       )
       return null
+    } finally {
+      markerGroupOperationRef.current = false
+      setIsMarkerGroupOperationPending(false)
     }
   }
 
   async function deletePublicMarkerGroup(groupId: string) {
+    if (markerGroupOperationRef.current) return false
+    markerGroupOperationRef.current = true
+    setIsMarkerGroupOperationPending(true)
     try {
-      await deleteRpgMapMarkerGroupUseCase(httpRpgMapGateway, {
-        rpgId: params.rpgId,
-        mapId: params.mapId,
-        groupId,
-      })
-      setPublicMarkerGroups((current) =>
-        current.filter((group) => group.id !== groupId),
+      await deleteRpgMapMarkerGroupUseCase(
+        rpgMapPresentationDeps.rpgMapGateway,
+        {
+          rpgId: params.rpgId,
+          mapId: params.mapId,
+          groupId,
+        },
       )
+      setPublicMarkerGroups((current) => removeMarkerGroup(current, groupId))
       toast.success("Grupo de marcadores removido com sucesso.")
       return true
     } catch (error) {
@@ -309,6 +168,9 @@ export function useMapMarkerGroupStore(params: Params) {
           : "Erro ao remover grupo publico.",
       )
       return false
+    } finally {
+      markerGroupOperationRef.current = false
+      setIsMarkerGroupOperationPending(false)
     }
   }
 
@@ -317,33 +179,13 @@ export function useMapMarkerGroupStore(params: Params) {
     markerGroupColor: string
     pendingMarkers: PendingMarker[]
   }) {
-    const normalizedName = input.markerGroupName.trim()
-    if (!normalizedName || input.pendingMarkers.length === 0) {
-      return null
-    }
-
-    const nextGroup: MarkerGroup = {
+    const nextGroup = createPrivateMarkerGroup({
       id: crypto.randomUUID(),
-      name: normalizedName,
+      name: input.markerGroupName,
       color: input.markerGroupColor,
-      visibility: "private",
-      canEdit: true,
-      canDelete: true,
-      markers: input.pendingMarkers.map((marker) => ({
-        id: marker.id,
-        name: marker.name.trim() || "Marcador",
-        location: marker.location.trim() || null,
-        shortDescription: marker.shortDescription.trim() || null,
-        image: marker.image.trim() || null,
-        x: marker.x,
-        y: marker.y,
-        color: null,
-        size: marker.size,
-        pinStyle: marker.pinStyle,
-        canEdit: true,
-        canDelete: true,
-      })),
-    }
+      pendingMarkers: input.pendingMarkers,
+    })
+    if (!nextGroup) return null
 
     setPrivateMarkerGroups((current) => [...current, nextGroup])
     return nextGroup
@@ -359,6 +201,7 @@ export function useMapMarkerGroupStore(params: Params) {
     allMarkerGroups,
     privateMarkerGroups,
     publicMarkerGroups,
+    isMarkerGroupOperationPending,
     setPrivateMarkerGroups,
     setPublicMarkerGroups,
     createPrivateGroup,

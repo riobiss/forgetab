@@ -19,6 +19,7 @@ type Props = {
   linkedSectionId: string
   sectionOptions: Array<{ id: string; name: string }>
   isImageUploading: boolean
+  isSaving: boolean
   markerId: string | null
   onChangeName: (value: string) => void
   onChangeLocation: (value: string) => void
@@ -50,6 +51,7 @@ export function MarkerEditModal({
   linkedSectionId,
   sectionOptions,
   isImageUploading,
+  isSaving,
   markerId,
   onChangeName,
   onChangeLocation,
@@ -137,7 +139,7 @@ export function MarkerEditModal({
                 onClick={() =>
                   markerId && onPickImage({ mode: "editing", markerId })
                 }
-                disabled={isImageUploading || !markerId}
+                disabled={isImageUploading || isSaving || !markerId}
               >
                 {markerImage ? "Trocar imagem" : "Adicionar imagem"}
               </button>
@@ -149,7 +151,7 @@ export function MarkerEditModal({
                     markerId &&
                     onDeleteImage({ mode: "editing", markerId }, markerImage)
                   }
-                  disabled={isImageUploading || !markerId}
+                  disabled={isImageUploading || isSaving || !markerId}
                 >
                   Deletar imagem
                 </button>
@@ -243,6 +245,7 @@ export function MarkerEditModal({
             type="button"
             className={styles.secondaryButton}
             onClick={onChangePosition}
+            disabled={isSaving}
           >
             Mudar posicao
           </button>
@@ -250,6 +253,7 @@ export function MarkerEditModal({
             type="button"
             className={styles.primaryButton}
             onClick={onSave}
+            disabled={isSaving}
           >
             Salvar
           </button>

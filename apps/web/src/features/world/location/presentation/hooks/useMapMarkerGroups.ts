@@ -3,10 +3,17 @@
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "react-hot-toast"
 import type { RpgMapMarkerGroupDto } from "@/features/world/location/application/types"
+import {
+  appendPendingMarkers,
+  removeMarkerFromGroup,
+  removeMarkerGroup,
+  replaceMarkerGroup,
+  updateMarkerGroupDetails,
+  updateMarkerInGroup,
+} from "@/features/world/location/application/services/markerGroupMutations"
 import { useMapMarkerGroupStore } from "@/features/world/location/presentation/hooks/useMapMarkerGroupStore"
 import type {
   MapMarkerItem,
-  MarkerGroup,
   MarkerPinStyle,
   PendingMarker,
 } from "@/features/world/location/presentation/types/mapMarkers"
@@ -26,6 +33,7 @@ export function useMapMarkerGroups(params: Params) {
     allMarkerGroups,
     privateMarkerGroups,
     publicMarkerGroups,
+    isMarkerGroupOperationPending,
     createPrivateGroup,
     updatePrivateGroups,
     persistPublicMarkerGroup,
@@ -149,7 +157,7 @@ export function useMapMarkerGroups(params: Params) {
     setMarkerSelectionTargetGroupId(null)
   }
 
-  function concludeMarkerSelection() {
+  async function concludeMarkerSelection() {
     if (pendingMarkers.length === 0) {
       return false
     }
@@ -163,33 +171,15 @@ export function useMapMarkerGroups(params: Params) {
         return false
       }
 
-      const appendedMarkers = pendingMarkers.map((marker) => ({
-        id: marker.id,
-        name: marker.name.trim() || "Marcador",
-        location: marker.location.trim() || null,
-        shortDescription: marker.shortDescription.trim() || null,
-        image: marker.image.trim() || null,
-        color: targetGroup.color,
-        x: marker.x,
-        y: marker.y,
-        size: marker.size,
-        pinStyle: marker.pinStyle,
-        canEdit: true,
-        canDelete: true,
-      }))
-
-      const updatedGroup = {
-        ...targetGroup,
-        markers: [...targetGroup.markers, ...appendedMarkers],
-      }
+      const updatedGroup = appendPendingMarkers(targetGroup, pendingMarkers)
+      if (!updatedGroup) return false
 
       if (targetGroup.visibility === "public") {
-        void persistPublicMarkerGroup(updatedGroup)
+        const savedGroup = await persistPublicMarkerGroup(updatedGroup)
+        if (!savedGroup) return false
       } else {
         updatePrivateGroups((current) =>
-          current.map((group) =>
-            group.id === targetGroup.id ? updatedGroup : group,
-          ),
+          replaceMarkerGroup(current, updatedGroup),
         )
       }
 
@@ -237,81 +227,68 @@ export function useMapMarkerGroups(params: Params) {
     return true
   }
 
-  function saveMarkerGroupChanges() {
+  async function saveMarkerGroupChanges() {
     if (!selectedMarkerGroup?.canEdit) {
-      return
+      return false
     }
 
-    const normalizedName = editingGroupName.trim()
-    if (!normalizedName) {
-      return
-    }
+    const updatedGroup = updateMarkerGroupDetails(selectedMarkerGroup, {
+      name: editingGroupName,
+      color: editingGroupColor,
+    })
+    if (!updatedGroup) return false
 
     if (selectedMarkerGroup.visibility === "public") {
-      void persistPublicMarkerGroup({
-        ...selectedMarkerGroup,
-        name: normalizedName,
-        color: editingGroupColor,
-      })
-      return
+      return Boolean(await persistPublicMarkerGroup(updatedGroup))
     }
 
     updatePrivateGroups((current) =>
-      current.map((group) =>
-        group.id !== selectedMarkerGroup.id
-          ? group
-          : {
-              ...group,
-              name: normalizedName,
-              color: editingGroupColor,
-            },
-      ),
+      replaceMarkerGroup(current, updatedGroup),
     )
+    return true
   }
 
-  function publishSelectedMarkerGroup() {
+  async function publishSelectedMarkerGroup() {
     if (
       !selectedMarkerGroup ||
       selectedMarkerGroup.visibility !== "private" ||
       !selectedMarkerGroup.canEdit
     ) {
-      return
+      return false
     }
 
-    void persistPublicMarkerGroup({
-      ...selectedMarkerGroup,
+    const updatedGroup = updateMarkerGroupDetails(selectedMarkerGroup, {
       name: editingGroupName.trim() || selectedMarkerGroup.name,
       color: editingGroupColor,
-    }).then((normalizedGroup) => {
-      if (!normalizedGroup) {
-        return
-      }
-
-      setSelectedVisibility("public")
-      setSelectedMarkerGroupId(normalizedGroup.id)
     })
+    if (!updatedGroup) return false
+
+    const normalizedGroup = await persistPublicMarkerGroup(updatedGroup)
+    if (!normalizedGroup) return false
+
+    setSelectedVisibility("public")
+    setSelectedMarkerGroupId(normalizedGroup.id)
+    return true
   }
 
-  function deleteMarkerGroup(targetGroupId = selectedMarkerGroupId) {
+  async function deleteMarkerGroup(targetGroupId = selectedMarkerGroupId) {
     const targetGroup =
       allMarkerGroups.find((group) => group.id === targetGroupId) ?? null
     if (!targetGroup?.canDelete) {
-      return
+      return false
     }
 
     if (targetGroup.visibility === "public") {
-      void deletePublicMarkerGroup(targetGroup.id).then((deleted) => {
-        if (deleted) {
-          setSelectedMarkerGroupId("")
-        }
-      })
-      return
+      const deleted = await deletePublicMarkerGroup(targetGroup.id)
+      if (deleted) setSelectedMarkerGroupId("")
+      return deleted
     }
 
     updatePrivateGroups((current) =>
-      current.filter((group) => group.id !== targetGroup.id),
+      removeMarkerGroup(current, targetGroup.id),
     )
     setSelectedMarkerGroupId("")
+    return true
   }
 
   function openMarkerEdit(marker: MapMarkerItem) {
@@ -372,89 +349,62 @@ export function useMapMarkerGroups(params: Params) {
     )
   }
 
-  function saveMarkerEdit() {
+  async function saveMarkerEdit() {
     if (
       !selectedMarkerGroup?.canEdit ||
       !editingMarker ||
       editingMarker.canEdit === false
     ) {
-      return
+      return false
     }
 
-    const updateGroups = (groups: MarkerGroup[]) =>
-      groups.map((group) =>
-        group.id !== selectedMarkerGroup.id
-          ? group
-          : {
-              ...group,
-              markers: group.markers.map((marker) =>
-                marker.id !== editingMarker.id
-                  ? marker
-                  : {
-                      ...marker,
-                      name: editingMarkerName.trim() || marker.name,
-                      location: editingMarkerLocation.trim() || null,
-                      shortDescription:
-                        editingMarkerShortDescription.trim() || null,
-                      image: editingMarkerImage.trim() || null,
-                      color: editingMarkerColor,
-                      x: editingMarker.x,
-                      y: editingMarker.y,
-                      size: editingMarkerSize,
-                      pinStyle: editingMarkerPinStyle,
-                    },
-              ),
-            },
-      )
+    const updatedGroup = updateMarkerInGroup(selectedMarkerGroup, {
+      markerId: editingMarker.id,
+      name: editingMarkerName,
+      location: editingMarkerLocation,
+      shortDescription: editingMarkerShortDescription,
+      image: editingMarkerImage,
+      color: editingMarkerColor,
+      x: editingMarker.x,
+      y: editingMarker.y,
+      size: editingMarkerSize,
+      pinStyle: editingMarkerPinStyle,
+    })
+    if (!updatedGroup) return false
 
     if (selectedMarkerGroup.visibility === "public") {
-      const updatedGroup = updateGroups([selectedMarkerGroup])[0]
-      if (updatedGroup) {
-        void persistPublicMarkerGroup(updatedGroup)
-      }
+      const savedGroup = await persistPublicMarkerGroup(updatedGroup)
+      if (!savedGroup) return false
     } else {
-      updatePrivateGroups((current) => updateGroups(current))
+      updatePrivateGroups((current) =>
+        replaceMarkerGroup(current, updatedGroup),
+      )
     }
     setEditingMarker(null)
+    return true
   }
 
-  function deleteMarkerItem(markerId: string) {
+  async function deleteMarkerItem(markerId: string) {
     if (!selectedMarkerGroup?.canEdit) {
-      return
+      return false
     }
 
-    const currentMarker = selectedMarkerGroup.markers.find(
-      (marker) => marker.id === markerId,
-    )
-    if (!currentMarker || currentMarker.canDelete === false) {
-      return
-    }
-
-    const updateGroups = (groups: MarkerGroup[]) =>
-      groups
-        .map((group) =>
-          group.id !== selectedMarkerGroup.id
-            ? group
-            : {
-                ...group,
-                markers: group.markers.filter(
-                  (marker) => marker.id !== markerId,
-                ),
-              },
-        )
-        .filter((group) => group.markers.length > 0)
+    const result = removeMarkerFromGroup(selectedMarkerGroup, markerId)
+    if (result.action === "not_allowed") return false
 
     if (selectedMarkerGroup.visibility === "public") {
-      const nextGroups = updateGroups([selectedMarkerGroup])
-      if (nextGroups.length === 0) {
-        void deletePublicMarkerGroup(selectedMarkerGroup.id)
-      } else {
-        void persistPublicMarkerGroup(nextGroups[0]!)
+      if (result.action === "delete_group") {
+        return deletePublicMarkerGroup(selectedMarkerGroup.id)
       }
-      return
+      return Boolean(await persistPublicMarkerGroup(result.group))
     }
 
-    updatePrivateGroups((current) => updateGroups(current))
+    updatePrivateGroups((current) =>
+      result.action === "delete_group"
+        ? removeMarkerGroup(current, selectedMarkerGroup.id)
+        : replaceMarkerGroup(current, result.group),
+    )
+    return true
   }
 
   function clearAllMarkers() {
@@ -478,6 +428,7 @@ export function useMapMarkerGroups(params: Params) {
     visibleMarkerGroupIds,
     privateMarkerGroups,
     publicMarkerGroups,
+    isMarkerGroupOperationPending,
     selectedMarkerGroups,
     selectedMarkerGroup,
     selectedMarkerGroupId,

@@ -4,8 +4,8 @@ import type { RpgMapRepository } from "@/features/world/location/application/por
 import {
   getRpgMapDetail,
   listRpgMaps,
-  updateRpgMapImage,
-} from "@/features/world/location/application/use-cases/rpgMap"
+} from "@/features/world/location/application/use-cases/rpgMaps.server"
+import { updateRpgMapImage } from "@/features/world/location/application/use-cases/rpgMapImages.server"
 
 function createRepositoryMock(): RpgMapRepository {
   return {

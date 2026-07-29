@@ -11,6 +11,7 @@ import styles from "../WorldMap.module.css"
 type Props = {
   modalRef: RefObject<HTMLElement | null>
   isOpen: boolean
+  isBusy: boolean
   group: MarkerGroup | null
   editingGroupName: string
   editingGroupColor: string
@@ -21,16 +22,17 @@ type Props = {
   onAddMarkers: () => void
   onOpenMarker: (marker: MapMarkerItem) => void
   onEditMarker: (marker: MapMarkerItem) => void
-  onDeleteMarker: (markerId: string) => void
-  onSaveGroup: () => void
-  onPublish: () => void
-  onDeleteGroup: () => void
+  onDeleteMarker: (markerId: string) => Promise<unknown>
+  onSaveGroup: () => Promise<unknown>
+  onPublish: () => Promise<unknown>
+  onDeleteGroup: () => Promise<unknown>
   onClose: () => void
 }
 
 export function MarkerGroupModal({
   modalRef,
   isOpen,
+  isBusy,
   group,
   editingGroupName,
   editingGroupColor,
@@ -77,6 +79,7 @@ export function MarkerGroupModal({
                 className={styles.iconButton}
                 onClick={onAddMarkers}
                 aria-label="Adicionar marcadores"
+                disabled={isBusy}
               >
                 <Plus size={16} />
               </button>
@@ -96,7 +99,7 @@ export function MarkerGroupModal({
           <input
             value={editingGroupName}
             onChange={(event) => onChangeGroupName(event.target.value)}
-            disabled={!group.canEdit}
+            disabled={!group.canEdit || isBusy}
           />
         </label>
         <div className={styles.field}>
@@ -110,7 +113,7 @@ export function MarkerGroupModal({
                 className={`${styles.colorOption} ${editingGroupColor === color ? styles.colorOptionActive : ""}`}
                 style={{ backgroundColor: color }}
                 aria-label={`Cor ${color}`}
-                disabled={!group.canEdit}
+                disabled={!group.canEdit || isBusy}
               />
             ))}
           </div>
@@ -139,6 +142,7 @@ export function MarkerGroupModal({
                       type="button"
                       className={styles.iconButton}
                       onClick={() => onEditMarker(marker)}
+                      disabled={isBusy}
                     >
                       <Pencil size={14} />
                     </button>
@@ -148,6 +152,7 @@ export function MarkerGroupModal({
                       type="button"
                       className={styles.iconButtonDanger}
                       onClick={() => onDeleteMarker(marker.id)}
+                      disabled={isBusy}
                     >
                       <Trash2 size={14} />
                     </button>
@@ -165,6 +170,7 @@ export function MarkerGroupModal({
               type="button"
               className={styles.primaryButton}
               onClick={onSaveGroup}
+              disabled={isBusy}
             >
               Salvar grupo
             </button>
@@ -174,6 +180,7 @@ export function MarkerGroupModal({
               type="button"
               className={styles.secondaryButton}
               onClick={onPublish}
+              disabled={isBusy}
             >
               Tornar publico
             </button>
@@ -183,6 +190,7 @@ export function MarkerGroupModal({
               type="button"
               className={styles.iconButtonDanger}
               onClick={onDeleteGroup}
+              disabled={isBusy}
             >
               <Trash2 size={14} />
             </button>

@@ -20,6 +20,10 @@ import {
   getMarkerDisplayLabel,
   type MarkerRenderMode,
 } from "@/features/world/location/presentation/utils/markerPins"
+import {
+  getLocalPinchCenter,
+  preserveViewportOnResize,
+} from "@/features/world/location/presentation/utils/mapZoom"
 import styles from "../WorldMap.module.css"
 
 type Point = { x: number; y: number }
@@ -596,7 +600,12 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           if (
             canInteractMap(isInteractiveRef.current, isFullscreenRef.current)
           ) {
-            keepViewOnResize(currentStage, previousWidth, previousHeight)
+            keepViewOnResize(
+              currentStage,
+              currentImage,
+              previousWidth,
+              previousHeight,
+            )
           } else {
             fitImageToStage(currentStage, currentImage)
           }
@@ -918,10 +927,11 @@ function applyPinchZoom(
     return
   }
 
-  const center = {
-    x: (touch1.clientX + touch2.clientX) / 2,
-    y: (touch1.clientY + touch2.clientY) / 2,
-  }
+  const center = getLocalPinchCenter(
+    touches,
+    stage.container().getBoundingClientRect(),
+  )
+  if (!center) return
   const distance = Math.hypot(
     touch2.clientX - touch1.clientX,
     touch2.clientY - touch1.clientY,
@@ -967,31 +977,25 @@ function applyPinchZoom(
 
 function keepViewOnResize(
   stage: Konva.Stage,
+  mapImage: Konva.Image,
   previousWidth: number,
   previousHeight: number,
 ) {
-  if (previousWidth <= 0 || previousHeight <= 0) {
-    return
-  }
+  const minScale = getStageMinScale(stage, mapImage)
+  if (minScale === null) return
 
-  const currentScale = stage.scaleX()
-  const previousCenter = {
-    x: previousWidth / 2,
-    y: previousHeight / 2,
-  }
-  const contentPoint = {
-    x: (previousCenter.x - stage.x()) / currentScale,
-    y: (previousCenter.y - stage.y()) / currentScale,
-  }
-
-  const nextCenter = {
-    x: stage.width() / 2,
-    y: stage.height() / 2,
-  }
-  stage.position({
-    x: nextCenter.x - contentPoint.x * currentScale,
-    y: nextCenter.y - contentPoint.y * currentScale,
+  const viewport = preserveViewportOnResize({
+    previousWidth,
+    previousHeight,
+    nextWidth: stage.width(),
+    nextHeight: stage.height(),
+    currentScale: stage.scaleX(),
+    minScale,
+    position: { x: stage.x(), y: stage.y() },
   })
+  stage.scale({ x: viewport.scale, y: viewport.scale })
+  stage.position(viewport.position)
+  constrainStagePosition(stage, mapImage)
 }
 
 function getStageMinScale(stage: Konva.Stage, mapImage: Konva.Image | null) {

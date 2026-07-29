@@ -4,6 +4,7 @@ import { resolveAllowedOrigin } from "@/features/http/presentation/cors"
 import { registerApiRoutes } from "@api/registerApiRoutes"
 
 const apiPort = Number(process.env.PORT ?? process.env.API_PORT ?? 4000)
+const maxRequestBodySizeBytes = 9 * 1024 * 1024
 
 function applyCorsHeaders(
   headers: IncomingHttpHeaders | Headers,
@@ -22,6 +23,7 @@ function applyCorsHeaders(
 
 export function buildApiServer() {
   const app = Fastify({
+    bodyLimit: maxRequestBodySizeBytes,
     logger: false,
   })
 
@@ -35,11 +37,12 @@ export function buildApiServer() {
   )
 
   app.addHook("onRequest", async (request, reply) => {
+    const allowedOrigin = applyCorsHeaders(request.headers, reply)
+
     if (request.method !== "OPTIONS") {
       return
     }
 
-    const allowedOrigin = applyCorsHeaders(request.headers, reply)
     if (!allowedOrigin) {
       return reply.code(403).send()
     }

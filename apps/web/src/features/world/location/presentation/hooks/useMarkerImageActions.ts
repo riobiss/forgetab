@@ -3,8 +3,8 @@ import { toast } from "react-hot-toast"
 import {
   deleteRpgMapMarkerImageByUrlUseCase,
   uploadRpgMapMarkerImageUseCase,
-} from "@/features/world/location/application/use-cases/rpgMap"
-import { httpRpgMapGateway } from "@/features/world/location/infrastructure/gateways/httpRpgMapGateway"
+} from "@/features/world/location/application/use-cases/rpgMapImages.client"
+import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import { dismissToast } from "@/lib/toast"
 
 const MAX_MARKER_IMAGE_SIZE_BYTES = 8 * 1024 * 1024
@@ -24,7 +24,7 @@ export function useMarkerImageActions(params: Params) {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const targetRef = useRef<MarkerImageTarget | null>(null)
   const [isUploading, setIsUploading] = useState(false)
-  const gateway = useMemo(() => httpRpgMapGateway, [])
+  const gateway = useMemo(() => rpgMapPresentationDeps.rpgMapGateway, [])
 
   function openPicker(nextTarget: MarkerImageTarget) {
     targetRef.current = nextTarget

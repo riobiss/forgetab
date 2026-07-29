@@ -13,40 +13,42 @@ import type {
   LinkedSectionSnapshot,
   MarkerPinStyle,
 } from "@/features/world/location/presentation/types/mapMarkers"
+import {
+  getLinkedMarkerId,
+  getOptionalStringValue,
+  getStringValue,
+  SECTION_IMAGES,
+  SECTION_LINK_COLOR,
+  SECTION_LINK_IMAGE,
+  SECTION_LINK_LOCATION,
+  SECTION_LINK_MARKER_GROUP_ID,
+  SECTION_LINK_MARKER_ID,
+  SECTION_LINK_MARKER_NAME,
+} from "@/features/world/location/application/services/sectionMarkerFields"
+import type { SectionMarkerLink } from "@/features/world/location/application/services/sectionMarkerReconciliation"
 
-export type MarkerLinkOption = {
-  id: string
-  groupId: string
-  visibility: "private" | "public"
-  name: string
-  location: string | null
-  shortDescription: string | null
-  image: string | null
-  color: string | null
+export {
+  getLinkedMarkerId,
+  getOptionalStringValue,
+  getStringValue,
+  SECTION_IMAGES,
+  SECTION_LINK_COLOR,
+  SECTION_LINK_IMAGE,
+  SECTION_LINK_LOCATION,
+  SECTION_LINK_MARKER_GROUP_ID,
+  SECTION_LINK_MARKER_ID,
+  SECTION_LINK_MARKER_NAME,
+} from "@/features/world/location/application/services/sectionMarkerFields"
+
+export type MarkerLinkOption = SectionMarkerLink & {
   size: number | null
   pinStyle: MarkerPinStyle | null
-}
-
-export type SectionSavePayload = {
-  name: string
-  description: string | null
-  type: string | null
-  parentSectionId: string | null
-  customFields: JsonMapValue | null
 }
 
 type SerializedSectionCustomField = {
   value: string
   type: CustomFieldType
 }
-
-export const SECTION_LINK_MARKER_ID = "MarcadorId"
-export const SECTION_LINK_MARKER_GROUP_ID = "MarcadorGrupoId"
-export const SECTION_LINK_MARKER_NAME = "MarcadorNome"
-export const SECTION_LINK_LOCATION = "Localizacao"
-export const SECTION_LINK_IMAGE = "Imagem"
-export const SECTION_LINK_COLOR = "Cor"
-export const SECTION_IMAGES = "ImagensSecao"
 
 export const RESERVED_SECTION_FIELD_NAMES = new Set([
   SECTION_LINK_MARKER_ID,
@@ -61,20 +63,6 @@ const INTERNAL_SECTION_FIELD_NAMES = new Set([
   SECTION_LINK_MARKER_NAME,
   SECTION_IMAGES,
 ])
-
-export function getStringValue(value: unknown) {
-  return typeof value === "string" ? value.trim() : ""
-}
-
-export function getOptionalStringValue(value: unknown) {
-  const normalized = getStringValue(value)
-  return normalized.length > 0 ? normalized : null
-}
-
-export function getLinkedMarkerId(value: JsonMapValue | null | undefined) {
-  const markerId = value?.[SECTION_LINK_MARKER_ID]
-  return typeof markerId === "string" ? markerId : ""
-}
 
 export function getSectionImages(value: JsonMapValue | null | undefined) {
   const images = value?.[SECTION_IMAGES]
@@ -174,109 +162,6 @@ export function buildMarkerOptions(
       pinStyle: marker.pinStyle === "label" ? "label" : "default",
     })),
   )
-}
-
-export function applyLinkedMarkerToPayload(
-  payload: SectionSavePayload,
-  linkedMarker: MarkerLinkOption,
-  preference: "marker" | "section",
-) {
-  const nextCustomFields = { ...(payload.customFields ?? {}) }
-  const normalizedSectionName = payload.name.trim()
-  const normalizedSectionDescription = payload.description?.trim() ?? ""
-
-  nextCustomFields[SECTION_LINK_MARKER_ID] = linkedMarker.id
-  nextCustomFields[SECTION_LINK_MARKER_GROUP_ID] = linkedMarker.groupId
-  nextCustomFields[SECTION_LINK_MARKER_NAME] = linkedMarker.name
-
-  if (preference === "marker" || !nextCustomFields[SECTION_LINK_LOCATION]) {
-    if (linkedMarker.location) {
-      nextCustomFields[SECTION_LINK_LOCATION] = linkedMarker.location
-    } else {
-      delete nextCustomFields[SECTION_LINK_LOCATION]
-    }
-  }
-
-  if (preference === "marker" || !nextCustomFields[SECTION_LINK_IMAGE]) {
-    if (linkedMarker.image) {
-      nextCustomFields[SECTION_LINK_IMAGE] = linkedMarker.image
-    } else {
-      delete nextCustomFields[SECTION_LINK_IMAGE]
-    }
-  }
-
-  if (preference === "marker" || !nextCustomFields[SECTION_LINK_COLOR]) {
-    if (linkedMarker.color) {
-      nextCustomFields[SECTION_LINK_COLOR] = linkedMarker.color
-    } else {
-      delete nextCustomFields[SECTION_LINK_COLOR]
-    }
-  }
-
-  return {
-    ...payload,
-    name:
-      preference === "marker" || normalizedSectionName.length === 0
-        ? linkedMarker.name
-        : payload.name,
-    description:
-      preference === "marker" || normalizedSectionDescription.length === 0
-        ? (linkedMarker.shortDescription ?? payload.description)
-        : payload.description,
-    customFields:
-      Object.keys(nextCustomFields).length > 0 ? nextCustomFields : null,
-  }
-}
-
-export function findLinkedMarkerConflicts(
-  payload: SectionSavePayload,
-  linkedMarker: MarkerLinkOption,
-) {
-  const customFields = payload.customFields ?? {}
-  const conflicts: string[] = []
-
-  if (payload.name.trim() && payload.name.trim() !== linkedMarker.name.trim()) {
-    conflicts.push("Nome")
-  }
-
-  const sectionDescription = payload.description?.trim() ?? ""
-  const markerDescription = linkedMarker.shortDescription?.trim() ?? ""
-  if (
-    sectionDescription &&
-    markerDescription &&
-    sectionDescription !== markerDescription
-  ) {
-    conflicts.push("Descricao")
-  }
-
-  const sectionLocation =
-    typeof customFields[SECTION_LINK_LOCATION] === "string"
-      ? String(customFields[SECTION_LINK_LOCATION]).trim()
-      : ""
-  const markerLocation = linkedMarker.location?.trim() ?? ""
-  if (sectionLocation && markerLocation && sectionLocation !== markerLocation) {
-    conflicts.push("Localizacao")
-  }
-
-  const sectionImage =
-    typeof customFields[SECTION_LINK_IMAGE] === "string"
-      ? String(customFields[SECTION_LINK_IMAGE]).trim()
-      : ""
-  const markerImage = linkedMarker.image?.trim() ?? ""
-  if (sectionImage && markerImage && sectionImage !== markerImage) {
-    conflicts.push("Imagem")
-  }
-
-  const sectionColor =
-    typeof customFields[SECTION_LINK_COLOR] === "string"
-      ? String(customFields[SECTION_LINK_COLOR]).trim()
-      : ""
-  const markerColor = linkedMarker.color?.trim() ?? ""
-  if (sectionColor && markerColor && sectionColor !== markerColor) {
-    conflicts.push("Cor")
-  }
-
-  return conflicts
 }
 
 function buildMarkerDisplayFields(

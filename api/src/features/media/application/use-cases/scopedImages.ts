@@ -1,7 +1,7 @@
 import type { ScopedImageService } from "@/features/media/application/ports/ScopedImageService"
 import { AppError } from "@/features/shared/infrastructure/errors/AppError"
 
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
+export const MAX_IMAGE_FILE_SIZE_BYTES = 8 * 1024 * 1024
 
 type Dependencies = {
   service: ScopedImageService
@@ -26,7 +26,7 @@ export async function uploadScopedImage(
       throw new AppError("Envie um arquivo de imagem valido.", 400)
     }
 
-    if (params.file.size > MAX_FILE_SIZE_BYTES) {
+    if (params.file.size > MAX_IMAGE_FILE_SIZE_BYTES) {
       throw new AppError("Imagem muito grande. Limite de 8MB.", 400)
     }
 

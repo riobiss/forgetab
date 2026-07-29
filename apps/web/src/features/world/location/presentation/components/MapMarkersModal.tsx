@@ -8,6 +8,7 @@ import styles from "../WorldMap.module.css"
 type Props = {
   modalRef: RefObject<HTMLElement | null>
   isOpen: boolean
+  isBusy: boolean
   canCreateMarkers: boolean
   selectedVisibility: "private" | "public" | "active"
   selectedMarkerGroupId: string
@@ -21,7 +22,7 @@ type Props = {
   toggleMarkerGroupVisibility: (groupId: string) => void
   onCreate: () => void
   onEdit: (groupId: string) => void
-  onDeleteGroup: (groupId: string) => void
+  onDeleteGroup: (groupId: string) => Promise<boolean>
   onClear: () => void
   onClose: () => void
 }
@@ -29,6 +30,7 @@ type Props = {
 export function MapMarkersModal({
   modalRef,
   isOpen,
+  isBusy,
   canCreateMarkers,
   selectedVisibility,
   selectedMarkerGroupId,
@@ -68,6 +70,7 @@ export function MapMarkersModal({
                 onClick={onCreate}
                 aria-label="Criar marcadores"
                 title="Criar marcadores"
+                disabled={isBusy}
               >
                 <Plus size={16} />
               </button>
@@ -176,6 +179,7 @@ export function MapMarkersModal({
                           className={styles.iconButtonDanger}
                           onClick={() => onDeleteGroup(group.id)}
                           title="Deletar grupo"
+                          disabled={isBusy}
                         >
                           <Trash2 size={14} />
                         </button>

@@ -41,6 +41,23 @@ describe("buildApiServer", () => {
     expect(response.headers["access-control-allow-origin"]).toBe("http://localhost:3000")
   })
 
+  it("aceita uploads maiores que o limite padrao do Fastify", async () => {
+    server = buildApiServer()
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/api/uploads/map-image",
+      headers: {
+        origin: "http://localhost:3000",
+        "content-type": "application/octet-stream",
+      },
+      payload: Buffer.alloc(2 * 1024 * 1024),
+    })
+
+    expect(response.statusCode).toBe(401)
+    expect(response.headers["access-control-allow-origin"]).toBe("http://localhost:3000")
+  })
+
   it("mantem 404 json para rota desconhecida", async () => {
     server = buildApiServer()
 

@@ -7,10 +7,10 @@ type Params = {
   openMarkersModal: () => void
   startMarkerSelection: () => void
   cancelMarkerSelection: () => void
-  concludeMarkerSelection: () => boolean
+  concludeMarkerSelection: () => Promise<boolean>
   saveMarkerGroup: () => unknown
   openMarkerList: () => boolean
-  deleteMarkerGroup: () => void
+  deleteMarkerGroup: () => Promise<boolean>
   setAreMarkersVisible: (value: boolean) => void
   setEditingMarker: (marker: MapMarkerItem | null) => void
   setEditingMarkerPosition: (position: { x: number; y: number }) => void
@@ -56,8 +56,8 @@ export function useWorldMapMarkerModalFlow(params: Params) {
     setIsMarkerFinalizeModalOpen(false)
   }
 
-  function handleConcludeMarkerSelection() {
-    if (params.concludeMarkerSelection()) {
+  async function handleConcludeMarkerSelection() {
+    if (await params.concludeMarkerSelection()) {
       setIsMarkerFinalizeModalOpen(true)
     }
   }
@@ -69,8 +69,9 @@ export function useWorldMapMarkerModalFlow(params: Params) {
     }
   }
 
-  function handleDeleteMarkerGroup() {
-    params.deleteMarkerGroup()
+  async function handleDeleteMarkerGroup() {
+    const deleted = await params.deleteMarkerGroup()
+    if (!deleted) return
     setIsMarkerListModalOpen(false)
     setIsMarkersModalOpen(false)
   }

@@ -6,8 +6,8 @@ import {
   deleteRpgMapImageByUrlUseCase,
   persistRpgMapImageUseCase,
   uploadRpgMapImageUseCase,
-} from "@/features/world/location/application/use-cases/rpgMap"
-import { httpRpgMapGateway } from "@/features/world/location/infrastructure/gateways/httpRpgMapGateway"
+} from "@/features/world/location/application/use-cases/rpgMapImages.client"
+import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import { dismissToast } from "@/lib/toast"
 
 const DEFAULT_MAP_SRC = "/map/world-map.png"
@@ -23,7 +23,7 @@ export function useRpgMapImageActions(params: {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadMessage, setUploadMessage] = useState<string | null>(null)
 
-  const gateway = useMemo(() => httpRpgMapGateway, [])
+  const gateway = useMemo(() => rpgMapPresentationDeps.rpgMapGateway, [])
 
   async function handleMapFile(file: File | null) {
     if (!params.canManage || !file) {

@@ -16,3 +16,5 @@ export {
   deleteRpgMapMarkerGroupHandler,
   updateRpgMapMarkerGroupHandler,
 } from "./markerGroupHandlers"
+export { setMarkerSectionLinkHandler } from "./markerSectionLinkHandler"
+export { updateRpgMapMarkerHandler } from "./markerHandler"

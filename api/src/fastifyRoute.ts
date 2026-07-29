@@ -4,7 +4,6 @@ import {
   FastifyRequest,
   RouteGenericInterface,
 } from "fastify"
-import { resolveAllowedOrigin } from "./features/http/presentation/cors"
 
 type FastifyNativeHandler<
   TParams extends Record<string, string> = Record<string, string>,
@@ -23,14 +22,7 @@ export function registerFastifyRoute<
 ) {
   app[method]<RouteGenericInterface & { Params: TParams }>(
     url,
-    async (request, reply) => {
-      const allowedOrigin = resolveAllowedOrigin(request.headers)
-      if (allowedOrigin) {
-        reply.header("Access-Control-Allow-Origin", allowedOrigin)
-        reply.header("Access-Control-Allow-Credentials", "true")
-        reply.header("Vary", "Origin")
-      }
-      return handler(request as FastifyRequest<{ Params: TParams }>, reply)
-    },
+    (request, reply) =>
+      handler(request as FastifyRequest<{ Params: TParams }>, reply),
   )
 }

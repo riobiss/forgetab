@@ -1,4 +1,15 @@
 import type { CustomFieldType } from "@/components/custom-fields/typedCustomField"
+import type {
+  MarkerGroup as ApplicationMarkerGroup,
+  MarkerItem,
+  MarkerPinStyle,
+  PendingMarker,
+} from "@/features/world/location/application/models/markerGroups"
+
+export type {
+  MarkerPinStyle,
+  PendingMarker,
+} from "@/features/world/location/application/models/markerGroups"
 
 export type MarkerDisplayField = {
   name: string
@@ -6,46 +17,14 @@ export type MarkerDisplayField = {
   type: CustomFieldType
 }
 
-export type MarkerPinStyle = "default" | "label"
-
-export type MapMarkerItem = {
-  id: string
-  name: string
-  location: string | null
-  shortDescription: string | null
-  image: string | null
+export type MapMarkerItem = MarkerItem & {
   displayImages?: string[] | null
-  x: number
-  y: number
-  color?: string | null
-  size?: number | null
-  pinStyle?: MarkerPinStyle | null
   type?: string | null
   displayFields?: MarkerDisplayField[] | null
-  canEdit?: boolean
-  canDelete?: boolean
 }
 
-export type MarkerGroup = {
-  id: string
-  name: string
-  color: string
+export type MarkerGroup = Omit<ApplicationMarkerGroup, "markers"> & {
   markers: MapMarkerItem[]
-  visibility: "private" | "public"
-  canEdit?: boolean
-  canDelete?: boolean
-}
-
-export type PendingMarker = {
-  id: string
-  x: number
-  y: number
-  name: string
-  location: string
-  shortDescription: string
-  image: string
-  size: number
-  pinStyle: MarkerPinStyle
 }
 
 export type LinkedSectionSnapshot = {

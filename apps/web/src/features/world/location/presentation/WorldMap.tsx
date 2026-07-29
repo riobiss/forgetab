@@ -128,6 +128,7 @@ export function MundiMap({
     selectedMarkerGroup,
     selectedMarkerGroupId,
     selectedVisibility,
+    isMarkerGroupOperationPending,
     isMarkerSelectionMode,
     pendingMarkers,
     markerGroupName,
@@ -392,9 +393,9 @@ export function MundiMap({
 
   async function handleSaveMarkerEditWithSectionLink() {
     const markerId = editingMarker?.id ?? null
-    saveMarkerEdit()
+    const saved = await saveMarkerEdit()
 
-    if (!markerId || !onSaveMarkerSectionLink) {
+    if (!saved || !markerId || !onSaveMarkerSectionLink) {
       return
     }
 
@@ -664,6 +665,7 @@ export function MundiMap({
         <MapMarkersModal
           modalRef={markersModalRef}
           isOpen={isMarkersModalOpen}
+          isBusy={isMarkerGroupOperationPending}
           canCreateMarkers={canEditContent}
           selectedVisibility={selectedVisibility}
           selectedMarkerGroupId={selectedMarkerGroupId}
@@ -705,6 +707,7 @@ export function MundiMap({
         <MarkerGroupModal
           modalRef={markerListModalRef}
           isOpen={isMarkerListModalOpen}
+          isBusy={isMarkerGroupOperationPending}
           group={selectedMarkerGroup}
           editingGroupName={editingGroupName}
           editingGroupColor={editingGroupColor}
@@ -749,6 +752,7 @@ export function MundiMap({
             linkedSectionId={editingLinkedSectionId}
             sectionOptions={sectionOptions}
             isImageUploading={isMarkerImageUploading}
+            isSaving={isMarkerGroupOperationPending}
             markerId={editingMarker.id}
             onChangeName={setEditingMarkerName}
             onChangeLocation={setEditingMarkerLocation}
