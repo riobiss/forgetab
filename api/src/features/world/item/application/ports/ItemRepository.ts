@@ -89,3 +89,17 @@ export interface ItemRepository {
   listExistingCharacterIds(rpgId: string, characterIds: string[]): Promise<string[]>
   giveToCharacters(input: GiveItemInput): Promise<void>
 }
+
+export type ItemListRepository = Pick<ItemRepository, "listByRpg">
+export type ItemsDashboardRepository = Pick<
+  ItemRepository,
+  "listByRpg" | "listCharacterSummaries"
+>
+export type ItemDetailRepository = Pick<ItemRepository, "findById">
+export type ItemCreateRepository = Pick<ItemRepository, "create">
+export type ItemUpdateRepository = Pick<ItemRepository, "findById" | "update">
+export type ItemDeleteRepository = Pick<ItemRepository, "delete">
+export type ItemDistributionRepository = Pick<
+  ItemRepository,
+  "baseItemExists" | "listExistingCharacterIds" | "giveToCharacters"
+>

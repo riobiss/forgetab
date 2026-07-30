@@ -1,10 +1,24 @@
-import type { ItemRepository } from "@/features/world/item/application/ports/ItemRepository"
+import { z } from "zod"
+import type { ItemDistributionRepository } from "@/features/world/item/application/ports/ItemRepository"
 import type { RpgPermissionService } from "@/features/world/item/application/ports/RpgPermissionService"
 import { ensureCanManageRpg, mapBaseItemsError } from "@/features/world/item/application/use-cases/shared"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
+
+const giveItemSchema = z.object({
+  baseItemId: z.string().trim().min(1, "Item base e obrigatorio."),
+  quantity: z
+    .number({ message: "Quantidade invalida." })
+    .finite("Quantidade invalida.")
+    .int("Quantidade deve ser um numero inteiro.")
+    .min(1, "Quantidade deve ser maior ou igual a 1.")
+    .default(1),
+  characterIds: z
+    .array(z.string(), { message: "Lista de personagens invalida." })
+    .min(1, "Selecione pelo menos um personagem para receber o item."),
+})
 
 type GiveItemDeps = {
-  repository: ItemRepository
+  repository: ItemDistributionRepository
   permissionService: RpgPermissionService
 }
 
@@ -16,25 +30,18 @@ export async function giveItem(
     const canManage = await deps.permissionService.canManageRpg(params.rpgId, params.userId)
     ensureCanManageRpg(canManage)
 
-    const body = (params.body ?? {}) as {
-      baseItemId?: string
-      quantity?: number
-      characterIds?: string[]
+    const parsed = giveItemSchema.safeParse(params.body)
+    if (!parsed.success) {
+      throw new AppError(
+        parsed.error.issues[0]?.message ?? "Dados invalidos.",
+        400,
+      )
     }
 
-    const baseItemId = body.baseItemId?.trim() ?? ""
-    if (!baseItemId) {
-      throw new AppError("Item base e obrigatorio.", 400)
-    }
-
-    const quantity = Number.isFinite(body.quantity) ? Math.floor(body.quantity as number) : 1
-    if (quantity < 1) {
-      throw new AppError("Quantidade deve ser maior ou igual a 1.", 400)
-    }
-
+    const { baseItemId, quantity } = parsed.data
     const characterIds = Array.from(
       new Set(
-        (body.characterIds ?? [])
+        parsed.data.characterIds
           .map((characterId) => characterId?.trim())
           .filter((characterId): characterId is string => Boolean(characterId)),
       ),
@@ -69,13 +76,6 @@ export async function giveItem(
       affectedPlayers: characterIds.length,
     }
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message.includes('relation "rpg_character_inventory_items" does not exist')
-    ) {
-      throw new AppError("Tabela de inventario nao existe no banco. Rode a migration.", 500)
-    }
-
     mapBaseItemsError(error, "Erro interno ao dar item para os players.")
   }
 }

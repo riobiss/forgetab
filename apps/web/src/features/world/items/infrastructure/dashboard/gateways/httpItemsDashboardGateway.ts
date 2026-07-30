@@ -3,26 +3,43 @@ import type {
   BaseItemDto,
   CharacterSummaryDto,
   GiveItemPayloadDto,
-} from "@/features/world/items/application/dashboard/types"
-import type {
   ItemEditorDetailDto,
   UpsertItemPayloadDto,
-} from "@/features/world/items/application/editor/types"
+} from "@/features/world/items/application/dashboard/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 
 async function parseJson<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & { message?: string }
-  if (!response.ok) {
-    throw new Error(payload.message ?? "Erro na requisicao.")
+  const rawBody = await response.text()
+  let payload: (T & { message?: string }) | null = null
+
+  if (rawBody) {
+    try {
+      payload = JSON.parse(rawBody) as T & { message?: string }
+    } catch {
+      // A resposta invalida e tratada abaixo com uma mensagem estavel.
+    }
   }
+
+  if (!response.ok) {
+    throw new Error(payload?.message ?? "Erro na requisicao.")
+  }
+  if (!payload) {
+    throw new Error("Resposta invalida da API.")
+  }
+
   return payload
+}
+
+function itemPath(rpgId: string, itemId?: string) {
+  const basePath = `/api/rpg/${encodeURIComponent(rpgId)}/items`
+  return itemId ? `${basePath}/${encodeURIComponent(itemId)}` : basePath
 }
 
 export const httpItemsDashboardGateway: ItemsDashboardGateway = {
   async fetchDashboardData(
     rpgId: string,
   ): Promise<{ items: BaseItemDto[]; characters: CharacterSummaryDto[] }> {
-    const response = await apiFetch(`/api/rpg/${rpgId}/items/dashboard`)
+    const response = await apiFetch(`${itemPath(rpgId)}/dashboard`)
     const payload = await parseJson<{
       items?: BaseItemDto[]
       characters?: CharacterSummaryDto[]
@@ -34,7 +51,7 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
   },
 
   async fetchItem(rpgId: string, itemId: string): Promise<ItemEditorDetailDto> {
-    const response = await apiFetch(`/api/rpg/${rpgId}/items/${itemId}`)
+    const response = await apiFetch(itemPath(rpgId, itemId))
     const payload = await parseJson<{ item?: ItemEditorDetailDto }>(response)
     if (!payload.item) throw new Error("Nao foi possivel carregar o item.")
     return payload.item
@@ -44,7 +61,7 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
     rpgId: string,
     payload: UpsertItemPayloadDto,
   ): Promise<ItemEditorDetailDto> {
-    const response = await apiFetch(`/api/rpg/${rpgId}/items`, {
+    const response = await apiFetch(itemPath(rpgId), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -59,7 +76,7 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
     itemId: string,
     payload: UpsertItemPayloadDto,
   ): Promise<ItemEditorDetailDto> {
-    const response = await apiFetch(`/api/rpg/${rpgId}/items/${itemId}`, {
+    const response = await apiFetch(itemPath(rpgId, itemId), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -91,7 +108,7 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
   },
 
   async deleteItem(rpgId: string, itemId: string): Promise<void> {
-    const response = await apiFetch(`/api/rpg/${rpgId}/items/${itemId}`, {
+    const response = await apiFetch(itemPath(rpgId, itemId), {
       method: "DELETE",
     })
     await parseJson<{ message?: string }>(response)
@@ -101,7 +118,7 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
     rpgId: string,
     payload: GiveItemPayloadDto,
   ): Promise<{ message: string }> {
-    const response = await apiFetch(`/api/rpg/${rpgId}/items/give`, {
+    const response = await apiFetch(`${itemPath(rpgId)}/give`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

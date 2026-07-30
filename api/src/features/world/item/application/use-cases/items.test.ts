@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { ItemRepositoryError } from "@/features/world/item/application/errors/ItemRepositoryError"
 import { createItem } from "@/features/world/item/application/use-cases/createItem"
 import { deleteItem } from "@/features/world/item/application/use-cases/deleteItem"
 import { getItemsDashboardData } from "@/features/world/item/application/use-cases/getItemsDashboardData"
@@ -43,6 +44,22 @@ describe("items use-cases", () => {
 
     expect(result).toEqual({ items: [{ id: "item-1" }] })
     expect(repository.listByRpg).toHaveBeenCalledWith("rpg-1")
+  })
+
+  it("getItems traduz erro de schema sem conhecer detalhes de SQL", async () => {
+    repository.listByRpg.mockRejectedValue(
+      new ItemRepositoryError("schema_outdated"),
+    )
+
+    await expect(
+      getItems(
+        { repository, permissionService },
+        { rpgId: "rpg-1", userId: "user-1" },
+      ),
+    ).rejects.toMatchObject({
+      status: 500,
+      message: "Estrutura de itens desatualizada. Rode a migration mais recente.",
+    })
   })
 
   it("getItemsDashboardData agrega itens e personagens", async () => {
@@ -151,6 +168,58 @@ describe("items use-cases", () => {
       characterIds: ["char-1", "char-2"],
       quantity: 2,
     })
+  })
+
+  it("giveItem traduz ausencia da tabela de inventario", async () => {
+    repository.baseItemExists.mockRejectedValue(
+      new ItemRepositoryError("inventory_schema_missing"),
+    )
+
+    await expect(
+      giveItem(
+        { repository, permissionService },
+        {
+          rpgId: "rpg-1",
+          userId: "user-1",
+          body: {
+            baseItemId: "item-1",
+            characterIds: ["char-1"],
+            quantity: 1,
+          },
+        },
+      ),
+    ).rejects.toMatchObject({
+      status: 500,
+      message: "Tabela de inventario nao existe no banco. Rode a migration.",
+    })
+  })
+
+  it.each([
+    {
+      body: {
+        baseItemId: "item-1",
+        characterIds: "char-1",
+        quantity: 1,
+      },
+      message: "Lista de personagens invalida.",
+    },
+    {
+      body: {
+        baseItemId: "item-1",
+        characterIds: ["char-1"],
+        quantity: 1.5,
+      },
+      message: "Quantidade deve ser um numero inteiro.",
+    },
+  ])("giveItem rejeita payload malformado", async ({ body, message }) => {
+    await expect(
+      giveItem(
+        { repository, permissionService },
+        { rpgId: "rpg-1", userId: "user-1", body },
+      ),
+    ).rejects.toMatchObject({ status: 400, message })
+
+    expect(repository.giveToCharacters).not.toHaveBeenCalled()
   })
 
   it("deleteItem remove item e tenta limpar imagem", async () => {

@@ -6,6 +6,7 @@ import type {
 } from "react"
 import { toast } from "react-hot-toast"
 import type { ItemsDashboardDependencies } from "@/features/world/items/application/dashboard/contracts/ItemsDashboardDependencies"
+import type { UpsertItemPayloadDto } from "@/features/world/items/application/dashboard/types"
 import {
   createItemUseCase,
   deleteItemImageByUrlUseCase,
@@ -14,7 +15,6 @@ import {
   updateItemUseCase,
   uploadItemImageUseCase,
 } from "@/features/world/items/application/dashboard/use-cases/itemsDashboard"
-import type { UpsertItemPayloadDto } from "@/features/world/items/application/editor/types"
 import { dismissToast } from "@/lib/toast"
 import type { BaseItem, CharacterSummary } from "./types"
 
@@ -22,7 +22,6 @@ type UseItemsDashboardActionsParams = {
   deps: ItemsDashboardDependencies
   rpgId: string
   characters: CharacterSummary[]
-  items: BaseItem[]
   selectedGiveItem: BaseItem | null
   selectedCharacterId: string
   giveQuantity: number
@@ -32,7 +31,6 @@ type UseItemsDashboardActionsParams = {
   editorMode: "create" | "edit"
   editingItemId: string | null
   selectedImageFile: File | null
-  pendingImageRemoval: boolean
   buildPayload: () => UpsertItemPayloadDto
   setItems: Dispatch<SetStateAction<BaseItem[]>>
   setLoadingError: Dispatch<SetStateAction<string>>
@@ -177,12 +175,11 @@ export function useItemsDashboardActions(
             })
 
       params.setItems((prev) => {
-        const nextItem = savedItem as unknown as BaseItem
         if (isEditing) {
-          return prev.map((item) => (item.id === nextItem.id ? nextItem : item))
+          return prev.map((item) => (item.id === savedItem.id ? savedItem : item))
         }
 
-        return [nextItem, ...prev]
+        return [savedItem, ...prev]
       })
 
       toast.success(

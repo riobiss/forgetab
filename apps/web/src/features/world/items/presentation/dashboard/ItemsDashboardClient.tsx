@@ -420,9 +420,9 @@ export default function ItemsDashboardClient({
         preRequirement={preRequirement}
         setPreRequirement={setPreRequirement}
         type={type}
-        setType={(value) => setType(value as typeof type)}
+        setType={setType}
         rarity={rarity}
-        setRarity={(value) => setRarity(value as typeof rarity)}
+        setRarity={setRarity}
         damage={damage}
         setDamage={setDamage}
         range={range}

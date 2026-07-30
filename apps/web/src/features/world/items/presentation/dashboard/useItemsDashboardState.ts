@@ -132,8 +132,8 @@ export function useItemsDashboardState({ rpgId, deps }: Params) {
       setLoading(true)
       setLoadingError("")
       const payload = await loadItemsDashboardData(deps, { rpgId })
-      setItems(payload.items as BaseItem[])
-      setCharacters(payload.characters as CharacterSummary[])
+      setItems(payload.items)
+      setCharacters(payload.characters)
     } catch (cause) {
       setLoadingError(
         cause instanceof Error
@@ -156,7 +156,6 @@ export function useItemsDashboardState({ rpgId, deps }: Params) {
     deps,
     rpgId,
     characters,
-    items,
     selectedGiveItem,
     selectedCharacterId,
     giveQuantity,
@@ -166,7 +165,6 @@ export function useItemsDashboardState({ rpgId, deps }: Params) {
     editorMode,
     editingItemId,
     selectedImageFile,
-    pendingImageRemoval,
     buildPayload: () =>
       buildItemPayload({
         name,

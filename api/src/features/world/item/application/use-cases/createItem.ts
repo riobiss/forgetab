@@ -1,4 +1,4 @@
-import type { ItemRepository } from "@/features/world/item/application/ports/ItemRepository"
+import type { ItemCreateRepository } from "@/features/world/item/application/ports/ItemRepository"
 import type { RpgPermissionService } from "@/features/world/item/application/ports/RpgPermissionService"
 import {
   ensureCanManageRpg,
@@ -7,7 +7,7 @@ import {
 } from "@/features/world/item/application/use-cases/shared"
 
 type CreateItemDeps = {
-  repository: ItemRepository
+  repository: ItemCreateRepository
   permissionService: RpgPermissionService
 }
 

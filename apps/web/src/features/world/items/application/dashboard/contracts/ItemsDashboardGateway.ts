@@ -2,11 +2,9 @@ import type {
   BaseItemDto,
   CharacterSummaryDto,
   GiveItemPayloadDto,
-} from "@/features/world/items/application/dashboard/types"
-import type {
   ItemEditorDetailDto,
   UpsertItemPayloadDto,
-} from "@/features/world/items/application/editor/types"
+} from "@/features/world/items/application/dashboard/types"
 
 export interface ItemsDashboardGateway {
   fetchDashboardData(rpgId: string): Promise<{

@@ -1,9 +1,9 @@
-import type { ItemRepository } from "@/features/world/item/application/ports/ItemRepository"
+import type { ItemsDashboardRepository } from "@/features/world/item/application/ports/ItemRepository"
 import type { RpgPermissionService } from "@/features/world/item/application/ports/RpgPermissionService"
 import { ensureCanManageRpg, mapBaseItemsError } from "@/features/world/item/application/use-cases/shared"
 
 type GetItemsDashboardDataDeps = {
-  repository: ItemRepository
+  repository: ItemsDashboardRepository
   permissionService: RpgPermissionService
 }
 

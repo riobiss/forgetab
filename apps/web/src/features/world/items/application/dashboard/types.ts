@@ -1,10 +1,20 @@
-export type ItemTypeDto =
-  | "equipment"
-  | "consumable"
-  | "material"
-  | "tool"
-  | "quest"
-  | "special"
+import type {
+  baseItemRarityValues,
+  baseItemTypeValues,
+} from "@/lib/validators/baseItem"
+
+export type ItemTypeDto = (typeof baseItemTypeValues)[number]
+export type ItemRarityDto = (typeof baseItemRarityValues)[number]
+
+export type ItemNamedDescriptionDto = {
+  name: string
+  description: string
+}
+
+export type ItemCustomFieldDto = {
+  name: string
+  value: string | null
+}
 
 export type BaseItemDto = {
   id: string
@@ -14,7 +24,7 @@ export type BaseItemDto = {
   description: string | null
   preRequirement: string | null
   type: ItemTypeDto
-  rarity: string
+  rarity: ItemRarityDto
   damage: string | null
   range: string | null
   ability: string | null
@@ -42,3 +52,26 @@ export type GiveItemPayloadDto = {
   quantity: number
   characterIds: string[]
 }
+
+export type UpsertItemPayloadDto = {
+  name: string
+  image: string | null
+  description: string | null
+  preRequirement: string | null
+  type: ItemTypeDto
+  rarity: ItemRarityDto
+  damage: string | null
+  range: string | null
+  abilityName: string | null
+  ability: string | null
+  effectName: string | null
+  effect: string | null
+  abilities: ItemNamedDescriptionDto[]
+  effects: ItemNamedDescriptionDto[]
+  customFields: ItemCustomFieldDto[]
+  weight: number | null
+  duration: string | null
+  durability: number | null
+}
+
+export type ItemEditorDetailDto = BaseItemDto

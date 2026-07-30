@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
@@ -12,35 +12,35 @@ const mocks = vi.hoisted(() => ({
   giveItem: vi.fn(),
 }))
 
-vi.mock("@api/presentation/http/auth/requestAuth", () => ({
+vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
-vi.mock("@/application/items/use-cases/getItems", () => ({
+vi.mock("@/features/world/item/application/use-cases/getItems", () => ({
   getItems: mocks.getItems,
 }))
 
-vi.mock("@/application/items/use-cases/createItem", () => ({
+vi.mock("@/features/world/item/application/use-cases/createItem", () => ({
   createItem: mocks.createItem,
 }))
 
-vi.mock("@/application/items/use-cases/getItemById", () => ({
+vi.mock("@/features/world/item/application/use-cases/getItemById", () => ({
   getItemById: mocks.getItemById,
 }))
 
-vi.mock("@/application/items/use-cases/updateItem", () => ({
+vi.mock("@/features/world/item/application/use-cases/updateItem", () => ({
   updateItem: mocks.updateItem,
 }))
 
-vi.mock("@/application/items/use-cases/deleteItem", () => ({
+vi.mock("@/features/world/item/application/use-cases/deleteItem", () => ({
   deleteItem: mocks.deleteItem,
 }))
 
-vi.mock("@/application/items/use-cases/getItemsDashboardData", () => ({
+vi.mock("@/features/world/item/application/use-cases/getItemsDashboardData", () => ({
   getItemsDashboardData: mocks.getItemsDashboardData,
 }))
 
-vi.mock("@/application/items/use-cases/giveItem", () => ({
+vi.mock("@/features/world/item/application/use-cases/giveItem", () => ({
   giveItem: mocks.giveItem,
 }))
 

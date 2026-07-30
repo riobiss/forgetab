@@ -4,8 +4,21 @@ import Image from "next/image"
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react"
 import { LoaderCircle, Plus, X } from "lucide-react"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
+import type {
+  ItemRarityDto,
+  ItemTypeDto,
+} from "@/features/world/items/application/dashboard/types"
 import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
 import styles from "./ItemsDashboardClient.module.css"
+
+type ItemEditorTab = "basic" | "requirements" | "abilities" | "effects"
+
+const editorTabs = [
+  { key: "basic", label: "Basico" },
+  { key: "requirements", label: "Requerimentos" },
+  { key: "abilities", label: "Habilidades" },
+  { key: "effects", label: "Efeitos" },
+] satisfies ReadonlyArray<{ key: ItemEditorTab; label: string }>
 
 type NamedDescription = {
   name: string
@@ -21,8 +34,8 @@ type CustomField = {
 type ItemUpsertModalProps = {
   open: boolean
   mode: "create" | "edit"
-  tab: "basic" | "requirements" | "abilities" | "effects"
-  setTab: Dispatch<SetStateAction<"basic" | "requirements" | "abilities" | "effects">>
+  tab: ItemEditorTab
+  setTab: Dispatch<SetStateAction<ItemEditorTab>>
   loading: boolean
   saving: boolean
   error: string
@@ -33,10 +46,10 @@ type ItemUpsertModalProps = {
   setDescription: Dispatch<SetStateAction<string>>
   preRequirement: string
   setPreRequirement: Dispatch<SetStateAction<string>>
-  type: string
-  setType: (value: string) => void
-  rarity: string
-  setRarity: (value: string) => void
+  type: ItemTypeDto
+  setType: (value: ItemTypeDto) => void
+  rarity: ItemRarityDto
+  setRarity: (value: ItemRarityDto) => void
   damage: string
   setDamage: Dispatch<SetStateAction<string>>
   range: string
@@ -63,8 +76,8 @@ type ItemUpsertModalProps = {
   setNewCustomFieldName: Dispatch<SetStateAction<string>>
   newCustomFieldValue: string
   setNewCustomFieldValue: Dispatch<SetStateAction<string>>
-  baseItemTypeValues: readonly string[]
-  baseItemRarityValues: readonly string[]
+  baseItemTypeValues: readonly ItemTypeDto[]
+  baseItemRarityValues: readonly ItemRarityDto[]
   onClose: () => void
   onSave: () => void
   onDelete?: () => void
@@ -316,17 +329,12 @@ export function ItemUpsertModal({
         </div>
 
         <div className={styles.stepper}>
-          {[
-            { key: "basic", label: "Basico" },
-            { key: "requirements", label: "Requerimentos" },
-            { key: "abilities", label: "Habilidades" },
-            { key: "effects", label: "Efeitos" },
-          ].map((item) => (
+          {editorTabs.map((item) => (
             <button
               key={item.key}
               type="button"
               className={tab === item.key ? styles.stepActive : styles.step}
-              onClick={() => setTab(item.key as "basic" | "requirements" | "abilities" | "effects")}
+              onClick={() => setTab(item.key)}
             >
               {item.label}
             </button>
@@ -410,10 +418,15 @@ export function ItemUpsertModal({
 
                 <label className={`${styles.field} ${styles.spanTwo}`}>
                   <span>Tipo</span>
-                  <NativeSelectField value={type} onChange={(event) => setType(event.target.value)}>
+                  <NativeSelectField
+                    value={type}
+                    onChange={(event) =>
+                      setType(event.target.value as ItemTypeDto)
+                    }
+                  >
                     {baseItemTypeValues.map((option) => (
                       <option key={option} value={option}>
-                        {itemTypeLabel[option as keyof typeof itemTypeLabel] ?? option}
+                        {itemTypeLabel[option]}
                       </option>
                     ))}
                   </NativeSelectField>
@@ -421,10 +434,15 @@ export function ItemUpsertModal({
 
                 <label className={styles.field}>
                   <span>Raridade</span>
-                  <NativeSelectField value={rarity} onChange={(event) => setRarity(event.target.value)}>
+                  <NativeSelectField
+                    value={rarity}
+                    onChange={(event) =>
+                      setRarity(event.target.value as ItemRarityDto)
+                    }
+                  >
                     {baseItemRarityValues.map((option) => (
                       <option key={option} value={option}>
-                        {itemRarityLabel[option as keyof typeof itemRarityLabel] ?? option}
+                        {itemRarityLabel[option]}
                       </option>
                     ))}
                   </NativeSelectField>

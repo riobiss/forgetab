@@ -1,11 +1,11 @@
 import type { ItemImageStorageService } from "@/features/world/item/application/ports/ItemImageStorageService"
-import type { ItemRepository } from "@/features/world/item/application/ports/ItemRepository"
+import type { ItemDeleteRepository } from "@/features/world/item/application/ports/ItemRepository"
 import type { RpgPermissionService } from "@/features/world/item/application/ports/RpgPermissionService"
 import { ensureCanManageRpg, mapBaseItemsError } from "@/features/world/item/application/use-cases/shared"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 type DeleteItemDeps = {
-  repository: ItemRepository
+  repository: ItemDeleteRepository
   permissionService: RpgPermissionService
   imageStorageService: ItemImageStorageService
 }

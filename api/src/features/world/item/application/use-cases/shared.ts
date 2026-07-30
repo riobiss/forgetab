@@ -7,7 +7,8 @@ import type {
   NormalizedBaseItemInput,
   NormalizedNamedDescription,
 } from "@/features/world/item/application/ports/ItemRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { ItemRepositoryError } from "@/features/world/item/application/errors/ItemRepositoryError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 function normalizeOptionalText(value: string | null | undefined) {
   const trimmed = value?.trim() ?? ""
@@ -105,26 +106,18 @@ export function mapBaseItemsError(
   }
 
   if (
-    error instanceof Error &&
-    error.message.includes('relation "baseitems" does not exist')
+    error instanceof ItemRepositoryError &&
+    error.code === "inventory_schema_missing"
   ) {
     throw new AppError(
-      "Tabela baseitems nao existe no banco. Rode a migration.",
+      "Tabela de inventario nao existe no banco. Rode a migration.",
       500,
     )
   }
 
   if (
-    error instanceof Error &&
-    [
-      'column "effect_name" does not exist',
-      'column "description" does not exist',
-      'column "pre_requirement" does not exist',
-      'column "duration" does not exist',
-      'column "range" does not exist',
-      'column "image" does not exist',
-      'column "custom_fields" does not exist',
-    ].some((message) => error.message.includes(message))
+    error instanceof ItemRepositoryError &&
+    error.code === "schema_outdated"
   ) {
     throw new AppError(
       "Estrutura de itens desatualizada. Rode a migration mais recente.",

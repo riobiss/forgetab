@@ -1,9 +1,1 @@
-export class AppError extends Error {
-  readonly status: number
-
-  constructor(message: string, status: number) {
-    super(message)
-    this.name = "AppError"
-    this.status = status
-  }
-}
+export { AppError } from "@/features/shared/application/errors/AppError"

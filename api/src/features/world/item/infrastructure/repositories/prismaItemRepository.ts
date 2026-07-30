@@ -6,54 +6,60 @@ import type {
   ItemRecord,
   ItemRepository,
 } from "@/features/world/item/application/ports/ItemRepository.js"
+import { withItemPersistenceErrors } from "./itemPersistenceErrors"
 
 export const prismaItemRepository: ItemRepository = {
   listByRpg(rpgId) {
-    return prisma.$queryRaw<ItemRecord[]>(Prisma.sql`
-      SELECT
-        id,
-        rpg_id AS "rpgId",
-        name,
-        image,
-        description,
-        pre_requirement AS "preRequirement",
-        type,
-        rarity,
-        damage,
-        "range" AS "range",
-        ability,
-        ability_name AS "abilityName",
-        effect,
-        effect_name AS "effectName",
-        abilities,
-        effects,
-        custom_fields AS "customFields",
-        weight,
-        duration,
-        durability,
-        created_at AS "createdAt",
-        updated_at AS "updatedAt"
-      FROM baseitems
-      WHERE rpg_id = ${rpgId}
-      ORDER BY created_at DESC
-    `)
+    return withItemPersistenceErrors(() =>
+      prisma.$queryRaw<ItemRecord[]>(Prisma.sql`
+        SELECT
+          id,
+          rpg_id AS "rpgId",
+          name,
+          image,
+          description,
+          pre_requirement AS "preRequirement",
+          type,
+          rarity,
+          damage,
+          "range" AS "range",
+          ability,
+          ability_name AS "abilityName",
+          effect,
+          effect_name AS "effectName",
+          abilities,
+          effects,
+          custom_fields AS "customFields",
+          weight,
+          duration,
+          durability,
+          created_at AS "createdAt",
+          updated_at AS "updatedAt"
+        FROM baseitems
+        WHERE rpg_id = ${rpgId}
+        ORDER BY created_at DESC
+      `),
+    )
   },
 
   listCharacterSummaries(rpgId) {
-    return prisma.$queryRaw<ItemCharacterSummary[]>(Prisma.sql`
-      SELECT
-        id,
-        name,
-        character_type::text AS "characterType"
-      FROM rpg_characters
-      WHERE rpg_id = ${rpgId}
-      ORDER BY created_at DESC
-    `)
+    return withItemPersistenceErrors(() =>
+      prisma.$queryRaw<ItemCharacterSummary[]>(Prisma.sql`
+        SELECT
+          id,
+          name,
+          character_type::text AS "characterType"
+        FROM rpg_characters
+        WHERE rpg_id = ${rpgId}
+        ORDER BY created_at DESC
+      `),
+    )
   },
 
   async findById(rpgId, itemId) {
-    const rows = await prisma.$queryRaw<ItemRecord[]>(Prisma.sql`
-      SELECT
+    return withItemPersistenceErrors(async () => {
+      const rows = await prisma.$queryRaw<ItemRecord[]>(Prisma.sql`
+        SELECT
         id,
         rpg_id AS "rpgId",
         name,
@@ -80,14 +86,16 @@ export const prismaItemRepository: ItemRepository = {
       WHERE id = ${itemId}
         AND rpg_id = ${rpgId}
       LIMIT 1
-    `)
+      `)
 
-    return rows[0] ?? null
+      return rows[0] ?? null
+    })
   },
 
   async create(rpgId, input) {
-    const rows = await prisma.$queryRaw<ItemRecord[]>(Prisma.sql`
-      INSERT INTO baseitems (
+    return withItemPersistenceErrors(async () => {
+      const rows = await prisma.$queryRaw<ItemRecord[]>(Prisma.sql`
+        INSERT INTO baseitems (
         id,
         rpg_id,
         name,
@@ -154,14 +162,20 @@ export const prismaItemRepository: ItemRepository = {
         durability,
         created_at AS "createdAt",
         updated_at AS "updatedAt"
-    `)
+      `)
 
-    return rows[0]
+      const item = rows[0]
+      if (!item) {
+        throw new Error("Item insert did not return a row.")
+      }
+      return item
+    })
   },
 
   async update(rpgId, itemId, input) {
-    const rows = await prisma.$queryRaw<ItemRecord[]>(Prisma.sql`
-      UPDATE baseitems
+    return withItemPersistenceErrors(async () => {
+      const rows = await prisma.$queryRaw<ItemRecord[]>(Prisma.sql`
+        UPDATE baseitems
       SET
         name = ${input.name},
         image = ${input.image},
@@ -207,34 +221,39 @@ export const prismaItemRepository: ItemRepository = {
         durability,
         created_at AS "createdAt",
         updated_at AS "updatedAt"
-    `)
+      `)
 
-    return rows[0] ?? null
+      return rows[0] ?? null
+    })
   },
 
   async delete(rpgId, itemId) {
-    const rows = await prisma.$queryRaw<
-      Array<{ id: string; image: string | null }>
-    >(Prisma.sql`
-      DELETE FROM baseitems
-      WHERE id = ${itemId}
-        AND rpg_id = ${rpgId}
-      RETURNING id, image
-    `)
+    return withItemPersistenceErrors(async () => {
+      const rows = await prisma.$queryRaw<
+        Array<{ id: string; image: string | null }>
+      >(Prisma.sql`
+        DELETE FROM baseitems
+        WHERE id = ${itemId}
+          AND rpg_id = ${rpgId}
+        RETURNING id, image
+      `)
 
-    return rows[0] ?? null
+      return rows[0] ?? null
+    })
   },
 
   async baseItemExists(rpgId, itemId) {
-    const rows = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
-      SELECT id
-      FROM baseitems
-      WHERE id = ${itemId}
-        AND rpg_id = ${rpgId}
-      LIMIT 1
-    `)
+    return withItemPersistenceErrors(async () => {
+      const rows = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+        SELECT id
+        FROM baseitems
+        WHERE id = ${itemId}
+          AND rpg_id = ${rpgId}
+        LIMIT 1
+      `)
 
-    return rows.length > 0
+      return rows.length > 0
+    })
   },
 
   async listExistingCharacterIds(rpgId, characterIds) {
@@ -242,39 +261,43 @@ export const prismaItemRepository: ItemRepository = {
       return []
     }
 
-    const rows = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
-      SELECT id
-      FROM rpg_characters
-      WHERE rpg_id = ${rpgId}
-        AND id IN (${Prisma.join(characterIds)})
-    `)
+    return withItemPersistenceErrors(async () => {
+      const rows = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+        SELECT id
+        FROM rpg_characters
+        WHERE rpg_id = ${rpgId}
+          AND id IN (${Prisma.join(characterIds)})
+      `)
 
-    return rows.map((row) => row.id)
+      return rows.map((row) => row.id)
+    })
   },
 
   async giveToCharacters(input: GiveItemInput) {
-    await prisma.$transaction(
-      input.characterIds.map((characterId) =>
-        prisma.$executeRaw(Prisma.sql`
-          INSERT INTO rpg_character_inventory_items (
-            id,
-            rpg_id,
-            character_id,
-            base_item_id,
-            quantity
-          )
-          VALUES (
-            ${crypto.randomUUID()},
-            ${input.rpgId},
-            ${characterId},
-            ${input.baseItemId},
-            ${input.quantity}
-          )
-          ON CONFLICT (character_id, base_item_id)
-          DO UPDATE SET
-            quantity = rpg_character_inventory_items.quantity + EXCLUDED.quantity,
-            updated_at = CURRENT_TIMESTAMP
-        `),
+    await withItemPersistenceErrors(() =>
+      prisma.$transaction(
+        input.characterIds.map((characterId) =>
+          prisma.$executeRaw(Prisma.sql`
+            INSERT INTO rpg_character_inventory_items (
+              id,
+              rpg_id,
+              character_id,
+              base_item_id,
+              quantity
+            )
+            VALUES (
+              ${crypto.randomUUID()},
+              ${input.rpgId},
+              ${characterId},
+              ${input.baseItemId},
+              ${input.quantity}
+            )
+            ON CONFLICT (character_id, base_item_id)
+            DO UPDATE SET
+              quantity = rpg_character_inventory_items.quantity + EXCLUDED.quantity,
+              updated_at = CURRENT_TIMESTAMP
+          `),
+        ),
       ),
     )
   },

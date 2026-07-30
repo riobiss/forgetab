@@ -1,4 +1,4 @@
-import type { UpsertItemPayloadDto } from "@/features/world/items/application/editor/types"
+import type { UpsertItemPayloadDto } from "@/features/world/items/application/dashboard/types"
 import { baseItemRarityValues } from "@/lib/validators/baseItem"
 import type { BaseItem, ItemType } from "./types"
 import { parseCustomFieldList, parseNamedDescriptionList } from "./utils"
@@ -63,7 +63,7 @@ export function mapItemToEditorState(item: BaseItem): ItemEditorState {
     description: item.description ?? "",
     preRequirement: item.preRequirement ?? "",
     type: item.type,
-    rarity: item.rarity as (typeof baseItemRarityValues)[number],
+    rarity: item.rarity,
     damage: item.damage ?? "",
     range: item.range ?? "",
     weight: item.weight !== null ? String(item.weight) : "",
