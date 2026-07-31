@@ -8,22 +8,28 @@ import {
   loadNpcMonsterInventoryUseCase,
   type CharacterInventoryItemDto,
   type PurchasedAbilityViewDto,
-} from "@/features/world/characters/application/characters/loadout"
+} from "@/features/world/characters/application/loadout"
 import InventoryCards from "@/features/world/characters/presentation/inventory/components/InventoryCards"
 import { toInventoryCardItem } from "@/features/world/characters/presentation/inventory/utils"
 import AbilitiesFiltersClient from "@/features/world/characters/presentation/abilities/AbilitiesFiltersClient"
-import { createHttpNpcMonsterCharacterAbilitiesGateway } from "@/features/world/characters/infrastructure/abilities/gateways/httpNpcMonsterCharacterAbilitiesGateway"
-import { createNpcMonsterLoadoutDependencies } from "@/features/world/characters/presentation/characters/loadout"
 import CharacterDetailPage from "@/features/world/characters/presentation/detail/CharacterDetailPage"
+import {
+  createCharacterDetailModalDependencies,
+  type CharacterDetailModalDependencies,
+} from "@/features/world/characters/presentation/dashboard/dependencies"
 import styles from "../CharactersDashboardPage.module.css"
 
 type Props = {
   data: CharacterDetailViewModel
+  dependencies?: CharacterDetailModalDependencies
 }
 
-const loadoutDeps = createNpcMonsterLoadoutDependencies("http")
+const defaultDependencies = createCharacterDetailModalDependencies()
 
-export default function CharacterDetailModal({ data }: Props) {
+export default function CharacterDetailModal({
+  data,
+  dependencies = defaultDependencies,
+}: Props) {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -39,10 +45,8 @@ export default function CharacterDetailModal({ data }: Props) {
   const canInspectLoadout =
     data.characterType !== "player" && data.canEditCharacter
   const abilityDeps = useMemo(
-    () => ({
-      gateway: createHttpNpcMonsterCharacterAbilitiesGateway(data.rpgId),
-    }),
-    [data.rpgId],
+    () => dependencies.createAbilities(data.rpgId),
+    [data.rpgId, dependencies],
   )
 
   useEffect(() => {
@@ -77,11 +81,11 @@ export default function CharacterDetailModal({ data }: Props) {
         setAbilitiesError("")
 
         const [inventoryResult, abilitiesResult] = await Promise.allSettled([
-          loadNpcMonsterInventoryUseCase(loadoutDeps, {
+          loadNpcMonsterInventoryUseCase(dependencies.loadout, {
             rpgId: data.rpgId,
             characterId: data.characterId,
           }),
-          loadNpcMonsterAbilitiesUseCase(loadoutDeps, {
+          loadNpcMonsterAbilitiesUseCase(dependencies.loadout, {
             rpgId: data.rpgId,
             characterId: data.characterId,
           }),
@@ -123,7 +127,7 @@ export default function CharacterDetailModal({ data }: Props) {
     return () => {
       cancelled = true
     }
-  }, [canInspectLoadout, data.characterId, data.rpgId])
+  }, [canInspectLoadout, data.characterId, data.rpgId, dependencies])
 
   function handleClose() {
     const params = new URLSearchParams(searchParams.toString())

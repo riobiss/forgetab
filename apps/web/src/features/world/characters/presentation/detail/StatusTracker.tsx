@@ -1,6 +1,9 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import type { CharacterStatusCurrentDependencies } from "@/features/world/characters/application/status-current/contracts/CharacterStatusCurrentGateway"
+import { updateCharacterStatusCurrentClientUseCase } from "@/features/world/characters/application/status-current/use-cases/updateCharacterStatusCurrentClient"
+import { createCharacterStatusCurrentDependencies } from "./dependencies"
 import styles from "./CharacterDetailPage.module.css"
 
 type StatusItem = {
@@ -15,10 +18,18 @@ type Props = {
   rpgId: string
   characterId: string
   canPersist: boolean
+  dependencies?: CharacterStatusCurrentDependencies
 }
 
-export default function StatusTracker({ items, rpgId, characterId, canPersist }: Props) {
-  const storageKey = `rpg-character-status-current:${rpgId}:${characterId}`
+const defaultDependencies = createCharacterStatusCurrentDependencies()
+
+export default function StatusTracker({
+  items,
+  rpgId,
+  characterId,
+  canPersist,
+  dependencies = defaultDependencies,
+}: Props) {
   const defaults = useMemo(
     () =>
       items.reduce<Record<string, number>>((acc, item) => {
@@ -28,49 +39,13 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
     [items],
   )
   const [currentByKey, setCurrentByKey] = useState<Record<string, number>>(defaults)
-  const [hasLoadedPersistedState, setHasLoadedPersistedState] = useState(false)
   const [discountInputByKey, setDiscountInputByKey] = useState<Record<string, string>>({})
+  const [savingStatusKey, setSavingStatusKey] = useState<string | null>(null)
+  const [error, setError] = useState("")
 
   useEffect(() => {
     setCurrentByKey(defaults)
   }, [defaults])
-
-  useEffect(() => {
-    if (!canPersist) {
-      setHasLoadedPersistedState(true)
-      return
-    }
-
-    try {
-      const raw = window.localStorage.getItem(storageKey)
-      if (!raw) {
-        setHasLoadedPersistedState(true)
-        return
-      }
-
-      const parsed = JSON.parse(raw)
-      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-        setHasLoadedPersistedState(true)
-        return
-      }
-
-      setCurrentByKey(
-        items.reduce<Record<string, number>>((acc, item) => {
-          const candidate = (parsed as Record<string, unknown>)[item.key]
-          const parsedNumber =
-            typeof candidate === "number" && Number.isFinite(candidate)
-              ? Math.floor(candidate)
-              : defaults[item.key] ?? item.current
-          acc[item.key] = Math.max(0, Math.min(item.max, parsedNumber))
-          return acc
-        }, {}),
-      )
-    } catch {
-      setCurrentByKey(defaults)
-    } finally {
-      setHasLoadedPersistedState(true)
-    }
-  }, [canPersist, defaults, items, storageKey])
 
   const normalizedItems = useMemo(
     () =>
@@ -81,17 +56,9 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
     [currentByKey, items],
   )
 
-  useEffect(() => {
-    if (!canPersist || !hasLoadedPersistedState) return
+  async function updateStatus(key: string, delta: number) {
+    if (!canPersist || savingStatusKey) return
 
-    try {
-      window.localStorage.setItem(storageKey, JSON.stringify(currentByKey))
-    } catch {
-      // Ignora erro de escrita local para nao quebrar interacao.
-    }
-  }, [canPersist, currentByKey, hasLoadedPersistedState, storageKey])
-
-  function updateStatus(key: string, delta: number) {
     const item = items.find((entry) => entry.key === key)
     if (!item) return
 
@@ -99,7 +66,24 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
     const next = Math.min(item.max, Math.max(0, current + delta))
     if (next === current) return
 
+    setError("")
+    setSavingStatusKey(key)
     setCurrentByKey((prev) => ({ ...prev, [key]: next }))
+
+    try {
+      const result = await updateCharacterStatusCurrentClientUseCase(dependencies, {
+        rpgId,
+        characterId,
+        key,
+        value: next,
+      })
+      setCurrentByKey((prev) => ({ ...prev, [key]: result.value }))
+    } catch (cause) {
+      setCurrentByKey((prev) => ({ ...prev, [key]: current }))
+      setError(cause instanceof Error ? cause.message : "Erro ao salvar status atual.")
+    } finally {
+      setSavingStatusKey(null)
+    }
   }
 
   function getDiscountAmount(key: string) {
@@ -122,16 +106,16 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
               <button
                 type="button"
                 className={styles.statusButton}
-                onClick={() => updateStatus(item.key, -getDiscountAmount(item.key))}
-                disabled={item.current <= 0}
+                onClick={() => void updateStatus(item.key, -getDiscountAmount(item.key))}
+                disabled={!canPersist || savingStatusKey !== null || item.current <= 0}
               >
                 -
               </button>
               <button
                 type="button"
                 className={styles.statusButton}
-                onClick={() => updateStatus(item.key, getDiscountAmount(item.key))}
-                disabled={item.current >= item.max}
+                onClick={() => void updateStatus(item.key, getDiscountAmount(item.key))}
+                disabled={!canPersist || savingStatusKey !== null || item.current >= item.max}
               >
                 +
               </button>
@@ -140,6 +124,7 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
                 onWheel={(event) => event.currentTarget.blur()}
                 min={1}
                 step={1}
+                disabled={!canPersist || savingStatusKey !== null}
                 className={styles.statusStepInput}
                 value={discountInputByKey[item.key] ?? ""}
                 onChange={(event) =>
@@ -154,6 +139,16 @@ export default function StatusTracker({ items, rpgId, characterId, canPersist }:
           </div>
         ))}
       </div>
+      {savingStatusKey ? (
+        <p className={styles.statusHint} role="status">
+          Salvando status...
+        </p>
+      ) : null}
+      {error ? (
+        <p className={styles.statusError} role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }

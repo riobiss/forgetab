@@ -14,7 +14,7 @@ import type {
   CharacterEditorCharacterTypeDto,
   CharacterIdentityFieldDto,
   CharacterOptionDto,
-} from "@/features/world/characters/application/characters/editor"
+} from "@/features/world/characters/application/editor"
 
 const CHARACTER_TYPE_LABEL: Record<CharacterEditorCharacterTypeDto, string> = {
   player: "Player",

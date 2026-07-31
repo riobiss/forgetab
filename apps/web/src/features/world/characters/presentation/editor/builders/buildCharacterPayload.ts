@@ -1,7 +1,7 @@
 import type {
   CharacterEditorCharacterTypeDto,
   UpsertCharacterPayloadDto,
-} from "@/features/world/characters/application/characters/editor"
+} from "@/features/world/characters/application/editor"
 import { normalizeNumericValues } from "../utils"
 
 type BuildCharacterPayloadParams = {

@@ -3,7 +3,7 @@ import {
   getCharacterInventoryUseCase,
   removeCharacterInventoryItemApiUseCase,
 } from "@/features/world/character/application/inventory/use-cases/manageCharacterInventory"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 import type { CharacterInventoryRepository } from "@/features/world/character/application/inventory/ports/CharacterInventoryRepository"
 
 function createRepositoryMock(): CharacterInventoryRepository {

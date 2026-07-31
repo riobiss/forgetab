@@ -33,7 +33,7 @@ export async function buyCharacterSkillHandler(
     }
 
     const payload = await buyCharacterSkillUseCase(
-      { service: characterRouteDeps.characterSkillPurchaseService },
+      { repository: characterRouteDeps.characterAbilityMutationRepository },
       {
         characterId: request.params.id,
         userId: auth.userId,
@@ -58,7 +58,7 @@ export async function removeCharacterSkillHandler(
     }
 
     const payload = await removeCharacterSkillUseCase(
-      { service: characterRouteDeps.characterSkillPurchaseService },
+      { repository: characterRouteDeps.characterAbilityMutationRepository },
       {
         characterId: request.params.id,
         userId: auth.userId,
@@ -146,7 +146,12 @@ export async function updateCharacterHandler(
   try {
     const payload = parseJsonBody(request.body) as UpdateCharacterPayload
     await updateCharacter(
-      { managementService: characterRouteDeps.characterManagementService },
+      {
+        repository: characterRouteDeps.characterUpdateRepository,
+        rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
+        templatesRepository: characterRouteDeps.rpgTemplatesRepository,
+        imageCleanupService: characterRouteDeps.characterImageCleanupService,
+      },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
@@ -256,7 +261,13 @@ export async function addNpcMonsterCharacterAbilityHandler(
     }
 
     const payload = await addNpcMonsterCharacterAbilityUseCase(
-      { service: characterRouteDeps.npcMonsterCharacterAbilityService },
+      {
+        mutationRepository:
+          characterRouteDeps.characterAbilityMutationRepository,
+        abilitiesRepository: characterRouteDeps.abilitiesRepository,
+        rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
+        parserService: characterRouteDeps.abilitiesParserService,
+      },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
@@ -282,7 +293,13 @@ export async function removeNpcMonsterCharacterAbilityHandler(
     }
 
     const payload = await removeNpcMonsterCharacterAbilityUseCase(
-      { service: characterRouteDeps.npcMonsterCharacterAbilityService },
+      {
+        mutationRepository:
+          characterRouteDeps.characterAbilityMutationRepository,
+        abilitiesRepository: characterRouteDeps.abilitiesRepository,
+        rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
+        parserService: characterRouteDeps.abilitiesParserService,
+      },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,

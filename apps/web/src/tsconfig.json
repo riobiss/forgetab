@@ -34,7 +34,6 @@
     "features/**/prisma*.ts",
     "features/**/legacy*.ts",
     "features/world/**/infrastructure/**/services/*AccessService.ts",
-    "features/world/**/infrastructure/**/services/*PermissionService.ts",
-    "features/world/characters/infrastructure/abilities/services/npcMonsterCharacterAbilityService.ts"
+    "features/world/**/infrastructure/**/services/*PermissionService.ts"
   ]
 }

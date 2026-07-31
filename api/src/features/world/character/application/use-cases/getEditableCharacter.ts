@@ -1,5 +1,5 @@
 import type { CharacterEditorService } from "@/features/world/character/application/ports/CharacterEditorService"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 export async function getEditableCharacter(
   deps: { editorService: CharacterEditorService },

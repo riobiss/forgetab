@@ -7,7 +7,7 @@ import {
 import { resolveCharacterManagementPermission } from "@/features/world/character/infrastructure/services/characterManagementPermission.js"
 import { cleanupCharacterImage } from "@/features/world/character/infrastructure/services/characterManagementSupport.js"
 
-export async function deleteCharacterWithLegacyManagement(params: {
+export async function deleteCharacterWithManagement(params: {
   rpgId: string
   characterId: string
   userId: string

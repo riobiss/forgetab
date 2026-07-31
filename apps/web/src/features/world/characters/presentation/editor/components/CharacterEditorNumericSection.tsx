@@ -2,7 +2,7 @@
 
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
 import styles from "../CharacterEditorForm.module.css"
-import type { CharacterEditorTemplateFieldDto } from "@/features/world/characters/application/characters/editor"
+import type { CharacterEditorTemplateFieldDto } from "@/features/world/characters/application/editor"
 import EditableModalField from "./EditableModalField"
 
 type NumericInputValue = number | ""

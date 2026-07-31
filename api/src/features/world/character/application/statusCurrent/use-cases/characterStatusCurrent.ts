@@ -1,5 +1,5 @@
 import type { CharacterStatusCurrentRepository } from "@/features/world/character/application/statusCurrent/ports/CharacterStatusCurrentRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 const CORE_STATUS_COLUMN_BY_KEY = {
   life: "life",

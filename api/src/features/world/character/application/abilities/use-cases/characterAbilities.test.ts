@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import {
   loadCharacterAbilitiesUseCase,
-  removeCharacterAbilityUseCase,
 } from "@/features/world/character/application/abilities/use-cases/characterAbilities"
 import type { CharacterAbilitiesRepository } from "@/features/world/character/application/abilities/ports/CharacterAbilitiesRepository"
 import type { CharacterAbilitiesParserService } from "@/features/world/character/application/abilities/ports/CharacterAbilitiesParserService"
@@ -131,23 +130,4 @@ describe("characterAbilities use-cases", () => {
     })
   })
 
-  it("delegates ability removal to gateway", async () => {
-    const deps = {
-      gateway: {
-        removeAbility: vi.fn().mockResolvedValue({ success: true }),
-      },
-    }
-
-    const result = await removeCharacterAbilityUseCase(deps, {
-      characterId: "char-1",
-      skillId: "skill-1",
-      level: 2,
-    })
-
-    expect(deps.gateway.removeAbility).toHaveBeenCalledWith("char-1", {
-      skillId: "skill-1",
-      level: 2,
-    })
-    expect(result).toEqual({ success: true })
-  })
 })

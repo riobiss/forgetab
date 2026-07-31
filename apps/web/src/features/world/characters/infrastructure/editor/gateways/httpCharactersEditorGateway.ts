@@ -150,10 +150,14 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     })
-    const result = await parseJson<
-      { character?: CharacterEditorSummaryDto } & Record<string, unknown>
-    >(response)
-    return result.character ?? (result as unknown as CharacterEditorSummaryDto)
+    const result = await parseJson<{ character?: CharacterEditorSummaryDto }>(
+      response,
+    )
+    if (!result.character) {
+      throw new Error("Resposta invalida ao criar personagem.")
+    }
+
+    return result.character
   },
 
   async fetchCharacter(
@@ -166,10 +170,14 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
         cache: "no-store",
       },
     )
-    const result = await parseJson<
-      { character?: CharacterEditorSummaryDto } & Record<string, unknown>
-    >(response)
-    return result.character ?? (result as unknown as CharacterEditorSummaryDto)
+    const result = await parseJson<{ character?: CharacterEditorSummaryDto }>(
+      response,
+    )
+    if (!result.character) {
+      throw new Error("Resposta invalida ao carregar personagem.")
+    }
+
+    return result.character
   },
 
   async updateCharacter(

@@ -1,5 +1,5 @@
 import type { CharacterInventoryRepository } from "@/features/world/character/application/inventory/ports/CharacterInventoryRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 type Dependencies = {
   repository: CharacterInventoryRepository

@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import type { CharacterEditorBootstrapDto } from "@/features/world/characters/application/characters/editor"
-import {
-  CharacterEditorForm,
-  createCharactersEditorDependencies,
-} from "@/features/world/characters/presentation/characters/editor"
+import type { CharacterEditorBootstrapDto } from "@/features/world/characters/application/editor"
+import CharacterEditorForm from "@/features/world/characters/presentation/editor/CharacterEditorForm"
+import { createCharactersEditorDependencies } from "@/features/world/characters/presentation/editor/dependencies"
 import styles from "../CharactersDashboardPage.module.css"
 
 type Props = {

@@ -9,6 +9,7 @@ import type {
   SkillTemplateRow,
   StatusTemplateRow,
 } from "@/features/world/character/application/types.js"
+import { withCharacterPersistenceErrors } from "@/features/world/character/infrastructure/repositories/characterPersistenceErrors.js"
 
 export const prismaRpgTemplatesRepository: RpgTemplatesRepository = {
   async getAttributeTemplates(rpgId) {
@@ -115,18 +116,22 @@ export const prismaRpgTemplatesRepository: RpgTemplatesRepository = {
   },
 
   async getRaceTemplates(rpgId) {
-    return prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
-      SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
-      FROM rpg_race_templates
-      WHERE rpg_id = ${rpgId}
-    `)
+    return withCharacterPersistenceErrors(() =>
+      prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
+        SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
+        FROM rpg_race_templates
+        WHERE rpg_id = ${rpgId}
+      `),
+    )
   },
 
   async getClassTemplates(rpgId) {
-    return prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
-      SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
-      FROM rpg_class_templates
-      WHERE rpg_id = ${rpgId}
-    `)
+    return withCharacterPersistenceErrors(() =>
+      prisma.$queryRaw<IdentityTemplateRow[]>(Prisma.sql`
+        SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
+        FROM rpg_class_templates
+        WHERE rpg_id = ${rpgId}
+      `),
+    )
   },
 }

@@ -6,7 +6,8 @@ import {
 } from "@/lib/rpg/progression"
 import type { CharacterProgressionPermissionService } from "@/features/world/character/application/progression/ports/CharacterProgressionPermissionService"
 import type { CharacterProgressionRepository } from "@/features/world/character/application/progression/ports/CharacterProgressionRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
+import { rethrowCharacterRepositoryError } from "@/features/world/character/application/errors/rethrowCharacterRepositoryError"
 
 type Dependencies = {
   repository: CharacterProgressionRepository
@@ -61,23 +62,6 @@ async function loadPlayerCharacter(
   return character
 }
 
-function mapInfrastructureError(
-  error: unknown,
-  knownColumns: string[],
-  message: string,
-): never {
-  if (
-    error instanceof Error &&
-    knownColumns.some((column) =>
-      error.message.includes(`column "${column}" does not exist`),
-    )
-  ) {
-    throw new AppError(message, 500)
-  }
-
-  throw error
-}
-
 export async function grantCharacterPointsUseCase(
   deps: Dependencies,
   params: { characterId: string; userId: string; amount: unknown },
@@ -105,11 +89,7 @@ export async function grantCharacterPointsUseCase(
       remainingPoints: updated.skillPoints,
     }
   } catch (error) {
-    mapInfrastructureError(
-      error,
-      ["skill_points"],
-      "Estrutura de personagens desatualizada. Rode a migration mais recente.",
-    )
+    rethrowCharacterRepositoryError(error)
   }
 }
 
@@ -161,16 +141,6 @@ export async function grantCharacterXpUseCase(
       progressionRequired: updated.progressionRequired,
     }
   } catch (error) {
-    mapInfrastructureError(
-      error,
-      [
-        "progression_mode",
-        "progression_tiers",
-        "progression_current",
-        "progression_label",
-        "progression_required",
-      ],
-      "Estrutura de progressao desatualizada. Rode a migration mais recente.",
-    )
+    rethrowCharacterRepositoryError(error)
   }
 }

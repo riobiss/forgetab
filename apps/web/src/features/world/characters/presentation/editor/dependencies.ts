@@ -1,4 +1,4 @@
-import type { CharactersEditorDependencies } from "@/features/world/characters/application/characters/editor"
+import type { CharactersEditorDependencies } from "@/features/world/characters/application/editor"
 import { httpCharactersEditorGateway } from "@/features/world/characters/infrastructure/editor/gateways/httpCharactersEditorGateway"
 
 export type CharactersEditorGatewayFactory = "http"

@@ -4,7 +4,7 @@ import type {
 } from "@/features/world/characters/application/editor/types"
 import {
   readNpcMonsterBasicDraft,
-} from "@/features/world/characters/application/characters/npcMonster"
+} from "@/features/world/characters/application/npc-monster"
 import type {
   ExtraField,
   NumericInputValue,

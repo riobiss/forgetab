@@ -2,6 +2,7 @@ import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { CharacterRepository } from "@/features/world/character/application/ports/CharacterRepository.js"
 import type { CharacterRow } from "@/features/world/character/application/types.js"
+import { withCharacterPersistenceErrors } from "@/features/world/character/infrastructure/repositories/characterPersistenceErrors.js"
 
 const buildVisibilityCondition = (isOwner: boolean, userId: string) =>
   isOwner
@@ -10,7 +11,7 @@ const buildVisibilityCondition = (isOwner: boolean, userId: string) =>
       ? Prisma.sql`AND (visibility = 'public'::"RpgVisibility" OR created_by_user_id = ${userId})`
       : Prisma.sql`AND visibility = 'public'::"RpgVisibility"`
 
-export const prismaCharacterRepository: CharacterRepository = {
+const prismaCharacterRepositoryAdapter: CharacterRepository = {
   async listByRpg({ rpgId, userId, isOwner }) {
     return prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
       SELECT
@@ -278,4 +279,42 @@ export const prismaCharacterRepository: CharacterRepository = {
       return created[0]
     })
   },
+}
+
+export const prismaCharacterRepository: CharacterRepository = {
+  listByRpg: (input) =>
+    withCharacterPersistenceErrors(() =>
+      prismaCharacterRepositoryAdapter.listByRpg(input),
+    ),
+  countPlayersByCreator: (rpgId, userId) =>
+    withCharacterPersistenceErrors(() =>
+      prismaCharacterRepositoryAdapter.countPlayersByCreator(rpgId, userId),
+    ),
+  listAssignablePlayers: (rpgId, allowMultiplePlayerCharacters) =>
+    withCharacterPersistenceErrors(() =>
+      prismaCharacterRepositoryAdapter.listAssignablePlayers(
+        rpgId,
+        allowMultiplePlayerCharacters,
+      ),
+    ),
+  isAcceptedMember: (rpgId, userId) =>
+    withCharacterPersistenceErrors(() =>
+      prismaCharacterRepositoryAdapter.isAcceptedMember(rpgId, userId),
+    ),
+  createCharacterOffer: (rpgId, characterId, userId) =>
+    withCharacterPersistenceErrors(() =>
+      prismaCharacterRepositoryAdapter.createCharacterOffer(
+        rpgId,
+        characterId,
+        userId,
+      ),
+    ),
+  create: (input) =>
+    withCharacterPersistenceErrors(() =>
+      prismaCharacterRepositoryAdapter.create(input),
+    ),
+  createWithOffer: (input, offerUserId) =>
+    withCharacterPersistenceErrors(() =>
+      prismaCharacterRepositoryAdapter.createWithOffer(input, offerUserId),
+    ),
 }

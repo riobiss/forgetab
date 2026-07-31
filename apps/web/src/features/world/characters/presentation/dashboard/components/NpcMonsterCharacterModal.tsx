@@ -16,18 +16,18 @@ import {
   loadEditableCharacterUseCase,
   updateCharacterUseCase,
   uploadCharacterImageUseCase,
-} from "@/features/world/characters/application/characters/editor"
+} from "@/features/world/characters/application/editor"
 import {
   buildNpcMonsterBasicUpdatePayload,
   buildNpcMonsterBonusUpdatePayload,
   buildNpcMonsterCreatePayload,
-} from "@/features/world/characters/application/characters/npcMonster"
+} from "@/features/world/characters/application/npc-monster"
 import type {
   CharacterInventoryItemDto,
   NpcMonsterLoadoutItemOptionDto,
   NpcMonsterLoadoutSkillOptionDto,
   PurchasedAbilityViewDto,
-} from "@/features/world/characters/application/characters/loadout"
+} from "@/features/world/characters/application/loadout"
 import {
   addNpcMonsterAbilityUseCase,
   addNpcMonsterInventoryItemUseCase,
@@ -37,9 +37,9 @@ import {
   loadNpcMonsterInventoryUseCase,
   removeNpcMonsterAbilityUseCase,
   removeNpcMonsterInventoryItemUseCase,
-} from "@/features/world/characters/application/characters/loadout"
-import { createCharactersEditorDependencies } from "@/features/world/characters/presentation/characters/editor"
-import { createNpcMonsterLoadoutDependencies } from "@/features/world/characters/presentation/characters/loadout"
+} from "@/features/world/characters/application/loadout"
+import { createCharactersEditorDependencies } from "@/features/world/characters/presentation/editor/dependencies"
+import { createNpcMonsterLoadoutDependencies } from "@/features/world/npc-monster-loadout/presentation/dependencies"
 import styles from "../CharactersDashboardPage.module.css"
 import { npcMonsterSteps } from "./npc-monster-modal/constants"
 import {

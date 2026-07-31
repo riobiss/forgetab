@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
@@ -24,19 +24,19 @@ const mocks = vi.hoisted(() => ({
   deleteCharacter: vi.fn(),
 }))
 
-vi.mock("@api/presentation/http/auth/requestAuth", () => ({
+vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
 vi.mock(
-  "@/application/characters/dashboard/use-cases/loadCharactersDashboard",
+  "@/features/world/character/application/dashboard/use-cases/loadCharactersDashboard",
   () => ({
     loadCharactersDashboardUseCase: mocks.loadCharactersDashboardUseCase,
   }),
 )
 
 vi.mock(
-  "@/application/characters/editor/use-cases/loadCharacterEditorBootstrapServer",
+  "@/features/world/character/application/editor/use-cases/loadCharacterEditorBootstrapServer",
   () => ({
     loadCharacterEditorBootstrapServerUseCase:
       mocks.loadCharacterEditorBootstrapServerUseCase,
@@ -44,7 +44,7 @@ vi.mock(
 )
 
 vi.mock(
-  "@/application/characters/progression/use-cases/characterProgression",
+  "@/features/world/character/application/progression/use-cases/characterProgression",
   () => ({
     grantCharacterXpUseCase: mocks.grantCharacterXpUseCase,
     grantCharacterPointsUseCase: mocks.grantCharacterPointsUseCase,
@@ -52,7 +52,7 @@ vi.mock(
 )
 
 vi.mock(
-  "@/application/characters/abilities/use-cases/characterSkillPurchase",
+  "@/features/world/character/application/abilities/use-cases/characterSkillPurchase",
   () => ({
     buyCharacterSkillUseCase: mocks.buyCharacterSkillUseCase,
     removeCharacterSkillUseCase: mocks.removeCharacterSkillUseCase,
@@ -60,14 +60,14 @@ vi.mock(
 )
 
 vi.mock(
-  "@/application/characters/abilities/use-cases/characterAbilities",
+  "@/features/world/character/application/abilities/use-cases/characterAbilities",
   () => ({
     loadCharacterAbilitiesUseCase: mocks.loadCharacterAbilitiesUseCase,
   }),
 )
 
 vi.mock(
-  "@/application/characters/abilities/use-cases/npcMonsterCharacterAbilities",
+  "@/features/world/character/application/abilities/use-cases/npcMonsterCharacterAbilities",
   () => ({
     addNpcMonsterCharacterAbilityUseCase:
       mocks.addNpcMonsterCharacterAbilityUseCase,
@@ -77,7 +77,7 @@ vi.mock(
 )
 
 vi.mock(
-  "@/application/characters/inventory/use-cases/manageCharacterInventory",
+  "@/features/world/character/application/inventory/use-cases/manageCharacterInventory",
   () => ({
     getCharacterInventoryUseCase: mocks.getCharacterInventoryUseCase,
     removeCharacterInventoryItemApiUseCase:
@@ -86,41 +86,41 @@ vi.mock(
 )
 
 vi.mock(
-  "@/application/characters/statusCurrent/use-cases/characterStatusCurrent",
+  "@/features/world/character/application/statusCurrent/use-cases/characterStatusCurrent",
   () => ({
     updateCharacterStatusCurrentUseCase:
       mocks.updateCharacterStatusCurrentUseCase,
   }),
 )
 
-vi.mock("@/application/characters/use-cases/getRpgAccess", () => ({
+vi.mock("@/features/world/character/application/use-cases/getRpgAccess", () => ({
   getRpgAccess: mocks.getRpgAccess,
 }))
 
-vi.mock("@/application/characters/use-cases/listCharacters", () => ({
+vi.mock("@/features/world/character/application/use-cases/listCharacters", () => ({
   listCharacters: mocks.listCharacters,
 }))
 
-vi.mock("@/application/characters/use-cases/createCharacter", () => ({
+vi.mock("@/features/world/character/application/use-cases/createCharacter", () => ({
   createCharacter: mocks.createCharacter,
 }))
 
 vi.mock(
-  "@/application/characters/detail/use-cases/loadCharacterDetail",
+  "@/features/world/character/application/detail/use-cases/loadCharacterDetail",
   () => ({
     loadCharacterDetailUseCase: mocks.loadCharacterDetailUseCase,
   }),
 )
 
-vi.mock("@/application/characters/use-cases/getEditableCharacter", () => ({
+vi.mock("@/features/world/character/application/use-cases/getEditableCharacter", () => ({
   getEditableCharacter: mocks.getEditableCharacter,
 }))
 
-vi.mock("@/application/characters/use-cases/updateCharacter", () => ({
+vi.mock("@/features/world/character/application/use-cases/updateCharacter", () => ({
   updateCharacter: mocks.updateCharacter,
 }))
 
-vi.mock("@/application/characters/use-cases/deleteCharacter", () => ({
+vi.mock("@/features/world/character/application/use-cases/deleteCharacter", () => ({
   deleteCharacter: mocks.deleteCharacter,
 }))
 

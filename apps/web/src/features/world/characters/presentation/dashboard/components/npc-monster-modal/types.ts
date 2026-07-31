@@ -9,7 +9,7 @@ import type {
   NpcMonsterNarrativeStatus,
   NpcMonsterNumericInputValue,
   NpcMonsterSecretFieldKey,
-} from "@/features/world/characters/application/characters/npcMonster"
+} from "@/features/world/characters/application/npc-monster"
 import type {
   NpcMonsterLoadoutItemOptionDto,
   NpcMonsterLoadoutSkillOptionDto,

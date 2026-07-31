@@ -11,14 +11,6 @@ export type CharacterDashboardCardDto = {
   createdByUserId: string | null
 }
 
-export type CharactersDashboardRpgDto = {
-  id: string
-  name: string
-  ownerId: string
-  visibility: "private" | "public"
-  allowMultiplePlayerCharacters: boolean
-}
-
 export type CharactersDashboardViewModel = {
   rpgId: string
   rpgName: string
@@ -33,8 +25,3 @@ export type CharactersDashboardViewModel = {
   ownPlayerCount: number
   allowMultiplePlayerCharacters: boolean
 }
-
-export type LoadCharactersDashboardResult =
-  | { status: "ok"; data: CharactersDashboardViewModel }
-  | { status: "not_found" }
-  | { status: "private_blocked" }

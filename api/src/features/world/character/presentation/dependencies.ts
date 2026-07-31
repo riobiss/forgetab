@@ -1,8 +1,7 @@
 import { loadCharacterDetailUseCase } from "@/features/world/character/application/detail/use-cases/loadCharacterDetail"
 import { prismaCharacterAbilitiesRepository } from "@/features/world/character/infrastructure/abilities/repositories/prismaCharacterAbilitiesRepository"
 import { characterAbilitiesParserService } from "@/features/world/character/infrastructure/abilities/services/characterAbilitiesParserService"
-import { npcMonsterCharacterAbilityService } from "@/features/world/character/infrastructure/abilities/services/npcMonsterCharacterAbilityService"
-import { characterSkillPurchaseService } from "@/features/world/character/infrastructure/abilities/services/characterSkillPurchaseService"
+import { prismaCharacterAbilityMutationRepository } from "@/features/world/character/infrastructure/abilities/repositories/prismaCharacterAbilityMutationRepository"
 import { prismaCharacterInventoryRepository } from "@/features/world/character/infrastructure/inventory/repositories/prismaCharacterInventoryRepository"
 import { prismaCharacterProgressionRepository } from "@/features/world/character/infrastructure/progression/repositories/prismaCharacterProgressionRepository"
 import { rpgCharacterProgressionPermissionService } from "@/features/world/character/infrastructure/progression/services/rpgCharacterProgressionPermissionService"
@@ -11,6 +10,8 @@ import { prismaCharacterRepository } from "@/features/world/character/infrastruc
 import { prismaRpgAccessRepository } from "@/features/world/character/infrastructure/repositories/prismaRpgAccessRepository"
 import { prismaRpgTemplatesRepository } from "@/features/world/character/infrastructure/repositories/prismaRpgTemplatesRepository"
 import { characterManagementService } from "@/features/world/character/infrastructure/services/characterManagementService"
+import { prismaCharacterUpdateRepository } from "@/features/world/character/infrastructure/repositories/prismaCharacterUpdateRepository"
+import { imageKitCharacterImageCleanupService } from "@/features/world/character/infrastructure/services/imageKitCharacterImageCleanupService"
 import { prismaCharacterEditorService } from "@/features/world/character/infrastructure/services/prismaCharacterEditorService"
 import { prismaCharactersDashboardRepository } from "@/features/world/character/infrastructure/dashboard/repositories/prismaCharactersDashboardRepository"
 import { prismaCharacterDetailRepository } from "@/features/world/character/infrastructure/detail/repositories/prismaCharacterDetailRepository"
@@ -21,8 +22,7 @@ import { rpgConfigAccessService } from "@/features/world/infrastructure/config/s
 export const characterRouteDeps = {
   abilitiesRepository: prismaCharacterAbilitiesRepository,
   abilitiesParserService: characterAbilitiesParserService,
-  npcMonsterCharacterAbilityService,
-  characterSkillPurchaseService,
+  characterAbilityMutationRepository: prismaCharacterAbilityMutationRepository,
   characterInventoryRepository: prismaCharacterInventoryRepository,
   characterProgressionRepository: prismaCharacterProgressionRepository,
   characterProgressionPermissionService:
@@ -33,6 +33,8 @@ export const characterRouteDeps = {
   rpgTemplatesRepository: prismaRpgTemplatesRepository,
   characterEditorService: prismaCharacterEditorService,
   characterManagementService,
+  characterUpdateRepository: prismaCharacterUpdateRepository,
+  characterImageCleanupService: imageKitCharacterImageCleanupService,
   charactersDashboardRepository: prismaCharactersDashboardRepository,
   characterDetailRepository: prismaCharacterDetailRepository,
   characterDetailPermissionService,

@@ -1,5 +1,4 @@
 import type { RpgAccessRepository } from "@/features/world/character/application/ports/RpgAccessRepository"
-import type { CharacterAbilitiesDependencies } from "@/features/world/character/application/abilities/contracts/CharacterAbilitiesDependencies"
 import type { CharacterAbilitiesParserService } from "@/features/world/character/application/abilities/ports/CharacterAbilitiesParserService"
 import type { CharacterAbilitiesRepository } from "@/features/world/character/application/abilities/ports/CharacterAbilitiesRepository"
 import type { CharacterAbilitiesViewModel } from "@/features/world/character/application/abilities/types"
@@ -196,14 +195,4 @@ export async function loadCharacterAbilitiesUseCase(
     classLabel,
     abilities,
   }
-}
-
-export async function removeCharacterAbilityUseCase(
-  deps: CharacterAbilitiesDependencies,
-  params: { characterId: string; skillId: string; level: number },
-) {
-  return deps.gateway.removeAbility(params.characterId, {
-    skillId: params.skillId,
-    level: params.level,
-  })
 }

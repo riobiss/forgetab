@@ -22,7 +22,8 @@ import type {
   CharacterRow,
   RpgAccess,
 } from "@/features/world/character/application/types"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
+import { rethrowCharacterRepositoryError } from "@/features/world/character/application/errors/rethrowCharacterRepositoryError"
 
 type CreateCharacterInput = {
   rpgId: string
@@ -246,21 +247,7 @@ export async function createCharacter(
         }
       }
     } catch (error) {
-      if (
-        error instanceof Error &&
-        (error.message.includes(
-          'relation "rpg_race_templates" does not exist',
-        ) ||
-          error.message.includes(
-            'relation "rpg_class_templates" does not exist',
-          ))
-      ) {
-        fail(
-          500,
-          "Estrutura de racas/classes nao existe no banco. Rode a migration.",
-        )
-      }
-      throw error
+      rethrowCharacterRepositoryError(error)
     }
 
     const finalAttributes = addBonusToBase(
@@ -333,53 +320,6 @@ export async function createCharacter(
       ? input.characterRepository.createWithOffer(characterInput, offerToUserId)
       : input.characterRepository.create(characterInput)
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error
-    }
-    if (
-      error instanceof Error &&
-      error.message.includes('relation "rpg_characters" does not exist')
-    ) {
-      fail(500, "Tabela de personagens nao existe no banco. Rode a migration.")
-    }
-    if (
-      error instanceof Error &&
-      (error.message.includes(
-        'column "created_by_user_id" of relation "rpg_characters" does not exist',
-      ) ||
-        error.message.includes(
-          'column "visibility" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "skills" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "image" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "race_key" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "class_key" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "max_carry_weight" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "current_statuses" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "identity" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "characteristics" of relation "rpg_characters" does not exist',
-        ))
-    ) {
-      fail(
-        500,
-        "Estrutura de personagens desatualizada. Rode a migration mais recente.",
-      )
-    }
-    throw error
+    rethrowCharacterRepositoryError(error)
   }
 }

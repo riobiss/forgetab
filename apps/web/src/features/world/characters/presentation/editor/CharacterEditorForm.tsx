@@ -13,7 +13,7 @@ import type {
   CharacterOptionDto,
   CharactersEditorDependencies,
   UpsertCharacterPayloadDto,
-} from "@/features/world/characters/application/characters/editor"
+} from "@/features/world/characters/application/editor"
 import {
   createCharacterUseCase,
   deleteCharacterImageByUrlUseCase,
@@ -21,7 +21,7 @@ import {
   loadCharacterEditorBootstrapUseCase,
   updateCharacterUseCase,
   uploadCharacterImageUseCase,
-} from "@/features/world/characters/application/characters/editor"
+} from "@/features/world/characters/application/editor"
 import styles from "./CharacterEditorForm.module.css"
 import {
   getDefaultProgressionTiers,

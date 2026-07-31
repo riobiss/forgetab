@@ -1,7 +1,7 @@
 import type {
   CharacterEditorBootstrapDto,
   CharacterIdentityFieldDto,
-} from "@/features/world/characters/application/characters/editor"
+} from "@/features/world/characters/application/editor"
 
 export type NumericInputValue = number | ""
 

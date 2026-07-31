@@ -1,7 +1,7 @@
 "use client"
 
 import styles from "../CharacterEditorForm.module.css"
-import type { CharacterIdentityFieldDto } from "@/features/world/characters/application/characters/editor"
+import type { CharacterIdentityFieldDto } from "@/features/world/characters/application/editor"
 import EditableModalField from "./EditableModalField"
 
 type Props = {

@@ -3,7 +3,7 @@ import type {
   ListCharactersResult,
   RpgAccess,
 } from "@/features/world/character/application/types"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { rethrowCharacterRepositoryError } from "@/features/world/character/application/errors/rethrowCharacterRepositoryError"
 
 type ListCharactersInput = {
   rpgId: string
@@ -33,42 +33,6 @@ export async function listCharacters(
       progressionTiers: input.access.progressionTiers,
     }
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message.includes('relation "rpg_characters" does not exist')
-    ) {
-      throw new AppError(
-        "Tabela de personagens nao existe no banco. Rode a migration.",
-        500,
-      )
-    }
-    if (
-      error instanceof Error &&
-      (error.message.includes(
-        'column "skills" of relation "rpg_characters" does not exist',
-      ) ||
-        error.message.includes(
-          'column "image" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "progression_mode" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "progression_label" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "progression_required" of relation "rpg_characters" does not exist',
-        ) ||
-        error.message.includes(
-          'column "progression_current" of relation "rpg_characters" does not exist',
-        ))
-    ) {
-      throw new AppError(
-        "Estrutura de personagens desatualizada. Rode a migration mais recente.",
-        500,
-      )
-    }
-
-    throw error
+    rethrowCharacterRepositoryError(error)
   }
 }
