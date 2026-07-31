@@ -21,6 +21,7 @@ import {
   type MarkerRenderMode,
 } from "@/features/world/location/presentation/utils/markerPins"
 import {
+  calculatePinchViewport,
   getLocalPinchCenter,
   preserveViewportOnResize,
 } from "@/features/world/location/presentation/utils/mapZoom"
@@ -536,7 +537,9 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         handleDrawMove()
       }
 
-      const handleTouchEnd = () => {
+      const handleTouchEnd = (event: Konva.KonvaEventObject<TouchEvent>) => {
+        const remainingTouches = event.evt.touches
+        const wasPinching = isPinchingRef.current
         const touchSelectionStart = touchSelectionStartRef.current
         const shouldCreateMarker =
           (isMarkerSelectionModeRef.current ||
@@ -567,6 +570,13 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           isMarkerSelectionModeRef.current || isMarkerRepositionModeRef.current,
           isPinchingRef.current,
         )
+        if (
+          wasPinching &&
+          remainingTouches.length === 1 &&
+          stage.draggable()
+        ) {
+          stage.startDrag(event)
+        }
         handleDrawEnd()
       }
 
@@ -951,23 +961,18 @@ function applyPinchZoom(
     return
   }
 
-  const localPoint = {
-    x: (center.x - stage.x()) / oldScale,
-    y: (center.y - stage.y()) / oldScale,
-  }
-
-  const distanceScale = distance / previousDistance
-  const nextScale = oldScale * distanceScale
-  const newScale = clamp(nextScale, minScale, Math.max(minScale, 4))
-
-  stage.scale({ x: newScale, y: newScale })
-
-  const dx = center.x - previousCenter.x
-  const dy = center.y - previousCenter.y
-  stage.position({
-    x: center.x - localPoint.x * newScale + dx,
-    y: center.y - localPoint.y * newScale + dy,
+  const viewport = calculatePinchViewport({
+    currentScale: oldScale,
+    minScale,
+    maxScale: Math.max(minScale, 4),
+    position: stage.position(),
+    previousCenter,
+    center,
+    previousDistance,
+    distance,
   })
+  stage.scale({ x: viewport.scale, y: viewport.scale })
+  stage.position(viewport.position)
   constrainStagePosition(stage, mapImage)
   stage.batchDraw()
 

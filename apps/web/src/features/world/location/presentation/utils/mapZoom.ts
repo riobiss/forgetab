@@ -16,6 +16,51 @@ export function getLocalPinchCenter(
   }
 }
 
+export function calculatePinchViewport(params: {
+  currentScale: number
+  minScale: number
+  maxScale: number
+  position: ViewportPoint
+  previousCenter: ViewportPoint
+  center: ViewportPoint
+  previousDistance: number
+  distance: number
+}) {
+  if (
+    params.currentScale <= 0 ||
+    params.previousDistance <= 0 ||
+    params.distance <= 0
+  ) {
+    return {
+      scale: params.currentScale,
+      position: params.position,
+    }
+  }
+
+  const contentPoint = {
+    x:
+      (params.previousCenter.x - params.position.x) /
+      params.currentScale,
+    y:
+      (params.previousCenter.y - params.position.y) /
+      params.currentScale,
+  }
+  const nextScale =
+    params.currentScale * (params.distance / params.previousDistance)
+  const scale = Math.max(
+    params.minScale,
+    Math.min(params.maxScale, nextScale),
+  )
+
+  return {
+    scale,
+    position: {
+      x: params.center.x - contentPoint.x * scale,
+      y: params.center.y - contentPoint.y * scale,
+    },
+  }
+}
+
 export function preserveViewportOnResize(params: {
   previousWidth: number
   previousHeight: number
