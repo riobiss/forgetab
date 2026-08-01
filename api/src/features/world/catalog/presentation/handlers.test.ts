@@ -6,15 +6,15 @@ const mocks = vi.hoisted(() => ({
   loadEntityCatalogDetailUseCase: vi.fn(),
 }))
 
-vi.mock("@api/presentation/http/auth/requestAuth", () => ({
+vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
   getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest,
 }))
 
-vi.mock("@/application/entityCatalog/use-cases/entityCatalog", () => ({
+vi.mock("@/features/world/catalog/application/use-cases/entityCatalog", () => ({
   loadEntityCatalogPageData: mocks.loadEntityCatalogPageData,
 }))
 
-vi.mock("@/application/entityCatalog/use-cases/loadEntityCatalogDetail", () => ({
+vi.mock("@/features/world/catalog/application/use-cases/loadEntityCatalogDetail", () => ({
   loadEntityCatalogDetailUseCase: mocks.loadEntityCatalogDetailUseCase,
 }))
 
@@ -89,8 +89,6 @@ describe("entity catalog routes", () => {
         key: "guerreiro",
         label: "Guerreiro",
         category: "base",
-        shortDescription: "Linha de frente",
-        content: { type: "doc", content: [] },
         attributeBonuses: {},
         skillBonuses: {},
         catalogMeta: { shortDescription: "Linha de frente", richText: {} },

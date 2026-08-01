@@ -1,13 +1,10 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { toast } from "react-hot-toast"
 import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import type { EntityCatalogTemplateRecord } from "@/features/world/catalog/application/types"
 import { updateEntityCatalogTemplateUseCase } from "@/features/world/catalog/application/use-cases/entityCatalogClient"
-import { createEntityCatalogDependencies } from "@/features/world/catalog/presentation/dependencies"
+import { entityCatalogDependencies } from "@/features/world/catalog/presentation/dependencies"
 
-const entityCatalogDeps = createEntityCatalogDependencies()
 
 type Params = {
   rpgId: string
@@ -20,19 +17,13 @@ export function useEntityDetailsActions({
   entityType,
   templateKey,
 }: Params) {
-  const router = useRouter()
-
   async function saveTemplate(nextTemplate: EntityCatalogTemplateRecord) {
-    await updateEntityCatalogTemplateUseCase(entityCatalogDeps, {
+    await updateEntityCatalogTemplateUseCase(entityCatalogDependencies, {
       rpgId,
       entityType,
       templateKey,
       nextTemplate,
     })
-    toast.success(
-      `${entityType === "class" ? "Classe" : "Raca"} salva com sucesso.`,
-    )
-    router.refresh()
   }
 
   return {

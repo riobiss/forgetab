@@ -3,7 +3,7 @@ import {
   fetchEntityCatalogDetailData,
   HttpEntityCatalogError,
 } from "@/features/world/catalog/infrastructure/repositories/httpEntityCatalogDetailRepository"
-import EntityDetailsFeature from "@/features/world/catalog/presentation/EntityDetailsFeature"
+import EntityDetailsPage from "@/features/world/catalog/presentation/EntityDetailsPage"
 
 type Props = {
   params: Promise<{
@@ -27,7 +27,7 @@ export default async function ClassPage({ params }: Props) {
   }
 
   return (
-    <EntityDetailsFeature
+    <EntityDetailsPage
       rpgId={rpgId}
       entityType="class"
       title="Classe"

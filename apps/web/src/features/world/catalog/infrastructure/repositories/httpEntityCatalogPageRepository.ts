@@ -1,31 +1,12 @@
 import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import type { EntityCatalogPageData } from "@/features/world/catalog/application/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
+import {
+  HttpEntityCatalogError,
+  parseEntityCatalogResponse,
+} from "@/features/world/catalog/infrastructure/http/entityCatalogHttp"
 
-type ErrorPayload = {
-  message?: string
-}
-
-export class HttpEntityCatalogError extends Error {
-  constructor(
-    message: string,
-    readonly status: number,
-  ) {
-    super(message)
-    this.name = "HttpEntityCatalogError"
-  }
-}
-
-async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & ErrorPayload
-  if (!response.ok) {
-    throw new HttpEntityCatalogError(
-      payload.message ?? "Erro ao carregar catalogo de entidades.",
-      response.status,
-    )
-  }
-  return payload
-}
+export { HttpEntityCatalogError }
 
 export async function fetchEntityCatalogPageData(
   rpgId: string,
@@ -40,5 +21,8 @@ export async function fetchEntityCatalogPageData(
     },
   )
 
-  return parseJsonResponse<EntityCatalogPageData>(response)
+  return parseEntityCatalogResponse<EntityCatalogPageData>(
+    response,
+    "Erro ao carregar catalogo de entidades.",
+  )
 }

@@ -28,14 +28,14 @@ export async function loadEntityCatalogCollectionUseCase(
   deps: EntityCatalogDependencies,
   params: CollectionParams,
 ) {
-  return deps.gateway.fetchCollection(params.rpgId, params.entityType)
+  return deps.collectionGateway.fetchCollection(params.rpgId, params.entityType)
 }
 
 export async function saveEntityCatalogCollectionUseCase(
   deps: EntityCatalogDependencies,
   params: SaveCollectionParams,
 ) {
-  await deps.gateway.saveCollection(
+  await deps.collectionGateway.saveCollection(
     params.rpgId,
     params.entityType,
     params.collection,
@@ -46,6 +46,16 @@ export async function createEntityCatalogEntryUseCase(
   deps: EntityCatalogDependencies,
   params: CreateEntryParams,
 ): Promise<{ href: string }> {
+  const label =
+    typeof params.entry.label === "string" ? params.entry.label.trim() : ""
+  if (!label) {
+    throw new Error(
+      params.entityType === "class"
+        ? "Informe o nome da classe."
+        : "Informe o nome da raca.",
+    )
+  }
+
   const currentCollection = await loadEntityCatalogCollectionUseCase(
     deps,
     params,
@@ -61,9 +71,7 @@ export async function createEntityCatalogEntryUseCase(
     deps,
     params,
   )
-  const expectedKey = slugify(
-    typeof params.entry.label === "string" ? params.entry.label : "",
-  )
+  const expectedKey = slugify(label)
   const created = refreshedCollection.find((item) => item.key === expectedKey)
 
   if (!created) {
@@ -97,6 +105,17 @@ export async function updateEntityCatalogTemplateUseCase(
     deps,
     params,
   )
+  const templateExists = currentCollection.some(
+    (item) => item.key === params.templateKey,
+  )
+  if (!templateExists) {
+    throw new Error(
+      params.entityType === "class"
+        ? "Classe nao encontrada."
+        : "Raca nao encontrada.",
+    )
+  }
+
   const nextCollection = currentCollection.map((item) =>
     item.key === params.templateKey ? params.nextTemplate : item,
   )
@@ -111,7 +130,7 @@ export async function buyEntityCatalogSkillUseCase(
   deps: EntityCatalogDependencies,
   params: { characterId: string; skillId: string; level: number },
 ): Promise<EntityCatalogAbilityPurchaseResult> {
-  return deps.gateway.buySkill(params.characterId, {
+  return deps.purchaseGateway.buySkill(params.characterId, {
     skillId: params.skillId,
     level: params.level,
   })

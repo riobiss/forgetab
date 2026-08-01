@@ -52,7 +52,7 @@ vi.mock("@/features/world/skill/use-cases/deleteSkillLevel", () => ({
 }))
 
 vi.mock(
-  "@/features/world/skillSearchIndex/use-cases/skillsSearchIndex",
+  "@/features/world/skill/application/searchIndex/use-cases/skillsSearchIndex",
   () => ({
     normalizeSkillSearchIndexParams: mocks.normalizeSkillSearchIndexParams,
     loadSkillsSearchIndexUseCase: mocks.loadSkillsSearchIndexUseCase,

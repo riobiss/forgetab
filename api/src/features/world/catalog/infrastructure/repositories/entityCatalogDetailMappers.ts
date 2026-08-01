@@ -5,7 +5,7 @@ import type {
   EntityCatalogTemplateOption,
 } from "@/features/world/catalog/application/types"
 import type { EntityCatalogDetailSnapshot } from "@/features/world/catalog/application/ports/EntityCatalogDetailRepository.js"
-import { parseCharacterAbilities } from "@/features/world/character/infrastructure/abilities/services/characterAbilityCostParser.js"
+import { parseCharacterAbilities } from "@/features/world/character/application/abilities/rules/characterAbilityRules.js"
 import { normalizeRpgVisibility } from "@/features/world/infrastructure/shared/normalizeRpgVisibility.js"
 import type {
   DbClassRow,
@@ -39,10 +39,6 @@ export function toOwnedBySkill(value: Prisma.JsonValue) {
   )
 }
 
-export function hasMissingColumn(error: unknown, columnName: string) {
-  return error instanceof Error && error.message.includes(columnName)
-}
-
 export function mapClassDetailRow(
   row: DbClassRow,
 ): EntityCatalogDetailSnapshot {
@@ -61,14 +57,6 @@ export function mapClassDetailRow(
       key: row.key,
       label: row.label,
       category: row.category?.trim() || "geral",
-      shortDescription: catalogMeta.shortDescription,
-      content: (catalogMeta.richText.description as Record<
-        string,
-        unknown
-      >) ?? {
-        type: "doc",
-        content: [],
-      },
       attributeBonuses: toBonusRecord(row.attributeBonuses),
       skillBonuses: toBonusRecord(row.skillBonuses),
       catalogMeta,
@@ -92,14 +80,6 @@ export function mapRaceDetailRow(row: DbRaceRow): EntityCatalogDetailSnapshot {
       key: row.key,
       label: row.label,
       category: row.category?.trim() || "geral",
-      shortDescription: catalogMeta.shortDescription,
-      content: (catalogMeta.richText.description as Record<
-        string,
-        unknown
-      >) ?? {
-        type: "doc",
-        content: [],
-      },
       attributeBonuses: toBonusRecord(row.attributeBonuses),
       skillBonuses: toBonusRecord(row.skillBonuses),
       catalogMeta,

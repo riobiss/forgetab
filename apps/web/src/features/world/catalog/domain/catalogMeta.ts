@@ -33,7 +33,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isRichTextDocument(value: unknown): value is RichTextDocument {
-  return isRecord(value) && typeof value.type === "string"
+  return (
+    isRecord(value) &&
+    value.type === "doc" &&
+    (value.content === undefined || Array.isArray(value.content))
+  )
 }
 
 function normalizeShortDescription(value: unknown) {

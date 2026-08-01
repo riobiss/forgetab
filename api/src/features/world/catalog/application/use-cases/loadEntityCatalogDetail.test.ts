@@ -1,9 +1,17 @@
 import { describe, expect, it, vi } from "vitest"
 import type { EntityCatalogDetailAccessService } from "@/features/world/catalog/application/ports/EntityCatalogDetailAccessService"
 import type { EntityCatalogDetailRepository } from "@/features/world/catalog/application/ports/EntityCatalogDetailRepository"
+import type { EntityCatalogAbilityRepository } from "@/features/world/catalog/application/ports/EntityCatalogAbilityRepository"
+import type { EntityCatalogPlayerRepository } from "@/features/world/catalog/application/ports/EntityCatalogPlayerRepository"
+import type { EntityCatalogPurchaseRepository } from "@/features/world/catalog/application/ports/EntityCatalogPurchaseRepository"
 import { loadEntityCatalogDetailUseCase } from "@/features/world/catalog/application/use-cases/loadEntityCatalogDetail"
 
-function createRepositoryMock(): EntityCatalogDetailRepository {
+type RepositoryMock = EntityCatalogDetailRepository &
+  EntityCatalogAbilityRepository &
+  EntityCatalogPlayerRepository &
+  EntityCatalogPurchaseRepository
+
+function createRepositoryMock(): RepositoryMock {
   return {
     getClassDetail: vi.fn(),
     getRaceDetail: vi.fn(),
@@ -18,14 +26,25 @@ function createRepositoryMock(): EntityCatalogDetailRepository {
   }
 }
 
+function createDependencies(
+  repository: RepositoryMock,
+  accessService: EntityCatalogDetailAccessService,
+) {
+  return {
+    repository,
+    abilityRepository: repository,
+    playerRepository: repository,
+    purchaseRepository: repository,
+    accessService,
+  }
+}
+
 function createAccessServiceMock(): EntityCatalogDetailAccessService {
   return {
-    getRpgPermission: vi.fn().mockResolvedValue({
+    getAccess: vi.fn().mockResolvedValue({
       canManage: false,
-      isOwner: false,
       isAcceptedMember: false,
     }),
-    getMembershipStatus: vi.fn().mockResolvedValue("none"),
   }
 }
 
@@ -37,7 +56,7 @@ describe("loadEntityCatalogDetailUseCase", () => {
     vi.mocked(repository.getClassDetail).mockResolvedValue(null)
 
     const result = await loadEntityCatalogDetailUseCase(
-      { repository, accessService },
+      createDependencies(repository, accessService),
       {
         rpgId: "rpg-1",
         classId: "class-1",
@@ -66,8 +85,6 @@ describe("loadEntityCatalogDetailUseCase", () => {
         key: "elf",
         label: "Elfo",
         category: "geral",
-        shortDescription: null,
-        content: { type: "doc", content: [] },
         attributeBonuses: {},
         skillBonuses: {},
         catalogMeta: {
@@ -78,7 +95,7 @@ describe("loadEntityCatalogDetailUseCase", () => {
     })
 
     const result = await loadEntityCatalogDetailUseCase(
-      { repository, accessService },
+      createDependencies(repository, accessService),
       { rpgId: "rpg-1", raceKey: "elf", userId: "user-2", entityType: "race" },
     )
 
@@ -102,8 +119,6 @@ describe("loadEntityCatalogDetailUseCase", () => {
         key: "mage",
         label: "Maga",
         category: "arcana",
-        shortDescription: "Mestra do mana",
-        content: { type: "doc", content: [] },
         attributeBonuses: { int: 2 },
         skillBonuses: { magia: 3 },
         catalogMeta: {
@@ -112,9 +127,8 @@ describe("loadEntityCatalogDetailUseCase", () => {
         },
       },
     })
-    vi.mocked(accessService.getRpgPermission).mockResolvedValue({
+    vi.mocked(accessService.getAccess).mockResolvedValue({
       canManage: true,
-      isOwner: true,
       isAcceptedMember: true,
     })
     vi.mocked(repository.listAttributeTemplates).mockResolvedValue([
@@ -153,7 +167,7 @@ describe("loadEntityCatalogDetailUseCase", () => {
     })
 
     const result = await loadEntityCatalogDetailUseCase(
-      { repository, accessService },
+      createDependencies(repository, accessService),
       {
         rpgId: "rpg-1",
         classId: "class-1",
@@ -195,8 +209,6 @@ describe("loadEntityCatalogDetailUseCase", () => {
         key: "elf",
         label: "Elfo",
         category: "nobre",
-        shortDescription: "Antigos",
-        content: { type: "doc", content: [] },
         attributeBonuses: { dex: 2 },
         skillBonuses: {},
         catalogMeta: {
@@ -210,7 +222,7 @@ describe("loadEntityCatalogDetailUseCase", () => {
     vi.mocked(repository.listRacePlayers).mockResolvedValue([])
 
     const result = await loadEntityCatalogDetailUseCase(
-      { repository, accessService },
+      createDependencies(repository, accessService),
       { rpgId: "rpg-1", raceKey: "elf", userId: null, entityType: "race" },
     )
 

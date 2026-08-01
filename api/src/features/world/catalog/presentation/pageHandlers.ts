@@ -12,11 +12,17 @@ async function loadCatalog(
 ) {
   const userId = await resolveUserId(request)
 
-  return loadEntityCatalogPageData(entityCatalogRouteDeps.repository, {
-    rpgId: request.params.rpgId,
-    userId,
-    entityType,
-  })
+  return loadEntityCatalogPageData(
+    {
+      repository: entityCatalogRouteDeps.repository,
+      accessService: entityCatalogRouteDeps.pageAccessService,
+    },
+    {
+      rpgId: request.params.rpgId,
+      userId,
+      entityType,
+    },
+  )
 }
 
 export async function getClassCatalogPageHandler(

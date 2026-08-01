@@ -10,9 +10,8 @@ import {
   loadEntityCatalogCollectionUseCase,
   saveEntityCatalogCollectionUseCase,
 } from "@/features/world/catalog/application/use-cases/entityCatalogClient"
-import { createEntityCatalogDependencies } from "@/features/world/catalog/presentation/dependencies"
+import { entityCatalogDependencies } from "@/features/world/catalog/presentation/dependencies"
 
-const entityCatalogDeps = createEntityCatalogDependencies()
 
 type Params = {
   rpgId: string
@@ -47,7 +46,7 @@ export function useEntityCatalogActions({
       },
     }
 
-    const result = await createEntityCatalogEntryUseCase(entityCatalogDeps, {
+    const result = await createEntityCatalogEntryUseCase(entityCatalogDependencies, {
       rpgId,
       entityType,
       entry: nextEntry,
@@ -61,19 +60,18 @@ export function useEntityCatalogActions({
   }
 
   async function fetchCollection() {
-    return loadEntityCatalogCollectionUseCase(entityCatalogDeps, {
+    return loadEntityCatalogCollectionUseCase(entityCatalogDependencies, {
       rpgId,
       entityType,
     })
   }
 
   async function saveCollection(collection: EntityCatalogTemplateRecord[]) {
-    await saveEntityCatalogCollectionUseCase(entityCatalogDeps, {
+    await saveEntityCatalogCollectionUseCase(entityCatalogDependencies, {
       rpgId,
       entityType,
       collection,
     })
-    toast.success("Colecao salva com sucesso.")
     router.refresh()
   }
 

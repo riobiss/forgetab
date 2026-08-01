@@ -1,11 +1,8 @@
 import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import type {
-  EntityCatalogAbilityPurchaseState,
   EntityCatalogCurrentDetail,
-  EntityCatalogPlayerItem,
   EntityCatalogTemplateOption,
 } from "@/features/world/catalog/application/types"
-import type { EntityCatalogAbilityView } from "@/features/world/catalog/application/use-cases/entityCatalogAbilities"
 
 export type EntityCatalogDetailSnapshot = {
   entityType: CatalogEntityType
@@ -18,7 +15,7 @@ export type EntityCatalogDetailSnapshot = {
   current: EntityCatalogCurrentDetail
 }
 
-export type EntityCatalogDetailRepository = {
+export interface EntityCatalogDetailRepository {
   getClassDetail(params: {
     rpgId: string
     classId: string
@@ -29,33 +26,4 @@ export type EntityCatalogDetailRepository = {
   }): Promise<EntityCatalogDetailSnapshot | null>
   listAttributeTemplates(rpgId: string): Promise<EntityCatalogTemplateOption[]>
   listSkillTemplates(rpgId: string): Promise<EntityCatalogTemplateOption[]>
-  listClassAbilities(
-    classTemplateId: string,
-  ): Promise<EntityCatalogAbilityView[]>
-  listRaceAbilities(raceTemplateId: string): Promise<EntityCatalogAbilityView[]>
-  listClassPlayers(params: {
-    rpgId: string
-    classKey: string
-    classId: string
-    userId: string | null
-    isOwner: boolean
-  }): Promise<EntityCatalogPlayerItem[]>
-  listRacePlayers(params: {
-    rpgId: string
-    raceKey: string
-    userId: string | null
-    isOwner: boolean
-  }): Promise<EntityCatalogPlayerItem[]>
-  getClassPurchaseState(params: {
-    rpgId: string
-    userId: string
-    classKey: string
-    costsEnabled: boolean
-    costResourceName: string
-  }): Promise<EntityCatalogAbilityPurchaseState>
-  getRacePurchaseState(params: {
-    rpgId: string
-    userId: string
-    raceKey: string
-  }): Promise<EntityCatalogAbilityPurchaseState>
 }

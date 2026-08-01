@@ -1,9 +1,15 @@
 import type { EntityCatalogDetailAccessService } from "@/features/world/catalog/application/ports/EntityCatalogDetailAccessService"
 import type { EntityCatalogDetailRepository } from "@/features/world/catalog/application/ports/EntityCatalogDetailRepository"
+import type { EntityCatalogAbilityRepository } from "@/features/world/catalog/application/ports/EntityCatalogAbilityRepository"
+import type { EntityCatalogPlayerRepository } from "@/features/world/catalog/application/ports/EntityCatalogPlayerRepository"
+import type { EntityCatalogPurchaseRepository } from "@/features/world/catalog/application/ports/EntityCatalogPurchaseRepository"
 import type { EntityCatalogDetailData } from "@/features/world/catalog/application/types"
 
 type Deps = {
   repository: EntityCatalogDetailRepository
+  abilityRepository: EntityCatalogAbilityRepository
+  playerRepository: EntityCatalogPlayerRepository
+  purchaseRepository: EntityCatalogPurchaseRepository
   accessService: EntityCatalogDetailAccessService
 }
 
@@ -45,19 +51,12 @@ export async function loadEntityCatalogDetailUseCase(
   let isAcceptedMember = false
 
   if (params.userId) {
-    const permission = await deps.accessService.getRpgPermission(
+    const access = await deps.accessService.getAccess(
       params.rpgId,
       params.userId,
     )
-    canManage = permission.canManage
-    if (!isOwner) {
-      isAcceptedMember =
-        permission.isAcceptedMember ||
-        (await deps.accessService.getMembershipStatus(
-          params.rpgId,
-          params.userId,
-        )) === "accepted"
-    }
+    canManage = access.canManage
+    isAcceptedMember = !isOwner && access.isAcceptedMember
   }
 
   if (!(snapshot.visibility === "public" || isOwner || isAcceptedMember)) {
@@ -74,17 +73,17 @@ export async function loadEntityCatalogDetailUseCase(
     deps.repository.listAttributeTemplates(params.rpgId),
     deps.repository.listSkillTemplates(params.rpgId),
     snapshot.entityType === "class"
-      ? deps.repository.listClassAbilities(snapshot.id)
-      : deps.repository.listRaceAbilities(snapshot.id),
+      ? deps.abilityRepository.listClassAbilities(snapshot.id)
+      : deps.abilityRepository.listRaceAbilities(snapshot.id),
     snapshot.entityType === "class"
-      ? deps.repository.listClassPlayers({
+      ? deps.playerRepository.listClassPlayers({
           rpgId: params.rpgId,
           classKey: snapshot.key,
           classId: snapshot.id,
           userId: params.userId,
           isOwner,
         })
-      : deps.repository.listRacePlayers({
+      : deps.playerRepository.listRacePlayers({
           rpgId: params.rpgId,
           raceKey: snapshot.key,
           userId: params.userId,
@@ -92,14 +91,14 @@ export async function loadEntityCatalogDetailUseCase(
         }),
     params.userId
       ? snapshot.entityType === "class"
-        ? deps.repository.getClassPurchaseState({
+        ? deps.purchaseRepository.getClassPurchaseState({
             rpgId: params.rpgId,
             userId: params.userId,
             classKey: snapshot.key,
             costsEnabled: snapshot.costsEnabled,
             costResourceName: snapshot.costResourceName,
           })
-        : deps.repository.getRacePurchaseState({
+        : deps.purchaseRepository.getRacePurchaseState({
             rpgId: params.rpgId,
             userId: params.userId,
             raceKey: snapshot.key,

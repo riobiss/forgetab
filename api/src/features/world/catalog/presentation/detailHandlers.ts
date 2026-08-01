@@ -17,6 +17,9 @@ export async function getClassCatalogDetailHandler(
     const payload = await loadEntityCatalogDetailUseCase(
       {
         repository: entityCatalogRouteDeps.detailRepository,
+        abilityRepository: entityCatalogRouteDeps.abilityRepository,
+        playerRepository: entityCatalogRouteDeps.playerRepository,
+        purchaseRepository: entityCatalogRouteDeps.purchaseRepository,
         accessService: entityCatalogRouteDeps.detailAccessService,
       },
       {
@@ -46,6 +49,9 @@ export async function getRaceCatalogDetailHandler(
     const payload = await loadEntityCatalogDetailUseCase(
       {
         repository: entityCatalogRouteDeps.detailRepository,
+        abilityRepository: entityCatalogRouteDeps.abilityRepository,
+        playerRepository: entityCatalogRouteDeps.playerRepository,
+        purchaseRepository: entityCatalogRouteDeps.purchaseRepository,
         accessService: entityCatalogRouteDeps.detailAccessService,
       },
       {

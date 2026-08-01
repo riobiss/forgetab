@@ -2,15 +2,12 @@ import {
   getCatalogMetaExcerpt,
   getCatalogMetaSearchText,
 } from "@/features/world/catalog/domain/catalogMeta"
-import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import type {
   EntityCatalogFilters,
   EntityCatalogGroup,
   EntityCatalogItem,
-  EntityCatalogPageData,
   EntityCatalogSort,
 } from "@/features/world/catalog/application/types"
-import type { EntityCatalogRepository } from "@/features/world/catalog/application/ports/EntityCatalogRepository"
 
 function normalizeText(value: string) {
   return value
@@ -18,38 +15,6 @@ function normalizeText(value: string) {
     .replace(/\p{Diacritic}/gu, "")
     .toLocaleLowerCase("pt-BR")
     .trim()
-}
-
-export async function loadEntityCatalogPageData(
-  repository: EntityCatalogRepository,
-  params: {
-    rpgId: string
-    userId: string | null
-    entityType: CatalogEntityType
-  },
-): Promise<EntityCatalogPageData | null> {
-  const access = await repository.getAccessSnapshot({
-    rpgId: params.rpgId,
-    userId: params.userId,
-  })
-
-  if (!access.exists || !access.canRead) {
-    return null
-  }
-
-  const items = await repository.listItems({
-    rpgId: params.rpgId,
-    entityType: params.entityType,
-    canManage: access.canManage,
-  })
-
-  return {
-    canManage: access.canManage,
-    items: items.map((item) => ({
-      ...item,
-      entityType: params.entityType,
-    })),
-  }
 }
 
 export function searchCatalogItems(items: EntityCatalogItem[], search: string) {

@@ -1,5 +1,7 @@
-import type { EntityCatalogGateway } from "@/features/world/catalog/application/contracts/EntityCatalogGateway"
+import type { EntityCatalogCollectionGateway } from "@/features/world/catalog/application/contracts/EntityCatalogCollectionGateway"
+import type { EntityCatalogPurchaseGateway } from "@/features/world/catalog/application/contracts/EntityCatalogPurchaseGateway"
 
 export type EntityCatalogDependencies = {
-  gateway: EntityCatalogGateway
+  collectionGateway: EntityCatalogCollectionGateway
+  purchaseGateway: EntityCatalogPurchaseGateway
 }

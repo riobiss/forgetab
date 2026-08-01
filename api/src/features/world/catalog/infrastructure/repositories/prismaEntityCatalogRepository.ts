@@ -3,11 +3,6 @@ import { normalizeEntityCatalogMeta } from "@/features/world/catalog/domain/cata
 import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import type { EntityCatalogRepository } from "@/features/world/catalog/application/ports/EntityCatalogRepository.js"
 import { prisma } from "@/lib/prisma"
-import { getRpgPermissionByPrisma } from "@/features/world/infrastructure/services/prismaRpgAccessResolver.js"
-
-type AccessRow = {
-  visibility: "private" | "public"
-}
 
 type CatalogRow = {
   id: string
@@ -32,48 +27,10 @@ function getFallbackShortDescription(
 }
 
 export const prismaEntityCatalogRepository: EntityCatalogRepository = {
-  async getAccessSnapshot({ rpgId, userId }) {
-    const rows = await prisma.$queryRaw<AccessRow[]>(Prisma.sql`
-      SELECT visibility
-      FROM rpgs
-      WHERE id = ${rpgId}
-      LIMIT 1
-    `)
-
-    const rpg = rows[0]
-    if (!rpg) {
-      return { exists: false, canRead: false, canManage: false }
-    }
-
-    if (rpg.visibility === "public" && !userId) {
-      return { exists: true, canRead: true, canManage: false }
-    }
-
-    if (!userId) {
-      return {
-        exists: true,
-        canRead: rpg.visibility === "public",
-        canManage: false,
-      }
-    }
-
-    const permission = await getRpgPermissionByPrisma(rpgId, userId)
-    return {
-      exists: permission.exists,
-      canRead:
-        rpg.visibility === "public" ||
-        permission.isOwner ||
-        permission.isAcceptedMember,
-      canManage: permission.canManage,
-    }
-  },
-
-  async listItems({ rpgId, entityType, canManage }) {
-    let rows: CatalogRow[] = []
-
-    if (entityType === "class") {
-      try {
-        rows = await prisma.$queryRaw<CatalogRow[]>(Prisma.sql`
+  async listItems({ rpgId, entityType }) {
+    const rows =
+      entityType === "class"
+        ? await prisma.$queryRaw<CatalogRow[]>(Prisma.sql`
           SELECT
             id,
             key,
@@ -84,28 +41,7 @@ export const prismaEntityCatalogRepository: EntityCatalogRepository = {
           WHERE rpg_id = ${rpgId}
           ORDER BY position ASC
         `)
-      } catch (error) {
-        if (
-          !(error instanceof Error) ||
-          !error.message.includes('column "catalog_meta" does not exist')
-        ) {
-          throw error
-        }
-
-        rows = await prisma.$queryRaw<CatalogRow[]>(Prisma.sql`
-          SELECT
-            id,
-            key,
-            label,
-            category
-          FROM rpg_class_templates
-          WHERE rpg_id = ${rpgId}
-          ORDER BY position ASC
-        `)
-      }
-    } else {
-      try {
-        rows = await prisma.$queryRaw<CatalogRow[]>(Prisma.sql`
+        : await prisma.$queryRaw<CatalogRow[]>(Prisma.sql`
           SELECT
             id,
             key,
@@ -117,34 +53,6 @@ export const prismaEntityCatalogRepository: EntityCatalogRepository = {
           WHERE rpg_id = ${rpgId}
           ORDER BY position ASC
         `)
-      } catch (error) {
-        if (!(error instanceof Error)) {
-          throw error
-        }
-
-        const hasMissingMeta = error.message.includes(
-          'column "catalog_meta" does not exist',
-        )
-        const hasMissingCategory = error.message.includes(
-          'column "category" does not exist',
-        )
-        if (!hasMissingMeta && !hasMissingCategory) {
-          throw error
-        }
-
-        rows = await prisma.$queryRaw<CatalogRow[]>(Prisma.sql`
-          SELECT
-            id,
-            key,
-            label,
-            'geral'::text AS category,
-            lore
-          FROM rpg_race_templates
-          WHERE rpg_id = ${rpgId}
-          ORDER BY position ASC
-        `)
-      }
-    }
 
     return rows.map((row) => {
       const meta = normalizeEntityCatalogMeta(row.catalogMeta)
@@ -160,13 +68,6 @@ export const prismaEntityCatalogRepository: EntityCatalogRepository = {
           ...meta,
           shortDescription,
         },
-        href:
-          entityType === "class"
-            ? `/rpg/${rpgId}/classes/${row.id}`
-            : `/rpg/${rpgId}/races/${row.key}`,
-        editHref: canManage
-          ? `/rpg/${rpgId}/edit/advanced/${entityType}/${row.key}`
-          : undefined,
       }
     })
   },

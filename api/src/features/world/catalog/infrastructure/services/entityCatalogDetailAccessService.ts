@@ -6,16 +6,15 @@ import {
 
 export const entityCatalogDetailAccessService: EntityCatalogDetailAccessService =
   {
-    async getRpgPermission(rpgId, userId) {
+    async getAccess(rpgId, userId) {
       const permission = await getRpgPermissionByPrisma(rpgId, userId)
+      const isAcceptedMember =
+        permission.isAcceptedMember ||
+        (await getRpgMembershipStatusByPrisma(rpgId, userId)) === "accepted"
+
       return {
         canManage: permission.canManage,
-        isOwner: permission.isOwner,
-        isAcceptedMember: permission.isAcceptedMember,
+        isAcceptedMember,
       }
-    },
-
-    async getMembershipStatus(rpgId, userId) {
-      return (await getRpgMembershipStatusByPrisma(rpgId, userId)) ?? "none"
     },
   }

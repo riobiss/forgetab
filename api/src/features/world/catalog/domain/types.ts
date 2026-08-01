@@ -7,7 +7,11 @@ export type CatalogRichTextField =
   | "lore"
   | "notes"
 
-export type RichTextDocument = Record<string, unknown>
+export type RichTextDocument = {
+  type: "doc"
+  content?: Array<Record<string, unknown>>
+  [key: string]: unknown
+}
 
 export type CatalogRichTextMap = Partial<Record<CatalogRichTextField, RichTextDocument | null>>
 
@@ -15,4 +19,3 @@ export type EntityCatalogMeta = {
   shortDescription: string | null
   richText: CatalogRichTextMap
 }
-

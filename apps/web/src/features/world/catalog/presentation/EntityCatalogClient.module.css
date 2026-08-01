@@ -313,12 +313,21 @@
 
 .groupHeader {
   display: flex;
-  justify-content: space-between;
   gap: 0.8rem;
   align-items: center;
   padding: 1rem 1rem 0.9rem;
-  border: 0;
   width: 100%;
+}
+
+.groupToggle {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+  padding: 0;
+  border: 0;
   background: transparent;
   color: var(--color-text-primary);
   text-align: left;

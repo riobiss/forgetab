@@ -1,6 +1,7 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import type { EntityCatalogPlayerItem } from "@/features/world/catalog/application/types"
 import { prisma } from "@/lib/prisma"
+import type { EntityCatalogPlayerRepository } from "@/features/world/catalog/application/ports/EntityCatalogPlayerRepository"
 
 const buildVisibilityCondition = (isOwner: boolean, userId: string | null) =>
   isOwner
@@ -56,3 +57,9 @@ export async function listRaceCatalogPlayers(params: {
     ORDER BY created_at DESC
   `)
 }
+
+export const prismaEntityCatalogPlayerRepository: EntityCatalogPlayerRepository =
+  {
+    listClassPlayers: listClassCatalogPlayers,
+    listRacePlayers: listRaceCatalogPlayers,
+  }
