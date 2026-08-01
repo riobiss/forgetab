@@ -135,17 +135,6 @@ export const prismaLibraryRepository: LibraryRepository = {
     return rows[0] ?? null
   },
 
-  async sectionExists(rpgId, sectionId) {
-    const rows = await prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
-      SELECT id
-      FROM rpg_library_sections
-      WHERE id = ${sectionId}
-        AND rpg_id = ${rpgId}
-      LIMIT 1
-    `)
-    return Boolean(rows[0])
-  },
-
   async listBooks(rpgId, sectionId) {
     const rows = await prisma.$queryRaw<LibraryBookRow[]>(Prisma.sql`
       SELECT

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
@@ -15,16 +15,19 @@ const mocks = vi.hoisted(() => ({
   deleteLibraryBook: vi.fn(),
 }))
 
-vi.mock("@api/presentation/http/auth/requestAuth", () => ({
+vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
-vi.mock("@/application/library/use-cases/libraryApi", () => ({
+vi.mock("@/features/world/library/application/use-cases/librarySections", () => ({
   listLibrarySections: mocks.listLibrarySections,
   createLibrarySection: mocks.createLibrarySection,
   getLibrarySection: mocks.getLibrarySection,
   updateLibrarySection: mocks.updateLibrarySection,
   deleteLibrarySection: mocks.deleteLibrarySection,
+}))
+
+vi.mock("@/features/world/library/application/use-cases/libraryBooks", () => ({
   listLibrarySectionBooks: mocks.listLibrarySectionBooks,
   createLibraryBook: mocks.createLibraryBook,
   getLibraryBook: mocks.getLibraryBook,

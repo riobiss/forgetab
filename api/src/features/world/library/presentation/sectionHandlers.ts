@@ -3,10 +3,10 @@ import {
   createLibrarySection,
   deleteLibrarySection,
   getLibrarySection,
-  listLibrarySectionBooks,
   listLibrarySections,
   updateLibrarySection,
-} from "@/features/world/library/application/use-cases/libraryApi"
+} from "@/features/world/library/application/use-cases/librarySections"
+import { listLibrarySectionBooks } from "@/features/world/library/application/use-cases/libraryBooks"
 import {
   parseJsonBody,
   requireUserId,

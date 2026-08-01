@@ -1,5 +1,5 @@
 import LibraryBookEditorFeature from "@/features/world/library/presentation/books/LibraryBookEditorFeature"
-import { loadLibrarySectionShellData } from "../../../loadLibraryShellData"
+import { loadLibrarySectionPageData } from "@/features/world/library/presentation/server/loadLibraryPageData"
 
 type Params = {
   params: Promise<{
@@ -11,7 +11,7 @@ type Params = {
 
 export default async function ViewLibraryBookPage({ params }: Params) {
   const { rpgId, sectionId, bookId } = await params
-  const { sectionTitle } = await loadLibrarySectionShellData(rpgId, sectionId)
+  const { sectionTitle } = await loadLibrarySectionPageData(rpgId, sectionId)
 
   return (
     <LibraryBookEditorFeature

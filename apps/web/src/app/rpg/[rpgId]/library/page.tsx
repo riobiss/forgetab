@@ -1,5 +1,5 @@
 import LibrarySectionsFeature from "@/features/world/library/presentation/LibrarySectionsFeature"
-import { loadLibraryShellData } from "./loadLibraryShellData"
+import { loadLibraryPageData } from "@/features/world/library/presentation/server/loadLibraryPageData"
 
 type PageProps = {
   params: Promise<{
@@ -9,7 +9,7 @@ type PageProps = {
 
 export default async function LibrarySectionsPage({ params }: PageProps) {
   const { rpgId } = await params
-  const { rpgTitle } = await loadLibraryShellData(rpgId)
+  const { rpgTitle } = await loadLibraryPageData(rpgId)
 
   return <LibrarySectionsFeature rpgId={rpgId} rpgTitle={rpgTitle} gatewayFactory="http" />
 }

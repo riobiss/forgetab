@@ -1,4 +1,14 @@
-import type { JSONContent } from "@tiptap/react"
+export type LibraryDocumentNode = {
+  type?: string
+  attrs?: Record<string, unknown>
+  content?: LibraryDocumentNode[]
+  marks?: Array<{
+    type: string
+    attrs?: Record<string, unknown>
+  }>
+  text?: string
+  [key: string]: unknown
+}
 
 export type LibrarySectionDto = {
   id: string
@@ -20,7 +30,7 @@ export type LibraryBookDto = {
   sectionId: string
   title: string
   description: string | null
-  content: JSONContent
+  content: LibraryDocumentNode
   canEdit?: boolean
   createdByUserId?: string | null
   visibility: "private" | "public" | "unlisted"
@@ -56,7 +66,7 @@ export type UpsertLibrarySectionPayloadDto = {
 export type UpsertLibraryBookPayloadDto = {
   title: string
   description: string | null
-  content: JSONContent
+  content: LibraryDocumentNode
   visibility: "private" | "public" | "unlisted"
   allowedCharacterIds: string[]
   allowedClassKeys: string[]

@@ -4,7 +4,7 @@ import {
   deleteLibraryBook,
   getLibraryBook,
   updateLibraryBook,
-} from "@/features/world/library/application/use-cases/libraryApi"
+} from "@/features/world/library/application/use-cases/libraryBooks"
 import {
   parseJsonBody,
   requireUserId,

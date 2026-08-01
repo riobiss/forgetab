@@ -35,7 +35,6 @@ export interface LibraryRepository {
     sectionId: string
   }): Promise<{ createdByUserId: string | null } | null>
   deleteSection(rpgId: string, sectionId: string): Promise<boolean>
-  sectionExists(rpgId: string, sectionId: string): Promise<boolean>
   listBooks(rpgId: string, sectionId: string): Promise<LibraryBookDto[]>
   findBook(rpgId: string, bookId: string): Promise<LibraryBookDto | null>
   findBookOwner(params: {
@@ -72,3 +71,26 @@ export interface LibraryRepository {
   touchSection(sectionId: string): Promise<void>
   getViewerCharacters(rpgId: string, userId: string): Promise<ViewerCharacter[]>
 }
+
+export type LibrarySectionRepository = Pick<
+  LibraryRepository,
+  | "listSections"
+  | "findSection"
+  | "createSection"
+  | "updateSection"
+  | "findSectionOwner"
+  | "deleteSection"
+>
+
+export type LibraryBookRepository = Pick<
+  LibraryRepository,
+  | "findSection"
+  | "listBooks"
+  | "findBook"
+  | "findBookOwner"
+  | "createBook"
+  | "updateBook"
+  | "deleteBook"
+  | "touchSection"
+  | "getViewerCharacters"
+>
