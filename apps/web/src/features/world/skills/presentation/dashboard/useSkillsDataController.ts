@@ -212,8 +212,8 @@ export function useSkillsDataController({
         const skill = await loadSkillDetail(deps, { skillId: selectedSkillId })
 
         if (cancelled) return
-        setActiveSkill(skill as SkillDetail)
-        setMetaForm(mapSkillToMetaForm(skill as SkillDetail))
+        setActiveSkill(skill)
+        setMetaForm(mapSkillToMetaForm(skill))
         const firstLevel = skill.levels[0]
         setSelectedLevelId(firstLevel?.id ?? "")
         setLevelForm(

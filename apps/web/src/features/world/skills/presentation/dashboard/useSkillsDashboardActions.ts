@@ -88,10 +88,10 @@ export function useSkillsDashboardActions(
         throw new Error("Categoria obrigatoria para salvar habilidade.")
       }
 
-      const updatedSkill = (await updateSkillMetaUseCase(deps, {
+      const updatedSkill = await updateSkillMetaUseCase(deps, {
         skillId: activeSkill.id,
         payload: mapUpdateSkillMetaPayload(metaForm),
-      })) as SkillDetail
+      })
 
       setActiveSkill(updatedSkill)
       setSkills((prev) =>
@@ -141,7 +141,7 @@ export function useSkillsDashboardActions(
       setSuccess("")
     }
     try {
-      const updatedSkill = (await updateSkillLevelUseCase(deps, {
+      const updatedSkill = await updateSkillLevelUseCase(deps, {
         skillId: activeSkill.id,
         levelId: selectedLevel.id,
         payload: mapUpdateSkillLevelPayload({
@@ -149,7 +149,7 @@ export function useSkillsDashboardActions(
           level: levelForm,
           fallbackLevelRequired: selectedLevel.levelRequired,
         }),
-      })) as SkillDetail
+      })
 
       setActiveSkill(updatedSkill)
       if (showSuccess) {
@@ -226,13 +226,13 @@ export function useSkillsDashboardActions(
         throw new Error("Categoria obrigatoria para criar habilidade.")
       }
 
-      const createdSkill = (await createSkillUseCase(deps, {
+      const createdSkill = await createSkillUseCase(deps, {
         payload: mapCreateSkillPayload({
           rpgId: selectedRpgId,
           meta: metaForm,
           level: levelForm,
         }),
-      })) as SkillDetail
+      })
 
       setCreateOpen(false)
       setEditStep(1)
@@ -273,9 +273,9 @@ export function useSkillsDashboardActions(
     setError("")
     setSuccess("")
     try {
-      const updatedSkill = (await createSkillLevelSnapshotUseCase(deps, {
+      const updatedSkill = await createSkillLevelSnapshotUseCase(deps, {
         skillId: activeSkill.id,
-      })) as SkillDetail
+      })
       setActiveSkill(updatedSkill)
       setMetaForm(mapSkillToMetaForm(updatedSkill))
       setSkills((prev) =>
@@ -357,10 +357,10 @@ export function useSkillsDashboardActions(
     setSuccess("")
     try {
       const levelNumber = selectedLevel.levelNumber
-      const updatedSkill = (await deleteSkillLevelUseCase(deps, {
+      const updatedSkill = await deleteSkillLevelUseCase(deps, {
         skillId: activeSkill.id,
         levelId: selectedLevel.id,
-      })) as SkillDetail
+      })
 
       setActiveSkill(updatedSkill)
       setMetaForm(mapSkillToMetaForm(updatedSkill))

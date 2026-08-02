@@ -2,11 +2,12 @@ import {
   buildSkillSlug,
   skillMetaPatchSchema,
 } from "@/lib/validators/skillBuilder"
-import type { SkillRepository } from "@/features/world/skill/application/ports/SkillRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import type { SkillUpdateRepository } from "@/features/world/skill/application/ports/SkillRepository"
+import { AppError } from "@/features/shared/application/errors/AppError"
+import { mapSkillError } from "@/features/world/skill/application/use-cases/shared"
 
 type UpdateSkillDeps = {
-  repository: SkillRepository
+  repository: SkillUpdateRepository
 }
 
 export async function updateSkill(
@@ -59,27 +60,6 @@ export async function updateSkill(
     )
     return { skill: updated }
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error
-    }
-
-    if (
-      error instanceof Error &&
-      error.message.includes("skills_owner_id_rpg_scope_slug_key")
-    ) {
-      throw new AppError("Slug ja utilizado neste escopo (owner + rpg).", 409)
-    }
-
-    if (
-      error instanceof Error &&
-      error.message.includes('relation "skills" does not exist')
-    ) {
-      throw new AppError(
-        "Tabela skills nao existe no banco. Rode a migration.",
-        500,
-      )
-    }
-
-    throw new AppError("Erro interno ao atualizar skill.", 500)
+    mapSkillError(error, "Erro interno ao atualizar skill.")
   }
 }

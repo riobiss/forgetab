@@ -1,41 +1,16 @@
 import type { ActionType, SkillCategory, SkillTag, SkillType } from "@/types/skillBuilder"
+import type {
+  SkillDetailDto,
+  SkillLevelDto,
+  SkillListItemDto,
+  TemplateOptionDto,
+} from "@/features/world/skills/application/skillsDashboard/types"
 
 export type OwnedRpg = { id: string; title: string }
-export type TemplateOption = { id: string; label: string }
-
-export type RpgSettingsPayload = {
-  rpg?: {
-    costResourceName?: string
-    abilityCategoriesEnabled?: boolean
-    enabledAbilityCategories?: string[]
-  }
-  message?: string
-}
-
-export type SkillListItem = {
-  id: string
-  slug: string
-  updatedAt: string
-}
-
-export type SkillLevel = {
-  id: string
-  levelNumber: number
-  levelRequired: number
-  summary: string | null
-  stats: Record<string, unknown> | null
-  cost: Record<string, unknown> | null
-  requirement: Record<string, unknown> | null
-}
-
-export type SkillDetail = {
-  id: string
-  slug: string
-  tags: SkillTag[]
-  classIds: string[]
-  raceIds: string[]
-  levels: SkillLevel[]
-}
+export type TemplateOption = TemplateOptionDto
+export type SkillListItem = SkillListItemDto
+export type SkillLevel = SkillLevelDto
+export type SkillDetail = SkillDetailDto
 
 export type MetaForm = {
   name: string

@@ -1,9 +1,10 @@
 import { skillLevelPatchSchema } from "@/lib/validators/skillBuilder"
-import type { SkillRepository } from "@/features/world/skill/application/ports/SkillRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import type { SkillLevelUpdateRepository } from "@/features/world/skill/application/ports/SkillRepository"
+import { AppError } from "@/features/shared/application/errors/AppError"
+import { mapSkillError } from "@/features/world/skill/application/use-cases/shared"
 
 type UpdateSkillLevelDeps = {
-  repository: SkillRepository
+  repository: SkillLevelUpdateRepository
 }
 
 export async function updateSkillLevel(
@@ -71,20 +72,6 @@ export async function updateSkillLevel(
     )
     return { skill: updatedSkill }
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error
-    }
-
-    if (
-      error instanceof Error &&
-      error.message.includes('relation "skill_levels" does not exist')
-    ) {
-      throw new AppError(
-        "Tabela skill_levels nao existe no banco. Rode a migration.",
-        500,
-      )
-    }
-
-    throw new AppError("Erro interno ao atualizar level.", 500)
+    mapSkillError(error, "Erro interno ao atualizar level.")
   }
 }

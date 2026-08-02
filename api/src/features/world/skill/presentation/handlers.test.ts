@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
@@ -15,39 +15,39 @@ const mocks = vi.hoisted(() => ({
   loadSkillsSearchIndexUseCase: vi.fn(),
 }))
 
-vi.mock("@api/presentation/http/auth/requestAuth", () => ({
+vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
-vi.mock("@/features/world/skill/use-cases/getSkills", () => ({
+vi.mock("@/features/world/skill/application/use-cases/getSkills", () => ({
   getSkills: mocks.getSkills,
 }))
 
-vi.mock("@/features/world/skill/use-cases/createSkill", () => ({
+vi.mock("@/features/world/skill/application/use-cases/createSkill", () => ({
   createSkill: mocks.createSkill,
 }))
 
-vi.mock("@/features/world/skill/use-cases/getSkillById", () => ({
+vi.mock("@/features/world/skill/application/use-cases/getSkillById", () => ({
   getSkillById: mocks.getSkillById,
 }))
 
-vi.mock("@/features/world/skill/use-cases/updateSkill", () => ({
+vi.mock("@/features/world/skill/application/use-cases/updateSkill", () => ({
   updateSkill: mocks.updateSkill,
 }))
 
-vi.mock("@/features/world/skill/use-cases/deleteSkill", () => ({
+vi.mock("@/features/world/skill/application/use-cases/deleteSkill", () => ({
   deleteSkill: mocks.deleteSkill,
 }))
 
-vi.mock("@/features/world/skill/use-cases/createSkillLevel", () => ({
+vi.mock("@/features/world/skill/application/use-cases/createSkillLevel", () => ({
   createSkillLevel: mocks.createSkillLevel,
 }))
 
-vi.mock("@/features/world/skill/use-cases/updateSkillLevel", () => ({
+vi.mock("@/features/world/skill/application/use-cases/updateSkillLevel", () => ({
   updateSkillLevel: mocks.updateSkillLevel,
 }))
 
-vi.mock("@/features/world/skill/use-cases/deleteSkillLevel", () => ({
+vi.mock("@/features/world/skill/application/use-cases/deleteSkillLevel", () => ({
   deleteSkillLevel: mocks.deleteSkillLevel,
 }))
 

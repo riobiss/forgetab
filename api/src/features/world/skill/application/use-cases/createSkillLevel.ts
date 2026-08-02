@@ -1,9 +1,10 @@
 import { skillLevelCreateSchema } from "@/lib/validators/skillBuilder"
-import type { SkillRepository } from "@/features/world/skill/application/ports/SkillRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import type { SkillLevelCreateRepository } from "@/features/world/skill/application/ports/SkillRepository"
+import { AppError } from "@/features/shared/application/errors/AppError"
+import { mapSkillError } from "@/features/world/skill/application/use-cases/shared"
 
 type CreateSkillLevelDeps = {
-  repository: SkillRepository
+  repository: SkillLevelCreateRepository
 }
 
 function deepCopyJson<T>(value: T): T {
@@ -94,20 +95,6 @@ export async function createSkillLevel(
     )
     return { skill: updatedSkill }
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error
-    }
-
-    if (
-      error instanceof Error &&
-      error.message.includes('relation "skill_levels" does not exist')
-    ) {
-      throw new AppError(
-        "Tabela skill_levels nao existe no banco. Rode a migration.",
-        500,
-      )
-    }
-
-    throw new AppError("Erro interno ao criar level.", 500)
+    mapSkillError(error, "Erro interno ao criar level.")
   }
 }

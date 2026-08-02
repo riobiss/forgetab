@@ -9,8 +9,8 @@ describe("skillsSearchIndex", () => {
   it("normaliza ids e rpgId", () => {
     expect(
       normalizeSkillSearchIndexParams({
-        skillIds: ["s1", "", "s1", 1],
-        rpgId: "r1",
+        skillIds: [" s1 ", "", "s1", 1],
+        rpgId: " r1 ",
       }),
     ).toEqual({
       skillIds: ["s1"],

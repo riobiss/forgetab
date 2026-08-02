@@ -1,5 +1,5 @@
-import { FastifyInstance, FastifyRequest } from "fastify";
-import { registerFastifyRoute } from "@/fastifyRoute";
+import type { FastifyInstance, FastifyRequest } from "fastify"
+import { registerFastifyRoute } from "@/fastifyRoute"
 
 import {
   createSkillHandler,
@@ -16,7 +16,7 @@ import {
 export function skillRoutes(app: FastifyInstance) {
   registerFastifyRoute(app, "get", "/api/skills", (request, reply) =>
     listSkillsHandler(
-      request as unknown as FastifyRequest<{ Querystring: { rpgId?: string } }>,
+      request as FastifyRequest<{ Querystring: { rpgId?: string } }>,
       reply,
     ),
   )

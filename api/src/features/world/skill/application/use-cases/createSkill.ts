@@ -4,11 +4,12 @@ import {
   type SkillMetaCreateInput,
 } from "@/lib/validators/skillBuilder"
 import type { RpgPermissionService } from "@/features/world/skill/application/ports/RpgPermissionService"
-import type { SkillRepository } from "@/features/world/skill/application/ports/SkillRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import type { SkillCreateRepository } from "@/features/world/skill/application/ports/SkillRepository"
+import { AppError } from "@/features/shared/application/errors/AppError"
+import { mapSkillError } from "@/features/world/skill/application/use-cases/shared"
 
 type CreateSkillDeps = {
-  repository: SkillRepository
+  repository: SkillCreateRepository
   permissionService: RpgPermissionService
 }
 
@@ -101,27 +102,6 @@ export async function createSkill(
     )
     return { skill: created }
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error
-    }
-
-    if (
-      error instanceof Error &&
-      error.message.includes("skills_owner_id_rpg_scope_slug_key")
-    ) {
-      throw new AppError("Slug ja utilizado neste escopo (owner + rpg).", 409)
-    }
-
-    if (
-      error instanceof Error &&
-      error.message.includes('relation "skills" does not exist')
-    ) {
-      throw new AppError(
-        "Tabela skills nao existe no banco. Rode a migration.",
-        500,
-      )
-    }
-
-    throw new AppError("Erro interno ao criar skill.", 500)
+    mapSkillError(error, "Erro interno ao criar skill.")
   }
 }

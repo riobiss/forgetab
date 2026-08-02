@@ -3,6 +3,9 @@ import type {
   SkillSearchIndexRow,
 } from "@/features/world/skill/application/searchIndex/types"
 import type { SkillsSearchIndexRepository } from "@/features/world/skill/application/searchIndex/ports/SkillsSearchIndexRepository"
+import { mapSkillError } from "@/features/world/skill/application/use-cases/shared"
+
+const MAX_SEARCH_INDEX_SKILLS = 200
 
 function normalizeStats(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -23,14 +26,18 @@ export function normalizeSkillSearchIndexParams(body: {
   const rawIds = Array.isArray(body.skillIds) ? body.skillIds : []
   const skillIds = Array.from(
     new Set(
-      rawIds.filter(
-        (item): item is string => typeof item === "string" && item.length > 0,
-      ),
+      rawIds
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0),
     ),
   )
+    .slice(0, MAX_SEARCH_INDEX_SKILLS)
 
   const rpgId =
-    typeof body.rpgId === "string" && body.rpgId.length > 0 ? body.rpgId : null
+    typeof body.rpgId === "string" && body.rpgId.trim().length > 0
+      ? body.rpgId.trim()
+      : null
 
   return { skillIds, rpgId }
 }
@@ -118,6 +125,10 @@ export async function loadSkillsSearchIndexUseCase(
     return {}
   }
 
-  const rows = await deps.repository.listSkillRows(params)
-  return buildSkillSearchIndex(rows)
+  try {
+    const rows = await deps.repository.listSkillRows(params)
+    return buildSkillSearchIndex(rows)
+  } catch (error) {
+    mapSkillError(error, "Erro interno ao montar indice de busca.")
+  }
 }

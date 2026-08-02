@@ -1,8 +1,9 @@
-import type { SkillRepository } from "@/features/world/skill/application/ports/SkillRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import type { SkillDeleteRepository } from "@/features/world/skill/application/ports/SkillRepository"
+import { AppError } from "@/features/shared/application/errors/AppError"
+import { mapSkillError } from "@/features/world/skill/application/use-cases/shared"
 
 type DeleteSkillDeps = {
-  repository: SkillRepository
+  repository: SkillDeleteRepository
 }
 
 export async function deleteSkill(
@@ -21,20 +22,6 @@ export async function deleteSkill(
     await deps.repository.deleteSkill(params.skillId, params.userId)
     return { id: params.skillId, rpgId: existing.rpgId }
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error
-    }
-
-    if (
-      error instanceof Error &&
-      error.message.includes('relation "skills" does not exist')
-    ) {
-      throw new AppError(
-        "Tabela skills nao existe no banco. Rode a migration.",
-        500,
-      )
-    }
-
-    throw new AppError("Erro interno ao remover skill.", 500)
+    mapSkillError(error, "Erro interno ao remover skill.")
   }
 }

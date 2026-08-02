@@ -11,8 +11,9 @@ import type {
   CreateSkillRecordInput,
   SkillRepository,
 } from "@/features/world/skill/application/ports/SkillRepository"
+import { withSkillRepositoryErrors } from "@/features/world/skill/infrastructure/repositories/skillPersistenceErrors"
 
-export const prismaSkillRepository: SkillRepository = {
+const rawPrismaSkillRepository: SkillRepository = {
   async listByOwner(userId, rpgId) {
     return listSkillsByOwner(userId, rpgId)
   },
@@ -302,3 +303,7 @@ export const prismaSkillRepository: SkillRepository = {
     `)
   },
 }
+
+export const prismaSkillRepository = withSkillRepositoryErrors(
+  rawPrismaSkillRepository,
+)

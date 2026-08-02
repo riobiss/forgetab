@@ -94,3 +94,33 @@ export interface SkillRepository {
   deleteLevel(skillId: string, levelId: string): Promise<void>
   deleteSkill(skillId: string, ownerId: string): Promise<void>
 }
+
+export type SkillListRepository = Pick<SkillRepository, "listByOwner">
+export type SkillDetailRepository = Pick<SkillRepository, "findById">
+export type SkillCreateRepository = Pick<
+  SkillRepository,
+  | "getAbilityCategoryConfig"
+  | "validateLinkIds"
+  | "createSkillRecord"
+  | "findById"
+>
+export type SkillUpdateRepository = Pick<
+  SkillRepository,
+  "findById" | "validateLinkIds" | "updateSkillMeta"
+>
+export type SkillDeleteRepository = Pick<
+  SkillRepository,
+  "findById" | "deleteSkill"
+>
+export type SkillLevelCreateRepository = Pick<
+  SkillRepository,
+  "findById" | "createLevel"
+>
+export type SkillLevelUpdateRepository = Pick<
+  SkillRepository,
+  "findById" | "updateLevel"
+>
+export type SkillLevelDeleteRepository = Pick<
+  SkillRepository,
+  "findById" | "deleteLevel"
+>

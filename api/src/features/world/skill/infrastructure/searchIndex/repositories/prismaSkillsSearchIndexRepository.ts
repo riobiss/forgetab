@@ -2,11 +2,13 @@ import { Prisma } from "../../../../../../../generated/prisma/client.js"
 import type { SkillsSearchIndexRepository } from "@/features/world/skill/application/searchIndex/ports/SkillsSearchIndexRepository"
 import type { SkillSearchIndexRow } from "@/features/world/skill/application/searchIndex/types"
 import { prisma } from "@/lib/prisma"
+import { withSkillPersistenceErrors } from "@/features/world/skill/infrastructure/repositories/skillPersistenceErrors"
 
 export const prismaSkillsSearchIndexRepository: SkillsSearchIndexRepository = {
   async listSkillRows(params) {
-    try {
-      return await prisma.$queryRaw<SkillSearchIndexRow[]>(Prisma.sql`
+    return withSkillPersistenceErrors(async () => {
+      try {
+        return await prisma.$queryRaw<SkillSearchIndexRow[]>(Prisma.sql`
         SELECT
           s.id AS "skillId",
           s.slug AS "slug",
@@ -20,15 +22,15 @@ export const prismaSkillsSearchIndexRepository: SkillsSearchIndexRepository = {
           ${params.rpgId ? Prisma.sql`AND s.rpg_id = ${params.rpgId}` : Prisma.sql``}
         ORDER BY s.updated_at DESC, sl.level_number ASC
       `)
-    } catch (error) {
-      if (
-        !(error instanceof Error) ||
-        !error.message.includes('column "tags" does not exist')
-      ) {
-        throw error
-      }
+      } catch (error) {
+        if (
+          !(error instanceof Error) ||
+          !error.message.includes('column "tags" does not exist')
+        ) {
+          throw error
+        }
 
-      return prisma.$queryRaw<SkillSearchIndexRow[]>(Prisma.sql`
+        return prisma.$queryRaw<SkillSearchIndexRow[]>(Prisma.sql`
         SELECT
           s.id AS "skillId",
           s.slug AS "slug",
@@ -41,7 +43,8 @@ export const prismaSkillsSearchIndexRepository: SkillsSearchIndexRepository = {
           AND s.id IN (${Prisma.join(params.skillIds)})
           ${params.rpgId ? Prisma.sql`AND s.rpg_id = ${params.rpgId}` : Prisma.sql``}
         ORDER BY s.updated_at DESC, sl.level_number ASC
-      `)
-    }
+        `)
+      }
+    })
   },
 }
