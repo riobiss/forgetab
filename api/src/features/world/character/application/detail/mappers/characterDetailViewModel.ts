@@ -121,18 +121,6 @@ function getCharacteristicItemLabel(item: CharacterDetailIdentityItemDto) {
   return item.label
 }
 
-export function normalizeLegacyStatusKeys(record: Record<string, number>) {
-  const normalized = { ...record }
-  if (
-    typeof normalized.stamina === "number" &&
-    typeof normalized.exhaustion !== "number"
-  ) {
-    normalized.exhaustion = normalized.stamina
-  }
-  delete normalized.stamina
-  return normalized
-}
-
 export function getProgressionLevelDisplay(label: string) {
   const match = label.match(/\d+/)
   return match ? match[0] : label

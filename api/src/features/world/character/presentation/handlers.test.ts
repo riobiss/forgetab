@@ -4,7 +4,6 @@ import { AppError } from "@/features/shared/application/errors/AppError"
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
   loadCharactersDashboardUseCase: vi.fn(),
-  loadCharacterEditorBootstrapServerUseCase: vi.fn(),
   grantCharacterXpUseCase: vi.fn(),
   grantCharacterPointsUseCase: vi.fn(),
   buyCharacterSkillUseCase: vi.fn(),
@@ -32,14 +31,6 @@ vi.mock(
   "@/features/world/character/application/dashboard/use-cases/loadCharactersDashboard",
   () => ({
     loadCharactersDashboardUseCase: mocks.loadCharactersDashboardUseCase,
-  }),
-)
-
-vi.mock(
-  "@/features/world/character/application/editor/use-cases/loadCharacterEditorBootstrapServer",
-  () => ({
-    loadCharacterEditorBootstrapServerUseCase:
-      mocks.loadCharacterEditorBootstrapServerUseCase,
   }),
 )
 
@@ -158,17 +149,6 @@ describe("characters routes", () => {
 
   it("retorna 200 com dashboard de personagens", async () => {
     server = buildApiServer()
-    mocks.loadCharacterEditorBootstrapServerUseCase.mockResolvedValue({
-      attributes: [],
-      statuses: [],
-      skills: [],
-      characters: [],
-      rpg: null,
-      races: [],
-      classes: [],
-      identityFields: [],
-      characteristicFields: [],
-    })
     mocks.loadCharactersDashboardUseCase.mockResolvedValue({
       status: "ok",
       data: {
@@ -193,9 +173,6 @@ describe("characters routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(
-      mocks.loadCharacterEditorBootstrapServerUseCase,
-    ).not.toHaveBeenCalled()
     expect(mocks.loadCharactersDashboardUseCase).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({

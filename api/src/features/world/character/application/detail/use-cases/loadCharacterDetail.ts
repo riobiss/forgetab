@@ -8,9 +8,9 @@ import type {
 import {
   buildNpcMonsterTextSections,
   getProgressionLevelDisplay,
-  normalizeLegacyStatusKeys,
   toLabeledEntries,
-} from "@/features/world/character/application/detail/use-cases/characterDetailPresentation"
+} from "@/features/world/character/application/detail/mappers/characterDetailViewModel"
+import { normalizeLegacyStatusKeys } from "@/features/world/application/status/normalizeStatusKeys"
 import {
   getDefaultProgressionTiers,
   isProgressionMode,

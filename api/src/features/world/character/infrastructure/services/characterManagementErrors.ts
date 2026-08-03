@@ -1,4 +1,4 @@
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 export function fail(status: number, message: string): never {
   throw new AppError(message, status)

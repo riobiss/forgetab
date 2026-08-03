@@ -1,8 +1,4 @@
-import {
-  buildCharacterFolder,
-  deleteCharacterImageKitFileByUrl,
-  getCharacterImageKitConfig,
-} from "@/features/world/character/infrastructure/services/characterImageCleanupService.js"
+import { cleanupCharacterImageByOwners } from "@/features/world/character/infrastructure/services/imageKitCharacterImageCleanupService.js"
 
 export type CharacterPermissionContext = {
   rpgOwnerId: string
@@ -18,26 +14,8 @@ export async function cleanupCharacterImage(
     return
   }
 
-  const imageKitConfig = getCharacterImageKitConfig()
-  if (!imageKitConfig.ok) {
-    return
-  }
-
-  const allowedFolderPaths = [
-    buildCharacterFolder(permission.rpgOwnerId),
-    ...(permission.characterCreatedByUserId
-      ? [buildCharacterFolder(permission.characterCreatedByUserId)]
-      : []),
-  ]
-
-  try {
-    await deleteCharacterImageKitFileByUrl(
-      imageKitConfig.privateKey,
-      imageKitConfig.urlEndpoint,
-      previousImage,
-      allowedFolderPaths,
-    )
-  } catch {
-    // Nao bloqueia a operacao caso a limpeza da imagem falhe.
-  }
+  await cleanupCharacterImageByOwners({
+    ...permission,
+    previousImage,
+  })
 }

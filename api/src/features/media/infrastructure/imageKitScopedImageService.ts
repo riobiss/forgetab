@@ -3,7 +3,7 @@ import type {
   ScopedImageService,
   ScopedImageUploadInput,
 } from "@/features/media/application/ports/ScopedImageService"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 function getImageKitConfig(): { privateKey: string; urlEndpoint: string } {
   const privateKey = process.env.IMAGEKIT_PRIVATE_KEY

@@ -1,5 +1,5 @@
 import type { RpgAccessRepository } from "@/features/world/character/application/ports/RpgAccessRepository"
-import type { CharacterEditorBootstrapDto } from "@/features/world/character/application/editor/types"
+import type { CharacterEditorBootstrapDto } from "@forgetab/world-contracts/character-editor"
 import type { CharacterDetailViewModel } from "@/features/world/character/application/detail/types"
 import type { CharactersDashboardRepository } from "@/features/world/character/application/dashboard/ports/CharactersDashboardRepository"
 import type {

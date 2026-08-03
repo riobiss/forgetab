@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 import { getUserIdFromFastifyRequest } from "@/features/http/presentation/auth/requestAuth"
 
 export function parseJsonBody(body: unknown) {

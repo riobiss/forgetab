@@ -6,7 +6,7 @@ import type {
   CharacterWeightContextRow,
   CharacterInventoryStoredItemRow,
 } from "@/features/world/character/application/inventory/ports/CharacterInventoryRepository.js"
-import type { CharacterInventoryItemDto } from "@/features/world/character/application/inventory/types.js"
+import type { CharacterInventoryItemDto } from "@forgetab/world-contracts/character-inventory"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
 

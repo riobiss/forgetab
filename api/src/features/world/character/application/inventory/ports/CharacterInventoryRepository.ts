@@ -1,4 +1,4 @@
-import type { CharacterInventoryItemDto } from "@/features/world/character/application/inventory/types"
+import type { CharacterInventoryItemDto } from "@forgetab/world-contracts/character-inventory"
 
 export type CharacterInventoryRpgRow = {
   id: string

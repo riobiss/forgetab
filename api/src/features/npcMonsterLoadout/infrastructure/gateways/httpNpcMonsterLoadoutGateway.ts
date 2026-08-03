@@ -2,7 +2,7 @@ import type { PurchasedAbilityViewDto } from "@/features/world/character/applica
 import type {
   CharacterInventoryDataDto,
   CharacterInventoryItemDto,
-} from "@/features/world/character/application/inventory/types"
+} from "@forgetab/world-contracts/character-inventory"
 import type { NpcMonsterLoadoutGateway } from "@/features/npcMonsterLoadout/application/contracts/NpcMonsterLoadoutGateway"
 import type {
   NpcMonsterAbilitiesDataDto,
