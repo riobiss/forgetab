@@ -15,7 +15,13 @@
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@forgetab/world-contracts": [
+        "../../../packages/world-contracts/src/index.ts"
+      ],
+      "@forgetab/world-contracts/*": [
+        "../../../packages/world-contracts/src/*"
+      ]
     }
   },
   "include": [

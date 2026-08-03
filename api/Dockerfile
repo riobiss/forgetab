@@ -1,13 +1,14 @@
 FROM node:22-alpine
 
-WORKDIR /app
+WORKDIR /app/api
 
-COPY package.json ./package.json
-COPY package-lock.json ./package-lock.json
+COPY packages/world-contracts /app/packages/world-contracts
+COPY api/package.json ./package.json
+COPY api/package-lock.json ./package-lock.json
 
 RUN npm ci
 
-COPY . ./
+COPY api ./
 
 RUN npm run prisma:generate
 RUN npm prune --omit=dev

@@ -25,6 +25,12 @@
     "paths": {
       "@/*": [
         "./apps/web/src/*"
+      ],
+      "@forgetab/world-contracts": [
+        "./packages/world-contracts/src/index.ts"
+      ],
+      "@forgetab/world-contracts/*": [
+        "./packages/world-contracts/src/*"
       ]
     }
   },

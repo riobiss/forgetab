@@ -11,6 +11,7 @@
     "prisma:migrate:deploy": "prisma migrate deploy --schema prisma/schema.prisma"
   },
   "dependencies": {
+    "@forgetab/world-contracts": "file:../packages/world-contracts",
     "@prisma/adapter-pg": "7.8.0",
     "@prisma/client": "7.8.0",
     "bcryptjs": "^3.0.2",

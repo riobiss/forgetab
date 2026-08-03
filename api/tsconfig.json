@@ -14,7 +14,9 @@
     "types": ["node"],
     "paths": {
       "@/*": ["./src/*"],
-      "@api/*": ["./src/*"]
+      "@api/*": ["./src/*"],
+      "@forgetab/world-contracts": ["../packages/world-contracts/src/index.ts"],
+      "@forgetab/world-contracts/*": ["../packages/world-contracts/src/*"]
     }
   },
   "include": ["src/**/*.ts", "vitest.config.ts", "prisma.config.ts"],
