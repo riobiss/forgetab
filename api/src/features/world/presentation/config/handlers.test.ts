@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
@@ -19,11 +19,11 @@ const mocks = vi.hoisted(() => ({
   updateCharacteristicTemplates: vi.fn(),
 }))
 
-vi.mock("@api/presentation/http/auth/requestAuth", () => ({
+vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
-vi.mock("@/application/rpg/config/use-cases/rpgConfig", () => ({
+vi.mock("@/features/world/application/config/use-cases/rpgConfig", () => ({
   getAttributeTemplates: mocks.getAttributeTemplates,
   updateAttributeTemplates: mocks.updateAttributeTemplates,
   getStatusTemplates: mocks.getStatusTemplates,

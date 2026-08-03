@@ -3,7 +3,7 @@ import type {
   RpgMapMarkerGroupDto,
   RpgMapSectionDto,
   UpsertRpgMapMarkerItemPayloadDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 
 export interface RpgMapRepository {
   listMaps(rpgId: string): Promise<RpgMapDto[]>

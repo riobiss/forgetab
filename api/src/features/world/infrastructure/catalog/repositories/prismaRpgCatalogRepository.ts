@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
-import type { RpgCatalogRepository } from "@/features/world/application/catalog/ports/RpgCatalogRepository"
-import type { RpgCatalogItem } from "@/features/world/application/catalog/types"
+import type { RpgCatalogRepository } from "@forgetab/world-contracts/catalog"
+import type { RpgCatalogItem } from "@forgetab/world-contracts/catalog"
 
 function normalizeCatalogItems(
   items: Array<{

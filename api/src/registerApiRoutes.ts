@@ -5,8 +5,9 @@ import { profileRoutes } from "./features/profile/presentation/routes/routes"
 import { locationRoutes } from "./features/world/location/presentation/routes/routes"
 import { libraryRoutes } from "./features/world/library/presentation/routes/routes"
 import { worldRoutes } from "./features/world/presentation/routes/routes"
+import { configRoutes } from "./features/world/presentation/routes/config.routes"
 import { characterRoutes } from "./features/world/character/presentation/routes/routes"
-import { memberShipRoutes } from "./features/world/member-ship/presentation/routes/routes"
+import { memberShipRoutes } from "./features/world/presentation/membership/routes/routes"
 import { catalogRoutes } from "./features/world/catalog/presentation/routes/routes"
 import { uploadsRoutes } from "./features/uploads/presentation/routes/routes"
 import { authRoutes } from "./features/auth/presentation/routes/routes"
@@ -18,6 +19,7 @@ export function registerApiRoutes(app: FastifyInstance) {
   dicesRoutes(app)
   profileRoutes(app)
   worldRoutes(app)
+  configRoutes(app)
   characterRoutes(app)
   itemRoutes(app)
   skillRoutes(app)

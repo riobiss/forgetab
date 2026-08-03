@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getUserIdFromFastifyRequest: vi.fn(),
@@ -17,11 +17,11 @@ const mocks = vi.hoisted(() => ({
   deleteRpgMapMarkerGroup: vi.fn(),
 }))
 
-vi.mock("@api/presentation/http/auth/requestAuth", () => ({
+vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
   getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
 }))
 
-vi.mock("@/application/rpg/map/use-cases/rpgMap", () => ({
+vi.mock("@/features/world/location/application/use-cases/rpgMap", () => ({
   listRpgMaps: mocks.listRpgMaps,
   createRpgMap: mocks.createRpgMap,
   getRpgMapDetail: mocks.getRpgMapDetail,

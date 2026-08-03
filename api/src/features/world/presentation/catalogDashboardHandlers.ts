@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
-import { loadRpgCatalogUseCase } from "@/features/world/application/catalog/use-cases/rpgCatalog"
+import { loadRpgCatalogUseCase } from "@forgetab/world-contracts/catalog"
 import { loadRpgDashboard } from "@/features/world/application/dashboard/use-cases/loadRpgDashboard"
 import { writeError, writeJson } from "@/features/http/presentation/fastifyJson"
 import { resolveOptionalUserId } from "@/features/world/presentation/auth"

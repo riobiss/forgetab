@@ -1,7 +1,7 @@
-import { prismaRpgMapRepository } from "@/features/world/infrastructure/map/repositories/prismaRpgMapRepository"
-import { prismaMarkerSectionLinkRepository } from "@/features/world/infrastructure/map/repositories/prismaMarkerSectionLinkRepository"
-import { prismaRpgMapMarkerRepository } from "@/features/world/infrastructure/map/repositories/prismaRpgMapMarkerRepository"
-import { rpgMapAccessService } from "@/features/world/infrastructure/map/services/rpgMapAccessService"
+import { prismaRpgMapRepository } from "@/features/world/location/infrastructure/repositories/prismaRpgMapRepository"
+import { prismaMarkerSectionLinkRepository } from "@/features/world/location/infrastructure/repositories/prismaMarkerSectionLinkRepository"
+import { prismaRpgMapMarkerRepository } from "@/features/world/location/infrastructure/repositories/prismaRpgMapMarkerRepository"
+import { rpgMapAccessService } from "@/features/world/location/infrastructure/services/rpgMapAccessService"
 
 export const rpgMapRouteDeps = {
   repository: prismaRpgMapRepository,

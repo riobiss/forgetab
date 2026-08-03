@@ -1,4 +1,4 @@
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 import type { RpgMembershipAccessService } from "@/features/world/application/membership/ports/RpgMembershipAccessService"
 import type { RpgMembershipRepository } from "@/features/world/application/membership/ports/RpgMembershipRepository"
 import {

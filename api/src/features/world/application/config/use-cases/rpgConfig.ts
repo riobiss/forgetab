@@ -16,7 +16,7 @@ import {
   wrapSkillError,
   wrapStatusError,
 } from "@/features/world/application/config/use-cases/shared"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 function parseJsonRecord(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {

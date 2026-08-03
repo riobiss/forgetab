@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   getAuthPayloadFromFastifyRequest: vi.fn(),
@@ -11,31 +11,31 @@ const mocks = vi.hoisted(() => ({
   deleteRpg: vi.fn(),
 }))
 
-vi.mock("@api/presentation/http/auth/requestAuth", () => ({
+vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
   getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest,
 }))
 
-vi.mock("@/application/rpg/catalog/use-cases/rpgCatalog", () => ({
+vi.mock("@forgetab/world-contracts/catalog", () => ({
   loadRpgCatalogUseCase: mocks.loadRpgCatalogUseCase,
 }))
 
-vi.mock("@/application/rpg/dashboard/use-cases/loadRpgDashboard", () => ({
+vi.mock("@/features/world/application/dashboard/use-cases/loadRpgDashboard", () => ({
   loadRpgDashboard: mocks.loadRpgDashboard,
 }))
 
-vi.mock("@/application/rpg/management/use-cases/createRpg", () => ({
+vi.mock("@/features/world/application/management/use-cases/createRpg", () => ({
   createRpg: mocks.createRpg,
 }))
 
-vi.mock("@/application/rpg/management/use-cases/getRpgById", () => ({
+vi.mock("@/features/world/application/management/use-cases/getRpgById", () => ({
   getRpgById: mocks.getRpgById,
 }))
 
-vi.mock("@/application/rpg/management/use-cases/updateRpg", () => ({
+vi.mock("@/features/world/application/management/use-cases/updateRpg", () => ({
   updateRpg: mocks.updateRpg,
 }))
 
-vi.mock("@/application/rpg/management/use-cases/deleteRpg", () => ({
+vi.mock("@/features/world/application/management/use-cases/deleteRpg", () => ({
   deleteRpg: mocks.deleteRpg,
 }))
 

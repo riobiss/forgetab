@@ -5,7 +5,7 @@ import type {
   RpgMapMarkerDto,
   RpgMapMarkerGroupDto,
   RpgMapSectionDto,
-} from "@/features/world/location/application/types.js"
+} from "@forgetab/world-contracts/location"
 import type {
   MapRow,
   MarkerGroupRow,

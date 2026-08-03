@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest"
-import type { RpgMapAccessService } from "@/features/world/application/map/ports/RpgMapAccessService"
-import type { RpgMapRepository } from "@/features/world/application/map/ports/RpgMapRepository"
+import type { RpgMapAccessService } from "@/features/world/location/application/ports/RpgMapAccessService"
+import type { RpgMapRepository } from "@/features/world/location/application/ports/RpgMapRepository"
 import {
   getRpgMapDetail,
   listRpgMaps,
   updateRpgMapImage,
-} from "@/features/world/application/map/use-cases/rpgMap"
+} from "@/features/world/location/application/use-cases/rpgMap"
 
 function createRepositoryMock(): RpgMapRepository {
   return {

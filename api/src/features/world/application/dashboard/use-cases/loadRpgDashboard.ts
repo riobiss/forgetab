@@ -1,11 +1,12 @@
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 import type { RpgDashboardAccessService } from "@/features/world/application/dashboard/ports/RpgDashboardAccessService"
 import type {
   RpgDashboardRepository,
   SpectatorCharacterRow,
 } from "@/features/world/application/dashboard/ports/RpgDashboardRepository"
-import type { RpgDashboardViewModel } from "@/features/world/application/dashboard/types"
+import type { RpgDashboardViewModel } from "@forgetab/world-contracts/dashboard"
+import { normalizeLegacyStatusKeys } from "@/features/world/application/status/normalizeStatusKeys"
 
 function normalizeNumericRecord(value: SpectatorCharacterRow["statuses"]) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -19,18 +20,6 @@ function normalizeNumericRecord(value: SpectatorCharacterRow["statuses"]) {
       Number(rawValue) || 0,
     ]),
   )
-}
-
-function normalizeLegacyStatusKeys(record: Record<string, number>) {
-  const normalized = { ...record }
-  if (
-    typeof normalized.stamina === "number" &&
-    typeof normalized.exhaustion !== "number"
-  ) {
-    normalized.exhaustion = normalized.stamina
-  }
-  delete normalized.stamina
-  return normalized
 }
 
 const statusLabelByKey: Record<string, string> = Object.fromEntries(

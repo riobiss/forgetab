@@ -10,7 +10,7 @@ import type { ImageGateway } from "@/features/world/application/management/ports
 import { mapRpgManagementRepositoryError } from "@/features/world/application/management/errors/mapRpgManagementRepositoryError"
 import type { RpgPermissionService } from "@/features/world/application/management/ports/RpgPermissionService"
 import type { RpgRepository } from "@/features/world/application/management/ports/RpgRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 type UpdateRpgDependencies = {
   repository: RpgRepository
@@ -155,20 +155,7 @@ export async function updateRpg(
 
     let previousImage: string | null = null
     if (hasImageInBody) {
-      try {
-        previousImage = await deps.repository.getImageById(params.rpgId)
-      } catch (error) {
-        if (
-          error instanceof Error &&
-          error.message.includes('column "image" does not exist')
-        ) {
-          throw new AppError(
-            "Estrutura de RPG desatualizada. Rode a migration mais recente.",
-            500,
-          )
-        }
-        throw error
-      }
+      previousImage = await deps.repository.getImageById(params.rpgId)
     }
 
     const updated = await deps.repository.updateCore(params.rpgId, {
@@ -211,28 +198,12 @@ export async function updateRpg(
 
     const normalizedImage = normalizeOptionalText(image)
     if (hasImageInBody) {
-      try {
-        const imageUpdated = await deps.repository.updateImage(
-          params.rpgId,
-          normalizedImage,
-        )
-        if (!imageUpdated) {
-          throw new AppError("RPG nao encontrado.", 404)
-        }
-      } catch (error) {
-        if (error instanceof AppError) {
-          throw error
-        }
-        if (
-          error instanceof Error &&
-          error.message.includes('column "image" does not exist')
-        ) {
-          throw new AppError(
-            "Estrutura de RPG desatualizada. Rode a migration mais recente.",
-            500,
-          )
-        }
-        throw error
+      const imageUpdated = await deps.repository.updateImage(
+        params.rpgId,
+        normalizedImage,
+      )
+      if (!imageUpdated) {
+        throw new AppError("RPG nao encontrado.", 404)
       }
 
       if (previousImage && previousImage !== normalizedImage) {

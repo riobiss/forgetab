@@ -1,4 +1,4 @@
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 import { RpgManagementRepositoryError } from "@/features/world/application/management/errors/RpgManagementRepositoryError"
 
 export function mapRpgManagementRepositoryError(

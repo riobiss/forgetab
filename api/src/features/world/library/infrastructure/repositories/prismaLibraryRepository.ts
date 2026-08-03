@@ -12,8 +12,9 @@ import type {
   LibraryBookRow,
   LibrarySectionRow,
 } from "@/features/world/library/infrastructure/repositories/libraryRepositoryRows.js"
+import { withLibraryRepositoryErrors } from "@/features/world/library/infrastructure/repositories/libraryPersistenceErrors.js"
 
-export const prismaLibraryRepository: LibraryRepository = {
+const rawPrismaLibraryRepository: LibraryRepository = {
   async listSections(rpgId) {
     const rows = await prisma.$queryRaw<LibrarySectionRow[]>(Prisma.sql`
       SELECT
@@ -310,3 +311,7 @@ export const prismaLibraryRepository: LibraryRepository = {
     }
   },
 }
+
+export const prismaLibraryRepository = withLibraryRepositoryErrors(
+  rawPrismaLibraryRepository,
+)

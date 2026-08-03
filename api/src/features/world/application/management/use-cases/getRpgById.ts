@@ -6,7 +6,7 @@ import {
 } from "@/lib/rpg/progression"
 import type { RpgPermissionService } from "@/features/world/application/management/ports/RpgPermissionService"
 import type { RpgRepository } from "@/features/world/application/management/ports/RpgRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 type GetRpgByIdDependencies = {
   repository: RpgRepository

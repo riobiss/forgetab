@@ -1,7 +1,8 @@
 import type { ImageGateway } from "@/features/world/application/management/ports/ImageGateway"
 import { mapRpgManagementRepositoryError } from "@/features/world/application/management/errors/mapRpgManagementRepositoryError"
 import type { RpgRepository } from "@/features/world/application/management/ports/RpgRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
+import { RpgManagementRepositoryError } from "@/features/world/application/management/errors/RpgManagementRepositoryError"
 
 type DeleteRpgDependencies = {
   repository: RpgRepository
@@ -22,8 +23,8 @@ export async function deleteRpg(
       )
     } catch (error) {
       if (
-        !(error instanceof Error) ||
-        !error.message.includes('column "image" does not exist')
+        !(error instanceof RpgManagementRepositoryError) ||
+        error.code !== "RPG_IMAGE_COLUMN_MISSING"
       ) {
         throw error
       }

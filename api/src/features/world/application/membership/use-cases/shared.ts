@@ -1,17 +1,12 @@
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
-
-const MEMBERS_SCHEMA_PATTERNS = ['relation "rpg_members" does not exist'] as const
-const CHARACTER_REQUESTS_SCHEMA_PATTERNS = [
-  'relation "rpg_character_creation_requests" does not exist',
-] as const
-
-function isSchemaError(error: unknown, patterns: readonly string[]) {
-  return error instanceof Error && patterns.some((pattern) => error.message.includes(pattern))
-}
+import { AppError } from "@/features/shared/application/errors/AppError"
+import { RpgMembershipRepositoryError } from "@/features/world/application/membership/errors/RpgMembershipRepositoryError"
 
 export function wrapMembersError(error: unknown, fallbackMessage: string): never {
   if (error instanceof AppError) throw error
-  if (isSchemaError(error, MEMBERS_SCHEMA_PATTERNS)) {
+  if (
+    error instanceof RpgMembershipRepositoryError &&
+    error.code === "members_schema_missing"
+  ) {
     throw new AppError("Tabela de membros nao existe no banco. Rode a migration.", 500)
   }
   throw new AppError(fallbackMessage, 500)
@@ -19,13 +14,19 @@ export function wrapMembersError(error: unknown, fallbackMessage: string): never
 
 export function wrapCharacterRequestsError(error: unknown, fallbackMessage: string): never {
   if (error instanceof AppError) throw error
-  if (isSchemaError(error, CHARACTER_REQUESTS_SCHEMA_PATTERNS)) {
+  if (
+    error instanceof RpgMembershipRepositoryError &&
+    error.code === "character_requests_schema_missing"
+  ) {
     throw new AppError(
       "Tabela de solicitacoes de criacao de personagem nao existe no banco. Rode a migration.",
       500,
     )
   }
-  if (isSchemaError(error, MEMBERS_SCHEMA_PATTERNS)) {
+  if (
+    error instanceof RpgMembershipRepositoryError &&
+    error.code === "members_schema_missing"
+  ) {
     throw new AppError("Tabela de membros nao existe no banco. Rode a migration.", 500)
   }
   throw new AppError(fallbackMessage, 500)

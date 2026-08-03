@@ -1,4 +1,4 @@
-import { FastifyInstance, FastifyRequest } from "fastify"
+import type { FastifyInstance, FastifyRequest } from "fastify"
 import { registerFastifyRoute } from "@/fastifyRoute"
 import {
   createLibraryBookHandler,

@@ -1,22 +1,19 @@
-import type { RpgMapGateway } from "@/features/world/location/application/contracts/RpgMapGateway"
 import type { RpgMapAccessService } from "@/features/world/location/application/ports/RpgMapAccessService"
 import type { RpgMapRepository } from "@/features/world/location/application/ports/RpgMapRepository"
 import type {
   JsonMapValue,
   RpgMapDetailViewDto,
-  RpgMapDto,
-  UpsertRpgMapMarkerGroupPayloadDto,
   RpgMapSectionDto,
   RpgMapSectionTreeNodeDto,
   RpgMapsViewDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 import {
   reorderRpgMapSectionSchema,
   upsertRpgMapMarkerGroupSchema,
   upsertRpgMapSchema,
   upsertRpgMapSectionSchema,
 } from "@/lib/validators/rpgMap"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 function normalizeOptionalUrl(value: unknown) {
   if (typeof value !== "string") {
@@ -656,204 +653,4 @@ export async function deleteRpgMapMarkerGroup(
   }
 
   return { message: "Grupo de marcadores removido com sucesso." }
-}
-
-export async function persistRpgMapImageUseCase(
-  gateway: RpgMapGateway,
-  params: { rpgId: string; mapId: string; mapImage: string | null },
-) {
-  return gateway.saveMapImage(params.rpgId, params.mapId, params.mapImage)
-}
-
-export async function uploadRpgMapImageUseCase(
-  gateway: RpgMapGateway,
-  params: { file: File; oldUrl?: string | null },
-) {
-  return gateway.uploadMapImage(params.file, params.oldUrl)
-}
-
-export async function deleteRpgMapImageByUrlUseCase(
-  gateway: RpgMapGateway,
-  params: { url: string },
-) {
-  return gateway.deleteMapImage(params.url)
-}
-
-export async function uploadRpgMapSectionImageUseCase(
-  gateway: RpgMapGateway,
-  params: { file: File; oldUrl?: string | null },
-) {
-  return gateway.uploadSectionImage(params.file, params.oldUrl)
-}
-
-export async function deleteRpgMapSectionImageByUrlUseCase(
-  gateway: RpgMapGateway,
-  params: { url: string },
-) {
-  return gateway.deleteSectionImage(params.url)
-}
-
-export async function uploadRpgMapMarkerImageUseCase(
-  gateway: RpgMapGateway,
-  params: { file: File; oldUrl?: string | null },
-) {
-  return gateway.uploadMarkerImage(params.file, params.oldUrl)
-}
-
-export async function deleteRpgMapMarkerImageByUrlUseCase(
-  gateway: RpgMapGateway,
-  params: { url: string },
-) {
-  return gateway.deleteMarkerImage(params.url)
-}
-
-export async function loadRpgMapsUseCase(
-  gateway: RpgMapGateway,
-  params: { rpgId: string },
-) {
-  return gateway.fetchMaps(params.rpgId)
-}
-
-export async function loadRpgMapDetailUseCase(
-  gateway: RpgMapGateway,
-  params: { rpgId: string; mapId: string },
-) {
-  return gateway.fetchMap(params.rpgId, params.mapId)
-}
-
-export async function createRpgMapUseCase(
-  gateway: RpgMapGateway,
-  params: {
-    rpgId: string
-    payload: {
-      title: string
-      description: string | null
-      type: string | null
-      image: string | null
-    }
-  },
-) {
-  return gateway.createMap(params.rpgId, params.payload)
-}
-
-export async function updateRpgMapUseCase(
-  gateway: RpgMapGateway,
-  params: {
-    rpgId: string
-    mapId: string
-    payload: {
-      title: string
-      description: string | null
-      type: string | null
-      image: string | null
-    }
-  },
-) {
-  return gateway.updateMap(params.rpgId, params.mapId, params.payload)
-}
-
-export async function deleteRpgMapUseCase(
-  gateway: RpgMapGateway,
-  params: { rpgId: string; mapId: string },
-) {
-  return gateway.deleteMap(params.rpgId, params.mapId)
-}
-
-export async function createRpgMapSectionUseCase(
-  gateway: RpgMapGateway,
-  params: {
-    rpgId: string
-    mapId: string
-    payload: {
-      name: string
-      description: string | null
-      type: string | null
-      parentSectionId: string | null
-      customFields: JsonMapValue | null
-    }
-  },
-) {
-  return gateway.createSection(params.rpgId, params.mapId, params.payload)
-}
-
-export async function updateRpgMapSectionUseCase(
-  gateway: RpgMapGateway,
-  params: {
-    rpgId: string
-    mapId: string
-    sectionId: string
-    payload: {
-      name: string
-      description: string | null
-      type: string | null
-      parentSectionId: string | null
-      customFields: JsonMapValue | null
-    }
-  },
-) {
-  return gateway.updateSection(
-    params.rpgId,
-    params.mapId,
-    params.sectionId,
-    params.payload,
-  )
-}
-
-export async function deleteRpgMapSectionUseCase(
-  gateway: RpgMapGateway,
-  params: { rpgId: string; mapId: string; sectionId: string },
-) {
-  return gateway.deleteSection(params.rpgId, params.mapId, params.sectionId)
-}
-
-export async function reorderRpgMapSectionUseCase(
-  gateway: RpgMapGateway,
-  params: {
-    rpgId: string
-    mapId: string
-    sectionId: string
-    direction: "up" | "down"
-  },
-) {
-  return gateway.reorderSection(
-    params.rpgId,
-    params.mapId,
-    params.sectionId,
-    params.direction,
-  )
-}
-
-export async function createRpgMapMarkerGroupUseCase(
-  gateway: RpgMapGateway,
-  params: {
-    rpgId: string
-    mapId: string
-    payload: UpsertRpgMapMarkerGroupPayloadDto
-  },
-) {
-  return gateway.createMarkerGroup(params.rpgId, params.mapId, params.payload)
-}
-
-export async function updateRpgMapMarkerGroupUseCase(
-  gateway: RpgMapGateway,
-  params: {
-    rpgId: string
-    mapId: string
-    groupId: string
-    payload: UpsertRpgMapMarkerGroupPayloadDto
-  },
-) {
-  return gateway.updateMarkerGroup(
-    params.rpgId,
-    params.mapId,
-    params.groupId,
-    params.payload,
-  )
-}
-
-export async function deleteRpgMapMarkerGroupUseCase(
-  gateway: RpgMapGateway,
-  params: { rpgId: string; mapId: string; groupId: string },
-) {
-  return gateway.deleteMarkerGroup(params.rpgId, params.mapId, params.groupId)
 }

@@ -2,8 +2,9 @@ import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type { RpgMembershipRepository } from "@/features/world/application/membership/ports/RpgMembershipRepository.js"
 import { normalizeRpgVisibility } from "@/features/world/infrastructure/shared/normalizeRpgVisibility.js"
+import { withRpgMembershipRepositoryErrors } from "@/features/world/infrastructure/membership/repositories/rpgMembershipPersistenceErrors"
 
-export const prismaRpgMembershipRepository: RpgMembershipRepository = {
+const rawPrismaRpgMembershipRepository: RpgMembershipRepository = {
   async getRpgSummary(rpgId) {
     const rpg = await prisma.rpg.findUnique({
       where: { id: rpgId },
@@ -301,3 +302,6 @@ export const prismaRpgMembershipRepository: RpgMembershipRepository = {
     return rows.length > 0
   },
 }
+
+export const prismaRpgMembershipRepository =
+  withRpgMembershipRepositoryErrors(rawPrismaRpgMembershipRepository)

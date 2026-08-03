@@ -1,4 +1,3 @@
-import type { JsonValue } from "@/features/shared/application/json"
 import { AppError } from "@/features/shared/application/errors/AppError"
 import type { LibraryAccessService } from "@/features/world/library/application/ports/LibraryAccessService"
 import type { LibraryBookRepository } from "@/features/world/library/application/ports/LibraryRepository"
@@ -30,9 +29,7 @@ function toBookInput(data: ReturnType<typeof parseLibraryBookBody>) {
   return {
     title: data.title.trim(),
     description: normalizeDescription(data.description),
-    content: JSON.stringify(
-      data.content ?? { type: "doc", content: [] as unknown[] },
-    ) as unknown as JsonValue,
+    content: JSON.stringify(data.content ?? { type: "doc", content: [] }),
     visibility: data.visibility,
     allowedCharacterIds: normalizeTextList(data.allowedCharacterIds),
     allowedClassKeys: normalizeTextList(data.allowedClassKeys),

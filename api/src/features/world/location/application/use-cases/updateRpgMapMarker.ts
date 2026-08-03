@@ -1,6 +1,6 @@
 import type { RpgMapAccessService } from "@/features/world/location/application/ports/RpgMapAccessService"
 import type { RpgMapMarkerRepository } from "@/features/world/location/application/ports/RpgMapMarkerRepository"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)

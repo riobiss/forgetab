@@ -3,7 +3,7 @@ import type {
   AcceptedMemberSummary,
   PendingCharacterOfferSummary,
   PendingRequestSummary,
-} from "@/features/world/application/dashboard/types"
+} from "@forgetab/world-contracts/dashboard"
 
 export type DbRpgRow = {
   id: string
