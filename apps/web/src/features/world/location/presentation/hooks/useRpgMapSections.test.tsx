@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import type { RpgMapDetailViewDto } from "@/features/world/location/application/types"
+import type { RpgMapDetailViewDto } from "@forgetab/world-contracts/location"
 import { useRpgMapSections } from "./useRpgMapSections"
 
 const mocks = vi.hoisted(() => ({

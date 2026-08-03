@@ -1,9 +1,6 @@
 import type { CharacterDetailViewModel } from "@/features/world/characters/application/detail/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-type ErrorPayload = {
-  message?: string
-}
+import { createApiResponseParser } from "@/features/http/infrastructure/parseApiResponse"
 
 export class HttpCharacterDetailError extends Error {
   constructor(
@@ -15,17 +12,11 @@ export class HttpCharacterDetailError extends Error {
   }
 }
 
-async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & ErrorPayload
-  if (!response.ok) {
-    throw new HttpCharacterDetailError(
-      payload.message ?? "Erro ao carregar detalhe do personagem.",
-      response.status,
-    )
-  }
-
-  return payload
-}
+const parseJsonResponse = createApiResponseParser({
+  fallbackMessage: "Erro ao carregar detalhe do personagem.",
+  errorFactory: (message, status) =>
+    new HttpCharacterDetailError(message, status),
+})
 
 export async function fetchCharacterDetailViewModel(
   rpgId: string,

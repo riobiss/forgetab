@@ -2,8 +2,6 @@ import type { CustomFieldType } from "@/components/custom-fields/typedCustomFiel
 import type {
   MarkerGroup as ApplicationMarkerGroup,
   MarkerItem,
-  MarkerPinStyle,
-  PendingMarker,
 } from "@/features/world/location/application/models/markerGroups"
 
 export type {

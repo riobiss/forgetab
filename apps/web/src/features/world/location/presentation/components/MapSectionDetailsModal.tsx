@@ -9,7 +9,7 @@ import type { RefObject } from "react"
 import type {
   RpgMapBreadcrumbDto,
   RpgMapSectionDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 import styles from "../RpgMapPage.module.css"
 
 type FullscreenElement = HTMLElement & {

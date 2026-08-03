@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 import { SECTION_LINK_MARKER_ID } from "@/features/world/location/application/services/sectionMarkerFields"
-import type { RpgMapDetailViewDto } from "@/features/world/location/application/types"
+import type { RpgMapDetailViewDto } from "@forgetab/world-contracts/location"
 import type { MarkerLinkOption } from "@/features/world/location/presentation/utils/sectionMarkerLinking"
 import { useRpgMapMarkerLinks } from "./useRpgMapMarkerLinks"
 

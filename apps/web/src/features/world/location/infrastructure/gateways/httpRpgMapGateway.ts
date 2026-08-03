@@ -7,7 +7,7 @@ import type {
   UpsertRpgMapMarkerGroupPayloadDto,
   UpsertRpgMapPayloadDto,
   UpsertRpgMapSectionPayloadDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 
 type ErrorPayload = { message?: string; url?: string; mapImage?: string | null }

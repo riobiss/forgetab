@@ -1,4 +1,4 @@
-import type { JsonMapValue } from "@/features/world/location/application/types"
+import type { JsonMapValue } from "@forgetab/world-contracts/location"
 
 export const SECTION_LINK_MARKER_ID = "MarcadorId"
 export const SECTION_LINK_MARKER_GROUP_ID = "MarcadorGrupoId"

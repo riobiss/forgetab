@@ -1,13 +1,6 @@
 import type { CharacterAbilitiesGateway } from "@/features/world/characters/application/abilities/contracts/CharacterAbilitiesGateway"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-async function parseJson<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & { message?: string }
-  if (!response.ok) {
-    throw new Error(payload.message ?? "Erro na requisicao.")
-  }
-  return payload
-}
+import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 export const httpCharacterAbilitiesGateway: CharacterAbilitiesGateway = {
   async removeAbility(

@@ -1,5 +1,5 @@
 import type { PurchasedAbilityViewDto } from "@/features/world/characters/application/abilities/types"
-import type { CharacterInventoryDataDto } from "@/features/world/characters/application/inventory/types"
+import type { CharacterInventoryDataDto } from "@forgetab/world-contracts/character-inventory"
 
 export type NpcMonsterLoadoutItemOptionDto = {
   id: string

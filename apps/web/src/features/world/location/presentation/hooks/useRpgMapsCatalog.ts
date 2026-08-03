@@ -13,7 +13,7 @@ import { toast } from "react-hot-toast"
 import type {
   RpgMapDetailViewDto,
   RpgMapDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 import {
   createRpgMapUseCase,
   deleteRpgMapUseCase,

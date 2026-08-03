@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type {
   RpgMapDetailViewDto,
   RpgMapDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 import { useRpgMapsCatalog } from "./useRpgMapsCatalog"
 
 const mocks = vi.hoisted(() => ({

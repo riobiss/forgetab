@@ -9,28 +9,7 @@ import type {
   UpdateSkillLevelPayloadDto,
 } from "@/features/world/skills/application/skillsDashboard/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-async function parseJson<T>(response: Response): Promise<T> {
-  const rawBody = await response.text()
-  let payload: (T & { message?: string }) | null = null
-
-  if (rawBody) {
-    try {
-      payload = JSON.parse(rawBody) as T & { message?: string }
-    } catch {
-      // A resposta invalida e tratada abaixo com uma mensagem estavel.
-    }
-  }
-
-  if (!response.ok) {
-    throw new Error(payload?.message ?? "Erro na requisicao.")
-  }
-  if (!payload) {
-    throw new Error("Resposta invalida da API.")
-  }
-
-  return payload
-}
+import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 function skillPath(skillId?: string) {
   return skillId

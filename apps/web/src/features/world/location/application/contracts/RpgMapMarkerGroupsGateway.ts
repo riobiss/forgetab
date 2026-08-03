@@ -1,7 +1,7 @@
 import type {
   RpgMapMarkerGroupDto,
   UpsertRpgMapMarkerGroupPayloadDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 
 export interface RpgMapMarkerGroupsGateway {
   createMarkerGroup(

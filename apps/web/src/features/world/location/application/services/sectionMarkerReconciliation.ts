@@ -1,4 +1,4 @@
-import type { JsonMapValue } from "@/features/world/location/application/types"
+import type { JsonMapValue } from "@forgetab/world-contracts/location"
 import {
   SECTION_LINK_COLOR,
   SECTION_LINK_IMAGE,

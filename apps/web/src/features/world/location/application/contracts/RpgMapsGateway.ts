@@ -2,7 +2,7 @@ import type {
   RpgMapDetailViewDto,
   RpgMapDto,
   UpsertRpgMapPayloadDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 
 export interface RpgMapsGateway {
   fetchMaps(rpgId: string): Promise<{

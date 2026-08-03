@@ -7,7 +7,7 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react"
-import type { RpgMapDetailViewDto } from "@/features/world/location/application/types"
+import type { RpgMapDetailViewDto } from "@forgetab/world-contracts/location"
 import type { MarkerLinkOption } from "@/features/world/location/presentation/utils/sectionMarkerLinking"
 import { useRpgMapSectionCommands } from "./useRpgMapSectionCommands"
 import { useRpgMapSectionImages } from "./useRpgMapSectionImages"

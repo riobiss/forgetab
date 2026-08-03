@@ -5,12 +5,9 @@ import type {
   RpgDashboardViewModel,
   SpectatorCharacterSummary,
   SpectatorStatusItem,
-} from "@/features/world/application/dashboard/types"
+} from "@forgetab/world-contracts/dashboard"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-type ErrorPayload = {
-  message?: string
-}
+import { createApiResponseParser } from "@/features/http/infrastructure/parseApiResponse"
 
 type DateString = string
 
@@ -62,16 +59,10 @@ export class HttpApiError extends Error {
   }
 }
 
-async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & ErrorPayload
-  if (!response.ok) {
-    throw new HttpApiError(
-      payload.message ?? "Erro ao carregar dashboard do RPG.",
-      response.status,
-    )
-  }
-  return payload
-}
+const parseJsonResponse = createApiResponseParser({
+  fallbackMessage: "Erro ao carregar dashboard do RPG.",
+  errorFactory: (message, status) => new HttpApiError(message, status),
+})
 
 function toPendingRequestSummary(
   item: ApiPendingRequestSummary,

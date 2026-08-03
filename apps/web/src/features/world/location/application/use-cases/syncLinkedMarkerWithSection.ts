@@ -1,4 +1,4 @@
-import type { JsonMapValue } from "@/features/world/location/application/types"
+import type { JsonMapValue } from "@forgetab/world-contracts/location"
 import type { MarkerSectionSyncGateway } from "@/features/world/location/application/contracts/MarkerSectionSyncGateway"
 import { buildMarkerUpdateFromSection } from "@/features/world/location/application/services/sectionMarkerFields"
 

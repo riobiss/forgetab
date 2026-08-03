@@ -1,4 +1,4 @@
-import { loadRpgCatalogUseCase } from "@/features/world/application/catalog/use-cases/rpgCatalog"
+import { loadRpgCatalogUseCase } from "@forgetab/world-contracts/catalog"
 import { cookieCurrentUserSessionService } from "@/features/session/infrastructure/services/cookieCurrentUserSessionService"
 import { createHttpRpgCatalogRepository } from "@/features/world/infrastructure/catalog/repositories/httpRpgCatalogRepository"
 import RpgCatalogPage from "@/features/world/presentation/catalog/WorldCatalogPage"

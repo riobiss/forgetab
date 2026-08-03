@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useRef, useState } from "react"
-import type { RpgMapDetailViewDto } from "@/features/world/location/application/types"
+import type { RpgMapDetailViewDto } from "@forgetab/world-contracts/location"
 import {
   buildLinkedSectionSnapshots,
   buildMarkerOptions,

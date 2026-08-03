@@ -5,7 +5,7 @@ import {
   normalizeCustomFieldType,
   type CustomFieldType,
 } from "@/components/custom-fields/typedCustomField"
-import type { RpgMapSectionDto } from "@/features/world/location/application/types"
+import type { RpgMapSectionDto } from "@forgetab/world-contracts/location"
 import type { SectionSavePayload } from "@/features/world/location/application/services/sectionMarkerReconciliation"
 import {
   getSectionImages,

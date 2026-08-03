@@ -2,7 +2,7 @@ import type {
   JsonMapValue,
   RpgMapSectionDto,
   RpgMapSectionTreeNodeDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 import { AppError } from "@/shared/errors/AppError"
 
 export function normalizeOptionalUrl(value: unknown) {

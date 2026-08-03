@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import type { RpgMapMarkerGroupsGateway } from "@/features/world/location/application/contracts/RpgMapMarkerGroupsGateway"
 import type { MarkerGroup } from "@/features/world/location/application/models/markerGroups"
-import type { RpgMapMarkerGroupDto } from "@/features/world/location/application/types"
+import type { RpgMapMarkerGroupDto } from "@forgetab/world-contracts/location"
 import { savePublicMarkerGroupUseCase } from "./savePublicMarkerGroup"
 
 const group: MarkerGroup = {

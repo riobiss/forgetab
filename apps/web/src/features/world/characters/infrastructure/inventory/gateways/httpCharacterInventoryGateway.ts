@@ -2,16 +2,9 @@ import type { CharacterInventoryGateway } from "@/features/world/characters/appl
 import type {
   CharacterInventoryDataDto,
   CharacterInventoryItemDto,
-} from "@/features/world/characters/application/inventory/types"
+} from "@forgetab/world-contracts/character-inventory"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-async function parseJson<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & { message?: string }
-  if (!response.ok) {
-    throw new Error(payload.message ?? "Erro na requisicao.")
-  }
-  return payload
-}
+import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 export const httpCharacterInventoryGateway: CharacterInventoryGateway = {
   async fetchInventory(

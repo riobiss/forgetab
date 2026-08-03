@@ -8,14 +8,13 @@ import type {
   JsonMapValue,
   RpgMapDetailViewDto,
   RpgMapSectionDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 import type {
   LinkedSectionSnapshot,
   MarkerPinStyle,
 } from "@/features/world/location/presentation/types/mapMarkers"
 import {
   getLinkedMarkerId,
-  getOptionalStringValue,
   getStringValue,
   SECTION_IMAGES,
   SECTION_LINK_COLOR,

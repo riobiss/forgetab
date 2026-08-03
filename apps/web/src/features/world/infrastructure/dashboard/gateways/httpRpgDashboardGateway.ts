@@ -1,15 +1,10 @@
 import type { RpgDashboardGateway } from "@/features/world/application/dashboard/contracts/RpgDashboardGateway"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
+import { createApiResponseParser } from "@/features/http/infrastructure/parseApiResponse"
 
-type ErrorPayload = { message?: string }
-
-async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & ErrorPayload
-  if (!response.ok) {
-    throw new Error(payload.message ?? "Request failed.")
-  }
-  return payload
-}
+const parseJsonResponse = createApiResponseParser({
+  fallbackMessage: "Request failed.",
+})
 
 export const httpRpgDashboardGateway: RpgDashboardGateway = {
   async requestToJoinRpg(rpgId) {

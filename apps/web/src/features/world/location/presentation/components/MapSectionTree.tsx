@@ -5,7 +5,7 @@ import { useState } from "react"
 import type {
   RpgMapSectionDto,
   RpgMapSectionTreeNodeDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 import styles from "../RpgMapPage.module.css"
 
 type MapTreeNodeProps = {

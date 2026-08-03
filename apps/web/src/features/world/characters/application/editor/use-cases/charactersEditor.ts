@@ -1,5 +1,5 @@
 import type { CharactersEditorDependencies } from "@/features/world/characters/application/editor/contracts/CharactersEditorDependencies"
-import type { UpdateCharacterPayloadDto, UpsertCharacterPayloadDto } from "@/features/world/characters/application/editor/types"
+import type { UpdateCharacterPayloadDto, UpsertCharacterPayloadDto } from "@forgetab/world-contracts/character-editor"
 
 type Dependencies = CharactersEditorDependencies
 

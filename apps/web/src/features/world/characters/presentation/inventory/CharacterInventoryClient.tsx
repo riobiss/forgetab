@@ -4,7 +4,7 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "rea
 import Link from "next/link"
 import { Filter } from "lucide-react"
 import type { CharacterInventoryDependencies } from "@/features/world/characters/application/inventory/contracts/CharacterInventoryDependencies"
-import type { CharacterInventoryItemDto, CharacterInventoryRarityDto } from "@/features/world/characters/application/inventory/types"
+import type { CharacterInventoryItemDto, CharacterInventoryRarityDto } from "@forgetab/world-contracts/character-inventory"
 import {
   loadCharacterInventoryUseCase,
   removeCharacterInventoryItemUseCase,

@@ -1,7 +1,7 @@
 import type {
   CharacterEditorBootstrapDto,
   CharacterEditorSummaryDto,
-} from "@/features/world/characters/application/editor/types"
+} from "@forgetab/world-contracts/character-editor"
 import {
   readNpcMonsterBasicDraft,
 } from "@/features/world/characters/application/npc-monster"

@@ -1,7 +1,7 @@
 "use client"
 
 import type { RefObject } from "react"
-import type { RpgMapDto } from "@/features/world/location/application/types"
+import type { RpgMapDto } from "@forgetab/world-contracts/location"
 import styles from "../RpgMapPage.module.css"
 
 type MapFormState = {

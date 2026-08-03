@@ -1,8 +1,5 @@
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-type ErrorPayload = {
-  message?: string
-}
+import { parseApiResponse } from "@/features/http/infrastructure/parseApiResponse"
 
 type RpgPageAccessResponse = {
   rpg?: {
@@ -28,15 +25,11 @@ export async function fetchRpgPageAccess(rpgId: string) {
     cache: "no-store",
   })
 
-  const payload = (await response.json()) as RpgPageAccessResponse &
-    ErrorPayload
-
-  if (!response.ok) {
-    throw new HttpPageAccessError(
-      payload.message ?? "Erro ao carregar RPG.",
-      response.status,
-    )
-  }
+  const payload = await parseApiResponse<RpgPageAccessResponse>(response, {
+    fallbackMessage: "Erro ao carregar RPG.",
+    errorFactory: (message, status) =>
+      new HttpPageAccessError(message, status),
+  })
 
   if (!payload.rpg) {
     throw new HttpPageAccessError("RPG nao encontrado.", 404)

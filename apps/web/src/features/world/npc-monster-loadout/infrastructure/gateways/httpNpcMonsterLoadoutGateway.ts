@@ -2,7 +2,7 @@ import type { PurchasedAbilityViewDto } from "@/features/world/characters/applic
 import type {
   CharacterInventoryDataDto,
   CharacterInventoryItemDto,
-} from "@/features/world/characters/application/inventory/types"
+} from "@forgetab/world-contracts/character-inventory"
 import type { NpcMonsterLoadoutGateway } from "@/features/world/npc-monster-loadout/application/contracts/NpcMonsterLoadoutGateway"
 import type {
   NpcMonsterAbilitiesDataDto,
@@ -10,14 +10,7 @@ import type {
   NpcMonsterLoadoutSkillOptionDto,
 } from "@/features/world/npc-monster-loadout/application/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-async function parseJson<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & { message?: string }
-  if (!response.ok) {
-    throw new Error(payload.message ?? "Erro na requisicao.")
-  }
-  return payload
-}
+import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 type SkillListResponse = {
   skills?: Array<{

@@ -2,7 +2,7 @@
 
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
-import type { RpgMapMarkerGroupDto } from "@/features/world/location/application/types"
+import type { RpgMapMarkerGroupDto } from "@forgetab/world-contracts/location"
 import { MapInteractionBanner } from "@/features/world/location/presentation/components/MapInteractionBanner"
 import { MapImageModal } from "@/features/world/location/presentation/components/MapImageModal"
 import { MapMarkerBottomSheet } from "@/features/world/location/presentation/components/MapMarkerBottomSheet"

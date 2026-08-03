@@ -8,16 +8,9 @@ import type {
   CharacterEditorTemplateFieldDto,
   UpdateCharacterPayloadDto,
   UpsertCharacterPayloadDto,
-} from "@/features/world/characters/application/editor/types"
+} from "@forgetab/world-contracts/character-editor"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-async function parseJson<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & { message?: string }
-  if (!response.ok) {
-    throw new Error(payload.message ?? "Erro na requisicao.")
-  }
-  return payload
-}
+import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 async function fetchCharactersList(
   rpgId: string,

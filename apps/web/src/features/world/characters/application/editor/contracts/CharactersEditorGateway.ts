@@ -3,7 +3,7 @@ import type {
   CharacterEditorSummaryDto,
   UpdateCharacterPayloadDto,
   UpsertCharacterPayloadDto,
-} from "@/features/world/characters/application/editor/types"
+} from "@forgetab/world-contracts/character-editor"
 
 export interface CharactersEditorGateway {
   fetchBootstrap(

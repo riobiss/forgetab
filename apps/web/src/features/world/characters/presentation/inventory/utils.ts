@@ -1,77 +1,17 @@
 import type {
   CharacterInventoryItemDto,
   CharacterInventoryRarityDto,
-} from "@/features/world/characters/application/inventory/types"
+} from "@forgetab/world-contracts/character-inventory"
 import type { InventoryCardItem } from "./types"
 import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
-
-type NamedDescriptionEntry = {
-  name: string
-  description: string
-}
-
-type CustomFieldEntry = {
-  name: string
-  value: string
-}
-
-export function parseNamedDescriptionList(value: unknown): NamedDescriptionEntry[] {
-  if (!Array.isArray(value)) {
-    return []
-  }
-
-  return value
-    .map((entry) => {
-      if (!entry || typeof entry !== "object") {
-        return null
-      }
-
-      const maybeName = (entry as { name?: unknown }).name
-      const maybeDescription = (entry as { description?: unknown }).description
-      if (typeof maybeName !== "string" || typeof maybeDescription !== "string") {
-        return null
-      }
-
-      const name = maybeName.trim()
-      const description = maybeDescription.trim()
-      if (!description) {
-        return null
-      }
-
-      return { name, description }
-    })
-    .filter((entry): entry is NamedDescriptionEntry => entry !== null)
-}
-
-export function parseCustomFieldList(value: unknown): CustomFieldEntry[] {
-  if (!Array.isArray(value)) {
-    return []
-  }
-
-  return value
-    .map((entry) => {
-      if (!entry || typeof entry !== "object") {
-        return null
-      }
-
-      const maybeName = (entry as { name?: unknown }).name
-      const maybeValue = (entry as { value?: unknown }).value
-      if (typeof maybeName !== "string") {
-        return null
-      }
-
-      const name = maybeName.trim()
-      if (!name) {
-        return null
-      }
-
-      return {
-        name,
-        value: typeof maybeValue === "string" ? maybeValue.trim() : "",
-      }
-    })
-    .filter((entry): entry is CustomFieldEntry => entry !== null)
-}
+export {
+  parseCustomFieldList,
+  parseNamedDescriptionList,
+} from "@/shared/items/itemFieldParsers"
+import {
+  parseCustomFieldList,
+  parseNamedDescriptionList,
+} from "@/shared/items/itemFieldParsers"
 
 export function matchesInventorySearch(
   item: CharacterInventoryItemDto,

@@ -4,7 +4,7 @@ export type {
   NpcMonsterLoadoutItemOptionDto,
   NpcMonsterLoadoutSkillOptionDto,
 } from "@/features/world/npc-monster-loadout/application/types"
-export type { CharacterInventoryItemDto } from "@/features/world/characters/application/inventory/types"
+export type { CharacterInventoryItemDto } from "@forgetab/world-contracts/character-inventory"
 export type { PurchasedAbilityViewDto } from "@/features/world/characters/application/abilities/types"
 export {
   addNpcMonsterAbilityUseCase,

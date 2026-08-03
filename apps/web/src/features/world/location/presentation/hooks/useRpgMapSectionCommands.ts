@@ -7,7 +7,7 @@ import {
   findLinkedMarkerConflicts,
   type SectionSavePayload,
 } from "@/features/world/location/application/services/sectionMarkerReconciliation"
-import type { RpgMapSectionDto } from "@/features/world/location/application/types"
+import type { RpgMapSectionDto } from "@forgetab/world-contracts/location"
 import {
   createRpgMapSectionUseCase,
   deleteRpgMapSectionUseCase,

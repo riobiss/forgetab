@@ -1,4 +1,4 @@
-import type { CharacterInventoryDataDto } from "@/features/world/characters/application/inventory/types"
+import type { CharacterInventoryDataDto } from "@forgetab/world-contracts/character-inventory"
 
 export interface CharacterInventoryGateway {
   fetchInventory(rpgId: string, characterId: string): Promise<CharacterInventoryDataDto>

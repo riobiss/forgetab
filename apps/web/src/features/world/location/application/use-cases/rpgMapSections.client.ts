@@ -1,5 +1,5 @@
 import type { RpgMapSectionsGateway } from "@/features/world/location/application/contracts/RpgMapSectionsGateway"
-import type { UpsertRpgMapSectionPayloadDto } from "@/features/world/location/application/types"
+import type { UpsertRpgMapSectionPayloadDto } from "@forgetab/world-contracts/location"
 
 export function createRpgMapSectionUseCase(
   gateway: RpgMapSectionsGateway,

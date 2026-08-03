@@ -6,7 +6,7 @@ import type {
   RpgMapDetailViewDto,
   RpgMapSectionDto,
   RpgMapSectionTreeNodeDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 import {
   buildSectionRenderState,
   getLinkedMarkerId,

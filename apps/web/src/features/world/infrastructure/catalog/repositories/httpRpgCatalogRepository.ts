@@ -1,13 +1,10 @@
-import type { RpgCatalogRepository } from "@/features/world/application/catalog/ports/RpgCatalogRepository"
+import type { RpgCatalogRepository } from "@forgetab/world-contracts/catalog"
 import type {
   RpgCatalogData,
   RpgCatalogItem,
-} from "@/features/world/application/catalog/types"
+} from "@forgetab/world-contracts/catalog"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-type ErrorPayload = {
-  message?: string
-}
+import { createApiResponseParser } from "@/features/http/infrastructure/parseApiResponse"
 
 type RpgCatalogApiItem = Omit<RpgCatalogItem, "createdAt"> & {
   createdAt: string
@@ -28,13 +25,9 @@ function toCatalogItem(item: RpgCatalogApiItem): RpgCatalogItem {
   }
 }
 
-async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & ErrorPayload
-  if (!response.ok) {
-    throw new Error(payload.message ?? "Erro ao carregar catalogo de RPGs.")
-  }
-  return payload
-}
+const parseJsonResponse = createApiResponseParser({
+  fallbackMessage: "Erro ao carregar catalogo de RPGs.",
+})
 
 export const httpRpgCatalogRepository: RpgCatalogRepository = {
   async listOwnedByUser() {

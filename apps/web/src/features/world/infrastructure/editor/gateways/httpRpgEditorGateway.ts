@@ -9,14 +9,7 @@ import type {
   UpdateRpgPayloadDto,
 } from "@/features/world/application/editor/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-async function parseJson<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & { message?: string }
-  if (!response.ok) {
-    throw new Error(payload.message ?? "Erro na requisicao.")
-  }
-  return payload
-}
+import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 export const httpRpgEditorGateway: RpgEditorGateway = {
   async fetchBootstrap(rpgId: string): Promise<RpgEditorBootstrapDto> {

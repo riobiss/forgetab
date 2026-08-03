@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "react-hot-toast"
-import type { RpgMapMarkerGroupDto } from "@/features/world/location/application/types"
+import type { RpgMapMarkerGroupDto } from "@forgetab/world-contracts/location"
 import { deleteRpgMapMarkerGroupUseCase } from "@/features/world/location/application/use-cases/rpgMapMarkerGroups.client"
 import { savePublicMarkerGroupUseCase } from "@/features/world/location/application/use-cases/savePublicMarkerGroup"
 import {

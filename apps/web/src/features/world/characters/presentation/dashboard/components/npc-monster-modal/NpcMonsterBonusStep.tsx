@@ -2,7 +2,7 @@
 
 import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
 import styles from "../../CharactersDashboardPage.module.css"
-import type { CharacterEditorBootstrapDto } from "@/features/world/characters/application/editor/types"
+import type { CharacterEditorBootstrapDto } from "@forgetab/world-contracts/character-editor"
 import type { NumericInputValue } from "./types"
 
 type Props = {

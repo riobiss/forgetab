@@ -1,9 +1,6 @@
 import type { CharactersDashboardViewModel } from "@/features/world/characters/application/dashboard/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-type ErrorPayload = {
-  message?: string
-}
+import { createApiResponseParser } from "@/features/http/infrastructure/parseApiResponse"
 
 export class HttpCharactersDashboardError extends Error {
   constructor(
@@ -15,17 +12,11 @@ export class HttpCharactersDashboardError extends Error {
   }
 }
 
-async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & ErrorPayload
-  if (!response.ok) {
-    throw new HttpCharactersDashboardError(
-      payload.message ?? "Erro ao carregar dashboard de personagens.",
-      response.status,
-    )
-  }
-
-  return payload
-}
+const parseJsonResponse = createApiResponseParser({
+  fallbackMessage: "Erro ao carregar dashboard de personagens.",
+  errorFactory: (message, status) =>
+    new HttpCharactersDashboardError(message, status),
+})
 
 export async function fetchCharactersDashboardViewModel(
   rpgId: string,

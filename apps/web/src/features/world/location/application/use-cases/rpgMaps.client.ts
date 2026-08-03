@@ -1,5 +1,5 @@
 import type { RpgMapsGateway } from "@/features/world/location/application/contracts/RpgMapsGateway"
-import type { UpsertRpgMapPayloadDto } from "@/features/world/location/application/types"
+import type { UpsertRpgMapPayloadDto } from "@forgetab/world-contracts/location"
 
 export function loadRpgMapsUseCase(
   gateway: RpgMapsGateway,

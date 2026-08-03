@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "react-hot-toast"
-import type { RpgMapMarkerGroupDto } from "@/features/world/location/application/types"
+import type { RpgMapMarkerGroupDto } from "@forgetab/world-contracts/location"
 import {
   appendPendingMarkers,
   removeMarkerFromGroup,

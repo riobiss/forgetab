@@ -1,6 +1,6 @@
 "use client"
 
-import type { CharacterInventoryItemDto } from "@/features/world/characters/application/inventory/types"
+import type { CharacterInventoryItemDto } from "@forgetab/world-contracts/character-inventory"
 import styles from "../../CharactersDashboardPage.module.css"
 
 type Props = {

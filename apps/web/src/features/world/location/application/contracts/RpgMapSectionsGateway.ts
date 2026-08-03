@@ -1,7 +1,7 @@
 import type {
   RpgMapSectionDto,
   UpsertRpgMapSectionPayloadDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 
 export interface RpgMapSectionsGateway {
   createSection(

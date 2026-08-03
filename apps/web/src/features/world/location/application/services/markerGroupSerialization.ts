@@ -2,7 +2,7 @@ import type { MarkerGroup } from "@/features/world/location/application/models/m
 import type {
   RpgMapMarkerGroupDto,
   UpsertRpgMapMarkerGroupPayloadDto,
-} from "@/features/world/location/application/types"
+} from "@forgetab/world-contracts/location"
 
 const DEFAULT_MARKER_SIZE = 1
 const DEFAULT_MARKER_PIN_STYLE = "default"

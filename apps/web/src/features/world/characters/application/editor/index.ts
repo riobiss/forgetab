@@ -7,7 +7,7 @@ export type {
   CharacterOptionDto,
   UpdateCharacterPayloadDto,
   UpsertCharacterPayloadDto,
-} from "@/features/world/characters/application/editor/types"
+} from "@forgetab/world-contracts/character-editor"
 export type { CharactersEditorDependencies } from "@/features/world/characters/application/editor/contracts/CharactersEditorDependencies"
 export {
   createCharacterUseCase,

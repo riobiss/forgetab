@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import type { RpgMapDto } from "@/features/world/location/application/types"
+import type { RpgMapDto } from "@forgetab/world-contracts/location"
 
 export type MapFormState = {
   title: string

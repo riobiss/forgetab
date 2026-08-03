@@ -1,16 +1,11 @@
 import type { LibraryPageGateway } from "@/features/world/library/application/page/contracts/LibraryPageGateway"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
+import { createApiResponseParser } from "@/features/http/infrastructure/parseApiResponse"
 import { fetchRpgDashboardViewModel } from "@/features/world/infrastructure/dashboard/repositories/httpRpgDashboardViewModelRepository"
 
-type ErrorPayload = { message?: string }
-
-async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & ErrorPayload
-  if (!response.ok) {
-    throw new Error(payload.message ?? "Erro ao carregar biblioteca.")
-  }
-  return payload
-}
+const parseJsonResponse = createApiResponseParser({
+  fallbackMessage: "Erro ao carregar biblioteca.",
+})
 
 export const httpLibraryPageGateway: LibraryPageGateway = {
   async fetchRpgTitle(rpgId) {

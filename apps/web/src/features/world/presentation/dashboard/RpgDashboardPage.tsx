@@ -6,7 +6,7 @@ import QuickCreateMenu from "@/features/world/presentation/dashboard/components/
 import RpgDashboardEditorLauncher from "@/features/world/presentation/dashboard/components/RpgDashboardEditorLauncher"
 import RpgInfoModalButton from "@/features/world/presentation/dashboard/components/RpgInfoModalButton"
 import SpectatorVisionPanel from "@/features/world/presentation/dashboard/components/SpectatorVisionPanel"
-import type { RpgDashboardViewModel } from "@/features/world/application/dashboard/types"
+import type { RpgDashboardViewModel } from "@forgetab/world-contracts/dashboard"
 import styles from "@/features/world/presentation/dashboard/RpgDashboardPage.module.css"
 
 function truncateText(text: string, limit: number) {

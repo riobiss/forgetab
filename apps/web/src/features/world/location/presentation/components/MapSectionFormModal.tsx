@@ -4,7 +4,7 @@ import Image from "next/image"
 import { Plus, Trash2, X } from "lucide-react"
 import type { RefObject } from "react"
 import { TypedCustomFieldEditor } from "@/components/custom-fields/TypedCustomFieldEditor"
-import type { RpgMapSectionDto } from "@/features/world/location/application/types"
+import type { RpgMapSectionDto } from "@forgetab/world-contracts/location"
 import type { SectionFormState } from "@/features/world/location/presentation/hooks/useRpgMapSectionModalState"
 import styles from "../RpgMapPage.module.css"
 

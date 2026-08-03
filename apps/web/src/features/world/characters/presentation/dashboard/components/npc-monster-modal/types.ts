@@ -1,8 +1,8 @@
 import type {
   CharacterEditorBootstrapDto,
   CharacterEditorSummaryDto,
-} from "@/features/world/characters/application/editor/types"
-import type { CharacterInventoryItemDto } from "@/features/world/characters/application/inventory/types"
+} from "@forgetab/world-contracts/character-editor"
+import type { CharacterInventoryItemDto } from "@forgetab/world-contracts/character-inventory"
 import type { PurchasedAbilityViewDto } from "@/features/world/characters/application/abilities/types"
 import type {
   NpcMonsterExtraFieldDto,

@@ -1,3 +1,5 @@
+import { parseApiResponse } from "@/features/http/infrastructure/parseApiResponse"
+
 export class HttpEntityCatalogError extends Error {
   constructor(
     message: string,
@@ -12,14 +14,9 @@ export async function parseEntityCatalogResponse<T>(
   response: Response,
   fallbackMessage: string,
 ): Promise<T> {
-  const payload = (await response.json()) as T & { message?: string }
-
-  if (!response.ok) {
-    throw new HttpEntityCatalogError(
-      payload.message ?? fallbackMessage,
-      response.status,
-    )
-  }
-
-  return payload
+  return parseApiResponse<T>(response, {
+    fallbackMessage,
+    errorFactory: (message, status) =>
+      new HttpEntityCatalogError(message, status),
+  })
 }

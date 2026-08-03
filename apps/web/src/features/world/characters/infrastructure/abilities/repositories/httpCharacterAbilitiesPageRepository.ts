@@ -1,9 +1,6 @@
 import type { CharacterAbilitiesViewModel } from "@/features/world/characters/application/abilities/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-type ErrorPayload = {
-  message?: string
-}
+import { createApiResponseParser } from "@/features/http/infrastructure/parseApiResponse"
 
 export class HttpCharacterAbilitiesError extends Error {
   constructor(
@@ -15,17 +12,11 @@ export class HttpCharacterAbilitiesError extends Error {
   }
 }
 
-async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & ErrorPayload
-  if (!response.ok) {
-    throw new HttpCharacterAbilitiesError(
-      payload.message ?? "Erro ao carregar habilidades do personagem.",
-      response.status,
-    )
-  }
-
-  return payload
-}
+const parseJsonResponse = createApiResponseParser({
+  fallbackMessage: "Erro ao carregar habilidades do personagem.",
+  errorFactory: (message, status) =>
+    new HttpCharacterAbilitiesError(message, status),
+})
 
 export async function fetchCharacterAbilitiesViewModel(
   rpgId: string,

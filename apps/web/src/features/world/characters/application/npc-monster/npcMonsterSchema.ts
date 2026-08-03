@@ -2,7 +2,7 @@ import type {
   CharacterEditorSummaryDto,
   UpdateCharacterPayloadDto,
   UpsertCharacterPayloadDto,
-} from "@/features/world/characters/application/editor/types"
+} from "@forgetab/world-contracts/character-editor"
 
 const NPC_MONSTER_NAME_KEYS = new Set(["nome", "name"])
 const NPC_MONSTER_TITLE_MATCHERS = ["titulo", "apelido", "alcunha"]
