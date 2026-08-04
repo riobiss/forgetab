@@ -1,7 +1,7 @@
 import { Prisma } from "../../../../../generated/prisma/client.js"
 import type { ProfileWriter } from "@/features/profile/application/ports/ProfileWriter"
 import { prisma } from "@/lib/prisma"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError.js"
+import { AppError } from "@/features/shared/application/errors/AppError.js"
 
 export const prismaProfileWriter: ProfileWriter = {
   async updateByUserId(userId, data) {

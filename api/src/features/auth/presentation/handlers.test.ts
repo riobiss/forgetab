@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   getClientIp: vi.fn(),
 }))
 
-vi.mock("@/infrastructure/auth/repositories/prismaAuthRepository", () => ({
+vi.mock("@/features/auth/infrastructure/repositories/prismaAuthRepository", () => ({
   prismaAuthRepository: {
     findUserByEmail: mocks.findUserByEmail,
     findUserByUsername: mocks.findUserByUsername,
@@ -20,21 +20,21 @@ vi.mock("@/infrastructure/auth/repositories/prismaAuthRepository", () => ({
   },
 }))
 
-vi.mock("@/infrastructure/auth/services/bcryptAuthPasswordService", () => ({
+vi.mock("@/features/auth/infrastructure/services/bcryptAuthPasswordService", () => ({
   bcryptAuthPasswordService: {
     compare: mocks.compare,
     hash: mocks.hash,
   },
 }))
 
-vi.mock("@/infrastructure/auth/services/jwtAuthTokenService", () => ({
+vi.mock("@/features/auth/infrastructure/services/jwtAuthTokenService", () => ({
   jwtAuthTokenService: {
     createToken: mocks.createToken,
     getCookieConfig: mocks.getCookieConfig,
   },
 }))
 
-vi.mock("@/infrastructure/auth/services/rateLimitAuthService", () => ({
+vi.mock("@/features/auth/infrastructure/services/rateLimitAuthService", () => ({
   rateLimitAuthService: {
     check: mocks.check,
     getClientIp: mocks.getClientIp,

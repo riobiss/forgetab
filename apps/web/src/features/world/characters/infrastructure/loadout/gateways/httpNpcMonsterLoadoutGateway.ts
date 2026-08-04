@@ -3,12 +3,12 @@ import type {
   CharacterInventoryDataDto,
   CharacterInventoryItemDto,
 } from "@forgetab/world-contracts/character-inventory"
-import type { NpcMonsterLoadoutGateway } from "@/features/world/npc-monster-loadout/application/contracts/NpcMonsterLoadoutGateway"
+import type { NpcMonsterLoadoutGateway } from "@/features/world/characters/application/loadout/contracts/NpcMonsterLoadoutGateway"
 import type {
   NpcMonsterAbilitiesDataDto,
   NpcMonsterLoadoutItemOptionDto,
   NpcMonsterLoadoutSkillOptionDto,
-} from "@/features/world/npc-monster-loadout/application/types"
+} from "@/features/world/characters/application/loadout/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 

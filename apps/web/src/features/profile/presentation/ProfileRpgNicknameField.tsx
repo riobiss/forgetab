@@ -2,9 +2,9 @@
 
 import { Check, Pencil, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { updateRpgProfileClientUseCase } from "@/features/profile/application/use-cases/updateProfileClient"
-import { createProfileDependencies } from "@/features/profile/presentation/dependencies"
+import { profileDependencies } from "@/features/profile/presentation/dependencies"
 import styles from "./ProfilePage.module.css"
 
 type Props = {
@@ -14,7 +14,6 @@ type Props = {
 
 export default function ProfileRpgNicknameField({ rpgId, nickname }: Props) {
   const router = useRouter()
-  const deps = useMemo(() => createProfileDependencies("http"), [])
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState(nickname ?? "")
   const [error, setError] = useState("")
@@ -25,7 +24,7 @@ export default function ProfileRpgNicknameField({ rpgId, nickname }: Props) {
     setError("")
 
     try {
-      await updateRpgProfileClientUseCase(deps, {
+      await updateRpgProfileClientUseCase(profileDependencies, {
         rpgId,
         payload: {
           displayName: draft,

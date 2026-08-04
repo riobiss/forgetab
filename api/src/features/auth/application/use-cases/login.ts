@@ -1,6 +1,6 @@
 import { loginSchema } from "@/lib/validators/auth"
 import { AuthRateLimitError } from "@/features/auth/application/errors/AuthRateLimitError"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 import type { AuthPasswordService } from "@/features/auth/application/ports/AuthPasswordService"
 import type { AuthRateLimitService } from "@/features/auth/application/ports/AuthRateLimitService"
 import type { AuthRepository } from "@/features/auth/application/ports/AuthRepository"

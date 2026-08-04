@@ -4,7 +4,7 @@ import type {
   CreateAuthUserInput,
 } from "@/features/auth/application/ports/AuthRepository.js"
 import { prisma } from "@/lib/prisma"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError.js"
+import { AppError } from "@/features/shared/application/errors/AppError.js"
 
 const GENERIC_REGISTER_CONFLICT_MESSAGE =
   "Nao foi possivel concluir o cadastro com os dados informados."

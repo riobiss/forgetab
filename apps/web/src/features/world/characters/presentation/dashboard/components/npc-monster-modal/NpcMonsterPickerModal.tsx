@@ -2,7 +2,7 @@ import styles from "../../CharactersDashboardPage.module.css"
 import type {
   NpcMonsterLoadoutItemOptionDto,
   NpcMonsterLoadoutSkillOptionDto,
-} from "@/features/world/npc-monster-loadout/application/types"
+} from "@/features/world/characters/application/loadout/types"
 import type { PickerMode } from "./types"
 
 type Props = {

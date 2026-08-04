@@ -17,8 +17,8 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@forgetab/world-contracts": "file:packages/world-contracts",
     "@floating-ui/react": "^0.27.19",
+    "@forgetab/world-contracts": "file:packages/world-contracts",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-popover": "^1.1.15",
     "@radix-ui/react-select": "^2.2.6",
@@ -68,7 +68,6 @@
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
     "vite": "^8.0.13",
-    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.6"
   }
 }

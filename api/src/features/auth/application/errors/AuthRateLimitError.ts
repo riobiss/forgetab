@@ -1,4 +1,4 @@
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 export class AuthRateLimitError extends AppError {
   readonly retryAfterSeconds: number

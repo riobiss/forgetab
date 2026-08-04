@@ -1,7 +1,7 @@
-import type { ProfileReader } from "@/features/profile/application//ports/ProfileReader"
-import type { ProfileSessionService } from "@/features/profile/application//ports/ProfileSessionService"
-import type { ProfileViewData } from "@/features/profile/application//types"
-import { buildProfileViewData } from "@/features/profile/application//use-cases/profileViewData"
+import type { ProfileReader } from "@/features/profile/application/ports/ProfileReader"
+import type { ProfileSessionService } from "@/features/profile/application/ports/ProfileSessionService"
+import type { ProfileViewData } from "@/features/profile/application/types"
+import { buildProfileViewData } from "@/features/profile/application/use-cases/profileViewData"
 
 export async function loadProfilePageUseCase(
   deps: {

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
   jwtSecret: (process.env.JWT_SECRET = process.env.JWT_SECRET ?? "test-secret"),

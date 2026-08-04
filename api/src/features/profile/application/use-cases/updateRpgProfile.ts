@@ -1,6 +1,6 @@
-import type { RpgProfileAccessService } from "@/features/profile/application//ports/RpgProfileAccessService"
-import type { RpgUserProfileWriter } from "@/features/profile/application//ports/RpgUserProfileWriter"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import type { RpgProfileAccessService } from "@/features/profile/application/ports/RpgProfileAccessService"
+import type { RpgUserProfileWriter } from "@/features/profile/application/ports/RpgUserProfileWriter"
+import { AppError } from "@/features/shared/application/errors/AppError"
 
 export type UpdateRpgProfileInput = {
   userId: string

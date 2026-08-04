@@ -1,4 +1,4 @@
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 import { jsonResponse } from "@/features/http/presentation/responses/jsonResponse"
 
 export function toErrorResponse(error: unknown, fallbackMessage: string) {

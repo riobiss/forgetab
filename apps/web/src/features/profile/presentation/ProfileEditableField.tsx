@@ -2,9 +2,9 @@
 
 import { Check, Pencil, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { updateProfileClientUseCase } from "@/features/profile/application/use-cases/updateProfileClient"
-import { createProfileDependencies } from "@/features/profile/presentation/dependencies"
+import { profileDependencies } from "@/features/profile/presentation/dependencies"
 import styles from "./ProfilePage.module.css"
 
 type Props = {
@@ -21,7 +21,6 @@ export default function ProfileEditableField({
   editLabel,
 }: Props) {
   const router = useRouter()
-  const deps = useMemo(() => createProfileDependencies("http"), [])
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState(value ?? "")
   const [error, setError] = useState("")
@@ -32,7 +31,7 @@ export default function ProfileEditableField({
     setError("")
 
     try {
-      await updateProfileClientUseCase(deps, { [field]: draft })
+      await updateProfileClientUseCase(profileDependencies, { [field]: draft })
       setIsEditing(false)
       router.refresh()
     } catch (error) {

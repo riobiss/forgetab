@@ -1,4 +1,4 @@
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 import type { RandomNumberProvider } from "@/features/dices/random/application/ports/RandomNumberProvider"
 
 export const DICE_ROLL_MAX_GROUPS = 20

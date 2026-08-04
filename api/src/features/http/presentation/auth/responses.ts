@@ -1,6 +1,6 @@
 import type { FastifyReply } from "fastify"
 import { AuthRateLimitError } from "@/features/auth/application/errors/AuthRateLimitError"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 import { serializeCookie } from "@/features/http/presentation/cookies"
 
 type AuthCookie = {

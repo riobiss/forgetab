@@ -3,7 +3,7 @@ import { createCharacterDetailModalDependencies } from "@/features/world/charact
 
 describe("character detail modal dependencies", () => {
   it("creates HTTP adapters outside the presentation component", () => {
-    const dependencies = createCharacterDetailModalDependencies("http")
+    const dependencies = createCharacterDetailModalDependencies()
 
     expect(dependencies.loadout.gateway.fetchInventory).toBeTypeOf("function")
     expect(

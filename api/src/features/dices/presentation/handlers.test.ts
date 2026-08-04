@@ -1,14 +1,14 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { rollDicesUseCase } from "@/features/dices/application/use-cases/rollDices"
-import { AppError } from "@/features/shared/infrastructure/errors/AppError"
+import { AppError } from "@/features/shared/application/errors/AppError"
 import { rollDicesHandler } from "@/features/dices/presentation/handlers"
 
-vi.mock("@/application/dices/use-cases/rollDices", () => ({
+vi.mock("@/features/dices/application/use-cases/rollDices", () => ({
   rollDicesUseCase: vi.fn(),
 }))
 
-vi.mock("@api/infrastructure/random/randomOrgRandomNumberProvider", () => ({
+vi.mock("@/features/dices/random/infrastructure/randomOrgRandomNumberProvider", () => ({
   randomOrgRandomNumberProvider: {
     generateIntegers: vi.fn(),
   },

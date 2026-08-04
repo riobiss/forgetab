@@ -5,7 +5,7 @@ const originalInternalApiBaseUrl = process.env.API_INTERNAL_BASE_URL
 
 afterEach(() => {
   vi.resetModules()
-  vi.unmock("next/headers")
+  vi.doUnmock("next/headers")
   vi.unstubAllEnvs()
   process.env.NEXT_PUBLIC_API_BASE_URL = originalApiBaseUrl
   process.env.API_INTERNAL_BASE_URL = originalInternalApiBaseUrl

@@ -39,7 +39,7 @@ import {
   removeNpcMonsterInventoryItemUseCase,
 } from "@/features/world/characters/application/loadout"
 import { createCharactersEditorDependencies } from "@/features/world/characters/presentation/editor/dependencies"
-import { createNpcMonsterLoadoutDependencies } from "@/features/world/npc-monster-loadout/presentation/dependencies"
+import { npcMonsterLoadoutDependencies } from "@/features/world/characters/presentation/dashboard/dependencies"
 import styles from "../CharactersDashboardPage.module.css"
 import { npcMonsterSteps } from "./npc-monster-modal/constants"
 import {
@@ -80,7 +80,7 @@ type Props = {
 }
 
 const deps = createCharactersEditorDependencies("http")
-const loadoutDeps = createNpcMonsterLoadoutDependencies("http")
+const loadoutDeps = npcMonsterLoadoutDependencies
 
 export default function NpcMonsterCharacterModal({
   rpgId,

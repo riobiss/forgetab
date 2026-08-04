@@ -3,13 +3,14 @@
 import { Check, ImagePlus, X } from "lucide-react"
 import NextImage from "next/image"
 import { useRouter } from "next/navigation"
-import { useMemo, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import Cropper, { type Area } from "react-easy-crop"
 import {
   updateRpgProfileClientUseCase,
   uploadRpgProfileImageClientUseCase,
 } from "@/features/profile/application/use-cases/updateProfileClient"
-import { createProfileDependencies } from "@/features/profile/presentation/dependencies"
+import { createRoundCroppedFile } from "@/features/profile/infrastructure/images/createRoundCroppedFile"
+import { profileDependencies } from "@/features/profile/presentation/dependencies"
 import styles from "./ProfilePage.module.css"
 
 type Props = {
@@ -49,69 +50,12 @@ function getFallbackBackground(seed: string) {
   return fallbackBackgrounds[hash % fallbackBackgrounds.length]
 }
 
-async function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image()
-    image.addEventListener("load", () => resolve(image))
-    image.addEventListener("error", () =>
-      reject(new Error("Nao foi possivel carregar a imagem.")),
-    )
-    image.src = src
-  })
-}
-
-async function createRoundCroppedFile(
-  imageSrc: string,
-  crop: Area,
-): Promise<File> {
-  const image = await loadImage(imageSrc)
-  const size = Math.min(crop.width, crop.height)
-  const canvas = document.createElement("canvas")
-  canvas.width = size
-  canvas.height = size
-  const context = canvas.getContext("2d")
-
-  if (!context) {
-    throw new Error("Nao foi possivel preparar o recorte.")
-  }
-
-  context.clearRect(0, 0, size, size)
-  context.save()
-  context.beginPath()
-  context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2)
-  context.closePath()
-  context.clip()
-  context.drawImage(
-    image,
-    crop.x,
-    crop.y,
-    crop.width,
-    crop.height,
-    0,
-    0,
-    size,
-    size,
-  )
-  context.restore()
-
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/png"),
-  )
-
-  if (!blob) {
-    throw new Error("Nao foi possivel gerar a imagem.")
-  }
-
-  return new File([blob], "profile-image.png", { type: "image/png" })
-}
-
 export default function ProfileRpgImageField({
   rpgId,
   imageUrl,
   fallbackName,
 }: Props) {
   const router = useRouter()
-  const deps = useMemo(() => createProfileDependencies("http"), [])
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [sourceImage, setSourceImage] = useState<string | null>(null)
   const [crop, setCrop] = useState<CropPoint>({ x: 0, y: 0 })
@@ -160,11 +104,11 @@ export default function ProfileRpgImageField({
 
     try {
       const file = await createRoundCroppedFile(sourceImage, croppedAreaPixels)
-      const upload = await uploadRpgProfileImageClientUseCase(deps, {
+      const upload = await uploadRpgProfileImageClientUseCase(profileDependencies, {
         file,
         oldUrl: imageUrl,
       })
-      await updateRpgProfileClientUseCase(deps, {
+      await updateRpgProfileClientUseCase(profileDependencies, {
         rpgId,
         payload: { profileImageUrl: upload.url },
       })

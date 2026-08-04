@@ -13,7 +13,7 @@ import type {
 import type {
   NpcMonsterLoadoutItemOptionDto,
   NpcMonsterLoadoutSkillOptionDto,
-} from "@/features/world/npc-monster-loadout/application/types"
+} from "@/features/world/characters/application/loadout/types"
 
 export type StepKey = "basic" | "bonus" | "inventory" | "abilities"
 export type NarrativeStatus = NpcMonsterNarrativeStatus

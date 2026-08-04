@@ -1,4 +1,5 @@
 import type { ProfileReader } from "@/features/profile/application/ports/ProfileReader"
+import type { ProfileViewData } from "@/features/profile/application/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 
 type ErrorPayload = {
@@ -46,7 +47,7 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
 }
 
 export const httpProfileReader: ProfileReader = {
-  async getByUserId() {
+  async getProfile(): Promise<ProfileViewData> {
     const response = await apiFetch("/api/profile", {
       next: { revalidate: 0 },
       cache: "no-store",
@@ -58,24 +59,14 @@ export const httpProfileReader: ProfileReader = {
       username: payload.username,
       email: payload.email,
       createdAt: payload.createdAt ? new Date(payload.createdAt) : null,
-      ownedRpgs: (payload.rpgProfiles ?? []).map((rpg) => ({
+      rpgProfiles: (payload.rpgProfiles ?? []).map((rpg) => ({
         id: rpg.id,
         title: rpg.title,
-        createdAt: rpg.joinedAt ? new Date(rpg.joinedAt) : null,
-      })),
-      memberships: [],
-      rpgDisplayNames: (payload.rpgProfiles ?? []).map((rpg) => ({
-        rpgId: rpg.id,
-        displayName: rpg.nickname,
+        nickname: rpg.nickname,
         profileImageUrl: rpg.profileImageUrl,
+        joinedAt: rpg.joinedAt ? new Date(rpg.joinedAt) : null,
+        characters: rpg.characters,
       })),
-      characters: (payload.rpgProfiles ?? []).flatMap((rpg) =>
-        rpg.characters.map((character) => ({
-          id: character.id,
-          name: character.name,
-          rpgId: rpg.id,
-        })),
-      ),
     }
   },
 }

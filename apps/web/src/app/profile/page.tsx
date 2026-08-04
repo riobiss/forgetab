@@ -4,17 +4,15 @@ import {
   httpProfileReader,
   HttpProfileError,
 } from "@/features/profile/infrastructure/repositories/httpProfileRepository"
-import { cookieProfileSessionService } from "@/features/profile/infrastructure/services/cookieProfileSessionService"
 import ProfilePage from "@/features/profile/presentation/ProfilePage"
+
+export const dynamic = "force-dynamic"
 
 export default async function PerfilPage() {
   let result
 
   try {
-    result = await loadProfilePageUseCase({
-      reader: httpProfileReader,
-      sessionService: cookieProfileSessionService,
-    })
+    result = await loadProfilePageUseCase({ reader: httpProfileReader })
   } catch (error) {
     if (error instanceof HttpProfileError && error.status === 401) {
       redirect("/login")
@@ -23,9 +21,5 @@ export default async function PerfilPage() {
     throw error
   }
 
-  if (result.status === "unauthenticated") {
-    redirect("/login")
-  }
-
-  return <ProfilePage data={result.data} />
+  return <ProfilePage data={result} />
 }

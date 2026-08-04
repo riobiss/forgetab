@@ -8,11 +8,11 @@ const mocks = vi.hoisted(() => ({
   canEditRpgProfile: vi.fn(),
 }))
 
-vi.mock("@api/presentation/http/auth/requestAuth", () => ({
+vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
   getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest,
 }))
 
-vi.mock("@api/presentation/routes/profile/dependencies", () => ({
+vi.mock("@/features/profile/presentation/dependencies", () => ({
   profileRouteDeps: {
     reader: {
       getByUserId: mocks.getByUserId,

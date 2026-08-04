@@ -1,4 +1,4 @@
-import type { NpcMonsterLoadoutDependencies } from "@/features/npcMonsterLoadout/application/contracts/NpcMonsterLoadoutDependencies"
+import type { NpcMonsterLoadoutDependencies } from "@/features/world/characters/application/loadout/contracts/NpcMonsterLoadoutDependencies"
 
 type Dependencies = NpcMonsterLoadoutDependencies
 
@@ -18,7 +18,12 @@ export async function listNpcMonsterItemOptionsUseCase(
 
 export async function addNpcMonsterInventoryItemUseCase(
   deps: Dependencies,
-  params: { rpgId: string; characterId: string; baseItemId: string; quantity?: number },
+  params: {
+    rpgId: string
+    characterId: string
+    baseItemId: string
+    quantity?: number
+  },
 ) {
   return deps.gateway.addInventoryItem(params.rpgId, params.characterId, {
     baseItemId: params.baseItemId,
@@ -57,7 +62,12 @@ export async function listNpcMonsterSkillOptionsUseCase(
 
 export async function addNpcMonsterAbilityUseCase(
   deps: Dependencies,
-  params: { rpgId: string; characterId: string; skillId: string; level?: number },
+  params: {
+    rpgId: string
+    characterId: string
+    skillId: string
+    level?: number
+  },
 ) {
   return deps.gateway.addAbility(params.rpgId, params.characterId, {
     skillId: params.skillId,
@@ -67,7 +77,12 @@ export async function addNpcMonsterAbilityUseCase(
 
 export async function removeNpcMonsterAbilityUseCase(
   deps: Dependencies,
-  params: { rpgId: string; characterId: string; skillId: string; level: number },
+  params: {
+    rpgId: string
+    characterId: string
+    skillId: string
+    level: number
+  },
 ) {
   return deps.gateway.removeAbility(params.rpgId, params.characterId, {
     skillId: params.skillId,
