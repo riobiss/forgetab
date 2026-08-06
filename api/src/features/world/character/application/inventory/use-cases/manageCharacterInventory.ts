@@ -7,7 +7,7 @@ type Dependencies = {
 
 async function getAccessContext(
   deps: Dependencies,
-  params: { rpgId: string; characterId: string; userId: string },
+  params: { rpgId: string; characterId: string; userId: string }
 ) {
   const rpg = await deps.repository.getRpg(params.rpgId)
   if (!rpg) {
@@ -20,7 +20,7 @@ async function getAccessContext(
   if (!isOwner) {
     const membership = await deps.repository.getMembership(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     if (membership?.status !== "accepted") {
       throw new AppError("RPG nao encontrado.", 404)
@@ -31,7 +31,7 @@ async function getAccessContext(
   const canManageAsMaster = isOwner || isModerator
   const character = await deps.repository.getCharacter(
     params.rpgId,
-    params.characterId,
+    params.characterId
   )
 
   if (!character) {
@@ -46,13 +46,13 @@ async function getAccessContext(
   return {
     characterName: character.name,
     isOwner: canManageAsMaster,
-    canViewInventory,
+    canViewInventory
   }
 }
 
 export async function getCharacterInventoryUseCase(
   deps: Dependencies,
-  params: { rpgId: string; characterId: string; userId: string },
+  params: { rpgId: string; characterId: string; userId: string }
 ) {
   const access = await getAccessContext(deps, params)
 
@@ -62,7 +62,7 @@ export async function getCharacterInventoryUseCase(
 
   const [weightContext, inventory] = await Promise.all([
     deps.repository.getWeightContext(params.rpgId, params.characterId),
-    deps.repository.listInventory(params.rpgId, params.characterId),
+    deps.repository.listInventory(params.rpgId, params.characterId)
   ])
 
   return {
@@ -70,7 +70,7 @@ export async function getCharacterInventoryUseCase(
     inventory,
     isOwner: access.isOwner,
     useInventoryWeightLimit: weightContext.useInventoryWeightLimit,
-    maxCarryWeight: weightContext.maxCarryWeight,
+    maxCarryWeight: weightContext.maxCarryWeight
   }
 }
 
@@ -82,7 +82,7 @@ export async function removeCharacterInventoryItemApiUseCase(
     userId: string
     inventoryItemId: string
     quantity: number
-  },
+  }
 ) {
   const access = await getAccessContext(deps, params)
 
@@ -101,7 +101,7 @@ export async function removeCharacterInventoryItemApiUseCase(
   const item = await deps.repository.getInventoryItem(
     params.rpgId,
     params.characterId,
-    params.inventoryItemId,
+    params.inventoryItemId
   )
 
   if (!item) {
@@ -116,14 +116,14 @@ export async function removeCharacterInventoryItemApiUseCase(
     await deps.repository.deleteInventoryItem(
       params.rpgId,
       params.characterId,
-      params.inventoryItemId,
+      params.inventoryItemId
     )
 
     return {
       message: "Item removido do inventario.",
       inventoryItemId: params.inventoryItemId,
       removedQuantity,
-      remainingQuantity: 0,
+      remainingQuantity: 0
     }
   }
 
@@ -131,13 +131,13 @@ export async function removeCharacterInventoryItemApiUseCase(
     params.rpgId,
     params.characterId,
     params.inventoryItemId,
-    nextQuantity,
+    nextQuantity
   )
 
   return {
     message: "Quantidade do item atualizada.",
     inventoryItemId: params.inventoryItemId,
     removedQuantity,
-    remainingQuantity: nextQuantity,
+    remainingQuantity: nextQuantity
   }
 }

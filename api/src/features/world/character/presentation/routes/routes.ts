@@ -19,7 +19,7 @@ import {
   removeNpcMonsterCharacterAbilityHandler,
   addNpcMonsterCharacterAbilityHandler,
   updateCharacterHandler,
-  updateCharacterStatusCurrentHandler,
+  updateCharacterStatusCurrentHandler
 } from "@/features/world/character/presentation/handlers"
 
 export function characterRoutes(app: FastifyInstance) {
@@ -30,8 +30,8 @@ export function characterRoutes(app: FastifyInstance) {
     (request, reply) =>
       listCharactersHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -48,8 +48,8 @@ export function characterRoutes(app: FastifyInstance) {
             characterId?: string
           }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -58,8 +58,8 @@ export function characterRoutes(app: FastifyInstance) {
     (request, reply) =>
       createCharacterHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -70,8 +70,8 @@ export function characterRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; characterId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -82,8 +82,8 @@ export function characterRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; characterId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -94,8 +94,8 @@ export function characterRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; characterId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -106,8 +106,8 @@ export function characterRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; characterId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -118,14 +118,14 @@ export function characterRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; characterId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
     "post",
     "/api/rpg/:rpgId/characters/:characterId/inventory",
-    (_request, reply) => createCharacterInventoryHandler(reply),
+    (_request, reply) => createCharacterInventoryHandler(reply)
   )
   registerFastifyRoute(
     app,
@@ -136,8 +136,8 @@ export function characterRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; characterId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -148,8 +148,8 @@ export function characterRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; characterId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -160,8 +160,8 @@ export function characterRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; characterId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -172,8 +172,8 @@ export function characterRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; characterId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -184,8 +184,8 @@ export function characterRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; characterId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -194,8 +194,8 @@ export function characterRoutes(app: FastifyInstance) {
     (request, reply) =>
       grantCharacterXpHandler(
         request as FastifyRequest<{ Params: { id: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -204,8 +204,8 @@ export function characterRoutes(app: FastifyInstance) {
     (request, reply) =>
       grantCharacterPointsHandler(
         request as FastifyRequest<{ Params: { id: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -214,8 +214,8 @@ export function characterRoutes(app: FastifyInstance) {
     (request, reply) =>
       buyCharacterSkillHandler(
         request as FastifyRequest<{ Params: { id: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -224,7 +224,7 @@ export function characterRoutes(app: FastifyInstance) {
     (request, reply) =>
       removeCharacterSkillHandler(
         request as FastifyRequest<{ Params: { id: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
 }

@@ -19,7 +19,7 @@ export default function RpgInfoModalButton({
   masterName,
   visibility,
   createdAt,
-  membersCount,
+  membersCount
 }: Props) {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -54,7 +54,8 @@ export default function RpgInfoModalButton({
                 <strong>Titulo:</strong> {title}
               </p>
               <p>
-                <strong>Visibilidade:</strong> {visibility === "public" ? "Publico" : "Privado"}
+                <strong>Visibilidade:</strong>{" "}
+                {visibility === "public" ? "Publico" : "Privado"}
               </p>
               <p>
                 <strong>Mestre:</strong> {masterName}

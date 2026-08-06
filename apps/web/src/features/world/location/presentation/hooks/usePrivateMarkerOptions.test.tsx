@@ -6,20 +6,17 @@ import { usePrivateMarkerOptions } from "./usePrivateMarkerOptions"
 const mocks = vi.hoisted(() => ({
   load: vi.fn(),
   subscribe: vi.fn(),
-  unsubscribe: vi.fn(),
+  unsubscribe: vi.fn()
 }))
 
-vi.mock(
-  "@/features/world/location/presentation/dependencies",
-  () => ({
-    rpgMapPresentationDeps: {
-      privateMarkerGroupStorage: {
-        load: mocks.load,
-        subscribe: mocks.subscribe,
-      },
-    },
-  }),
-)
+vi.mock("@/features/world/location/presentation/dependencies", () => ({
+  rpgMapPresentationDeps: {
+    privateMarkerGroupStorage: {
+      load: mocks.load,
+      subscribe: mocks.subscribe
+    }
+  }
+}))
 
 const markerColors = ["#f97316"]
 const privateGroups: MarkerGroup[] = [
@@ -41,10 +38,10 @@ const privateGroups: MarkerGroup[] = [
         y: 20,
         color: null,
         size: 1.5,
-        pinStyle: "label",
-      },
-    ],
-  },
+        pinStyle: "label"
+      }
+    ]
+  }
 ]
 
 describe("usePrivateMarkerOptions", () => {
@@ -56,7 +53,7 @@ describe("usePrivateMarkerOptions", () => {
 
   it("projeta os grupos privados como opcoes de vinculo", async () => {
     const { result } = renderHook(() =>
-      usePrivateMarkerOptions("map-1", markerColors),
+      usePrivateMarkerOptions("map-1", markerColors)
     )
 
     await waitFor(() => expect(result.current).toHaveLength(1))
@@ -70,12 +67,9 @@ describe("usePrivateMarkerOptions", () => {
       image: null,
       color: "#60a5fa",
       size: 1.5,
-      pinStyle: "label",
+      pinStyle: "label"
     })
-    expect(mocks.subscribe).toHaveBeenCalledWith(
-      "map-1",
-      expect.any(Function),
-    )
+    expect(mocks.subscribe).toHaveBeenCalledWith("map-1", expect.any(Function))
   })
 
   it("recarrega as opcoes quando o storage notifica uma mudanca", async () => {
@@ -85,7 +79,7 @@ describe("usePrivateMarkerOptions", () => {
       return mocks.unsubscribe
     })
     const { result } = renderHook(() =>
-      usePrivateMarkerOptions("map-1", markerColors),
+      usePrivateMarkerOptions("map-1", markerColors)
     )
     await waitFor(() => expect(result.current).toHaveLength(1))
     mocks.load.mockReturnValue([])
@@ -101,7 +95,7 @@ describe("usePrivateMarkerOptions", () => {
     const { result, rerender } = renderHook(
       ({ mapId }: { mapId: string | null }) =>
         usePrivateMarkerOptions(mapId, markerColors),
-      { initialProps: { mapId: "map-1" as string | null } },
+      { initialProps: { mapId: "map-1" as string | null } }
     )
     await waitFor(() => expect(result.current).toHaveLength(1))
 

@@ -1,7 +1,7 @@
 import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import type {
   EntityCatalogCurrentDetail,
-  EntityCatalogTemplateOption,
+  EntityCatalogTemplateOption
 } from "@/features/world/catalog/application/types"
 
 export type EntityCatalogDetailSnapshot = {

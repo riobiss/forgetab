@@ -1,14 +1,14 @@
 import type { MarkerGroup } from "@/features/world/location/application/models/markerGroups"
 import type {
   RpgMapMarkerGroupDto,
-  UpsertRpgMapMarkerGroupPayloadDto,
+  UpsertRpgMapMarkerGroupPayloadDto
 } from "@forgetab/world-contracts/location"
 
 const DEFAULT_MARKER_SIZE = 1
 const DEFAULT_MARKER_PIN_STYLE = "default"
 
 export function toMarkerGroupPayload(
-  group: MarkerGroup,
+  group: MarkerGroup
 ): UpsertRpgMapMarkerGroupPayloadDto {
   return {
     name: group.name,
@@ -23,13 +23,13 @@ export function toMarkerGroupPayload(
       x: marker.x,
       y: marker.y,
       size: marker.size ?? DEFAULT_MARKER_SIZE,
-      pinStyle: marker.pinStyle ?? DEFAULT_MARKER_PIN_STYLE,
-    })),
+      pinStyle: marker.pinStyle ?? DEFAULT_MARKER_PIN_STYLE
+    }))
   }
 }
 
 export function fromPublicMarkerGroupDto(
-  group: RpgMapMarkerGroupDto,
+  group: RpgMapMarkerGroupDto
 ): MarkerGroup {
   return {
     id: group.id,
@@ -50,7 +50,7 @@ export function fromPublicMarkerGroupDto(
       size: marker.size ?? DEFAULT_MARKER_SIZE,
       pinStyle: marker.pinStyle === "label" ? "label" : "default",
       canEdit: marker.canEdit ?? false,
-      canDelete: marker.canDelete ?? false,
-    })),
+      canDelete: marker.canDelete ?? false
+    }))
   }
 }

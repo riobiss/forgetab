@@ -25,13 +25,13 @@ export default function EntityCatalogClient({
   entityType,
   title,
   canManage,
-  items,
+  items
 }: Props) {
   const state = useEntityCatalogState(items)
   const management = useEntityCatalogManagement({
     rpgId,
     entityType,
-    canManage,
+    canManage
   })
   const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false)
   const [sortModalOpen, setSortModalOpen] = useState(false)

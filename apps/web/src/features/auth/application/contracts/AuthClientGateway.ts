@@ -11,8 +11,12 @@ export type RegisterPayload = {
 }
 
 export interface AuthClientGateway {
-  login(payload: LoginPayload): Promise<{ message?: string; token: string; maxAge: number }>
-  register(payload: RegisterPayload): Promise<{ message?: string; token: string; maxAge: number }>
+  login(
+    payload: LoginPayload
+  ): Promise<{ message?: string; token: string; maxAge: number }>
+  register(
+    payload: RegisterPayload
+  ): Promise<{ message?: string; token: string; maxAge: number }>
   logout(): Promise<void>
 }
 

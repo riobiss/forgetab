@@ -15,7 +15,7 @@ type Props = {
   setMarkerGroupName: (value: string) => void
   setMarkerGroupColor: (value: string) => void
   setPendingMarkers: (
-    updater: (current: PendingMarker[]) => PendingMarker[],
+    updater: (current: PendingMarker[]) => PendingMarker[]
   ) => void
   onSave: () => void
   onClose: () => void
@@ -32,7 +32,7 @@ export function MarkerFinalizeModal({
   setMarkerGroupColor,
   setPendingMarkers,
   onSave,
-  onClose,
+  onClose
 }: Props) {
   if (!isOpen) {
     return null
@@ -103,8 +103,8 @@ export function MarkerFinalizeModal({
                       current.map((item) =>
                         item.id === marker.id
                           ? { ...item, name: event.target.value }
-                          : item,
-                      ),
+                          : item
+                      )
                     )
                   }
                 />

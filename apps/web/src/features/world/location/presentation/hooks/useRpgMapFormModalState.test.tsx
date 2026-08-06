@@ -16,7 +16,7 @@ describe("useRpgMapFormModalState", () => {
         image: null,
         order: 0,
         createdAt: "2026-03-20T00:00:00.000Z",
-        updatedAt: "2026-03-20T00:00:00.000Z",
+        updatedAt: "2026-03-20T00:00:00.000Z"
       })
       result.current.setMapFormError("Erro antigo")
     })
@@ -30,7 +30,7 @@ describe("useRpgMapFormModalState", () => {
     expect(result.current.mapForm).toEqual({
       title: "",
       description: "",
-      type: "",
+      type: ""
     })
     expect(result.current.mapFormError).toBe("")
   })
@@ -48,7 +48,7 @@ describe("useRpgMapFormModalState", () => {
         image: "https://img.com/mapa.png",
         order: 1,
         createdAt: "2026-03-20T00:00:00.000Z",
-        updatedAt: "2026-03-20T00:00:00.000Z",
+        updatedAt: "2026-03-20T00:00:00.000Z"
       })
     })
 
@@ -57,7 +57,7 @@ describe("useRpgMapFormModalState", () => {
     expect(result.current.mapForm).toEqual({
       title: "Mundo",
       description: "Descricao",
-      type: "planet",
+      type: "planet"
     })
 
     act(() => {

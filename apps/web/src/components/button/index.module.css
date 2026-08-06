@@ -2,7 +2,11 @@
   width: 100%;
   padding: 10px 16px;
   margin-top: 10px;
-  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-strong));
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-primary),
+    var(--color-brand-strong)
+  );
 
   color: var(--color-text-on-brand);
   font-weight: bold;
@@ -57,5 +61,3 @@
   display: inline-flex;
   align-items: center;
 }
-
-

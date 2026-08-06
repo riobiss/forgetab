@@ -8,35 +8,38 @@ const mocks = vi.hoisted(() => ({
   createRpg: vi.fn(),
   getRpgById: vi.fn(),
   updateRpg: vi.fn(),
-  deleteRpg: vi.fn(),
+  deleteRpg: vi.fn()
 }))
 
 vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
-  getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest,
+  getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest
 }))
 
 vi.mock("@forgetab/world-contracts/catalog", () => ({
-  loadRpgCatalogUseCase: mocks.loadRpgCatalogUseCase,
+  loadRpgCatalogUseCase: mocks.loadRpgCatalogUseCase
 }))
 
-vi.mock("@/features/world/application/dashboard/use-cases/loadRpgDashboard", () => ({
-  loadRpgDashboard: mocks.loadRpgDashboard,
-}))
+vi.mock(
+  "@/features/world/application/dashboard/use-cases/loadRpgDashboard",
+  () => ({
+    loadRpgDashboard: mocks.loadRpgDashboard
+  })
+)
 
 vi.mock("@/features/world/application/management/use-cases/createRpg", () => ({
-  createRpg: mocks.createRpg,
+  createRpg: mocks.createRpg
 }))
 
 vi.mock("@/features/world/application/management/use-cases/getRpgById", () => ({
-  getRpgById: mocks.getRpgById,
+  getRpgById: mocks.getRpgById
 }))
 
 vi.mock("@/features/world/application/management/use-cases/updateRpg", () => ({
-  updateRpg: mocks.updateRpg,
+  updateRpg: mocks.updateRpg
 }))
 
 vi.mock("@/features/world/application/management/use-cases/deleteRpg", () => ({
-  deleteRpg: mocks.deleteRpg,
+  deleteRpg: mocks.deleteRpg
 }))
 
 import { buildApiServer } from "@api/app"
@@ -47,7 +50,7 @@ describe("rpg routes", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.getAuthPayloadFromFastifyRequest.mockResolvedValue({
-      userId: "user-1",
+      userId: "user-1"
     })
   })
 
@@ -70,8 +73,8 @@ describe("rpg routes", () => {
       payload: {
         title: "Campanha",
         description: "Descricao com mais de 10 caracteres.",
-        visibility: "private",
-      },
+        visibility: "private"
+      }
     })
 
     expect(response.statusCode).toBe(401)
@@ -89,23 +92,23 @@ describe("rpg routes", () => {
           description: "Desc",
           image: null,
           visibility: "private",
-          createdAt: new Date("2026-01-01T00:00:00.000Z"),
-        },
+          createdAt: new Date("2026-01-01T00:00:00.000Z")
+        }
       ],
-      publicRpgs: [],
+      publicRpgs: []
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg",
+      url: "/api/rpg"
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.loadRpgCatalogUseCase).toHaveBeenCalledWith(
       expect.anything(),
       {
-        userId: "user-1",
-      },
+        userId: "user-1"
+      }
     )
     expect(response.json()).toEqual({
       userId: "user-1",
@@ -116,10 +119,10 @@ describe("rpg routes", () => {
           description: "Desc",
           image: null,
           visibility: "private",
-          createdAt: "2026-01-01T00:00:00.000Z",
-        },
+          createdAt: "2026-01-01T00:00:00.000Z"
+        }
       ],
-      publicRpgs: [],
+      publicRpgs: []
     })
   })
 
@@ -129,25 +132,25 @@ describe("rpg routes", () => {
     mocks.loadRpgCatalogUseCase.mockResolvedValue({
       userId: null,
       createdRpgs: [],
-      publicRpgs: [],
+      publicRpgs: []
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg",
+      url: "/api/rpg"
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.loadRpgCatalogUseCase).toHaveBeenCalledWith(
       expect.anything(),
       {
-        userId: null,
-      },
+        userId: null
+      }
     )
     expect(response.json()).toEqual({
       userId: null,
       createdRpgs: [],
-      publicRpgs: [],
+      publicRpgs: []
     })
   })
 
@@ -157,40 +160,40 @@ describe("rpg routes", () => {
       rpg: {
         id: "rpg-1",
         ownerId: "user-1",
-        title: "Campanha",
-      },
+        title: "Campanha"
+      }
     })
 
     const body = {
       title: "Campanha",
       description: "Descricao com mais de 10 caracteres.",
-      visibility: "private",
+      visibility: "private"
     }
 
     const response = await server.inject({
       method: "POST",
       url: "/api/rpg",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(201)
     expect(mocks.createRpg).toHaveBeenCalledWith(expect.anything(), {
       userId: "user-1",
-      body,
+      body
     })
     expect(response.json()).toEqual({
       rpg: {
         id: "rpg-1",
         ownerId: "user-1",
-        title: "Campanha",
-      },
+        title: "Campanha"
+      }
     })
   })
 
   it("retorna 400 para erro de validacao ao criar RPG", async () => {
     server = buildApiServer()
     mocks.createRpg.mockRejectedValue(
-      new AppError("Titulo deve ter pelo menos 3 caracteres.", 400),
+      new AppError("Titulo deve ter pelo menos 3 caracteres.", 400)
     )
 
     const response = await server.inject({
@@ -199,13 +202,13 @@ describe("rpg routes", () => {
       payload: {
         title: "aa",
         description: "curta",
-        visibility: "private",
-      },
+        visibility: "private"
+      }
     })
 
     expect(response.statusCode).toBe(400)
     expect(response.json()).toEqual({
-      message: "Titulo deve ter pelo menos 3 caracteres.",
+      message: "Titulo deve ter pelo menos 3 caracteres."
     })
   })
 
@@ -215,7 +218,7 @@ describe("rpg routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1",
+      url: "/api/rpg/rpg-1"
     })
 
     expect(response.statusCode).toBe(401)
@@ -235,7 +238,7 @@ describe("rpg routes", () => {
         useMundiMap: false,
         usersCanManageOwnXp: true,
         allowSkillPointDistribution: true,
-        createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        createdAt: new Date("2026-01-01T00:00:00.000Z")
       },
       isAuthenticated: true,
       isOwner: true,
@@ -251,12 +254,12 @@ describe("rpg routes", () => {
       spectatorCharacters: [],
       attributeLabels: {},
       skillLabels: {},
-      statusLabels: {},
+      statusLabels: {}
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/dashboard",
+      url: "/api/rpg/rpg-1/dashboard"
     })
 
     expect(response.statusCode).toBe(200)
@@ -265,8 +268,8 @@ describe("rpg routes", () => {
       expect.anything(),
       {
         rpgId: "rpg-1",
-        userId: "user-1",
-      },
+        userId: "user-1"
+      }
     )
     expect(response.json()).toEqual({
       rpg: {
@@ -279,7 +282,7 @@ describe("rpg routes", () => {
         useMundiMap: false,
         usersCanManageOwnXp: true,
         allowSkillPointDistribution: true,
-        createdAt: "2026-01-01T00:00:00.000Z",
+        createdAt: "2026-01-01T00:00:00.000Z"
       },
       isAuthenticated: true,
       isOwner: true,
@@ -295,19 +298,19 @@ describe("rpg routes", () => {
       spectatorCharacters: [],
       attributeLabels: {},
       skillLabels: {},
-      statusLabels: {},
+      statusLabels: {}
     })
   })
 
   it("retorna 404 ao buscar dashboard inexistente", async () => {
     server = buildApiServer()
     mocks.loadRpgDashboard.mockRejectedValue(
-      new AppError("RPG nao encontrado.", 404),
+      new AppError("RPG nao encontrado.", 404)
     )
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-inexistente/dashboard",
+      url: "/api/rpg/rpg-inexistente/dashboard"
     })
 
     expect(response.statusCode).toBe(404)
@@ -320,26 +323,26 @@ describe("rpg routes", () => {
       rpg: {
         id: "rpg-1",
         title: "Campanha",
-        canManage: true,
-      },
+        canManage: true
+      }
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1",
+      url: "/api/rpg/rpg-1"
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.getRpgById).toHaveBeenCalledWith(expect.anything(), {
       rpgId: "rpg-1",
-      userId: "user-1",
+      userId: "user-1"
     })
     expect(response.json()).toEqual({
       rpg: {
         id: "rpg-1",
         title: "Campanha",
-        canManage: true,
-      },
+        canManage: true
+      }
     })
   })
 
@@ -349,7 +352,7 @@ describe("rpg routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1",
+      url: "/api/rpg/rpg-1"
     })
 
     expect(response.statusCode).toBe(404)
@@ -361,8 +364,8 @@ describe("rpg routes", () => {
     mocks.updateRpg.mockRejectedValue(
       new AppError(
         "Configuracao de custos disponivel apenas na criacao do RPG.",
-        400,
-      ),
+        400
+      )
     )
 
     const response = await server.inject({
@@ -372,20 +375,20 @@ describe("rpg routes", () => {
         title: "Campanha",
         description: "Descricao com mais de 10 caracteres.",
         visibility: "private",
-        costsEnabled: true,
-      },
+        costsEnabled: true
+      }
     })
 
     expect(response.statusCode).toBe(400)
     expect(response.json()).toEqual({
-      message: "Configuracao de custos disponivel apenas na criacao do RPG.",
+      message: "Configuracao de custos disponivel apenas na criacao do RPG."
     })
   })
 
   it("retorna 403 sem permissao para editar RPG", async () => {
     server = buildApiServer()
     mocks.updateRpg.mockRejectedValue(
-      new AppError("Voce nao pode editar este RPG.", 403),
+      new AppError("Voce nao pode editar este RPG.", 403)
     )
 
     const response = await server.inject({
@@ -394,13 +397,13 @@ describe("rpg routes", () => {
       payload: {
         title: "Campanha",
         description: "Descricao com mais de 10 caracteres.",
-        visibility: "private",
-      },
+        visibility: "private"
+      }
     })
 
     expect(response.statusCode).toBe(403)
     expect(response.json()).toEqual({
-      message: "Voce nao pode editar este RPG.",
+      message: "Voce nao pode editar este RPG."
     })
   })
 
@@ -409,23 +412,23 @@ describe("rpg routes", () => {
     const body = {
       title: "Campanha",
       description: "Descricao com mais de 10 caracteres.",
-      visibility: "private",
+      visibility: "private"
     }
     mocks.updateRpg.mockResolvedValue({
-      message: "RPG atualizado com sucesso.",
+      message: "RPG atualizado com sucesso."
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/rpg/rpg-1",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.updateRpg).toHaveBeenCalledWith(expect.anything(), {
       rpgId: "rpg-1",
       userId: "user-1",
-      body,
+      body
     })
     expect(response.json()).toEqual({ message: "RPG atualizado com sucesso." })
   })
@@ -436,7 +439,7 @@ describe("rpg routes", () => {
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/rpg/rpg-1",
+      url: "/api/rpg/rpg-1"
     })
 
     expect(response.statusCode).toBe(404)
@@ -449,13 +452,13 @@ describe("rpg routes", () => {
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/rpg/rpg-1",
+      url: "/api/rpg/rpg-1"
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.deleteRpg).toHaveBeenCalledWith(expect.anything(), {
       rpgId: "rpg-1",
-      userId: "user-1",
+      userId: "user-1"
     })
     expect(response.json()).toEqual({ message: "RPG deletado com sucesso." })
   })

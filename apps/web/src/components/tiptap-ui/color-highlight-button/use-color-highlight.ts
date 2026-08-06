@@ -12,7 +12,7 @@ import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
 import {
   isMarkInSchema,
   isNodeTypeSelected,
-  isExtensionAvailable,
+  isExtensionAvailable
 } from "@/lib/tiptap-utils"
 
 // --- Icons ---
@@ -24,62 +24,62 @@ export const HIGHLIGHT_COLORS = [
     label: "Default background",
     value: "var(--tt-bg-color)",
     colorValue: "#ffffff",
-    border: "var(--tt-bg-color-contrast)",
+    border: "var(--tt-bg-color-contrast)"
   },
   {
     label: "Gray background",
     value: "var(--tt-color-highlight-gray)",
     colorValue: "#f8f8f7",
-    border: "var(--tt-color-highlight-gray-contrast)",
+    border: "var(--tt-color-highlight-gray-contrast)"
   },
   {
     label: "Brown background",
     value: "var(--tt-color-highlight-brown)",
     colorValue: "#f4eeee",
-    border: "var(--tt-color-highlight-brown-contrast)",
+    border: "var(--tt-color-highlight-brown-contrast)"
   },
   {
     label: "Orange background",
     value: "var(--tt-color-highlight-orange)",
     colorValue: "#fbecdd",
-    border: "var(--tt-color-highlight-orange-contrast)",
+    border: "var(--tt-color-highlight-orange-contrast)"
   },
   {
     label: "Yellow background",
     value: "var(--tt-color-highlight-yellow)",
     colorValue: "#fef9c3",
-    border: "var(--tt-color-highlight-yellow-contrast)",
+    border: "var(--tt-color-highlight-yellow-contrast)"
   },
   {
     label: "Green background",
     value: "var(--tt-color-highlight-green)",
     colorValue: "#dcfce7",
-    border: "var(--tt-color-highlight-green-contrast)",
+    border: "var(--tt-color-highlight-green-contrast)"
   },
   {
     label: "Blue background",
     value: "var(--tt-color-highlight-blue)",
     colorValue: "#e0f2fe",
-    border: "var(--tt-color-highlight-blue-contrast)",
+    border: "var(--tt-color-highlight-blue-contrast)"
   },
   {
     label: "Purple background",
     value: "var(--tt-color-highlight-purple)",
     colorValue: "#f3e8ff",
-    border: "var(--tt-color-highlight-purple-contrast)",
+    border: "var(--tt-color-highlight-purple-contrast)"
   },
   {
     label: "Pink background",
     value: "var(--tt-color-highlight-pink)",
     colorValue: "#fcf1f6",
-    border: "var(--tt-color-highlight-pink-contrast)",
+    border: "var(--tt-color-highlight-pink-contrast)"
   },
   {
     label: "Red background",
     value: "var(--tt-color-highlight-red)",
     colorValue: "#ffe4e6",
-    border: "var(--tt-color-highlight-red-contrast)",
-  },
+    border: "var(--tt-color-highlight-red-contrast)"
+  }
 ]
 export type HighlightColor = (typeof HIGHLIGHT_COLORS)[number]
 
@@ -124,7 +124,7 @@ export interface UseColorHighlightConfig {
   onApplied?: ({
     color,
     label,
-    mode,
+    mode
   }: {
     color: string
     label: string
@@ -274,7 +274,7 @@ export function useColorHighlight(config: UseColorHighlightConfig) {
     hideWhenUnavailable = false,
     mode = "mark",
     useColorValue = false,
-    onApplied,
+    onApplied
   } = config
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -360,7 +360,7 @@ export function useColorHighlight(config: UseColorHighlightConfig) {
     {
       enabled: isVisible && canColorHighlightState,
       enableOnContentEditable: !isMobile,
-      enableOnFormTags: true,
+      enableOnFormTags: true
     }
   )
 
@@ -373,6 +373,6 @@ export function useColorHighlight(config: UseColorHighlightConfig) {
     label: label || `Highlight`,
     shortcutKeys: COLOR_HIGHLIGHT_SHORTCUT_KEY,
     Icon: HighlighterIcon,
-    mode,
+    mode
   }
 }

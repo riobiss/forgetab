@@ -12,27 +12,30 @@ const mocks = vi.hoisted(() => ({
   createLibraryBook: vi.fn(),
   getLibraryBook: vi.fn(),
   updateLibraryBook: vi.fn(),
-  deleteLibraryBook: vi.fn(),
+  deleteLibraryBook: vi.fn()
 }))
 
 vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
-  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
+  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest
 }))
 
-vi.mock("@/features/world/library/application/use-cases/librarySections", () => ({
-  listLibrarySections: mocks.listLibrarySections,
-  createLibrarySection: mocks.createLibrarySection,
-  getLibrarySection: mocks.getLibrarySection,
-  updateLibrarySection: mocks.updateLibrarySection,
-  deleteLibrarySection: mocks.deleteLibrarySection,
-}))
+vi.mock(
+  "@/features/world/library/application/use-cases/librarySections",
+  () => ({
+    listLibrarySections: mocks.listLibrarySections,
+    createLibrarySection: mocks.createLibrarySection,
+    getLibrarySection: mocks.getLibrarySection,
+    updateLibrarySection: mocks.updateLibrarySection,
+    deleteLibrarySection: mocks.deleteLibrarySection
+  })
+)
 
 vi.mock("@/features/world/library/application/use-cases/libraryBooks", () => ({
   listLibrarySectionBooks: mocks.listLibrarySectionBooks,
   createLibraryBook: mocks.createLibraryBook,
   getLibraryBook: mocks.getLibraryBook,
   updateLibraryBook: mocks.updateLibraryBook,
-  deleteLibraryBook: mocks.deleteLibraryBook,
+  deleteLibraryBook: mocks.deleteLibraryBook
 }))
 
 import { buildApiServer } from "@api/app"
@@ -60,7 +63,7 @@ describe("library routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/library/sections",
+      url: "/api/rpg/rpg-1/library/sections"
     })
 
     expect(response.statusCode).toBe(401)
@@ -71,22 +74,22 @@ describe("library routes", () => {
     server = buildApiServer()
     mocks.listLibrarySections.mockResolvedValue({
       sections: [{ id: "s1", title: "Lore" }],
-      canManage: true,
+      canManage: true
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/library/sections",
+      url: "/api/rpg/rpg-1/library/sections"
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.listLibrarySections).toHaveBeenCalledWith(expect.anything(), {
       rpgId: "rpg-1",
-      userId: "u1",
+      userId: "u1"
     })
     expect(response.json()).toEqual({
       sections: [{ id: "s1", title: "Lore" }],
-      canManage: true,
+      canManage: true
     })
   })
 
@@ -94,52 +97,52 @@ describe("library routes", () => {
     server = buildApiServer()
     const body = { title: "Lore", description: "Descricao qualquer" }
     mocks.createLibrarySection.mockResolvedValue({
-      section: { id: "s1", title: "Lore" },
+      section: { id: "s1", title: "Lore" }
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/rpg/rpg-1/library/sections",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(201)
     expect(mocks.createLibrarySection).toHaveBeenCalledWith(expect.anything(), {
       rpgId: "rpg-1",
       userId: "u1",
-      body,
+      body
     })
     expect(response.json()).toEqual({
-      section: { id: "s1", title: "Lore" },
+      section: { id: "s1", title: "Lore" }
     })
   })
 
   it("retorna 200 com secao por id", async () => {
     server = buildApiServer()
     mocks.getLibrarySection.mockResolvedValue({
-      section: { id: "s1", title: "Lore" },
+      section: { id: "s1", title: "Lore" }
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/library/sections/s1",
+      url: "/api/rpg/rpg-1/library/sections/s1"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      section: { id: "s1", title: "Lore" },
+      section: { id: "s1", title: "Lore" }
     })
   })
 
   it("retorna 404 para secao inexistente", async () => {
     server = buildApiServer()
     mocks.getLibrarySection.mockRejectedValue(
-      new AppError("Secao nao encontrada.", 404),
+      new AppError("Secao nao encontrada.", 404)
     )
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/library/sections/s1",
+      url: "/api/rpg/rpg-1/library/sections/s1"
     })
 
     expect(response.statusCode).toBe(404)
@@ -150,13 +153,13 @@ describe("library routes", () => {
     server = buildApiServer()
     const body = { title: "Atualizada", description: "Descricao valida" }
     mocks.updateLibrarySection.mockResolvedValue({
-      section: { id: "s1", title: "Atualizada" },
+      section: { id: "s1", title: "Atualizada" }
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/rpg/rpg-1/library/sections/s1",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(200)
@@ -164,19 +167,19 @@ describe("library routes", () => {
       rpgId: "rpg-1",
       sectionId: "s1",
       userId: "u1",
-      body,
+      body
     })
   })
 
   it("retorna 200 ao remover secao", async () => {
     server = buildApiServer()
     mocks.deleteLibrarySection.mockResolvedValue({
-      message: "Secao removida com sucesso.",
+      message: "Secao removida com sucesso."
     })
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/rpg/rpg-1/library/sections/s1",
+      url: "/api/rpg/rpg-1/library/sections/s1"
     })
 
     expect(response.statusCode).toBe(200)
@@ -187,12 +190,12 @@ describe("library routes", () => {
     server = buildApiServer()
     mocks.listLibrarySectionBooks.mockResolvedValue({
       books: [{ id: "b1", title: "Livro 1" }],
-      section: { id: "s1", title: "Lore" },
+      section: { id: "s1", title: "Lore" }
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/library/sections/s1/books",
+      url: "/api/rpg/rpg-1/library/sections/s1/books"
     })
 
     expect(response.statusCode).toBe(200)
@@ -201,12 +204,12 @@ describe("library routes", () => {
       {
         rpgId: "rpg-1",
         sectionId: "s1",
-        userId: "u1",
-      },
+        userId: "u1"
+      }
     )
     expect(response.json()).toEqual({
       books: [{ id: "b1", title: "Livro 1" }],
-      section: { id: "s1", title: "Lore" },
+      section: { id: "s1", title: "Lore" }
     })
   })
 
@@ -218,16 +221,16 @@ describe("library routes", () => {
       visibility: "private",
       allowedCharacterIds: [],
       allowedClassKeys: [],
-      allowedRaceKeys: [],
+      allowedRaceKeys: []
     }
     mocks.createLibraryBook.mockResolvedValue({
-      book: { id: "b1", title: "Livro 1" },
+      book: { id: "b1", title: "Livro 1" }
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/rpg/rpg-1/library/sections/s1/books",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(201)
@@ -235,34 +238,34 @@ describe("library routes", () => {
       rpgId: "rpg-1",
       sectionId: "s1",
       userId: "u1",
-      body,
+      body
     })
     expect(response.json()).toEqual({
-      book: { id: "b1", title: "Livro 1" },
+      book: { id: "b1", title: "Livro 1" }
     })
   })
 
   it("retorna 200 com livro por id", async () => {
     server = buildApiServer()
     mocks.getLibraryBook.mockResolvedValue({
-      book: { id: "b1", title: "Livro 1" },
+      book: { id: "b1", title: "Livro 1" }
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/library/books/b1",
+      url: "/api/rpg/rpg-1/library/books/b1"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      book: { id: "b1", title: "Livro 1" },
+      book: { id: "b1", title: "Livro 1" }
     })
   })
 
   it("retorna 403 ao tentar atualizar livro sem permissao", async () => {
     server = buildApiServer()
     mocks.updateLibraryBook.mockRejectedValue(
-      new AppError("Voce nao pode editar este livro.", 403),
+      new AppError("Voce nao pode editar este livro.", 403)
     )
 
     const response = await server.inject({
@@ -274,25 +277,25 @@ describe("library routes", () => {
         visibility: "private",
         allowedCharacterIds: [],
         allowedClassKeys: [],
-        allowedRaceKeys: [],
-      },
+        allowedRaceKeys: []
+      }
     })
 
     expect(response.statusCode).toBe(403)
     expect(response.json()).toEqual({
-      message: "Voce nao pode editar este livro.",
+      message: "Voce nao pode editar este livro."
     })
   })
 
   it("retorna 200 ao remover livro", async () => {
     server = buildApiServer()
     mocks.deleteLibraryBook.mockResolvedValue({
-      message: "Livro removido com sucesso.",
+      message: "Livro removido com sucesso."
     })
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/rpg/rpg-1/library/books/b1",
+      url: "/api/rpg/rpg-1/library/books/b1"
     })
 
     expect(response.statusCode).toBe(200)

@@ -6,7 +6,7 @@ import { forwardRef, useCallback } from "react"
 import type { UseBlockquoteConfig } from "@/components/tiptap-ui/blockquote-button"
 import {
   BLOCKQUOTE_SHORTCUT_KEY,
-  useBlockquote,
+  useBlockquote
 } from "@/components/tiptap-ui/blockquote-button"
 
 // --- Hooks ---
@@ -34,7 +34,7 @@ export interface BlockquoteButtonProps
 }
 
 export function BlockquoteShortcutBadge({
-  shortcutKeys = BLOCKQUOTE_SHORTCUT_KEY,
+  shortcutKeys = BLOCKQUOTE_SHORTCUT_KEY
 }: {
   shortcutKeys?: string
 }) {
@@ -71,11 +71,11 @@ export const BlockquoteButton = forwardRef<
       handleToggle,
       label,
       shortcutKeys,
-      Icon,
+      Icon
     } = useBlockquote({
       editor,
       hideWhenUnavailable,
-      onToggled,
+      onToggled
     })
 
     const handleClick = useCallback(

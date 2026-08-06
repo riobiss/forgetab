@@ -4,7 +4,7 @@ import { verifyAuthToken } from "@/lib/auth/token"
 import { getUserIdFromRequest as getUserIdFromAuthRequest } from "@/lib/auth/requestAuth"
 
 export async function getUserIdFromRequest(
-  request: Request,
+  request: Request
 ): Promise<string | null> {
   return getUserIdFromAuthRequest(request)
 }

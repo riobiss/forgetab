@@ -2,10 +2,10 @@ export {
   expelMemberHandler,
   listRpgMembersHandler,
   processMemberActionHandler,
-  requestJoinRpgHandler,
+  requestJoinRpgHandler
 } from "./memberHandlers"
 export {
   getCharacterRequestsHandler,
   processCharacterRequestHandler,
-  requestCharacterCreationHandler,
+  requestCharacterCreationHandler
 } from "./characterRequestHandlers"

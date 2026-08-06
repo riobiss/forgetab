@@ -5,7 +5,7 @@ import { createApiResponseParser } from "@/features/http/infrastructure/parseApi
 export class HttpCharacterDetailError extends Error {
   constructor(
     message: string,
-    readonly status: number,
+    readonly status: number
   ) {
     super(message)
     this.name = "HttpCharacterDetailError"
@@ -15,19 +15,19 @@ export class HttpCharacterDetailError extends Error {
 const parseJsonResponse = createApiResponseParser({
   fallbackMessage: "Erro ao carregar detalhe do personagem.",
   errorFactory: (message, status) =>
-    new HttpCharacterDetailError(message, status),
+    new HttpCharacterDetailError(message, status)
 })
 
 export async function fetchCharacterDetailViewModel(
   rpgId: string,
-  characterId: string,
+  characterId: string
 ): Promise<CharacterDetailViewModel> {
   const response = await apiFetch(
     `/api/rpg/${rpgId}/characters/${characterId}/detail`,
     {
       next: { revalidate: 0 },
-      cache: "no-store",
-    },
+      cache: "no-store"
+    }
   )
 
   return parseJsonResponse<CharacterDetailViewModel>(response)

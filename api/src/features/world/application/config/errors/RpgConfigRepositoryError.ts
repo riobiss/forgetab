@@ -11,7 +11,7 @@ export type RpgConfigRepositoryErrorCode =
 export class RpgConfigRepositoryError extends Error {
   constructor(
     readonly code: RpgConfigRepositoryErrorCode,
-    options?: ErrorOptions,
+    options?: ErrorOptions
   ) {
     super("Falha ao acessar a persistencia de configuracao do RPG.", options)
     this.name = "RpgConfigRepositoryError"

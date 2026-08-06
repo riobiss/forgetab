@@ -8,10 +8,7 @@ import { type Editor } from "@tiptap/react"
 import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 
 // --- Lib ---
-import {
-  isExtensionAvailable,
-  isNodeTypeSelected,
-} from "@/lib/tiptap-utils"
+import { isExtensionAvailable, isNodeTypeSelected } from "@/lib/tiptap-utils"
 
 // --- Icons ---
 import { AlignCenterIcon } from "@/components/tiptap-icons/align-center-icon"
@@ -48,21 +45,21 @@ export const TEXT_ALIGN_SHORTCUT_KEYS: Record<TextAlign, string> = {
   left: "mod+shift+l",
   center: "mod+shift+e",
   right: "mod+shift+r",
-  justify: "mod+shift+j",
+  justify: "mod+shift+j"
 }
 
 export const textAlignIcons = {
   left: AlignLeftIcon,
   center: AlignCenterIcon,
   right: AlignRightIcon,
-  justify: AlignJustifyIcon,
+  justify: AlignJustifyIcon
 }
 
 export const textAlignLabels: Record<TextAlign, string> = {
   left: "Align left",
   center: "Align center",
   right: "Align right",
-  justify: "Align justify",
+  justify: "Align justify"
 }
 
 /**
@@ -183,7 +180,7 @@ export function useTextAlign(config: UseTextAlignConfig) {
     editor: providedEditor,
     align,
     hideWhenUnavailable = false,
-    onAligned,
+    onAligned
   } = config
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -224,6 +221,6 @@ export function useTextAlign(config: UseTextAlignConfig) {
     canAlign,
     label: textAlignLabels[align],
     shortcutKeys: TEXT_ALIGN_SHORTCUT_KEYS[align],
-    Icon: textAlignIcons[align],
+    Icon: textAlignIcons[align]
   }
 }

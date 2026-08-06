@@ -14,7 +14,7 @@ export function useSkillsModalController({
   setLevelForm,
   createInitialMeta,
   createInitialLevel,
-  filtersOpen,
+  filtersOpen
 }: UseSkillsModalControllerParams) {
   const [createOpen, setCreateOpen] = useState(false)
   const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false)
@@ -55,7 +55,10 @@ export function useSkillsModalController({
     setCreateOpen(false)
   }
 
-  function openEditModal(skillId: string, setSelectedSkillId: Dispatch<SetStateAction<string>>) {
+  function openEditModal(
+    skillId: string,
+    setSelectedSkillId: Dispatch<SetStateAction<string>>
+  ) {
     setCreateOpen(false)
     setEditOpen(true)
     setEditStep(1)
@@ -98,6 +101,6 @@ export function useSkillsModalController({
     openEditModal,
     closeEditModal,
     openCustomFieldModal,
-    closeCustomFieldModal,
+    closeCustomFieldModal
   }
 }

@@ -9,7 +9,7 @@ const schemaErrorPatterns = [
   'column "visibility" does not exist',
   'column "allowed_character_ids" does not exist',
   'column "allowed_class_keys" does not exist',
-  'column "allowed_race_keys" does not exist',
+  'column "allowed_race_keys" does not exist'
 ] as const
 
 export function toLibraryRepositoryError(error: unknown) {
@@ -24,7 +24,7 @@ export function toLibraryRepositoryError(error: unknown) {
 }
 
 async function withLibraryPersistenceErrors<T>(
-  operation: () => Promise<T>,
+  operation: () => Promise<T>
 ): Promise<T> {
   try {
     return await operation()
@@ -34,7 +34,7 @@ async function withLibraryPersistenceErrors<T>(
 }
 
 export function withLibraryRepositoryErrors(
-  repository: LibraryRepository,
+  repository: LibraryRepository
 ): LibraryRepository {
   return new Proxy(repository, {
     get(target, property, receiver) {
@@ -42,9 +42,9 @@ export function withLibraryRepositoryErrors(
       if (typeof value !== "function") return value
 
       return (...args: unknown[]) =>
-        withLibraryPersistenceErrors(() =>
-          Reflect.apply(value, target, args) as Promise<unknown>,
+        withLibraryPersistenceErrors(
+          () => Reflect.apply(value, target, args) as Promise<unknown>
         )
-    },
+    }
   })
 }

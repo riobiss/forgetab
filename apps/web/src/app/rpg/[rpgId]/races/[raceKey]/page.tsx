@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import {
   fetchEntityCatalogDetailData,
-  HttpEntityCatalogError,
+  HttpEntityCatalogError
 } from "@/features/world/catalog/infrastructure/repositories/httpEntityCatalogDetailRepository"
 import EntityDetailsPage from "@/features/world/catalog/presentation/EntityDetailsPage"
 

@@ -1,7 +1,7 @@
 import type { JsonValue } from "@/features/shared/application/json"
 import type {
   LibraryBookDto,
-  LibrarySectionDto,
+  LibrarySectionDto
 } from "@/features/world/library/application/types"
 
 export type ViewerCharacter = {
@@ -14,7 +14,7 @@ export interface LibraryRepository {
   listSections(rpgId: string): Promise<LibrarySectionDto[]>
   findSection(
     rpgId: string,
-    sectionId: string,
+    sectionId: string
   ): Promise<LibrarySectionDto | null>
   createSection(params: {
     rpgId: string
@@ -66,7 +66,7 @@ export interface LibraryRepository {
   }): Promise<LibraryBookDto | null>
   deleteBook(
     rpgId: string,
-    bookId: string,
+    bookId: string
   ): Promise<{ id: string; sectionId: string } | null>
   touchSection(sectionId: string): Promise<void>
   getViewerCharacters(rpgId: string, userId: string): Promise<ViewerCharacter[]>

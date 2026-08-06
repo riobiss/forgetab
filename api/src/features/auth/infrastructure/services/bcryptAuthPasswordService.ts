@@ -3,5 +3,5 @@ import { comparePassword, hashPassword } from "@/lib/auth/password"
 
 export const bcryptAuthPasswordService: AuthPasswordService = {
   compare: comparePassword,
-  hash: hashPassword,
+  hash: hashPassword
 }

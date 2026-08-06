@@ -21,7 +21,7 @@ export default function AttributeOptionsSection({
   onNewAttributeLabelChange,
   onAddAttribute,
   attributeTemplates,
-  onRemoveAttribute,
+  onRemoveAttribute
 }: Props) {
   return (
     <div className={styles.section}>
@@ -38,7 +38,9 @@ export default function AttributeOptionsSection({
             <input
               type="text"
               value={newAttributeLabel}
-              onChange={(event) => onNewAttributeLabelChange(event.target.value)}
+              onChange={(event) =>
+                onNewAttributeLabelChange(event.target.value)
+              }
               placeholder="Ex.: Força"
             />
             <button

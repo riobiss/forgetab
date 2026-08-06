@@ -5,16 +5,16 @@ import { useRpgMapImageActions } from "@/features/world/location/presentation/ho
 const mocks = vi.hoisted(() => ({
   uploadRpgMapImageUseCase: vi.fn(),
   persistRpgMapImageUseCase: vi.fn(),
-  deleteRpgMapImageByUrlUseCase: vi.fn(),
+  deleteRpgMapImageByUrlUseCase: vi.fn()
 }))
 
 vi.mock(
   "@/features/world/location/application/use-cases/rpgMapImages.client",
   () => ({
-  uploadRpgMapImageUseCase: mocks.uploadRpgMapImageUseCase,
-  persistRpgMapImageUseCase: mocks.persistRpgMapImageUseCase,
-  deleteRpgMapImageByUrlUseCase: mocks.deleteRpgMapImageByUrlUseCase,
-  }),
+    uploadRpgMapImageUseCase: mocks.uploadRpgMapImageUseCase,
+    persistRpgMapImageUseCase: mocks.persistRpgMapImageUseCase,
+    deleteRpgMapImageByUrlUseCase: mocks.deleteRpgMapImageByUrlUseCase
+  })
 )
 
 describe("useRpgMapImageActions", () => {
@@ -25,11 +25,11 @@ describe("useRpgMapImageActions", () => {
   it("handleMapFile faz upload, persiste e atualiza mensagem", async () => {
     const setMapSrc = vi.fn()
     mocks.uploadRpgMapImageUseCase.mockResolvedValue({
-      url: "https://img.com/new-map.png",
+      url: "https://img.com/new-map.png"
     })
     mocks.persistRpgMapImageUseCase.mockResolvedValue({
       message: "Mapa atualizado com sucesso.",
-      mapImage: "https://img.com/new-map.png",
+      mapImage: "https://img.com/new-map.png"
     })
 
     const { result } = renderHook(() =>
@@ -38,8 +38,8 @@ describe("useRpgMapImageActions", () => {
         mapId: "map-1",
         canManage: true,
         mapSrc: "https://img.com/current-map.png",
-        setMapSrc,
-      }),
+        setMapSrc
+      })
     )
 
     const file = new File(["map"], "map.png", { type: "image/png" })
@@ -54,8 +54,8 @@ describe("useRpgMapImageActions", () => {
       {
         rpgId: "rpg-1",
         mapId: "map-1",
-        mapImage: "https://img.com/new-map.png",
-      },
+        mapImage: "https://img.com/new-map.png"
+      }
     )
     expect(setMapSrc).toHaveBeenCalledWith("https://img.com/new-map.png")
     await waitFor(() => {
@@ -68,7 +68,7 @@ describe("useRpgMapImageActions", () => {
     mocks.deleteRpgMapImageByUrlUseCase.mockResolvedValue({ message: "ok" })
     mocks.persistRpgMapImageUseCase.mockResolvedValue({
       message: "Mapa atualizado com sucesso.",
-      mapImage: null,
+      mapImage: null
     })
 
     const { result } = renderHook(() =>
@@ -77,8 +77,8 @@ describe("useRpgMapImageActions", () => {
         mapId: "map-1",
         canManage: true,
         mapSrc: "https://img.com/current-map.png",
-        setMapSrc,
-      }),
+        setMapSrc
+      })
     )
 
     await act(async () => {
@@ -88,21 +88,21 @@ describe("useRpgMapImageActions", () => {
     expect(mocks.deleteRpgMapImageByUrlUseCase).toHaveBeenCalledWith(
       expect.anything(),
       {
-        url: "https://img.com/current-map.png",
-      },
+        url: "https://img.com/current-map.png"
+      }
     )
     expect(mocks.persistRpgMapImageUseCase).toHaveBeenCalledWith(
       expect.anything(),
       {
         rpgId: "rpg-1",
         mapId: "map-1",
-        mapImage: null,
-      },
+        mapImage: null
+      }
     )
     expect(setMapSrc).toHaveBeenCalledWith("/map/world-map.png")
     await waitFor(() => {
       expect(result.current.uploadMessage).toBe(
-        "Imagem do mapa removida com sucesso.",
+        "Imagem do mapa removida com sucesso."
       )
     })
   })

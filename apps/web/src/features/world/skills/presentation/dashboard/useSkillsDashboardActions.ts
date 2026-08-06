@@ -4,7 +4,7 @@ import type { SkillsDashboardDependencies } from "@/features/world/skills/applic
 import {
   mapCreateSkillPayload,
   mapUpdateSkillLevelPayload,
-  mapUpdateSkillMetaPayload,
+  mapUpdateSkillMetaPayload
 } from "@/features/world/skills/application/skillsDashboard/mappers/skillPayloadMappers"
 import {
   createSkillLevelSnapshotUseCase,
@@ -12,7 +12,7 @@ import {
   deleteSkillLevelUseCase,
   deleteSkillUseCase,
   updateSkillLevelUseCase,
-  updateSkillMetaUseCase,
+  updateSkillMetaUseCase
 } from "@/features/world/skills/application/skillsDashboard/use-cases/skillsDashboard"
 import type { SkillCategory } from "@/types/skillBuilder"
 import type {
@@ -20,7 +20,7 @@ import type {
   MetaForm,
   SkillDetail,
   SkillLevel,
-  SkillListItem,
+  SkillListItem
 } from "./types"
 import { mapSkillToMetaForm } from "./utils"
 
@@ -56,7 +56,7 @@ type UseSkillsDashboardActionsParams = {
 type SaveOptions = { manageSaving?: boolean; showSuccess?: boolean }
 
 export function useSkillsDashboardActions(
-  params: UseSkillsDashboardActionsParams,
+  params: UseSkillsDashboardActionsParams
 ) {
   const { deps } = params
 
@@ -70,7 +70,7 @@ export function useSkillsDashboardActions(
       setError,
       setSuccess,
       setActiveSkill,
-      setSkills,
+      setSkills
     } = params
     if (!activeSkill) return null
     const manageSaving = options?.manageSaving ?? true
@@ -90,7 +90,7 @@ export function useSkillsDashboardActions(
 
       const updatedSkill = await updateSkillMetaUseCase(deps, {
         skillId: activeSkill.id,
-        payload: mapUpdateSkillMetaPayload(metaForm),
+        payload: mapUpdateSkillMetaPayload(metaForm)
       })
 
       setActiveSkill(updatedSkill)
@@ -100,10 +100,10 @@ export function useSkillsDashboardActions(
             ? {
                 ...item,
                 slug: updatedSkill.slug,
-                updatedAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
               }
-            : item,
-        ),
+            : item
+        )
       )
       if (showSuccess) {
         setSuccess("Meta da skill atualizada.")
@@ -130,7 +130,7 @@ export function useSkillsDashboardActions(
       setSaving,
       setError,
       setSuccess,
-      setActiveSkill,
+      setActiveSkill
     } = params
     if (!activeSkill || !selectedLevel) return null
     const manageSaving = options?.manageSaving ?? true
@@ -147,8 +147,8 @@ export function useSkillsDashboardActions(
         payload: mapUpdateSkillLevelPayload({
           meta: metaForm,
           level: levelForm,
-          fallbackLevelRequired: selectedLevel.levelRequired,
-        }),
+          fallbackLevelRequired: selectedLevel.levelRequired
+        })
       })
 
       setActiveSkill(updatedSkill)
@@ -176,7 +176,7 @@ export function useSkillsDashboardActions(
       setLevelForm,
       setNewCustomFieldName,
       setNewCustomFieldValue,
-      setCustomFieldModalOpen,
+      setCustomFieldModalOpen
     } = params
     const trimmed = newCustomFieldName.trim()
     if (!trimmed) {
@@ -191,9 +191,9 @@ export function useSkillsDashboardActions(
         {
           id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
           name: trimmed,
-          value: newCustomFieldValue,
-        },
-      ],
+          value: newCustomFieldValue
+        }
+      ]
     }))
     setNewCustomFieldName("")
     setNewCustomFieldValue("")
@@ -213,7 +213,7 @@ export function useSkillsDashboardActions(
       setCreateOpen,
       setEditStep,
       setSelectedSkillId,
-      setSkills,
+      setSkills
     } = params
     setSaving(true)
     setError("")
@@ -230,8 +230,8 @@ export function useSkillsDashboardActions(
         payload: mapCreateSkillPayload({
           rpgId: selectedRpgId,
           meta: metaForm,
-          level: levelForm,
-        }),
+          level: levelForm
+        })
       })
 
       setCreateOpen(false)
@@ -241,9 +241,9 @@ export function useSkillsDashboardActions(
         {
           id: createdSkill.id,
           slug: createdSkill.slug,
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         },
-        ...prev,
+        ...prev
       ])
       setSuccess("Habilidade criada com sucesso.")
       toast.success("Habilidade criada com sucesso.")
@@ -266,7 +266,7 @@ export function useSkillsDashboardActions(
       setActiveSkill,
       setMetaForm,
       setSkills,
-      setSelectedLevelId,
+      setSelectedLevelId
     } = params
     if (!activeSkill) return
     setSaving(true)
@@ -274,7 +274,7 @@ export function useSkillsDashboardActions(
     setSuccess("")
     try {
       const updatedSkill = await createSkillLevelSnapshotUseCase(deps, {
-        skillId: activeSkill.id,
+        skillId: activeSkill.id
       })
       setActiveSkill(updatedSkill)
       setMetaForm(mapSkillToMetaForm(updatedSkill))
@@ -283,10 +283,10 @@ export function useSkillsDashboardActions(
           item.id === updatedSkill.id
             ? {
                 ...item,
-                updatedAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
               }
-            : item,
-        ),
+            : item
+        )
       )
       const newestLevel = updatedSkill.levels[updatedSkill.levels.length - 1]
       setSelectedLevelId(newestLevel?.id ?? "")
@@ -312,13 +312,13 @@ export function useSkillsDashboardActions(
     try {
       const savedMeta = await saveMeta({
         manageSaving: false,
-        showSuccess: false,
+        showSuccess: false
       })
       if (!savedMeta) return
 
       const savedLevel = await saveLevel({
         manageSaving: false,
-        showSuccess: false,
+        showSuccess: false
       })
       if (!savedLevel) return
 
@@ -339,7 +339,7 @@ export function useSkillsDashboardActions(
       setActiveSkill,
       setMetaForm,
       setSkills,
-      setSelectedLevelId,
+      setSelectedLevelId
     } = params
     if (!activeSkill || !selectedLevel) return
     if (activeSkill.levels.length <= 1) {
@@ -348,7 +348,7 @@ export function useSkillsDashboardActions(
     }
 
     const shouldDelete = window.confirm(
-      `Deseja deletar o level ${selectedLevel.levelNumber}? Essa acao nao pode ser desfeita.`,
+      `Deseja deletar o level ${selectedLevel.levelNumber}? Essa acao nao pode ser desfeita.`
     )
     if (!shouldDelete) return
 
@@ -359,7 +359,7 @@ export function useSkillsDashboardActions(
       const levelNumber = selectedLevel.levelNumber
       const updatedSkill = await deleteSkillLevelUseCase(deps, {
         skillId: activeSkill.id,
-        levelId: selectedLevel.id,
+        levelId: selectedLevel.id
       })
 
       setActiveSkill(updatedSkill)
@@ -369,10 +369,10 @@ export function useSkillsDashboardActions(
           item.id === updatedSkill.id
             ? {
                 ...item,
-                updatedAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
               }
-            : item,
-        ),
+            : item
+        )
       )
 
       const fallbackLevel =
@@ -400,12 +400,12 @@ export function useSkillsDashboardActions(
       setSuccess,
       setSkills,
       setSelectedSkillId,
-      setEditOpen,
+      setEditOpen
     } = params
     if (!activeSkill) return
 
     const shouldDelete = window.confirm(
-      `Deseja deletar a habilidade "${activeSkill.slug}"? Essa acao nao pode ser desfeita.`,
+      `Deseja deletar a habilidade "${activeSkill.slug}"? Essa acao nao pode ser desfeita.`
     )
     if (!shouldDelete) return
 
@@ -437,6 +437,6 @@ export function useSkillsDashboardActions(
     createSnapshotLevel,
     saveAll,
     deleteSelectedLevel,
-    deleteActiveSkill,
+    deleteActiveSkill
   }
 }

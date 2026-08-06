@@ -8,7 +8,7 @@ const itemSchemaErrorFragments = [
   'column "duration" does not exist',
   'column "range" does not exist',
   'column "image" does not exist',
-  'column "custom_fields" does not exist',
+  'column "custom_fields" does not exist'
 ]
 
 function toItemRepositoryError(error: unknown) {
@@ -21,7 +21,7 @@ function toItemRepositoryError(error: unknown) {
     message.includes('relation "rpg_character_inventory_items" does not exist')
   ) {
     return new ItemRepositoryError("inventory_schema_missing", {
-      cause: error,
+      cause: error
     })
   }
 
@@ -33,7 +33,7 @@ function toItemRepositoryError(error: unknown) {
 }
 
 export async function withItemPersistenceErrors<T>(
-  operation: () => Promise<T>,
+  operation: () => Promise<T>
 ): Promise<T> {
   try {
     return await operation()

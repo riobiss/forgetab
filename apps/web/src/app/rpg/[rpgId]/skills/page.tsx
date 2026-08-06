@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import {
   fetchRpgPageAccess,
-  HttpPageAccessError,
+  HttpPageAccessError
 } from "@/features/world/infrastructure/management/repositories/httpRpgPageAccessRepository"
 import SkillsDashboardFeature from "@/features/world/skills/presentation/dashboard/SkillsDashboardFeature"
 

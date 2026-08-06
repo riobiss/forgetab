@@ -31,7 +31,7 @@ const SECTION_MARKER_COLORS = [
   "#60a5fa",
   "#34d399",
   "#f472b6",
-  "#a78bfa",
+  "#a78bfa"
 ]
 
 export function RpgMapPage({
@@ -39,11 +39,11 @@ export function RpgMapPage({
   rpgTitle,
   view = "catalog",
   initialMapId = null,
-  detailTitle = null,
+  detailTitle = null
 }: RpgMapPageProps) {
   const pageContentRef = useRef<HTMLDivElement | null>(null)
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
-    null,
+    null
   )
   const [isMapCollapsed, setIsMapCollapsed] = useState(false)
   const {
@@ -69,16 +69,16 @@ export function RpgMapPage({
     search,
     selectedMapId,
     setMapForm,
-    setSearch,
+    setSearch
   } = useRpgMapsCatalog({
     rpgId,
     view,
     initialMapId,
-    setSelectedSectionId,
+    setSelectedSectionId
   })
   const privateMarkerOptions = usePrivateMarkerOptions(
     selectedMapId,
-    SECTION_MARKER_COLORS,
+    SECTION_MARKER_COLORS
   )
   const {
     canEditMapContent,
@@ -90,7 +90,7 @@ export function RpgMapPage({
     mapFeatureRef,
     markerLinkSelectOptions,
     markerOptions,
-    markerSectionOptions,
+    markerSectionOptions
   } = useRpgMapMarkerLinks(detail, privateMarkerOptions)
 
   const {
@@ -139,7 +139,7 @@ export function RpgMapPage({
     selectedSection,
     setCustomFieldDraft,
     setSectionForm,
-    setSectionSearch,
+    setSectionSearch
   } = useRpgMapSections({
     rpgId,
     selectedMapId,
@@ -148,7 +148,7 @@ export function RpgMapPage({
     selectedSectionId,
     setSelectedSectionId,
     loadDetail,
-    loadMaps,
+    loadMaps
   })
 
   useRpgMapPageModalFocus({
@@ -170,7 +170,7 @@ export function RpgMapPage({
       }
 
       handleEscape()
-    },
+    }
   })
 
   return (
@@ -393,10 +393,7 @@ export function RpgMapPage({
         onGoToMap={
           linkedSectionMarker
             ? () =>
-                focusMarker(
-                  linkedSectionMarker.id,
-                  closeSectionDetailsModal,
-                )
+                focusMarker(linkedSectionMarker.id, closeSectionDetailsModal)
             : undefined
         }
         onEdit={(section) => {

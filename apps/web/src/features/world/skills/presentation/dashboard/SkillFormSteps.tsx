@@ -37,7 +37,7 @@ export function SkillFormSteps({
   categoryOptions,
   tagOptions,
   costResourceName,
-  showLevelEditorHeader = false,
+  showLevelEditorHeader = false
 }: Props) {
   return (
     <>
@@ -91,7 +91,7 @@ export function SkillFormSteps({
 
 export function SkillStepNavigation({
   step,
-  setStep,
+  setStep
 }: Pick<Props, "step" | "setStep">) {
   return (
     <>

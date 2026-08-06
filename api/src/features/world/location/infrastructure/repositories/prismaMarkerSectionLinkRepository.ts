@@ -1,7 +1,7 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import type {
   MarkerSectionLinkMarker,
-  MarkerSectionLinkRepository,
+  MarkerSectionLinkRepository
 } from "@/features/world/location/application/ports/MarkerSectionLinkRepository"
 import { prisma } from "@/lib/prisma"
 
@@ -32,7 +32,7 @@ function jsonb(value: Record<string, unknown>) {
 
 function applyMarker(
   customFields: Prisma.JsonValue | null,
-  marker: MarkerSectionLinkMarker,
+  marker: MarkerSectionLinkMarker
 ) {
   const next = toObject(customFields)
   delete next[MARKER_ID_FIELD]
@@ -46,7 +46,7 @@ function applyMarker(
   for (const [field, value] of [
     [LOCATION_FIELD, marker.location],
     [IMAGE_FIELD, marker.image],
-    [COLOR_FIELD, marker.color],
+    [COLOR_FIELD, marker.color]
   ] as const) {
     if (value) next[field] = value
     else delete next[field]
@@ -141,5 +141,5 @@ export const prismaMarkerSectionLinkRepository: MarkerSectionLinkRepository = {
 
       return { status: "linked", sectionId: params.sectionId }
     })
-  },
+  }
 }

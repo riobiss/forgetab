@@ -8,7 +8,7 @@ const maxRequestBodySizeBytes = 9 * 1024 * 1024
 
 function applyCorsHeaders(
   headers: IncomingHttpHeaders | Headers,
-  reply: { header: (name: string, value: string) => unknown },
+  reply: { header: (name: string, value: string) => unknown }
 ) {
   const allowedOrigin = resolveAllowedOrigin(headers)
   if (!allowedOrigin) {
@@ -24,7 +24,7 @@ function applyCorsHeaders(
 export function buildApiServer() {
   const app = Fastify({
     bodyLimit: maxRequestBodySizeBytes,
-    logger: false,
+    logger: false
   })
 
   app.removeAllContentTypeParsers()
@@ -33,7 +33,7 @@ export function buildApiServer() {
     { parseAs: "buffer" },
     (_request, body, done) => {
       done(null, body)
-    },
+    }
   )
 
   app.addHook("onRequest", async (request, reply) => {
@@ -49,7 +49,7 @@ export function buildApiServer() {
 
     reply.header(
       "Access-Control-Allow-Methods",
-      "GET,POST,PATCH,PUT,DELETE,OPTIONS",
+      "GET,POST,PATCH,PUT,DELETE,OPTIONS"
     )
     reply.header("Access-Control-Allow-Headers", "Content-Type, Authorization")
     return reply.code(204).send()

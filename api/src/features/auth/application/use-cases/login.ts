@@ -9,7 +9,7 @@ import type { AuthTokenService } from "@/features/auth/application/ports/AuthTok
 const LOGIN_RATE_LIMIT = {
   ipLimit: 20,
   emailPerIpLimit: 8,
-  windowMs: 15 * 60 * 1000,
+  windowMs: 15 * 60 * 1000
 }
 
 export async function loginUseCase(
@@ -22,18 +22,18 @@ export async function loginUseCase(
     authPasswordService: AuthPasswordService
     authTokenService: AuthTokenService
     authRateLimitService: AuthRateLimitService
-  },
+  }
 ) {
   const ipRate = await deps.authRateLimitService.check(
     `login:ip:${input.clientIp}`,
     LOGIN_RATE_LIMIT.ipLimit,
-    LOGIN_RATE_LIMIT.windowMs,
+    LOGIN_RATE_LIMIT.windowMs
   )
 
   if (!ipRate.allowed) {
     throw new AuthRateLimitError(
       "Muitas tentativas. Tente novamente em instantes.",
-      ipRate.retryAfterSeconds,
+      ipRate.retryAfterSeconds
     )
   }
 
@@ -41,7 +41,7 @@ export async function loginUseCase(
   if (!parsed.success) {
     throw new AppError(
       parsed.error.issues[0]?.message ?? "Dados invalidos.",
-      400,
+      400
     )
   }
 
@@ -50,13 +50,13 @@ export async function loginUseCase(
   const emailRate = await deps.authRateLimitService.check(
     `login:email:${input.clientIp}:${normalizedEmail}`,
     LOGIN_RATE_LIMIT.emailPerIpLimit,
-    LOGIN_RATE_LIMIT.windowMs,
+    LOGIN_RATE_LIMIT.windowMs
   )
 
   if (!emailRate.allowed) {
     throw new AuthRateLimitError(
       "Muitas tentativas. Tente novamente em instantes.",
-      emailRate.retryAfterSeconds,
+      emailRate.retryAfterSeconds
     )
   }
 
@@ -67,7 +67,7 @@ export async function loginUseCase(
 
   const isValidPassword = await deps.authPasswordService.compare(
     password,
-    user.passwordHash,
+    user.passwordHash
   )
   if (!isValidPassword) {
     throw new AppError("Credenciais invalidas.", 401)
@@ -75,7 +75,7 @@ export async function loginUseCase(
 
   const token = await deps.authTokenService.createToken({
     userId: user.id,
-    email: user.email,
+    email: user.email
   })
 
   return {
@@ -86,7 +86,7 @@ export async function loginUseCase(
       name: user.name,
       username: user.username,
       email: user.email,
-      createdAt: user.createdAt,
-    },
+      createdAt: user.createdAt
+    }
   }
 }

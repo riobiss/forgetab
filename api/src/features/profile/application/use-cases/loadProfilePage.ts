@@ -3,12 +3,12 @@ import type { ProfileSessionService } from "@/features/profile/application/ports
 import type { ProfileViewData } from "@/features/profile/application/types"
 import { buildProfileViewData } from "@/features/profile/application/use-cases/profileViewData"
 
-export async function loadProfilePageUseCase(
-  deps: {
-    repository: ProfileReader
-    sessionService: ProfileSessionService
-  },
-): Promise<{ status: "unauthenticated" } | { status: "ok"; data: ProfileViewData }> {
+export async function loadProfilePageUseCase(deps: {
+  repository: ProfileReader
+  sessionService: ProfileSessionService
+}): Promise<
+  { status: "unauthenticated" } | { status: "ok"; data: ProfileViewData }
+> {
   const session = await deps.sessionService.getAuthenticatedUser()
 
   if (!session) {
@@ -19,6 +19,6 @@ export async function loadProfilePageUseCase(
 
   return {
     status: "ok",
-    data: buildProfileViewData({ user, fallbackEmail: session.email }),
+    data: buildProfileViewData({ user, fallbackEmail: session.email })
   }
 }

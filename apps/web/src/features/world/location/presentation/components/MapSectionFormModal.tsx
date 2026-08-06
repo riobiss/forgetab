@@ -26,7 +26,7 @@ type Props = {
   parentOptions: Array<{ id: string; label: string }>
   markerOptions: MarkerLinkOption[]
   onChangeForm: (
-    updater: (current: SectionFormState) => SectionFormState,
+    updater: (current: SectionFormState) => SectionFormState
   ) => void
   onOpenCustomFieldModal: () => void
   onAddImage: () => void
@@ -54,7 +54,7 @@ export function MapSectionFormModal({
   onRemoveImage,
   onSave,
   onClose,
-  onDelete,
+  onDelete
 }: Props) {
   if (!isOpen) {
     return null
@@ -105,7 +105,7 @@ export function MapSectionFormModal({
             onChange={(event) =>
               onChangeForm((current) => ({
                 ...current,
-                name: event.target.value,
+                name: event.target.value
               }))
             }
             placeholder={
@@ -123,7 +123,7 @@ export function MapSectionFormModal({
             onChange={(event) =>
               onChangeForm((current) => ({
                 ...current,
-                description: event.target.value,
+                description: event.target.value
               }))
             }
           />
@@ -135,7 +135,7 @@ export function MapSectionFormModal({
             onChange={(event) =>
               onChangeForm((current) => ({
                 ...current,
-                type: event.target.value,
+                type: event.target.value
               }))
             }
             placeholder="city, base, biome..."
@@ -148,7 +148,7 @@ export function MapSectionFormModal({
             onChange={(event) =>
               onChangeForm((current) => ({
                 ...current,
-                parentSectionId: event.target.value,
+                parentSectionId: event.target.value
               }))
             }
           >
@@ -167,7 +167,7 @@ export function MapSectionFormModal({
             onChange={(event) =>
               onChangeForm((current) => ({
                 ...current,
-                linkedMarkerId: event.target.value,
+                linkedMarkerId: event.target.value
               }))
             }
           >
@@ -249,11 +249,11 @@ export function MapSectionFormModal({
                                 ...updater({
                                   key: item.key,
                                   value: item.value,
-                                  type: item.type,
-                                }),
+                                  type: item.type
+                                })
                               }
-                            : item,
-                        ),
+                            : item
+                        )
                       }))
                     }
                   />
@@ -264,8 +264,8 @@ export function MapSectionFormModal({
                       onChangeForm((current) => ({
                         ...current,
                         customFields: current.customFields.filter(
-                          (item) => item.id !== field.id,
-                        ),
+                          (item) => item.id !== field.id
+                        )
                       }))
                     }
                     aria-label="Remover campo"

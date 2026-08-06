@@ -5,18 +5,18 @@ import { updateSkillLevel } from "@/features/world/skill/application/use-cases/u
 import {
   parseJsonBody,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { skillRouteDeps } from "./dependencies"
 import {
   requireUserId,
   type SkillLevelRouteParams,
-  type SkillRouteParams,
+  type SkillRouteParams
 } from "./shared"
 
 export async function createSkillLevelHandler(
   request: FastifyRequest<{ Params: SkillRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -27,8 +27,8 @@ export async function createSkillLevelHandler(
       {
         skillId: request.params.id,
         userId: auth.userId,
-        body: parseJsonBody(request.body),
-      },
+        body: parseJsonBody(request.body)
+      }
     )
     return writeJson(reply, 201, payload)
   } catch (error) {
@@ -38,7 +38,7 @@ export async function createSkillLevelHandler(
 
 export async function updateSkillLevelHandler(
   request: FastifyRequest<{ Params: SkillLevelRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -50,8 +50,8 @@ export async function updateSkillLevelHandler(
         skillId: request.params.id,
         levelId: request.params.levelId,
         userId: auth.userId,
-        body: parseJsonBody(request.body),
-      },
+        body: parseJsonBody(request.body)
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -61,7 +61,7 @@ export async function updateSkillLevelHandler(
 
 export async function deleteSkillLevelHandler(
   request: FastifyRequest<{ Params: SkillLevelRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -72,8 +72,8 @@ export async function deleteSkillLevelHandler(
       {
         skillId: request.params.id,
         levelId: request.params.levelId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {

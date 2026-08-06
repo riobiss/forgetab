@@ -1,12 +1,12 @@
 import type { CustomFieldType } from "@/features/world/location/presentation/types/typedCustomField"
 import type {
   MarkerGroup as ApplicationMarkerGroup,
-  MarkerItem,
+  MarkerItem
 } from "@/features/world/location/application/models/markerGroups"
 
 export type {
   MarkerPinStyle,
-  PendingMarker,
+  PendingMarker
 } from "@/features/world/location/application/models/markerGroups"
 
 export type MarkerDisplayField = {

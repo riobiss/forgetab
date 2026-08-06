@@ -2,7 +2,7 @@ import type {
   RpgMapDto,
   RpgMapMarkerGroupDto,
   RpgMapSectionDto,
-  UpsertRpgMapMarkerItemPayloadDto,
+  UpsertRpgMapMarkerItemPayloadDto
 } from "@forgetab/world-contracts/location"
 
 export interface RpgMapRepository {
@@ -80,7 +80,7 @@ export interface RpgMapRepository {
   }): Promise<void>
   listMarkerGroups(
     rpgId: string,
-    mapId: string,
+    mapId: string
   ): Promise<RpgMapMarkerGroupDto[]>
   findMarkerGroup(params: {
     rpgId: string

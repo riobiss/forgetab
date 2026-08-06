@@ -14,11 +14,11 @@ const mocks = vi.hoisted(() => ({
   reorderRpgMapSection: vi.fn(),
   createRpgMapMarkerGroup: vi.fn(),
   updateRpgMapMarkerGroup: vi.fn(),
-  deleteRpgMapMarkerGroup: vi.fn(),
+  deleteRpgMapMarkerGroup: vi.fn()
 }))
 
 vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
-  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
+  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest
 }))
 
 vi.mock("@/features/world/location/application/use-cases/rpgMap", () => ({
@@ -33,7 +33,7 @@ vi.mock("@/features/world/location/application/use-cases/rpgMap", () => ({
   reorderRpgMapSection: mocks.reorderRpgMapSection,
   createRpgMapMarkerGroup: mocks.createRpgMapMarkerGroup,
   updateRpgMapMarkerGroup: mocks.updateRpgMapMarkerGroup,
-  deleteRpgMapMarkerGroup: mocks.deleteRpgMapMarkerGroup,
+  deleteRpgMapMarkerGroup: mocks.deleteRpgMapMarkerGroup
 }))
 
 import { buildApiServer } from "@api/app"
@@ -61,7 +61,7 @@ describe("rpg map routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/maps",
+      url: "/api/rpg/rpg-1/maps"
     })
 
     expect(response.statusCode).toBe(401)
@@ -72,12 +72,12 @@ describe("rpg map routes", () => {
     server = buildApiServer()
     mocks.listRpgMaps.mockResolvedValueOnce({
       maps: [{ id: "map-1", title: "Mundo", canEdit: true }],
-      canManage: true,
+      canManage: true
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/maps",
+      url: "/api/rpg/rpg-1/maps"
     })
 
     expect(response.statusCode).toBe(200)
@@ -86,12 +86,12 @@ describe("rpg map routes", () => {
       expect.anything(),
       {
         rpgId: "rpg-1",
-        userId: "user-1",
-      },
+        userId: "user-1"
+      }
     )
     expect(response.json()).toEqual({
       maps: [{ id: "map-1", title: "Mundo", canEdit: true }],
-      canManage: true,
+      canManage: true
     })
   })
 
@@ -100,16 +100,16 @@ describe("rpg map routes", () => {
     const body = {
       title: "Mundo",
       type: "world",
-      image: "https://img.com/map.png",
+      image: "https://img.com/map.png"
     }
     mocks.createRpgMap.mockResolvedValueOnce({
-      map: { id: "map-1", title: "Mundo" },
+      map: { id: "map-1", title: "Mundo" }
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/rpg/rpg-1/maps",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(201)
@@ -119,11 +119,11 @@ describe("rpg map routes", () => {
       {
         rpgId: "rpg-1",
         userId: "user-1",
-        body,
-      },
+        body
+      }
     )
     expect(response.json()).toEqual({
-      map: { id: "map-1", title: "Mundo" },
+      map: { id: "map-1", title: "Mundo" }
     })
   })
 
@@ -132,31 +132,31 @@ describe("rpg map routes", () => {
     mocks.getRpgMapDetail.mockResolvedValueOnce({
       map: { id: "map-1", title: "Mundo" },
       tree: [{ id: "section-1", name: "Continente", children: [] }],
-      markerGroups: [],
+      markerGroups: []
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/maps/map-1",
+      url: "/api/rpg/rpg-1/maps/map-1"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       map: { id: "map-1", title: "Mundo" },
       tree: [{ id: "section-1", name: "Continente", children: [] }],
-      markerGroups: [],
+      markerGroups: []
     })
   })
 
   it("retorna 404 quando mapa nao existe", async () => {
     server = buildApiServer()
     mocks.getRpgMapDetail.mockRejectedValueOnce(
-      new AppError("Mapa nao encontrado.", 404),
+      new AppError("Mapa nao encontrado.", 404)
     )
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/maps/map-1",
+      url: "/api/rpg/rpg-1/maps/map-1"
     })
 
     expect(response.statusCode).toBe(404)
@@ -168,13 +168,13 @@ describe("rpg map routes", () => {
     const body = { title: "Mundo Atualizado", description: "Descricao" }
     mocks.updateRpgMap.mockResolvedValueOnce({
       message: "Mapa atualizado com sucesso.",
-      map: { id: "map-1", title: "Mundo Atualizado" },
+      map: { id: "map-1", title: "Mundo Atualizado" }
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/rpg/rpg-1/maps/map-1",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(200)
@@ -185,24 +185,24 @@ describe("rpg map routes", () => {
         rpgId: "rpg-1",
         mapId: "map-1",
         userId: "user-1",
-        body,
-      },
+        body
+      }
     )
     expect(response.json()).toEqual({
       message: "Mapa atualizado com sucesso.",
-      map: { id: "map-1", title: "Mundo Atualizado" },
+      map: { id: "map-1", title: "Mundo Atualizado" }
     })
   })
 
   it("retorna 200 ao remover mapa", async () => {
     server = buildApiServer()
     mocks.deleteRpgMap.mockResolvedValueOnce({
-      message: "Mapa removido com sucesso.",
+      message: "Mapa removido com sucesso."
     })
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/rpg/rpg-1/maps/map-1",
+      url: "/api/rpg/rpg-1/maps/map-1"
     })
 
     expect(response.statusCode).toBe(200)
@@ -214,21 +214,21 @@ describe("rpg map routes", () => {
     const body = {
       name: "Continente",
       type: "continent",
-      parentSectionId: null,
+      parentSectionId: null
     }
     mocks.createRpgMapSection.mockResolvedValueOnce({
-      section: { id: "section-1", name: "Continente" },
+      section: { id: "section-1", name: "Continente" }
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/rpg/rpg-1/maps/map-1/sections",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(201)
     expect(response.json()).toEqual({
-      section: { id: "section-1", name: "Continente" },
+      section: { id: "section-1", name: "Continente" }
     })
   })
 
@@ -237,31 +237,31 @@ describe("rpg map routes", () => {
     const body = { name: "Continente Norte", description: "Descricao" }
     mocks.updateRpgMapSection.mockResolvedValueOnce({
       message: "Secao atualizada com sucesso.",
-      section: { id: "section-1", name: "Continente Norte" },
+      section: { id: "section-1", name: "Continente Norte" }
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/rpg/rpg-1/maps/map-1/sections/section-1",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       message: "Secao atualizada com sucesso.",
-      section: { id: "section-1", name: "Continente Norte" },
+      section: { id: "section-1", name: "Continente Norte" }
     })
   })
 
   it("retorna 200 ao remover secao do mapa", async () => {
     server = buildApiServer()
     mocks.deleteRpgMapSection.mockResolvedValueOnce({
-      message: "Secao removida com sucesso.",
+      message: "Secao removida com sucesso."
     })
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/rpg/rpg-1/maps/map-1/sections/section-1",
+      url: "/api/rpg/rpg-1/maps/map-1/sections/section-1"
     })
 
     expect(response.statusCode).toBe(200)
@@ -272,13 +272,13 @@ describe("rpg map routes", () => {
     server = buildApiServer()
     const body = { direction: "up" }
     mocks.reorderRpgMapSection.mockResolvedValueOnce({
-      message: "Secao reordenada com sucesso.",
+      message: "Secao reordenada com sucesso."
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/rpg/rpg-1/maps/map-1/sections/section-1/reorder",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(200)
@@ -290,11 +290,11 @@ describe("rpg map routes", () => {
         mapId: "map-1",
         sectionId: "section-1",
         userId: "user-1",
-        body,
-      },
+        body
+      }
     )
     expect(response.json()).toEqual({
-      message: "Secao reordenada com sucesso.",
+      message: "Secao reordenada com sucesso."
     })
   })
 
@@ -302,18 +302,18 @@ describe("rpg map routes", () => {
     server = buildApiServer()
     const body = { name: "NPCs", color: "#ff0000" }
     mocks.createRpgMapMarkerGroup.mockResolvedValueOnce({
-      group: { id: "group-1", name: "NPCs" },
+      group: { id: "group-1", name: "NPCs" }
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/rpg/rpg-1/maps/map-1/marker-groups",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(201)
     expect(response.json()).toEqual({
-      group: { id: "group-1", name: "NPCs" },
+      group: { id: "group-1", name: "NPCs" }
     })
   })
 
@@ -322,36 +322,36 @@ describe("rpg map routes", () => {
     const body = { name: "Aliados", color: "#00ff00" }
     mocks.updateRpgMapMarkerGroup.mockResolvedValueOnce({
       message: "Grupo de marcadores atualizado com sucesso.",
-      group: { id: "group-1", name: "Aliados" },
+      group: { id: "group-1", name: "Aliados" }
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/rpg/rpg-1/maps/map-1/marker-groups/group-1",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       message: "Grupo de marcadores atualizado com sucesso.",
-      group: { id: "group-1", name: "Aliados" },
+      group: { id: "group-1", name: "Aliados" }
     })
   })
 
   it("retorna 200 ao remover grupo de marcadores", async () => {
     server = buildApiServer()
     mocks.deleteRpgMapMarkerGroup.mockResolvedValueOnce({
-      message: "Grupo de marcadores removido com sucesso.",
+      message: "Grupo de marcadores removido com sucesso."
     })
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/rpg/rpg-1/maps/map-1/marker-groups/group-1",
+      url: "/api/rpg/rpg-1/maps/map-1/marker-groups/group-1"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      message: "Grupo de marcadores removido com sucesso.",
+      message: "Grupo de marcadores removido com sucesso."
     })
   })
 })

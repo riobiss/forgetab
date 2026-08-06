@@ -5,7 +5,7 @@ import type {
   DbRpgRow,
   RpgDashboardRepository,
   SpectatorCharacterRow,
-  TemplateLabelRow,
+  TemplateLabelRow
 } from "@/features/world/application/dashboard/ports/RpgDashboardRepository.js"
 
 export const prismaRpgDashboardRepository: RpgDashboardRepository = {
@@ -36,10 +36,10 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
         error instanceof Error &&
         (error.message.includes('column "use_mundi_map" does not exist') ||
           error.message.includes(
-            'column "users_can_manage_own_xp" does not exist',
+            'column "users_can_manage_own_xp" does not exist'
           ) ||
           error.message.includes(
-            'column "allow_skill_point_distribution" does not exist',
+            'column "allow_skill_point_distribution" does not exist'
           ))
       ) {
         rows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
@@ -159,12 +159,12 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
           SELECT COUNT(*) AS total
           FROM rpg_class_templates
           WHERE rpg_id = ${rpgId}
-        `),
+        `)
       ])
 
       return {
         hasRaces: Number(raceCount[0]?.total ?? 0) > 0,
-        hasClasses: Number(classCount[0]?.total ?? 0) > 0,
+        hasClasses: Number(classCount[0]?.total ?? 0) > 0
       }
     } catch {
       return { hasRaces: false, hasClasses: false }
@@ -176,7 +176,7 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
       charactersRows,
       attributeTemplateRows,
       skillTemplateRows,
-      statusTemplateRows,
+      statusTemplateRows
     ] = await Promise.all([
       prisma.$queryRaw<SpectatorCharacterRow[]>(Prisma.sql`
           SELECT
@@ -212,14 +212,14 @@ export const prismaRpgDashboardRepository: RpgDashboardRepository = {
           FROM rpg_status_templates
           WHERE rpg_id = ${rpgId}
           ORDER BY position ASC
-        `),
+        `)
     ])
 
     return {
       charactersRows,
       attributeTemplateRows,
       skillTemplateRows,
-      statusTemplateRows,
+      statusTemplateRows
     }
-  },
+  }
 }

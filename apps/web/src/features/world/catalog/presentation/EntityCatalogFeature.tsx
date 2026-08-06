@@ -17,7 +17,7 @@ export default function EntityCatalogFeature({
   rpgTitle,
   entityType,
   title,
-  data,
+  data
 }: Props) {
   return (
     <EntityCatalogClient

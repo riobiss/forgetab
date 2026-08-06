@@ -5,7 +5,7 @@ import type { CharacterAbilitiesViewModel } from "@/features/world/characters/ap
 import AbilitiesFiltersClient from "./AbilitiesFiltersClient"
 import {
   createCharacterAbilitiesDependencies,
-  type CharacterAbilitiesGatewayFactory,
+  type CharacterAbilitiesGatewayFactory
 } from "./dependencies"
 
 type CharacterAbilitiesFeatureProps = {
@@ -15,11 +15,11 @@ type CharacterAbilitiesFeatureProps = {
 
 export default function CharacterAbilitiesFeature({
   data,
-  gatewayFactory = "http",
+  gatewayFactory = "http"
 }: CharacterAbilitiesFeatureProps) {
   const deps = useMemo(
     () => createCharacterAbilitiesDependencies(gatewayFactory),
-    [gatewayFactory],
+    [gatewayFactory]
   )
 
   return (

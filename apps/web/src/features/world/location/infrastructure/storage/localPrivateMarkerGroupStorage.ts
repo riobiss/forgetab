@@ -2,23 +2,22 @@ import type { PrivateMarkerGroupStorage } from "@/features/world/location/applic
 import type { MarkerGroup } from "@/features/world/location/application/models/markerGroups"
 import {
   MARKER_STORAGE_PREFIX,
-  MARKER_STORAGE_UPDATED_EVENT,
+  MARKER_STORAGE_UPDATED_EVENT
 } from "./privateMarkerStorageKeys"
 
 const DEFAULT_MARKER_SIZE = 1
 
 function parseGroups(
   raw: string | null,
-  markerColors: string[],
+  markerColors: string[]
 ): MarkerGroup[] {
   if (!raw) return []
   const parsed = JSON.parse(raw)
   if (!Array.isArray(parsed)) return []
 
   return parsed
-    .filter(
-      (value): value is Record<string, unknown> =>
-        Boolean(value && typeof value === "object"),
+    .filter((value): value is Record<string, unknown> =>
+      Boolean(value && typeof value === "object")
     )
     .map((group) => ({
       id: String(group.id),
@@ -32,9 +31,8 @@ function parseGroups(
       canDelete: true,
       markers: Array.isArray(group.markers)
         ? group.markers
-            .filter(
-              (marker): marker is Record<string, unknown> =>
-                Boolean(marker && typeof marker === "object"),
+            .filter((marker): marker is Record<string, unknown> =>
+              Boolean(marker && typeof marker === "object")
             )
             .map((marker) => ({
               id: String(marker.id),
@@ -55,9 +53,9 @@ function parseGroups(
                   : DEFAULT_MARKER_SIZE,
               pinStyle: marker.pinStyle === "label" ? "label" : "default",
               canEdit: true,
-              canDelete: true,
+              canDelete: true
             }))
-        : [],
+        : []
     }))
 }
 
@@ -65,20 +63,20 @@ export const localPrivateMarkerGroupStorage: PrivateMarkerGroupStorage = {
   load(mapId, markerColors) {
     return parseGroups(
       window.localStorage.getItem(`${MARKER_STORAGE_PREFIX}${mapId}`),
-      markerColors,
+      markerColors
     )
   },
 
   save(mapId, groups, options) {
     window.localStorage.setItem(
       `${MARKER_STORAGE_PREFIX}${mapId}`,
-      JSON.stringify(groups),
+      JSON.stringify(groups)
     )
     if (options?.notify === false) return
     window.dispatchEvent(
       new CustomEvent(MARKER_STORAGE_UPDATED_EVENT, {
-        detail: { mapId },
-      }),
+        detail: { mapId }
+      })
     )
   },
 
@@ -90,5 +88,5 @@ export const localPrivateMarkerGroupStorage: PrivateMarkerGroupStorage = {
     window.addEventListener(MARKER_STORAGE_UPDATED_EVENT, listener)
     return () =>
       window.removeEventListener(MARKER_STORAGE_UPDATED_EVENT, listener)
-  },
+  }
 }

@@ -20,7 +20,7 @@ function parseCookieHeader(cookieHeader: string | null) {
         const name = part.slice(0, separatorIndex).trim()
         const value = part.slice(separatorIndex + 1).trim()
         return [name, decodeURIComponent(value)]
-      }),
+      })
   )
 }
 
@@ -45,8 +45,13 @@ export function getCookieValueFromRequest(request: Request, name: string) {
   return cookies.get(name) ?? null
 }
 
-export function getCookieValueFromFastifyRequest(request: FastifyRequest, name: string) {
-  const cookies = parseCookieHeader(getCookieHeaderValue(request.headers.cookie))
+export function getCookieValueFromFastifyRequest(
+  request: FastifyRequest,
+  name: string
+) {
+  const cookies = parseCookieHeader(
+    getCookieHeaderValue(request.headers.cookie)
+  )
   return cookies.get(name) ?? null
 }
 
@@ -70,7 +75,9 @@ export async function getUserIdFromRequest(request: Request) {
   return payload?.userId ?? null
 }
 
-export async function getAuthPayloadFromFastifyRequest(request: FastifyRequest) {
+export async function getAuthPayloadFromFastifyRequest(
+  request: FastifyRequest
+) {
   const authorizationHeader = Array.isArray(request.headers.authorization)
     ? request.headers.authorization[0]
     : request.headers.authorization

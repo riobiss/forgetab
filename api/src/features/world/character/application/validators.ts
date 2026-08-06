@@ -6,7 +6,7 @@ import type {
   CharacterIdentityTemplateRow,
   CharacterRow,
   SkillTemplateRow,
-  StatusTemplateRow,
+  StatusTemplateRow
 } from "./types"
 
 type ValidationSuccess<T> = { ok: true; value: T }
@@ -28,7 +28,7 @@ function toObjectRecord(incoming: unknown): Record<string, unknown> {
 
 function buildNumericRecord(
   sourceRecord: Record<string, unknown>,
-  allowedKeys: string[],
+  allowedKeys: string[]
 ): Record<string, number> {
   return allowedKeys.reduce<Record<string, number>>((acc, key) => {
     const value = sourceRecord[key]
@@ -56,7 +56,7 @@ function validateNumericPayload(
     normalizeKey?: (key: string) => string
     allowNegative?: boolean
     finalizeValue?: (value: number) => number
-  },
+  }
 ): ValidationResult<Record<string, number>> {
   const normalizeKey = options?.normalizeKey ?? ((key: string) => key)
   const sourceRecord = Object.entries(toObjectRecord(incoming)).reduce<
@@ -76,7 +76,7 @@ function validateNumericPayload(
   }
 
   const extraKey = Object.keys(sourceRecord).find(
-    (key) => !allowedKeys.includes(key),
+    (key) => !allowedKeys.includes(key)
   )
   if (extraKey) {
     return { ok: false, message: labels.extraKey(extraKey) }
@@ -95,7 +95,7 @@ function validateNumericPayload(
 function validateTemplateTextPayload(
   incoming: unknown,
   template: TextTemplateRow[],
-  invalidPayloadMessage: string,
+  invalidPayloadMessage: string
 ): ValidationResult<Record<string, string>> {
   if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
     if (template.length === 0) {
@@ -119,7 +119,7 @@ function validateTemplateTextPayload(
   }
 
   const invalidExtraKey = Object.entries(record).find(
-    ([key, value]) => !allowedKeys.includes(key) && typeof value !== "string",
+    ([key, value]) => !allowedKeys.includes(key) && typeof value !== "string"
   )
   if (invalidExtraKey) {
     return { ok: false, message: `Valor invalido para ${invalidExtraKey[0]}.` }
@@ -131,7 +131,7 @@ function validateTemplateTextPayload(
       acc[item.key] = typeof value === "string" ? value.trim() : ""
       return acc
     },
-    {},
+    {}
   )
 
   const extraFields = Object.entries(record).reduce<Record<string, string>>(
@@ -141,7 +141,7 @@ function validateTemplateTextPayload(
       }
       return acc
     },
-    {},
+    {}
   )
 
   return { ok: true, value: { ...normalizedFromTemplate, ...extraFields } }
@@ -153,81 +153,81 @@ export function normalizeStatusKey(key: string) {
 
 export function validateAttributesPayload(
   incoming: unknown,
-  template: AttributeTemplateRow[],
+  template: AttributeTemplateRow[]
 ) {
   return validateNumericPayload(
     incoming,
     template,
     {
       invalidValue: (key) => `Valor invalido para atributo ${key}.`,
-      extraKey: (key) => `Atributo fora do padrao: ${key}.`,
+      extraKey: (key) => `Atributo fora do padrao: ${key}.`
     },
     {
-      allowNegative: true,
-    },
+      allowNegative: true
+    }
   )
 }
 
 export function validateStatusesPayload(
   incoming: unknown,
-  template: StatusTemplateRow[],
+  template: StatusTemplateRow[]
 ) {
   return validateNumericPayload(
     incoming,
     template,
     {
       invalidValue: (key) => `Valor invalido para status ${key}.`,
-      extraKey: (key) => `Status fora do padrao: ${key}.`,
+      extraKey: (key) => `Status fora do padrao: ${key}.`
     },
     {
-      normalizeKey: normalizeStatusKey,
-    },
+      normalizeKey: normalizeStatusKey
+    }
   )
 }
 
 export function validateSkillsPayload(
   incoming: unknown,
-  template: SkillTemplateRow[],
+  template: SkillTemplateRow[]
 ) {
   return validateNumericPayload(
     incoming,
     template,
     {
       invalidValue: (key) => `Valor invalido para pericia ${key}.`,
-      extraKey: (key) => `Pericia fora do padrao: ${key}.`,
+      extraKey: (key) => `Pericia fora do padrao: ${key}.`
     },
     {
-      finalizeValue: Math.floor,
-    },
+      finalizeValue: Math.floor
+    }
   )
 }
 
 export function validateIdentityPayload(
   incoming: unknown,
-  template: CharacterIdentityTemplateRow[],
+  template: CharacterIdentityTemplateRow[]
 ) {
   return validateTemplateTextPayload(incoming, template, "Identidade invalida.")
 }
 
 export function validateCharacteristicsPayload(
   incoming: unknown,
-  template: CharacterCharacteristicTemplateRow[],
+  template: CharacterCharacteristicTemplateRow[]
 ) {
   return validateTemplateTextPayload(
     incoming,
     template,
-    "Caracteristicas invalidas.",
+    "Caracteristicas invalidas."
   )
 }
 
 export function isValidCharacterType(
-  value: unknown,
+  value: unknown
 ): value is CharacterRow["characterType"] {
   return value === "player" || value === "npc" || value === "monster"
 }
 
 export function isValidVisibility(
-  value: unknown,
+  value: unknown
 ): value is CharacterRow["visibility"] {
   return value === "private" || value === "public"
 }
@@ -260,7 +260,7 @@ export function validateProgressionCurrent(value: unknown) {
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
     return {
       ok: false as const,
-      message: "Valor atual de progressao invalido.",
+      message: "Valor atual de progressao invalido."
     }
   }
 
@@ -278,11 +278,11 @@ export function normalizeOptionalText(value: unknown) {
 
 export function getDefaultStatusTemplate(): StatusTemplateRow[] {
   return STATUS_CATALOG.filter((item) =>
-    DEFAULT_STATUS_KEYS.includes(item.key),
+    DEFAULT_STATUS_KEYS.includes(item.key)
   ).map((item, index) => ({
     key: item.key,
     label: item.label,
-    position: index,
+    position: index
   }))
 }
 

@@ -1,22 +1,22 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyReply, FastifyRequest } from "fastify"
 import {
   expelMemberUseCase,
   listRpgMembersUseCase,
   processMemberActionUseCase,
-  requestJoinRpgUseCase,
+  requestJoinRpgUseCase
 } from "@/features/world/application/membership/use-cases/rpgMembership"
 import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { rpgMembershipRouteDeps } from "./dependencies"
 import type { MemberRouteParams, RpgRouteParams } from "./routeTypes"
 
 export async function listRpgMembersHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -26,8 +26,8 @@ export async function listRpgMembersHandler(
       rpgMembershipRouteDeps.repository,
       {
         rpgId: request.params.rpgId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
 
     return writeJson(reply, 200, payload)
@@ -38,7 +38,7 @@ export async function listRpgMembersHandler(
 
 export async function requestJoinRpgHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -48,8 +48,8 @@ export async function requestJoinRpgHandler(
       rpgMembershipRouteDeps.repository,
       {
         rpgId: request.params.rpgId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
 
     return writeJson(reply, payload.status, { message: payload.message })
@@ -60,7 +60,7 @@ export async function requestJoinRpgHandler(
 
 export async function processMemberActionHandler(
   request: FastifyRequest<{ Params: MemberRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -83,8 +83,8 @@ export async function processMemberActionHandler(
         rpgId: request.params.rpgId,
         userId: auth.userId,
         memberId: request.params.memberId,
-        action: body.action,
-      },
+        action: body.action
+      }
     )
 
     return writeJson(reply, 200, payload)
@@ -95,7 +95,7 @@ export async function processMemberActionHandler(
 
 export async function expelMemberHandler(
   request: FastifyRequest<{ Params: MemberRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -107,8 +107,8 @@ export async function expelMemberHandler(
       {
         rpgId: request.params.rpgId,
         userId: auth.userId,
-        memberId: request.params.memberId,
-      },
+        memberId: request.params.memberId
+      }
     )
 
     return writeJson(reply, 200, payload)

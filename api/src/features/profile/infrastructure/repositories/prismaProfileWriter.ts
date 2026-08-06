@@ -11,8 +11,8 @@ export const prismaProfileWriter: ProfileWriter = {
         data,
         select: {
           name: true,
-          username: true,
-        },
+          username: true
+        }
       })
     } catch (error) {
       if (
@@ -24,5 +24,5 @@ export const prismaProfileWriter: ProfileWriter = {
 
       throw error
     }
-  },
+  }
 }

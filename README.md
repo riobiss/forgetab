@@ -312,7 +312,7 @@ Principais grupos:
 ## Seguranca
 
 - Nao comitar arquivos `.env*` com segredos reais.
-j- Em caso de vazamento, rotacionar imediatamente:
+  j- Em caso de vazamento, rotacionar imediatamente:
   - segredos JWT
   - chaves ImageKit
   - credenciais de banco

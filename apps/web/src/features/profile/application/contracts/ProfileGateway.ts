@@ -15,6 +15,11 @@ export type UploadRpgProfileImagePayload = {
 
 export interface ProfileGateway {
   updateProfile(payload: UpdateProfilePayload): Promise<void>
-  updateRpgProfile(rpgId: string, payload: UpdateRpgProfilePayload): Promise<void>
-  uploadRpgProfileImage(payload: UploadRpgProfileImagePayload): Promise<{ url: string }>
+  updateRpgProfile(
+    rpgId: string,
+    payload: UpdateRpgProfilePayload
+  ): Promise<void>
+  uploadRpgProfileImage(
+    payload: UploadRpgProfileImagePayload
+  ): Promise<{ url: string }>
 }

@@ -16,7 +16,10 @@ export type RpgPermission = {
   canManage: boolean
 }
 
-export async function getRpgPermission(rpgId: string, userId: string): Promise<RpgPermission> {
+export async function getRpgPermission(
+  rpgId: string,
+  userId: string
+): Promise<RpgPermission> {
   const rows = await prisma.$queryRaw<PermissionRow[]>(Prisma.sql`
     SELECT
       r.owner_id AS "ownerId",
@@ -38,7 +41,7 @@ export async function getRpgPermission(rpgId: string, userId: string): Promise<R
       isOwner: false,
       isAcceptedMember: false,
       isModerator: false,
-      canManage: false,
+      canManage: false
     }
   }
 
@@ -52,6 +55,6 @@ export async function getRpgPermission(rpgId: string, userId: string): Promise<R
     isOwner,
     isAcceptedMember,
     isModerator,
-    canManage: isOwner || isModerator,
+    canManage: isOwner || isModerator
   }
 }

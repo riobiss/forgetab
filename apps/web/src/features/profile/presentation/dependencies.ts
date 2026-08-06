@@ -3,5 +3,5 @@ import { createRoundCroppedFile } from "@/features/profile/infrastructure/images
 
 export const profileDependencies = {
   gateway: httpProfileGateway,
-  createRoundCroppedFile,
+  createRoundCroppedFile
 } as const

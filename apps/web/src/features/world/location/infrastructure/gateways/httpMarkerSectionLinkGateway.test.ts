@@ -3,7 +3,7 @@ import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { httpMarkerSectionLinkGateway } from "./httpMarkerSectionLinkGateway"
 
 vi.mock("@/features/http/infrastructure/apiFetch", () => ({
-  apiFetch: vi.fn(),
+  apiFetch: vi.fn()
 }))
 
 const apiFetchMock = vi.mocked(apiFetch)
@@ -15,7 +15,7 @@ const marker = {
   location: "Norte",
   shortDescription: null,
   image: null,
-  color: "#fff",
+  color: "#fff"
 }
 
 describe("httpMarkerSectionLinkGateway", () => {
@@ -27,8 +27,8 @@ describe("httpMarkerSectionLinkGateway", () => {
     apiFetchMock.mockResolvedValue(
       new Response(
         JSON.stringify({ markerId: "marker/1", sectionId: "section-1" }),
-        { status: 200 },
-      ),
+        { status: 200 }
+      )
     )
 
     await expect(
@@ -36,11 +36,11 @@ describe("httpMarkerSectionLinkGateway", () => {
         rpgId: "rpg-1",
         mapId: "map-1",
         sectionId: "section-1",
-        marker,
-      }),
+        marker
+      })
     ).resolves.toEqual({
       markerId: "marker/1",
-      sectionId: "section-1",
+      sectionId: "section-1"
     })
 
     expect(apiFetchMock).toHaveBeenCalledWith(
@@ -48,16 +48,16 @@ describe("httpMarkerSectionLinkGateway", () => {
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sectionId: "section-1", marker }),
-      },
+        body: JSON.stringify({ sectionId: "section-1", marker })
+      }
     )
   })
 
   it("propaga a mensagem de erro da API", async () => {
     apiFetchMock.mockResolvedValue(
       new Response(JSON.stringify({ message: "Secao nao encontrada." }), {
-        status: 404,
-      }),
+        status: 404
+      })
     )
 
     await expect(
@@ -65,8 +65,8 @@ describe("httpMarkerSectionLinkGateway", () => {
         rpgId: "rpg-1",
         mapId: "map-1",
         sectionId: "section-1",
-        marker,
-      }),
+        marker
+      })
     ).rejects.toThrow("Secao nao encontrada.")
   })
 })

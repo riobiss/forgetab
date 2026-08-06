@@ -4,7 +4,7 @@ import { createApiResponseParser } from "@/features/http/infrastructure/parseApi
 import { fetchRpgDashboardViewModel } from "@/features/world/infrastructure/dashboard/repositories/httpRpgDashboardViewModelRepository"
 
 const parseJsonResponse = createApiResponseParser({
-  fallbackMessage: "Erro ao carregar biblioteca.",
+  fallbackMessage: "Erro ao carregar biblioteca."
 })
 
 export const httpLibraryPageGateway: LibraryPageGateway = {
@@ -17,9 +17,9 @@ export const httpLibraryPageGateway: LibraryPageGateway = {
     const payload = await parseJsonResponse<{ section?: { title: string } }>(
       await apiFetch(`/api/rpg/${rpgId}/library/sections/${sectionId}`, {
         next: { revalidate: 0 },
-        cache: "no-store",
-      }),
+        cache: "no-store"
+      })
     )
     return payload.section?.title ?? null
-  },
+  }
 }

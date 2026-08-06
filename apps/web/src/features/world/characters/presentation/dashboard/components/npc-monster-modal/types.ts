@@ -1,6 +1,6 @@
 import type {
   CharacterEditorBootstrapDto,
-  CharacterEditorSummaryDto,
+  CharacterEditorSummaryDto
 } from "@forgetab/world-contracts/character-editor"
 import type { CharacterInventoryItemDto } from "@forgetab/world-contracts/character-inventory"
 import type { PurchasedAbilityViewDto } from "@/features/world/characters/application/abilities/types"
@@ -8,11 +8,11 @@ import type {
   NpcMonsterExtraFieldDto,
   NpcMonsterNarrativeStatus,
   NpcMonsterNumericInputValue,
-  NpcMonsterSecretFieldKey,
+  NpcMonsterSecretFieldKey
 } from "@/features/world/characters/application/npc-monster"
 import type {
   NpcMonsterLoadoutItemOptionDto,
-  NpcMonsterLoadoutSkillOptionDto,
+  NpcMonsterLoadoutSkillOptionDto
 } from "@/features/world/characters/application/loadout/types"
 
 export type StepKey = "basic" | "bonus" | "inventory" | "abilities"

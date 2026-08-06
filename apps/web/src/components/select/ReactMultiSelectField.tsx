@@ -16,7 +16,7 @@ export function ReactMultiSelectField({
   value,
   onChange,
   placeholder,
-  isDisabled,
+  isDisabled
 }: ReactMultiSelectFieldProps) {
   return (
     <Select
@@ -33,54 +33,58 @@ export function ReactMultiSelectField({
           ...base,
           minHeight: 40,
           borderRadius: 8,
-          borderColor: state.isFocused ? "var(--color-brand-primary)" : "var(--color-border-soft)",
+          borderColor: state.isFocused
+            ? "var(--color-brand-primary)"
+            : "var(--color-border-soft)",
           backgroundColor: "var(--color-bg-surface)",
           boxShadow: state.isFocused ? "var(--shadow-brand-glow)" : "none",
           ":hover": {
-            borderColor: "var(--color-brand-primary)",
-          },
+            borderColor: "var(--color-brand-primary)"
+          }
         }),
         menu: (base) => ({
           ...base,
           backgroundColor: "var(--color-bg-surface)",
           border: "1px solid var(--color-border-soft)",
-          zIndex: 50,
+          zIndex: 50
         }),
         option: (base, state) => ({
           ...base,
-          backgroundColor: state.isFocused ? "var(--color-bg-hover)" : "var(--color-bg-surface)",
+          backgroundColor: state.isFocused
+            ? "var(--color-bg-hover)"
+            : "var(--color-bg-surface)",
           color: "var(--color-text-secondary)",
-          cursor: "pointer",
+          cursor: "pointer"
         }),
         multiValue: (base) => ({
           ...base,
           backgroundColor: "var(--color-brand-soft)",
-          border: "1px solid var(--color-border-soft)",
+          border: "1px solid var(--color-border-soft)"
         }),
         multiValueLabel: (base) => ({
           ...base,
-          color: "var(--color-text-secondary)",
+          color: "var(--color-text-secondary)"
         }),
         multiValueRemove: (base) => ({
           ...base,
           color: "var(--color-text-secondary)",
           ":hover": {
             backgroundColor: "var(--color-status-danger-soft)",
-            color: "var(--color-status-danger-contrast)",
-          },
+            color: "var(--color-status-danger-contrast)"
+          }
         }),
         input: (base) => ({
           ...base,
-          color: "var(--color-text-secondary)",
+          color: "var(--color-text-secondary)"
         }),
         placeholder: (base) => ({
           ...base,
-          color: "var(--color-text-muted)",
+          color: "var(--color-text-muted)"
         }),
         singleValue: (base) => ({
           ...base,
-          color: "var(--color-text-secondary)",
-        }),
+          color: "var(--color-text-secondary)"
+        })
       }}
       theme={(theme) => ({
         ...theme,
@@ -98,8 +102,8 @@ export function ReactMultiSelectField({
           neutral60: "#c9cdd3",
           neutral70: "#c9cdd3",
           neutral80: "#c9cdd3",
-          neutral90: "#f5f5f5",
-        },
+          neutral90: "#f5f5f5"
+        }
       })}
     />
   )

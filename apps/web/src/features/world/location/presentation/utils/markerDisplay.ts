@@ -3,7 +3,7 @@
 import type {
   LinkedSectionSnapshot,
   MapMarkerItem,
-  MarkerGroup,
+  MarkerGroup
 } from "@/features/world/location/presentation/types/mapMarkers"
 
 export type DisplayMapMarkerSelection = {
@@ -13,7 +13,7 @@ export type DisplayMapMarkerSelection = {
 
 export function mergeMarkerWithLinkedSection(
   marker: MapMarkerItem,
-  linkedSection?: LinkedSectionSnapshot,
+  linkedSection?: LinkedSectionSnapshot
 ): MapMarkerItem {
   const markerImages =
     marker.displayImages?.filter((image) => image.trim().length > 0) ?? []
@@ -26,7 +26,7 @@ export function mergeMarkerWithLinkedSection(
           ? markerImages
           : marker.image
             ? [marker.image]
-            : [],
+            : []
     }
   }
 
@@ -45,31 +45,31 @@ export function mergeMarkerWithLinkedSection(
     shortDescription:
       marker.shortDescription?.trim() || linkedSection.description || null,
     type: linkedSection.type,
-    displayFields: linkedSection.customFields,
+    displayFields: linkedSection.customFields
   }
 }
 
 export function buildDisplayMarkerGroups(
   allMarkerGroups: MarkerGroup[],
-  linkedSections: LinkedSectionSnapshot[],
+  linkedSections: LinkedSectionSnapshot[]
 ) {
   const linkedSectionsByMarkerId = new Map(
-    linkedSections.map((section) => [section.markerId, section]),
+    linkedSections.map((section) => [section.markerId, section])
   )
   return allMarkerGroups.map((group) => ({
     ...group,
     markers: group.markers.map((marker) =>
       mergeMarkerWithLinkedSection(
         marker,
-        linkedSectionsByMarkerId.get(marker.id),
-      ),
-    ),
+        linkedSectionsByMarkerId.get(marker.id)
+      )
+    )
   }))
 }
 
 export function findMarkerSelectionById(
   markerGroups: MarkerGroup[],
-  markerId: string,
+  markerId: string
 ): (DisplayMapMarkerSelection & { group: MarkerGroup }) | null {
   return (
     markerGroups
@@ -77,8 +77,8 @@ export function findMarkerSelectionById(
         group.markers.map((marker) => ({
           marker,
           group,
-          groupColor: marker.color || group.color,
-        })),
+          groupColor: marker.color || group.color
+        }))
       )
       .find((item) => item.marker.id === markerId) ?? null
   )
@@ -88,21 +88,21 @@ export function findNearbyMarkerSelections(
   markerGroups: MarkerGroup[],
   visibleMarkerGroupIds: string[],
   clickedMarker: MapMarkerItem,
-  overlapDistance: number,
+  overlapDistance: number
 ): DisplayMapMarkerSelection[] {
   const visibleMarkers = markerGroups
     .filter((group) => visibleMarkerGroupIds.includes(group.id))
     .flatMap((group) =>
       group.markers.map((marker) => ({
         marker,
-        groupColor: marker.color || group.color,
-      })),
+        groupColor: marker.color || group.color
+      }))
     )
 
   return visibleMarkers.filter(({ marker }) => {
     const distance = Math.hypot(
       marker.x - clickedMarker.x,
-      marker.y - clickedMarker.y,
+      marker.y - clickedMarker.y
     )
     return distance <= overlapDistance
   })

@@ -14,13 +14,13 @@ const DEFAULT_BRUSH_COLORS = [
   "#ff7a18",
   "#f5e6c8",
   "#4f9cff",
-  "#34c759",
+  "#34c759"
 ]
 
 export function useWorldMapUiState({
   frameRef,
   canvasRef,
-  canEditContent,
+  canEditContent
 }: Params) {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isBrushMode, setIsBrushMode] = useState(false)
@@ -39,7 +39,7 @@ export function useWorldMapUiState({
     const handleFullscreenChange = () => {
       const frame = frameRef.current
       const nextIsFullscreen = Boolean(
-        frame && document.fullscreenElement === frame,
+        frame && document.fullscreenElement === frame
       )
       setIsFullscreen(nextIsFullscreen)
 
@@ -114,7 +114,7 @@ export function useWorldMapUiState({
     toggleFullscreen,
     handleEnableInteraction,
     resetView,
-    clearLastDrawing,
+    clearLastDrawing
   }
 }
 

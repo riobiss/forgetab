@@ -2,7 +2,7 @@ import type { EntityCatalogAbilityView } from "@/features/world/catalog/applicat
 
 export interface EntityCatalogAbilityRepository {
   listClassAbilities(
-    classTemplateId: string,
+    classTemplateId: string
   ): Promise<EntityCatalogAbilityView[]>
   listRaceAbilities(raceTemplateId: string): Promise<EntityCatalogAbilityView[]>
 }

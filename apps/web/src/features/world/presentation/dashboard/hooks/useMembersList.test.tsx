@@ -7,8 +7,8 @@ const refreshMock = vi.fn()
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    refresh: refreshMock,
-  }),
+    refresh: refreshMock
+  })
 }))
 
 function createDeps(): RpgDashboardDependencies {
@@ -25,27 +25,27 @@ function createDeps(): RpgDashboardDependencies {
             name: "Aria",
             classKey: "mage",
             characterType: "player",
-            createdByUserId: "user-1",
-          },
-        ],
+            createdByUserId: "user-1"
+          }
+        ]
       }),
       fetchClasses: vi.fn().mockResolvedValue({
-        classes: [{ key: "mage", label: "Maga" }],
+        classes: [{ key: "mage", label: "Maga" }]
       }),
       fetchRpg: vi.fn().mockResolvedValue({
-        rpg: { costResourceName: "Pontos de Skill" },
+        rpg: { costResourceName: "Pontos de Skill" }
       }),
       grantPoints: vi.fn().mockResolvedValue({
         success: true,
-        remainingPoints: 7,
+        remainingPoints: 7
       }),
       grantXp: vi.fn().mockResolvedValue({
         success: true,
         progressionLabel: "Level 2",
         progressionCurrent: 10,
-        progressionRequired: 20,
-      }),
-    },
+        progressionRequired: 20
+      })
+    }
   }
 }
 
@@ -53,7 +53,7 @@ describe("useMembersList", () => {
   it("loadActionData monta playerByUserId e costResourceName", async () => {
     const deps = createDeps()
     const { result } = renderHook(() =>
-      useMembersList(deps, { rpgId: "rpg-1" }),
+      useMembersList(deps, { rpgId: "rpg-1" })
     )
 
     await act(async () => {
@@ -61,7 +61,7 @@ describe("useMembersList", () => {
     })
 
     expect(result.current.playerByUserId).toEqual({
-      "user-1": { characterId: "char-1", classLabel: "Maga" },
+      "user-1": { characterId: "char-1", classLabel: "Maga" }
     })
     expect(result.current.costResourceName).toBe("Pontos de Skill")
   })
@@ -69,7 +69,7 @@ describe("useMembersList", () => {
   it("handleGrantPoints define mensagem de sucesso", async () => {
     const deps = createDeps()
     const { result } = renderHook(() =>
-      useMembersList(deps, { rpgId: "rpg-1" }),
+      useMembersList(deps, { rpgId: "rpg-1" })
     )
 
     await act(async () => {
@@ -79,13 +79,13 @@ describe("useMembersList", () => {
     await act(async () => {
       await result.current.handleGrantPoints(
         { id: "m-1", userId: "user-1", userName: "Aria" },
-        1,
+        1
       )
     })
 
     await waitFor(() => {
       expect(result.current.actionMessage).toContain(
-        "Aria recebeu 1 Pontos de Skill.",
+        "Aria recebeu 1 Pontos de Skill."
       )
     })
   })

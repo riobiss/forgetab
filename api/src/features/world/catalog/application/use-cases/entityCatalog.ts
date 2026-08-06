@@ -12,11 +12,11 @@ export async function loadEntityCatalogPageData(
     rpgId: string
     userId: string | null
     entityType: CatalogEntityType
-  },
+  }
 ): Promise<EntityCatalogPageData | null> {
   const access = await deps.accessService.getAccess({
     rpgId: params.rpgId,
-    userId: params.userId,
+    userId: params.userId
   })
 
   if (!access.exists || !access.canRead) {
@@ -25,7 +25,7 @@ export async function loadEntityCatalogPageData(
 
   const items = await deps.repository.listItems({
     rpgId: params.rpgId,
-    entityType: params.entityType,
+    entityType: params.entityType
   })
 
   return {
@@ -39,8 +39,8 @@ export async function loadEntityCatalogPageData(
       return {
         ...item,
         href,
-        entityType: params.entityType,
+        entityType: params.entityType
       }
-    }),
+    })
   }
 }

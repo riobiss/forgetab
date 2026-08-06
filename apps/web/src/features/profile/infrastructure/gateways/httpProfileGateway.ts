@@ -2,7 +2,7 @@ import type {
   ProfileGateway,
   UpdateProfilePayload,
   UpdateRpgProfilePayload,
-  UploadRpgProfileImagePayload,
+  UploadRpgProfileImagePayload
 } from "@/features/profile/application/contracts/ProfileGateway"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 
@@ -17,7 +17,7 @@ type UploadImagePayload = ErrorPayload & {
 export class HttpProfileGatewayError extends Error {
   constructor(
     message: string,
-    readonly status: number,
+    readonly status: number
   ) {
     super(message)
     this.name = "HttpProfileGatewayError"
@@ -26,14 +26,14 @@ export class HttpProfileGatewayError extends Error {
 
 async function parseMutationResponse(
   response: Response,
-  fallbackMessage: string,
+  fallbackMessage: string
 ) {
   const payload = (await response.json().catch(() => ({}))) as ErrorPayload
 
   if (!response.ok) {
     throw new HttpProfileGatewayError(
       payload.message ?? fallbackMessage,
-      response.status,
+      response.status
     )
   }
 }
@@ -43,9 +43,9 @@ export const httpProfileGateway: ProfileGateway = {
     const response = await apiFetch("/api/profile", {
       method: "PATCH",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
 
     await parseMutationResponse(response, "Erro ao atualizar perfil.")
@@ -55,9 +55,9 @@ export const httpProfileGateway: ProfileGateway = {
     const response = await apiFetch(`/api/profile/rpg/${rpgId}`, {
       method: "PATCH",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
 
     await parseMutationResponse(response, "Erro ao atualizar perfil do RPG.")
@@ -73,7 +73,7 @@ export const httpProfileGateway: ProfileGateway = {
 
     const response = await apiFetch("/api/uploads/profile-image", {
       method: "POST",
-      body: formData,
+      body: formData
     })
     const responsePayload = (await response
       .json()
@@ -82,10 +82,10 @@ export const httpProfileGateway: ProfileGateway = {
     if (!response.ok || !responsePayload.url) {
       throw new HttpProfileGatewayError(
         responsePayload.message ?? "Erro ao enviar imagem.",
-        response.status,
+        response.status
       )
     }
 
     return { url: responsePayload.url }
-  },
+  }
 }

@@ -8,26 +8,26 @@ import type { EntityCatalogRouteParams } from "./routeTypes"
 
 async function loadCatalog(
   request: FastifyRequest<{ Params: EntityCatalogRouteParams }>,
-  entityType: CatalogEntityType,
+  entityType: CatalogEntityType
 ) {
   const userId = await resolveUserId(request)
 
   return loadEntityCatalogPageData(
     {
       repository: entityCatalogRouteDeps.repository,
-      accessService: entityCatalogRouteDeps.pageAccessService,
+      accessService: entityCatalogRouteDeps.pageAccessService
     },
     {
       rpgId: request.params.rpgId,
       userId,
-      entityType,
-    },
+      entityType
+    }
   )
 }
 
 export async function getClassCatalogPageHandler(
   request: FastifyRequest<{ Params: EntityCatalogRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const payload = await loadCatalog(request, "class")
@@ -39,14 +39,14 @@ export async function getClassCatalogPageHandler(
     return writeError(
       reply,
       error,
-      "Erro interno ao carregar catalogo de classes.",
+      "Erro interno ao carregar catalogo de classes."
     )
   }
 }
 
 export async function getRaceCatalogPageHandler(
   request: FastifyRequest<{ Params: EntityCatalogRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const payload = await loadCatalog(request, "race")
@@ -58,7 +58,7 @@ export async function getRaceCatalogPageHandler(
     return writeError(
       reply,
       error,
-      "Erro interno ao carregar catalogo de racas.",
+      "Erro interno ao carregar catalogo de racas."
     )
   }
 }

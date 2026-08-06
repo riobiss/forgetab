@@ -8,28 +8,28 @@ import type { RpgRouteParams } from "./routeTypes"
 
 export async function listRpgCatalogHandler(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const userId = await resolveOptionalUserId(request)
 
   try {
     const payload = await loadRpgCatalogUseCase(
       rpgRouteDeps.catalogRepository,
-      { userId },
+      { userId }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(
       reply,
       error,
-      "Erro interno ao carregar catalogo de RPGs.",
+      "Erro interno ao carregar catalogo de RPGs."
     )
   }
 }
 
 export async function getRpgDashboardHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const userId = await resolveOptionalUserId(request)
 
@@ -39,8 +39,8 @@ export async function getRpgDashboardHandler(
       rpgRouteDeps.dashboardAccessService,
       {
         rpgId: request.params.rpgId,
-        userId,
-      },
+        userId
+      }
     )
 
     return writeJson(reply, 200, payload)
@@ -48,7 +48,7 @@ export async function getRpgDashboardHandler(
     return writeError(
       reply,
       error,
-      "Erro interno ao carregar dashboard do RPG.",
+      "Erro interno ao carregar dashboard do RPG."
     )
   }
 }

@@ -4,7 +4,7 @@ import {
   ownsAbility,
   parseCharacterAbilities,
   parseCostPoints,
-  removeAbility,
+  removeAbility
 } from "@/features/world/character/application/abilities/rules/characterAbilityRules"
 
 describe("characterAbilityRules", () => {
@@ -14,8 +14,8 @@ describe("characterAbilityRules", () => {
         { skillId: " fire ", level: 1 },
         { skillId: "", level: 2 },
         { skillId: "ice", level: 0 },
-        null,
-      ]),
+        null
+      ])
     ).toEqual([{ skillId: "fire", level: 1 }])
   })
 
@@ -29,15 +29,15 @@ describe("characterAbilityRules", () => {
     const result = addAbility(
       [
         { skillId: "fire", level: 1 },
-        { skillId: "ice", level: 1 },
+        { skillId: "ice", level: 1 }
       ],
       "fire",
-      2,
+      2
     )
 
     expect(result).toEqual([
       { skillId: "ice", level: 1 },
-      { skillId: "fire", level: 2 },
+      { skillId: "fire", level: 2 }
     ])
     expect(ownsAbility(result, "fire", 2)).toBe(true)
   })
@@ -47,11 +47,11 @@ describe("characterAbilityRules", () => {
       removeAbility(
         [
           { skillId: "fire", level: 1 },
-          { skillId: "ice", level: 1 },
+          { skillId: "ice", level: 1 }
         ],
         "fire",
-        1,
-      ),
+        1
+      )
     ).toEqual([{ skillId: "ice", level: 1 }])
   })
 })

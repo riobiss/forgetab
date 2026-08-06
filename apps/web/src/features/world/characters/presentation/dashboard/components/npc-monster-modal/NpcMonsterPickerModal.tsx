@@ -1,7 +1,7 @@
 import styles from "../../CharactersDashboardPage.module.css"
 import type {
   NpcMonsterLoadoutItemOptionDto,
-  NpcMonsterLoadoutSkillOptionDto,
+  NpcMonsterLoadoutSkillOptionDto
 } from "@/features/world/characters/application/loadout/types"
 import type { PickerMode } from "./types"
 
@@ -26,7 +26,7 @@ export default function NpcMonsterPickerModal({
   onClose,
   onSearchChange,
   onAddItem,
-  onAddSkill,
+  onAddSkill
 }: Props) {
   if (!mode) {
     return null

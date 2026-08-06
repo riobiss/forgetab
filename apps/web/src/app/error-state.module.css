@@ -4,7 +4,11 @@
   place-items: center;
   padding: clamp(2rem, 5vw, 4rem) 1rem;
   background:
-    radial-gradient(circle at 25% 18%, rgba(255, 106, 0, 0.18), transparent 34%),
+    radial-gradient(
+      circle at 25% 18%,
+      rgba(255, 106, 0, 0.18),
+      transparent 34%
+    ),
     linear-gradient(180deg, rgba(15, 15, 17, 0.96), rgba(15, 15, 17, 1));
 }
 
@@ -15,7 +19,12 @@
 .panel {
   width: min(620px, 100%);
   padding: clamp(1.25rem, 4vw, 2rem);
-  border: 1px solid color-mix(in srgb, var(--color-brand-primary, #ff6a00) 28%, var(--color-border-default, #2a2e36));
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--color-brand-primary, #ff6a00) 28%,
+      var(--color-border-default, #2a2e36)
+    );
   border-radius: 8px;
   background: linear-gradient(
     165deg,
@@ -73,14 +82,22 @@
 .primaryAction {
   border: 1px solid var(--color-border-brand, #ff6a00);
   color: var(--color-text-on-brand, #ffffff);
-  background: linear-gradient(120deg, var(--color-brand-primary, #ff6a00), var(--color-brand-strong, #e65100));
+  background: linear-gradient(
+    120deg,
+    var(--color-brand-primary, #ff6a00),
+    var(--color-brand-strong, #e65100)
+  );
   box-shadow: var(--shadow-brand-glow, 0 0 12px rgba(255, 106, 0, 0.5));
 }
 
 .secondaryAction {
   border: 1px solid var(--color-border-strong, #3a3f48);
   color: var(--color-text-primary, #f5f5f5);
-  background: color-mix(in srgb, var(--color-bg-surface-alt, #1d2026) 80%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--color-bg-surface-alt, #1d2026) 80%,
+    transparent
+  );
 }
 
 .primaryAction:hover,

@@ -11,11 +11,11 @@ import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 // --- Tiptap UI ---
 import type {
   TextAlign,
-  UseTextAlignConfig,
+  UseTextAlignConfig
 } from "@/components/tiptap-ui/text-align-button"
 import {
   TEXT_ALIGN_SHORTCUT_KEYS,
-  useTextAlign,
+  useTextAlign
 } from "@/components/tiptap-ui/text-align-button"
 
 // --- UI Primitives ---
@@ -45,7 +45,7 @@ export interface TextAlignButtonProps
 
 export function TextAlignShortcutBadge({
   align,
-  shortcutKeys = TEXT_ALIGN_SHORTCUT_KEYS[align],
+  shortcutKeys = TEXT_ALIGN_SHORTCUT_KEYS[align]
 }: {
   align: TextAlign
   shortcutKeys?: string
@@ -85,12 +85,12 @@ export const TextAlignButton = forwardRef<
       canAlign,
       isActive,
       Icon,
-      shortcutKeys,
+      shortcutKeys
     } = useTextAlign({
       editor,
       align,
       hideWhenUnavailable,
-      onAligned,
+      onAligned
     })
 
     const handleClick = useCallback(

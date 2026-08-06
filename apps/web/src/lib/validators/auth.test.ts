@@ -7,7 +7,7 @@ describe("registerSchema", () => {
       name: "Mestre",
       username: "mestre_01",
       email: "mestre@email.com",
-      password: "12345678",
+      password: "12345678"
     })
 
     expect(result.success).toBe(true)
@@ -18,7 +18,7 @@ describe("registerSchema", () => {
       name: "Mestre",
       username: "Mestre-01",
       email: "mestre@email.com",
-      password: "12345678",
+      password: "12345678"
     })
 
     expect(result.success).toBe(false)
@@ -29,7 +29,7 @@ describe("loginSchema", () => {
   it("rejeita senha vazia", () => {
     const result = loginSchema.safeParse({
       email: "user@email.com",
-      password: "",
+      password: ""
     })
 
     expect(result.success).toBe(false)

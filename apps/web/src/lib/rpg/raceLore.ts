@@ -53,7 +53,7 @@ function normalizeKingdom(value: unknown): RaceLoreKingdom | null {
     culture: toStringArray(record.culture),
     physicalTraits: toStringArray(record.physicalTraits),
     clothing: toStringArray(record.clothing),
-    commonNames: toStringArray(record.commonNames),
+    commonNames: toStringArray(record.commonNames)
   }
 }
 
@@ -72,7 +72,7 @@ function normalizeVariation(value: unknown): RaceLoreVariation | null {
   return {
     name,
     description,
-    traits: toStringArray(record.traits),
+    traits: toStringArray(record.traits)
   }
 }
 
@@ -84,7 +84,7 @@ export function createDefaultRaceLore(raceLabel = ""): RaceLore {
     thoughts: [
       "Humanos: perspectiva sobre a raca.",
       "Pequenos: perspectiva sobre a raca.",
-      "Orcs: perspectiva sobre a raca.",
+      "Orcs: perspectiva sobre a raca."
     ],
     kingdoms: [
       {
@@ -93,8 +93,8 @@ export function createDefaultRaceLore(raceLabel = ""): RaceLore {
         culture: ["Costume 1", "Costume 2"],
         physicalTraits: ["Traco fisico 1", "Traco fisico 2"],
         clothing: ["Vestimenta 1", "Vestimenta 2"],
-        commonNames: ["Nome 1", "Nome 2"],
-      },
+        commonNames: ["Nome 1", "Nome 2"]
+      }
     ],
     notableFigures: ["Figura marcante 1", "Figura marcante 2"],
     racialTraits: ["Traco racial 1", "Traco racial 2"],
@@ -103,9 +103,9 @@ export function createDefaultRaceLore(raceLabel = ""): RaceLore {
       {
         name: "Nome da variacao",
         description: "Descricao da variacao.",
-        traits: ["Diferenca 1", "Diferenca 2"],
-      },
-    ],
+        traits: ["Diferenca 1", "Diferenca 2"]
+      }
+    ]
   }
 }
 
@@ -135,6 +135,6 @@ export function normalizeRaceLore(value: unknown, raceLabel = ""): RaceLore {
     notableFigures: toStringArray(record.notableFigures),
     racialTraits: toStringArray(record.racialTraits),
     commonClasses: toStringArray(record.commonClasses),
-    variations,
+    variations
   }
 }

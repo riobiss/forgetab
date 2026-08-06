@@ -5,12 +5,12 @@ import { resolveUserId } from "./auth"
 import { entityCatalogRouteDeps } from "./dependencies"
 import type {
   ClassDetailRouteParams,
-  RaceDetailRouteParams,
+  RaceDetailRouteParams
 } from "./routeTypes"
 
 export async function getClassCatalogDetailHandler(
   request: FastifyRequest<{ Params: ClassDetailRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const userId = await resolveUserId(request)
@@ -20,14 +20,14 @@ export async function getClassCatalogDetailHandler(
         abilityRepository: entityCatalogRouteDeps.abilityRepository,
         playerRepository: entityCatalogRouteDeps.playerRepository,
         purchaseRepository: entityCatalogRouteDeps.purchaseRepository,
-        accessService: entityCatalogRouteDeps.detailAccessService,
+        accessService: entityCatalogRouteDeps.detailAccessService
       },
       {
         rpgId: request.params.rpgId,
         classId: request.params.classId,
         userId,
-        entityType: "class",
-      },
+        entityType: "class"
+      }
     )
 
     if (!payload) {
@@ -42,7 +42,7 @@ export async function getClassCatalogDetailHandler(
 
 export async function getRaceCatalogDetailHandler(
   request: FastifyRequest<{ Params: RaceDetailRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const userId = await resolveUserId(request)
@@ -52,14 +52,14 @@ export async function getRaceCatalogDetailHandler(
         abilityRepository: entityCatalogRouteDeps.abilityRepository,
         playerRepository: entityCatalogRouteDeps.playerRepository,
         purchaseRepository: entityCatalogRouteDeps.purchaseRepository,
-        accessService: entityCatalogRouteDeps.detailAccessService,
+        accessService: entityCatalogRouteDeps.detailAccessService
       },
       {
         rpgId: request.params.rpgId,
         raceKey: request.params.raceKey,
         userId,
-        entityType: "race",
-      },
+        entityType: "race"
+      }
     )
 
     if (!payload) {

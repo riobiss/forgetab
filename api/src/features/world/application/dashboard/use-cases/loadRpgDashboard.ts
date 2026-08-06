@@ -3,7 +3,7 @@ import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 import type { RpgDashboardAccessService } from "@/features/world/application/dashboard/ports/RpgDashboardAccessService"
 import type {
   RpgDashboardRepository,
-  SpectatorCharacterRow,
+  SpectatorCharacterRow
 } from "@/features/world/application/dashboard/ports/RpgDashboardRepository"
 import type { RpgDashboardViewModel } from "@forgetab/world-contracts/dashboard"
 import { normalizeLegacyStatusKeys } from "@/features/world/application/status/normalizeStatusKeys"
@@ -17,19 +17,19 @@ function normalizeNumericRecord(value: SpectatorCharacterRow["statuses"]) {
   return Object.fromEntries(
     Object.entries(record).map(([key, rawValue]) => [
       key,
-      Number(rawValue) || 0,
-    ]),
+      Number(rawValue) || 0
+    ])
   )
 }
 
 const statusLabelByKey: Record<string, string> = Object.fromEntries(
-  STATUS_CATALOG.map((item) => [item.key, item.label]),
+  STATUS_CATALOG.map((item) => [item.key, item.label])
 )
 
 export async function loadRpgDashboard(
   repository: RpgDashboardRepository,
   accessService: RpgDashboardAccessService,
-  params: { rpgId: string; userId: string | null },
+  params: { rpgId: string; userId: string | null }
 ): Promise<RpgDashboardViewModel> {
   const dbRpg = await repository.getRpgById(params.rpgId)
 
@@ -49,7 +49,7 @@ export async function loadRpgDashboard(
   if (params.userId && !isOwner) {
     membershipStatus = await accessService.getMembershipStatus(
       params.rpgId,
-      params.userId,
+      params.userId
     )
   }
 
@@ -73,7 +73,7 @@ export async function loadRpgDashboard(
       await Promise.all([
         repository.listPendingRequests(params.rpgId),
         repository.listAcceptedMembers(params.rpgId),
-        repository.listPendingCharacterRequests(params.rpgId),
+        repository.listPendingCharacterRequests(params.rpgId)
       ])
     acceptedMembersCount = acceptedMembers.length
   } else {
@@ -81,13 +81,13 @@ export async function loadRpgDashboard(
     if (params.userId && isAcceptedMember) {
       pendingCharacterOffers = await repository.listPendingCharacterOffers(
         params.rpgId,
-        params.userId,
+        params.userId
       )
     }
   }
 
   const { hasRaces, hasClasses } = await repository.getTemplatesPresence(
-    params.rpgId,
+    params.rpgId
   )
 
   let spectatorCharacters: RpgDashboardViewModel["spectatorCharacters"] = []
@@ -101,46 +101,46 @@ export async function loadRpgDashboard(
         charactersRows,
         attributeTemplateRows,
         skillTemplateRows,
-        statusTemplateRows,
+        statusTemplateRows
       } = await repository.getSpectatorVisionData(params.rpgId)
 
       const statusTemplateLabelByKey = Object.fromEntries(
-        statusTemplateRows.map((item) => [item.key, item.label]),
+        statusTemplateRows.map((item) => [item.key, item.label])
       )
 
       spectatorCharacters = charactersRows.map((character) => {
         const statuses = normalizeLegacyStatusKeys(
-          normalizeNumericRecord(character.statuses),
+          normalizeNumericRecord(character.statuses)
         )
         const currentStatuses = normalizeLegacyStatusKeys(
-          normalizeNumericRecord(character.currentStatuses),
+          normalizeNumericRecord(character.currentStatuses)
         )
         const coreStatusConfig = [
           { key: "life", label: statusTemplateLabelByKey.life ?? "Vida" },
           {
             key: "mana",
             label:
-              statusTemplateLabelByKey.mana ?? statusLabelByKey.mana ?? "Mana",
+              statusTemplateLabelByKey.mana ?? statusLabelByKey.mana ?? "Mana"
           },
           {
             key: "sanity",
             label:
               statusTemplateLabelByKey.sanity ??
               statusLabelByKey.sanity ??
-              "Sanidade",
+              "Sanidade"
           },
           {
             key: "exhaustion",
             label:
               statusTemplateLabelByKey.exhaustion ??
               statusTemplateLabelByKey.stamina ??
-              "Exaustão",
-          },
+              "Exaustão"
+          }
         ]
         const extraStatusEntries = Object.entries(statuses).filter(
           ([key, value]) =>
             !coreStatusConfig.some((item) => item.key === key) &&
-            Number(value) > 0,
+            Number(value) > 0
         )
 
         const statusItems = [
@@ -155,7 +155,7 @@ export async function loadRpgDashboard(
                   ? Number(character.mana ?? 0)
                   : item.key === "sanity"
                     ? Number(character.sanity ?? 0)
-                    : Number(character.exhaustion ?? 0),
+                    : Number(character.exhaustion ?? 0)
           })),
           ...extraStatusEntries.map(([key, value]) => ({
             key,
@@ -166,10 +166,10 @@ export async function loadRpgDashboard(
               0,
               Math.min(
                 Number(value ?? 0),
-                Number(currentStatuses[key] ?? value ?? 0),
-              ),
-            ),
-          })),
+                Number(currentStatuses[key] ?? value ?? 0)
+              )
+            )
+          }))
         ].filter((item) => item.max > 0)
 
         return {
@@ -178,18 +178,18 @@ export async function loadRpgDashboard(
           characterType: character.characterType,
           statusItems,
           attributes: normalizeNumericRecord(character.attributes),
-          skills: normalizeNumericRecord(character.skills),
+          skills: normalizeNumericRecord(character.skills)
         }
       })
 
       attributeLabels = Object.fromEntries(
-        attributeTemplateRows.map((item) => [item.key, item.label]),
+        attributeTemplateRows.map((item) => [item.key, item.label])
       )
       skillLabels = Object.fromEntries(
-        skillTemplateRows.map((item) => [item.key, item.label]),
+        skillTemplateRows.map((item) => [item.key, item.label])
       )
       statusLabels = Object.fromEntries(
-        statusTemplateRows.map((item) => [item.key, item.label]),
+        statusTemplateRows.map((item) => [item.key, item.label])
       )
     } catch {
       spectatorCharacters = []
@@ -216,6 +216,6 @@ export async function loadRpgDashboard(
     spectatorCharacters,
     attributeLabels,
     skillLabels,
-    statusLabels,
+    statusLabels
   }
 }

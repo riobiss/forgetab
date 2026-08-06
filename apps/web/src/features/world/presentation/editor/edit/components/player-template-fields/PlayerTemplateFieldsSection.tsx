@@ -41,7 +41,7 @@ export default function PlayerTemplateFieldsSection({
   onUpdateFieldLabel,
   onUpdateFieldRequired,
   onRemoveField,
-  removeLabelPrefix,
+  removeLabelPrefix
 }: Props) {
   return (
     <div className={styles.section}>
@@ -80,13 +80,17 @@ export default function PlayerTemplateFieldsSection({
               <input
                 type="text"
                 value={field.label}
-                onChange={(event) => onUpdateFieldLabel(index, event.target.value)}
+                onChange={(event) =>
+                  onUpdateFieldLabel(index, event.target.value)
+                }
               />
               <label className={styles.option}>
                 <input
                   type="checkbox"
                   checked={field.required}
-                  onChange={(event) => onUpdateFieldRequired(index, event.target.checked)}
+                  onChange={(event) =>
+                    onUpdateFieldRequired(index, event.target.checked)
+                  }
                 />
                 <span>Obrigatorio</span>
               </label>

@@ -4,13 +4,13 @@ import type { RpgMapRepository } from "@/features/world/location/application/por
 import {
   mapMap,
   mapMarkerGroup,
-  mapSection,
+  mapSection
 } from "@/features/world/location/infrastructure/repositories/rpgMapRepositoryMappers.js"
 import type {
   MapRow,
   MarkerGroupRow,
   MarkerRow,
-  SectionRow,
+  SectionRow
 } from "@/features/world/location/infrastructure/repositories/rpgMapRepositoryRows.js"
 
 function jsonb(value: Record<string, unknown> | null) {
@@ -470,7 +470,7 @@ export const prismaRpgMapRepository: RpgMapRepository = {
         WHERE rpg_id = ${params.rpgId}
           AND map_id = ${params.mapId}
           AND id = ${params.otherSectionId}
-      `),
+      `)
     ])
   },
 
@@ -516,7 +516,7 @@ export const prismaRpgMapRepository: RpgMapRepository = {
           WHERE rpg_id = ${rpgId}
             AND map_id = ${mapId}
           ORDER BY group_id ASC, position ASC, updated_at DESC
-        `),
+        `)
       ])
 
       return groupRows.map((group) => mapMarkerGroup(group, markerRows))
@@ -765,5 +765,5 @@ export const prismaRpgMapRepository: RpgMapRepository = {
       LIMIT 1
     `)
     return rows[0] ?? null
-  },
+  }
 }

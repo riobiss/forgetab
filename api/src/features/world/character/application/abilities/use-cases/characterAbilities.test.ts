@@ -1,7 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import {
-  loadCharacterAbilitiesUseCase,
-} from "@/features/world/character/application/abilities/use-cases/characterAbilities"
+import { loadCharacterAbilitiesUseCase } from "@/features/world/character/application/abilities/use-cases/characterAbilities"
 import type { CharacterAbilitiesRepository } from "@/features/world/character/application/abilities/ports/CharacterAbilitiesRepository"
 import type { CharacterAbilitiesParserService } from "@/features/world/character/application/abilities/ports/CharacterAbilitiesParserService"
 import type { RpgAccessRepository } from "@/features/world/character/application/ports/RpgAccessRepository"
@@ -13,7 +11,7 @@ function createRepositoryMock(): CharacterAbilitiesRepository {
     getClassByKey: vi.fn(),
     listPurchasedSkillLevels: vi.fn(),
     listSkillClassLinks: vi.fn(),
-    listSkillRaceLinks: vi.fn(),
+    listSkillRaceLinks: vi.fn()
   }
 }
 
@@ -22,17 +20,17 @@ describe("characterAbilities use-cases", () => {
     const repository = createRepositoryMock()
     const rpgAccessRepository: RpgAccessRepository = {
       getRpgAccessRow: vi.fn(),
-      getMembership: vi.fn(),
+      getMembership: vi.fn()
     }
     const parserService: CharacterAbilitiesParserService = {
       parseCharacterAbilities: vi.fn(),
-      parseCostPoints: vi.fn(),
+      parseCostPoints: vi.fn()
     }
 
     vi.mocked(repository.getRpg).mockResolvedValue({
       id: "rpg-1",
       ownerId: "owner-1",
-      visibility: "public",
+      visibility: "public"
     })
     vi.mocked(repository.getCharacter).mockResolvedValue({
       id: "char-1",
@@ -42,12 +40,12 @@ describe("characterAbilities use-cases", () => {
       visibility: "public",
       characterType: "player",
       createdByUserId: "another-user",
-      abilities: [],
+      abilities: []
     })
 
     const result = await loadCharacterAbilitiesUseCase(
       { repository, rpgAccessRepository, parserService },
-      { rpgId: "rpg-1", characterId: "char-1", userId: "user-1" },
+      { rpgId: "rpg-1", characterId: "char-1", userId: "user-1" }
     )
 
     expect(result).toBeNull()
@@ -57,19 +55,19 @@ describe("characterAbilities use-cases", () => {
     const repository = createRepositoryMock()
     const rpgAccessRepository: RpgAccessRepository = {
       getRpgAccessRow: vi.fn(),
-      getMembership: vi.fn(),
+      getMembership: vi.fn()
     }
     const parserService: CharacterAbilitiesParserService = {
       parseCharacterAbilities: vi
         .fn()
         .mockReturnValue([{ skillId: "skill-1", level: 1 }]),
-      parseCostPoints: vi.fn().mockReturnValue(2),
+      parseCostPoints: vi.fn().mockReturnValue(2)
     }
 
     vi.mocked(repository.getRpg).mockResolvedValue({
       id: "rpg-1",
       ownerId: "owner-1",
-      visibility: "public",
+      visibility: "public"
     })
     vi.mocked(repository.getCharacter).mockResolvedValue({
       id: "char-1",
@@ -79,12 +77,12 @@ describe("characterAbilities use-cases", () => {
       visibility: "public",
       characterType: "player",
       createdByUserId: "user-1",
-      abilities: [],
+      abilities: []
     })
     vi.mocked(repository.getClassByKey).mockResolvedValue({
       id: "class-1",
       key: "warrior",
-      label: "Guerreiro",
+      label: "Guerreiro"
     })
     vi.mocked(repository.listPurchasedSkillLevels).mockResolvedValue([
       {
@@ -103,19 +101,19 @@ describe("characterAbilities use-cases", () => {
         target: {},
         area: {},
         scaling: {},
-        requirement: {},
-      },
+        requirement: {}
+      }
     ])
     vi.mocked(repository.listSkillClassLinks).mockResolvedValue([
-      { skillId: "skill-1", classLabel: "Guerreiro" },
+      { skillId: "skill-1", classLabel: "Guerreiro" }
     ])
     vi.mocked(repository.listSkillRaceLinks).mockResolvedValue([
-      { skillId: "skill-1", raceLabel: "Humano" },
+      { skillId: "skill-1", raceLabel: "Humano" }
     ])
 
     const result = await loadCharacterAbilitiesUseCase(
       { repository, rpgAccessRepository, parserService },
-      { rpgId: "rpg-1", characterId: "char-1", userId: "user-1" },
+      { rpgId: "rpg-1", characterId: "char-1", userId: "user-1" }
     )
 
     expect(result).not.toBeNull()
@@ -126,8 +124,7 @@ describe("characterAbilities use-cases", () => {
       levelName: "Golpe Pesado",
       pointsCost: 2,
       allowedClasses: ["Guerreiro"],
-      allowedRaces: ["Humano"],
+      allowedRaces: ["Humano"]
     })
   })
-
 })

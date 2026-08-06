@@ -1,6 +1,6 @@
 import type {
   CharacterEditorCharacterTypeDto,
-  UpsertCharacterPayloadDto,
+  UpsertCharacterPayloadDto
 } from "@/features/world/characters/application/editor"
 import { normalizeNumericValues } from "../utils"
 
@@ -47,7 +47,7 @@ export function buildCharacterPayload({
   statusValues,
   attributeValues,
   skillValues,
-  offerToUserId,
+  offerToUserId
 }: BuildCharacterPayloadParams): UpsertCharacterPayloadDto {
   const isEditing = Boolean(editingCharacterId)
   const resolvedName = identityNameFieldKey
@@ -68,12 +68,12 @@ export function buildCharacterPayload({
       ? canManageCharacters
         ? {
             ...(useRaceBonuses ? { raceKey } : {}),
-            ...(useClassBonuses ? { classKey } : {}),
+            ...(useClassBonuses ? { classKey } : {})
           }
         : {}
       : {
           ...(useRaceBonuses && raceKey ? { raceKey } : {}),
-          ...(useClassBonuses && classKey ? { classKey } : {}),
+          ...(useClassBonuses && classKey ? { classKey } : {})
         }),
     ...(isEditing ? {} : { characterType }),
     ...(useInventoryWeightLimit && characterType === "player"
@@ -89,7 +89,9 @@ export function buildCharacterPayload({
     attributes: normalizeNumericValues(attributeValues),
     identity: identityValues,
     characteristics: characteristicsValues,
-    ...(!isEditing || canManageCharacters ? { skills: normalizeNumericValues(skillValues) } : {}),
-    ...(!isEditing && offerToUserId ? { offerToUserId } : {}),
+    ...(!isEditing || canManageCharacters
+      ? { skills: normalizeNumericValues(skillValues) }
+      : {}),
+    ...(!isEditing && offerToUserId ? { offerToUserId } : {})
   }
 }

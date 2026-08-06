@@ -13,14 +13,14 @@ import {
   validateProgressionCurrent,
   validateSkillsPayload,
   validateStat,
-  validateStatusesPayload,
+  validateStatusesPayload
 } from "@/features/world/character/application/validators"
 import type { CharacterRepository } from "@/features/world/character/application/ports/CharacterRepository"
 import type { RpgTemplatesRepository } from "@/features/world/character/application/ports/RpgTemplatesRepository"
 import type {
   CreateCharacterPayload,
   CharacterRow,
-  RpgAccess,
+  RpgAccess
 } from "@/features/world/character/application/types"
 import { AppError } from "@/features/shared/application/errors/AppError"
 import { rethrowCharacterRepositoryError } from "@/features/world/character/application/errors/rethrowCharacterRepositoryError"
@@ -39,7 +39,7 @@ function fail(status: number, message: string): never {
 }
 
 export async function createCharacter(
-  input: CreateCharacterInput,
+  input: CreateCharacterInput
 ): Promise<CharacterRow> {
   try {
     const name = input.payload.name?.trim() ?? ""
@@ -50,7 +50,7 @@ export async function createCharacter(
         400,
         requiresLongerName
           ? "Nome deve ter pelo menos 2 caracteres."
-          : "Nome obrigatorio.",
+          : "Nome obrigatorio."
       )
     }
 
@@ -68,12 +68,12 @@ export async function createCharacter(
     if (!input.access.isOwner && input.payload.characterType !== "player") {
       fail(
         400,
-        "Somente personagens do tipo player podem ser criados por jogadores.",
+        "Somente personagens do tipo player podem ser criados por jogadores."
       )
     }
 
     const parsedMaxCarryWeight = validateMaxCarryWeight(
-      input.payload.maxCarryWeight,
+      input.payload.maxCarryWeight
     )
     if (!parsedMaxCarryWeight.ok) {
       fail(400, parsedMaxCarryWeight.message)
@@ -100,14 +100,14 @@ export async function createCharacter(
     const resolvedProgression = resolveProgressionTierByCurrent(
       input.access.progressionMode,
       input.access.progressionTiers,
-      parsedProgressionCurrent.value,
+      parsedProgressionCurrent.value
     )
 
     if (!input.access.isOwner) {
       const totalPlayers =
         await input.characterRepository.countPlayersByCreator(
           input.rpgId,
-          input.userId,
+          input.userId
         )
       if (totalPlayers > 0 && !input.access.allowMultiplePlayerCharacters) {
         fail(409, "Voce ja possui um personagem player neste RPG.")
@@ -118,7 +118,7 @@ export async function createCharacter(
       await input.rpgTemplatesRepository.getAttributeTemplates(input.rpgId)
     const parsedAttributes = validateAttributesPayload(
       input.payload.attributes,
-      dbAttributeTemplate,
+      dbAttributeTemplate
     )
     if (!parsedAttributes.ok) {
       fail(400, parsedAttributes.message)
@@ -132,7 +132,7 @@ export async function createCharacter(
         : getDefaultStatusTemplate()
     const parsedStatuses = validateStatusesPayload(
       input.payload.statuses,
-      statusTemplate,
+      statusTemplate
     )
     if (!parsedStatuses.ok) {
       fail(400, parsedStatuses.message)
@@ -146,7 +146,7 @@ export async function createCharacter(
     if (!mana.ok) fail(400, mana.message)
     const exhaustion = validateStat(
       "exaustão",
-      parsedStatuses.value.exhaustion ?? 0,
+      parsedStatuses.value.exhaustion ?? 0
     )
     if (!exhaustion.ok) fail(400, exhaustion.message)
     const sanity = validateStat("sanidade", parsedStatuses.value.sanity ?? 0)
@@ -159,7 +159,7 @@ export async function createCharacter(
         acc[item.key] = 0
         return acc
       },
-      {},
+      {}
     )
     const incomingSkills = input.payload.skills ?? defaultSkills
     const parsedSkills = validateSkillsPayload(incomingSkills, dbSkillTemplate)
@@ -173,7 +173,7 @@ export async function createCharacter(
         : []
     const parsedIdentity = validateIdentityPayload(
       input.payload.identity,
-      identityTemplate,
+      identityTemplate
     )
     if (!parsedIdentity.ok) {
       fail(400, parsedIdentity.message)
@@ -182,12 +182,12 @@ export async function createCharacter(
     const characteristicsTemplate =
       input.payload.characterType === "player"
         ? await input.rpgTemplatesRepository.getCharacteristicTemplates(
-            input.rpgId,
+            input.rpgId
           )
         : []
     const parsedCharacteristics = validateCharacteristicsPayload(
       input.payload.characteristics,
-      characteristicsTemplate,
+      characteristicsTemplate
     )
     if (!parsedCharacteristics.ok) {
       fail(400, parsedCharacteristics.message)
@@ -205,7 +205,7 @@ export async function createCharacter(
     try {
       const [raceTemplates, classTemplates] = await Promise.all([
         input.rpgTemplatesRepository.getRaceTemplates(input.rpgId),
-        input.rpgTemplatesRepository.getClassTemplates(input.rpgId),
+        input.rpgTemplatesRepository.getClassTemplates(input.rpgId)
       ])
 
       if (
@@ -253,19 +253,19 @@ export async function createCharacter(
     const finalAttributes = addBonusToBase(
       parsedAttributes.value as Record<string, number>,
       raceAttributeBonuses,
-      classAttributeBonuses,
+      classAttributeBonuses
     )
     const finalSkills = addBonusToBase(
       parsedSkills.value,
       raceSkillBonuses,
-      classSkillBonuses,
+      classSkillBonuses
     )
     const offerToUserId = input.payload.offerToUserId?.trim() || null
     if (offerToUserId) {
       if (!input.access.isOwner) {
         fail(
           403,
-          "Somente mestre ou moderador podem enviar personagem a um jogador.",
+          "Somente mestre ou moderador podem enviar personagem a um jogador."
         )
       }
       if (input.payload.characterType !== "player") {
@@ -273,7 +273,7 @@ export async function createCharacter(
       }
       const isAcceptedMember = await input.characterRepository.isAcceptedMember(
         input.rpgId,
-        offerToUserId,
+        offerToUserId
       )
       if (!isAcceptedMember) {
         fail(400, "Jogador invalido para receber personagem.")
@@ -281,7 +281,7 @@ export async function createCharacter(
       const targetPlayers =
         await input.characterRepository.countPlayersByCreator(
           input.rpgId,
-          offerToUserId,
+          offerToUserId
         )
       if (targetPlayers > 0 && !input.access.allowMultiplePlayerCharacters) {
         fail(409, "Este jogador ja possui um personagem player neste RPG.")
@@ -313,7 +313,7 @@ export async function createCharacter(
       attributes: finalAttributes,
       skills: finalSkills,
       identity: parsedIdentity.value,
-      characteristics: parsedCharacteristics.value,
+      characteristics: parsedCharacteristics.value
     }
 
     return offerToUserId

@@ -2,7 +2,7 @@ import { type ChangeEvent, useMemo, useRef, useState } from "react"
 import { toast } from "react-hot-toast"
 import {
   deleteRpgMapMarkerImageByUrlUseCase,
-  uploadRpgMapMarkerImageUseCase,
+  uploadRpgMapMarkerImageUseCase
 } from "@/features/world/location/application/use-cases/rpgMapImages.client"
 import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import { dismissToast } from "@/lib/toast"
@@ -56,7 +56,7 @@ export function useMarkerImageActions(params: Params) {
     try {
       const uploadPayload = await uploadRpgMapMarkerImageUseCase(gateway, {
         file,
-        oldUrl: params.resolveOldImage(target),
+        oldUrl: params.resolveOldImage(target)
       })
 
       params.applyUploadedImage(target, uploadPayload.url)
@@ -65,7 +65,7 @@ export function useMarkerImageActions(params: Params) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Erro ao atualizar imagem do marcador.",
+          : "Erro ao atualizar imagem do marcador."
       )
     } finally {
       dismissToast(loadingToastId)
@@ -76,7 +76,7 @@ export function useMarkerImageActions(params: Params) {
 
   async function deleteImage(
     targetToDelete: MarkerImageTarget,
-    imageUrl: string | null,
+    imageUrl: string | null
   ) {
     if (!imageUrl || isUploading) {
       return
@@ -93,7 +93,7 @@ export function useMarkerImageActions(params: Params) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Erro ao remover imagem do marcador.",
+          : "Erro ao remover imagem do marcador."
       )
     } finally {
       dismissToast(loadingToastId)
@@ -106,6 +106,6 @@ export function useMarkerImageActions(params: Params) {
     isUploading,
     openPicker,
     handleInputChange,
-    deleteImage,
+    deleteImage
   }
 }

@@ -6,7 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
-  type FormEvent,
+  type FormEvent
 } from "react"
 import { useRouter } from "next/navigation"
 import type { SingleValue } from "react-select"
@@ -18,7 +18,7 @@ import type {
   CharacterIdentityFieldDto,
   CharacterOptionDto,
   CharactersEditorDependencies,
-  UpsertCharacterPayloadDto,
+  UpsertCharacterPayloadDto
 } from "@/features/world/characters/application/editor"
 import {
   createCharacterUseCase,
@@ -26,7 +26,7 @@ import {
   deleteCharacterUseCase,
   loadCharacterEditorBootstrapUseCase,
   updateCharacterUseCase,
-  uploadCharacterImageUseCase,
+  uploadCharacterImageUseCase
 } from "@/features/world/characters/application/editor"
 import {
   getDefaultProgressionTiers,
@@ -34,7 +34,7 @@ import {
   normalizeProgressionTiers,
   resolveProgressionTierByCurrent,
   type ProgressionMode,
-  type ProgressionTier,
+  type ProgressionTier
 } from "@/lib/rpg/progression"
 import { dismissToast } from "@/lib/toast"
 import { buildCharacterPayload } from "./builders/buildCharacterPayload"
@@ -42,7 +42,7 @@ import {
   isIdentityNameField,
   parseNumericInputValue,
   resolveEditTarget,
-  type NumericInputValue,
+  type NumericInputValue
 } from "./utils"
 
 export type PlayerSelectOption = {
@@ -65,25 +65,36 @@ export function useCharacterEditorController({
   deps,
   initialBootstrap = null,
   onCompleted,
-  onDeleted,
+  onDeleted
 }: Params) {
   const router = useRouter()
   const [name, setName] = useState("")
   const [image, setImage] = useState("")
-  const [attributes, setAttributes] = useState<CharacterEditorTemplateFieldDto[]>([])
-  const [statuses, setStatuses] = useState<CharacterEditorTemplateFieldDto[]>([])
+  const [attributes, setAttributes] = useState<
+    CharacterEditorTemplateFieldDto[]
+  >([])
+  const [statuses, setStatuses] = useState<CharacterEditorTemplateFieldDto[]>(
+    []
+  )
   const [skills, setSkills] = useState<CharacterEditorTemplateFieldDto[]>([])
   const [values, setValues] = useState<Record<string, NumericInputValue>>({})
-  const [statusValues, setStatusValues] = useState<Record<string, NumericInputValue>>({})
-  const [skillValues, setSkillValues] = useState<Record<string, NumericInputValue>>({})
-  const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null)
+  const [statusValues, setStatusValues] = useState<
+    Record<string, NumericInputValue>
+  >({})
+  const [skillValues, setSkillValues] = useState<
+    Record<string, NumericInputValue>
+  >({})
+  const [editingCharacterId, setEditingCharacterId] = useState<string | null>(
+    null
+  )
   const [useRaceBonuses, setUseRaceBonuses] = useState(false)
   const [useClassBonuses, setUseClassBonuses] = useState(false)
   const [canManageCharacters, setCanManageCharacters] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
-  const [progressionMode, setProgressionMode] = useState<ProgressionMode>("xp_level")
+  const [progressionMode, setProgressionMode] =
+    useState<ProgressionMode>("xp_level")
   const [progressionTiers, setProgressionTiers] = useState<ProgressionTier[]>(
-    getDefaultProgressionTiers("xp_level"),
+    getDefaultProgressionTiers("xp_level")
   )
   const [progressionCurrent, setProgressionCurrent] = useState("0")
   const [raceTemplates, setRaceTemplates] = useState<CharacterOptionDto[]>([])
@@ -91,17 +102,26 @@ export function useCharacterEditorController({
   const [assignablePlayers, setAssignablePlayers] = useState<
     CharacterEditorBootstrapDto["assignablePlayers"]
   >([])
-  const [identityTemplates, setIdentityTemplates] = useState<CharacterIdentityFieldDto[]>([])
-  const [identityValues, setIdentityValues] = useState<Record<string, string>>({})
+  const [identityTemplates, setIdentityTemplates] = useState<
+    CharacterIdentityFieldDto[]
+  >([])
+  const [identityValues, setIdentityValues] = useState<Record<string, string>>(
+    {}
+  )
   const [characteristicsTemplates, setCharacteristicsTemplates] = useState<
     CharacterIdentityFieldDto[]
   >([])
-  const [characteristicsValues, setCharacteristicsValues] = useState<Record<string, string>>({})
+  const [characteristicsValues, setCharacteristicsValues] = useState<
+    Record<string, string>
+  >({})
   const [raceKey, setRaceKey] = useState("")
   const [classKey, setClassKey] = useState("")
-  const [characterType, setCharacterType] = useState<CharacterEditorCharacterTypeDto>("player")
+  const [characterType, setCharacterType] =
+    useState<CharacterEditorCharacterTypeDto>("player")
   const [maxCarryWeight, setMaxCarryWeight] = useState("")
-  const [characterVisibility, setCharacterVisibility] = useState<"private" | "public">("public")
+  const [characterVisibility, setCharacterVisibility] = useState<
+    "private" | "public"
+  >("public")
   const [offerToUserId, setOfferToUserId] = useState("")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -122,12 +142,13 @@ export function useCharacterEditorController({
     () =>
       assignablePlayers.map((player) => ({
         value: player.userId,
-        label: `${player.name} (@${player.username})`,
+        label: `${player.name} (@${player.username})`
       })),
-    [assignablePlayers],
+    [assignablePlayers]
   )
   const selectedOfferPlayer =
-    assignablePlayerOptions.find((option) => option.value === offerToUserId) ?? null
+    assignablePlayerOptions.find((option) => option.value === offerToUserId) ??
+    null
   const identityNameField =
     identityTemplates.find((field) => isIdentityNameField(field)) ?? null
   const imageStatusText = useMemo(() => {
@@ -148,9 +169,9 @@ export function useCharacterEditorController({
       resolveProgressionTierByCurrent(
         progressionMode,
         progressionTiers,
-        normalizedProgressionCurrent,
+        normalizedProgressionCurrent
       ),
-    [normalizedProgressionCurrent, progressionMode, progressionTiers],
+    [normalizedProgressionCurrent, progressionMode, progressionTiers]
   )
 
   const applyBootstrap = useCallback(
@@ -174,30 +195,34 @@ export function useCharacterEditorController({
       setUseRaceBonuses(
         typeof bootstrap.rpg?.useRaceBonuses === "boolean"
           ? bootstrap.rpg.useRaceBonuses
-          : legacyClassRaceFlag,
+          : legacyClassRaceFlag
       )
       setUseClassBonuses(
         typeof bootstrap.rpg?.useClassBonuses === "boolean"
           ? bootstrap.rpg.useClassBonuses
-          : legacyClassRaceFlag,
+          : legacyClassRaceFlag
       )
       setCanManageCharacters(Boolean(bootstrap.rpg?.canManage))
-      setUseInventoryWeightLimit(Boolean(bootstrap.rpg?.useInventoryWeightLimit))
+      setUseInventoryWeightLimit(
+        Boolean(bootstrap.rpg?.useInventoryWeightLimit)
+      )
 
-      const loadedProgressionMode = isProgressionMode(bootstrap.rpg?.progressionMode)
+      const loadedProgressionMode = isProgressionMode(
+        bootstrap.rpg?.progressionMode
+      )
         ? bootstrap.rpg.progressionMode
         : "xp_level"
       setProgressionMode(loadedProgressionMode)
       setProgressionTiers(
         normalizeProgressionTiers(
           bootstrap.rpg?.progressionTiers,
-          loadedProgressionMode,
-        ),
+          loadedProgressionMode
+        )
       )
 
       const numericValues = (
         template: CharacterEditorTemplateFieldDto[],
-        source: Record<string, number> | undefined,
+        source: Record<string, number> | undefined
       ) =>
         template.reduce<Record<string, NumericInputValue>>((result, item) => {
           result[item.key] = editTarget ? Number(source?.[item.key] ?? 0) : ""
@@ -208,16 +233,19 @@ export function useCharacterEditorController({
       setStatusValues(numericValues(bootstrap.statuses, editTarget?.statuses))
       setSkillValues(numericValues(bootstrap.skills, editTarget?.skills))
       setIdentityValues(
-        bootstrap.identityFields.reduce<Record<string, string>>((result, item) => {
-          const value = editTarget?.identity?.[item.key]
-          result[item.key] =
-            typeof value === "string"
-              ? value
-              : isIdentityNameField(item)
-                ? (editTarget?.name ?? "")
-                : ""
-          return result
-        }, {}),
+        bootstrap.identityFields.reduce<Record<string, string>>(
+          (result, item) => {
+            const value = editTarget?.identity?.[item.key]
+            result[item.key] =
+              typeof value === "string"
+                ? value
+                : isIdentityNameField(item)
+                  ? (editTarget?.name ?? "")
+                  : ""
+            return result
+          },
+          {}
+        )
       )
       setCharacteristicsValues(
         bootstrap.characteristicFields.reduce<Record<string, string>>(
@@ -226,8 +254,8 @@ export function useCharacterEditorController({
             result[item.key] = typeof value === "string" ? value : ""
             return result
           },
-          {},
-        ),
+          {}
+        )
       )
       setName(editTarget?.name ?? "")
       setImage(editTarget?.image ?? "")
@@ -237,18 +265,20 @@ export function useCharacterEditorController({
       setClassKey(editTarget?.classKey ?? "")
       setCharacterType(editTarget?.characterType ?? "player")
       setMaxCarryWeight(
-        editTarget?.maxCarryWeight == null ? "" : String(editTarget.maxCarryWeight),
+        editTarget?.maxCarryWeight == null
+          ? ""
+          : String(editTarget.maxCarryWeight)
       )
       setCharacterVisibility(editTarget?.visibility ?? "public")
       setOfferToUserId("")
       setProgressionCurrent(
         typeof editTarget?.progressionCurrent === "number"
           ? String(editTarget.progressionCurrent)
-          : "0",
+          : "0"
       )
       setEditingCharacterId(editTarget?.id ?? null)
     },
-    [characterId],
+    [characterId]
   )
 
   useEffect(() => {
@@ -259,13 +289,13 @@ export function useCharacterEditorController({
         const bootstrap = characterId
           ? await loadCharacterEditorBootstrapUseCase(deps, {
               rpgId,
-              includeCharacters: true,
+              includeCharacters: true
             })
-          : initialBootstrap ??
+          : (initialBootstrap ??
             (await loadCharacterEditorBootstrapUseCase(deps, {
               rpgId,
-              includeCharacters: false,
-            }))
+              includeCharacters: false
+            })))
         applyBootstrap(bootstrap)
       } catch {
         setError("Erro de conexao ao carregar padroes de personagem.")
@@ -284,7 +314,7 @@ export function useCharacterEditorController({
     setSaving(true)
     setError("")
     const loadingToastId = toast.loading(
-      editingCharacterId ? "Salvando personagem..." : "Criando personagem...",
+      editingCharacterId ? "Salvando personagem..." : "Criando personagem..."
     )
 
     try {
@@ -297,7 +327,7 @@ export function useCharacterEditorController({
         setUploadingImage(true)
         try {
           const upload = await uploadCharacterImageUseCase(deps, {
-            file: selectedImageFile,
+            file: selectedImageFile
           })
           uploadedImageUrl = upload.url
         } catch (cause) {
@@ -334,7 +364,7 @@ export function useCharacterEditorController({
         statusValues,
         attributeValues: values,
         skillValues,
-        offerToUserId,
+        offerToUserId
       })
 
       try {
@@ -342,7 +372,7 @@ export function useCharacterEditorController({
           await updateCharacterUseCase(deps, {
             rpgId,
             characterId: editingCharacterId,
-            payload,
+            payload
           })
         } else {
           await createCharacterUseCase(deps, { rpgId, payload })
@@ -351,7 +381,7 @@ export function useCharacterEditorController({
         if (hasFreshUpload && uploadedImageUrl) {
           try {
             await deleteCharacterImageByUrlUseCase(deps, {
-              url: uploadedImageUrl,
+              url: uploadedImageUrl
             })
           } catch {
             // A falha na limpeza nao substitui o erro original.
@@ -362,7 +392,7 @@ export function useCharacterEditorController({
             ? cause.message
             : isEditing
               ? "Nao foi possivel atualizar personagem."
-              : "Nao foi possivel criar personagem.",
+              : "Nao foi possivel criar personagem."
         )
         return
       }
@@ -372,7 +402,7 @@ export function useCharacterEditorController({
       toast.success(
         editingCharacterId
           ? "Personagem salvo com sucesso."
-          : "Personagem criado com sucesso.",
+          : "Personagem criado com sucesso."
       )
       if (onCompleted) {
         onCompleted()
@@ -397,8 +427,9 @@ export function useCharacterEditorController({
   const updateNumericValue = (
     setter: typeof setValues,
     key: string,
-    value: string,
-  ) => setter((current) => ({ ...current, [key]: parseNumericInputValue(value) }))
+    value: string
+  ) =>
+    setter((current) => ({ ...current, [key]: parseNumericInputValue(value) }))
 
   function handleImageUpload(file: File) {
     setSelectedImageFile(file)
@@ -428,7 +459,7 @@ export function useCharacterEditorController({
     try {
       await deleteCharacterUseCase(deps, {
         rpgId,
-        characterId: editingCharacterId,
+        characterId: editingCharacterId
       })
       toast.success("Personagem deletado com sucesso.")
       if (onDeleted) {
@@ -518,6 +549,6 @@ export function useCharacterEditorController({
     handleImageUpload,
     handleRemoveImage,
     handleOfferPlayerChange,
-    handleDeleteCharacter,
+    handleDeleteCharacter
   }
 }

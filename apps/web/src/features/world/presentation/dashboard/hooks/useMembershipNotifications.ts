@@ -6,12 +6,12 @@ import type { RpgDashboardDependencies } from "@/features/world/presentation/das
 import {
   processCharacterRequestUseCase,
   processMemberRequestUseCase,
-  requestToJoinRpgUseCase,
+  requestToJoinRpgUseCase
 } from "@/features/world/application/dashboard/use-cases/rpgDashboardActions"
 
 export function useMembershipNotifications(
   deps: RpgDashboardDependencies,
-  params: { rpgId: string },
+  params: { rpgId: string }
 ) {
   const router = useRouter()
   const [loadingRequest, setLoadingRequest] = useState(false)
@@ -27,7 +27,7 @@ export function useMembershipNotifications(
 
     try {
       const payload = await requestToJoinRpgUseCase(deps.gateway, {
-        rpgId: params.rpgId,
+        rpgId: params.rpgId
       })
       if (
         !payload.message ||
@@ -42,7 +42,7 @@ export function useMembershipNotifications(
       setError(
         error instanceof Error
           ? error.message
-          : "Erro de conexao ao solicitar participacao.",
+          : "Erro de conexao ao solicitar participacao."
       )
     } finally {
       setLoadingRequest(false)
@@ -59,7 +59,7 @@ export function useMembershipNotifications(
       const payload = await processMemberRequestUseCase(deps.gateway, {
         rpgId: params.rpgId,
         memberId,
-        action,
+        action
       })
       setMessage(payload.message ?? "Solicitacao processada.")
       router.refresh()
@@ -67,7 +67,7 @@ export function useMembershipNotifications(
       setError(
         error instanceof Error
           ? error.message
-          : "Erro de conexao ao processar solicitacao.",
+          : "Erro de conexao ao processar solicitacao."
       )
     } finally {
       setProcessingId(null)
@@ -76,7 +76,7 @@ export function useMembershipNotifications(
 
   async function processCharacterRequest(
     requestId: string,
-    action: "accept" | "reject",
+    action: "accept" | "reject"
   ) {
     if (processingId) return
     setProcessingId(requestId)
@@ -87,7 +87,7 @@ export function useMembershipNotifications(
       const payload = await processCharacterRequestUseCase(deps.gateway, {
         rpgId: params.rpgId,
         requestId,
-        action,
+        action
       })
       setMessage(payload.message ?? "Solicitacao de personagem processada.")
       router.refresh()
@@ -95,7 +95,7 @@ export function useMembershipNotifications(
       setError(
         error instanceof Error
           ? error.message
-          : "Erro de conexao ao processar solicitacao de personagem.",
+          : "Erro de conexao ao processar solicitacao de personagem."
       )
     } finally {
       setProcessingId(null)
@@ -109,6 +109,6 @@ export function useMembershipNotifications(
     error,
     requestToJoin,
     processRequest,
-    processCharacterRequest,
+    processCharacterRequest
   }
 }

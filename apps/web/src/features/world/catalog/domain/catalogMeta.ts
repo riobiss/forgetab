@@ -1,19 +1,26 @@
-import type { CatalogRichTextField, CatalogRichTextMap, EntityCatalogMeta, RichTextDocument } from "@/features/world/catalog/domain/types"
+import type {
+  CatalogRichTextField,
+  CatalogRichTextMap,
+  EntityCatalogMeta,
+  RichTextDocument
+} from "@/features/world/catalog/domain/types"
 
 const RICH_TEXT_FIELDS: CatalogRichTextField[] = [
   "description",
   "origin",
   "kingdoms",
   "lore",
-  "notes",
+  "notes"
 ]
 
 export const EMPTY_RICH_TEXT_DOCUMENT: RichTextDocument = {
   type: "doc",
-  content: [],
+  content: []
 }
 
-export function createRichTextDocumentFromText(value: string): RichTextDocument {
+export function createRichTextDocumentFromText(
+  value: string
+): RichTextDocument {
   const text = value.trim()
   if (!text) return EMPTY_RICH_TEXT_DOCUMENT
 
@@ -22,9 +29,9 @@ export function createRichTextDocumentFromText(value: string): RichTextDocument 
     content: [
       {
         type: "paragraph",
-        content: [{ type: "text", text }],
-      },
-    ],
+        content: [{ type: "text", text }]
+      }
+    ]
   }
 }
 
@@ -63,21 +70,24 @@ export function normalizeEntityCatalogMeta(value: unknown): EntityCatalogMeta {
 
   return {
     shortDescription: normalizeShortDescription(value.shortDescription),
-    richText,
+    richText
   }
 }
 
 export function serializeEntityCatalogMeta(meta: EntityCatalogMeta) {
-  const richText = Object.entries(meta.richText).reduce<CatalogRichTextMap>((acc, [field, value]) => {
-    if (isRichTextDocument(value)) {
-      acc[field as CatalogRichTextField] = value
-    }
-    return acc
-  }, {})
+  const richText = Object.entries(meta.richText).reduce<CatalogRichTextMap>(
+    (acc, [field, value]) => {
+      if (isRichTextDocument(value)) {
+        acc[field as CatalogRichTextField] = value
+      }
+      return acc
+    },
+    {}
+  )
 
   return {
     shortDescription: meta.shortDescription?.trim() || null,
-    richText,
+    richText
   }
 }
 
@@ -85,13 +95,21 @@ export function getRichTextPlainText(value: unknown): string {
   if (!value) return ""
   if (typeof value === "string") return value.trim()
   if (Array.isArray(value)) {
-    return value.map((item) => getRichTextPlainText(item)).filter(Boolean).join(" ").trim()
+    return value
+      .map((item) => getRichTextPlainText(item))
+      .filter(Boolean)
+      .join(" ")
+      .trim()
   }
   if (!isRecord(value)) return ""
 
   const text = typeof value.text === "string" ? value.text.trim() : ""
   const content = Array.isArray(value.content)
-    ? value.content.map((item) => getRichTextPlainText(item)).filter(Boolean).join(" ").trim()
+    ? value.content
+        .map((item) => getRichTextPlainText(item))
+        .filter(Boolean)
+        .join(" ")
+        .trim()
     : ""
 
   return [text, content].filter(Boolean).join(" ").trim()
@@ -100,7 +118,9 @@ export function getRichTextPlainText(value: unknown): string {
 export function getCatalogMetaSearchText(meta: EntityCatalogMeta) {
   return [
     meta.shortDescription ?? "",
-    ...RICH_TEXT_FIELDS.map((field) => getRichTextPlainText(meta.richText[field])),
+    ...RICH_TEXT_FIELDS.map((field) =>
+      getRichTextPlainText(meta.richText[field])
+    )
   ]
     .filter(Boolean)
     .join(" ")
@@ -112,7 +132,9 @@ export function getCatalogMetaExcerpt(meta: EntityCatalogMeta) {
 
   const descriptionText = getRichTextPlainText(meta.richText.description)
   if (descriptionText) {
-    return descriptionText.length > 180 ? `${descriptionText.slice(0, 177)}...` : descriptionText
+    return descriptionText.length > 180
+      ? `${descriptionText.slice(0, 177)}...`
+      : descriptionText
   }
 
   return null

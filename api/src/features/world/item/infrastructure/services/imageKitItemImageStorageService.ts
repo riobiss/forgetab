@@ -7,10 +7,10 @@ export const imageKitItemImageStorageService: ItemImageStorageService = {
       await imageKitScopedImageService.deleteByUrl({
         userId,
         folder: "items",
-        url: imageUrl,
+        url: imageUrl
       })
     } catch {
       // Fluxo legado de update/delete de item nao deve falhar por ausencia de configuracao de media.
     }
-  },
+  }
 }

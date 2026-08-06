@@ -12,51 +12,60 @@ const mocks = vi.hoisted(() => ({
   updateSkillLevel: vi.fn(),
   deleteSkillLevel: vi.fn(),
   normalizeSkillSearchIndexParams: vi.fn(),
-  loadSkillsSearchIndexUseCase: vi.fn(),
+  loadSkillsSearchIndexUseCase: vi.fn()
 }))
 
 vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
-  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
+  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest
 }))
 
 vi.mock("@/features/world/skill/application/use-cases/getSkills", () => ({
-  getSkills: mocks.getSkills,
+  getSkills: mocks.getSkills
 }))
 
 vi.mock("@/features/world/skill/application/use-cases/createSkill", () => ({
-  createSkill: mocks.createSkill,
+  createSkill: mocks.createSkill
 }))
 
 vi.mock("@/features/world/skill/application/use-cases/getSkillById", () => ({
-  getSkillById: mocks.getSkillById,
+  getSkillById: mocks.getSkillById
 }))
 
 vi.mock("@/features/world/skill/application/use-cases/updateSkill", () => ({
-  updateSkill: mocks.updateSkill,
+  updateSkill: mocks.updateSkill
 }))
 
 vi.mock("@/features/world/skill/application/use-cases/deleteSkill", () => ({
-  deleteSkill: mocks.deleteSkill,
+  deleteSkill: mocks.deleteSkill
 }))
 
-vi.mock("@/features/world/skill/application/use-cases/createSkillLevel", () => ({
-  createSkillLevel: mocks.createSkillLevel,
-}))
+vi.mock(
+  "@/features/world/skill/application/use-cases/createSkillLevel",
+  () => ({
+    createSkillLevel: mocks.createSkillLevel
+  })
+)
 
-vi.mock("@/features/world/skill/application/use-cases/updateSkillLevel", () => ({
-  updateSkillLevel: mocks.updateSkillLevel,
-}))
+vi.mock(
+  "@/features/world/skill/application/use-cases/updateSkillLevel",
+  () => ({
+    updateSkillLevel: mocks.updateSkillLevel
+  })
+)
 
-vi.mock("@/features/world/skill/application/use-cases/deleteSkillLevel", () => ({
-  deleteSkillLevel: mocks.deleteSkillLevel,
-}))
+vi.mock(
+  "@/features/world/skill/application/use-cases/deleteSkillLevel",
+  () => ({
+    deleteSkillLevel: mocks.deleteSkillLevel
+  })
+)
 
 vi.mock(
   "@/features/world/skill/application/searchIndex/use-cases/skillsSearchIndex",
   () => ({
     normalizeSkillSearchIndexParams: mocks.normalizeSkillSearchIndexParams,
-    loadSkillsSearchIndexUseCase: mocks.loadSkillsSearchIndexUseCase,
-  }),
+    loadSkillsSearchIndexUseCase: mocks.loadSkillsSearchIndexUseCase
+  })
 )
 
 import { buildApiServer } from "@api/app"
@@ -70,8 +79,8 @@ describe("skills routes", () => {
     mocks.normalizeSkillSearchIndexParams.mockImplementation(
       (body: { skillIds?: string[]; rpgId?: string }) => ({
         skillIds: Array.isArray(body.skillIds) ? body.skillIds : [],
-        rpgId: body.rpgId ?? null,
-      }),
+        rpgId: body.rpgId ?? null
+      })
     )
   })
 
@@ -90,7 +99,7 @@ describe("skills routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/skills",
+      url: "/api/skills"
     })
 
     expect(response.statusCode).toBe(401)
@@ -100,100 +109,100 @@ describe("skills routes", () => {
   it("retorna 200 com lista de skills", async () => {
     server = buildApiServer()
     mocks.getSkills.mockResolvedValue({
-      skills: [{ id: "skill-1", name: "Golpe" }],
+      skills: [{ id: "skill-1", name: "Golpe" }]
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/skills?rpgId=rpg-1",
+      url: "/api/skills?rpgId=rpg-1"
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.getSkills).toHaveBeenCalledWith(expect.anything(), {
       userId: "user-1",
-      rpgId: "rpg-1",
+      rpgId: "rpg-1"
     })
     expect(response.json()).toEqual({
-      skills: [{ id: "skill-1", name: "Golpe" }],
+      skills: [{ id: "skill-1", name: "Golpe" }]
     })
   })
 
   it("retorna 201 ao criar skill", async () => {
     server = buildApiServer()
     mocks.createSkill.mockResolvedValue({
-      skill: { id: "skill-1", name: "Golpe" },
+      skill: { id: "skill-1", name: "Golpe" }
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/skills",
-      payload: { name: "Golpe", rpgId: "rpg-1" },
+      payload: { name: "Golpe", rpgId: "rpg-1" }
     })
 
     expect(response.statusCode).toBe(201)
     expect(mocks.createSkill).toHaveBeenCalledWith(expect.anything(), {
       userId: "user-1",
-      body: { name: "Golpe", rpgId: "rpg-1" },
+      body: { name: "Golpe", rpgId: "rpg-1" }
     })
     expect(response.json()).toEqual({
-      skill: { id: "skill-1", name: "Golpe" },
+      skill: { id: "skill-1", name: "Golpe" }
     })
   })
 
   it("retorna erro de dominio ao criar skill", async () => {
     server = buildApiServer()
     mocks.createSkill.mockRejectedValue(
-      new AppError("Slug ja utilizado neste escopo (owner + rpg).", 409),
+      new AppError("Slug ja utilizado neste escopo (owner + rpg).", 409)
     )
 
     const response = await server.inject({
       method: "POST",
       url: "/api/skills",
-      payload: { name: "Golpe" },
+      payload: { name: "Golpe" }
     })
 
     expect(response.statusCode).toBe(409)
     expect(response.json()).toEqual({
-      message: "Slug ja utilizado neste escopo (owner + rpg).",
+      message: "Slug ja utilizado neste escopo (owner + rpg)."
     })
   })
 
   it("retorna 200 com skill por id", async () => {
     server = buildApiServer()
     mocks.getSkillById.mockResolvedValue({
-      skill: { id: "skill-1", name: "Golpe" },
+      skill: { id: "skill-1", name: "Golpe" }
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/skills/skill-1",
+      url: "/api/skills/skill-1"
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.getSkillById).toHaveBeenCalledWith(expect.anything(), {
       skillId: "skill-1",
-      userId: "user-1",
+      userId: "user-1"
     })
     expect(response.json()).toEqual({
-      skill: { id: "skill-1", name: "Golpe" },
+      skill: { id: "skill-1", name: "Golpe" }
     })
   })
 
   it("retorna 200 ao atualizar skill", async () => {
     server = buildApiServer()
     mocks.updateSkill.mockResolvedValue({
-      skill: { id: "skill-1", slug: "novo-nome" },
+      skill: { id: "skill-1", slug: "novo-nome" }
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/skills/skill-1",
-      payload: { slug: "novo-nome" },
+      payload: { slug: "novo-nome" }
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      skill: { id: "skill-1", slug: "novo-nome" },
+      skill: { id: "skill-1", slug: "novo-nome" }
     })
   })
 
@@ -203,7 +212,7 @@ describe("skills routes", () => {
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/skills/skill-1",
+      url: "/api/skills/skill-1"
     })
 
     expect(response.statusCode).toBe(200)
@@ -213,33 +222,33 @@ describe("skills routes", () => {
   it("retorna 201 ao criar level de skill", async () => {
     server = buildApiServer()
     mocks.createSkillLevel.mockResolvedValue({
-      skill: { id: "skill-1", currentLevel: 2 },
+      skill: { id: "skill-1", currentLevel: 2 }
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/skills/skill-1/levels",
-      payload: {},
+      payload: {}
     })
 
     expect(response.statusCode).toBe(201)
     expect(mocks.createSkillLevel).toHaveBeenCalledWith(expect.anything(), {
       skillId: "skill-1",
       userId: "user-1",
-      body: {},
+      body: {}
     })
   })
 
   it("retorna 200 ao atualizar level", async () => {
     server = buildApiServer()
     mocks.updateSkillLevel.mockResolvedValue({
-      skill: { id: "skill-1" },
+      skill: { id: "skill-1" }
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/skills/skill-1/levels/level-1",
-      payload: { summary: "Novo resumo" },
+      payload: { summary: "Novo resumo" }
     })
 
     expect(response.statusCode).toBe(200)
@@ -247,24 +256,24 @@ describe("skills routes", () => {
       skillId: "skill-1",
       levelId: "level-1",
       userId: "user-1",
-      body: { summary: "Novo resumo" },
+      body: { summary: "Novo resumo" }
     })
   })
 
   it("retorna 200 ao remover level", async () => {
     server = buildApiServer()
     mocks.deleteSkillLevel.mockResolvedValue({
-      skill: { id: "skill-1", currentLevel: 1 },
+      skill: { id: "skill-1", currentLevel: 1 }
     })
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/skills/skill-1/levels/level-2",
+      url: "/api/skills/skill-1/levels/level-2"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      skill: { id: "skill-1", currentLevel: 1 },
+      skill: { id: "skill-1", currentLevel: 1 }
     })
   })
 
@@ -274,7 +283,7 @@ describe("skills routes", () => {
     const response = await server.inject({
       method: "POST",
       url: "/api/skills/search-index",
-      payload: { skillIds: [] },
+      payload: { skillIds: [] }
     })
 
     expect(response.statusCode).toBe(200)
@@ -292,15 +301,15 @@ describe("skills routes", () => {
           categories: ["arcana"],
           types: ["attack"],
           actionTypes: ["action"],
-          tags: ["arcane"],
-        },
-      },
+          tags: ["arcane"]
+        }
+      }
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/skills/search-index",
-      payload: { skillIds: ["s1"], rpgId: "rpg-1" },
+      payload: { skillIds: ["s1"], rpgId: "rpg-1" }
     })
 
     expect(response.statusCode).toBe(200)
@@ -309,8 +318,8 @@ describe("skills routes", () => {
       {
         userId: "user-1",
         skillIds: ["s1"],
-        rpgId: "rpg-1",
-      },
+        rpgId: "rpg-1"
+      }
     )
     expect(response.json()).toEqual({
       index: {
@@ -321,10 +330,10 @@ describe("skills routes", () => {
             categories: ["arcana"],
             types: ["attack"],
             actionTypes: ["action"],
-            tags: ["arcane"],
-          },
-        },
-      },
+            tags: ["arcane"]
+          }
+        }
+      }
     })
   })
 })

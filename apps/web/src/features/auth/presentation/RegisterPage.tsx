@@ -16,7 +16,7 @@ function RegisterContent() {
   const { error, loading, nextPath, reportError, submit } = useAuthSubmission({
     loadingMessage: "Criando conta...",
     successMessage: "Conta criada com sucesso.",
-    fallbackError: "Nao foi possivel cadastrar.",
+    fallbackError: "Nao foi possivel cadastrar."
   })
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -32,8 +32,8 @@ function RegisterContent() {
         name,
         username,
         email,
-        password,
-      }),
+        password
+      })
     )
   }
 

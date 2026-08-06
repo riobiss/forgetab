@@ -21,7 +21,7 @@ export function OverlappingMarkersModal({
   modalRef,
   markers,
   onSelect,
-  onClose,
+  onClose
 }: Props) {
   return (
     <div

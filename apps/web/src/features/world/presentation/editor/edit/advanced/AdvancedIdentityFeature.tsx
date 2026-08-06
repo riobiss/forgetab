@@ -14,7 +14,7 @@ type Props = {
 export default function AdvancedIdentityFeature({
   rpgId,
   identityType,
-  templateKey,
+  templateKey
 }: Props) {
   const type: AdvancedIdentityType | null =
     identityType === "race" || identityType === "class" ? identityType : null
@@ -30,11 +30,11 @@ export default function AdvancedIdentityFeature({
     attributeTemplates,
     skillTemplates,
     handleSave,
-    handleCancel,
+    handleCancel
   } = useAdvancedIdentityEditor({
     rpgId,
     type,
-    templateKey,
+    templateKey
   })
 
   if (loading) {

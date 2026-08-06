@@ -8,7 +8,12 @@ import type { ReactSelectOption } from "@/components/select/ReactSelectField"
 import type { CharacterEditorBootstrapDto } from "@forgetab/world-contracts/character-editor"
 import styles from "../../CharactersDashboardPage.module.css"
 import { narrativeStatusOptions, visibilityOptions } from "./constants"
-import type { ExtraField, NarrativeStatus, NumericInputValue, SecretFieldKey } from "./types"
+import type {
+  ExtraField,
+  NarrativeStatus,
+  NumericInputValue,
+  SecretFieldKey
+} from "./types"
 
 type Props = {
   bootstrap: CharacterEditorBootstrapDto | null
@@ -71,7 +76,7 @@ export default function NpcMonsterBasicStep({
   onStatusChange,
   onExtraFieldValueChange,
   onRemoveExtraField,
-  onResetError,
+  onResetError
 }: Props) {
   return (
     <div className={styles.modalBody}>
@@ -79,7 +84,10 @@ export default function NpcMonsterBasicStep({
         <label className={styles.modalField}>
           <span>Image</span>
           <div className={styles.modalUploadRow}>
-            <label htmlFor="npc-monster-image" className={styles.modalUploadButton}>
+            <label
+              htmlFor="npc-monster-image"
+              className={styles.modalUploadButton}
+            >
               <ImagePlus size={16} />
               <span>Selecionar imagem</span>
             </label>
@@ -109,30 +117,50 @@ export default function NpcMonsterBasicStep({
               onResetError()
             }}
           />
-          {imageStatusText ? <p className={styles.modalHint}>{imageStatusText}</p> : null}
+          {imageStatusText ? (
+            <p className={styles.modalHint}>{imageStatusText}</p>
+          ) : null}
         </label>
 
         <label className={styles.modalField}>
           <span>Nome</span>
-          <input value={name} onChange={(event) => onNameChange(event.target.value)} required />
+          <input
+            value={name}
+            onChange={(event) => onNameChange(event.target.value)}
+            required
+          />
         </label>
 
         <label className={styles.modalField}>
           <span>Titulo / Apelido</span>
-          <input value={titleNickname} onChange={(event) => onTitleChange(event.target.value)} />
+          <input
+            value={titleNickname}
+            onChange={(event) => onTitleChange(event.target.value)}
+          />
         </label>
 
         <label className={`${styles.modalField} ${styles.modalFieldWide}`}>
           <span>Description</span>
-          <textarea value={description} onChange={(event) => onDescriptionChange(event.target.value)} rows={4} />
+          <textarea
+            value={description}
+            onChange={(event) => onDescriptionChange(event.target.value)}
+            rows={4}
+          />
         </label>
 
         <div className={styles.modalField}>
           <ReactSelectField
             label="Visibilidade para os membros"
             options={visibilityOptions}
-            value={visibilityOptions.find((option) => option.value === visibility) ?? null}
-            onChange={(option) => onVisibilityChange((option?.value as "public" | "private") ?? "public")}
+            value={
+              visibilityOptions.find((option) => option.value === visibility) ??
+              null
+            }
+            onChange={(option) =>
+              onVisibilityChange(
+                (option?.value as "public" | "private") ?? "public"
+              )
+            }
           />
         </div>
 
@@ -140,9 +168,15 @@ export default function NpcMonsterBasicStep({
           <ReactSelectField
             label="Status"
             options={narrativeStatusOptions}
-            value={narrativeStatusOptions.find((option) => option.value === narrativeStatus) ?? null}
+            value={
+              narrativeStatusOptions.find(
+                (option) => option.value === narrativeStatus
+              ) ?? null
+            }
             onChange={(option) =>
-              onNarrativeStatusChange((option?.value as NarrativeStatus | undefined) ?? "vivo")
+              onNarrativeStatusChange(
+                (option?.value as NarrativeStatus | undefined) ?? "vivo"
+              )
             }
           />
         </div>
@@ -152,9 +186,13 @@ export default function NpcMonsterBasicStep({
             <span>Campos secretos para outros membros</span>
             <ReactMultiSelectField
               options={secretFieldOptions}
-              value={secretFieldOptions.filter((option) => secretFieldKeys.includes(option.value as SecretFieldKey))}
+              value={secretFieldOptions.filter((option) =>
+                secretFieldKeys.includes(option.value as SecretFieldKey)
+              )}
               onChange={(options) =>
-                onSecretFieldKeysChange(options.map((option) => option.value as SecretFieldKey))
+                onSecretFieldKeysChange(
+                  options.map((option) => option.value as SecretFieldKey)
+                )
               }
               placeholder="Selecione os campos que serao mascarados"
             />
@@ -187,7 +225,7 @@ export default function NpcMonsterBasicStep({
             <NumericTemplateGrid
               items={(bootstrap?.statuses ?? []).map((status) => ({
                 key: status.key,
-                label: status.label,
+                label: status.label
               }))}
               values={statusValues}
               onChange={onStatusChange}
@@ -207,7 +245,9 @@ export default function NpcMonsterBasicStep({
               <div className={styles.modalUploadRow}>
                 <input
                   value={field.value}
-                  onChange={(event) => onExtraFieldValueChange(field.id, event.target.value)}
+                  onChange={(event) =>
+                    onExtraFieldValueChange(field.id, event.target.value)
+                  }
                 />
                 <button
                   type="button"

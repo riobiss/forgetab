@@ -7,19 +7,19 @@ import {
   useRef,
   useState,
   type Dispatch,
-  type SetStateAction,
+  type SetStateAction
 } from "react"
 import { toast } from "react-hot-toast"
 import type {
   RpgMapDetailViewDto,
-  RpgMapDto,
+  RpgMapDto
 } from "@forgetab/world-contracts/location"
 import {
   createRpgMapUseCase,
   deleteRpgMapUseCase,
   loadRpgMapDetailUseCase,
   loadRpgMapsUseCase,
-  updateRpgMapUseCase,
+  updateRpgMapUseCase
 } from "@/features/world/location/application/use-cases/rpgMaps.client"
 import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import { useRpgMapFormModalState } from "./useRpgMapFormModalState"
@@ -35,12 +35,12 @@ export function useRpgMapsCatalog({
   rpgId,
   view,
   initialMapId,
-  setSelectedSectionId,
+  setSelectedSectionId
 }: UseRpgMapsCatalogParams) {
   const mapModalRef = useRef<HTMLElement | null>(null)
   const [maps, setMaps] = useState<RpgMapDto[]>([])
   const [selectedMapId, setSelectedMapId] = useState<string | null>(
-    initialMapId,
+    initialMapId
   )
   const [detail, setDetail] = useState<RpgMapDetailViewDto | null>(null)
   const [loadingMaps, setLoadingMaps] = useState(true)
@@ -56,8 +56,8 @@ export function useRpgMapsCatalog({
 
     return maps.filter((map) =>
       [map.title, map.description, map.type].some((value) =>
-        value?.toLowerCase().includes(normalizedSearch),
-      ),
+        value?.toLowerCase().includes(normalizedSearch)
+      )
     )
   }, [maps, search])
 
@@ -67,7 +67,7 @@ export function useRpgMapsCatalog({
       setError("")
       const payload = await loadRpgMapsUseCase(
         rpgMapPresentationDeps.rpgMapGateway,
-        { rpgId },
+        { rpgId }
       )
       setMaps(payload.maps)
       setSelectedMapId((current) => {
@@ -78,7 +78,7 @@ export function useRpgMapsCatalog({
       })
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : "Erro ao carregar mapas.",
+        cause instanceof Error ? cause.message : "Erro ao carregar mapas."
       )
     } finally {
       setLoadingMaps(false)
@@ -92,7 +92,7 @@ export function useRpgMapsCatalog({
         setError("")
         const payload = await loadRpgMapDetailUseCase(
           rpgMapPresentationDeps.rpgMapGateway,
-          { rpgId, mapId },
+          { rpgId, mapId }
         )
         setDetail(payload)
         setSelectedSectionId((current) => {
@@ -105,14 +105,14 @@ export function useRpgMapsCatalog({
         setError(
           cause instanceof Error
             ? cause.message
-            : "Erro ao carregar estrutura do mapa.",
+            : "Erro ao carregar estrutura do mapa."
         )
         setDetail(null)
       } finally {
         setLoadingDetail(false)
       }
     },
-    [rpgId, setSelectedSectionId],
+    [rpgId, setSelectedSectionId]
   )
 
   useEffect(() => {
@@ -143,17 +143,17 @@ export function useRpgMapsCatalog({
         title: modalState.mapForm.title.trim(),
         description: modalState.mapForm.description.trim() || null,
         type: modalState.mapForm.type.trim() || null,
-        image: modalState.editingMap?.image ?? null,
+        image: modalState.editingMap?.image ?? null
       }
       const map = modalState.editingMap
         ? await updateRpgMapUseCase(rpgMapPresentationDeps.rpgMapGateway, {
             rpgId,
             mapId: modalState.editingMap.id,
-            payload,
+            payload
           })
         : await createRpgMapUseCase(rpgMapPresentationDeps.rpgMapGateway, {
             rpgId,
-            payload,
+            payload
           })
 
       await loadMaps()
@@ -162,7 +162,7 @@ export function useRpgMapsCatalog({
       toast.success(
         modalState.editingMap
           ? "Mapa atualizado com sucesso."
-          : "Mapa criado com sucesso.",
+          : "Mapa criado com sucesso."
       )
       return true
     } catch (cause) {
@@ -186,18 +186,18 @@ export function useRpgMapsCatalog({
     try {
       await deleteRpgMapUseCase(rpgMapPresentationDeps.rpgMapGateway, {
         rpgId,
-        mapId: map.id,
+        mapId: map.id
       })
       const nextMaps = maps.filter((item) => item.id !== map.id)
       setMaps(nextMaps)
       setSelectedMapId((current) =>
-        current === map.id ? (nextMaps[0]?.id ?? null) : current,
+        current === map.id ? (nextMaps[0]?.id ?? null) : current
       )
       toast.success("Mapa removido com sucesso.")
       return true
     } catch (cause) {
       toast.error(
-        cause instanceof Error ? cause.message : "Erro ao remover mapa.",
+        cause instanceof Error ? cause.message : "Erro ao remover mapa."
       )
       return false
     }
@@ -220,6 +220,6 @@ export function useRpgMapsCatalog({
     search,
     selectedMapId,
     setSearch,
-    setSelectedMapId,
+    setSelectedMapId
   }
 }

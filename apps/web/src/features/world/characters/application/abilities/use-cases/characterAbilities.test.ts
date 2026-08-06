@@ -4,7 +4,7 @@ import { removeCharacterAbilityUseCase } from "@/features/world/characters/appli
 describe("character ability client use cases", () => {
   it("delegates ability removal to the configured gateway", async () => {
     const gateway = {
-      removeAbility: vi.fn().mockResolvedValue({ success: true }),
+      removeAbility: vi.fn().mockResolvedValue({ success: true })
     }
 
     const result = await removeCharacterAbilityUseCase(
@@ -12,13 +12,13 @@ describe("character ability client use cases", () => {
       {
         characterId: "char-1",
         skillId: "skill-1",
-        level: 2,
-      },
+        level: 2
+      }
     )
 
     expect(gateway.removeAbility).toHaveBeenCalledWith("char-1", {
       skillId: "skill-1",
-      level: 2,
+      level: 2
     })
     expect(result).toEqual({ success: true })
   })

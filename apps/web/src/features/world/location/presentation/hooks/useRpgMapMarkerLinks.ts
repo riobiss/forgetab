@@ -5,12 +5,12 @@ import type { RpgMapDetailViewDto } from "@forgetab/world-contracts/location"
 import {
   buildLinkedSectionSnapshots,
   buildMarkerOptions,
-  type MarkerLinkOption,
+  type MarkerLinkOption
 } from "@/features/world/location/presentation/utils/sectionMarkerLinking"
 
 export function useRpgMapMarkerLinks(
   detail: RpgMapDetailViewDto | null,
-  privateMarkerOptions: MarkerLinkOption[],
+  privateMarkerOptions: MarkerLinkOption[]
 ) {
   const mapFeatureRef = useRef<HTMLDivElement | null>(null)
   const [focusMarkerRequest, setFocusMarkerRequest] = useState<{
@@ -32,34 +32,34 @@ export function useRpgMapMarkerLinks(
 
   const linkedSectionSnapshots = useMemo(
     () => buildLinkedSectionSnapshots(detail?.sections ?? []),
-    [detail?.sections],
+    [detail?.sections]
   )
   const markerSectionOptions = useMemo(
     () =>
       (detail?.sections ?? []).map((section) => ({
         id: section.id,
-        name: section.name,
+        name: section.name
       })),
-    [detail?.sections],
+    [detail?.sections]
   )
   const markerLinkSelectOptions = useMemo(
     () =>
       markerOptions.map((marker) => ({
         id: marker.id,
-        name: marker.name,
+        name: marker.name
       })),
-    [markerOptions],
+    [markerOptions]
   )
 
   function focusMarker(markerId: string, beforeFocus?: () => void) {
     beforeFocus?.()
     mapFeatureRef.current?.scrollIntoView({
       behavior: "smooth",
-      block: "start",
+      block: "start"
     })
     setFocusMarkerRequest((current) => ({
       markerId,
-      token: (current?.token ?? 0) + 1,
+      token: (current?.token ?? 0) + 1
     }))
   }
 
@@ -73,6 +73,6 @@ export function useRpgMapMarkerLinks(
     mapFeatureRef,
     markerLinkSelectOptions,
     markerOptions,
-    markerSectionOptions,
+    markerSectionOptions
   }
 }

@@ -8,12 +8,12 @@ type DeleteSkillDeps = {
 
 export async function deleteSkill(
   deps: DeleteSkillDeps,
-  params: { skillId: string; userId: string },
+  params: { skillId: string; userId: string }
 ) {
   try {
     const existing = await deps.repository.findById(
       params.skillId,
-      params.userId,
+      params.userId
     )
     if (!existing) {
       throw new AppError("Skill nao encontrada.", 404)

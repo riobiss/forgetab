@@ -1,7 +1,7 @@
 import type {
   ScopedImageDeleteInput,
   ScopedImageService,
-  ScopedImageUploadInput,
+  ScopedImageUploadInput
 } from "@/features/media/application/ports/ScopedImageService"
 import { AppError } from "@/features/shared/application/errors/AppError"
 
@@ -16,13 +16,13 @@ function getImageKitConfig(): { privateKey: string; urlEndpoint: string } {
   if (missing.length > 0) {
     throw new AppError(
       `ImageKit nao configurado no servidor. Variaveis ausentes: ${missing.join(", ")}.`,
-      500,
+      500
     )
   }
 
   return {
     privateKey: privateKey as string,
-    urlEndpoint: urlEndpoint as string,
+    urlEndpoint: urlEndpoint as string
   }
 }
 
@@ -60,7 +60,7 @@ async function deleteImageKitFileByUrl(
   privateKey: string,
   urlEndpoint: string,
   rawUrl: unknown,
-  allowedFolderPath: string,
+  allowedFolderPath: string
 ) {
   if (typeof rawUrl !== "string") return
 
@@ -92,9 +92,9 @@ async function deleteImageKitFileByUrl(
     {
       method: "GET",
       headers: {
-        Authorization: `Basic ${auth}`,
-      },
-    },
+        Authorization: `Basic ${auth}`
+      }
+    }
   )
 
   if (!listResponse.ok) {
@@ -115,7 +115,7 @@ async function deleteImageKitFileByUrl(
       normalizedPath &&
       itemPath &&
       itemPath === normalizedPath &&
-      itemPath.startsWith(allowedPrefix),
+      itemPath.startsWith(allowedPrefix)
     )
   })
 
@@ -126,9 +126,9 @@ async function deleteImageKitFileByUrl(
     {
       method: "DELETE",
       headers: {
-        Authorization: `Basic ${auth}`,
-      },
-    },
+        Authorization: `Basic ${auth}`
+      }
+    }
   )
 
   if (!deleteResponse.ok && deleteResponse.status !== 404) {
@@ -142,7 +142,7 @@ async function deleteByScopedUrl(params: ScopedImageDeleteInput) {
     privateKey,
     urlEndpoint,
     params.url,
-    buildUserFolder(params.userId, params.folder),
+    buildUserFolder(params.userId, params.folder)
   )
 }
 
@@ -164,7 +164,7 @@ async function uploadScopedImageInternal(params: ScopedImageUploadInput) {
     privateKey,
     urlEndpoint,
     params.oldUrl,
-    userFolder,
+    userFolder
   )
 
   const response = await fetch(
@@ -172,10 +172,10 @@ async function uploadScopedImageInternal(params: ScopedImageUploadInput) {
     {
       method: "POST",
       headers: {
-        Authorization: `Basic ${auth}`,
+        Authorization: `Basic ${auth}`
       },
-      body: uploadPayload,
-    },
+      body: uploadPayload
+    }
   )
 
   const payload = (await response.json()) as {
@@ -188,18 +188,18 @@ async function uploadScopedImageInternal(params: ScopedImageUploadInput) {
   if (!response.ok || !payload.url) {
     throw new AppError(
       payload.message ?? "Falha ao enviar imagem para o ImageKit.",
-      502,
+      502
     )
   }
 
   return {
     url: payload.url,
     fileId: payload.fileId ?? null,
-    thumbnailUrl: payload.thumbnailUrl ?? null,
+    thumbnailUrl: payload.thumbnailUrl ?? null
   }
 }
 
 export const imageKitScopedImageService: ScopedImageService = {
   upload: uploadScopedImageInternal,
-  deleteByUrl: deleteByScopedUrl,
+  deleteByUrl: deleteByScopedUrl
 }

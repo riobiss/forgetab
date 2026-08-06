@@ -20,7 +20,7 @@ export default function PlayerCharacterModal({
   characterId,
   initialBootstrap = null,
   isOpen,
-  onClose,
+  onClose
 }: Props) {
   const router = useRouter()
   const deps = useMemo(() => createCharactersEditorDependencies("http"), [])

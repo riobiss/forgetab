@@ -8,7 +8,7 @@ import {
   LoaderCircle,
   Save,
   Trash2,
-  X,
+  X
 } from "lucide-react"
 import styles from "../../page.module.css"
 import RadixSwitchField from "../shared/RadixSwitchField"
@@ -53,7 +53,7 @@ export default function EditRpgForm({
   deleting,
   canDelete,
   onSaveAll,
-  onDeleteRpg,
+  onDeleteRpg
 }: Props) {
   const [selectedImageName, setSelectedImageName] = useState("")
 
@@ -78,14 +78,21 @@ export default function EditRpgForm({
 
   return (
     <>
-      <form id="edit-rpg-form" className={styles.form} onSubmit={(event) => void handleSubmit(event)}>
+      <form
+        id="edit-rpg-form"
+        className={styles.form}
+        onSubmit={(event) => void handleSubmit(event)}
+      >
         <div className={styles.field}>
           <span>
             <Paperclip size={14} />
             Imagem do RPG
           </span>
           <div className={styles.fileUploadActions}>
-            <label htmlFor="rpg-image-file" className={styles.fileUploadTrigger}>
+            <label
+              htmlFor="rpg-image-file"
+              className={styles.fileUploadTrigger}
+            >
               <ImagePlus size={16} />
               <span>Selecionar imagem</span>
             </label>
@@ -118,7 +125,9 @@ export default function EditRpgForm({
               }
             }}
           />
-          {imageStatusText ? <p className={styles.fileUploadStatus}>{imageStatusText}</p> : null}
+          {imageStatusText ? (
+            <p className={styles.fileUploadStatus}>{imageStatusText}</p>
+          ) : null}
         </div>
 
         <label className={styles.field}>
@@ -156,7 +165,9 @@ export default function EditRpgForm({
               : "Privado: apenas membros podem visualizar"
           }
           checked={visibility === "public"}
-          onCheckedChange={(checked) => onVisibilityChange(checked ? "public" : "private")}
+          onCheckedChange={(checked) =>
+            onVisibilityChange(checked ? "public" : "private")
+          }
         />
 
         {error ? <p className={styles.error}>{error}</p> : null}
@@ -178,7 +189,11 @@ export default function EditRpgForm({
           )}
         </button>
         {canDelete ? (
-          <button type="button" onClick={() => void onDeleteRpg()} disabled={deleting || saving}>
+          <button
+            type="button"
+            onClick={() => void onDeleteRpg()}
+            disabled={deleting || saving}
+          >
             {deleting ? (
               <>
                 <LoaderCircle size={16} className={styles.spin} />
@@ -200,4 +215,3 @@ export default function EditRpgForm({
     </>
   )
 }
-

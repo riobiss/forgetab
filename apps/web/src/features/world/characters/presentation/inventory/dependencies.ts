@@ -4,7 +4,7 @@ import { httpCharacterInventoryGateway } from "@/features/world/characters/infra
 export type CharacterInventoryGatewayFactory = "http"
 
 export function createCharacterInventoryDependencies(
-  factory: CharacterInventoryGatewayFactory = "http",
+  factory: CharacterInventoryGatewayFactory = "http"
 ): CharacterInventoryDependencies {
   switch (factory) {
     case "http":

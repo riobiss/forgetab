@@ -8,74 +8,74 @@ import { jwtAuthTokenService } from "@/features/auth/infrastructure/services/jwt
 import { rateLimitAuthService } from "@/features/auth/infrastructure/services/rateLimitAuthService"
 import {
   writeAuthErrorResponse,
-  writeAuthSuccessResponse,
+  writeAuthSuccessResponse
 } from "@/features/http/presentation/auth/responses"
 import {
   parseJsonBody,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 
 export async function loginHandler(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const result = await loginUseCase(
       {
         body: parseJsonBody(request.body),
-        clientIp: rateLimitAuthService.getClientIp(request.headers),
+        clientIp: rateLimitAuthService.getClientIp(request.headers)
       },
       {
         authRepository: prismaAuthRepository,
         authPasswordService: bcryptAuthPasswordService,
         authTokenService: jwtAuthTokenService,
-        authRateLimitService: rateLimitAuthService,
-      },
+        authRateLimitService: rateLimitAuthService
+      }
     )
 
     return writeAuthSuccessResponse(
       reply,
       { user: result.user, token: result.token, maxAge: result.cookie.maxAge },
-      { ...result.cookie, value: result.token },
+      { ...result.cookie, value: result.token }
     )
   } catch (error) {
     return writeAuthErrorResponse(
       reply,
       error,
-      "Erro interno ao autenticar usuario.",
+      "Erro interno ao autenticar usuario."
     )
   }
 }
 
 export async function registerHandler(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const result = await registerUseCase(
       {
         body: parseJsonBody(request.body),
-        clientIp: rateLimitAuthService.getClientIp(request.headers),
+        clientIp: rateLimitAuthService.getClientIp(request.headers)
       },
       {
         authRepository: prismaAuthRepository,
         authPasswordService: bcryptAuthPasswordService,
         authTokenService: jwtAuthTokenService,
-        authRateLimitService: rateLimitAuthService,
-      },
+        authRateLimitService: rateLimitAuthService
+      }
     )
 
     return writeAuthSuccessResponse(
       reply,
       { user: result.user, token: result.token, maxAge: result.cookie.maxAge },
       { ...result.cookie, value: result.token },
-      { status: 201 },
+      { status: 201 }
     )
   } catch (error) {
     return writeAuthErrorResponse(
       reply,
       error,
-      "Erro interno ao cadastrar usuario.",
+      "Erro interno ao cadastrar usuario."
     )
   }
 }
@@ -89,8 +89,8 @@ export async function logoutHandler(reply: FastifyReply) {
     {
       name: result.cookie.name,
       value: result.cookie.value,
-      maxAge: result.cookie.maxAge,
-    },
+      maxAge: result.cookie.maxAge
+    }
   )
 }
 

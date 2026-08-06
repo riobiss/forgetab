@@ -1,12 +1,12 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import {
   loadSkillsSearchIndexUseCase,
-  normalizeSkillSearchIndexParams,
+  normalizeSkillSearchIndexParams
 } from "@/features/world/skill/application/searchIndex/use-cases/skillsSearchIndex"
 import {
   parseJsonBody,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { skillRouteDeps } from "./dependencies"
 import { requireUserId } from "./shared"
@@ -14,17 +14,17 @@ import { requireUserId } from "./shared"
 export function getSkillsSearchIndexPayload(
   userId: string,
   skillIds: string[],
-  rpgId?: string | null,
+  rpgId?: string | null
 ) {
   return loadSkillsSearchIndexUseCase(
     { repository: skillRouteDeps.searchIndexRepository },
-    { userId, skillIds, rpgId },
+    { userId, skillIds, rpgId }
   )
 }
 
 export async function getSkillsSearchIndexHandler(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -43,7 +43,7 @@ export async function getSkillsSearchIndexHandler(
     const index = await getSkillsSearchIndexPayload(
       auth.userId,
       skillIds,
-      rpgId,
+      rpgId
     )
     return writeJson(reply, 200, { index })
   } catch (error) {

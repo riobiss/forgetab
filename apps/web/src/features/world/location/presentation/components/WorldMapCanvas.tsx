@@ -2,22 +2,17 @@
 
 /* eslint-disable react-hooks/exhaustive-deps -- Konva stage callbacks read mutable refs to avoid re-registering canvas listeners on each render. */
 
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-} from "react"
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react"
 import Konva from "konva"
 import type {
   MapMarkerItem,
   MarkerGroup,
-  PendingMarker,
+  PendingMarker
 } from "@/features/world/location/presentation/types/mapMarkers"
 import type { WorldMapCanvasHandle } from "@/features/world/location/presentation/types/worldMapCanvas"
 import {
   drawMarkerPin,
-  getMarkerDisplayLabel,
+  getMarkerDisplayLabel
 } from "@/features/world/location/presentation/utils/markerPins"
 import {
   applyStagePinchZoom,
@@ -30,7 +25,7 @@ import {
   isMarkerVisibleInViewport,
   preserveStageViewOnResize,
   syncMapInteraction,
-  type MapCanvasPoint,
+  type MapCanvasPoint
 } from "@/features/world/location/presentation/utils/mapCanvasStage"
 import styles from "../WorldMap.module.css"
 
@@ -81,9 +76,9 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
       onRepositionMarker,
       onMarkerPinSelect,
       onEnableInteraction,
-      onMapSrcError,
+      onMapSrcError
     },
-    ref,
+    ref
   ) {
     const stageContainerRef = useRef<HTMLDivElement | null>(null)
     const stageRef = useRef<Konva.Stage | null>(null)
@@ -134,11 +129,11 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
       const bounds = container.getBoundingClientRect()
       const width = Math.max(
         1,
-        Math.round(bounds.width || container.clientWidth),
+        Math.round(bounds.width || container.clientWidth)
       )
       const height = Math.max(
         1,
-        Math.round(bounds.height || container.clientHeight),
+        Math.round(bounds.height || container.clientHeight)
       )
 
       stage.size({ width, height })
@@ -168,7 +163,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           }
 
           const drawings = drawLayerCurrent.getChildren(
-            (node) => node instanceof Konva.Line,
+            (node) => node instanceof Konva.Line
           )
           const lastDrawing = drawings[drawings.length - 1]
           if (!lastDrawing) {
@@ -189,9 +184,9 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           scheduleMarkerLayerRedraw()
           scheduleOverlayLayerRedraw()
           stage.batchDraw()
-        },
+        }
       }),
-      [],
+      []
     )
 
     useEffect(() => {
@@ -202,14 +197,14 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         isBrushMode,
         isFullscreen,
         isMarkerSelectionMode || isMarkerRepositionMode,
-        isPinchingRef.current,
+        isPinchingRef.current
       )
     }, [
       isInteractive,
       isBrushMode,
       isFullscreen,
       isMarkerRepositionMode,
-      isMarkerSelectionMode,
+      isMarkerSelectionMode
     ])
 
     useEffect(() => {
@@ -316,7 +311,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         container,
         width: container.clientWidth,
         height: container.clientHeight,
-        draggable: false,
+        draggable: false
       })
 
       const mapLayer = new Konva.Layer()
@@ -396,7 +391,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           stroke: brushColorRef.current,
           strokeWidth: brushSizeRef.current,
           lineCap: "round",
-          lineJoin: "round",
+          lineJoin: "round"
         })
 
         currentLineRef.current = newLine
@@ -438,7 +433,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
             isFullscreenRef.current,
             isMarkerSelectionModeRef.current ||
               isMarkerRepositionModeRef.current,
-            isPinchingRef.current,
+            isPinchingRef.current
           )
           isDrawingRef.current = false
           currentLineRef.current = null
@@ -480,7 +475,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
               isFullscreenRef.current,
               isMarkerSelectionModeRef.current ||
                 isMarkerRepositionModeRef.current,
-              isPinchingRef.current,
+              isPinchingRef.current
             )
             pinchLastCenterRef.current = null
             pinchLastDistanceRef.current = null
@@ -492,7 +487,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
             touches,
             pinchLastCenterRef,
             pinchLastDistanceRef,
-            mapImageRef.current,
+            mapImageRef.current
           )
           scheduleMarkerLayerRedraw()
           scheduleOverlayLayerRedraw()
@@ -510,7 +505,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
             isFullscreenRef.current,
             isMarkerSelectionModeRef.current ||
               isMarkerRepositionModeRef.current,
-            isPinchingRef.current,
+            isPinchingRef.current
           )
           return
         }
@@ -567,13 +562,9 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           isBrushModeRef.current,
           isFullscreenRef.current,
           isMarkerSelectionModeRef.current || isMarkerRepositionModeRef.current,
-          isPinchingRef.current,
+          isPinchingRef.current
         )
-        if (
-          wasPinching &&
-          remainingTouches.length === 1 &&
-          stage.draggable()
-        ) {
+        if (wasPinching && remainingTouches.length === 1 && stage.draggable()) {
           stage.startDrag(event)
         }
         handleDrawEnd()
@@ -594,11 +585,11 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         const bounds = currentContainer.getBoundingClientRect()
         const width = Math.max(
           1,
-          Math.round(bounds.width || currentContainer.clientWidth),
+          Math.round(bounds.width || currentContainer.clientWidth)
         )
         const height = Math.max(
           1,
-          Math.round(bounds.height || currentContainer.clientHeight),
+          Math.round(bounds.height || currentContainer.clientHeight)
         )
 
         currentContainer.style.width = ""
@@ -613,7 +604,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
               currentStage,
               currentImage,
               previousWidth,
-              previousHeight,
+              previousHeight
             )
           } else {
             fitImageToStage(currentStage, currentImage)
@@ -687,7 +678,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           image: imageObj,
           x: 0,
           y: 0,
-          listening: false,
+          listening: false
         })
 
         mapImageRef.current = mapImage
@@ -771,7 +762,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
                   return
                 }
                 onMarkerPinSelectRef.current(marker, color)
-              },
+              }
             })
           })
         }
@@ -803,7 +794,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           pinStyle: editingMarkerPreviewCurrent.pinStyle,
           renderMode,
           opacity: 0.95,
-          dashed: isMarkerRepositionMode,
+          dashed: isMarkerRepositionMode
         })
       }
 
@@ -823,7 +814,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           pinStyle: marker.pinStyle,
           renderMode,
           opacity: 0.82,
-          dashed: true,
+          dashed: true
         })
       })
 
@@ -858,7 +849,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         ) : null}
       </>
     )
-  },
+  }
 )
 
 function canInteractMap(isInteractive: boolean, isFullscreen: boolean) {

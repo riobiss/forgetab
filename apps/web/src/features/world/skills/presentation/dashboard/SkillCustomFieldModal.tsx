@@ -18,7 +18,7 @@ export function SkillCustomFieldModal({
   value,
   setValue,
   onAdd,
-  onClose,
+  onClose
 }: Props) {
   if (!open) return null
 
@@ -37,7 +37,10 @@ export function SkillCustomFieldModal({
         <h3>Novo campo</h3>
         <label className={styles.field}>
           <span>Nome</span>
-          <input value={name} onChange={(event) => setName(event.target.value)} />
+          <input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
         </label>
         <label className={styles.field}>
           <span>Valor</span>
@@ -47,10 +50,18 @@ export function SkillCustomFieldModal({
           />
         </label>
         <div className={styles.actions}>
-          <button type="button" className={styles.ghostButton} onClick={onClose}>
+          <button
+            type="button"
+            className={styles.ghostButton}
+            onClick={onClose}
+          >
             Cancelar
           </button>
-          <button type="button" className={styles.primaryButton} onClick={onAdd}>
+          <button
+            type="button"
+            className={styles.primaryButton}
+            onClick={onAdd}
+          >
             Criar campo
           </button>
         </div>

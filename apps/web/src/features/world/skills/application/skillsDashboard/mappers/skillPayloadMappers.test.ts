@@ -4,7 +4,7 @@ import {
   mapUpdateSkillLevelPayload,
   mapUpdateSkillMetaPayload,
   type SkillLevelInput,
-  type SkillMetaInput,
+  type SkillMetaInput
 } from "@/features/world/skills/application/skillsDashboard/mappers/skillPayloadMappers"
 
 function buildMeta(overrides: Partial<SkillMetaInput> = {}): SkillMetaInput {
@@ -17,7 +17,7 @@ function buildMeta(overrides: Partial<SkillMetaInput> = {}): SkillMetaInput {
     tags: ["arcane", "void"],
     classIds: ["mage"],
     raceIds: ["elf"],
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -35,7 +35,7 @@ function buildLevel(overrides: Partial<SkillLevelInput> = {}): SkillLevelInput {
     costCustom: "  1 componente  ",
     prerequisite: "  nível 3  ",
     customFields: [{ id: "cf-1", name: "Elemento", value: "Fogo" }],
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -44,7 +44,7 @@ describe("skillPayloadMappers", () => {
     const payload = mapCreateSkillPayload({
       rpgId: "rpg-1",
       meta: buildMeta(),
-      level: buildLevel(),
+      level: buildLevel()
     })
 
     expect(payload.rpgId).toBe("rpg-1")
@@ -58,16 +58,16 @@ describe("skillPayloadMappers", () => {
         category: "arcana",
         type: "attack",
         actionType: "action",
-        damage: "2d6",
+        damage: "2d6"
       },
       cost: {
         points: 2,
-        custom: "1 componente",
+        custom: "1 componente"
       },
       requirement: {
         levelRequired: 3,
-        notes: "nível 3",
-      },
+        notes: "nível 3"
+      }
     })
   })
 
@@ -77,7 +77,7 @@ describe("skillPayloadMappers", () => {
     expect(payload).toEqual({
       tags: ["arcane", "void"],
       classIds: ["mage"],
-      raceIds: ["elf"],
+      raceIds: ["elf"]
     })
   })
 
@@ -88,7 +88,7 @@ describe("skillPayloadMappers", () => {
         description: " ",
         category: "",
         type: "",
-        actionType: "",
+        actionType: ""
       }),
       level: buildLevel({
         levelRequired: " ",
@@ -96,9 +96,9 @@ describe("skillPayloadMappers", () => {
         damage: " ",
         costPoints: " ",
         costCustom: " ",
-        prerequisite: " ",
+        prerequisite: " "
       }),
-      fallbackLevelRequired: 7,
+      fallbackLevelRequired: 7
     })
 
     expect(payload.levelRequired).toBe(7)
@@ -109,15 +109,15 @@ describe("skillPayloadMappers", () => {
       category: null,
       type: null,
       actionType: null,
-      damage: null,
+      damage: null
     })
     expect(payload.cost).toEqual({
       points: null,
-      custom: null,
+      custom: null
     })
     expect(payload.requirement).toEqual({
       levelRequired: null,
-      notes: null,
+      notes: null
     })
   })
 })

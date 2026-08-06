@@ -15,7 +15,7 @@ export async function uploadScopedImage(
     fileName: string
     file: unknown
     oldUrl?: unknown
-  },
+  }
 ) {
   try {
     if (!(params.file instanceof File)) {
@@ -35,7 +35,7 @@ export async function uploadScopedImage(
       folder: params.folder,
       fileName: params.fileName,
       file: params.file,
-      oldUrl: params.oldUrl,
+      oldUrl: params.oldUrl
     })
   } catch (error) {
     if (error instanceof AppError) {
@@ -52,13 +52,13 @@ export async function deleteScopedImage(
     userId: string
     folder: string
     url?: unknown
-  },
+  }
 ) {
   try {
     await deps.service.deleteByUrl({
       userId: params.userId,
       folder: params.folder,
-      url: params.url,
+      url: params.url
     })
   } catch (error) {
     if (error instanceof AppError) {

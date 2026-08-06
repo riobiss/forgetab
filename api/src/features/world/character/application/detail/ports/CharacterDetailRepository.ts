@@ -3,20 +3,20 @@ import type {
   CharacterDetailLabelDto,
   CharacterDetailRowDto,
   CharacterDetailRpgDto,
-  CharacterDetailTemplateFieldDto,
+  CharacterDetailTemplateFieldDto
 } from "@/features/world/character/application/detail/types"
 
 export interface CharacterDetailRepository {
   getRpg(rpgId: string): Promise<CharacterDetailRpgDto | null>
   getCharacter(
     rpgId: string,
-    characterId: string,
+    characterId: string
   ): Promise<CharacterDetailRowDto | null>
   listSkillLabels(rpgId: string): Promise<CharacterDetailLabelDto[]>
   listStatusLabels(rpgId: string): Promise<CharacterDetailLabelDto[]>
   listIdentityFields(rpgId: string): Promise<CharacterDetailTemplateFieldDto[]>
   listCharacteristicFields(
-    rpgId: string,
+    rpgId: string
   ): Promise<CharacterDetailTemplateFieldDto[]>
   listAttributeLabels(rpgId: string): Promise<CharacterDetailLabelDto[]>
   listRaceLabels(rpgId: string): Promise<CharacterDetailLabelDto[]>

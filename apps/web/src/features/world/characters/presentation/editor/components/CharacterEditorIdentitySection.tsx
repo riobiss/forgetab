@@ -6,20 +6,20 @@ import type { SingleValue, StylesConfig } from "react-select"
 import {
   getProgressionModeLabel,
   type ProgressionMode,
-  type ProgressionTier,
+  type ProgressionTier
 } from "@/lib/rpg/progression"
 import styles from "../CharacterEditorForm.module.css"
 import EditableModalField from "./EditableModalField"
 import type {
   CharacterEditorCharacterTypeDto,
   CharacterIdentityFieldDto,
-  CharacterOptionDto,
+  CharacterOptionDto
 } from "@/features/world/characters/application/editor"
 
 const CHARACTER_TYPE_LABEL: Record<CharacterEditorCharacterTypeDto, string> = {
   player: "Player",
   npc: "NPC",
-  monster: "Criatura",
+  monster: "Criatura"
 }
 
 type Props = {
@@ -69,37 +69,41 @@ const reactSelectStyles: StylesConfig<SelectOption, false> = {
     ...base,
     minHeight: 42,
     borderRadius: 9,
-    borderColor: state.isFocused ? "var(--color-brand-primary)" : "var(--color-border-soft)",
+    borderColor: state.isFocused
+      ? "var(--color-brand-primary)"
+      : "var(--color-border-soft)",
     backgroundColor: "var(--color-bg-hover)",
     boxShadow: state.isFocused ? "var(--shadow-brand-glow)" : "none",
     ":hover": {
-      borderColor: "var(--color-brand-primary)",
-    },
+      borderColor: "var(--color-brand-primary)"
+    }
   }),
   menu: (base) => ({
     ...base,
     backgroundColor: "var(--color-bg-surface)",
     border: "1px solid var(--color-border-soft)",
-    zIndex: 50,
+    zIndex: 50
   }),
   option: (base, state) => ({
     ...base,
-    backgroundColor: state.isFocused ? "var(--color-bg-hover)" : "var(--color-bg-surface)",
+    backgroundColor: state.isFocused
+      ? "var(--color-bg-hover)"
+      : "var(--color-bg-surface)",
     color: "var(--color-text-secondary)",
-    cursor: "pointer",
+    cursor: "pointer"
   }),
   input: (base) => ({
     ...base,
-    color: "var(--color-text-secondary)",
+    color: "var(--color-text-secondary)"
   }),
   placeholder: (base) => ({
     ...base,
-    color: "var(--color-text-muted)",
+    color: "var(--color-text-muted)"
   }),
   singleValue: (base) => ({
     ...base,
-    color: "var(--color-text-secondary)",
-  }),
+    color: "var(--color-text-secondary)"
+  })
 }
 
 export default function CharacterEditorIdentitySection({
@@ -136,26 +140,29 @@ export default function CharacterEditorIdentitySection({
   onCharacterTypeChange,
   onMaxCarryWeightChange,
   onVisibilityChange,
-  onIdentityFieldChange,
+  onIdentityFieldChange
 }: Props) {
   const isEditing = Boolean(editingCharacterId)
   const raceOptions = [
     { value: "", label: "Sem raca" },
-    ...raceTemplates.map((item) => ({ value: item.key, label: item.label })),
+    ...raceTemplates.map((item) => ({ value: item.key, label: item.label }))
   ]
-  const selectedRaceOption = raceOptions.find((option) => option.value === raceKey) ?? raceOptions[0]
+  const selectedRaceOption =
+    raceOptions.find((option) => option.value === raceKey) ?? raceOptions[0]
   const classOptions = [
     { value: "", label: "Sem classe" },
-    ...classTemplates.map((item) => ({ value: item.key, label: item.label })),
+    ...classTemplates.map((item) => ({ value: item.key, label: item.label }))
   ]
-  const selectedClassOption = classOptions.find((option) => option.value === classKey) ?? classOptions[0]
+  const selectedClassOption =
+    classOptions.find((option) => option.value === classKey) ?? classOptions[0]
   const characterTypeOptions = [
     { value: "player", label: "Player" },
     { value: "npc", label: "NPC" },
-    { value: "monster", label: "Criatura" },
+    { value: "monster", label: "Criatura" }
   ]
   const selectedCharacterTypeOption =
-    characterTypeOptions.find((option) => option.value === characterType) ?? characterTypeOptions[0]
+    characterTypeOptions.find((option) => option.value === characterType) ??
+    characterTypeOptions[0]
 
   function handleRaceChange(option: SingleValue<SelectOption>) {
     onRaceChange(option?.value ?? "")
@@ -204,7 +211,10 @@ export default function CharacterEditorIdentitySection({
             Imagem do personagem
           </span>
           <div className={styles.fileUploadActions}>
-            <label htmlFor="character-image-file" className={styles.fileUploadTrigger}>
+            <label
+              htmlFor="character-image-file"
+              className={styles.fileUploadTrigger}
+            >
               <ImagePlus size={16} />
               <span>Selecionar imagem</span>
             </label>
@@ -233,7 +243,9 @@ export default function CharacterEditorIdentitySection({
               }
             }}
           />
-          {imageStatusText ? <p className={styles.fileUploadStatus}>{imageStatusText}</p> : null}
+          {imageStatusText ? (
+            <p className={styles.fileUploadStatus}>{imageStatusText}</p>
+          ) : null}
         </div>
         {uploadingImage ? <p>Enviando imagem...</p> : null}
         {uploadError ? <p className={styles.error}>{uploadError}</p> : null}
@@ -244,7 +256,10 @@ export default function CharacterEditorIdentitySection({
             {editingCharacterId && !canManageCharacters ? (
               <input
                 type="text"
-                value={raceTemplates.find((item) => item.key === raceKey)?.label ?? "Sem raca"}
+                value={
+                  raceTemplates.find((item) => item.key === raceKey)?.label ??
+                  "Sem raca"
+                }
                 readOnly
               />
             ) : (
@@ -269,7 +284,10 @@ export default function CharacterEditorIdentitySection({
             {editingCharacterId && !canManageCharacters ? (
               <input
                 type="text"
-                value={classTemplates.find((item) => item.key === classKey)?.label ?? "Sem classe"}
+                value={
+                  classTemplates.find((item) => item.key === classKey)?.label ??
+                  "Sem classe"
+                }
                 readOnly
               />
             ) : (
@@ -291,7 +309,11 @@ export default function CharacterEditorIdentitySection({
         <label className={styles.field}>
           <span>Tipo</span>
           {editingCharacterId ? (
-            <input type="text" value={CHARACTER_TYPE_LABEL[characterType]} readOnly />
+            <input
+              type="text"
+              value={CHARACTER_TYPE_LABEL[characterType]}
+              readOnly
+            />
           ) : (
             <ReactSelect<SelectOption, false>
               instanceId="character-type-select"
@@ -317,7 +339,13 @@ export default function CharacterEditorIdentitySection({
 
         <label className={styles.field}>
           <span>XP atual</span>
-          <input type="number" onWheel={(event) => event.currentTarget.blur()} min={0} value={progressionCurrent} readOnly />
+          <input
+            type="number"
+            onWheel={(event) => event.currentTarget.blur()}
+            min={0}
+            value={progressionCurrent}
+            readOnly
+          />
         </label>
 
         {useInventoryWeightLimit && characterType === "player" ? (
@@ -394,11 +422,13 @@ export default function CharacterEditorIdentitySection({
               <input
                 type="text"
                 value={identityValues[field.key] ?? ""}
-                onChange={(event) => onIdentityFieldChange(field.key, event.target.value)}
+                onChange={(event) =>
+                  onIdentityFieldChange(field.key, event.target.value)
+                }
                 required={field.required}
               />
             </label>
-          ),
+          )
         )}
       </div>
     </section>

@@ -22,7 +22,7 @@ export type DiceRollResult = {
 
 export async function rollDicesUseCase(
   randomNumberProvider: RandomNumberProvider,
-  entries: DiceRollEntryInput[],
+  entries: DiceRollEntryInput[]
 ): Promise<DiceRollResult> {
   if (
     !Array.isArray(entries) ||
@@ -31,7 +31,7 @@ export async function rollDicesUseCase(
   ) {
     throw new AppError(
       `Escolha entre 1 e ${DICE_ROLL_MAX_GROUPS} linhas de dados.`,
-      400,
+      400
     )
   }
 
@@ -49,7 +49,7 @@ export async function rollDicesUseCase(
     ) {
       throw new AppError(
         `Escolha entre 1 e ${DICE_ROLL_MAX_COUNT} dados por linha.`,
-        400,
+        400
       )
     }
 
@@ -60,14 +60,14 @@ export async function rollDicesUseCase(
     ) {
       throw new AppError(
         `Escolha um dado entre 2 e ${DICE_ROLL_MAX_SIDES} lados por linha.`,
-        400,
+        400
       )
     }
 
     const result = await randomNumberProvider.generateIntegers({
       count: diceCount,
       min: 1,
-      max: diceSides,
+      max: diceSides
     })
 
     if (result.provider === "random-org") {
@@ -78,12 +78,12 @@ export async function rollDicesUseCase(
       diceCount,
       diceSides,
       results: result.numbers,
-      total: result.numbers.reduce((sum, value) => sum + value, 0),
+      total: result.numbers.reduce((sum, value) => sum + value, 0)
     })
   }
 
   return {
     provider,
-    groups,
+    groups
   }
 }

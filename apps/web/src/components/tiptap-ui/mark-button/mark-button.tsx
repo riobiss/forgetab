@@ -32,7 +32,7 @@ export interface MarkButtonProps
 
 export function MarkShortcutBadge({
   type,
-  shortcutKeys = MARK_SHORTCUT_KEYS[type],
+  shortcutKeys = MARK_SHORTCUT_KEYS[type]
 }: {
   type: Mark
   shortcutKeys?: string
@@ -68,12 +68,12 @@ export const MarkButton = forwardRef<HTMLButtonElement, MarkButtonProps>(
       canToggle,
       isActive,
       Icon,
-      shortcutKeys,
+      shortcutKeys
     } = useMark({
       editor,
       type,
       hideWhenUnavailable,
-      onToggled,
+      onToggled
     })
 
     const handleClick = useCallback(

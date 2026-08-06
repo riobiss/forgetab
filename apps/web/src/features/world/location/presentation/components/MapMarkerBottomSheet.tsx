@@ -24,13 +24,13 @@ export function MapMarkerBottomSheet({
   linkedSectionName,
   onEdit,
   onMoreInfo,
-  onClose,
+  onClose
 }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false)
   const [lightboxHost, setLightboxHost] = useState<HTMLElement | null>(null)
   const [lightboxElement, setLightboxElement] = useState<HTMLElement | null>(
-    null,
+    null
   )
   const images =
     marker.displayImages?.filter((image) => image.trim().length > 0) ??
@@ -81,7 +81,7 @@ export function MapMarkerBottomSheet({
   function showPreviousImage() {
     if (images.length === 0) return
     setCurrentImageIndex(
-      (current) => (current - 1 + images.length) % images.length,
+      (current) => (current - 1 + images.length) % images.length
     )
   }
 
@@ -159,7 +159,7 @@ export function MapMarkerBottomSheet({
               </button>
             ) : null}
           </div>,
-          lightboxHost,
+          lightboxHost
         )
       : null
 

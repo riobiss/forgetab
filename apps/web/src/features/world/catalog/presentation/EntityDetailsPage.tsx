@@ -11,15 +11,15 @@ import type {
   EntityCatalogCurrentDetail,
   EntityCatalogPlayerItem,
   EntityCatalogTemplateOption,
-  EntityCatalogTemplateRecord,
+  EntityCatalogTemplateRecord
 } from "@/features/world/catalog/application/types"
 import {
   createRichTextDocumentFromText,
-  EMPTY_RICH_TEXT_DOCUMENT,
+  EMPTY_RICH_TEXT_DOCUMENT
 } from "@/features/world/catalog/domain/catalogMeta"
 import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import EntityDetailsConfigModal, {
-  type EntityDetailsConfigStage,
+  type EntityDetailsConfigStage
 } from "@/features/world/catalog/presentation/EntityDetailsConfigModal"
 import EntityDetailsContent from "@/features/world/catalog/presentation/EntityDetailsContent"
 import { useEntityDetailsActions } from "@/features/world/catalog/presentation/useEntityDetailsActions"
@@ -48,20 +48,20 @@ function parseBonusRecord(record: BonusInputRecord): Record<string, number> {
   return Object.fromEntries(
     Object.entries(record).map(([key, value]) => [
       key,
-      value === "" ? 0 : Number(value),
-    ]),
+      value === "" ? 0 : Number(value)
+    ])
   )
 }
 
 function getActiveBonuses(
   templates: EntityCatalogTemplateOption[],
-  bonuses: BonusInputRecord,
+  bonuses: BonusInputRecord
 ) {
   return templates
     .map((item) => ({
       key: item.key,
       label: item.label,
-      value: Number(bonuses[item.key] ?? 0),
+      value: Number(bonuses[item.key] ?? 0)
     }))
     .filter((item) => item.value !== 0)
 }
@@ -78,33 +78,33 @@ export default function EntityDetailsPage({
   skillTemplates,
   abilities = [],
   players = [],
-  abilityPurchase,
+  abilityPurchase
 }: Props) {
   const router = useRouter()
   const actions = useEntityDetailsActions({
     rpgId,
     entityType,
-    templateKey: current.key,
+    templateKey: current.key
   })
   const [editorContent, setEditorContent] = useState<JSONContent>(
     (current.catalogMeta.richText.description ??
-      EMPTY_RICH_TEXT_DOCUMENT) as JSONContent,
+      EMPTY_RICH_TEXT_DOCUMENT) as JSONContent
   )
   const [shortDescription, setShortDescription] = useState(
-    current.catalogMeta.shortDescription ?? "",
+    current.catalogMeta.shortDescription ?? ""
   )
   const [name, setName] = useState(current.label)
   const [category, setCategory] = useState(current.category)
   const [attributeBonuses, setAttributeBonuses] = useState<BonusInputRecord>(
-    current.attributeBonuses,
+    current.attributeBonuses
   )
   const [skillBonuses, setSkillBonuses] = useState<BonusInputRecord>(
-    current.skillBonuses,
+    current.skillBonuses
   )
   const [configModalOpen, setConfigModalOpen] = useState(false)
   const [contentEditing, setContentEditing] = useState(false)
   const [syncDescriptionToEditor, setSyncDescriptionToEditor] = useState(
-    !current.catalogMeta.richText.description,
+    !current.catalogMeta.richText.description
   )
   const [saving, setSaving] = useState(false)
   const [configStage, setConfigStage] =
@@ -113,23 +113,23 @@ export default function EntityDetailsPage({
   useModalFocusTrap({
     isActive: configModalOpen,
     activeElement: configModalRef,
-    onEscape: () => setConfigModalOpen(false),
+    onEscape: () => setConfigModalOpen(false)
   })
 
   const categoryOptions = useMemo(
     () =>
       Array.from(
-        new Set(["geral", category, current.category].filter(Boolean)),
+        new Set(["geral", category, current.category].filter(Boolean))
       ),
-    [category, current.category],
+    [category, current.category]
   )
   const activeAttributeBonuses = useMemo(
     () => getActiveBonuses(attributeTemplates, attributeBonuses),
-    [attributeBonuses, attributeTemplates],
+    [attributeBonuses, attributeTemplates]
   )
   const activeSkillBonuses = useMemo(
     () => getActiveBonuses(skillTemplates, skillBonuses),
-    [skillBonuses, skillTemplates],
+    [skillBonuses, skillTemplates]
   )
 
   function openConfigModal() {
@@ -161,9 +161,9 @@ export default function EntityDetailsPage({
           shortDescription: shortDescription.trim() || null,
           richText: {
             ...current.catalogMeta.richText,
-            description: editorContent,
-          },
-        },
+            description: editorContent
+          }
+        }
       }
 
       await actions.saveTemplate(nextTemplate)

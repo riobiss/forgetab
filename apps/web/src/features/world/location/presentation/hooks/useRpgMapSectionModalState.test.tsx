@@ -25,11 +25,11 @@ describe("useRpgMapSectionModalState", () => {
           ImagensSecao: ["https://imagekit.local/section-1.png"],
           Clima: {
             value: "Frio",
-            type: "text",
-          },
+            type: "text"
+          }
         },
         createdAt: "2026-03-20T00:00:00.000Z",
-        updatedAt: "2026-03-20T00:00:00.000Z",
+        updatedAt: "2026-03-20T00:00:00.000Z"
       })
     })
 
@@ -41,14 +41,14 @@ describe("useRpgMapSectionModalState", () => {
       type: "city",
       parentSectionId: "parent-1",
       linkedMarkerId: "marker-1",
-      images: ["https://imagekit.local/section-1.png"],
+      images: ["https://imagekit.local/section-1.png"]
     })
     expect(result.current.sectionForm.customFields).toEqual([
       expect.objectContaining({
         key: "Clima",
         value: "Frio",
-        type: "text",
-      }),
+        type: "text"
+      })
     ])
   })
 
@@ -63,7 +63,7 @@ describe("useRpgMapSectionModalState", () => {
       result.current.setCustomFieldDraft(() => ({
         key: "MarcadorId",
         value: "x",
-        type: "text",
+        type: "text"
       }))
     })
 
@@ -72,7 +72,7 @@ describe("useRpgMapSectionModalState", () => {
     })
 
     expect(result.current.customFieldError).toBe(
-      "Essa chave ja e reservada pelo sistema.",
+      "Essa chave ja e reservada pelo sistema."
     )
     expect(result.current.sectionForm.customFields).toEqual([])
 
@@ -80,7 +80,7 @@ describe("useRpgMapSectionModalState", () => {
       result.current.setCustomFieldDraft(() => ({
         key: "Clima",
         value: "Tropical",
-        type: "boolean",
+        type: "boolean"
       }))
     })
 
@@ -95,8 +95,8 @@ describe("useRpgMapSectionModalState", () => {
         id: "field-123",
         key: "Clima",
         value: "Tropical",
-        type: "boolean",
-      },
+        type: "boolean"
+      }
     ])
   })
 })

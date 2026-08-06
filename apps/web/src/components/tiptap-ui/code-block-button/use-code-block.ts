@@ -14,7 +14,7 @@ import {
   isNodeInSchema,
   isNodeTypeSelected,
   isValidPosition,
-  selectionWithinConvertibleTypes,
+  selectionWithinConvertibleTypes
 } from "@/lib/tiptap-utils"
 
 // --- Icons ---
@@ -68,7 +68,7 @@ export function canToggle(
       "orderedList",
       "taskList",
       "blockquote",
-      "codeBlock",
+      "codeBlock"
     ])
   )
     return false
@@ -106,7 +106,7 @@ export function toggleCodeBlock(editor: Editor | null): boolean {
         "orderedList",
         "taskList",
         "blockquote",
-        "codeBlock",
+        "codeBlock"
       ]) && blocks.length === 1
 
     // No selection, find the the cursor position
@@ -116,7 +116,7 @@ export function toggleCodeBlock(editor: Editor | null): boolean {
     ) {
       const pos = findNodePosition({
         editor,
-        node: state.selection.$anchor.node(1),
+        node: state.selection.$anchor.node(1)
       })?.pos
       if (!isValidPosition(pos)) return false
 
@@ -235,7 +235,7 @@ export function useCodeBlock(config?: UseCodeBlockConfig) {
   const {
     editor: providedEditor,
     hideWhenUnavailable = false,
-    onToggled,
+    onToggled
   } = config || {}
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -276,6 +276,6 @@ export function useCodeBlock(config?: UseCodeBlockConfig) {
     canToggle: canToggleState,
     label: "Code Block",
     shortcutKeys: CODE_BLOCK_SHORTCUT_KEY,
-    Icon: CodeBlockIcon,
+    Icon: CodeBlockIcon
   }
 }

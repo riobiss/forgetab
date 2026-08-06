@@ -21,7 +21,7 @@ export default function SkillOptionsSection({
   onNewSkillLabelChange,
   onAddSkill,
   skillTemplates,
-  onRemoveSkill,
+  onRemoveSkill
 }: Props) {
   return (
     <div className={styles.section}>

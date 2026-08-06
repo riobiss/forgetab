@@ -3,13 +3,13 @@ import {
   buildSkillSlug,
   createRpgScope,
   skillLevelCreateSchema,
-  skillMetaCreateSchema,
+  skillMetaCreateSchema
 } from "./skillBuilder"
 
 describe("skillMetaCreateSchema", () => {
   it("aplica defaults de level1 e listas", () => {
     const result = skillMetaCreateSchema.parse({
-      name: "Bola de Fogo",
+      name: "Bola de Fogo"
     })
 
     expect(result.classIds).toEqual([])
@@ -24,11 +24,11 @@ describe("skillMetaCreateSchema", () => {
         stats: {
           category: "",
           type: "",
-          description: "   ",
-        },
+          description: "   "
+        }
       },
       classIds: [" class-a ", "class-a", "class-b"],
-      raceIds: [" race-1 ", "race-1"],
+      raceIds: [" race-1 ", "race-1"]
     })
 
     expect(result.level1.stats?.category).toBeNull()
@@ -43,11 +43,11 @@ describe("skillLevelCreateSchema", () => {
   it("normaliza numeros opcionais para null/floor", () => {
     const result = skillLevelCreateSchema.parse({
       cost: {
-        points: 2,
+        points: 2
       },
       requirement: {
-        levelRequired: 3.9,
-      },
+        levelRequired: 3.9
+      }
     })
 
     expect(result.cost?.points).toBe(2)

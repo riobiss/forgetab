@@ -5,7 +5,7 @@ export {
   getIdentityTemplatesHandler,
   getRaceTemplatesHandler,
   getSkillTemplatesHandler,
-  getStatusTemplatesHandler,
+  getStatusTemplatesHandler
 } from "./templateReadHandlers"
 export {
   updateAttributeTemplatesHandler,
@@ -14,5 +14,5 @@ export {
   updateIdentityTemplatesHandler,
   updateRaceTemplatesHandler,
   updateSkillTemplatesHandler,
-  updateStatusTemplatesHandler,
+  updateStatusTemplatesHandler
 } from "./templateWriteHandlers"

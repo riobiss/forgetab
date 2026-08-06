@@ -1,12 +1,12 @@
 import {
   DICE_ROLL_MAX_SIDES,
-  type DicesStorageState,
+  type DicesStorageState
 } from "@/features/dices/application/types"
 
 export const DICES_STORAGE_KEY = "forgetab:dices"
 
 export function parseDicesStorageState(
-  value: string | null,
+  value: string | null
 ): DicesStorageState | null {
   if (!value) return null
 
@@ -26,12 +26,10 @@ export function parseDicesStorageState(
       customSides: Array.isArray(parsed.customSides)
         ? parsed.customSides.filter(
             (side) =>
-              Number.isInteger(side) &&
-              side >= 2 &&
-              side <= DICE_ROLL_MAX_SIDES,
+              Number.isInteger(side) && side >= 2 && side <= DICE_ROLL_MAX_SIDES
           )
         : [],
-      history: Array.isArray(parsed.history) ? parsed.history : [],
+      history: Array.isArray(parsed.history) ? parsed.history : []
     }
   } catch {
     return null

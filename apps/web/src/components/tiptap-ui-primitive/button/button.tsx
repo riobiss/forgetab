@@ -6,7 +6,7 @@ import { forwardRef, Fragment, useMemo } from "react"
 import {
   Tooltip,
   TooltipContent,
-  TooltipTrigger,
+  TooltipTrigger
 } from "@/components/tiptap-ui-primitive/tooltip"
 
 // --- Lib ---
@@ -28,7 +28,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 export const ShortcutDisplay: React.FC<{ shortcuts: string[] }> = ({
-  shortcuts,
+  shortcuts
 }) => {
   if (shortcuts.length === 0) return null
 

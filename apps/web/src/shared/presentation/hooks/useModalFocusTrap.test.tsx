@@ -23,8 +23,8 @@ describe("useModalFocusTrap", () => {
       useModalFocusTrap({
         isActive: true,
         activeElement: modalRef,
-        onEscape,
-      }),
+        onEscape
+      })
     )
 
     await waitFor(() => expect(firstButton).toHaveFocus())
@@ -45,8 +45,8 @@ describe("useModalFocusTrap", () => {
     renderHook(() =>
       useModalFocusTrap({
         isActive: true,
-        activeElement: { current: modal },
-      }),
+        activeElement: { current: modal }
+      })
     )
 
     await waitFor(() => expect(firstButton).toHaveFocus())

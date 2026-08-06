@@ -4,7 +4,7 @@ import type {
   NarrativeStatus,
   NpcMonsterFormState,
   NumericInputValue,
-  SecretFieldKey,
+  SecretFieldKey
 } from "./types"
 
 type BuildNpcMonsterFormStateParams = {
@@ -23,11 +23,16 @@ type BuildNpcMonsterFormStateParams = {
   extraFields: ExtraField[]
 }
 
-export function getNpcMonsterImageStatusText(image: string, selectedImageName: string) {
+export function getNpcMonsterImageStatusText(
+  image: string,
+  selectedImageName: string
+) {
   return selectedImageName || image.split("/").pop() || ""
 }
 
-export function buildNpcMonsterSecretFieldOptions(extraFields: ExtraField[]): ReactSelectOption[] {
+export function buildNpcMonsterSecretFieldOptions(
+  extraFields: ExtraField[]
+): ReactSelectOption[] {
   return [
     { value: "name", label: "Nome" },
     { value: "titleNickname", label: "Titulo / Apelido" },
@@ -43,13 +48,13 @@ export function buildNpcMonsterSecretFieldOptions(extraFields: ExtraField[]): Re
       .filter((field) => field.key.trim().length > 0)
       .map((field) => ({
         value: `extra:${field.key.trim()}`,
-        label: field.key.trim(),
-      })),
+        label: field.key.trim()
+      }))
   ]
 }
 
 export function buildNpcMonsterFormState(
-  params: BuildNpcMonsterFormStateParams,
+  params: BuildNpcMonsterFormStateParams
 ): NpcMonsterFormState {
   return {
     name: params.name,
@@ -64,6 +69,6 @@ export function buildNpcMonsterFormState(
     statusValues: params.statusValues,
     attributeValues: params.attributeValues,
     skillValues: params.skillValues,
-    extraFields: params.extraFields,
+    extraFields: params.extraFields
   }
 }

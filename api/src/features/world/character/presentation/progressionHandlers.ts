@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import {
   grantCharacterPointsUseCase,
-  grantCharacterXpUseCase,
+  grantCharacterXpUseCase
 } from "@/features/world/character/application/progression/use-cases/characterProgression"
 import { characterRouteDeps } from "./dependencies"
 import { parseJsonBody, requireUserId, writeError, writeJson } from "./http"
@@ -9,12 +9,12 @@ import type { CharacterRouteParams } from "./routeTypes"
 
 const characterProgressionDeps = {
   repository: characterRouteDeps.characterProgressionRepository,
-  permissionService: characterRouteDeps.characterProgressionPermissionService,
+  permissionService: characterRouteDeps.characterProgressionPermissionService
 }
 
 export async function grantCharacterXpHandler(
   request: FastifyRequest<{ Params: CharacterRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -26,7 +26,7 @@ export async function grantCharacterXpHandler(
     const payload = await grantCharacterXpUseCase(characterProgressionDeps, {
       characterId: request.params.id,
       userId: auth.userId,
-      amount: body.amount,
+      amount: body.amount
     })
 
     return writeJson(reply, 200, payload)
@@ -37,7 +37,7 @@ export async function grantCharacterXpHandler(
 
 export async function grantCharacterPointsHandler(
   request: FastifyRequest<{ Params: CharacterRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -51,8 +51,8 @@ export async function grantCharacterPointsHandler(
       {
         characterId: request.params.id,
         userId: auth.userId,
-        amount: body.amount,
-      },
+        amount: body.amount
+      }
     )
 
     return writeJson(reply, 200, payload)

@@ -5,17 +5,17 @@ import type {
   RpgMapBreadcrumbDto,
   RpgMapDetailViewDto,
   RpgMapSectionDto,
-  RpgMapSectionTreeNodeDto,
+  RpgMapSectionTreeNodeDto
 } from "@forgetab/world-contracts/location"
 import {
   buildSectionRenderState,
   getLinkedMarkerId,
-  type MarkerLinkOption,
+  type MarkerLinkOption
 } from "@/features/world/location/presentation/utils/sectionMarkerLinking"
 
 function buildBreadcrumbs(
   selectedSectionId: string | null,
-  sections: RpgMapSectionDto[],
+  sections: RpgMapSectionDto[]
 ): RpgMapBreadcrumbDto[] {
   if (!selectedSectionId) return []
 
@@ -34,7 +34,7 @@ function buildBreadcrumbs(
 
 function filterTree(
   nodes: RpgMapSectionTreeNodeDto[],
-  query: string,
+  query: string
 ): RpgMapSectionTreeNodeDto[] {
   const normalized = query.trim().toLowerCase()
   if (!normalized) return nodes
@@ -61,43 +61,40 @@ export function useRpgMapSectionQueries(params: {
   const selectedSection = useMemo(
     () =>
       params.detail?.sections.find(
-        (section) => section.id === params.selectedSectionId,
+        (section) => section.id === params.selectedSectionId
       ) ?? null,
-    [params.detail?.sections, params.selectedSectionId],
+    [params.detail?.sections, params.selectedSectionId]
   )
   const breadcrumbs = useMemo(
     () =>
-      buildBreadcrumbs(
-        params.selectedSectionId,
-        params.detail?.sections ?? [],
-      ),
-    [params.detail?.sections, params.selectedSectionId],
+      buildBreadcrumbs(params.selectedSectionId, params.detail?.sections ?? []),
+    [params.detail?.sections, params.selectedSectionId]
   )
   const filteredTree = useMemo(
     () => filterTree(params.detail?.tree ?? [], sectionSearch),
-    [params.detail?.tree, sectionSearch],
+    [params.detail?.tree, sectionSearch]
   )
   const linkedSectionMarker = useMemo(
     () =>
       params.markerOptions.find(
         (marker) =>
-          marker.id === getLinkedMarkerId(selectedSection?.customFields),
+          marker.id === getLinkedMarkerId(selectedSection?.customFields)
       ) ?? null,
-    [params.markerOptions, selectedSection?.customFields],
+    [params.markerOptions, selectedSection?.customFields]
   )
   const sectionRenderState = useMemo(
     () =>
       selectedSection
         ? buildSectionRenderState(selectedSection, linkedSectionMarker)
         : null,
-    [linkedSectionMarker, selectedSection],
+    [linkedSectionMarker, selectedSection]
   )
   const parentOptions = useMemo(
     () =>
       (params.detail?.sections ?? [])
         .filter((section) => section.id !== params.editingSectionId)
         .map((section) => ({ id: section.id, label: section.name })),
-    [params.detail?.sections, params.editingSectionId],
+    [params.detail?.sections, params.editingSectionId]
   )
 
   return {
@@ -108,6 +105,6 @@ export function useRpgMapSectionQueries(params: {
     sectionRenderState,
     sectionSearch,
     selectedSection,
-    setSectionSearch,
+    setSectionSearch
   }
 }

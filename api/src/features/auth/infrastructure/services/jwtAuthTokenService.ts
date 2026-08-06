@@ -2,7 +2,7 @@ import type { AuthTokenService } from "@/features/auth/application/ports/AuthTok
 import {
   createAuthToken,
   TOKEN_COOKIE_NAME,
-  TOKEN_EXPIRES_IN_SECONDS,
+  TOKEN_EXPIRES_IN_SECONDS
 } from "@/lib/auth/token"
 
 export const jwtAuthTokenService: AuthTokenService = {
@@ -10,7 +10,7 @@ export const jwtAuthTokenService: AuthTokenService = {
   getCookieConfig() {
     return {
       name: TOKEN_COOKIE_NAME,
-      maxAge: TOKEN_EXPIRES_IN_SECONDS,
+      maxAge: TOKEN_EXPIRES_IN_SECONDS
     }
-  },
+  }
 }

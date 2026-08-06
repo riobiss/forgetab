@@ -5,14 +5,14 @@ import type {
   RpgCreateBaseResult,
   RpgCreateSettingsInput,
   RpgCoreUpdateInput,
-  RpgRow,
+  RpgRow
 } from "@/features/world/application/management/types"
 
 export interface RpgRepository {
   createBase(data: RpgCreateBaseInput): Promise<RpgCreateBaseResult>
   applyCreateSettings(
     rpgId: string,
-    data: RpgCreateSettingsInput,
+    data: RpgCreateSettingsInput
   ): Promise<void>
   findById(rpgId: string): Promise<RpgRow | null>
   getCurrentProgressionMode(rpgId: string): Promise<ProgressionMode>

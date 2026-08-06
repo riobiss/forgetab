@@ -14,7 +14,7 @@ function formatDate(value: string) {
     : date.toLocaleDateString("pt-BR", {
         day: "2-digit",
         month: "2-digit",
-        year: "numeric",
+        year: "numeric"
       })
 }
 
@@ -27,12 +27,12 @@ type Props = {
 export default function LibrarySectionBooksPage({
   rpgId,
   sectionId,
-  deps,
+  deps
 }: Props) {
   const controller = useLibrarySectionBooksController({
     rpgId,
     sectionId,
-    deps,
+    deps
   })
 
   return (

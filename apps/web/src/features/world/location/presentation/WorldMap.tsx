@@ -22,11 +22,11 @@ import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap
 import { useWorldMapMarkerSelection } from "@/features/world/location/presentation/hooks/useWorldMapMarkerSelection"
 import {
   DEFAULT_BRUSH_COLORS,
-  useWorldMapUiState,
+  useWorldMapUiState
 } from "@/features/world/location/presentation/hooks/useWorldMapUiState"
 import {
   buildDisplayMarkerGroups,
-  findMarkerSelectionById,
+  findMarkerSelectionById
 } from "@/features/world/location/presentation/utils/markerDisplay"
 import styles from "./WorldMap.module.css"
 import type { LinkedSectionSnapshot } from "./types/mapMarkers"
@@ -38,7 +38,7 @@ const MARKER_COLORS = [
   "#60a5fa",
   "#34d399",
   "#f472b6",
-  "#a78bfa",
+  "#a78bfa"
 ]
 const DEFAULT_MARKER_SIZE = 1
 const OVERLAPPING_MARKER_DISTANCE = 28
@@ -57,7 +57,7 @@ type MundiMapProps = {
   onOpenLinkedSection?: (sectionId: string) => void
   onSaveMarkerSectionLink?: (
     markerId: string,
-    sectionId: string | null,
+    sectionId: string | null
   ) => Promise<void> | void
 }
 
@@ -73,7 +73,7 @@ export function MundiMap({
   sectionOptions = [],
   focusMarkerRequest = null,
   onOpenLinkedSection,
-  onSaveMarkerSectionLink,
+  onSaveMarkerSectionLink
 }: MundiMapProps) {
   const frameRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<WorldMapCanvasHandle | null>(null)
@@ -103,11 +103,11 @@ export function MundiMap({
     toggleFullscreen,
     handleEnableInteraction,
     resetView,
-    clearLastDrawing,
+    clearLastDrawing
   } = useWorldMapUiState({
     frameRef,
     canvasRef,
-    canEditContent,
+    canEditContent
   })
 
   const { isUploading, uploadMessage, handleMapFile, handleResetMapImage } =
@@ -116,7 +116,7 @@ export function MundiMap({
       mapId,
       canManage: canManageImage,
       mapSrc,
-      setMapSrc,
+      setMapSrc
     })
 
   const {
@@ -173,12 +173,12 @@ export function MundiMap({
     toggleMarkerGroupVisibility,
     openMarkerEdit,
     saveMarkerEdit,
-    deleteMarkerItem,
+    deleteMarkerItem
   } = useMapMarkerGroups({
     rpgId,
     mapId,
     markerColors: MARKER_COLORS,
-    initialPublicMarkerGroups,
+    initialPublicMarkerGroups
   })
 
   const displayMarkerGroups = useMemo(() => {
@@ -186,7 +186,7 @@ export function MundiMap({
   }, [allMarkerGroups, linkedSections])
   const linkedSectionsByMarkerId = useMemo(
     () => new Map(linkedSections.map((section) => [section.markerId, section])),
-    [linkedSections],
+    [linkedSections]
   )
 
   const {
@@ -211,7 +211,7 @@ export function MundiMap({
     handleOpenMarkersModal,
     handleSaveMarkerGroup,
     handleStartMarkerReposition,
-    handleStartMarkerSelection,
+    handleStartMarkerSelection
   } = useWorldMapMarkerModalFlow({
     openMarkersModal,
     startMarkerSelection,
@@ -222,7 +222,7 @@ export function MundiMap({
     deleteMarkerGroup,
     setAreMarkersVisible,
     setEditingMarker,
-    setEditingMarkerPosition,
+    setEditingMarkerPosition
   })
 
   const {
@@ -231,7 +231,7 @@ export function MundiMap({
     setSelectedMapMarker,
     setOverlappingMarkers,
     handleMarkerPinSelect,
-    beginMarkerEditing,
+    beginMarkerEditing
   } = useWorldMapMarkerSelection({
     displayMarkerGroups,
     allMarkerGroups,
@@ -243,7 +243,7 @@ export function MundiMap({
     setAreMarkersVisible,
     setVisibleMarkerGroupIds,
     closeTransientUi,
-    setIsInteractive,
+    setIsInteractive
   })
 
   const {
@@ -251,7 +251,7 @@ export function MundiMap({
     isUploading: isMarkerImageUploading,
     openPicker: openMarkerImagePicker,
     handleInputChange: handleMarkerImageChange,
-    deleteImage: handleDeleteMarkerImage,
+    deleteImage: handleDeleteMarkerImage
   } = useMarkerImageActions({
     resolveOldImage(target) {
       if (target.mode === "pending") {
@@ -267,8 +267,8 @@ export function MundiMap({
       if (target.mode === "pending") {
         setPendingMarkers((current) =>
           current.map((marker) =>
-            marker.id === target.markerId ? { ...marker, image: url } : marker,
-          ),
+            marker.id === target.markerId ? { ...marker, image: url } : marker
+          )
         )
         return
       }
@@ -279,14 +279,14 @@ export function MundiMap({
       if (target.mode === "pending") {
         setPendingMarkers((current) =>
           current.map((marker) =>
-            marker.id === target.markerId ? { ...marker, image: "" } : marker,
-          ),
+            marker.id === target.markerId ? { ...marker, image: "" } : marker
+          )
         )
         return
       }
 
       setEditingMarkerImage("")
-    },
+    }
   })
 
   useEffect(() => {
@@ -305,7 +305,7 @@ export function MundiMap({
     isFullscreen,
     setIsMarkerRepositionMode,
     setOverlappingMarkers,
-    setSelectedMapMarker,
+    setSelectedMapMarker
   ])
 
   useEffect(() => {
@@ -315,7 +315,7 @@ export function MundiMap({
     }
 
     setEditingLinkedSectionId(
-      linkedSectionsByMarkerId.get(editingMarker.id)?.sectionId ?? "",
+      linkedSectionsByMarkerId.get(editingMarker.id)?.sectionId ?? ""
     )
   }, [editingMarker, linkedSectionsByMarkerId])
 
@@ -345,9 +345,9 @@ export function MundiMap({
         hasSelectedMapMarker: Boolean(selectedMapMarker),
         clearEditingMarker: () => setEditingMarker(null),
         clearOverlappingMarkers: () => setOverlappingMarkers(null),
-        clearSelectedMapMarker: () => setSelectedMapMarker(null),
+        clearSelectedMapMarker: () => setSelectedMapMarker(null)
       })
-    },
+    }
   })
 
   const handleOpenFilePicker = () => {
@@ -387,7 +387,7 @@ export function MundiMap({
     setEditingMarkerColor(matchedMarker.color || matchedGroup.color)
     setEditingMarkerSize(matchedMarker.size ?? DEFAULT_MARKER_SIZE)
     setEditingMarkerPinStyle(
-      matchedMarker.pinStyle === "label" ? "label" : "default",
+      matchedMarker.pinStyle === "label" ? "label" : "default"
     )
   }
 
@@ -411,7 +411,7 @@ export function MundiMap({
     setIsMarkerListModalOpen(false)
     setSelectedMapMarker({
       marker: selection.marker,
-      groupColor: selection.groupColor,
+      groupColor: selection.groupColor
     })
   }
 
@@ -464,19 +464,19 @@ export function MundiMap({
                 key: "clear",
                 label: "Limpar",
                 onClick: () => setPendingMarkers([]),
-                disabled: pendingMarkers.length === 0,
+                disabled: pendingMarkers.length === 0
               },
               {
                 key: "finish",
                 label: "Concluir",
                 onClick: handleConcludeMarkerSelection,
-                disabled: pendingMarkers.length === 0,
+                disabled: pendingMarkers.length === 0
               },
               {
                 key: "cancel",
                 label: "Cancelar",
-                onClick: handleCancelMarkerSelection,
-              },
+                onClick: handleCancelMarkerSelection
+              }
             ]}
           />
         ) : null}
@@ -490,13 +490,13 @@ export function MundiMap({
                 key: "confirm",
                 label: "Confirmar",
                 onClick: handleConfirmMarkerReposition,
-                disabled: !pendingMarkerReposition,
+                disabled: !pendingMarkerReposition
               },
               {
                 key: "cancel",
                 label: "Cancelar",
-                onClick: handleCancelMarkerReposition,
-              },
+                onClick: handleCancelMarkerReposition
+              }
             ]}
           />
         ) : null}
@@ -521,7 +521,7 @@ export function MundiMap({
                   size: editingMarkerSize,
                   pinStyle: editingMarkerPinStyle,
                   x: pendingMarkerReposition?.x ?? editingMarker.x,
-                  y: pendingMarkerReposition?.y ?? editingMarker.y,
+                  y: pendingMarkerReposition?.y ?? editingMarker.y
                 }
               : null
           }
@@ -541,8 +541,8 @@ export function MundiMap({
                 shortDescription: "",
                 image: "",
                 size: DEFAULT_MARKER_SIZE,
-                pinStyle: "default",
-              },
+                pinStyle: "default"
+              }
             ])
           }}
           onRepositionMarker={handleMarkerReposition}
@@ -704,7 +704,7 @@ export function MundiMap({
                 ?.sectionId && onOpenLinkedSection
                 ? () => {
                     const sectionId = linkedSectionsByMarkerId.get(
-                      selectedMapMarker.marker.id,
+                      selectedMapMarker.marker.id
                     )?.sectionId
                     setSelectedMapMarker(null)
                     if (sectionId) {

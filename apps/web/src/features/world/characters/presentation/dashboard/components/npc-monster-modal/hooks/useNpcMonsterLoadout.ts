@@ -10,7 +10,7 @@ import {
   loadNpcMonsterAbilitiesUseCase,
   loadNpcMonsterInventoryUseCase,
   removeNpcMonsterAbilityUseCase,
-  removeNpcMonsterInventoryItemUseCase,
+  removeNpcMonsterInventoryItemUseCase
 } from "@/features/world/characters/application/loadout"
 import { npcMonsterLoadoutDependencies } from "@/features/world/characters/presentation/dashboard/dependencies"
 import type { PickerMode } from "@/features/world/characters/presentation/dashboard/components/npc-monster-modal/types"
@@ -22,30 +22,30 @@ type Params = {
 }
 
 export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
-  const [inventory, setInventory] = useState<Awaited<
-    ReturnType<typeof loadNpcMonsterInventoryUseCase>
-  >["inventory"]>([])
+  const [inventory, setInventory] = useState<
+    Awaited<ReturnType<typeof loadNpcMonsterInventoryUseCase>>["inventory"]
+  >([])
   const [inventoryLoading, setInventoryLoading] = useState(false)
   const [inventoryError, setInventoryError] = useState("")
-  const [availableItems, setAvailableItems] = useState<Awaited<
-    ReturnType<typeof listNpcMonsterItemOptionsUseCase>
-  >>([])
+  const [availableItems, setAvailableItems] = useState<
+    Awaited<ReturnType<typeof listNpcMonsterItemOptionsUseCase>>
+  >([])
   const [itemsLoading, setItemsLoading] = useState(false)
-  const [abilities, setAbilities] = useState<Awaited<
-    ReturnType<typeof loadNpcMonsterAbilitiesUseCase>
-  >["abilities"]>([])
+  const [abilities, setAbilities] = useState<
+    Awaited<ReturnType<typeof loadNpcMonsterAbilitiesUseCase>>["abilities"]
+  >([])
   const [abilitiesLoading, setAbilitiesLoading] = useState(false)
   const [abilitiesError, setAbilitiesError] = useState("")
-  const [availableSkills, setAvailableSkills] = useState<Awaited<
-    ReturnType<typeof listNpcMonsterSkillOptionsUseCase>
-  >>([])
+  const [availableSkills, setAvailableSkills] = useState<
+    Awaited<ReturnType<typeof listNpcMonsterSkillOptionsUseCase>>
+  >([])
   const [skillsLoading, setSkillsLoading] = useState(false)
   const [pickerMode, setPickerMode] = useState<PickerMode>(null)
   const [pickerSearch, setPickerSearch] = useState("")
   const deferredPickerSearch = useDeferredValue(pickerSearch)
   const [pickerSaving, setPickerSaving] = useState(false)
   const [removingAbilityKey, setRemovingAbilityKey] = useState<string | null>(
-    null,
+    null
   )
 
   useEffect(() => {
@@ -73,23 +73,23 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
       const [itemsResult, skillsResult, inventoryResult, abilitiesResult] =
         await Promise.allSettled([
           listNpcMonsterItemOptionsUseCase(npcMonsterLoadoutDependencies, {
-            rpgId,
+            rpgId
           }),
           listNpcMonsterSkillOptionsUseCase(npcMonsterLoadoutDependencies, {
-            rpgId,
+            rpgId
           }),
           characterId
             ? loadNpcMonsterInventoryUseCase(npcMonsterLoadoutDependencies, {
                 rpgId,
-                characterId,
+                characterId
               })
             : Promise.resolve(null),
           characterId
             ? loadNpcMonsterAbilitiesUseCase(npcMonsterLoadoutDependencies, {
                 rpgId,
-                characterId,
+                characterId
               })
-            : Promise.resolve(null),
+            : Promise.resolve(null)
         ])
 
       if (cancelled) return
@@ -106,7 +106,7 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
         setInventoryError(
           inventoryResult.reason instanceof Error
             ? inventoryResult.reason.message
-            : "Nao foi possivel carregar o inventory.",
+            : "Nao foi possivel carregar o inventory."
         )
       }
       if (abilitiesResult.status === "fulfilled") {
@@ -115,7 +115,7 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
         setAbilitiesError(
           abilitiesResult.reason instanceof Error
             ? abilitiesResult.reason.message
-            : "Nao foi possivel carregar as habilidades.",
+            : "Nao foi possivel carregar as habilidades."
         )
       }
 
@@ -139,7 +139,7 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
         [item.name, item.type, item.rarity]
           .join(" ")
           .toLowerCase()
-          .includes(normalizedSearch),
+          .includes(normalizedSearch)
       )
   const ownedSkillIds = new Set(abilities.map((item) => item.skillId))
   const filteredAvailableSkills = (
@@ -149,7 +149,7 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
           [item.slug, item.tags.join(" ")]
             .join(" ")
             .toLowerCase()
-            .includes(normalizedSearch),
+            .includes(normalizedSearch)
         )
   ).filter((item) => !ownedSkillIds.has(item.id))
 
@@ -168,11 +168,11 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
         rpgId,
         characterId,
         baseItemId,
-        quantity: 1,
+        quantity: 1
       })
       const payload = await loadNpcMonsterInventoryUseCase(
         npcMonsterLoadoutDependencies,
-        { rpgId, characterId },
+        { rpgId, characterId }
       )
       setInventory(payload.inventory)
       setPickerMode(null)
@@ -197,7 +197,7 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
       setInventoryError("")
       const payload = await removeNpcMonsterInventoryItemUseCase(
         npcMonsterLoadoutDependencies,
-        { rpgId, characterId, inventoryItemId, quantity },
+        { rpgId, characterId, inventoryItemId, quantity }
       )
       setInventory((current) =>
         payload.remainingQuantity <= 0
@@ -205,8 +205,8 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
           : current.map((item) =>
               item.id === inventoryItemId
                 ? { ...item, quantity: payload.remainingQuantity }
-                : item,
-            ),
+                : item
+            )
       )
       toast.success("Item removido com sucesso.")
     } catch (cause) {
@@ -227,17 +227,17 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
       setAbilitiesError("")
       const payload = await addNpcMonsterAbilityUseCase(
         npcMonsterLoadoutDependencies,
-        { rpgId, characterId, skillId, level: 1 },
+        { rpgId, characterId, skillId, level: 1 }
       )
       if (payload.ability) {
         setAbilities((current) => [
           ...current.filter((item) => item.skillId !== skillId),
-          payload.ability!,
+          payload.ability!
         ])
       } else {
         const refreshed = await loadNpcMonsterAbilitiesUseCase(
           npcMonsterLoadoutDependencies,
-          { rpgId, characterId },
+          { rpgId, characterId }
         )
         setAbilities(refreshed.abilities)
       }
@@ -265,15 +265,15 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
       setAbilitiesError("")
       const payload = await removeNpcMonsterAbilityUseCase(
         npcMonsterLoadoutDependencies,
-        { rpgId, characterId, skillId, level },
+        { rpgId, characterId, skillId, level }
       )
       if (!payload.success) {
         throw new Error("Nao foi possivel remover a habilidade.")
       }
       setAbilities((current) =>
         current.filter(
-          (item) => !(item.skillId === skillId && item.levelNumber === level),
-        ),
+          (item) => !(item.skillId === skillId && item.levelNumber === level)
+        )
       )
       toast.success("Habilidade removida com sucesso.")
     } catch (cause) {
@@ -309,6 +309,6 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
     addInventoryItem,
     removeInventoryItem,
     addAbility,
-    removeAbility,
+    removeAbility
   }
 }

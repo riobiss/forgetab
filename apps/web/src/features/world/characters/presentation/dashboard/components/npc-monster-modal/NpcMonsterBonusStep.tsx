@@ -22,7 +22,7 @@ export default function NpcMonsterBonusStep({
   saving,
   onAttributeChange,
   onSkillChange,
-  onSave,
+  onSave
 }: Props) {
   return (
     <div className={styles.modalBody}>
@@ -33,7 +33,7 @@ export default function NpcMonsterBonusStep({
         <NumericTemplateGrid
           items={(bootstrap?.attributes ?? []).map((attribute) => ({
             key: attribute.key,
-            label: attribute.label,
+            label: attribute.label
           }))}
           values={attributeValues}
           onChange={onAttributeChange}
@@ -52,7 +52,7 @@ export default function NpcMonsterBonusStep({
           <NumericTemplateGrid
             items={(bootstrap?.skills ?? []).map((skill) => ({
               key: skill.key,
-              label: skill.label,
+              label: skill.label
             }))}
             values={skillValues}
             onChange={onSkillChange}
@@ -65,7 +65,12 @@ export default function NpcMonsterBonusStep({
       ) : null}
 
       <div className={styles.modalFooter}>
-        <button type="button" className={styles.modalPrimaryButton} onClick={onSave} disabled={saving}>
+        <button
+          type="button"
+          className={styles.modalPrimaryButton}
+          onClick={onSave}
+          disabled={saving}
+        >
           {saving ? "Salvando..." : "Salvar bonus"}
         </button>
       </div>

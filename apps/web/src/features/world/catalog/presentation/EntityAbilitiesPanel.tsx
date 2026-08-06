@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import type {
   EntityCatalogAbilityPurchaseState,
-  EntityCatalogAbilityView,
+  EntityCatalogAbilityView
 } from "@/features/world/catalog/application/types"
 import EntityAbilityCard from "@/features/world/catalog/presentation/EntityAbilityCard"
 import { useEntityAbilityPurchase } from "@/features/world/catalog/presentation/useEntityAbilityPurchase"
@@ -20,7 +20,7 @@ function normalizeOwned(input: Record<string, number[]>) {
       result[skillId] = new Set(levels)
       return result
     },
-    {},
+    {}
   )
 }
 
@@ -36,11 +36,11 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
       const firstLevel = skill.levels[0]
       if (firstLevel) result[skill.skillId] = firstLevel.levelNumber
       return result
-    }, {}),
+    }, {})
   )
   const [openLevelSelectorForSkill, setOpenLevelSelectorForSkill] = useState("")
   const [ownedBySkill, setOwnedBySkill] = useState(() =>
-    normalizeOwned(purchase?.initialOwnedBySkill ?? {}),
+    normalizeOwned(purchase?.initialOwnedBySkill ?? {})
   )
   const purchaseActions = useEntityAbilityPurchase({ purchase })
 
@@ -63,13 +63,13 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
     const result = await purchaseActions.buySkill(
       skillId,
       level,
-      buildLevelKey(skillId, level),
+      buildLevelKey(skillId, level)
     )
     if (!result) return
 
     setOwnedBySkill((current) => ({
       ...current,
-      [skillId]: new Set([...(current[skillId] ?? []), level]),
+      [skillId]: new Set([...(current[skillId] ?? []), level])
     }))
   }
 
@@ -101,13 +101,13 @@ export default function EntityAbilitiesPanel({ skills, purchase }: Props) {
             disabledReason={disabledReason}
             onToggleSelector={() =>
               setOpenLevelSelectorForSkill((current) =>
-                current === skill.skillId ? "" : skill.skillId,
+                current === skill.skillId ? "" : skill.skillId
               )
             }
             onSelectLevel={(level) => {
               setSelectedLevelBySkill((current) => ({
                 ...current,
-                [skill.skillId]: level,
+                [skill.skillId]: level
               }))
               setOpenLevelSelectorForSkill("")
             }}

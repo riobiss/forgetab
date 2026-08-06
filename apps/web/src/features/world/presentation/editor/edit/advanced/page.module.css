@@ -4,8 +4,16 @@
   place-items: start center;
   padding: 1.5rem 1rem 2rem;
   background:
-    radial-gradient(circle at 8% 12%, color-mix(in srgb, var(--color-brand-primary) 18%, transparent), transparent 28%),
-    radial-gradient(circle at 88% 86%, color-mix(in srgb, var(--color-brand-primary) 10%, transparent), transparent 24%),
+    radial-gradient(
+      circle at 8% 12%,
+      color-mix(in srgb, var(--color-brand-primary) 18%, transparent),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 88% 86%,
+      color-mix(in srgb, var(--color-brand-primary) 10%, transparent),
+      transparent 24%
+    ),
     var(--color-bg-app);
 }
 
@@ -22,4 +30,3 @@
   color: var(--color-text-secondary);
   cursor: pointer;
 }
-

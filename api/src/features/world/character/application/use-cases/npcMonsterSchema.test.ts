@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   buildNpcMonsterBasicUpdatePayload,
   getNpcMonsterSecretFieldKeys,
-  readNpcMonsterBasicDraft,
+  readNpcMonsterBasicDraft
 } from "./npcMonsterSchema"
 
 describe("npcMonsterSchema", () => {
@@ -19,13 +19,13 @@ describe("npcMonsterSchema", () => {
         nome: "Goblin",
         alcunha: "Ladrao",
         "raca-livre": "Fada sombria",
-        "classe-livre": "Batedor",
+        "classe-livre": "Batedor"
       },
       characteristics: {
         descricao: "Pequeno e agil",
         "status-narrativo": "desaparecido",
-        origem: "Bosque velho",
-      },
+        origem: "Bosque velho"
+      }
     })
 
     expect(draft).toEqual({
@@ -38,7 +38,7 @@ describe("npcMonsterSchema", () => {
       raceLabel: "Fada sombria",
       classLabel: "Batedor",
       image: "",
-      extraFields: [{ key: "origem", value: "Bosque velho" }],
+      extraFields: [{ key: "origem", value: "Bosque velho" }]
     })
   })
 
@@ -52,16 +52,16 @@ describe("npcMonsterSchema", () => {
         visibility: "public",
         raceKey: null,
         classKey: null,
-      identity: {
-        nome: "Goblin",
-        apelido: "Antigo",
-        "titulo-apelido": "Antigo legado",
-      },
+        identity: {
+          nome: "Goblin",
+          apelido: "Antigo",
+          "titulo-apelido": "Antigo legado"
+        },
         characteristics: {
           descricao: "Velho",
           "status-narrativo": "vivo",
-          origem: "Caverna",
-        },
+          origem: "Caverna"
+        }
       },
       basic: {
         name: "Goblin",
@@ -73,8 +73,8 @@ describe("npcMonsterSchema", () => {
         raceLabel: "Orco",
         classLabel: "Guardiao",
         image: "",
-        extraFields: [{ key: "origem", value: "Forte norte" }],
-      },
+        extraFields: [{ key: "origem", value: "Forte norte" }]
+      }
     })
 
     expect(payload).toEqual({
@@ -86,13 +86,13 @@ describe("npcMonsterSchema", () => {
         apelido: "Chefe",
         alcunha: "Chefe",
         "raca-livre": "Orco",
-        "classe-livre": "Guardiao",
+        "classe-livre": "Guardiao"
       },
       characteristics: {
         descricao: "Novo lider",
         "status-narrativo": "vivo",
-        origem: "Forte norte",
-      },
+        origem: "Forte norte"
+      }
     })
   })
 
@@ -109,14 +109,14 @@ describe("npcMonsterSchema", () => {
         raceLabel: "Bestial",
         classLabel: "Guardia",
         image: "",
-        extraFields: [{ key: "origem", value: "Deserto" }],
-      },
+        extraFields: [{ key: "origem", value: "Deserto" }]
+      }
     })
 
     expect(getNpcMonsterSecretFieldKeys(payload.characteristics)).toEqual([
       "name",
       "classLabel",
-      "extra:origem",
+      "extra:origem"
     ])
   })
 })

@@ -5,7 +5,7 @@ import {
   ownsAbility,
   parseCharacterAbilities,
   parseCostPoints,
-  removeAbility,
+  removeAbility
 } from "@/features/world/character/application/abilities/rules/characterAbilityRules"
 import { rethrowCharacterRepositoryError } from "@/features/world/character/application/errors/rethrowCharacterRepositoryError"
 
@@ -28,7 +28,7 @@ function validatePayload(payload: { skillId?: unknown; level?: unknown }) {
 
   return {
     skillId: payload.skillId.trim(),
-    level: payload.level,
+    level: payload.level
   }
 }
 
@@ -38,7 +38,7 @@ export async function buyCharacterSkillUseCase(
     characterId: string
     userId: string
     payload: { skillId?: unknown; level?: unknown }
-  },
+  }
 ) {
   const payload = validatePayload(params.payload)
   try {
@@ -46,7 +46,7 @@ export async function buyCharacterSkillUseCase(
       {
         characterId: params.characterId,
         skillId: payload.skillId,
-        level: payload.level,
+        level: payload.level
       },
       (context) => {
         const character = context.character
@@ -54,7 +54,7 @@ export async function buyCharacterSkillUseCase(
         if (character.characterType !== "player") {
           throw new AppError(
             "Somente personagens do tipo player podem comprar habilidades.",
-            400,
+            400
           )
         }
         if (
@@ -63,7 +63,7 @@ export async function buyCharacterSkillUseCase(
         ) {
           throw new AppError(
             "Sem permissao para comprar habilidades neste personagem.",
-            403,
+            403
           )
         }
         if (!character.costsEnabled) {
@@ -75,7 +75,7 @@ export async function buyCharacterSkillUseCase(
         if (!context.skillBelongsToCharacterClass) {
           throw new AppError(
             "Nao e permitido comprar habilidade de outra classe.",
-            400,
+            400
           )
         }
         if (!context.skillLevelExists) {
@@ -86,7 +86,7 @@ export async function buyCharacterSkillUseCase(
         if (ownsAbility(abilities, payload.skillId, payload.level)) {
           throw new AppError(
             "Personagem ja possui este level da habilidade.",
-            409,
+            409
           )
         }
         if (
@@ -95,7 +95,7 @@ export async function buyCharacterSkillUseCase(
         ) {
           throw new AppError(
             `Para comprar o level ${payload.level}, primeiro compre o level ${payload.level - 1}.`,
-            400,
+            400
           )
         }
 
@@ -103,15 +103,15 @@ export async function buyCharacterSkillUseCase(
         if (character.skillPoints < costPoints) {
           throw new AppError(
             "Pontos insuficientes para comprar esta habilidade.",
-            400,
+            400
           )
         }
 
         return {
           abilities: addAbility(abilities, payload.skillId, payload.level),
-          skillPointsDelta: -costPoints,
+          skillPointsDelta: -costPoints
         }
-      },
+      }
     )
 
     return { status: 200, success: true as const, ...result }
@@ -126,7 +126,7 @@ export async function removeCharacterSkillUseCase(
     characterId: string
     userId: string
     payload: { skillId?: unknown; level?: unknown }
-  },
+  }
 ) {
   const payload = validatePayload(params.payload)
   try {
@@ -134,7 +134,7 @@ export async function removeCharacterSkillUseCase(
       {
         characterId: params.characterId,
         skillId: payload.skillId,
-        level: payload.level,
+        level: payload.level
       },
       (context) => {
         const character = context.character
@@ -142,7 +142,7 @@ export async function removeCharacterSkillUseCase(
         if (character.characterType !== "player") {
           throw new AppError(
             "Somente personagens do tipo player podem remover habilidades.",
-            400,
+            400
           )
         }
         if (
@@ -151,7 +151,7 @@ export async function removeCharacterSkillUseCase(
         ) {
           throw new AppError(
             "Sem permissao para remover habilidades neste personagem.",
-            403,
+            403
           )
         }
 
@@ -167,14 +167,10 @@ export async function removeCharacterSkillUseCase(
           ? (parseCostPoints(context.skillLevelCost) ?? 0)
           : 0
         return {
-          abilities: removeAbility(
-            abilities,
-            payload.skillId,
-            payload.level,
-          ),
-          skillPointsDelta: refundPoints,
+          abilities: removeAbility(abilities, payload.skillId, payload.level),
+          skillPointsDelta: refundPoints
         }
-      },
+      }
     )
 
     return { status: 200, success: true as const, ...result }

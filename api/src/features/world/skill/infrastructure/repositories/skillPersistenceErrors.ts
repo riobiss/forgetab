@@ -12,7 +12,7 @@ export function toSkillRepositoryError(error: unknown) {
   }
   if (message.includes('relation "skill_levels" does not exist')) {
     return new SkillRepositoryError("skill_levels_schema_missing", {
-      cause: error,
+      cause: error
     })
   }
   if (message.includes('relation "skills" does not exist')) {
@@ -23,7 +23,7 @@ export function toSkillRepositoryError(error: unknown) {
 }
 
 export async function withSkillPersistenceErrors<T>(
-  operation: () => Promise<T>,
+  operation: () => Promise<T>
 ): Promise<T> {
   try {
     return await operation()
@@ -33,14 +33,14 @@ export async function withSkillPersistenceErrors<T>(
 }
 
 export function withSkillRepositoryErrors(
-  repository: SkillRepository,
+  repository: SkillRepository
 ): SkillRepository {
   return {
     listByOwner: (...args) =>
       withSkillPersistenceErrors(() => repository.listByOwner(...args)),
     getAbilityCategoryConfig: (...args) =>
       withSkillPersistenceErrors(() =>
-        repository.getAbilityCategoryConfig(...args),
+        repository.getAbilityCategoryConfig(...args)
       ),
     validateLinkIds: (...args) =>
       withSkillPersistenceErrors(() => repository.validateLinkIds(...args)),
@@ -57,6 +57,6 @@ export function withSkillRepositoryErrors(
     deleteLevel: (...args) =>
       withSkillPersistenceErrors(() => repository.deleteLevel(...args)),
     deleteSkill: (...args) =>
-      withSkillPersistenceErrors(() => repository.deleteSkill(...args)),
+      withSkillPersistenceErrors(() => repository.deleteSkill(...args))
   }
 }

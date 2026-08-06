@@ -4,14 +4,14 @@ import { getSkills } from "@/features/world/skill/application/use-cases/getSkill
 import {
   parseJsonBody,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { skillRouteDeps } from "./dependencies"
 import { requireUserId } from "./shared"
 
 export async function listSkillsHandler(
   request: FastifyRequest<{ Querystring: { rpgId?: string } }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -19,7 +19,7 @@ export async function listSkillsHandler(
   try {
     const payload = await getSkills(
       { repository: skillRouteDeps.repository },
-      { userId: auth.userId, rpgId: request.query.rpgId ?? null },
+      { userId: auth.userId, rpgId: request.query.rpgId ?? null }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -29,7 +29,7 @@ export async function listSkillsHandler(
 
 export async function createSkillHandler(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -38,9 +38,9 @@ export async function createSkillHandler(
     const payload = await createSkill(
       {
         repository: skillRouteDeps.repository,
-        permissionService: skillRouteDeps.permissionService,
+        permissionService: skillRouteDeps.permissionService
       },
-      { userId: auth.userId, body: parseJsonBody(request.body) },
+      { userId: auth.userId, body: parseJsonBody(request.body) }
     )
 
     return writeJson(reply, 201, payload)

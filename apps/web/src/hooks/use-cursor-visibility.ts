@@ -26,13 +26,13 @@ export interface CursorVisibilityOptions {
  */
 export function useCursorVisibility({
   editor,
-  overlayHeight = 0,
+  overlayHeight = 0
 }: CursorVisibilityOptions) {
   const { height: windowHeight } = useWindowSize()
   const rect = useBodyRect({
     enabled: true,
     throttleMs: 100,
-    useResizeObserver: true,
+    useResizeObserver: true
   })
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export function useCursorVisibility({
 
           window.scrollTo({
             top: Math.max(0, newScrollY),
-            behavior: "smooth",
+            behavior: "smooth"
           })
         }
       }

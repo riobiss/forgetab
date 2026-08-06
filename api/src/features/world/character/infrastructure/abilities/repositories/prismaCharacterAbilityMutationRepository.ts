@@ -1,7 +1,7 @@
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
 import type {
   CharacterAbilityMutationContext,
-  CharacterAbilityMutationRepository,
+  CharacterAbilityMutationRepository
 } from "@/features/world/character/application/abilities/ports/CharacterAbilityMutationRepository"
 import { toCharacterRepositoryError } from "@/features/world/character/infrastructure/repositories/characterPersistenceErrors"
 import { prisma } from "@/lib/prisma"
@@ -61,7 +61,7 @@ export const prismaCharacterAbilityMutationRepository: CharacterAbilityMutationR
                   AND ct.rpg_id = ${character.rpgId}
                   AND (ct.key = ${character.classKey} OR ct.id = ${character.classKey})
                 LIMIT 1
-              `,
+              `
             )
             skillBelongsToCharacterClass = Boolean(classRows[0])
           }
@@ -73,7 +73,7 @@ export const prismaCharacterAbilityMutationRepository: CharacterAbilityMutationR
               character,
               skillLevelExists: Boolean(level),
               skillLevelCost: level?.cost ?? null,
-              skillBelongsToCharacterClass,
+              skillBelongsToCharacterClass
             })
           } catch (error) {
             throw new CharacterAbilityDecisionError(error)
@@ -91,9 +91,9 @@ export const prismaCharacterAbilityMutationRepository: CharacterAbilityMutationR
                 mutation.skillPointsDelta === undefined
                   ? undefined
                   : { increment: mutation.skillPointsDelta },
-              updatedAt: new Date(),
+              updatedAt: new Date()
             },
-            select: { skillPoints: true },
+            select: { skillPoints: true }
           })
 
           return { remainingPoints: updated.skillPoints ?? 0 }
@@ -104,5 +104,5 @@ export const prismaCharacterAbilityMutationRepository: CharacterAbilityMutationR
         }
         throw toCharacterRepositoryError(error)
       }
-    },
+    }
   }

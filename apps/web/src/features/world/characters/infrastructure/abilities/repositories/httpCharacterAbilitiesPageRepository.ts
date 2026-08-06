@@ -5,7 +5,7 @@ import { createApiResponseParser } from "@/features/http/infrastructure/parseApi
 export class HttpCharacterAbilitiesError extends Error {
   constructor(
     message: string,
-    readonly status: number,
+    readonly status: number
   ) {
     super(message)
     this.name = "HttpCharacterAbilitiesError"
@@ -15,19 +15,19 @@ export class HttpCharacterAbilitiesError extends Error {
 const parseJsonResponse = createApiResponseParser({
   fallbackMessage: "Erro ao carregar habilidades do personagem.",
   errorFactory: (message, status) =>
-    new HttpCharacterAbilitiesError(message, status),
+    new HttpCharacterAbilitiesError(message, status)
 })
 
 export async function fetchCharacterAbilitiesViewModel(
   rpgId: string,
-  characterId: string,
+  characterId: string
 ): Promise<CharacterAbilitiesViewModel> {
   const response = await apiFetch(
     `/api/rpg/${rpgId}/characters/${characterId}/abilities`,
     {
       next: { revalidate: 0 },
-      cache: "no-store",
-    },
+      cache: "no-store"
+    }
   )
 
   return parseJsonResponse<CharacterAbilitiesViewModel>(response)

@@ -36,7 +36,7 @@ export interface CharacterAbilityMutationRepository {
       level: number
     },
     decide: (
-      context: CharacterAbilityMutationContext,
-    ) => CharacterAbilityMutation,
+      context: CharacterAbilityMutationContext
+    ) => CharacterAbilityMutation
   ): Promise<{ remainingPoints: number }>
 }

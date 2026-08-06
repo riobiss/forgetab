@@ -6,7 +6,7 @@ export function logoutUseCase(cookie: AuthCookieConfig) {
     cookie: {
       ...cookie,
       value: "",
-      maxAge: 0,
-    },
+      maxAge: 0
+    }
   }
 }

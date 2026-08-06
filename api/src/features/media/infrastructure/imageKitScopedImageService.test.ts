@@ -23,11 +23,11 @@ describe("imageKitScopedImageService", () => {
           JSON.stringify([
             {
               fileId: "old-file",
-              url: "https://ik.imagekit.io/forgetab/users/user-1/characters/old.png",
-            },
+              url: "https://ik.imagekit.io/forgetab/users/user-1/characters/old.png"
+            }
           ]),
-          { status: 200 },
-        ),
+          { status: 200 }
+        )
       )
       .mockResolvedValueOnce(new Response(null, { status: 204 }))
       .mockResolvedValueOnce(
@@ -35,10 +35,11 @@ describe("imageKitScopedImageService", () => {
           JSON.stringify({
             url: "https://ik.imagekit.io/forgetab/users/user-1/characters/new.png",
             fileId: "new-file",
-            thumbnailUrl: "https://ik.imagekit.io/forgetab/users/user-1/characters/tr:n-thumb/new.png",
+            thumbnailUrl:
+              "https://ik.imagekit.io/forgetab/users/user-1/characters/tr:n-thumb/new.png"
           }),
-          { status: 200 },
-        ),
+          { status: 200 }
+        )
       )
 
     const result = await imageKitScopedImageService.upload({
@@ -46,17 +47,24 @@ describe("imageKitScopedImageService", () => {
       folder: "characters",
       fileName: "avatar.png",
       file: new File(["fake-image"], "avatar.png", { type: "image/png" }),
-      oldUrl: "https://ik.imagekit.io/forgetab/users/user-1/characters/old.png",
+      oldUrl: "https://ik.imagekit.io/forgetab/users/user-1/characters/old.png"
     })
 
     expect(fetchMock).toHaveBeenCalledTimes(3)
-    expect(fetchMock.mock.calls[0]?.[0]).toContain("https://api.imagekit.io/v1/files?limit=100")
-    expect(fetchMock.mock.calls[1]?.[0]).toBe("https://api.imagekit.io/v1/files/old-file")
-    expect(fetchMock.mock.calls[2]?.[0]).toBe("https://upload.imagekit.io/api/v1/files/upload")
+    expect(fetchMock.mock.calls[0]?.[0]).toContain(
+      "https://api.imagekit.io/v1/files?limit=100"
+    )
+    expect(fetchMock.mock.calls[1]?.[0]).toBe(
+      "https://api.imagekit.io/v1/files/old-file"
+    )
+    expect(fetchMock.mock.calls[2]?.[0]).toBe(
+      "https://upload.imagekit.io/api/v1/files/upload"
+    )
     expect(result).toEqual({
       url: "https://ik.imagekit.io/forgetab/users/user-1/characters/new.png",
       fileId: "new-file",
-      thumbnailUrl: "https://ik.imagekit.io/forgetab/users/user-1/characters/tr:n-thumb/new.png",
+      thumbnailUrl:
+        "https://ik.imagekit.io/forgetab/users/user-1/characters/tr:n-thumb/new.png"
     })
   })
 
@@ -66,10 +74,10 @@ describe("imageKitScopedImageService", () => {
         JSON.stringify({
           url: "https://ik.imagekit.io/forgetab/users/user-1/items/item.png",
           fileId: "new-file",
-          thumbnailUrl: "https://ik.imagekit.io/forgetab/thumb-item.png",
+          thumbnailUrl: "https://ik.imagekit.io/forgetab/thumb-item.png"
         }),
-        { status: 200 },
-      ),
+        { status: 200 }
+      )
     )
 
     await imageKitScopedImageService.upload({
@@ -77,11 +85,13 @@ describe("imageKitScopedImageService", () => {
       folder: "items",
       fileName: "item.png",
       file: new File(["fake-image"], "item.png", { type: "image/png" }),
-      oldUrl: "https://cdn.example.com/item.png",
+      oldUrl: "https://cdn.example.com/item.png"
     })
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(fetchMock.mock.calls[0]?.[0]).toBe("https://upload.imagekit.io/api/v1/files/upload")
+    expect(fetchMock.mock.calls[0]?.[0]).toBe(
+      "https://upload.imagekit.io/api/v1/files/upload"
+    )
   })
 
   it("remove uma imagem existente quando a URL pertence ao host e folder permitidos", async () => {
@@ -91,30 +101,34 @@ describe("imageKitScopedImageService", () => {
           JSON.stringify([
             {
               fileId: "file-to-delete",
-              url: "https://ik.imagekit.io/forgetab/users/user-1/maps/map.png",
-            },
+              url: "https://ik.imagekit.io/forgetab/users/user-1/maps/map.png"
+            }
           ]),
-          { status: 200 },
-        ),
+          { status: 200 }
+        )
       )
       .mockResolvedValueOnce(new Response(null, { status: 204 }))
 
     await imageKitScopedImageService.deleteByUrl({
       userId: "user-1",
       folder: "maps",
-      url: "https://ik.imagekit.io/forgetab/users/user-1/maps/map.png",
+      url: "https://ik.imagekit.io/forgetab/users/user-1/maps/map.png"
     })
 
     expect(fetchMock).toHaveBeenCalledTimes(2)
-    expect(fetchMock.mock.calls[0]?.[0]).toContain("https://api.imagekit.io/v1/files?limit=100")
-    expect(fetchMock.mock.calls[1]?.[0]).toBe("https://api.imagekit.io/v1/files/file-to-delete")
+    expect(fetchMock.mock.calls[0]?.[0]).toContain(
+      "https://api.imagekit.io/v1/files?limit=100"
+    )
+    expect(fetchMock.mock.calls[1]?.[0]).toBe(
+      "https://api.imagekit.io/v1/files/file-to-delete"
+    )
   })
 
   it("ignora a remocao quando a URL esta fora do folder permitido", async () => {
     await imageKitScopedImageService.deleteByUrl({
       userId: "user-1",
       folder: "maps",
-      url: "https://ik.imagekit.io/forgetab/users/user-1/characters/char.png",
+      url: "https://ik.imagekit.io/forgetab/users/user-1/characters/char.png"
     })
 
     expect(fetchMock).not.toHaveBeenCalled()

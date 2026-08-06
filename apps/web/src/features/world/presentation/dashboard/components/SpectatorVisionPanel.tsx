@@ -33,7 +33,7 @@ type Props = {
 const CATEGORY_OPTIONS: Array<{ key: CharacterType; label: string }> = [
   { key: "player", label: "Players" },
   { key: "monster", label: "Criaturas" },
-  { key: "npc", label: "Npc" },
+  { key: "npc", label: "Npc" }
 ]
 
 export default function SpectatorVisionPanel({
@@ -41,10 +41,11 @@ export default function SpectatorVisionPanel({
   characters,
   attributeLabels,
   skillLabels,
-  statusLabels,
+  statusLabels
 }: Props) {
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<CharacterType>("player")
+  const [selectedCategory, setSelectedCategory] =
+    useState<CharacterType>("player")
   const [selectedCharacterId, setSelectedCharacterId] = useState("")
   const [detailTab, setDetailTab] = useState<DetailTab>("attributes")
   const [statusCurrentByCharacter, setStatusCurrentByCharacter] = useState<
@@ -55,13 +56,19 @@ export default function SpectatorVisionPanel({
   >({})
 
   const filteredCharacters = useMemo(
-    () => characters.filter((character) => character.characterType === selectedCategory),
-    [characters, selectedCategory],
+    () =>
+      characters.filter(
+        (character) => character.characterType === selectedCategory
+      ),
+    [characters, selectedCategory]
   )
 
   const selectedCharacter = useMemo(
-    () => filteredCharacters.find((character) => character.id === selectedCharacterId) ?? null,
-    [filteredCharacters, selectedCharacterId],
+    () =>
+      filteredCharacters.find(
+        (character) => character.id === selectedCharacterId
+      ) ?? null,
+    [filteredCharacters, selectedCharacterId]
   )
 
   useEffect(() => {
@@ -71,7 +78,7 @@ export default function SpectatorVisionPanel({
     }
 
     const isCurrentCharacterVisible = filteredCharacters.some(
-      (character) => character.id === selectedCharacterId,
+      (character) => character.id === selectedCharacterId
     )
     if (!isCurrentCharacterVisible) {
       setSelectedCharacterId(filteredCharacters[0].id)
@@ -82,7 +89,9 @@ export default function SpectatorVisionPanel({
     if (!selectedCharacter) return []
 
     const source =
-      detailTab === "attributes" ? selectedCharacter.attributes : selectedCharacter.skills
+      detailTab === "attributes"
+        ? selectedCharacter.attributes
+        : selectedCharacter.skills
     const labels = detailTab === "attributes" ? attributeLabels : skillLabels
 
     return Object.entries(source)
@@ -99,36 +108,50 @@ export default function SpectatorVisionPanel({
     if (statusCurrentByCharacter[selectedCharacter.id]) return
 
     const defaults = Object.fromEntries(
-      selectedCharacter.statusItems.map((item) => [item.key, item.current]),
+      selectedCharacter.statusItems.map((item) => [item.key, item.current])
     )
     const storageKey = `rpg-spectator-status-current:${rpgId}:${selectedCharacter.id}`
 
     try {
       const raw = window.localStorage.getItem(storageKey)
       if (!raw) {
-        setStatusCurrentByCharacter((prev) => ({ ...prev, [selectedCharacter.id]: defaults }))
+        setStatusCurrentByCharacter((prev) => ({
+          ...prev,
+          [selectedCharacter.id]: defaults
+        }))
         return
       }
 
       const parsed = JSON.parse(raw)
       if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-        setStatusCurrentByCharacter((prev) => ({ ...prev, [selectedCharacter.id]: defaults }))
+        setStatusCurrentByCharacter((prev) => ({
+          ...prev,
+          [selectedCharacter.id]: defaults
+        }))
         return
       }
 
-      const loaded = selectedCharacter.statusItems.reduce<Record<string, number>>((acc, item) => {
+      const loaded = selectedCharacter.statusItems.reduce<
+        Record<string, number>
+      >((acc, item) => {
         const candidate = (parsed as Record<string, unknown>)[item.key]
         const parsedNumber =
           typeof candidate === "number" && Number.isFinite(candidate)
             ? Math.floor(candidate)
-            : defaults[item.key] ?? item.current
+            : (defaults[item.key] ?? item.current)
         acc[item.key] = Math.max(0, Math.min(item.max, parsedNumber))
         return acc
       }, {})
 
-      setStatusCurrentByCharacter((prev) => ({ ...prev, [selectedCharacter.id]: loaded }))
+      setStatusCurrentByCharacter((prev) => ({
+        ...prev,
+        [selectedCharacter.id]: loaded
+      }))
     } catch {
-      setStatusCurrentByCharacter((prev) => ({ ...prev, [selectedCharacter.id]: defaults }))
+      setStatusCurrentByCharacter((prev) => ({
+        ...prev,
+        [selectedCharacter.id]: defaults
+      }))
     }
   }, [rpgId, selectedCharacter, statusCurrentByCharacter])
 
@@ -149,12 +172,15 @@ export default function SpectatorVisionPanel({
     ? selectedCharacter.statusItems.map((item) => ({
         ...item,
         current:
-          statusCurrentByCharacter[selectedCharacter.id]?.[item.key] ?? Number(item.current ?? 0),
+          statusCurrentByCharacter[selectedCharacter.id]?.[item.key] ??
+          Number(item.current ?? 0)
       }))
     : []
 
   function getStatusStepAmount(characterId: string, statusKey: string) {
-    const raw = (statusStepInputByCharacter[characterId]?.[statusKey] ?? "").trim()
+    const raw = (
+      statusStepInputByCharacter[characterId]?.[statusKey] ?? ""
+    ).trim()
     const parsed = Number(raw)
     if (!Number.isFinite(parsed)) return 1
     const step = Math.floor(parsed)
@@ -164,11 +190,14 @@ export default function SpectatorVisionPanel({
   function updateStatus(statusKey: string, delta: number) {
     if (!selectedCharacter) return
 
-    const status = selectedCharacter.statusItems.find((item) => item.key === statusKey)
+    const status = selectedCharacter.statusItems.find(
+      (item) => item.key === statusKey
+    )
     if (!status) return
 
     const characterId = selectedCharacter.id
-    const current = statusCurrentByCharacter[characterId]?.[statusKey] ?? status.current
+    const current =
+      statusCurrentByCharacter[characterId]?.[statusKey] ?? status.current
     const next = Math.max(0, Math.min(status.max, current + delta))
     if (next === current) return
 
@@ -176,8 +205,8 @@ export default function SpectatorVisionPanel({
       ...prev,
       [characterId]: {
         ...(prev[characterId] ?? {}),
-        [statusKey]: next,
-      },
+        [statusKey]: next
+      }
     }))
   }
 
@@ -200,7 +229,9 @@ export default function SpectatorVisionPanel({
                 key={option.key}
                 type="button"
                 className={`${styles.spectatorCategoryButton} ${
-                  selectedCategory === option.key ? styles.spectatorCategoryButtonActive : ""
+                  selectedCategory === option.key
+                    ? styles.spectatorCategoryButtonActive
+                    : ""
                 }`}
                 onClick={() => setSelectedCategory(option.key)}
               >
@@ -210,7 +241,9 @@ export default function SpectatorVisionPanel({
           </div>
 
           {filteredCharacters.length === 0 ? (
-            <p className={styles.spectatorEmptyMessage}>Nenhum personagem nesta categoria.</p>
+            <p className={styles.spectatorEmptyMessage}>
+              Nenhum personagem nesta categoria.
+            </p>
           ) : (
             <div className={styles.spectatorCharactersList}>
               {filteredCharacters.map((character) => (
@@ -232,13 +265,17 @@ export default function SpectatorVisionPanel({
 
           {selectedCharacter ? (
             <div className={styles.spectatorDetails}>
-              <p className={styles.spectatorSelectedName}>{selectedCharacter.name}</p>
+              <p className={styles.spectatorSelectedName}>
+                {selectedCharacter.name}
+              </p>
 
               <div className={styles.spectatorTabRow}>
                 <button
                   type="button"
                   className={`${styles.spectatorTabButton} ${
-                    detailTab === "attributes" ? styles.spectatorTabButtonActive : ""
+                    detailTab === "attributes"
+                      ? styles.spectatorTabButtonActive
+                      : ""
                   }`}
                   onClick={() => setDetailTab("attributes")}
                 >
@@ -247,7 +284,9 @@ export default function SpectatorVisionPanel({
                 <button
                   type="button"
                   className={`${styles.spectatorTabButton} ${
-                    detailTab === "skills" ? styles.spectatorTabButtonActive : ""
+                    detailTab === "skills"
+                      ? styles.spectatorTabButtonActive
+                      : ""
                   }`}
                   onClick={() => setDetailTab("skills")}
                 >
@@ -256,7 +295,9 @@ export default function SpectatorVisionPanel({
                 <button
                   type="button"
                   className={`${styles.spectatorTabButton} ${
-                    detailTab === "status" ? styles.spectatorTabButtonActive : ""
+                    detailTab === "status"
+                      ? styles.spectatorTabButtonActive
+                      : ""
                   }`}
                   onClick={() => setDetailTab("status")}
                 >
@@ -268,11 +309,18 @@ export default function SpectatorVisionPanel({
                 selectedCharacterStatus.length > 0 ? (
                   <div className={styles.spectatorStatusList}>
                     {selectedCharacterStatus.map((status) => {
-                      const step = getStatusStepAmount(selectedCharacter.id, status.key)
+                      const step = getStatusStepAmount(
+                        selectedCharacter.id,
+                        status.key
+                      )
                       return (
-                        <div key={status.key} className={styles.spectatorStatusRow}>
+                        <div
+                          key={status.key}
+                          className={styles.spectatorStatusRow}
+                        >
                           <span>
-                            {statusLabels[status.key] ?? status.label}: {status.current}/{status.max}
+                            {statusLabels[status.key] ?? status.label}:{" "}
+                            {status.current}/{status.max}
                           </span>
                           <div className={styles.spectatorStatusActions}>
                             <button
@@ -298,16 +346,17 @@ export default function SpectatorVisionPanel({
                               step={1}
                               className={styles.spectatorStatusStepInput}
                               value={
-                                statusStepInputByCharacter[selectedCharacter.id]?.[status.key] ??
-                                ""
+                                statusStepInputByCharacter[
+                                  selectedCharacter.id
+                                ]?.[status.key] ?? ""
                               }
                               onChange={(event) =>
                                 setStatusStepInputByCharacter((prev) => ({
                                   ...prev,
                                   [selectedCharacter.id]: {
                                     ...(prev[selectedCharacter.id] ?? {}),
-                                    [status.key]: event.target.value,
-                                  },
+                                    [status.key]: event.target.value
+                                  }
                                 }))
                               }
                               placeholder="1"
@@ -318,7 +367,9 @@ export default function SpectatorVisionPanel({
                     })}
                   </div>
                 ) : (
-                  <p className={styles.spectatorEmptyMessage}>Nenhum status encontrado.</p>
+                  <p className={styles.spectatorEmptyMessage}>
+                    Nenhum status encontrado.
+                  </p>
                 )
               ) : detailEntries.length > 0 ? (
                 <ul className={styles.spectatorDetailsList}>

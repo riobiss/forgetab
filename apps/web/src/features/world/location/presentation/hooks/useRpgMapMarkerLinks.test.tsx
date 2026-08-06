@@ -8,7 +8,7 @@ import { useRpgMapMarkerLinks } from "./useRpgMapMarkerLinks"
 const detail = {
   map: {
     id: "map-1",
-    canEdit: true,
+    canEdit: true
   },
   canManage: false,
   sections: [
@@ -18,9 +18,9 @@ const detail = {
       description: "Centro do reino",
       type: "city",
       customFields: {
-        [SECTION_LINK_MARKER_ID]: "shared-marker",
-      },
-    },
+        [SECTION_LINK_MARKER_ID]: "shared-marker"
+      }
+    }
   ],
   tree: [],
   markerGroups: [
@@ -36,11 +36,11 @@ const detail = {
           image: null,
           color: null,
           size: 1,
-          pinStyle: "default",
-        },
-      ],
-    },
-  ],
+          pinStyle: "default"
+        }
+      ]
+    }
+  ]
 } as unknown as RpgMapDetailViewDto
 
 const privateMarkerOptions: MarkerLinkOption[] = [
@@ -54,7 +54,7 @@ const privateMarkerOptions: MarkerLinkOption[] = [
     image: null,
     color: "#f97316",
     size: 1,
-    pinStyle: "default",
+    pinStyle: "default"
   },
   {
     id: "private-marker",
@@ -66,45 +66,45 @@ const privateMarkerOptions: MarkerLinkOption[] = [
     image: null,
     color: "#f97316",
     size: 1,
-    pinStyle: "label",
-  },
+    pinStyle: "label"
+  }
 ]
 
 describe("useRpgMapMarkerLinks", () => {
   it("combina opcoes publicas e privadas sem duplicar marcadores", () => {
     const { result } = renderHook(() =>
-      useRpgMapMarkerLinks(detail, privateMarkerOptions),
+      useRpgMapMarkerLinks(detail, privateMarkerOptions)
     )
 
     expect(result.current.markerOptions.map((marker) => marker.id)).toEqual([
       "shared-marker",
-      "private-marker",
+      "private-marker"
     ])
     expect(result.current.markerOptions[0]).toMatchObject({
       groupId: "public-group",
       visibility: "public",
-      name: "Marcador publico",
+      name: "Marcador publico"
     })
     expect(result.current.markerLinkSelectOptions).toEqual([
       { id: "shared-marker", name: "Marcador publico" },
-      { id: "private-marker", name: "Marcador privado" },
+      { id: "private-marker", name: "Marcador privado" }
     ])
   })
 
   it("projeta secoes vinculadas, opcoes e permissoes do mapa", () => {
     const { result } = renderHook(() =>
-      useRpgMapMarkerLinks(detail, privateMarkerOptions),
+      useRpgMapMarkerLinks(detail, privateMarkerOptions)
     )
 
     expect(result.current.linkedSectionSnapshots).toEqual([
       expect.objectContaining({
         markerId: "shared-marker",
         sectionId: "section-1",
-        name: "Capital",
-      }),
+        name: "Capital"
+      })
     ])
     expect(result.current.markerSectionOptions).toEqual([
-      { id: "section-1", name: "Capital" },
+      { id: "section-1", name: "Capital" }
     ])
     expect(result.current.canEditMapContent).toBe(true)
     expect(result.current.canManageMapImage).toBe(true)
@@ -115,10 +115,10 @@ describe("useRpgMapMarkerLinks", () => {
     const beforeFocus = vi.fn()
     const scrollIntoView = vi.fn()
     const { result } = renderHook(() =>
-      useRpgMapMarkerLinks(detail, privateMarkerOptions),
+      useRpgMapMarkerLinks(detail, privateMarkerOptions)
     )
     result.current.mapFeatureRef.current = {
-      scrollIntoView,
+      scrollIntoView
     } as unknown as HTMLDivElement
 
     act(() => {
@@ -130,7 +130,7 @@ describe("useRpgMapMarkerLinks", () => {
     expect(scrollIntoView).toHaveBeenCalledTimes(2)
     expect(result.current.focusMarkerRequest).toEqual({
       markerId: "shared-marker",
-      token: 2,
+      token: 2
     })
   })
 })

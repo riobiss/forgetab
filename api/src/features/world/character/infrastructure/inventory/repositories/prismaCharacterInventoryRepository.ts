@@ -4,7 +4,7 @@ import type {
   CharacterInventoryRpgRow,
   CharacterInventoryCharacterRow,
   CharacterWeightContextRow,
-  CharacterInventoryStoredItemRow,
+  CharacterInventoryStoredItemRow
 } from "@/features/world/character/application/inventory/ports/CharacterInventoryRepository.js"
 import type { CharacterInventoryItemDto } from "@forgetab/world-contracts/character-inventory"
 import { prisma } from "@/lib/prisma"
@@ -15,7 +15,7 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository =
     async getRpg(rpgId: string): Promise<CharacterInventoryRpgRow | null> {
       const rpg = await prisma.rpg.findUnique({
         where: { id: rpgId },
-        select: { id: true, ownerId: true },
+        select: { id: true, ownerId: true }
       })
 
       return rpg ?? null
@@ -23,7 +23,7 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository =
 
     async getMembership(
       rpgId: string,
-      userId: string,
+      userId: string
     ): Promise<CharacterInventoryMembershipRow | null> {
       const rows = await prisma.$queryRaw<
         CharacterInventoryMembershipRow[]
@@ -40,7 +40,7 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository =
 
     async getCharacter(
       rpgId: string,
-      characterId: string,
+      characterId: string
     ): Promise<CharacterInventoryCharacterRow | null> {
       const rows = await prisma.$queryRaw<
         CharacterInventoryCharacterRow[]
@@ -61,7 +61,7 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository =
 
     async getWeightContext(
       rpgId: string,
-      characterId: string,
+      characterId: string
     ): Promise<CharacterWeightContextRow> {
       try {
         const rows = await prisma.$queryRaw<
@@ -84,7 +84,7 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository =
         if (
           error instanceof Error &&
           (error.message.includes(
-            'column "use_inventory_weight_limit" does not exist',
+            'column "use_inventory_weight_limit" does not exist'
           ) ||
             error.message.includes('column "max_carry_weight" does not exist'))
         ) {
@@ -96,7 +96,7 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository =
 
     listInventory(
       rpgId: string,
-      characterId: string,
+      characterId: string
     ): Promise<CharacterInventoryItemDto[]> {
       return prisma.$queryRaw<CharacterInventoryItemDto[]>(Prisma.sql`
       SELECT
@@ -134,7 +134,7 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository =
     async getInventoryItem(
       rpgId: string,
       characterId: string,
-      inventoryItemId: string,
+      inventoryItemId: string
     ): Promise<CharacterInventoryStoredItemRow | null> {
       const rows = await prisma.$queryRaw<
         CharacterInventoryStoredItemRow[]
@@ -153,7 +153,7 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository =
     async deleteInventoryItem(
       rpgId: string,
       characterId: string,
-      inventoryItemId: string,
+      inventoryItemId: string
     ) {
       await prisma.$executeRaw(Prisma.sql`
       DELETE FROM rpg_character_inventory_items
@@ -167,7 +167,7 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository =
       rpgId: string,
       characterId: string,
       inventoryItemId: string,
-      quantity: number,
+      quantity: number
     ) {
       await prisma.$executeRaw(Prisma.sql`
       UPDATE rpg_character_inventory_items
@@ -178,5 +178,5 @@ export const prismaCharacterInventoryRepository: CharacterInventoryRepository =
         AND rpg_id = ${rpgId}
         AND character_id = ${characterId}
     `)
-    },
+    }
   }

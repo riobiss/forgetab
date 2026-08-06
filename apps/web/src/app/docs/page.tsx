@@ -1,1 +1,1 @@
-export default function DocsPage(){}
+export default function DocsPage() {}

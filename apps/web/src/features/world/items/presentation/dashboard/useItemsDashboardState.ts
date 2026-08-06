@@ -3,13 +3,13 @@ import type { ItemsDashboardDependencies } from "@/features/world/items/applicat
 import { loadItemsDashboardData } from "@/features/world/items/application/dashboard/use-cases/itemsDashboard"
 import {
   baseItemRarityValues,
-  baseItemTypeValues,
+  baseItemTypeValues
 } from "@/lib/validators/baseItem"
 import type { BaseItem, CharacterSummary } from "./types"
 import {
   buildItemPayload,
   createEmptyNamedDescription,
-  updateNamedEntry,
+  updateNamedEntry
 } from "./editorState"
 import { useItemEditorAssets } from "./useItemEditorAssets"
 import { useItemsEditorController } from "./useItemsEditorController"
@@ -58,7 +58,7 @@ export function useItemsDashboardState({ rpgId, deps }: Params) {
     resetItemEditorAssets,
     handleImageUpload,
     handleRemoveImage,
-    addCustomField,
+    addCustomField
   } = useItemEditorAssets()
   const {
     search,
@@ -71,7 +71,7 @@ export function useItemsDashboardState({ rpgId, deps }: Params) {
     setSelectedRarity,
     showCategories,
     setShowCategories,
-    visibleItems,
+    visibleItems
   } = useItemsFilters({ items })
   const {
     editorOpen,
@@ -112,7 +112,7 @@ export function useItemsDashboardState({ rpgId, deps }: Params) {
     setEffects,
     openCreateModal,
     closeEditorModal,
-    openEditModal,
+    openEditModal
   } = useItemsEditorController({
     items,
     resetItemEditorAssets,
@@ -120,12 +120,12 @@ export function useItemsDashboardState({ rpgId, deps }: Params) {
     setUploadError,
     setSelectedImageFile,
     setSelectedImagePreviewUrl,
-    setPendingImageRemoval,
+    setPendingImageRemoval
   })
 
   const selectedGiveItem = useMemo(
     () => items.find((item) => item.id === giveModalItemId) ?? null,
-    [items, giveModalItemId],
+    [items, giveModalItemId]
   )
   const loadData = useCallback(async () => {
     try {
@@ -138,7 +138,7 @@ export function useItemsDashboardState({ rpgId, deps }: Params) {
       setLoadingError(
         cause instanceof Error
           ? cause.message
-          : "Erro de conexao ao carregar dados.",
+          : "Erro de conexao ao carregar dados."
       )
       setItems([])
       setCharacters([])
@@ -181,7 +181,7 @@ export function useItemsDashboardState({ rpgId, deps }: Params) {
         abilities,
         effects,
         customFields,
-        pendingImageRemoval,
+        pendingImageRemoval
       }),
     setItems,
     setLoadingError,
@@ -196,7 +196,7 @@ export function useItemsDashboardState({ rpgId, deps }: Params) {
     setEditorError,
     setUploadError,
     setUploadingImage,
-    closeEditorModal,
+    closeEditorModal
   })
 
   return {
@@ -289,9 +289,9 @@ export function useItemsDashboardState({ rpgId, deps }: Params) {
     addCustomField: () =>
       addCustomField({
         onMissingName: () => setEditorError("Informe o nome do novo campo."),
-        onAdded: () => setEditorError(""),
+        onAdded: () => setEditorError("")
       }),
     updateNamedEntry,
-    createEmptyNamedDescription,
+    createEmptyNamedDescription
   }
 }

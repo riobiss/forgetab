@@ -4,11 +4,11 @@ export {
   getLibrarySectionHandler,
   listLibrarySectionBooksHandler,
   listLibrarySectionsHandler,
-  updateLibrarySectionHandler,
+  updateLibrarySectionHandler
 } from "./sectionHandlers"
 export {
   createLibraryBookHandler,
   deleteLibraryBookHandler,
   getLibraryBookHandler,
-  updateLibraryBookHandler,
+  updateLibraryBookHandler
 } from "./bookHandlers"

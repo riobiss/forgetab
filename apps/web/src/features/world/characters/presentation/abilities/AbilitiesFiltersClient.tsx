@@ -15,7 +15,7 @@ const SKILL_CATEGORY_LABEL: Record<string, string> = {
   espiritual: "Espiritual",
   mental: "Mental",
   natural: "Natural",
-  tecnologica: "Tecnológica",
+  tecnologica: "Tecnológica"
 }
 
 const SKILL_TYPE_LABEL: Record<string, string> = {
@@ -29,14 +29,14 @@ const SKILL_TYPE_LABEL: Record<string, string> = {
   mobility: "Mobilidade",
   summon: "Invocacao",
   utility: "Utilidade",
-  resource: "Recurso",
+  resource: "Recurso"
 }
 
 const SKILL_ACTION_TYPE_LABEL: Record<string, string> = {
   action: "Acao",
   bonus: "Bonus",
   reaction: "Reacao",
-  passive: "Passiva",
+  passive: "Passiva"
 }
 
 function hasText(value: string | null | undefined) {
@@ -66,7 +66,7 @@ export default function AbilitiesFiltersClient({
   characterId,
   abilities,
   deps,
-  canManage = true,
+  canManage = true
 }: {
   characterId: string
   abilities: PurchasedAbilityViewDto[]
@@ -101,10 +101,10 @@ export default function AbilitiesFiltersClient({
         new Set(
           abilityItems
             .map((item) => item.skillCategory?.trim())
-            .filter((item): item is string => Boolean(item)),
-        ),
+            .filter((item): item is string => Boolean(item))
+        )
       ),
-    [abilityItems],
+    [abilityItems]
   )
 
   const tagOptions = useMemo(
@@ -114,10 +114,10 @@ export default function AbilitiesFiltersClient({
           abilityItems
             .flatMap((item) => item.skillTags)
             .map((item) => item.trim())
-            .filter((item) => item.length > 0),
-        ),
+            .filter((item) => item.length > 0)
+        )
       ),
-    [abilityItems],
+    [abilityItems]
   )
 
   const activeExtraFilters =
@@ -172,7 +172,7 @@ export default function AbilitiesFiltersClient({
         ability.notesList.join(" "),
         ability.customFields
           .map((field) => `${field.name} ${field.value ?? ""}`)
-          .join(" "),
+          .join(" ")
       ]
         .filter((item): item is string => hasText(item))
         .join(" ")
@@ -186,7 +186,7 @@ export default function AbilitiesFiltersClient({
     selectedActionTypeFilters,
     selectedCategoryFilters,
     selectedTags,
-    selectedTypeFilters,
+    selectedTypeFilters
   ])
 
   const typeOptions = useMemo(() => {
@@ -197,10 +197,10 @@ export default function AbilitiesFiltersClient({
           .map((item) => item.skillType?.trim())
           .filter(
             (item): item is string =>
-              typeof item === "string" && item.length > 0,
+              typeof item === "string" && item.length > 0
           )
-          .filter((item) => !catalogTypes.includes(item)),
-      ),
+          .filter((item) => !catalogTypes.includes(item))
+      )
     )
     return [...catalogTypes, ...customTypes]
   }, [abilityItems])
@@ -212,10 +212,10 @@ export default function AbilitiesFiltersClient({
           .map((item) => item.skillActionType?.trim())
           .filter(
             (item): item is string =>
-              typeof item === "string" && item.length > 0,
+              typeof item === "string" && item.length > 0
           )
-          .filter((item) => !catalogActionTypes.includes(item)),
-      ),
+          .filter((item) => !catalogActionTypes.includes(item))
+      )
     )
     return [...catalogActionTypes, ...customActionTypes]
   }, [abilityItems])
@@ -231,7 +231,7 @@ export default function AbilitiesFiltersClient({
       const payload = await removeCharacterAbilityUseCase(deps, {
         characterId,
         skillId: selectedAbilityModal.skillId,
-        level: selectedAbilityModal.levelNumber,
+        level: selectedAbilityModal.levelNumber
       })
       if (!payload.success) {
         setRemoveAbilityError("Nao foi possivel remover a habilidade.")
@@ -244,15 +244,15 @@ export default function AbilitiesFiltersClient({
             !(
               item.skillId === selectedAbilityModal.skillId &&
               item.levelNumber === selectedAbilityModal.levelNumber
-            ),
-        ),
+            )
+        )
       )
       setSelectedAbilityModal(null)
     } catch (cause) {
       setRemoveAbilityError(
         cause instanceof Error
           ? cause.message
-          : "Erro de conexao ao remover habilidade.",
+          : "Erro de conexao ao remover habilidade."
       )
     } finally {
       setIsRemovingAbility(false)
@@ -263,7 +263,7 @@ export default function AbilitiesFiltersClient({
     setSelectedTags((current) =>
       current.includes(tag)
         ? current.filter((item) => item !== tag)
-        : [...current, tag],
+        : [...current, tag]
     )
   }
 
@@ -357,7 +357,7 @@ export default function AbilitiesFiltersClient({
                       setSelectedCategoryFilters((current) =>
                         current.includes(item)
                           ? current.filter((value) => value !== item)
-                          : [...current, item],
+                          : [...current, item]
                       )
                     }
                   >
@@ -383,7 +383,7 @@ export default function AbilitiesFiltersClient({
                       setSelectedTypeFilters((current) =>
                         current.includes(item)
                           ? current.filter((value) => value !== item)
-                          : [...current, item],
+                          : [...current, item]
                       )
                     }
                   >
@@ -409,7 +409,7 @@ export default function AbilitiesFiltersClient({
                       setSelectedActionTypeFilters((current) =>
                         current.includes(item)
                           ? current.filter((value) => value !== item)
-                          : [...current, item],
+                          : [...current, item]
                       )
                     }
                   >
@@ -488,7 +488,7 @@ export default function AbilitiesFiltersClient({
                   "--tag-card-border": meta.cardBorder,
                   "--tag-card-glow": meta.cardGlow,
                   "--tag-card-key-text": meta.cardKeyText,
-                  "--tag-card-value-text": meta.cardValueText,
+                  "--tag-card-value-text": meta.cardValueText
                 } as CSSProperties
               })()}
             >

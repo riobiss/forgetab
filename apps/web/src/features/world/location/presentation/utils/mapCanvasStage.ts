@@ -5,7 +5,7 @@ import type { MarkerRenderMode } from "@/features/world/location/presentation/ut
 import {
   calculatePinchViewport,
   getLocalPinchCenter,
-  preserveViewportOnResize,
+  preserveViewportOnResize
 } from "@/features/world/location/presentation/utils/mapZoom"
 
 export type MapCanvasPoint = { x: number; y: number }
@@ -18,7 +18,7 @@ export function syncMapInteraction(
   isBrushMode: boolean,
   isFullscreen: boolean,
   isMarkerSelectionMode: boolean,
-  isPinching: boolean,
+  isPinching: boolean
 ) {
   if (!stage) return
 
@@ -27,14 +27,14 @@ export function syncMapInteraction(
       isFullscreen &&
       !isBrushMode &&
       !isMarkerSelectionMode &&
-      !isPinching,
+      !isPinching
   )
 }
 
 export function applyStageZoom(
   stage: Konva.Stage,
   deltaY: number,
-  mapImage: Konva.Image | null,
+  mapImage: Konva.Image | null
 ) {
   const oldScale = stage.scaleX()
   const minScale = getStageMinScale(stage, mapImage)
@@ -48,12 +48,12 @@ export function applyStageZoom(
 
   const mousePointTo = {
     x: (pointer.x - stage.x()) / oldScale,
-    y: (pointer.y - stage.y()) / oldScale,
+    y: (pointer.y - stage.y()) / oldScale
   }
   stage.scale({ x: newScale, y: newScale })
   stage.position({
     x: pointer.x - mousePointTo.x * newScale,
-    y: pointer.y - mousePointTo.y * newScale,
+    y: pointer.y - mousePointTo.y * newScale
   })
   constrainStagePosition(stage, mapImage)
   stage.batchDraw()
@@ -64,7 +64,7 @@ export function applyStagePinchZoom(
   touches: TouchList,
   pinchLastCenterRef: MutableRefObject<MapCanvasPoint | null>,
   pinchLastDistanceRef: MutableRefObject<number | null>,
-  mapImage: Konva.Image | null,
+  mapImage: Konva.Image | null
 ) {
   if (touches.length < 2) return
 
@@ -74,13 +74,13 @@ export function applyStagePinchZoom(
 
   const center = getLocalPinchCenter(
     touches,
-    stage.container().getBoundingClientRect(),
+    stage.container().getBoundingClientRect()
   )
   if (!center) return
 
   const distance = Math.hypot(
     touch2.clientX - touch1.clientX,
-    touch2.clientY - touch1.clientY,
+    touch2.clientY - touch1.clientY
   )
   const previousCenter = pinchLastCenterRef.current
   const previousDistance = pinchLastDistanceRef.current
@@ -102,7 +102,7 @@ export function applyStagePinchZoom(
     previousCenter,
     center,
     previousDistance,
-    distance,
+    distance
   })
   stage.scale({ x: viewport.scale, y: viewport.scale })
   stage.position(viewport.position)
@@ -116,7 +116,7 @@ export function preserveStageViewOnResize(
   stage: Konva.Stage,
   mapImage: Konva.Image,
   previousWidth: number,
-  previousHeight: number,
+  previousHeight: number
 ) {
   const minScale = getStageMinScale(stage, mapImage)
   if (minScale === null) return
@@ -128,7 +128,7 @@ export function preserveStageViewOnResize(
     nextHeight: stage.height(),
     currentScale: stage.scaleX(),
     minScale,
-    position: { x: stage.x(), y: stage.y() },
+    position: { x: stage.x(), y: stage.y() }
   })
   stage.scale({ x: viewport.scale, y: viewport.scale })
   stage.position(viewport.position)
@@ -137,7 +137,7 @@ export function preserveStageViewOnResize(
 
 export function getStageMinScale(
   stage: Konva.Stage,
-  mapImage: Konva.Image | null,
+  mapImage: Konva.Image | null
 ) {
   if (!mapImage) return null
 
@@ -149,13 +149,13 @@ export function getStageMinScale(
 
   return Math.min(
     stage.width() / imageSize.width,
-    stage.height() / imageSize.height,
+    stage.height() / imageSize.height
   )
 }
 
 export function constrainStagePosition(
   stage: Konva.Stage,
-  mapImage: Konva.Image | null,
+  mapImage: Konva.Image | null
 ) {
   if (!mapImage) return
 
@@ -201,21 +201,21 @@ export function fitImageToStage(stage: Konva.Stage, mapImage: Konva.Image) {
   const stageHeight = stage.height()
   const scale = Math.min(
     stageWidth / imageSize.width,
-    stageHeight / imageSize.height,
+    stageHeight / imageSize.height
   )
   mapImage.position({ x: 0, y: 0 })
   mapImage.size({ width: imageSize.width, height: imageSize.height })
   stage.scale({ x: scale, y: scale })
   stage.position({
     x: (stageWidth - imageSize.width * scale) / 2,
-    y: (stageHeight - imageSize.height * scale) / 2,
+    y: (stageHeight - imageSize.height * scale) / 2
   })
 }
 
 export function focusStageOnMarker(
   stage: Konva.Stage,
   mapImage: Konva.Image,
-  marker: Pick<MapMarkerItem, "x" | "y">,
+  marker: Pick<MapMarkerItem, "x" | "y">
 ) {
   const minScale = getStageMinScale(stage, mapImage)
   if (minScale === null) return
@@ -223,12 +223,12 @@ export function focusStageOnMarker(
   const targetScale = clamp(
     Math.max(minScale * 1.85, minScale + 0.35),
     minScale,
-    Math.max(minScale, 4),
+    Math.max(minScale, 4)
   )
   stage.scale({ x: targetScale, y: targetScale })
   stage.position({
     x: stage.width() / 2 - marker.x * targetScale,
-    y: stage.height() / 2 - marker.y * targetScale,
+    y: stage.height() / 2 - marker.y * targetScale
   })
   constrainStagePosition(stage, mapImage)
 }
@@ -236,7 +236,7 @@ export function focusStageOnMarker(
 export function isMarkerVisibleInViewport(
   stage: Konva.Stage,
   marker: Pick<MapMarkerItem, "x" | "y" | "size" | "pinStyle">,
-  label: string,
+  label: string
 ) {
   const scale = stage.scaleX()
   const screenX = stage.x() + marker.x * scale
@@ -258,7 +258,7 @@ export function isMarkerVisibleInViewport(
 
 export function getMarkerRenderMode(
   stage: Konva.Stage,
-  mapImage: Konva.Image | null,
+  mapImage: Konva.Image | null
 ): MarkerRenderMode {
   const minScale = getStageMinScale(stage, mapImage)
   if (minScale === null || minScale <= 0) return "full"
@@ -283,7 +283,7 @@ function clamp(value: number, min: number, max: number) {
 }
 
 function getCanvasImageSize(
-  source: CanvasImageSource,
+  source: CanvasImageSource
 ): { width: number; height: number } | null {
   if ("width" in source && "height" in source) {
     const width = Number(source.width)

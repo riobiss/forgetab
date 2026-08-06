@@ -16,14 +16,14 @@ describe("MapSectionConflictModal", () => {
         modalRef={createRef<HTMLElement>()}
         pendingSectionConflict={{
           linkedMarker: { id: "marker-1" },
-          fields: ["Nome", "Descricao"],
+          fields: ["Nome", "Descricao"]
         }}
         saving={false}
         onKeepMarker={onKeepMarker}
         onKeepSection={onKeepSection}
         onGoToMap={onGoToMap}
         onClose={onClose}
-      />,
+      />
     )
 
     expect(screen.getByText(/Nome, Descricao/)).toBeInTheDocument()

@@ -1,11 +1,11 @@
 import type {
   DashboardCharacterSummary,
-  RpgDashboardGateway,
+  RpgDashboardGateway
 } from "@/features/world/application/dashboard/contracts/RpgDashboardGateway"
 
 export async function requestToJoinRpgUseCase(
   gateway: RpgDashboardGateway,
-  params: { rpgId: string },
+  params: { rpgId: string }
 ) {
   return gateway.requestToJoinRpg(params.rpgId)
 }
@@ -16,58 +16,58 @@ export async function processMemberRequestUseCase(
     rpgId: string
     memberId: string
     action: "accept" | "reject" | "toggleModerator"
-  },
+  }
 ) {
   return gateway.processMemberRequest(
     params.rpgId,
     params.memberId,
-    params.action,
+    params.action
   )
 }
 
 export async function processCharacterRequestUseCase(
   gateway: RpgDashboardGateway,
-  params: { rpgId: string; requestId: string; action: "accept" | "reject" },
+  params: { rpgId: string; requestId: string; action: "accept" | "reject" }
 ) {
   return gateway.processCharacterRequest(
     params.rpgId,
     params.requestId,
-    params.action,
+    params.action
   )
 }
 
 export async function expelMemberUseCase(
   gateway: RpgDashboardGateway,
-  params: { rpgId: string; memberId: string },
+  params: { rpgId: string; memberId: string }
 ) {
   return gateway.expelMember(params.rpgId, params.memberId)
 }
 
 export async function toggleModeratorUseCase(
   gateway: RpgDashboardGateway,
-  params: { rpgId: string; memberId: string },
+  params: { rpgId: string; memberId: string }
 ) {
   return gateway.processMemberRequest(
     params.rpgId,
     params.memberId,
-    "toggleModerator",
+    "toggleModerator"
   )
 }
 
 export async function loadDashboardDistributionUseCase(
   gateway: RpgDashboardGateway,
-  params: { rpgId: string },
+  params: { rpgId: string }
 ) {
   const [charactersPayload, classesPayload, rpgPayload] = await Promise.all([
     gateway.fetchCharacters(params.rpgId),
     gateway.fetchClasses(params.rpgId),
-    gateway.fetchRpg(params.rpgId),
+    gateway.fetchRpg(params.rpgId)
   ])
 
   return {
     charactersPayload,
     classesPayload,
-    rpgPayload,
+    rpgPayload
   }
 }
 
@@ -76,7 +76,7 @@ export function mapPlayersWithClasses(params: {
   classes: Array<{ key: string; label: string }>
 }) {
   const classLabelByKey = new Map(
-    params.classes.map((item) => [item.key, item.label]),
+    params.classes.map((item) => [item.key, item.label])
   )
 
   return params.characters
@@ -87,20 +87,20 @@ export function mapPlayersWithClasses(params: {
       name: item.name,
       classLabel: item.classKey
         ? (classLabelByKey.get(item.classKey) ?? item.classKey)
-        : "Sem classe",
+        : "Sem classe"
     }))
 }
 
 export async function grantPointsUseCase(
   gateway: RpgDashboardGateway,
-  params: { characterId: string; amount: number },
+  params: { characterId: string; amount: number }
 ) {
   return gateway.grantPoints(params.characterId, params.amount)
 }
 
 export async function grantXpUseCase(
   gateway: RpgDashboardGateway,
-  params: { characterId: string; amount: number },
+  params: { characterId: string; amount: number }
 ) {
   return gateway.grantXp(params.characterId, params.amount)
 }

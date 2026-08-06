@@ -2,7 +2,7 @@ import {
   getDefaultProgressionTiers,
   isProgressionMode,
   normalizeProgressionTiers,
-  type ProgressionMode,
+  type ProgressionMode
 } from "@/lib/rpg/progression"
 import type { RpgAccessRepository } from "@/features/world/character/application/ports/RpgAccessRepository"
 import type { RpgAccess } from "@/features/world/character/application/types"
@@ -14,7 +14,7 @@ type GetRpgAccessInput = {
 }
 
 export async function getRpgAccess(
-  input: GetRpgAccessInput,
+  input: GetRpgAccessInput
 ): Promise<RpgAccess> {
   const rpg = await input.repository.getRpgAccessRow(input.rpgId)
 
@@ -28,7 +28,7 @@ export async function getRpgAccess(
       useInventoryWeightLimit: false,
       allowMultiplePlayerCharacters: false,
       progressionMode: "xp_level",
-      progressionTiers: getDefaultProgressionTiers("xp_level"),
+      progressionTiers: getDefaultProgressionTiers("xp_level")
     }
   }
 
@@ -37,7 +37,7 @@ export async function getRpgAccess(
     : ("xp_level" as ProgressionMode)
   const progressionTiers = normalizeProgressionTiers(
     rpg.progressionTiers,
-    progressionMode,
+    progressionMode
   )
 
   if (rpg.ownerId === input.userId) {
@@ -50,13 +50,13 @@ export async function getRpgAccess(
       useInventoryWeightLimit: rpg.useInventoryWeightLimit,
       allowMultiplePlayerCharacters: rpg.allowMultiplePlayerCharacters,
       progressionMode,
-      progressionTiers,
+      progressionTiers
     }
   }
 
   const membership = await input.repository.getMembership(
     input.rpgId,
-    input.userId,
+    input.userId
   )
   const isAcceptedMember = membership?.status === "accepted"
   const isModerator = isAcceptedMember && membership?.role === "moderator"
@@ -70,6 +70,6 @@ export async function getRpgAccess(
     useInventoryWeightLimit: rpg.useInventoryWeightLimit,
     allowMultiplePlayerCharacters: rpg.allowMultiplePlayerCharacters,
     progressionMode,
-    progressionTiers,
+    progressionTiers
   }
 }

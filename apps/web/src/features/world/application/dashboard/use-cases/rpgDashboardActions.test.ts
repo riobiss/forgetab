@@ -4,7 +4,7 @@ import {
   loadDashboardDistributionUseCase,
   mapPlayersWithClasses,
   processMemberRequestUseCase,
-  requestToJoinRpgUseCase,
+  requestToJoinRpgUseCase
 } from "@/features/world/application/dashboard/use-cases/rpgDashboardActions"
 
 function createGatewayMock(): RpgDashboardGateway {
@@ -21,7 +21,7 @@ function createGatewayMock(): RpgDashboardGateway {
     grantPoints: vi
       .fn()
       .mockResolvedValue({ success: true, remainingPoints: 3 }),
-    grantXp: vi.fn().mockResolvedValue({ success: true }),
+    grantXp: vi.fn().mockResolvedValue({ success: true })
   }
 }
 
@@ -40,13 +40,13 @@ describe("rpgDashboardActions use-cases", () => {
     await processMemberRequestUseCase(gateway, {
       rpgId: "rpg-1",
       memberId: "m-1",
-      action: "accept",
+      action: "accept"
     })
 
     expect(gateway.processMemberRequest).toHaveBeenCalledWith(
       "rpg-1",
       "m-1",
-      "accept",
+      "accept"
     )
   })
 
@@ -54,15 +54,15 @@ describe("rpgDashboardActions use-cases", () => {
     const gateway = createGatewayMock()
     ;(gateway.fetchCharacters as ReturnType<typeof vi.fn>).mockResolvedValue({
       characters: [
-        { id: "c1", name: "Aria", classKey: "mage", characterType: "player" },
-      ],
+        { id: "c1", name: "Aria", classKey: "mage", characterType: "player" }
+      ]
     })
     ;(gateway.fetchClasses as ReturnType<typeof vi.fn>).mockResolvedValue({
-      classes: [{ key: "mage", label: "Maga" }],
+      classes: [{ key: "mage", label: "Maga" }]
     })
 
     const result = await loadDashboardDistributionUseCase(gateway, {
-      rpgId: "rpg-1",
+      rpgId: "rpg-1"
     })
 
     expect(result.charactersPayload.characters?.[0]?.name).toBe("Aria")
@@ -78,20 +78,20 @@ describe("rpgDashboardActions use-cases", () => {
           name: "Aria",
           classKey: "mage",
           characterType: "player",
-          createdByUserId: "u1",
+          createdByUserId: "u1"
         },
         {
           id: "c2",
           name: "Goblin",
           classKey: null,
-          characterType: "monster",
-        },
+          characterType: "monster"
+        }
       ],
-      classes: [{ key: "mage", label: "Maga" }],
+      classes: [{ key: "mage", label: "Maga" }]
     })
 
     expect(result).toEqual([
-      { id: "c1", userId: "u1", name: "Aria", classLabel: "Maga" },
+      { id: "c1", userId: "u1", name: "Aria", classLabel: "Maga" }
     ])
   })
 })

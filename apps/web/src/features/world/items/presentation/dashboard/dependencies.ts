@@ -4,7 +4,7 @@ import { httpItemsDashboardGateway } from "@/features/world/items/infrastructure
 export type ItemsDashboardGatewayFactory = "http"
 
 export function createItemsDashboardDependencies(
-  factory: ItemsDashboardGatewayFactory = "http",
+  factory: ItemsDashboardGatewayFactory = "http"
 ): ItemsDashboardDependencies {
   switch (factory) {
     case "http":

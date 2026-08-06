@@ -24,12 +24,20 @@ export async function getRpgVisibilityAccess(rpgId: string, userId: string) {
 
   const rpg = rows[0]
   if (!rpg) {
-    return { exists: false as const, canView: false as const, canManage: false as const }
+    return {
+      exists: false as const,
+      canView: false as const,
+      canManage: false as const
+    }
   }
 
   const isOwner = rpg.ownerId === userId
   if (isOwner) {
-    return { exists: true as const, canView: true as const, canManage: true as const }
+    return {
+      exists: true as const,
+      canView: true as const,
+      canManage: true as const
+    }
   }
 
   const memberRows = await prisma.$queryRaw<MemberStatusRow[]>(Prisma.sql`
@@ -44,6 +52,6 @@ export async function getRpgVisibilityAccess(rpgId: string, userId: string) {
   return {
     exists: true as const,
     canView: isAcceptedMember,
-    canManage: false as const,
+    canManage: false as const
   }
 }

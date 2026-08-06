@@ -4,12 +4,12 @@ import {
   getClassCatalogDetailHandler,
   getClassCatalogPageHandler,
   getRaceCatalogDetailHandler,
-  getRaceCatalogPageHandler,
+  getRaceCatalogPageHandler
 } from "@/features/world/catalog/presentation/handlers"
 import type {
   ClassDetailRouteParams,
   EntityCatalogRouteParams,
-  RaceDetailRouteParams,
+  RaceDetailRouteParams
 } from "@/features/world/catalog/presentation/routeTypes"
 
 export function catalogRoutes(app: FastifyInstance) {
@@ -20,8 +20,8 @@ export function catalogRoutes(app: FastifyInstance) {
     (request, reply) =>
       getRaceCatalogPageHandler(
         request as FastifyRequest<{ Params: EntityCatalogRouteParams }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -30,8 +30,8 @@ export function catalogRoutes(app: FastifyInstance) {
     (request, reply) =>
       getRaceCatalogDetailHandler(
         request as FastifyRequest<{ Params: RaceDetailRouteParams }>,
-        reply,
-      ),
+        reply
+      )
   )
 
   registerFastifyRoute(
@@ -41,8 +41,8 @@ export function catalogRoutes(app: FastifyInstance) {
     (request, reply) =>
       getClassCatalogPageHandler(
         request as FastifyRequest<{ Params: EntityCatalogRouteParams }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -51,7 +51,7 @@ export function catalogRoutes(app: FastifyInstance) {
     (request, reply) =>
       getClassCatalogDetailHandler(
         request as FastifyRequest<{ Params: ClassDetailRouteParams }>,
-        reply,
-      ),
+        reply
+      )
   )
 }

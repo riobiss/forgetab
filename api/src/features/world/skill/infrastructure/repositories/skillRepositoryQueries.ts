@@ -5,17 +5,17 @@ import { createRpgScope } from "@/lib/validators/skillBuilder"
 import type {
   AbilityCategoryConfig,
   LinkValidationResult,
-  SkillDetails,
+  SkillDetails
 } from "@/features/world/skill/application/ports/SkillRepository"
 import { mapSkillLevel } from "@/features/world/skill/infrastructure/repositories/skillRepositoryMappers.js"
 import type {
   SkillLevelRow,
-  SkillRow,
+  SkillRow
 } from "@/features/world/skill/infrastructure/repositories/skillRepositoryRows.js"
 
 export async function listSkillsByOwner(
   ownerId: string,
-  rpgId?: string | null,
+  rpgId?: string | null
 ) {
   let rows: SkillRow[] = []
   try {
@@ -63,7 +63,7 @@ export async function listSkillsByOwner(
 }
 
 export async function getRpgAbilityCategoryConfig(
-  rpgId: string | null,
+  rpgId: string | null
 ): Promise<AbilityCategoryConfig> {
   if (!rpgId) {
     return { enabled: false, categories: [] }
@@ -84,16 +84,16 @@ export async function getRpgAbilityCategoryConfig(
     const row = rows[0]
     return {
       enabled: Boolean(row?.enabled),
-      categories: normalizeEnabledAbilityCategories(row?.categories),
+      categories: normalizeEnabledAbilityCategories(row?.categories)
     }
   } catch (error) {
     if (
       error instanceof Error &&
       (error.message.includes(
-        'column "ability_categories_enabled" does not exist',
+        'column "ability_categories_enabled" does not exist'
       ) ||
         error.message.includes(
-          'column "enabled_ability_categories" does not exist',
+          'column "enabled_ability_categories" does not exist'
         ))
     ) {
       return { enabled: false, categories: [] }
@@ -114,7 +114,7 @@ export async function validateSkillLinkIds(params: {
   ) {
     return {
       ok: false,
-      message: "Vinculos de classe/raca exigem um rpgId.",
+      message: "Vinculos de classe/raca exigem um rpgId."
     }
   }
 
@@ -135,7 +135,7 @@ export async function validateSkillLinkIds(params: {
     if (classMatches.length !== params.classIds.length) {
       return {
         ok: false,
-        message: "Uma ou mais classes informadas sao invalidas para este RPG.",
+        message: "Uma ou mais classes informadas sao invalidas para este RPG."
       }
     }
   }
@@ -153,7 +153,7 @@ export async function validateSkillLinkIds(params: {
     if (raceMatches.length !== params.raceIds.length) {
       return {
         ok: false,
-        message: "Uma ou mais racas informadas sao invalidas para este RPG.",
+        message: "Uma ou mais racas informadas sao invalidas para este RPG."
       }
     }
   }
@@ -163,7 +163,7 @@ export async function validateSkillLinkIds(params: {
 
 export async function findSkillById(
   skillId: string,
-  ownerId: string,
+  ownerId: string
 ): Promise<SkillDetails | null> {
   let skills: SkillRow[] = []
   try {
@@ -251,7 +251,7 @@ export async function findSkillById(
     ...skills[0],
     classIds: classRows.map((item) => item.classTemplateId),
     raceIds: raceRows.map((item) => item.raceTemplateId),
-    levels: levels.map(mapSkillLevel),
+    levels: levels.map(mapSkillLevel)
   }
 }
 

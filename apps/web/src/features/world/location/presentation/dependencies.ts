@@ -10,6 +10,6 @@ export const rpgMapPresentationDeps = {
   markerSectionLinkGateway: httpMarkerSectionLinkGateway,
   markerSectionSyncGateways: {
     privateMarkers: localPrivateMarkerSectionSyncGateway,
-    publicMarkers: httpPublicMarkerSectionSyncGateway,
-  },
+    publicMarkers: httpPublicMarkerSectionSyncGateway
+  }
 } as const

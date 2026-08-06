@@ -2,7 +2,10 @@
 
 import { useMemo } from "react"
 import SkillsDashboardClient from "./SkillsDashboardClient"
-import { createSkillsDashboardDependencies, type SkillsDashboardGatewayFactory } from "./dependencies"
+import {
+  createSkillsDashboardDependencies,
+  type SkillsDashboardGatewayFactory
+} from "./dependencies"
 import type { SkillsDashboardProps } from "./types"
 
 type SkillsDashboardFeatureProps = SkillsDashboardProps & {
@@ -15,7 +18,7 @@ export default function SkillsDashboardFeature({
 }: SkillsDashboardFeatureProps) {
   const deps = useMemo(
     () => createSkillsDashboardDependencies(gatewayFactory),
-    [gatewayFactory],
+    [gatewayFactory]
   )
 
   return <SkillsDashboardClient {...props} deps={deps} />

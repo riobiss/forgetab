@@ -11,7 +11,9 @@ export function useItemsFilters({ items }: UseItemsFiltersParams) {
   const [search, setSearch] = useState("")
   const deferredSearch = useDeferredValue(search)
   const [searchOpen, setSearchOpen] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState<ItemType | "all">("all")
+  const [selectedCategory, setSelectedCategory] = useState<ItemType | "all">(
+    "all"
+  )
   const [selectedRarity, setSelectedRarity] = useState<
     (typeof baseItemRarityValues)[number] | "all"
   >("all")
@@ -21,8 +23,10 @@ export function useItemsFilters({ items }: UseItemsFiltersParams) {
     const normalizedSearch = deferredSearch.trim().toLowerCase()
 
     return items.filter((item) => {
-      const matchesCategory = selectedCategory === "all" ? true : item.type === selectedCategory
-      const matchesRarity = selectedRarity === "all" ? true : item.rarity === selectedRarity
+      const matchesCategory =
+        selectedCategory === "all" ? true : item.type === selectedCategory
+      const matchesRarity =
+        selectedRarity === "all" ? true : item.rarity === selectedRarity
 
       if (!matchesCategory || !matchesRarity) {
         return false
@@ -43,7 +47,7 @@ export function useItemsFilters({ items }: UseItemsFiltersParams) {
         parseCustomFieldList(item.customFields).some(
           (field) =>
             field.name.toLowerCase().includes(normalizedSearch) ||
-            field.value.toLowerCase().includes(normalizedSearch),
+            field.value.toLowerCase().includes(normalizedSearch)
         )
       )
     })
@@ -60,6 +64,6 @@ export function useItemsFilters({ items }: UseItemsFiltersParams) {
     setSelectedRarity,
     showCategories,
     setShowCategories,
-    visibleItems,
+    visibleItems
   }
 }

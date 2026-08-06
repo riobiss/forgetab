@@ -6,7 +6,7 @@ import type {
   RpgEditorCatalogOptionDto,
   RpgEditorIdentityFieldDto,
   RpgEditorTemplateFieldDto,
-  UpdateRpgPayloadDto,
+  UpdateRpgPayloadDto
 } from "@/features/world/application/editor/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
@@ -21,32 +21,32 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
       racesPayload,
       classesPayload,
       identityPayload,
-      characteristicPayload,
+      characteristicPayload
     ] = await Promise.all([
       apiFetch(`/api/rpg/${rpgId}`).then((response) =>
-        parseJson<{ rpg?: RpgEditorBootstrapDto["rpg"] }>(response),
+        parseJson<{ rpg?: RpgEditorBootstrapDto["rpg"] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/attributes`).then((response) =>
-        parseJson<{ attributes?: RpgEditorTemplateFieldDto[] }>(response),
+        parseJson<{ attributes?: RpgEditorTemplateFieldDto[] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/statuses`).then((response) =>
-        parseJson<{ statuses?: RpgEditorTemplateFieldDto[] }>(response),
+        parseJson<{ statuses?: RpgEditorTemplateFieldDto[] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/skills`).then((response) =>
-        parseJson<{ skills?: RpgEditorTemplateFieldDto[] }>(response),
+        parseJson<{ skills?: RpgEditorTemplateFieldDto[] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/races`).then((response) =>
-        parseJson<{ races?: RpgEditorBootstrapDto["races"] }>(response),
+        parseJson<{ races?: RpgEditorBootstrapDto["races"] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/classes`).then((response) =>
-        parseJson<{ classes?: RpgEditorBootstrapDto["classes"] }>(response),
+        parseJson<{ classes?: RpgEditorBootstrapDto["classes"] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/character-identity`).then((response) =>
-        parseJson<{ fields?: RpgEditorIdentityFieldDto[] }>(response),
+        parseJson<{ fields?: RpgEditorIdentityFieldDto[] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/character-characteristics`).then((response) =>
-        parseJson<{ fields?: RpgEditorIdentityFieldDto[] }>(response),
-      ),
+        parseJson<{ fields?: RpgEditorIdentityFieldDto[] }>(response)
+      )
     ])
 
     return {
@@ -57,7 +57,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
       races: racesPayload.races ?? [],
       classes: classesPayload.classes ?? [],
       identityFields: identityPayload.fields ?? [],
-      characteristicFields: characteristicPayload.fields ?? [],
+      characteristicFields: characteristicPayload.fields ?? []
     }
   },
 
@@ -65,7 +65,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
     const response = await apiFetch("/api/rpg", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
 
     const result = await parseJson<{ rpg?: { id?: string } }>(response)
@@ -81,7 +81,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
     const response = await apiFetch(`/api/rpg/${rpgId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
 
     await parseJson<{ message?: string }>(response)
@@ -89,12 +89,12 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
 
   async saveAttributes(
     rpgId: string,
-    attributes: RpgEditorTemplateFieldDto[],
+    attributes: RpgEditorTemplateFieldDto[]
   ): Promise<void> {
     const response = await apiFetch(`/api/rpg/${rpgId}/attributes`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ attributes }),
+      body: JSON.stringify({ attributes })
     })
 
     await parseJson<{ message?: string }>(response)
@@ -102,12 +102,12 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
 
   async saveStatuses(
     rpgId: string,
-    statuses: RpgEditorTemplateFieldDto[],
+    statuses: RpgEditorTemplateFieldDto[]
   ): Promise<void> {
     const response = await apiFetch(`/api/rpg/${rpgId}/statuses`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ statuses }),
+      body: JSON.stringify({ statuses })
     })
 
     await parseJson<{ message?: string }>(response)
@@ -117,7 +117,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
     const response = await apiFetch(`/api/rpg/${rpgId}/skills`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ skills }),
+      body: JSON.stringify({ skills })
     })
 
     await parseJson<{ message?: string }>(response)
@@ -125,7 +125,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
 
   async saveRaces(
     rpgId: string,
-    races: RpgEditorCatalogOptionDto[],
+    races: RpgEditorCatalogOptionDto[]
   ): Promise<void> {
     const response = await apiFetch(`/api/rpg/${rpgId}/races`, {
       method: "PUT",
@@ -137,9 +137,9 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
           attributeBonuses: item.attributeBonuses ?? {},
           skillBonuses: item.skillBonuses ?? {},
           lore: item.lore,
-          catalogMeta: item.catalogMeta,
-        })),
-      }),
+          catalogMeta: item.catalogMeta
+        }))
+      })
     })
 
     await parseJson<{ message?: string }>(response)
@@ -147,7 +147,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
 
   async saveClasses(
     rpgId: string,
-    classes: RpgEditorCatalogOptionDto[],
+    classes: RpgEditorCatalogOptionDto[]
   ): Promise<void> {
     const response = await apiFetch(`/api/rpg/${rpgId}/classes`, {
       method: "PUT",
@@ -158,9 +158,9 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
           category: item.category?.trim() || "geral",
           attributeBonuses: item.attributeBonuses ?? {},
           skillBonuses: item.skillBonuses ?? {},
-          catalogMeta: item.catalogMeta,
-        })),
-      }),
+          catalogMeta: item.catalogMeta
+        }))
+      })
     })
 
     await parseJson<{ message?: string }>(response)
@@ -168,7 +168,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
 
   async saveCharacterIdentityFields(
     rpgId: string,
-    fields: RpgEditorIdentityFieldDto[],
+    fields: RpgEditorIdentityFieldDto[]
   ): Promise<void> {
     const response = await apiFetch(`/api/rpg/${rpgId}/character-identity`, {
       method: "PUT",
@@ -176,9 +176,9 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
       body: JSON.stringify({
         fields: fields.map((item) => ({
           label: item.label,
-          required: item.required,
-        })),
-      }),
+          required: item.required
+        }))
+      })
     })
 
     await parseJson<{ message?: string }>(response)
@@ -186,7 +186,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
 
   async saveCharacterCharacteristicFields(
     rpgId: string,
-    fields: RpgEditorIdentityFieldDto[],
+    fields: RpgEditorIdentityFieldDto[]
   ): Promise<void> {
     const response = await apiFetch(
       `/api/rpg/${rpgId}/character-characteristics`,
@@ -196,10 +196,10 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
         body: JSON.stringify({
           fields: fields.map((item) => ({
             label: item.label,
-            required: item.required,
-          })),
-        }),
-      },
+            required: item.required
+          }))
+        })
+      }
     )
 
     await parseJson<{ message?: string }>(response)
@@ -207,7 +207,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
 
   async deleteRpg(rpgId: string): Promise<void> {
     const response = await apiFetch(`/api/rpg/${rpgId}`, {
-      method: "DELETE",
+      method: "DELETE"
     })
 
     await parseJson<{ message?: string }>(response)
@@ -218,7 +218,7 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
     formData.append("file", file)
     const response = await apiFetch("/api/uploads/rpg-image", {
       method: "POST",
-      body: formData,
+      body: formData
     })
     const result = await parseJson<{ url?: string }>(response)
     if (!result.url) {
@@ -232,9 +232,9 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
     const response = await apiFetch("/api/uploads/rpg-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url })
     })
 
     await parseJson<{ message?: string }>(response)
-  },
+  }
 }

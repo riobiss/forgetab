@@ -10,7 +10,7 @@ import {
   PlusCircle,
   Sparkles,
   UserPlus,
-  Users,
+  Users
 } from "lucide-react"
 import styles from "../RpgDashboardPage.module.css"
 import { createRpgDashboardDependencies } from "@/features/world/presentation/dashboard/dependencies"
@@ -40,7 +40,7 @@ export default function QuickCreateMenu({ rpgId }: Props) {
     selectedAmount,
     wrapperRef,
     loadPointsPanelData,
-    handleGrantPoint,
+    handleGrantPoint
   } = useQuickCreateMenu(dashboardDeps, { rpgId })
 
   return (

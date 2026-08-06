@@ -4,7 +4,7 @@ import { httpCharactersEditorGateway } from "@/features/world/characters/infrast
 export type CharactersEditorGatewayFactory = "http"
 
 export function createCharactersEditorDependencies(
-  factory: CharactersEditorGatewayFactory = "http",
+  factory: CharactersEditorGatewayFactory = "http"
 ): CharactersEditorDependencies {
   switch (factory) {
     case "http":

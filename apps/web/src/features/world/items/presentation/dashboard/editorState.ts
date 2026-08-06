@@ -42,7 +42,7 @@ export function toOptionalText(value: string) {
 
 export function toOptionalNumber(
   value: string,
-  parser: (raw: string) => number,
+  parser: (raw: string) => number
 ) {
   const trimmed = value.trim()
   if (!trimmed) {
@@ -84,9 +84,9 @@ export function mapItemToEditorState(item: BaseItem): ItemEditorState {
     customFields: parseCustomFieldList(item.customFields).map(
       (field, index) => ({
         id: `custom-${index}-${field.name}`,
-        ...field,
-      }),
-    ),
+        ...field
+      })
+    )
   }
 }
 
@@ -110,14 +110,14 @@ export function buildItemPayload(input: {
   const normalizedAbilities = input.abilities
     .map((entry) => ({
       name: entry.name.trim(),
-      description: entry.description.trim(),
+      description: entry.description.trim()
     }))
     .filter((entry) => entry.description)
 
   const normalizedEffects = input.effects
     .map((entry) => ({
       name: entry.name.trim(),
-      description: entry.description.trim(),
+      description: entry.description.trim()
     }))
     .filter((entry) => entry.description)
 
@@ -139,14 +139,14 @@ export function buildItemPayload(input: {
     customFields: input.customFields
       .map((field) => ({
         name: field.name.trim(),
-        value: toOptionalText(field.value),
+        value: toOptionalText(field.value)
       }))
       .filter((field) => field.name),
     weight: toOptionalNumber(input.weight, Number.parseFloat),
     duration: toOptionalText(input.duration),
     durability: toOptionalNumber(input.durability, (raw) =>
-      Number.parseInt(raw, 10),
-    ),
+      Number.parseInt(raw, 10)
+    )
   }
 }
 
@@ -154,9 +154,9 @@ export function updateNamedEntry(
   list: NamedDescription[],
   index: number,
   field: keyof NamedDescription,
-  value: string,
+  value: string
 ) {
   return list.map((entry, entryIndex) =>
-    entryIndex === index ? { ...entry, [field]: value } : entry,
+    entryIndex === index ? { ...entry, [field]: value } : entry
   )
 }

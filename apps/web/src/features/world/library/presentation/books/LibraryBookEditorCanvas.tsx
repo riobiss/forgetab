@@ -23,7 +23,7 @@ export default function LibraryBookEditorCanvas({
   saving,
   embedded = false,
   onContentChange,
-  onSave,
+  onSave
 }: Props) {
   return (
     <section

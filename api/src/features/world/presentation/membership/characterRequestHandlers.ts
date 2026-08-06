@@ -1,21 +1,21 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyReply, FastifyRequest } from "fastify"
 import {
   getCharacterRequestsUseCase,
   processCharacterRequestUseCase,
-  requestCharacterCreationUseCase,
+  requestCharacterCreationUseCase
 } from "@/features/world/application/membership/use-cases/rpgMembership"
 import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { rpgMembershipRouteDeps } from "./dependencies"
 import type { CharacterRequestRouteParams, RpgRouteParams } from "./routeTypes"
 
 export async function getCharacterRequestsHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -24,7 +24,7 @@ export async function getCharacterRequestsHandler(
     const payload = await getCharacterRequestsUseCase(
       rpgMembershipRouteDeps.accessService,
       rpgMembershipRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId }
     )
 
     return writeJson(reply, 200, payload)
@@ -32,14 +32,14 @@ export async function getCharacterRequestsHandler(
     return writeError(
       reply,
       error,
-      "Erro interno ao consultar solicitacoes de personagem.",
+      "Erro interno ao consultar solicitacoes de personagem."
     )
   }
 }
 
 export async function requestCharacterCreationHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -48,7 +48,7 @@ export async function requestCharacterCreationHandler(
     const payload = await requestCharacterCreationUseCase(
       rpgMembershipRouteDeps.accessService,
       rpgMembershipRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId }
     )
 
     return writeJson(reply, payload.status, { message: payload.message })
@@ -56,14 +56,14 @@ export async function requestCharacterCreationHandler(
     return writeError(
       reply,
       error,
-      "Erro interno ao solicitar criacao de personagem.",
+      "Erro interno ao solicitar criacao de personagem."
     )
   }
 }
 
 export async function processCharacterRequestHandler(
   request: FastifyRequest<{ Params: CharacterRequestRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -83,8 +83,8 @@ export async function processCharacterRequestHandler(
         rpgId: request.params.rpgId,
         userId: auth.userId,
         requestId: request.params.requestId,
-        action: body.action,
-      },
+        action: body.action
+      }
     )
 
     return writeJson(reply, 200, payload)
@@ -92,7 +92,7 @@ export async function processCharacterRequestHandler(
     return writeError(
       reply,
       error,
-      "Erro interno ao processar solicitacao de personagem.",
+      "Erro interno ao processar solicitacao de personagem."
     )
   }
 }

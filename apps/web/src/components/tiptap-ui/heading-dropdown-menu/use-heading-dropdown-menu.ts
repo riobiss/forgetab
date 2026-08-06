@@ -15,7 +15,7 @@ import {
   type Level,
   isHeadingActive,
   canToggle,
-  shouldShowButton,
+  shouldShowButton
 } from "@/components/tiptap-ui/heading-button"
 
 /**
@@ -92,7 +92,7 @@ export function useHeadingDropdownMenu(config?: UseHeadingDropdownMenuConfig) {
   const {
     editor: providedEditor,
     levels = [1, 2, 3, 4, 5, 6],
-    hideWhenUnavailable = false,
+    hideWhenUnavailable = false
   } = config || {}
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -127,6 +127,6 @@ export function useHeadingDropdownMenu(config?: UseHeadingDropdownMenuConfig) {
     canToggle: canToggleState,
     levels,
     label: "Heading",
-    Icon: activeLevel ? headingIcons[activeLevel] : HeadingIcon,
+    Icon: activeLevel ? headingIcons[activeLevel] : HeadingIcon
   }
 }

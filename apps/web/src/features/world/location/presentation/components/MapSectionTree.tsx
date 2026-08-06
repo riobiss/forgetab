@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight, Pencil, Plus, Search } from "lucide-react"
 import { useState } from "react"
 import type {
   RpgMapSectionDto,
-  RpgMapSectionTreeNodeDto,
+  RpgMapSectionTreeNodeDto
 } from "@forgetab/world-contracts/location"
 import styles from "../RpgMapPage.module.css"
 
@@ -21,7 +21,7 @@ function MapTreeNode({
   selectedId,
   onSelect,
   onEdit,
-  isRoot = false,
+  isRoot = false
 }: MapTreeNodeProps) {
   const [isOpen, setIsOpen] = useState(true)
   const hasChildren = node.children.length > 0
@@ -178,7 +178,7 @@ export function MapSectionTree({
   onCreate,
   onSelect,
   onEdit,
-  selectedSectionId,
+  selectedSectionId
 }: Props) {
   return (
     <section className={styles.sectionsTreeWrap}>

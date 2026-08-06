@@ -3,7 +3,7 @@ import type { RpgPermissionService } from "@/features/world/item/application/por
 import {
   ensureCanManageRpg,
   mapBaseItemsError,
-  parseAndNormalizeBaseItem,
+  parseAndNormalizeBaseItem
 } from "@/features/world/item/application/use-cases/shared"
 
 type CreateItemDeps = {
@@ -13,10 +13,13 @@ type CreateItemDeps = {
 
 export async function createItem(
   deps: CreateItemDeps,
-  params: { rpgId: string; userId: string; body: unknown },
+  params: { rpgId: string; userId: string; body: unknown }
 ) {
   try {
-    const canManage = await deps.permissionService.canManageRpg(params.rpgId, params.userId)
+    const canManage = await deps.permissionService.canManageRpg(
+      params.rpgId,
+      params.userId
+    )
     ensureCanManageRpg(canManage)
 
     const input = parseAndNormalizeBaseItem(params.body)

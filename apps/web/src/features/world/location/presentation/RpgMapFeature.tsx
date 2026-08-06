@@ -13,7 +13,7 @@ export default function RpgMapFeature({
   rpgTitle,
   view,
   initialMapId,
-  detailTitle,
+  detailTitle
 }: RpgMapFeatureProps) {
   return (
     <RpgMapPage

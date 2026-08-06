@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic"
 export default async function ViewRpg() {
   const userId = await cookieCurrentUserSessionService.getCurrentUserId()
   const data = await loadRpgCatalogUseCase(createHttpRpgCatalogRepository(), {
-    userId,
+    userId
   })
 
   return <RpgCatalogPage data={data} />

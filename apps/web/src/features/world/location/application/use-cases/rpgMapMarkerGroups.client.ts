@@ -7,7 +7,7 @@ export function createRpgMapMarkerGroupUseCase(
     rpgId: string
     mapId: string
     payload: UpsertRpgMapMarkerGroupPayloadDto
-  },
+  }
 ) {
   return gateway.createMarkerGroup(params.rpgId, params.mapId, params.payload)
 }
@@ -19,19 +19,19 @@ export function updateRpgMapMarkerGroupUseCase(
     mapId: string
     groupId: string
     payload: UpsertRpgMapMarkerGroupPayloadDto
-  },
+  }
 ) {
   return gateway.updateMarkerGroup(
     params.rpgId,
     params.mapId,
     params.groupId,
-    params.payload,
+    params.payload
   )
 }
 
 export function deleteRpgMapMarkerGroupUseCase(
   gateway: RpgMapMarkerGroupsGateway,
-  params: { rpgId: string; mapId: string; groupId: string },
+  params: { rpgId: string; mapId: string; groupId: string }
 ) {
   return gateway.deleteMarkerGroup(params.rpgId, params.mapId, params.groupId)
 }

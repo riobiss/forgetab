@@ -20,7 +20,7 @@ export default function LibraryBookEditorHeader({
   contentEditing,
   saving,
   onToggleEditing,
-  onSave,
+  onSave
 }: Props) {
   return (
     <section className={styles.header}>
@@ -34,9 +34,15 @@ export default function LibraryBookEditorHeader({
             >
               <button
                 type="button"
-                className={contentEditing ? styles.primaryButton : styles.secondaryButton}
+                className={
+                  contentEditing ? styles.primaryButton : styles.secondaryButton
+                }
                 onClick={onToggleEditing}
-                aria-label={contentEditing ? "Parar edicao de conteudo" : "Editar conteudo"}
+                aria-label={
+                  contentEditing
+                    ? "Parar edicao de conteudo"
+                    : "Editar conteudo"
+                }
                 title={contentEditing ? "Parar edicao" : "Escrever"}
               >
                 <Keyboard size={16} />

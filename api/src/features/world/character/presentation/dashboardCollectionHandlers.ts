@@ -5,18 +5,18 @@ import { listCharacters } from "@/features/world/character/application/use-cases
 import { loadCharactersDashboardUseCase } from "@/features/world/character/application/dashboard/use-cases/loadCharactersDashboard"
 import {
   characterRouteDeps,
-  loadCharactersDashboardContext,
+  loadCharactersDashboardContext
 } from "./dependencies"
 import {
   mapCharacterCollectionError,
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "./http"
 import type {
   CharactersCollectionRouteParams,
-  CharactersDashboardQuery,
+  CharactersDashboardQuery
 } from "./routeTypes"
 
 function normalizeFilterType(value?: string) {
@@ -30,7 +30,7 @@ export async function getCharactersDashboardHandler(
     Params: CharactersCollectionRouteParams
     Querystring: CharactersDashboardQuery
   }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   const userId = auth.ok ? auth.userId : null
@@ -44,21 +44,21 @@ export async function getCharactersDashboardHandler(
         filterType,
         modal: request.query.modal,
         viewer: request.query.viewer,
-        characterId: request.query.characterId,
+        characterId: request.query.characterId
       })
 
     const result = await loadCharactersDashboardUseCase(
       {
         dashboardRepository: characterRouteDeps.charactersDashboardRepository,
-        rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
+        rpgAccessRepository: characterRouteDeps.rpgAccessRepository
       },
       {
         rpgId: request.params.rpgId,
         userId,
         filterType,
         editorBootstrap,
-        selectedCharacterDetail,
-      },
+        selectedCharacterDetail
+      }
     )
 
     if (result.status === "not_found" || result.status === "private_blocked") {
@@ -70,14 +70,14 @@ export async function getCharactersDashboardHandler(
     return writeError(
       reply,
       error,
-      "Erro interno ao carregar dashboard de personagens.",
+      "Erro interno ao carregar dashboard de personagens."
     )
   }
 }
 
 export async function listCharactersHandler(
   request: FastifyRequest<{ Params: CharactersCollectionRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -88,7 +88,7 @@ export async function listCharactersHandler(
     const access = await getRpgAccess({
       rpgId: request.params.rpgId,
       userId: auth.userId,
-      repository: characterRouteDeps.rpgAccessRepository,
+      repository: characterRouteDeps.rpgAccessRepository
     })
 
     if (!access.exists || !access.canAccess) {
@@ -99,7 +99,7 @@ export async function listCharactersHandler(
       rpgId: request.params.rpgId,
       userId: auth.userId,
       access,
-      characterRepository: characterRouteDeps.characterRepository,
+      characterRepository: characterRouteDeps.characterRepository
     })
 
     return writeJson(reply, 200, payload)
@@ -107,14 +107,14 @@ export async function listCharactersHandler(
     return mapCharacterCollectionError(
       reply,
       error,
-      "Erro interno ao listar personagens.",
+      "Erro interno ao listar personagens."
     )
   }
 }
 
 export async function createCharacterHandler(
   request: FastifyRequest<{ Params: CharactersCollectionRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -125,7 +125,7 @@ export async function createCharacterHandler(
     const access = await getRpgAccess({
       rpgId: request.params.rpgId,
       userId: auth.userId,
-      repository: characterRouteDeps.rpgAccessRepository,
+      repository: characterRouteDeps.rpgAccessRepository
     })
 
     if (!access.exists || !access.canAccess) {
@@ -139,7 +139,7 @@ export async function createCharacterHandler(
       access,
       payload: body,
       characterRepository: characterRouteDeps.characterRepository,
-      rpgTemplatesRepository: characterRouteDeps.rpgTemplatesRepository,
+      rpgTemplatesRepository: characterRouteDeps.rpgTemplatesRepository
     })
 
     return writeJson(reply, 201, { character })
@@ -147,7 +147,7 @@ export async function createCharacterHandler(
     return mapCharacterCollectionError(
       reply,
       error,
-      "Erro interno ao criar personagem.",
+      "Erro interno ao criar personagem."
     )
   }
 }

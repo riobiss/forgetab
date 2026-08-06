@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import {
   fetchEntityCatalogPageData,
-  HttpEntityCatalogError,
+  HttpEntityCatalogError
 } from "@/features/world/catalog/infrastructure/repositories/httpEntityCatalogPageRepository"
 import { fetchRpgDashboardViewModel } from "@/features/world/infrastructure/dashboard/repositories/httpRpgDashboardViewModelRepository"
 import EntityCatalogFeature from "@/features/world/catalog/presentation/EntityCatalogFeature"
@@ -20,7 +20,7 @@ export default async function ClassesPage({ params }: Params) {
   try {
     ;[data, dashboard] = await Promise.all([
       fetchEntityCatalogPageData(rpgId, "class"),
-      fetchRpgDashboardViewModel(rpgId),
+      fetchRpgDashboardViewModel(rpgId)
     ])
   } catch (error) {
     if (error instanceof HttpEntityCatalogError && error.status === 404) {

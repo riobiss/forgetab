@@ -6,7 +6,7 @@ import {
   formatRollFormula,
   getDiceResultLevel,
   isHighDiceResult,
-  isLowDiceResult,
+  isLowDiceResult
 } from "@/features/dices/application/diceRollPresentation"
 import type { RollHistoryItem } from "@/features/dices/application/types"
 
@@ -18,19 +18,19 @@ const roll: RollHistoryItem = {
       diceCount: 2,
       diceSides: 20,
       results: [1, 20],
-      total: 21,
+      total: 21
     },
     {
       diceCount: 1,
       diceSides: 6,
       results: [5],
-      total: 5,
-    },
+      total: 5
+    }
   ],
   diceTotal: 26,
   modifier: 3,
   total: 29,
-  rolledAt: new Date("2026-05-19T10:00:00.000Z"),
+  rolledAt: new Date("2026-05-19T10:00:00.000Z")
 }
 
 describe("diceRollPresentation", () => {
@@ -45,7 +45,7 @@ describe("diceRollPresentation", () => {
     expect(flattenDiceResults(roll)).toEqual([
       { value: 1, diceSides: 20 },
       { value: 20, diceSides: 20 },
-      { value: 5, diceSides: 6 },
+      { value: 5, diceSides: 6 }
     ])
     expect(flattenDiceResults(null)).toEqual([])
   })
@@ -63,7 +63,7 @@ describe("diceRollPresentation", () => {
     const stats = calculateDiceRollStats(
       results,
       isHighDiceResult,
-      isLowDiceResult,
+      isLowDiceResult
     )
 
     expect(stats).toEqual({
@@ -71,13 +71,13 @@ describe("diceRollPresentation", () => {
       min: 1,
       highCount: 2,
       lowCount: 1,
-      average: 26 / 3,
+      average: 26 / 3
     })
   })
 
   it("retorna null para estatisticas sem resultados", () => {
     expect(
-      calculateDiceRollStats([], isHighDiceResult, isLowDiceResult),
+      calculateDiceRollStats([], isHighDiceResult, isLowDiceResult)
     ).toBeNull()
   })
 })

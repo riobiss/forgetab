@@ -159,6 +159,6 @@ export function useWorldMapMarkerModalFlow(params: Params) {
     handleOpenMarkersModal,
     handleSaveMarkerGroup,
     handleStartMarkerReposition,
-    handleStartMarkerSelection,
+    handleStartMarkerSelection
   }
 }

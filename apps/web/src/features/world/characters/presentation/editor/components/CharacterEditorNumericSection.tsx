@@ -28,7 +28,7 @@ export default function CharacterEditorNumericSection({
   min,
   editInModal = false,
   onToggle,
-  onChange,
+  onChange
 }: Props) {
   if (items.length === 0) {
     return null
@@ -38,7 +38,11 @@ export default function CharacterEditorNumericSection({
     <section className={`${styles.section} characterEditorSection`}>
       <div className={styles.sectionHeader}>
         <h2>{title}</h2>
-        <button type="button" className={styles.sectionToggleButton} onClick={onToggle}>
+        <button
+          type="button"
+          className={styles.sectionToggleButton}
+          onClick={onToggle}
+        >
           {visible ? "Ocultar" : "Mostrar"}
         </button>
       </div>
@@ -59,7 +63,7 @@ export default function CharacterEditorNumericSection({
         <NumericTemplateGrid
           items={items.map((item) => ({
             key: item.key,
-            label: item.label,
+            label: item.label
           }))}
           values={values}
           onChange={onChange}

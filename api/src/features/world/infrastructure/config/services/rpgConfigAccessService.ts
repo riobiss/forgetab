@@ -10,5 +10,5 @@ export const rpgConfigAccessService: RpgConfigAccessService = {
   async canReadRpg(rpgId, userId) {
     const permission = await getRpgPermissionByPrisma(rpgId, userId)
     return permission.isOwner || permission.isAcceptedMember
-  },
+  }
 }

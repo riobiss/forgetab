@@ -18,7 +18,7 @@ describe("buildApiServer", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/health",
+      url: "/api/health"
     })
 
     expect(response.statusCode).toBe(200)
@@ -33,12 +33,14 @@ describe("buildApiServer", () => {
       url: "/api/health",
       headers: {
         origin: "http://localhost:3000",
-        "access-control-request-method": "GET",
-      },
+        "access-control-request-method": "GET"
+      }
     })
 
     expect(response.statusCode).toBe(204)
-    expect(response.headers["access-control-allow-origin"]).toBe("http://localhost:3000")
+    expect(response.headers["access-control-allow-origin"]).toBe(
+      "http://localhost:3000"
+    )
   })
 
   it("aceita uploads maiores que o limite padrao do Fastify", async () => {
@@ -49,13 +51,15 @@ describe("buildApiServer", () => {
       url: "/api/uploads/map-image",
       headers: {
         origin: "http://localhost:3000",
-        "content-type": "application/octet-stream",
+        "content-type": "application/octet-stream"
       },
-      payload: Buffer.alloc(2 * 1024 * 1024),
+      payload: Buffer.alloc(2 * 1024 * 1024)
     })
 
     expect(response.statusCode).toBe(401)
-    expect(response.headers["access-control-allow-origin"]).toBe("http://localhost:3000")
+    expect(response.headers["access-control-allow-origin"]).toBe(
+      "http://localhost:3000"
+    )
   })
 
   it("mantem 404 json para rota desconhecida", async () => {
@@ -63,7 +67,7 @@ describe("buildApiServer", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/nao-existe",
+      url: "/api/nao-existe"
     })
 
     expect(response.statusCode).toBe(404)

@@ -8,14 +8,14 @@ const rawPrismaRpgMembershipRepository: RpgMembershipRepository = {
   async getRpgSummary(rpgId) {
     const rpg = await prisma.rpg.findUnique({
       where: { id: rpgId },
-      select: { id: true, ownerId: true, visibility: true },
+      select: { id: true, ownerId: true, visibility: true }
     })
     if (rpg !== undefined) {
       return rpg
         ? {
             id: rpg.id,
             ownerId: rpg.ownerId,
-            visibility: normalizeRpgVisibility(rpg.visibility),
+            visibility: normalizeRpgVisibility(rpg.visibility)
           }
         : null
     }
@@ -300,8 +300,9 @@ const rawPrismaRpgMembershipRepository: RpgMembershipRepository = {
     })
 
     return rows.length > 0
-  },
+  }
 }
 
-export const prismaRpgMembershipRepository =
-  withRpgMembershipRepositoryErrors(rawPrismaRpgMembershipRepository)
+export const prismaRpgMembershipRepository = withRpgMembershipRepositoryErrors(
+  rawPrismaRpgMembershipRepository
+)

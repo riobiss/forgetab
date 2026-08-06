@@ -5,16 +5,16 @@ const mocks = vi.hoisted(() => ({
   jwtSecret: (process.env.JWT_SECRET = process.env.JWT_SECRET ?? "test-secret"),
   getUserIdFromFastifyRequest: vi.fn(),
   uploadScopedImage: vi.fn(),
-  deleteScopedImage: vi.fn(),
+  deleteScopedImage: vi.fn()
 }))
 
 vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
-  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
+  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest
 }))
 
 vi.mock("@/features/media/application/use-cases/scopedImages", () => ({
   uploadScopedImage: mocks.uploadScopedImage,
-  deleteScopedImage: mocks.deleteScopedImage,
+  deleteScopedImage: mocks.deleteScopedImage
 }))
 
 import { buildApiServer } from "@api/app"
@@ -23,18 +23,18 @@ async function createMultipartPayload() {
   const formData = new FormData()
   formData.append(
     "file",
-    new File(["fake-image-content"], "avatar.png", { type: "image/png" }),
+    new File(["fake-image-content"], "avatar.png", { type: "image/png" })
   )
   formData.append("oldUrl", "https://cdn.example.com/old.png")
 
   const request = new Request("http://localhost/api/uploads/image", {
     method: "POST",
-    body: formData,
+    body: formData
   })
 
   return {
     payload: Buffer.from(await request.arrayBuffer()),
-    contentType: request.headers.get("content-type") ?? "multipart/form-data",
+    contentType: request.headers.get("content-type") ?? "multipart/form-data"
   }
 }
 
@@ -65,8 +65,8 @@ describe("upload routes", () => {
       url: "/api/uploads/character-image",
       payload: multipart.payload,
       headers: {
-        "content-type": multipart.contentType,
-      },
+        "content-type": multipart.contentType
+      }
     })
 
     expect(response.statusCode).toBe(401)
@@ -78,7 +78,7 @@ describe("upload routes", () => {
     mocks.uploadScopedImage.mockResolvedValueOnce({
       url: "https://cdn.example.com/character.png",
       fileId: "file-1",
-      thumbnailUrl: "https://cdn.example.com/thumb-character.png",
+      thumbnailUrl: "https://cdn.example.com/thumb-character.png"
     })
     const multipart = await createMultipartPayload()
 
@@ -87,8 +87,8 @@ describe("upload routes", () => {
       url: "/api/uploads/character-image",
       payload: multipart.payload,
       headers: {
-        "content-type": multipart.contentType,
-      },
+        "content-type": multipart.contentType
+      }
     })
 
     expect(response.statusCode).toBe(201)
@@ -99,21 +99,21 @@ describe("upload routes", () => {
         folder: "characters",
         fileName: "avatar.png",
         oldUrl: "https://cdn.example.com/old.png",
-        file: expect.any(File),
-      }),
+        file: expect.any(File)
+      })
     )
     expect(response.json()).toEqual({
       message: "Imagem enviada com sucesso.",
       url: "https://cdn.example.com/character.png",
       fileId: "file-1",
-      thumbnailUrl: "https://cdn.example.com/thumb-character.png",
+      thumbnailUrl: "https://cdn.example.com/thumb-character.png"
     })
   })
 
   it("retorna 400 ao enviar imagem invalida", async () => {
     server = buildApiServer()
     mocks.uploadScopedImage.mockRejectedValueOnce(
-      new AppError("Arquivo de imagem invalido.", 400),
+      new AppError("Arquivo de imagem invalido.", 400)
     )
     const multipart = await createMultipartPayload()
 
@@ -122,8 +122,8 @@ describe("upload routes", () => {
       url: "/api/uploads/item-image",
       payload: multipart.payload,
       headers: {
-        "content-type": multipart.contentType,
-      },
+        "content-type": multipart.contentType
+      }
     })
 
     expect(response.statusCode).toBe(400)
@@ -135,7 +135,7 @@ describe("upload routes", () => {
     mocks.uploadScopedImage.mockResolvedValueOnce({
       url: "https://cdn.example.com/library.png",
       fileId: "file-2",
-      thumbnailUrl: "https://cdn.example.com/thumb-library.png",
+      thumbnailUrl: "https://cdn.example.com/thumb-library.png"
     })
     const multipart = await createMultipartPayload()
 
@@ -144,8 +144,8 @@ describe("upload routes", () => {
       url: "/api/uploads/library-image",
       payload: multipart.payload,
       headers: {
-        "content-type": multipart.contentType,
-      },
+        "content-type": multipart.contentType
+      }
     })
 
     expect(response.statusCode).toBe(201)
@@ -153,14 +153,14 @@ describe("upload routes", () => {
       { service: expect.anything() },
       expect.objectContaining({
         folder: "library",
-        userId: "user-1",
-      }),
+        userId: "user-1"
+      })
     )
     expect(response.json()).toEqual({
       message: "Imagem enviada com sucesso.",
       url: "https://cdn.example.com/library.png",
       fileId: "file-2",
-      thumbnailUrl: "https://cdn.example.com/thumb-library.png",
+      thumbnailUrl: "https://cdn.example.com/thumb-library.png"
     })
   })
 
@@ -171,7 +171,7 @@ describe("upload routes", () => {
     const response = await server.inject({
       method: "DELETE",
       url: "/api/uploads/item-image",
-      payload: { url: "https://cdn.example.com/item.png" },
+      payload: { url: "https://cdn.example.com/item.png" }
     })
 
     expect(response.statusCode).toBe(200)
@@ -180,8 +180,8 @@ describe("upload routes", () => {
       expect.objectContaining({
         userId: "user-1",
         folder: "items",
-        url: "https://cdn.example.com/item.png",
-      }),
+        url: "https://cdn.example.com/item.png"
+      })
     )
     expect(response.json()).toEqual({ message: "Imagem removida com sucesso." })
   })
@@ -193,7 +193,7 @@ describe("upload routes", () => {
     const response = await server.inject({
       method: "DELETE",
       url: "/api/uploads/character-image",
-      payload: { url: "https://cdn.example.com/character.png" },
+      payload: { url: "https://cdn.example.com/character.png" }
     })
 
     expect(response.statusCode).toBe(200)
@@ -202,8 +202,8 @@ describe("upload routes", () => {
       expect.objectContaining({
         userId: "user-1",
         folder: "characters",
-        url: "https://cdn.example.com/character.png",
-      }),
+        url: "https://cdn.example.com/character.png"
+      })
     )
     expect(response.json()).toEqual({ message: "Imagem removida com sucesso." })
   })
@@ -211,18 +211,18 @@ describe("upload routes", () => {
   it("retorna 403 ao remover imagem sem permissao", async () => {
     server = buildApiServer()
     mocks.deleteScopedImage.mockRejectedValueOnce(
-      new AppError("Voce nao pode remover esta imagem.", 403),
+      new AppError("Voce nao pode remover esta imagem.", 403)
     )
 
     const response = await server.inject({
       method: "DELETE",
       url: "/api/uploads/map-image",
-      payload: { url: "https://cdn.example.com/map.png" },
+      payload: { url: "https://cdn.example.com/map.png" }
     })
 
     expect(response.statusCode).toBe(403)
     expect(response.json()).toEqual({
-      message: "Voce nao pode remover esta imagem.",
+      message: "Voce nao pode remover esta imagem."
     })
   })
 
@@ -233,7 +233,7 @@ describe("upload routes", () => {
     const response = await server.inject({
       method: "DELETE",
       url: "/api/uploads/rpg-image",
-      payload: { url: "https://cdn.example.com/rpg.png" },
+      payload: { url: "https://cdn.example.com/rpg.png" }
     })
 
     expect(response.statusCode).toBe(200)
@@ -247,7 +247,7 @@ describe("upload routes", () => {
     const response = await server.inject({
       method: "DELETE",
       url: "/api/uploads/marker-image",
-      payload: { url: "https://cdn.example.com/marker.png" },
+      payload: { url: "https://cdn.example.com/marker.png" }
     })
 
     expect(response.statusCode).toBe(200)
@@ -256,8 +256,8 @@ describe("upload routes", () => {
       expect.objectContaining({
         userId: "user-1",
         folder: "markers",
-        url: "https://cdn.example.com/marker.png",
-      }),
+        url: "https://cdn.example.com/marker.png"
+      })
     )
     expect(response.json()).toEqual({ message: "Imagem removida com sucesso." })
   })
@@ -269,7 +269,7 @@ describe("upload routes", () => {
     const response = await server.inject({
       method: "DELETE",
       url: "/api/uploads/section-image",
-      payload: { url: "https://cdn.example.com/section.png" },
+      payload: { url: "https://cdn.example.com/section.png" }
     })
 
     expect(response.statusCode).toBe(200)

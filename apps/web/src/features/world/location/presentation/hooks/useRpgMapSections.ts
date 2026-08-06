@@ -5,7 +5,7 @@ import {
   useId,
   useRef,
   type Dispatch,
-  type SetStateAction,
+  type SetStateAction
 } from "react"
 import type { RpgMapDetailViewDto } from "@forgetab/world-contracts/location"
 import type { MarkerLinkOption } from "@/features/world/location/presentation/utils/sectionMarkerLinking"
@@ -23,7 +23,7 @@ type UseRpgMapSectionsParams = {
   setSelectedSectionId: Dispatch<SetStateAction<string | null>>
   loadDetail: (
     mapId: string,
-    preferredSectionId?: string | null,
+    preferredSectionId?: string | null
   ) => Promise<void>
   loadMaps: () => Promise<void>
 }
@@ -41,11 +41,11 @@ export function useRpgMapSections(params: UseRpgMapSectionsParams) {
     detail: params.detail,
     selectedSectionId: params.selectedSectionId,
     editingSectionId: modalState.editingSection?.id ?? null,
-    markerOptions: params.markerOptions,
+    markerOptions: params.markerOptions
   })
   const images = useRpgMapSectionImages({
     sectionForm: modalState.sectionForm,
-    setSectionForm: modalState.setSectionForm,
+    setSectionForm: modalState.setSectionForm
   })
   const commands = useRpgMapSectionCommands({
     rpgId: params.rpgId,
@@ -54,7 +54,7 @@ export function useRpgMapSections(params: UseRpgMapSectionsParams) {
     markerOptions: params.markerOptions,
     modalState,
     loadDetail: params.loadDetail,
-    loadMaps: params.loadMaps,
+    loadMaps: params.loadMaps
   })
 
   useEffect(() => {
@@ -83,6 +83,6 @@ export function useRpgMapSections(params: UseRpgMapSectionsParams) {
     sectionDetailsModalRef,
     sectionModalRef,
     sectionNameInputId,
-    sectionNameInputRef,
+    sectionNameInputRef
   }
 }

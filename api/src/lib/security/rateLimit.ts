@@ -16,8 +16,14 @@ const store = new Map<string, RateLimitEntry>()
 const MAX_LOCAL_KEYS = 10_000
 
 const isProduction = process.env.NODE_ENV === "production"
-const trustedIpHeader = (process.env.TRUSTED_IP_HEADER ?? "x-vercel-forwarded-for").toLowerCase()
-const localFallbackHeaders = ["cf-connecting-ip", "x-real-ip", "x-forwarded-for"]
+const trustedIpHeader = (
+  process.env.TRUSTED_IP_HEADER ?? "x-vercel-forwarded-for"
+).toLowerCase()
+const localFallbackHeaders = [
+  "cf-connecting-ip",
+  "x-real-ip",
+  "x-forwarded-for"
+]
 
 function now() {
   return Date.now()
@@ -79,7 +85,9 @@ function getHeaderValue(headers: IncomingHttpHeaders, name: string) {
 
 export function getClientIp(headers: IncomingHttpHeaders) {
   // In production, trust only the edge header configured by infrastructure.
-  const trustedIp = firstValidIpFromHeader(getHeaderValue(headers, trustedIpHeader))
+  const trustedIp = firstValidIpFromHeader(
+    getHeaderValue(headers, trustedIpHeader)
+  )
   if (trustedIp) return trustedIp
 
   // Non-production keeps broader header fallback to preserve local DX.
@@ -96,7 +104,7 @@ export function getClientIp(headers: IncomingHttpHeaders) {
 function checkRateLimitLocal(
   key: string,
   limit: number,
-  windowMs: number,
+  windowMs: number
 ): RateLimitResult {
   const currentTime = now()
   cleanupIfStoreIsTooLarge(currentTime)
@@ -108,7 +116,7 @@ function checkRateLimitLocal(
     return {
       allowed: true,
       remaining: Math.max(limit - 1, 0),
-      retryAfterSeconds: Math.ceil(windowMs / 1000),
+      retryAfterSeconds: Math.ceil(windowMs / 1000)
     }
   }
 
@@ -118,8 +126,8 @@ function checkRateLimitLocal(
       remaining: 0,
       retryAfterSeconds: Math.max(
         1,
-        Math.ceil((current.expiresAt - currentTime) / 1000),
-      ),
+        Math.ceil((current.expiresAt - currentTime) / 1000)
+      )
     }
   }
 
@@ -130,15 +138,15 @@ function checkRateLimitLocal(
     remaining: Math.max(limit - current.count, 0),
     retryAfterSeconds: Math.max(
       1,
-      Math.ceil((current.expiresAt - currentTime) / 1000),
-    ),
+      Math.ceil((current.expiresAt - currentTime) / 1000)
+    )
   }
 }
 
 async function checkRateLimitUpstash(
   key: string,
   limit: number,
-  windowMs: number,
+  windowMs: number
 ): Promise<RateLimitResult | null> {
   void key
   void limit
@@ -149,11 +157,10 @@ async function checkRateLimitUpstash(
 export async function checkRateLimit(
   key: string,
   limit: number,
-  windowMs: number,
+  windowMs: number
 ): Promise<RateLimitResult> {
   const distributedResult = await checkRateLimitUpstash(key, limit, windowMs)
   if (distributedResult) return distributedResult
 
   return checkRateLimitLocal(key, limit, windowMs)
 }
-

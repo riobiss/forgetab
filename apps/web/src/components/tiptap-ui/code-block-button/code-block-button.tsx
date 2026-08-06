@@ -12,7 +12,7 @@ import { parseShortcutKeys } from "@/lib/tiptap-utils"
 import type { UseCodeBlockConfig } from "@/components/tiptap-ui/code-block-button"
 import {
   CODE_BLOCK_SHORTCUT_KEY,
-  useCodeBlock,
+  useCodeBlock
 } from "@/components/tiptap-ui/code-block-button"
 
 // --- UI Primitives ---
@@ -34,7 +34,7 @@ export interface CodeBlockButtonProps
 }
 
 export function CodeBlockShortcutBadge({
-  shortcutKeys = CODE_BLOCK_SHORTCUT_KEY,
+  shortcutKeys = CODE_BLOCK_SHORTCUT_KEY
 }: {
   shortcutKeys?: string
 }) {
@@ -71,11 +71,11 @@ export const CodeBlockButton = forwardRef<
       handleToggle,
       label,
       shortcutKeys,
-      Icon,
+      Icon
     } = useCodeBlock({
       editor,
       hideWhenUnavailable,
-      onToggled,
+      onToggled
     })
 
     const handleClick = useCallback(

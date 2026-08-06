@@ -2,7 +2,7 @@ import {
   isProgressionMode,
   normalizeProgressionTiers,
   resolveProgressionTierByCurrent,
-  type ProgressionMode,
+  type ProgressionMode
 } from "@/lib/rpg/progression"
 import type { CharacterProgressionPermissionService } from "@/features/world/character/application/progression/ports/CharacterProgressionPermissionService"
 import type { CharacterProgressionRepository } from "@/features/world/character/application/progression/ports/CharacterProgressionRepository"
@@ -16,7 +16,7 @@ type Dependencies = {
 
 function validateAmount(
   amount: unknown,
-  options: { allowNegative: boolean; zeroMessage: string },
+  options: { allowNegative: boolean; zeroMessage: string }
 ) {
   if (typeof amount !== "number" || !Number.isInteger(amount)) {
     throw new AppError(options.zeroMessage, 400)
@@ -40,7 +40,7 @@ async function loadPlayerCharacter(
     userId: string
     deniedMessage: string
     nonPlayerMessage: string
-  },
+  }
 ) {
   const character = await deps.repository.findById(params.characterId)
   if (!character) {
@@ -49,7 +49,7 @@ async function loadPlayerCharacter(
 
   const canManage = await deps.permissionService.canManageRpg(
     character.rpgId,
-    params.userId,
+    params.userId
   )
   if (!canManage) {
     throw new AppError(params.deniedMessage, 403)
@@ -64,12 +64,12 @@ async function loadPlayerCharacter(
 
 export async function grantCharacterPointsUseCase(
   deps: Dependencies,
-  params: { characterId: string; userId: string; amount: unknown },
+  params: { characterId: string; userId: string; amount: unknown }
 ) {
   try {
     const amount = validateAmount(params.amount, {
       allowNegative: true,
-      zeroMessage: "amount deve ser um inteiro diferente de zero.",
+      zeroMessage: "amount deve ser um inteiro diferente de zero."
     })
 
     await loadPlayerCharacter(deps, {
@@ -77,16 +77,16 @@ export async function grantCharacterPointsUseCase(
       userId: params.userId,
       deniedMessage: "Apenas mestre ou moderador podem conceder pontos.",
       nonPlayerMessage:
-        "Somente personagens do tipo player podem receber pontos.",
+        "Somente personagens do tipo player podem receber pontos."
     })
 
     const updated = await deps.repository.updateSkillPoints(
       params.characterId,
-      amount,
+      amount
     )
     return {
       success: true,
-      remainingPoints: updated.skillPoints,
+      remainingPoints: updated.skillPoints
     }
   } catch (error) {
     rethrowCharacterRepositoryError(error)
@@ -95,50 +95,50 @@ export async function grantCharacterPointsUseCase(
 
 export async function grantCharacterXpUseCase(
   deps: Dependencies,
-  params: { characterId: string; userId: string; amount: unknown },
+  params: { characterId: string; userId: string; amount: unknown }
 ) {
   try {
     const amount = validateAmount(params.amount, {
       allowNegative: false,
-      zeroMessage: "amount deve ser um inteiro maior que zero.",
+      zeroMessage: "amount deve ser um inteiro maior que zero."
     })
 
     const character = await loadPlayerCharacter(deps, {
       characterId: params.characterId,
       userId: params.userId,
       deniedMessage: "Apenas mestre ou moderador podem conceder XP.",
-      nonPlayerMessage: "Somente personagens do tipo player podem receber XP.",
+      nonPlayerMessage: "Somente personagens do tipo player podem receber XP."
     })
 
     const nextProgressionCurrent = Math.max(
       0,
-      (character.progressionCurrent ?? 0) + amount,
+      (character.progressionCurrent ?? 0) + amount
     )
     const progressionMode = isProgressionMode(character.progressionMode)
       ? character.progressionMode
       : ("xp_level" as ProgressionMode)
     const progressionTiers = normalizeProgressionTiers(
       character.progressionTiers ?? [{ label: "Level 1", required: 0 }],
-      progressionMode,
+      progressionMode
     )
     const resolvedTier = resolveProgressionTierByCurrent(
       progressionMode,
       progressionTiers,
-      nextProgressionCurrent,
+      nextProgressionCurrent
     )
 
     const updated = await deps.repository.updateProgression({
       characterId: params.characterId,
       progressionCurrent: nextProgressionCurrent,
       progressionLabel: resolvedTier.label,
-      progressionRequired: resolvedTier.required,
+      progressionRequired: resolvedTier.required
     })
 
     return {
       success: true,
       progressionCurrent: updated.progressionCurrent,
       progressionLabel: updated.progressionLabel,
-      progressionRequired: updated.progressionRequired,
+      progressionRequired: updated.progressionRequired
     }
   } catch (error) {
     rethrowCharacterRepositoryError(error)

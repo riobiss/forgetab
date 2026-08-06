@@ -1,10 +1,15 @@
-import { useCallback, useState, type Dispatch, type SetStateAction } from "react"
+import {
+  useCallback,
+  useState,
+  type Dispatch,
+  type SetStateAction
+} from "react"
 import { baseItemRarityValues } from "@/lib/validators/baseItem"
 import {
   createEmptyNamedDescription,
   mapItemToEditorState,
   type CustomField,
-  type NamedDescription,
+  type NamedDescription
 } from "./editorState"
 import type { BaseItem, ItemType } from "./types"
 
@@ -25,12 +30,14 @@ export function useItemsEditorController({
   setUploadError,
   setSelectedImageFile,
   setSelectedImagePreviewUrl,
-  setPendingImageRemoval,
+  setPendingImageRemoval
 }: UseItemsEditorControllerParams) {
   const [editorOpen, setEditorOpen] = useState(false)
   const [editorMode, setEditorMode] = useState<"create" | "edit">("create")
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
-  const [editorTab, setEditorTab] = useState<"basic" | "requirements" | "abilities" | "effects">("basic")
+  const [editorTab, setEditorTab] = useState<
+    "basic" | "requirements" | "abilities" | "effects"
+  >("basic")
   const [editorLoading, setEditorLoading] = useState(false)
   const [editorSaving, setEditorSaving] = useState(false)
   const [editorError, setEditorError] = useState("")
@@ -39,14 +46,19 @@ export function useItemsEditorController({
   const [description, setDescription] = useState("")
   const [preRequirement, setPreRequirement] = useState("")
   const [type, setType] = useState<ItemType>("equipment")
-  const [rarity, setRarity] = useState<(typeof baseItemRarityValues)[number]>("common")
+  const [rarity, setRarity] =
+    useState<(typeof baseItemRarityValues)[number]>("common")
   const [damage, setDamage] = useState("")
   const [range, setRange] = useState("")
   const [weight, setWeight] = useState("")
   const [duration, setDuration] = useState("")
   const [durability, setDurability] = useState("")
-  const [abilities, setAbilities] = useState<NamedDescription[]>([createEmptyNamedDescription()])
-  const [effects, setEffects] = useState<NamedDescription[]>([createEmptyNamedDescription()])
+  const [abilities, setAbilities] = useState<NamedDescription[]>([
+    createEmptyNamedDescription()
+  ])
+  const [effects, setEffects] = useState<NamedDescription[]>([
+    createEmptyNamedDescription()
+  ])
 
   const resetForm = useCallback(() => {
     setEditorTab("basic")
@@ -128,8 +140,8 @@ export function useItemsEditorController({
       setPendingImageRemoval,
       setSelectedImageFile,
       setSelectedImagePreviewUrl,
-      setUploadError,
-    ],
+      setUploadError
+    ]
   )
 
   return {
@@ -173,6 +185,6 @@ export function useItemsEditorController({
     resetForm,
     openCreateModal,
     closeEditorModal,
-    openEditModal,
+    openEditModal
   }
 }

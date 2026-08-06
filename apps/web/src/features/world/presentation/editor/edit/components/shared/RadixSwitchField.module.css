@@ -33,7 +33,9 @@
   border-radius: 999px;
   position: relative;
   flex-shrink: 0;
-  transition: background-color 160ms ease, border-color 160ms ease;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
   cursor: pointer;
 }
 
@@ -61,4 +63,3 @@
 .root[data-state="checked"] .thumb {
   transform: translateX(18px);
 }
-

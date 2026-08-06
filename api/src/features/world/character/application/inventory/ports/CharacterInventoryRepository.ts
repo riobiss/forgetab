@@ -31,34 +31,34 @@ export interface CharacterInventoryRepository {
   getRpg(rpgId: string): Promise<CharacterInventoryRpgRow | null>
   getMembership(
     rpgId: string,
-    userId: string,
+    userId: string
   ): Promise<CharacterInventoryMembershipRow | null>
   getCharacter(
     rpgId: string,
-    characterId: string,
+    characterId: string
   ): Promise<CharacterInventoryCharacterRow | null>
   getWeightContext(
     rpgId: string,
-    characterId: string,
+    characterId: string
   ): Promise<CharacterWeightContextRow>
   listInventory(
     rpgId: string,
-    characterId: string,
+    characterId: string
   ): Promise<CharacterInventoryItemDto[]>
   getInventoryItem(
     rpgId: string,
     characterId: string,
-    inventoryItemId: string,
+    inventoryItemId: string
   ): Promise<CharacterInventoryStoredItemRow | null>
   deleteInventoryItem(
     rpgId: string,
     characterId: string,
-    inventoryItemId: string,
+    inventoryItemId: string
   ): Promise<void>
   updateInventoryItemQuantity(
     rpgId: string,
     characterId: string,
     inventoryItemId: string,
-    quantity: number,
+    quantity: number
   ): Promise<void>
 }

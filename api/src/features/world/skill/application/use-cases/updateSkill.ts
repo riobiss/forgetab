@@ -1,6 +1,6 @@
 import {
   buildSkillSlug,
-  skillMetaPatchSchema,
+  skillMetaPatchSchema
 } from "@/lib/validators/skillBuilder"
 import type { SkillUpdateRepository } from "@/features/world/skill/application/ports/SkillRepository"
 import { AppError } from "@/features/shared/application/errors/AppError"
@@ -12,12 +12,12 @@ type UpdateSkillDeps = {
 
 export async function updateSkill(
   deps: UpdateSkillDeps,
-  params: { skillId: string; userId: string; body: unknown },
+  params: { skillId: string; userId: string; body: unknown }
 ) {
   try {
     const existing = await deps.repository.findById(
       params.skillId,
-      params.userId,
+      params.userId
     )
     if (!existing) {
       throw new AppError("Skill nao encontrada.", 404)
@@ -27,7 +27,7 @@ export async function updateSkill(
     if (!parsed.success) {
       throw new AppError(
         parsed.error.issues[0]?.message ?? "Dados invalidos.",
-        400,
+        400
       )
     }
 
@@ -36,7 +36,7 @@ export async function updateSkill(
     const validatedLinks = await deps.repository.validateLinkIds({
       rpgId: existing.rpgId,
       classIds,
-      raceIds,
+      raceIds
     })
     if (!validatedLinks.ok) {
       throw new AppError(validatedLinks.message, 400)
@@ -51,12 +51,12 @@ export async function updateSkill(
       slug: nextSlug,
       tags: nextTags,
       classIds: parsed.data.classIds,
-      raceIds: parsed.data.raceIds,
+      raceIds: parsed.data.raceIds
     })
 
     const updated = await deps.repository.findById(
       params.skillId,
-      params.userId,
+      params.userId
     )
     return { skill: updated }
   } catch (error) {

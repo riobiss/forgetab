@@ -14,7 +14,7 @@ export async function updateRpgProfileUseCase(
     accessService: RpgProfileAccessService
     writer: RpgUserProfileWriter
   },
-  input: UpdateRpgProfileInput,
+  input: UpdateRpgProfileInput
 ) {
   const displayName =
     typeof input.displayName === "string"
@@ -36,7 +36,7 @@ export async function updateRpgProfileUseCase(
   ) {
     return {
       status: "invalid" as const,
-      message: "Apelido deve ter ate 40 caracteres.",
+      message: "Apelido deve ter ate 40 caracteres."
     }
   }
 
@@ -46,14 +46,14 @@ export async function updateRpgProfileUseCase(
     } catch {
       return {
         status: "invalid" as const,
-        message: "Imagem deve ser uma URL valida.",
+        message: "Imagem deve ser uma URL valida."
       }
     }
   }
 
   const canEdit = await deps.accessService.canEditRpgProfile(
     input.rpgId,
-    input.userId,
+    input.userId
   )
 
   if (!canEdit) {
@@ -64,11 +64,11 @@ export async function updateRpgProfileUseCase(
     ...(displayName !== undefined ? { displayName: displayName || null } : {}),
     ...(profileImageUrl !== undefined
       ? { profileImageUrl: profileImageUrl || null }
-      : {}),
+      : {})
   })
 
   return {
     status: "ok" as const,
-    data,
+    data
   }
 }

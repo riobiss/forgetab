@@ -94,7 +94,11 @@
 }
 
 .dangerButton {
-  border-color: color-mix(in srgb, var(--color-status-danger) 65%, var(--color-border-soft)) !important;
+  border-color: color-mix(
+    in srgb,
+    var(--color-status-danger) 65%,
+    var(--color-border-soft)
+  ) !important;
   color: var(--color-status-danger-contrast) !important;
 }
 
@@ -111,5 +115,3 @@
   justify-content: center;
   gap: 0;
 }
-
-

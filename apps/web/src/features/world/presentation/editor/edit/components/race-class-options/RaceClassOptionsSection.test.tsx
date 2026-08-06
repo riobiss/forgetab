@@ -4,12 +4,12 @@ import type { RpgEditorDependencies } from "@/features/world/application/editor/
 
 const mocks = vi.hoisted(() => ({
   saveRpgRacesUseCase: vi.fn(),
-  saveRpgClassesUseCase: vi.fn(),
+  saveRpgClassesUseCase: vi.fn()
 }))
 
 vi.mock("@/features/world/application/editor/use-cases/rpgEditor", () => ({
   saveRpgRacesUseCase: mocks.saveRpgRacesUseCase,
-  saveRpgClassesUseCase: mocks.saveRpgClassesUseCase,
+  saveRpgClassesUseCase: mocks.saveRpgClassesUseCase
 }))
 
 const deps = { gateway: {} } as unknown as RpgEditorDependencies
@@ -41,8 +41,8 @@ describe("RaceClassOptionsSection", () => {
             position: 0,
             category: "geral",
             attributeBonuses: { str: 1 },
-            skillBonuses: { fight: 2 },
-          },
+            skillBonuses: { fight: 2 }
+          }
         ]}
         onRaceDraftsChange={onRaceDraftsChange}
         showClassList={false}
@@ -50,7 +50,7 @@ describe("RaceClassOptionsSection", () => {
         onCreateClass={vi.fn()}
         classDrafts={[]}
         onClassDraftsChange={vi.fn()}
-      />,
+      />
     )
 
     fireEvent.click(screen.getByRole("button", { name: /Excluir/i }))
@@ -88,11 +88,11 @@ describe("RaceClassOptionsSection", () => {
             position: 0,
             category: "geral",
             attributeBonuses: { str: 0 },
-            skillBonuses: { fight: 1 },
-          },
+            skillBonuses: { fight: 1 }
+          }
         ]}
         onClassDraftsChange={onClassDraftsChange}
-      />,
+      />
     )
 
     fireEvent.click(screen.getByRole("button", { name: /Excluir/i }))

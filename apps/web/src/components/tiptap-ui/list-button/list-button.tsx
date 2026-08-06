@@ -14,7 +14,10 @@ import { Button } from "@/components/tiptap-ui-primitive/button"
 import { Badge } from "@/components/tiptap-ui-primitive/badge"
 
 // --- Tiptap UI ---
-import type { ListType, UseListConfig } from "@/components/tiptap-ui/list-button"
+import type {
+  ListType,
+  UseListConfig
+} from "@/components/tiptap-ui/list-button"
 import { LIST_SHORTCUT_KEYS, useList } from "@/components/tiptap-ui/list-button"
 
 export interface ListButtonProps
@@ -32,7 +35,7 @@ export interface ListButtonProps
 
 export function ListShortcutBadge({
   type,
-  shortcutKeys = LIST_SHORTCUT_KEYS[type],
+  shortcutKeys = LIST_SHORTCUT_KEYS[type]
 }: {
   type: ListType
   shortcutKeys?: string
@@ -68,12 +71,12 @@ export const ListButton = forwardRef<HTMLButtonElement, ListButtonProps>(
       handleToggle,
       label,
       shortcutKeys,
-      Icon,
+      Icon
     } = useList({
       editor,
       type,
       hideWhenUnavailable,
-      onToggled,
+      onToggled
     })
 
     const handleClick = useCallback(

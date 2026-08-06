@@ -18,18 +18,20 @@ type NormalizedTemplate = {
 function normalizeBonusRecord(
   candidate: unknown,
   allowedKeys: string[],
-  fieldName: "atributos" | "pericias",
+  fieldName: "atributos" | "pericias"
 ) {
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
     return { ok: true as const, value: {} as BonusRecord }
   }
 
   const rawRecord = candidate as Record<string, unknown>
-  const extraKey = Object.keys(rawRecord).find((key) => !allowedKeys.includes(key))
+  const extraKey = Object.keys(rawRecord).find(
+    (key) => !allowedKeys.includes(key)
+  )
   if (extraKey) {
     return {
       ok: false as const,
-      message: `${fieldName} fora do padrao: ${extraKey}.`,
+      message: `${fieldName} fora do padrao: ${extraKey}.`
     }
   }
 
@@ -54,7 +56,7 @@ function normalizeBonusRecord(
 export function normalizeClassRaceTemplates(
   incoming: unknown,
   allowedAttributeKeys: string[],
-  allowedSkillKeys: string[],
+  allowedSkillKeys: string[]
 ) {
   if (!Array.isArray(incoming)) {
     return { ok: false as const, message: "Formato invalido de lista." }
@@ -71,7 +73,10 @@ export function normalizeClassRaceTemplates(
     const parsed = item as ClassRaceTemplateInput
     const label = parsed.label?.trim() ?? ""
     if (label.length < 2) {
-      return { ok: false as const, message: "Nome precisa ter pelo menos 2 caracteres." }
+      return {
+        ok: false as const,
+        message: "Nome precisa ter pelo menos 2 caracteres."
+      }
     }
 
     const normalizedLabelKey = label.toLocaleLowerCase("pt-BR")
@@ -87,7 +92,7 @@ export function normalizeClassRaceTemplates(
       const parsedAttributes = normalizeBonusRecord(
         parsed.attributeBonuses,
         allowedAttributeKeys,
-        "atributos",
+        "atributos"
       )
       if (!parsedAttributes.ok) {
         return { ok: false as const, message: parsedAttributes.message }
@@ -96,13 +101,20 @@ export function normalizeClassRaceTemplates(
     } catch (error) {
       return {
         ok: false as const,
-        message: error instanceof Error ? error.message : "Bonus de atributos invalido.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Bonus de atributos invalido."
       }
     }
 
     let skillBonuses: BonusRecord = {}
     try {
-      const parsedSkills = normalizeBonusRecord(parsed.skillBonuses, allowedSkillKeys, "pericias")
+      const parsedSkills = normalizeBonusRecord(
+        parsed.skillBonuses,
+        allowedSkillKeys,
+        "pericias"
+      )
       if (!parsedSkills.ok) {
         return { ok: false as const, message: parsedSkills.message }
       }
@@ -110,7 +122,8 @@ export function normalizeClassRaceTemplates(
     } catch (error) {
       return {
         ok: false as const,
-        message: error instanceof Error ? error.message : "Bonus de pericias invalido.",
+        message:
+          error instanceof Error ? error.message : "Bonus de pericias invalido."
       }
     }
 
@@ -118,7 +131,7 @@ export function normalizeClassRaceTemplates(
       label,
       category,
       attributeBonuses,
-      skillBonuses,
+      skillBonuses
     })
   }
 
@@ -128,17 +141,19 @@ export function normalizeClassRaceTemplates(
 export function addBonusToBase(
   base: Record<string, number>,
   raceBonus: Record<string, number>,
-  classBonus: Record<string, number>,
+  classBonus: Record<string, number>
 ) {
   const keys = new Set([
     ...Object.keys(base),
     ...Object.keys(raceBonus),
-    ...Object.keys(classBonus),
+    ...Object.keys(classBonus)
   ])
 
   const merged: Record<string, number> = {}
   for (const key of keys) {
-    merged[key] = Math.floor((base[key] ?? 0) + (raceBonus[key] ?? 0) + (classBonus[key] ?? 0))
+    merged[key] = Math.floor(
+      (base[key] ?? 0) + (raceBonus[key] ?? 0) + (classBonus[key] ?? 0)
+    )
   }
 
   return merged

@@ -6,7 +6,7 @@ export type {
   CharacterIdentityFieldDto,
   CharacterOptionDto,
   UpdateCharacterPayloadDto,
-  UpsertCharacterPayloadDto,
+  UpsertCharacterPayloadDto
 } from "@forgetab/world-contracts/character-editor"
 export type { CharactersEditorDependencies } from "@/features/world/characters/application/editor/contracts/CharactersEditorDependencies"
 export {
@@ -16,5 +16,5 @@ export {
   loadCharacterEditorBootstrapUseCase,
   loadEditableCharacterUseCase,
   updateCharacterUseCase,
-  uploadCharacterImageUseCase,
+  uploadCharacterImageUseCase
 } from "@/features/world/characters/application/editor/use-cases/charactersEditor"

@@ -4,7 +4,7 @@ import type { CSSProperties } from "react"
 import { getSkillTagMeta } from "@/lib/rpg/skillTags"
 import type {
   EntityCatalogAbilityPurchaseState,
-  EntityCatalogAbilityView,
+  EntityCatalogAbilityView
 } from "@/features/world/catalog/application/types"
 import EntityAbilityStats from "@/features/world/catalog/presentation/EntityAbilityStats"
 import styles from "./EntityAbilitiesPanel.module.css"
@@ -46,7 +46,7 @@ export default function EntityAbilityCard({
   disabledReason,
   onToggleSelector,
   onSelectLevel,
-  onBuy,
+  onBuy
 }: Props) {
   const selectedLevel =
     skill.levels.find((level) => level.levelNumber === selectedLevelNumber) ??
@@ -71,9 +71,7 @@ export default function EntityAbilityCard({
   const owned = ownedLevels?.has(selectedLevel.levelNumber) ?? false
   const levelKey = buildLevelKey(skill.skillId, selectedLevel.levelNumber)
   const loading = loadingKey === levelKey
-  const cantAfford = purchase
-    ? points < (selectedLevel.pointsCost ?? 0)
-    : false
+  const cantAfford = purchase ? points < (selectedLevel.pointsCost ?? 0) : false
   const buyDisabled = Boolean(disabledReason) || owned || loading || cantAfford
 
   return (
@@ -92,7 +90,7 @@ export default function EntityAbilityCard({
               "--tag-card-border": tagMeta.cardBorder,
               "--tag-card-glow": tagMeta.cardGlow,
               "--tag-card-key-text": tagMeta.cardKeyText,
-              "--tag-card-value-text": tagMeta.cardValueText,
+              "--tag-card-value-text": tagMeta.cardValueText
             } as CSSProperties)
           : undefined
       }
@@ -122,10 +120,7 @@ export default function EntityAbilityCard({
               <div className={styles.levelMenu}>
                 {skill.levels.map((levelOption) => (
                   <button
-                    key={buildLevelKey(
-                      skill.skillId,
-                      levelOption.levelNumber,
-                    )}
+                    key={buildLevelKey(skill.skillId, levelOption.levelNumber)}
                     type="button"
                     className={
                       levelOption.levelNumber === selectedLevel.levelNumber

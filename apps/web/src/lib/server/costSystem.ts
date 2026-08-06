@@ -5,7 +5,9 @@ export type CharacterAbilityPurchase = {
   level: number
 }
 
-export function parseCharacterAbilities(value: Prisma.JsonValue): CharacterAbilityPurchase[] {
+export function parseCharacterAbilities(
+  value: Prisma.JsonValue
+): CharacterAbilityPurchase[] {
   if (!Array.isArray(value)) {
     return []
   }
@@ -27,7 +29,7 @@ export function parseCharacterAbilities(value: Prisma.JsonValue): CharacterAbili
 
       return {
         skillId: skillId.trim(),
-        level,
+        level
       }
     })
     .filter((item): item is CharacterAbilityPurchase => item !== null)

@@ -6,24 +6,24 @@ function makeDeps() {
     authRepository: {
       findUserByEmail: vi.fn(),
       findUserByUsername: vi.fn(),
-      createUser: vi.fn(),
+      createUser: vi.fn()
     },
     authPasswordService: {
       compare: vi.fn(),
-      hash: vi.fn(),
+      hash: vi.fn()
     },
     authTokenService: {
       createToken: vi.fn(),
-      getCookieConfig: vi.fn(() => ({ name: "auth_token", maxAge: 604800 })),
+      getCookieConfig: vi.fn(() => ({ name: "auth_token", maxAge: 604800 }))
     },
     authRateLimitService: {
       getClientIp: vi.fn(),
       check: vi.fn().mockResolvedValue({
         allowed: true,
         remaining: 1,
-        retryAfterSeconds: 60,
-      }),
-    },
+        retryAfterSeconds: 60
+      })
+    }
   }
 }
 
@@ -38,7 +38,7 @@ describe("registerUseCase", () => {
       name: "User",
       username: "user_1",
       email: "user@email.com",
-      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      createdAt: new Date("2026-01-01T00:00:00.000Z")
     })
     deps.authTokenService.createToken.mockResolvedValue("jwt-token")
 
@@ -48,18 +48,18 @@ describe("registerUseCase", () => {
           name: "User",
           username: "user_1",
           email: "USER@email.com",
-          password: "12345678",
+          password: "12345678"
         },
-        clientIp: "127.0.0.1",
+        clientIp: "127.0.0.1"
       },
-      deps,
+      deps
     )
 
     expect(deps.authRepository.createUser).toHaveBeenCalledWith({
       name: "User",
       username: "user_1",
       email: "user@email.com",
-      passwordHash: "hashed-password",
+      passwordHash: "hashed-password"
     })
     expect(result.user.id).toBe("u1")
   })
@@ -76,15 +76,15 @@ describe("registerUseCase", () => {
             name: "User",
             username: "user_1",
             email: "user@email.com",
-            password: "12345678",
+            password: "12345678"
           },
-          clientIp: "127.0.0.1",
+          clientIp: "127.0.0.1"
         },
-        deps,
-      ),
+        deps
+      )
     ).rejects.toMatchObject({
       message: "Username ja esta em uso. Tente outro.",
-      status: 409,
+      status: 409
     })
   })
 })

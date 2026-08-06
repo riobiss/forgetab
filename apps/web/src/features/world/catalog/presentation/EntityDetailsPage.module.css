@@ -43,7 +43,8 @@
 .title {
   margin: 0;
   color: var(--color-text-primary);
-  text-shadow: 0 0 12px color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
+  text-shadow: 0 0 12px
+    color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
   font-size: 2.05rem;
 }
 
@@ -75,7 +76,11 @@
 .subtitle::-webkit-scrollbar-thumb,
 .editorShell::-webkit-scrollbar-thumb,
 .descriptionTextarea::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-brand-primary) 72%, var(--color-border-soft));
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 72%,
+    var(--color-border-soft)
+  );
   border-radius: 999px;
 }
 
@@ -120,7 +125,8 @@
 }
 
 .dangerButton {
-  border: 1px solid color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
+  border: 1px solid
+    color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
   background: transparent;
   color: var(--color-status-danger);
 }
@@ -178,7 +184,6 @@
   color: var(--color-text-primary);
 }
 
-
 .bonusGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -209,7 +214,8 @@
 
 .bonusCount {
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 40%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-primary) 40%, transparent);
   background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
   color: var(--color-brand-primary);
   padding: 0.2rem 0.55rem;
@@ -270,7 +276,11 @@
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--color-brand-primary) 16%, var(--color-bg-surface));
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 16%,
+    var(--color-bg-surface)
+  );
   color: var(--color-brand-primary);
   font-weight: 800;
 }

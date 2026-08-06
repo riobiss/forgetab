@@ -1,6 +1,6 @@
 export {
   addNpcMonsterCharacterAbilityHandler,
   getNpcMonsterCharacterAbilitiesHandler,
-  removeNpcMonsterCharacterAbilityHandler,
+  removeNpcMonsterCharacterAbilityHandler
 } from "./handlers"
 export type { CharacterInventoryRouteParams } from "./routeTypes"

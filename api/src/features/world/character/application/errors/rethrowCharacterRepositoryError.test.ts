@@ -6,29 +6,29 @@ describe("rethrowCharacterRepositoryError", () => {
   it.each([
     [
       "character_schema_missing",
-      "Tabela de personagens nao existe no banco. Rode a migration.",
+      "Tabela de personagens nao existe no banco. Rode a migration."
     ],
     [
       "character_schema_outdated",
-      "Estrutura de personagens desatualizada. Rode a migration mais recente.",
+      "Estrutura de personagens desatualizada. Rode a migration mais recente."
     ],
     [
       "template_schema_missing",
-      "Estrutura de racas/classes nao existe no banco. Rode a migration.",
+      "Estrutura de racas/classes nao existe no banco. Rode a migration."
     ],
     [
       "progression_schema_outdated",
-      "Estrutura de progressao desatualizada. Rode a migration mais recente.",
-    ],
+      "Estrutura de progressao desatualizada. Rode a migration mais recente."
+    ]
   ] as const)("maps %s to an application error", (code, message) => {
     expect(() =>
-      rethrowCharacterRepositoryError(new CharacterRepositoryError(code)),
+      rethrowCharacterRepositoryError(new CharacterRepositoryError(code))
     ).toThrow(
       expect.objectContaining({
         name: "AppError",
         status: 500,
-        message,
-      }),
+        message
+      })
     )
   })
 

@@ -1,9 +1,25 @@
 .page {
-  --catalog-panel-bg: color-mix(in srgb, var(--color-bg-surface-alt) 94%, var(--color-bg-surface));
-  --catalog-panel-border: color-mix(in srgb, var(--color-border-strong) 72%, var(--color-border-soft));
-  --catalog-panel-inner: color-mix(in srgb, var(--color-bg-surface-alt) 92%, transparent);
+  --catalog-panel-bg: color-mix(
+    in srgb,
+    var(--color-bg-surface-alt) 94%,
+    var(--color-bg-surface)
+  );
+  --catalog-panel-border: color-mix(
+    in srgb,
+    var(--color-border-strong) 72%,
+    var(--color-border-soft)
+  );
+  --catalog-panel-inner: color-mix(
+    in srgb,
+    var(--color-bg-surface-alt) 92%,
+    transparent
+  );
   --catalog-card-bg: color-mix(in srgb, var(--color-bg-card) 94%, transparent);
-  --catalog-card-hover: color-mix(in srgb, var(--color-bg-elevated) 96%, transparent);
+  --catalog-card-hover: color-mix(
+    in srgb,
+    var(--color-bg-elevated) 96%,
+    transparent
+  );
   background:
     radial-gradient(
       circle at top left,
@@ -34,13 +50,13 @@
 .modal {
   border: 1px solid var(--catalog-panel-border);
   border-radius: 18px;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-brand-soft) 22%, var(--catalog-panel-bg)) 0%,
-      var(--catalog-panel-bg) 38%,
-      color-mix(in srgb, var(--color-bg-elevated) 72%, var(--catalog-panel-bg)) 100%
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-brand-soft) 22%, var(--catalog-panel-bg)) 0%,
+    var(--catalog-panel-bg) 38%,
+    color-mix(in srgb, var(--color-bg-elevated) 72%, var(--catalog-panel-bg))
+      100%
+  );
   box-shadow: var(--shadow-elevation-sm);
 }
 
@@ -83,7 +99,8 @@
 .title {
   margin: 0;
   color: var(--color-text-primary);
-  text-shadow: 0 0 12px color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
+  text-shadow: 0 0 12px
+    color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
   font-size: clamp(2rem, 2.8vw, 2.5rem);
   line-height: 1.05;
 }
@@ -174,7 +191,8 @@
   gap: 0.5rem;
   padding: 0.9rem;
   border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--color-border-default) 85%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-border-default) 85%, transparent);
   background: var(--catalog-card-bg);
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 3%, transparent);
 }
@@ -221,12 +239,12 @@
 .group {
   border: 1px solid var(--catalog-panel-border);
   border-radius: 18px;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-brand-soft) 22%, var(--catalog-panel-bg)) 0%,
-      var(--catalog-panel-bg) 38%,
-      color-mix(in srgb, var(--color-bg-elevated) 72%, var(--catalog-panel-bg)) 100%
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-brand-soft) 22%, var(--catalog-panel-bg)) 0%,
+    var(--catalog-panel-bg) 38%,
+    color-mix(in srgb, var(--color-bg-elevated) 72%, var(--catalog-panel-bg))
+      100%
   );
   box-shadow: var(--shadow-elevation-sm);
   overflow: hidden;
@@ -273,7 +291,8 @@
   min-width: 2.2rem;
   padding: 0.28rem 0.55rem;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 32%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-primary) 32%, transparent);
   background: var(--color-brand-soft);
   color: var(--color-brand-primary);
   font-weight: 800;
@@ -306,12 +325,12 @@
 .treeContainer {
   border: 1px solid var(--catalog-panel-border);
   border-radius: 18px;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-brand-soft) 18%, var(--catalog-panel-bg)) 0%,
-      var(--catalog-panel-bg) 32%,
-      color-mix(in srgb, var(--color-bg-elevated) 72%, var(--catalog-panel-bg)) 100%
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-brand-soft) 18%, var(--catalog-panel-bg)) 0%,
+    var(--catalog-panel-bg) 32%,
+    color-mix(in srgb, var(--color-bg-elevated) 72%, var(--catalog-panel-bg))
+      100%
   );
   box-shadow: var(--shadow-elevation-sm);
   padding: 0.85rem 0.95rem;
@@ -396,7 +415,8 @@
 }
 
 .treeRootNode + .treeRootNode {
-  border-top: 1px solid color-mix(in srgb, var(--color-border-soft) 58%, transparent);
+  border-top: 1px solid
+    color-mix(in srgb, var(--color-border-soft) 58%, transparent);
   padding-top: 0.3rem;
 }
 
@@ -440,7 +460,11 @@
 
 .iconButtonDanger {
   color: var(--color-status-danger);
-  border-color: color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
+  border-color: color-mix(
+    in srgb,
+    var(--color-status-danger) 45%,
+    var(--color-border-soft)
+  );
   background: var(--color-status-danger-soft);
 }
 
@@ -586,7 +610,8 @@
 .breadcrumbs button {
   background: var(--color-brand-soft);
   color: var(--color-brand-primary);
-  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 24%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-primary) 24%, transparent);
   padding: 0.45rem 0.7rem;
   border-radius: 999px;
 }
@@ -632,7 +657,11 @@
 
 .primaryButton {
   border: 1px solid color-mix(in srgb, var(--color-brand-primary) 80%, white);
-  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-strong));
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-primary),
+    var(--color-brand-strong)
+  );
   color: var(--color-text-on-brand);
   padding: 0.62rem 0.9rem;
 }
@@ -811,7 +840,8 @@
 .sectionImageLightboxClose,
 .sectionImageLightboxNav {
   position: absolute;
-  border: 1px solid color-mix(in srgb, var(--color-border-strong) 72%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-border-strong) 72%, transparent);
   background: color-mix(in srgb, var(--color-bg-surface) 82%, #000);
   color: var(--color-text-primary);
   cursor: pointer;

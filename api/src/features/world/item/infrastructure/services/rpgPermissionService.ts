@@ -5,5 +5,5 @@ export const rpgPermissionService: RpgPermissionService = {
   async canManageRpg(rpgId, userId) {
     const permission = await getRpgPermissionByPrisma(rpgId, userId)
     return permission.canManage
-  },
+  }
 }

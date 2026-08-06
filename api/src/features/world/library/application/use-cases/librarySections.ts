@@ -8,7 +8,7 @@ import {
   ensureCanViewLibrarySection,
   ensureCanViewRpg,
   normalizeDescription,
-  wrapLibraryError,
+  wrapLibraryError
 } from "./shared"
 
 type Dependencies = {
@@ -18,24 +18,29 @@ type Dependencies = {
 
 export async function listLibrarySections(
   deps: Dependencies,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
-    const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
+    const access = await deps.accessService.getRpgAccess(
+      params.rpgId,
+      params.userId
+    )
     ensureCanViewRpg(access.exists, access.canView)
     const sections = await deps.repository.listSections(params.rpgId)
 
     return {
       sections: sections
         .filter((section) =>
-          canViewLibrarySection(section, params.userId, access.canManage),
+          canViewLibrarySection(section, params.userId, access.canManage)
         )
         .map((section) => ({
           ...section,
-          canEdit: access.canManage || section.createdByUserId === params.userId,
-          canDelete: access.canManage || section.createdByUserId === params.userId,
+          canEdit:
+            access.canManage || section.createdByUserId === params.userId,
+          canDelete:
+            access.canManage || section.createdByUserId === params.userId
         })),
-      canManage: access.canManage,
+      canManage: access.canManage
     }
   } catch (error) {
     wrapLibraryError(error, "Erro interno ao listar secoes.")
@@ -44,14 +49,20 @@ export async function listLibrarySections(
 
 export async function createLibrarySection(
   deps: Dependencies,
-  params: { rpgId: string; userId: string; body: unknown },
+  params: { rpgId: string; userId: string; body: unknown }
 ) {
   try {
-    const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
+    const access = await deps.accessService.getRpgAccess(
+      params.rpgId,
+      params.userId
+    )
     ensureCanViewRpg(access.exists, access.canView)
     const parsed = createLibrarySectionSchema.safeParse(params.body)
     if (!parsed.success) {
-      throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
+      throw new AppError(
+        parsed.error.issues[0]?.message ?? "Dados invalidos.",
+        400
+      )
     }
 
     const section = await deps.repository.createSection({
@@ -59,7 +70,7 @@ export async function createLibrarySection(
       userId: params.userId,
       title: parsed.data.title.trim(),
       description: normalizeDescription(parsed.data.description),
-      visibility: parsed.data.visibility,
+      visibility: parsed.data.visibility
     })
     return { section }
   } catch (error) {
@@ -69,12 +80,18 @@ export async function createLibrarySection(
 
 export async function getLibrarySection(
   deps: Dependencies,
-  params: { rpgId: string; sectionId: string; userId: string },
+  params: { rpgId: string; sectionId: string; userId: string }
 ) {
   try {
-    const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
+    const access = await deps.accessService.getRpgAccess(
+      params.rpgId,
+      params.userId
+    )
     ensureCanViewRpg(access.exists, access.canView)
-    const section = await deps.repository.findSection(params.rpgId, params.sectionId)
+    const section = await deps.repository.findSection(
+      params.rpgId,
+      params.sectionId
+    )
     if (!section) throw new AppError("Secao nao encontrada.", 404)
     ensureCanViewLibrarySection(section, params.userId, access.canManage)
 
@@ -82,9 +99,9 @@ export async function getLibrarySection(
       section: {
         ...section,
         canEdit: access.canManage || section.createdByUserId === params.userId,
-        canDelete: access.canManage || section.createdByUserId === params.userId,
+        canDelete: access.canManage || section.createdByUserId === params.userId
       },
-      canManage: access.canManage,
+      canManage: access.canManage
     }
   } catch (error) {
     wrapLibraryError(error, "Erro interno ao buscar secao.")
@@ -93,26 +110,32 @@ export async function getLibrarySection(
 
 export async function updateLibrarySection(
   deps: Dependencies,
-  params: { rpgId: string; sectionId: string; userId: string; body: unknown },
+  params: { rpgId: string; sectionId: string; userId: string; body: unknown }
 ) {
   try {
-    const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
+    const access = await deps.accessService.getRpgAccess(
+      params.rpgId,
+      params.userId
+    )
     const owner = await deps.repository.findSectionOwner({
       rpgId: params.rpgId,
-      sectionId: params.sectionId,
+      sectionId: params.sectionId
     })
     ensureCanManageOwnedResource(access, owner, params.userId, "Secao")
 
     const parsed = createLibrarySectionSchema.safeParse(params.body)
     if (!parsed.success) {
-      throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
+      throw new AppError(
+        parsed.error.issues[0]?.message ?? "Dados invalidos.",
+        400
+      )
     }
     const section = await deps.repository.updateSection({
       rpgId: params.rpgId,
       sectionId: params.sectionId,
       title: parsed.data.title.trim(),
       description: normalizeDescription(parsed.data.description),
-      visibility: parsed.data.visibility,
+      visibility: parsed.data.visibility
     })
     if (!section) throw new AppError("Secao nao encontrada.", 404)
     return { section }
@@ -123,16 +146,22 @@ export async function updateLibrarySection(
 
 export async function deleteLibrarySection(
   deps: Dependencies,
-  params: { rpgId: string; sectionId: string; userId: string },
+  params: { rpgId: string; sectionId: string; userId: string }
 ) {
   try {
-    const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
+    const access = await deps.accessService.getRpgAccess(
+      params.rpgId,
+      params.userId
+    )
     const owner = await deps.repository.findSectionOwner({
       rpgId: params.rpgId,
-      sectionId: params.sectionId,
+      sectionId: params.sectionId
     })
     ensureCanManageOwnedResource(access, owner, params.userId, "Secao")
-    const deleted = await deps.repository.deleteSection(params.rpgId, params.sectionId)
+    const deleted = await deps.repository.deleteSection(
+      params.rpgId,
+      params.sectionId
+    )
     if (!deleted) throw new AppError("Secao nao encontrada.", 404)
     return { message: "Secao removida com sucesso." }
   } catch (error) {

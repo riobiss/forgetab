@@ -14,7 +14,7 @@ export async function updateSkillLevel(
     levelId: string
     userId: string
     body: unknown
-  },
+  }
 ) {
   try {
     const skill = await deps.repository.findById(params.skillId, params.userId)
@@ -31,7 +31,7 @@ export async function updateSkillLevel(
     if (!parsed.success) {
       throw new AppError(
         parsed.error.issues[0]?.message ?? "Dados invalidos.",
-        400,
+        400
       )
     }
 
@@ -63,12 +63,12 @@ export async function updateSkillLevel(
       target: nextTarget,
       area: nextArea,
       scaling: nextScaling,
-      requirement: nextRequirement,
+      requirement: nextRequirement
     })
 
     const updatedSkill = await deps.repository.findById(
       params.skillId,
-      params.userId,
+      params.userId
     )
     return { skill: updatedSkill }
   } catch (error) {

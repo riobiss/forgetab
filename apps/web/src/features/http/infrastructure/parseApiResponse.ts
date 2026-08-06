@@ -17,7 +17,7 @@ function readErrorMessage(payload: unknown) {
 
 export async function parseApiResponse<T>(
   response: Response,
-  options: ParseApiResponseOptions = {},
+  options: ParseApiResponseOptions = {}
 ): Promise<T> {
   const rawBody = await response.text()
   let payload: unknown = null
@@ -40,7 +40,7 @@ export async function parseApiResponse<T>(
 
   if (payload == null) {
     throw new Error(
-      options.invalidResponseMessage ?? "Resposta invalida da API.",
+      options.invalidResponseMessage ?? "Resposta invalida da API."
     )
   }
 

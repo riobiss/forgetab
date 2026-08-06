@@ -4,7 +4,7 @@ type TouchPoint = { clientX: number; clientY: number }
 
 export function getLocalPinchCenter(
   touches: ArrayLike<TouchPoint>,
-  bounds: { left: number; top: number },
+  bounds: { left: number; top: number }
 ): ViewportPoint | null {
   const first = touches[0]
   const second = touches[1]
@@ -12,7 +12,7 @@ export function getLocalPinchCenter(
 
   return {
     x: (first.clientX + second.clientX) / 2 - bounds.left,
-    y: (first.clientY + second.clientY) / 2 - bounds.top,
+    y: (first.clientY + second.clientY) / 2 - bounds.top
   }
 }
 
@@ -33,31 +33,24 @@ export function calculatePinchViewport(params: {
   ) {
     return {
       scale: params.currentScale,
-      position: params.position,
+      position: params.position
     }
   }
 
   const contentPoint = {
-    x:
-      (params.previousCenter.x - params.position.x) /
-      params.currentScale,
-    y:
-      (params.previousCenter.y - params.position.y) /
-      params.currentScale,
+    x: (params.previousCenter.x - params.position.x) / params.currentScale,
+    y: (params.previousCenter.y - params.position.y) / params.currentScale
   }
   const nextScale =
     params.currentScale * (params.distance / params.previousDistance)
-  const scale = Math.max(
-    params.minScale,
-    Math.min(params.maxScale, nextScale),
-  )
+  const scale = Math.max(params.minScale, Math.min(params.maxScale, nextScale))
 
   return {
     scale,
     position: {
       x: params.center.x - contentPoint.x * scale,
-      y: params.center.y - contentPoint.y * scale,
-    },
+      y: params.center.y - contentPoint.y * scale
+    }
   }
 }
 
@@ -81,26 +74,22 @@ export function preserveViewportOnResize(params: {
 
   const previousCenter = {
     x: params.previousWidth / 2,
-    y: params.previousHeight / 2,
+    y: params.previousHeight / 2
   }
   const contentPoint = {
-    x:
-      (previousCenter.x - params.position.x) /
-      params.currentScale,
-    y:
-      (previousCenter.y - params.position.y) /
-      params.currentScale,
+    x: (previousCenter.x - params.position.x) / params.currentScale,
+    y: (previousCenter.y - params.position.y) / params.currentScale
   }
   const nextCenter = {
     x: params.nextWidth / 2,
-    y: params.nextHeight / 2,
+    y: params.nextHeight / 2
   }
 
   return {
     scale,
     position: {
       x: nextCenter.x - contentPoint.x * scale,
-      y: nextCenter.y - contentPoint.y * scale,
-    },
+      y: nextCenter.y - contentPoint.y * scale
+    }
   }
 }

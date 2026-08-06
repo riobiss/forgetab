@@ -7,27 +7,29 @@ export const prismaRpgUserProfileWriter: RpgUserProfileWriter = {
       where: {
         rpgId_userId: {
           rpgId,
-          userId,
-        },
+          userId
+        }
       },
       select: {
         displayName: true,
-        profileImageUrl: true,
-      },
+        profileImageUrl: true
+      }
     })
     const nextDisplayName =
-      values.displayName !== undefined ? values.displayName : current?.displayName ?? null
+      values.displayName !== undefined
+        ? values.displayName
+        : (current?.displayName ?? null)
     const nextProfileImageUrl =
       values.profileImageUrl !== undefined
         ? values.profileImageUrl
-        : current?.profileImageUrl ?? null
+        : (current?.profileImageUrl ?? null)
 
     if (!nextDisplayName && !nextProfileImageUrl) {
       await prisma.rpgUserProfile.deleteMany({
         where: {
           rpgId,
-          userId,
-        },
+          userId
+        }
       })
 
       return { rpgId, nickname: null, profileImageUrl: null }
@@ -37,31 +39,31 @@ export const prismaRpgUserProfileWriter: RpgUserProfileWriter = {
       where: {
         rpgId_userId: {
           rpgId,
-          userId,
-        },
+          userId
+        }
       },
       create: {
         rpgId,
         userId,
         displayName: nextDisplayName,
-        profileImageUrl: nextProfileImageUrl,
+        profileImageUrl: nextProfileImageUrl
       },
       update: {
         displayName: nextDisplayName,
         profileImageUrl: nextProfileImageUrl,
-        updatedAt: new Date(),
+        updatedAt: new Date()
       },
       select: {
         rpgId: true,
         displayName: true,
-        profileImageUrl: true,
-      },
+        profileImageUrl: true
+      }
     })
 
     return {
       rpgId: profile.rpgId,
       nickname: profile.displayName,
-      profileImageUrl: profile.profileImageUrl,
+      profileImageUrl: profile.profileImageUrl
     }
-  },
+  }
 }

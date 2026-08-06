@@ -18,6 +18,6 @@ export function mapSkillLevel(level: SkillLevelRow): SkillLevelDetails {
     target: normalizeJsonObject(level.target),
     area: normalizeJsonObject(level.area),
     scaling: normalizeJsonObject(level.scaling),
-    requirement: normalizeJsonObject(level.requirement),
+    requirement: normalizeJsonObject(level.requirement)
   }
 }

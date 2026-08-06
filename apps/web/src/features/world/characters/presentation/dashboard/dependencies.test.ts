@@ -7,7 +7,7 @@ describe("character detail modal dependencies", () => {
 
     expect(dependencies.loadout.gateway.fetchInventory).toBeTypeOf("function")
     expect(
-      dependencies.createAbilities("rpg-1").gateway.removeAbility,
+      dependencies.createAbilities("rpg-1").gateway.removeAbility
     ).toBeTypeOf("function")
   })
 })

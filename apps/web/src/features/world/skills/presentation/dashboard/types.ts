@@ -1,9 +1,14 @@
-import type { ActionType, SkillCategory, SkillTag, SkillType } from "@/types/skillBuilder"
+import type {
+  ActionType,
+  SkillCategory,
+  SkillTag,
+  SkillType
+} from "@/types/skillBuilder"
 import type {
   SkillDetailDto,
   SkillLevelDto,
   SkillListItemDto,
-  TemplateOptionDto,
+  TemplateOptionDto
 } from "@/features/world/skills/application/skillsDashboard/types"
 
 export type OwnedRpg = { id: string; title: string }

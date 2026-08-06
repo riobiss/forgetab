@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config"
 
 export default defineConfig({
   resolve: {
-    tsconfigPaths: true,
+    tsconfigPaths: true
   },
   test: {
     environment: "jsdom",
@@ -18,6 +18,6 @@ export default defineConfig({
       "apps/web/src/lib/server/**",
       "apps/web/src/features/**/legacy*.test.{ts,tsx}"
     ],
-    css: true,
-  },
+    css: true
+  }
 })

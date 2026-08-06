@@ -23,13 +23,13 @@ import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button"
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
+  PopoverTrigger
 } from "@/components/tiptap-ui-primitive/popover"
 import { Separator } from "@/components/tiptap-ui-primitive/separator"
 import {
   Card,
   CardBody,
-  CardItemGroup,
+  CardItemGroup
 } from "@/components/tiptap-ui-primitive/card"
 import { Input, InputGroup } from "@/components/tiptap-ui-primitive/input"
 
@@ -107,7 +107,7 @@ const LinkMain: React.FC<LinkMainProps> = ({
   setLink,
   removeLink,
   openLink,
-  isActive,
+  isActive
 }) => {
   const isMobile = useIsBreakpoint()
 
@@ -121,12 +121,12 @@ const LinkMain: React.FC<LinkMainProps> = ({
   return (
     <Card
       style={{
-        ...(isMobile ? { boxShadow: "none", border: 0 } : {}),
+        ...(isMobile ? { boxShadow: "none", border: 0 } : {})
       }}
     >
       <CardBody
         style={{
-          ...(isMobile ? { padding: 0 } : {}),
+          ...(isMobile ? { padding: 0 } : {})
         }}
       >
         <CardItemGroup orientation="horizontal">
@@ -192,7 +192,7 @@ export const LinkContent: React.FC<{
   editor?: Editor | null
 }> = ({ editor }) => {
   const linkPopover = useLinkPopover({
-    editor,
+    editor
   })
 
   return <LinkMain {...linkPopover} />
@@ -230,11 +230,11 @@ export const LinkPopover = forwardRef<HTMLButtonElement, LinkPopoverProps>(
       removeLink,
       openLink,
       label,
-      Icon,
+      Icon
     } = useLinkPopover({
       editor,
       hideWhenUnavailable,
-      onSetLink,
+      onSetLink
     })
 
     const handleOnOpenChange = useCallback(

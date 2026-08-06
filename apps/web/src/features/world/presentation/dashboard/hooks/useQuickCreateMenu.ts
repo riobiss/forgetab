@@ -5,12 +5,12 @@ import type { RpgDashboardDependencies } from "@/features/world/presentation/das
 import {
   grantPointsUseCase,
   loadDashboardDistributionUseCase,
-  mapPlayersWithClasses,
+  mapPlayersWithClasses
 } from "@/features/world/application/dashboard/use-cases/rpgDashboardActions"
 
 export function useQuickCreateMenu(
   deps: RpgDashboardDependencies,
-  params: { rpgId: string },
+  params: { rpgId: string }
 ) {
   const [isOpen, setIsOpen] = useState(false)
   const [showPointsPanel, setShowPointsPanel] = useState(false)
@@ -45,28 +45,28 @@ export function useQuickCreateMenu(
 
       const { charactersPayload, classesPayload, rpgPayload } =
         await loadDashboardDistributionUseCase(deps.gateway, {
-          rpgId: params.rpgId,
+          rpgId: params.rpgId
         })
 
       const playerRows = mapPlayersWithClasses({
         characters: charactersPayload.characters ?? [],
-        classes: classesPayload.classes ?? [],
+        classes: classesPayload.classes ?? []
       }).map((item) => ({
         id: item.id,
         name: item.name,
-        classLabel: item.classLabel,
+        classLabel: item.classLabel
       }))
 
       setPlayers(playerRows)
       setCostResourceName(
-        rpgPayload.rpg?.costResourceName?.trim() || "Skill Points",
+        rpgPayload.rpg?.costResourceName?.trim() || "Skill Points"
       )
       setAmountInput("1")
     } catch (error) {
       setPanelError(
         error instanceof Error
           ? error.message
-          : "Erro de conexao ao carregar distribuicao de pontos.",
+          : "Erro de conexao ao carregar distribuicao de pontos."
       )
     } finally {
       setLoadingPanel(false)
@@ -77,7 +77,7 @@ export function useQuickCreateMenu(
   async function handleGrantPoint(
     characterId: string,
     playerName: string,
-    amount: 1 | -1,
+    amount: 1 | -1
   ) {
     if (loadingGrantRef.current) return
     if (!selectedAmount) {
@@ -93,7 +93,7 @@ export function useQuickCreateMenu(
 
       const payload = await grantPointsUseCase(deps.gateway, {
         characterId,
-        amount: selectedAmount * amount,
+        amount: selectedAmount * amount
       })
 
       const remainingPoints =
@@ -102,18 +102,18 @@ export function useQuickCreateMenu(
           : ""
       if (amount > 0) {
         setPanelMessage(
-          `${playerName} recebeu ${selectedAmount} ${costResourceName}.${remainingPoints}`,
+          `${playerName} recebeu ${selectedAmount} ${costResourceName}.${remainingPoints}`
         )
       } else {
         setPanelMessage(
-          `${playerName} perdeu ${selectedAmount} ${costResourceName}.${remainingPoints}`,
+          `${playerName} perdeu ${selectedAmount} ${costResourceName}.${remainingPoints}`
         )
       }
     } catch (error) {
       setPanelError(
         error instanceof Error
           ? error.message
-          : "Erro de conexao ao atualizar ponto de classe.",
+          : "Erro de conexao ao atualizar ponto de classe."
       )
     } finally {
       setLoadingActionKey("")
@@ -151,6 +151,6 @@ export function useQuickCreateMenu(
     selectedAmount,
     wrapperRef,
     loadPointsPanelData,
-    handleGrantPoint,
+    handleGrantPoint
   }
 }

@@ -21,7 +21,7 @@ export default function LibraryRichEditor({
   value,
   disabled = false,
   onChange,
-  deps,
+  deps
 }: Props) {
   const [uploadError, setUploadError] = useState("")
   const syncRef = useRef(false)
@@ -32,19 +32,19 @@ export default function LibraryRichEditor({
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2],
-        },
+          levels: [1, 2]
+        }
       }),
       Image.configure({
         inline: false,
-        allowBase64: false,
-      }),
+        allowBase64: false
+      })
     ],
     content: value ?? EMPTY_DOC,
     onUpdate({ editor: currentEditor }) {
       if (syncRef.current) return
       onChange(currentEditor.getJSON())
-    },
+    }
   })
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export default function LibraryRichEditor({
       setUploadError(
         cause instanceof Error
           ? cause.message
-          : "Erro de conexao ao enviar imagem.",
+          : "Erro de conexao ao enviar imagem."
       )
     }
   }

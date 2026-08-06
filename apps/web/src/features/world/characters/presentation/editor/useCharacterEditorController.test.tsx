@@ -2,12 +2,12 @@ import { act, renderHook, waitFor } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 import type {
   CharacterEditorBootstrapDto,
-  CharactersEditorDependencies,
+  CharactersEditorDependencies
 } from "@/features/world/characters/application/editor"
 import { useCharacterEditorController } from "./useCharacterEditorController"
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() })
 }))
 
 function createDependencies(): CharactersEditorDependencies {
@@ -19,8 +19,8 @@ function createDependencies(): CharactersEditorDependencies {
       updateCharacter: vi.fn(),
       deleteCharacter: vi.fn(),
       uploadCharacterImage: vi.fn(),
-      deleteCharacterImageByUrl: vi.fn(),
-    },
+      deleteCharacterImageByUrl: vi.fn()
+    }
   }
 }
 
@@ -37,20 +37,18 @@ function createBootstrap(): CharacterEditorBootstrapDto {
       progressionMode: "xp_level",
       progressionTiers: [
         { label: "Nivel 1", required: 0 },
-        { label: "Nivel 2", required: 100 },
-      ],
+        { label: "Nivel 2", required: 100 }
+      ]
     },
     races: [{ key: "humano", label: "Humano" }],
     classes: [{ key: "guerreiro", label: "Guerreiro" }],
     identityFields: [
-      { key: "nome", label: "Nome", required: true, position: 0 },
+      { key: "nome", label: "Nome", required: true, position: 0 }
     ],
     characteristicFields: [
-      { key: "aparencia", label: "Aparencia", required: false, position: 0 },
+      { key: "aparencia", label: "Aparencia", required: false, position: 0 }
     ],
-    assignablePlayers: [
-      { userId: "user-1", username: "ana", name: "Ana" },
-    ],
+    assignablePlayers: [{ userId: "user-1", username: "ana", name: "Ana" }]
   }
 }
 
@@ -62,8 +60,8 @@ describe("useCharacterEditorController", () => {
       useCharacterEditorController({
         rpgId: "rpg-1",
         deps,
-        initialBootstrap,
-      }),
+        initialBootstrap
+      })
     )
 
     await waitFor(() => expect(result.current.loading).toBe(false))
@@ -73,7 +71,7 @@ describe("useCharacterEditorController", () => {
     expect(result.current.statusValues).toEqual({ vida: "" })
     expect(result.current.identityNameField?.key).toBe("nome")
     expect(result.current.assignablePlayerOptions).toEqual([
-      { value: "user-1", label: "Ana (@ana)" },
+      { value: "user-1", label: "Ana (@ana)" }
     ])
     expect(deps.gateway.fetchBootstrap).not.toHaveBeenCalled()
   })
@@ -85,8 +83,8 @@ describe("useCharacterEditorController", () => {
       useCharacterEditorController({
         rpgId: "rpg-1",
         deps,
-        initialBootstrap,
-      }),
+        initialBootstrap
+      })
     )
     await waitFor(() => expect(result.current.loading).toBe(false))
 

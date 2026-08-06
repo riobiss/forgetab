@@ -9,7 +9,7 @@ import {
   ensureCanViewRpg,
   normalizeDescription,
   normalizeTextList,
-  wrapLibraryError,
+  wrapLibraryError
 } from "./shared"
 
 type Dependencies = {
@@ -20,7 +20,10 @@ type Dependencies = {
 function parseLibraryBookBody(body: unknown) {
   const parsed = createLibraryBookSchema.safeParse(body)
   if (!parsed.success) {
-    throw new AppError(parsed.error.issues[0]?.message ?? "Dados invalidos.", 400)
+    throw new AppError(
+      parsed.error.issues[0]?.message ?? "Dados invalidos.",
+      400
+    )
   }
   return parsed.data
 }
@@ -33,22 +36,31 @@ function toBookInput(data: ReturnType<typeof parseLibraryBookBody>) {
     visibility: data.visibility,
     allowedCharacterIds: normalizeTextList(data.allowedCharacterIds),
     allowedClassKeys: normalizeTextList(data.allowedClassKeys),
-    allowedRaceKeys: normalizeTextList(data.allowedRaceKeys),
+    allowedRaceKeys: normalizeTextList(data.allowedRaceKeys)
   }
 }
 
 export async function listLibrarySectionBooks(
   deps: Dependencies,
-  params: { rpgId: string; sectionId: string; userId: string },
+  params: { rpgId: string; sectionId: string; userId: string }
 ) {
   try {
-    const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
+    const access = await deps.accessService.getRpgAccess(
+      params.rpgId,
+      params.userId
+    )
     ensureCanViewRpg(access.exists, access.canView)
-    const section = await deps.repository.findSection(params.rpgId, params.sectionId)
+    const section = await deps.repository.findSection(
+      params.rpgId,
+      params.sectionId
+    )
     if (!section) throw new AppError("Secao nao encontrada.", 404)
     ensureCanViewLibrarySection(section, params.userId, access.canManage)
 
-    const books = await deps.repository.listBooks(params.rpgId, params.sectionId)
+    const books = await deps.repository.listBooks(
+      params.rpgId,
+      params.sectionId
+    )
     const viewerCharacters = access.canManage
       ? []
       : await deps.repository.getViewerCharacters(params.rpgId, params.userId)
@@ -56,14 +68,19 @@ export async function listLibrarySectionBooks(
     return {
       books: books
         .filter((book) =>
-          canViewLibraryBook(book, params.userId, access.canManage, viewerCharacters),
+          canViewLibraryBook(
+            book,
+            params.userId,
+            access.canManage,
+            viewerCharacters
+          )
         )
         .map((book) => ({
           ...book,
-          canEdit: access.canManage || book.createdByUserId === params.userId,
+          canEdit: access.canManage || book.createdByUserId === params.userId
         })),
       canManage: access.canManage,
-      canCreate: access.canView,
+      canCreate: access.canView
     }
   } catch (error) {
     wrapLibraryError(error, "Erro interno ao listar livros.")
@@ -72,12 +89,18 @@ export async function listLibrarySectionBooks(
 
 export async function createLibraryBook(
   deps: Dependencies,
-  params: { rpgId: string; sectionId: string; userId: string; body: unknown },
+  params: { rpgId: string; sectionId: string; userId: string; body: unknown }
 ) {
   try {
-    const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
+    const access = await deps.accessService.getRpgAccess(
+      params.rpgId,
+      params.userId
+    )
     ensureCanViewRpg(access.exists, access.canView)
-    const section = await deps.repository.findSection(params.rpgId, params.sectionId)
+    const section = await deps.repository.findSection(
+      params.rpgId,
+      params.sectionId
+    )
     if (!section) throw new AppError("Secao nao encontrada.", 404)
     ensureCanViewLibrarySection(section, params.userId, access.canManage)
 
@@ -85,7 +108,7 @@ export async function createLibraryBook(
       rpgId: params.rpgId,
       sectionId: params.sectionId,
       userId: params.userId,
-      ...toBookInput(parseLibraryBookBody(params.body)),
+      ...toBookInput(parseLibraryBookBody(params.body))
     })
     await deps.repository.touchSection(params.sectionId)
     return { book }
@@ -96,10 +119,13 @@ export async function createLibraryBook(
 
 export async function getLibraryBook(
   deps: Dependencies,
-  params: { rpgId: string; bookId: string; userId: string },
+  params: { rpgId: string; bookId: string; userId: string }
 ) {
   try {
-    const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
+    const access = await deps.accessService.getRpgAccess(
+      params.rpgId,
+      params.userId
+    )
     ensureCanViewRpg(access.exists, access.canView)
     const book = await deps.repository.findBook(params.rpgId, params.bookId)
     if (!book) throw new AppError("Livro nao encontrado.", 404)
@@ -107,16 +133,22 @@ export async function getLibraryBook(
       ? []
       : await deps.repository.getViewerCharacters(params.rpgId, params.userId)
     if (
-      !canViewLibraryBook(book, params.userId, access.canManage, viewerCharacters, {
-        allowUnlisted: true,
-      })
+      !canViewLibraryBook(
+        book,
+        params.userId,
+        access.canManage,
+        viewerCharacters,
+        {
+          allowUnlisted: true
+        }
+      )
     ) {
       throw new AppError("Livro nao encontrado.", 404)
     }
     return {
       book,
       canManage: access.canManage,
-      canEdit: access.canManage || book.createdByUserId === params.userId,
+      canEdit: access.canManage || book.createdByUserId === params.userId
     }
   } catch (error) {
     wrapLibraryError(error, "Erro interno ao buscar livro.")
@@ -125,19 +157,22 @@ export async function getLibraryBook(
 
 export async function updateLibraryBook(
   deps: Dependencies,
-  params: { rpgId: string; bookId: string; userId: string; body: unknown },
+  params: { rpgId: string; bookId: string; userId: string; body: unknown }
 ) {
   try {
-    const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
+    const access = await deps.accessService.getRpgAccess(
+      params.rpgId,
+      params.userId
+    )
     const owner = await deps.repository.findBookOwner({
       rpgId: params.rpgId,
-      bookId: params.bookId,
+      bookId: params.bookId
     })
     ensureCanManageOwnedResource(access, owner, params.userId, "Livro")
     const book = await deps.repository.updateBook({
       rpgId: params.rpgId,
       bookId: params.bookId,
-      ...toBookInput(parseLibraryBookBody(params.body)),
+      ...toBookInput(parseLibraryBookBody(params.body))
     })
     if (!book) throw new AppError("Livro nao encontrado.", 404)
     await deps.repository.touchSection(book.sectionId)
@@ -149,16 +184,22 @@ export async function updateLibraryBook(
 
 export async function deleteLibraryBook(
   deps: Dependencies,
-  params: { rpgId: string; bookId: string; userId: string },
+  params: { rpgId: string; bookId: string; userId: string }
 ) {
   try {
-    const access = await deps.accessService.getRpgAccess(params.rpgId, params.userId)
+    const access = await deps.accessService.getRpgAccess(
+      params.rpgId,
+      params.userId
+    )
     const owner = await deps.repository.findBookOwner({
       rpgId: params.rpgId,
-      bookId: params.bookId,
+      bookId: params.bookId
     })
     ensureCanManageOwnedResource(access, owner, params.userId, "Livro")
-    const deleted = await deps.repository.deleteBook(params.rpgId, params.bookId)
+    const deleted = await deps.repository.deleteBook(
+      params.rpgId,
+      params.bookId
+    )
     if (!deleted) throw new AppError("Livro nao encontrado.", 404)
     await deps.repository.touchSection(deleted.sectionId)
     return { message: "Livro removido com sucesso." }

@@ -1,7 +1,7 @@
 import { normalizeRpgVisibility } from "@/features/world/infrastructure/shared/normalizeRpgVisibility"
 import type {
   RpgCreateBaseResult,
-  RpgRow,
+  RpgRow
 } from "@/features/world/application/management/types"
 
 type RpgVisibilityRow = {
@@ -11,7 +11,7 @@ type RpgVisibilityRow = {
 export function mapRpgRow<T extends RpgRow & RpgVisibilityRow>(row: T): RpgRow {
   return {
     ...row,
-    visibility: normalizeRpgVisibility(row.visibility),
+    visibility: normalizeRpgVisibility(row.visibility)
   }
 }
 
@@ -29,6 +29,6 @@ export function mapRpgCreateBaseResult(row: {
     title: row.title,
     description: row.description,
     visibility: normalizeRpgVisibility(row.visibility),
-    createdAt: row.createdAt,
+    createdAt: row.createdAt
   }
 }

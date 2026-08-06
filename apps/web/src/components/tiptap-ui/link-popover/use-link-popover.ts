@@ -13,7 +13,7 @@ import { LinkIcon } from "@/components/tiptap-icons/link-icon"
 import {
   isMarkInSchema,
   isNodeTypeSelected,
-  sanitizeUrl,
+  sanitizeUrl
 } from "@/lib/tiptap-utils"
 
 /**
@@ -186,7 +186,7 @@ export function useLinkHandler(props: LinkHandlerProps) {
     setUrl,
     setLink,
     removeLink,
-    openLink,
+    openLink
   }
 }
 
@@ -211,7 +211,7 @@ export function useLinkState(props: {
       setIsVisible(
         shouldShowLinkButton({
           editor,
-          hideWhenUnavailable,
+          hideWhenUnavailable
         })
       )
     }
@@ -228,7 +228,7 @@ export function useLinkState(props: {
   return {
     isVisible,
     canSet,
-    isActive,
+    isActive
   }
 }
 
@@ -273,19 +273,19 @@ export function useLinkPopover(config?: UseLinkPopoverConfig) {
   const {
     editor: providedEditor,
     hideWhenUnavailable = false,
-    onSetLink,
+    onSetLink
   } = config || {}
 
   const { editor } = useTiptapEditor(providedEditor)
 
   const { isVisible, canSet, isActive } = useLinkState({
     editor,
-    hideWhenUnavailable,
+    hideWhenUnavailable
   })
 
   const linkHandler = useLinkHandler({
     editor,
-    onSetLink,
+    onSetLink
   })
 
   return {
@@ -294,6 +294,6 @@ export function useLinkPopover(config?: UseLinkPopoverConfig) {
     isActive,
     label: "Link",
     Icon: LinkIcon,
-    ...linkHandler,
+    ...linkHandler
   }
 }

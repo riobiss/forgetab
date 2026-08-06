@@ -8,7 +8,7 @@ import {
   Pencil,
   Plus,
   Search,
-  X,
+  X
 } from "lucide-react"
 import styles from "./ItemsDashboardClient.module.css"
 import type { ItemsDashboardDependencies } from "@/features/world/items/application/dashboard/contracts/ItemsDashboardDependencies"
@@ -25,7 +25,7 @@ type ItemsDashboardClientProps = {
 
 export default function ItemsDashboardClient({
   rpgId,
-  deps,
+  deps
 }: ItemsDashboardClientProps) {
   const {
     baseItemTypeValues,
@@ -110,7 +110,7 @@ export default function ItemsDashboardClient({
     handleRemoveImage,
     addCustomField,
     updateNamedEntry,
-    createEmptyNamedDescription,
+    createEmptyNamedDescription
   } = useItemsDashboardState({ rpgId, deps })
 
   return (

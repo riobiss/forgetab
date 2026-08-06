@@ -6,7 +6,6 @@ import { buyEntityCatalogSkillUseCase } from "@/features/world/catalog/applicati
 import { dismissToast } from "@/lib/toast"
 import { entityCatalogDependencies } from "@/features/world/catalog/presentation/dependencies"
 
-
 export function useEntityAbilityPurchase(params: {
   purchase?: {
     characterId: string | null
@@ -31,11 +30,14 @@ export function useEntityAbilityPurchase(params: {
     const loadingToastId = toast.loading("Comprando habilidade...")
 
     try {
-      const result = await buyEntityCatalogSkillUseCase(entityCatalogDependencies, {
-        characterId: params.purchase.characterId,
-        skillId,
-        level,
-      })
+      const result = await buyEntityCatalogSkillUseCase(
+        entityCatalogDependencies,
+        {
+          characterId: params.purchase.characterId,
+          skillId,
+          level
+        }
+      )
 
       if (!result.success) {
         toast.error(result.message)
@@ -45,7 +47,7 @@ export function useEntityAbilityPurchase(params: {
       setPoints(result.remainingPoints ?? points)
       toast.success(result.message)
       return {
-        remainingPoints: result.remainingPoints ?? points,
+        remainingPoints: result.remainingPoints ?? points
       }
     } catch {
       toast.error("Erro de conexao ao comprar habilidade.")
@@ -59,6 +61,6 @@ export function useEntityAbilityPurchase(params: {
   return {
     points,
     loadingKey,
-    buySkill,
+    buySkill
   }
 }

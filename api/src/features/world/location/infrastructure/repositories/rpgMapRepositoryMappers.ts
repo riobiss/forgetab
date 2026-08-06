@@ -4,13 +4,13 @@ import type {
   RpgMapDto,
   RpgMapMarkerDto,
   RpgMapMarkerGroupDto,
-  RpgMapSectionDto,
+  RpgMapSectionDto
 } from "@forgetab/world-contracts/location"
 import type {
   MapRow,
   MarkerGroupRow,
   MarkerRow,
-  SectionRow,
+  SectionRow
 } from "@/features/world/location/infrastructure/repositories/rpgMapRepositoryRows.js"
 
 function toIsoString(value: Date | string | null | undefined) {
@@ -38,7 +38,7 @@ export function mapMap(row: MapRow): RpgMapDto {
     order: row.order,
     sectionsCount: row.sectionsCount,
     createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
+    updatedAt: toIsoString(row.updatedAt)
   }
 }
 
@@ -55,7 +55,7 @@ export function mapSection(row: SectionRow): RpgMapSectionDto {
     order: row.order,
     customFields: row.customFields ? parseObject(row.customFields) : null,
     createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
+    updatedAt: toIsoString(row.updatedAt)
   }
 }
 
@@ -77,13 +77,13 @@ export function mapMarker(row: MarkerRow): RpgMapMarkerDto {
     pinStyle: row.pinStyle,
     order: row.order,
     createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
+    updatedAt: toIsoString(row.updatedAt)
   }
 }
 
 export function mapMarkerGroup(
   row: MarkerGroupRow,
-  markers: MarkerRow[],
+  markers: MarkerRow[]
 ): RpgMapMarkerGroupDto {
   return {
     id: row.id,
@@ -97,6 +97,6 @@ export function mapMarkerGroup(
       .filter((marker) => marker.groupId === row.id)
       .map(mapMarker),
     createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
+    updatedAt: toIsoString(row.updatedAt)
   }
 }

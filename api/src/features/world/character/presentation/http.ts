@@ -29,7 +29,7 @@ export function writeJson(reply: FastifyReply, status: number, body: unknown) {
 export function writeError(
   reply: FastifyReply,
   error: unknown,
-  fallbackMessage: string,
+  fallbackMessage: string
 ) {
   if (error instanceof AppError) {
     return writeJson(reply, error.status, { message: error.message })
@@ -41,16 +41,16 @@ export function writeError(
 export function mapCharacterInventoryError(
   reply: FastifyReply,
   error: unknown,
-  fallbackMessage: string,
+  fallbackMessage: string
 ) {
   if (
     error instanceof Error &&
     error.message.includes(
-      'relation "rpg_character_inventory_items" does not exist',
+      'relation "rpg_character_inventory_items" does not exist'
     )
   ) {
     return writeJson(reply, 500, {
-      message: "Tabela de inventario nao existe no banco. Rode a migration.",
+      message: "Tabela de inventario nao existe no banco. Rode a migration."
     })
   }
 
@@ -63,7 +63,7 @@ export function mapCharacterInventoryError(
   ) {
     return writeJson(reply, 500, {
       message:
-        "Estrutura de itens desatualizada. Rode a migration mais recente.",
+        "Estrutura de itens desatualizada. Rode a migration mais recente."
     })
   }
 
@@ -73,21 +73,21 @@ export function mapCharacterInventoryError(
 export function mapCharacterCollectionError(
   reply: FastifyReply,
   error: unknown,
-  fallbackMessage: string,
+  fallbackMessage: string
 ) {
   if (
     error instanceof Error &&
     (error.message.includes(
-      'column "use_inventory_weight_limit" does not exist',
+      'column "use_inventory_weight_limit" does not exist'
     ) ||
       error.message.includes(
-        'column "allow_multiple_player_characters" does not exist',
+        'column "allow_multiple_player_characters" does not exist'
       ) ||
       error.message.includes('column "progression_mode" does not exist') ||
       error.message.includes('column "progression_tiers" does not exist'))
   ) {
     return writeJson(reply, 500, {
-      message: "Estrutura de RPG desatualizada. Rode a migration mais recente.",
+      message: "Estrutura de RPG desatualizada. Rode a migration mais recente."
     })
   }
 
@@ -96,13 +96,13 @@ export function mapCharacterCollectionError(
 
 export async function requireUserId(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const userId = await getUserIdFromFastifyRequest(request)
   if (!userId) {
     return {
       ok: false as const,
-      response: writeJson(reply, 401, { message: "Usuario nao autenticado." }),
+      response: writeJson(reply, 401, { message: "Usuario nao autenticado." })
     }
   }
 

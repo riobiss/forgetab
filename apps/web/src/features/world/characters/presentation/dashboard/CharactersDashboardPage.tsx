@@ -16,7 +16,9 @@ type CharactersDashboardPageProps = {
   data: CharactersDashboardViewModel
 }
 
-export default function CharactersDashboardPage({ data }: CharactersDashboardPageProps) {
+export default function CharactersDashboardPage({
+  data
+}: CharactersDashboardPageProps) {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -32,9 +34,11 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
   const deferredSearch = useDeferredValue(search)
   const favoriteStorageKey = `characters:favorites:${data.rpgId}`
 
-  const isNpcOrMonsterFilter = data.filterType === "npc" || data.filterType === "monster"
-  const canShowCreateButton =
-    isNpcOrMonsterFilter ? data.canCreateCharacter && data.canManageNpcMonster : data.canCreateCharacter
+  const isNpcOrMonsterFilter =
+    data.filterType === "npc" || data.filterType === "monster"
+  const canShowCreateButton = isNpcOrMonsterFilter
+    ? data.canCreateCharacter && data.canManageNpcMonster
+    : data.canCreateCharacter
   const modal = searchParams.get("modal")
   const editor = searchParams.get("editor")
   const viewer = searchParams.get("viewer")
@@ -59,10 +63,13 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
     setModalState(next)
   }
 
-  const playerModalOpen = editor === "player" && (modal === "create" || modal === "edit")
+  const playerModalOpen =
+    editor === "player" && (modal === "create" || modal === "edit")
   const playerModalCharacterId = modal === "edit" ? editCharacterId : undefined
   const selectedCharacterDetail =
-    modal === "view" && viewer === "character" ? data.selectedCharacterDetail : null
+    modal === "view" && viewer === "character"
+      ? data.selectedCharacterDetail
+      : null
 
   const openCharacterViewerHref = (characterId: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -89,7 +96,9 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
 
     try {
       const parsedFavorites = JSON.parse(rawFavorites)
-      setFavoriteIds(Array.isArray(parsedFavorites) ? parsedFavorites.filter(Boolean) : [])
+      setFavoriteIds(
+        Array.isArray(parsedFavorites) ? parsedFavorites.filter(Boolean) : []
+      )
     } catch {
       setFavoriteIds([])
     } finally {
@@ -111,7 +120,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
     setFavoriteIds((current) =>
       current.includes(characterId)
         ? current.filter((id) => id !== characterId)
-        : [...current, characterId],
+        : [...current, characterId]
     )
   }
 
@@ -123,7 +132,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
 
     const filteredBySearch = normalizedSearch
       ? filteredByFavorites.filter((character) =>
-          character.name.trim().toLowerCase().includes(normalizedSearch),
+          character.name.trim().toLowerCase().includes(normalizedSearch)
         )
       : filteredByFavorites
 
@@ -142,7 +151,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
       acc[character.characterType] += 1
       return acc
     },
-    { all: 0, player: 0, npc: 0, monster: 0 },
+    { all: 0, player: 0, npc: 0, monster: 0 }
   )
 
   return (
@@ -159,10 +168,21 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
                 type="button"
                 className={`${styles.iconButton} ${favoritesOnly ? styles.iconButtonActive : ""}`}
                 onClick={() => setFavoritesOnly((current) => !current)}
-                aria-label={favoritesOnly ? "Mostrar todos os personagens" : "Mostrar apenas favoritos"}
-                title={favoritesOnly ? "Mostrar todos os personagens" : "Mostrar apenas favoritos"}
+                aria-label={
+                  favoritesOnly
+                    ? "Mostrar todos os personagens"
+                    : "Mostrar apenas favoritos"
+                }
+                title={
+                  favoritesOnly
+                    ? "Mostrar todos os personagens"
+                    : "Mostrar apenas favoritos"
+                }
               >
-                <Star size={18} fill={favoritesOnly ? "currentColor" : "none"} />
+                <Star
+                  size={18}
+                  fill={favoritesOnly ? "currentColor" : "none"}
+                />
               </button>
               {canShowCreateButton ? (
                 isNpcOrMonsterFilter ? (
@@ -172,7 +192,8 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
                     onClick={() =>
                       setModalState({
                         mode: "create",
-                        characterType: data.filterType === "monster" ? "monster" : "npc",
+                        characterType:
+                          data.filterType === "monster" ? "monster" : "npc"
                       })
                     }
                     aria-label="Criar personagem"
@@ -239,7 +260,9 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
         </div>
 
         <div className={styles.resultsMeta}>
-          <span>{visibleCounts.all} resultado{visibleCounts.all === 1 ? "" : "s"}</span>
+          <span>
+            {visibleCounts.all} resultado{visibleCounts.all === 1 ? "" : "s"}
+          </span>
         </div>
       </section>
 
@@ -277,10 +300,16 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
                       : `Adicionar ${character.name} aos favoritos`
                   }
                 >
-                  <Star size={16} fill={favoriteIdSet.has(character.id) ? "currentColor" : "none"} />
+                  <Star
+                    size={16}
+                    fill={
+                      favoriteIdSet.has(character.id) ? "currentColor" : "none"
+                    }
+                  />
                 </button>
                 {data.canManageNpcMonster ? (
-                  character.characterType === "npc" || character.characterType === "monster" ? (
+                  character.characterType === "npc" ||
+                  character.characterType === "monster" ? (
                     <button
                       type="button"
                       className={styles.editFab}
@@ -288,8 +317,10 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
                         openNpcMonsterModal({
                           mode: "edit",
                           characterType:
-                            character.characterType === "monster" ? "monster" : "npc",
-                          characterId: character.id,
+                            character.characterType === "monster"
+                              ? "monster"
+                              : "npc",
+                          characterId: character.id
                         })
                       }
                       aria-label={`Editar ${character.name}`}
@@ -340,7 +371,10 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
       {visibleCharacters.length === 0 ? (
         <section className={styles.emptyState}>
           <h2>Nenhum personagem encontrado</h2>
-          <p>Troque o filtro atual ou crie um novo personagem para começar a preencher este catalogo.</p>
+          <p>
+            Troque o filtro atual ou crie um novo personagem para começar a
+            preencher este catalogo.
+          </p>
         </section>
       ) : null}
 
@@ -369,9 +403,7 @@ export default function CharactersDashboardPage({ data }: CharactersDashboardPag
       {selectedCharacterDetail &&
       (selectedCharacterDetail.characterType === "npc" ||
         selectedCharacterDetail.characterType === "monster") ? (
-        <CharacterDetailModal
-          data={selectedCharacterDetail}
-        />
+        <CharacterDetailModal data={selectedCharacterDetail} />
       ) : null}
     </main>
   )

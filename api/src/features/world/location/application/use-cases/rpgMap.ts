@@ -5,13 +5,13 @@ import type {
   RpgMapDetailViewDto,
   RpgMapSectionDto,
   RpgMapSectionTreeNodeDto,
-  RpgMapsViewDto,
+  RpgMapsViewDto
 } from "@forgetab/world-contracts/location"
 import {
   reorderRpgMapSectionSchema,
   upsertRpgMapMarkerGroupSchema,
   upsertRpgMapSchema,
-  upsertRpgMapSectionSchema,
+  upsertRpgMapSectionSchema
 } from "@/lib/validators/rpgMap"
 import { AppError } from "@/features/shared/application/errors/AppError"
 
@@ -69,12 +69,12 @@ function ensureCanManage(access: { exists: boolean; canManage: boolean }) {
 function withPermissions<T extends { createdByUserId?: string | null }>(
   access: { canManage: boolean },
   userId: string,
-  entity: T,
+  entity: T
 ) {
   return {
     ...entity,
     canEdit: access.canManage || entity.createdByUserId === userId,
-    canDelete: access.canManage || entity.createdByUserId === userId,
+    canDelete: access.canManage || entity.createdByUserId === userId
   }
 }
 
@@ -82,11 +82,11 @@ function withManagedPermissions<T>(access: { canManage: boolean }, entity: T) {
   return {
     ...entity,
     canEdit: access.canManage,
-    canDelete: access.canManage,
+    canDelete: access.canManage
   }
 }
 function buildSectionTree(
-  sections: RpgMapSectionDto[],
+  sections: RpgMapSectionDto[]
 ): RpgMapSectionTreeNodeDto[] {
   const nodes = new Map<string, RpgMapSectionTreeNodeDto>()
   const roots: RpgMapSectionTreeNodeDto[] = []
@@ -113,7 +113,7 @@ function buildSectionTree(
   const sortNodes = (items: RpgMapSectionTreeNodeDto[]) => {
     items.sort(
       (left, right) =>
-        left.order - right.order || left.name.localeCompare(right.name),
+        left.order - right.order || left.name.localeCompare(right.name)
     )
     for (const item of items) {
       sortNodes(item.children)
@@ -128,7 +128,7 @@ function assertCanManageOwnResource(
   access: { exists: boolean; canManage: boolean },
   owner: { createdByUserId: string | null } | null,
   userId: string,
-  notFoundMessage: string,
+  notFoundMessage: string
 ) {
   if (!access.exists) {
     throw new AppError("RPG nao encontrado.", 404)
@@ -141,14 +141,14 @@ function assertCanManageOwnResource(
   }
   throw new AppError(
     "Voce so pode editar ou remover registros criados por voce.",
-    403,
+    403
   )
 }
 
 function ensureParentIsValid(
   sectionId: string,
   parentSectionId: string | null,
-  sections: RpgMapSectionDto[],
+  sections: RpgMapSectionDto[]
 ) {
   if (!parentSectionId) {
     return
@@ -171,7 +171,7 @@ function ensureParentIsValid(
     if (current === parentSectionId) {
       throw new AppError(
         "Nao e possivel mover uma secao para dentro da propria descendencia.",
-        400,
+        400
       )
     }
     stack.push(...(childrenByParent.get(current) ?? []))
@@ -183,14 +183,14 @@ function parseMapBody(body: unknown) {
   if (!parsed.success) {
     throw new AppError(
       parsed.error.issues[0]?.message ?? "Dados invalidos.",
-      400,
+      400
     )
   }
   return {
     title: parsed.data.title.trim(),
     description: normalizeOptionalText(parsed.data.description),
     type: normalizeOptionalText(parsed.data.type),
-    image: normalizeOptionalUrl(parsed.data.image),
+    image: normalizeOptionalUrl(parsed.data.image)
   }
 }
 
@@ -199,7 +199,7 @@ function parseSectionBody(body: unknown) {
   if (!parsed.success) {
     throw new AppError(
       parsed.error.issues[0]?.message ?? "Dados invalidos.",
-      400,
+      400
     )
   }
   return {
@@ -207,7 +207,7 @@ function parseSectionBody(body: unknown) {
     description: normalizeOptionalText(parsed.data.description),
     type: normalizeOptionalText(parsed.data.type),
     parentSectionId: normalizeOptionalText(parsed.data.parentSectionId),
-    customFields: normalizeObjectOrNull(parsed.data.customFields),
+    customFields: normalizeObjectOrNull(parsed.data.customFields)
   }
 }
 
@@ -216,7 +216,7 @@ function parseMarkerGroupBody(body: unknown) {
   if (!parsed.success) {
     throw new AppError(
       parsed.error.issues[0]?.message ?? "Dados invalidos.",
-      400,
+      400
     )
   }
 
@@ -233,15 +233,15 @@ function parseMarkerGroupBody(body: unknown) {
       x: marker.x,
       y: marker.y,
       size: marker.size ?? null,
-      pinStyle: normalizeOptionalText(marker.pinStyle),
-    })),
+      pinStyle: normalizeOptionalText(marker.pinStyle)
+    }))
   }
 }
 
 export async function listRpgMaps(
   repository: RpgMapRepository,
   accessService: RpgMapAccessService,
-  params: { rpgId: string; userId: string | null },
+  params: { rpgId: string; userId: string | null }
 ): Promise<RpgMapsViewDto> {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   ensureCanView(access)
@@ -251,14 +251,14 @@ export async function listRpgMaps(
     maps: params.userId
       ? maps.map((map) => withPermissions(access, params.userId ?? "", map))
       : maps,
-    canManage: access.canManage,
+    canManage: access.canManage
   }
 }
 
 export async function getRpgMapDetail(
   repository: RpgMapRepository,
   accessService: RpgMapAccessService,
-  params: { rpgId: string; mapId: string; userId: string | null },
+  params: { rpgId: string; mapId: string; userId: string | null }
 ): Promise<RpgMapDetailViewDto> {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   ensureCanView(access)
@@ -271,7 +271,7 @@ export async function getRpgMapDetail(
   const sections = await repository.listSections(params.rpgId, params.mapId)
   const markerGroups = await repository.listMarkerGroups(
     params.rpgId,
-    params.mapId,
+    params.mapId
   )
   const safeUserId = params.userId ?? ""
 
@@ -283,26 +283,26 @@ export async function getRpgMapDetail(
     tree: buildSectionTree(
       params.userId
         ? sections.map((section) =>
-            withPermissions(access, safeUserId, section),
+            withPermissions(access, safeUserId, section)
           )
-        : sections,
+        : sections
     ),
     markerGroups: params.userId
       ? markerGroups.map((group) => ({
           ...withManagedPermissions(access, group),
           markers: group.markers.map((marker) =>
-            withManagedPermissions(access, marker),
-          ),
+            withManagedPermissions(access, marker)
+          )
         }))
       : markerGroups,
-    canManage: access.canManage,
+    canManage: access.canManage
   }
 }
 
 export async function createRpgMap(
   repository: RpgMapRepository,
   accessService: RpgMapAccessService,
-  params: { rpgId: string; userId: string; body: unknown },
+  params: { rpgId: string; userId: string; body: unknown }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   ensureCanManage(access)
@@ -310,7 +310,7 @@ export async function createRpgMap(
   const map = await repository.createMap({
     rpgId: params.rpgId,
     userId: params.userId,
-    ...parseMapBody(params.body),
+    ...parseMapBody(params.body)
   })
   return { map }
 }
@@ -318,13 +318,13 @@ export async function createRpgMap(
 export async function updateRpgMap(
   repository: RpgMapRepository,
   accessService: RpgMapAccessService,
-  params: { rpgId: string; mapId: string; userId: string; body: unknown },
+  params: { rpgId: string; mapId: string; userId: string; body: unknown }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   ensureCanView(access)
   const owner = await repository.findMapOwner({
     rpgId: params.rpgId,
-    mapId: params.mapId,
+    mapId: params.mapId
   })
   const current = await repository.findMap(params.rpgId, params.mapId)
   if (!current) {
@@ -338,14 +338,14 @@ export async function updateRpgMap(
       access,
       owner,
       params.userId,
-      "Mapa nao encontrado.",
+      "Mapa nao encontrado."
     )
   }
 
   const map = await repository.updateMap({
     rpgId: params.rpgId,
     mapId: params.mapId,
-    ...input,
+    ...input
   })
   if (!map) {
     throw new AppError("Mapa nao encontrado.", 404)
@@ -356,18 +356,18 @@ export async function updateRpgMap(
 export async function deleteRpgMap(
   repository: RpgMapRepository,
   accessService: RpgMapAccessService,
-  params: { rpgId: string; mapId: string; userId: string },
+  params: { rpgId: string; mapId: string; userId: string }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   const owner = await repository.findMapOwner({
     rpgId: params.rpgId,
-    mapId: params.mapId,
+    mapId: params.mapId
   })
   assertCanManageOwnResource(
     access,
     owner,
     params.userId,
-    "Mapa nao encontrado.",
+    "Mapa nao encontrado."
   )
 
   const deleted = await repository.deleteMap(params.rpgId, params.mapId)
@@ -380,7 +380,7 @@ export async function deleteRpgMap(
 export async function createRpgMapSection(
   repository: RpgMapRepository,
   accessService: RpgMapAccessService,
-  params: { rpgId: string; mapId: string; userId: string; body: unknown },
+  params: { rpgId: string; mapId: string; userId: string; body: unknown }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   ensureCanView(access)
@@ -395,7 +395,7 @@ export async function createRpgMapSection(
     const parent = await repository.findSection({
       rpgId: params.rpgId,
       mapId: params.mapId,
-      sectionId: input.parentSectionId,
+      sectionId: input.parentSectionId
     })
     if (!parent) {
       throw new AppError("Secao pai nao encontrada.", 404)
@@ -406,7 +406,7 @@ export async function createRpgMapSection(
     rpgId: params.rpgId,
     mapId: params.mapId,
     userId: params.userId,
-    ...input,
+    ...input
   })
   return { section }
 }
@@ -420,7 +420,7 @@ export async function updateRpgMapSection(
     sectionId: string
     userId: string
     body: unknown
-  },
+  }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   ensureCanView(access)
@@ -431,7 +431,7 @@ export async function updateRpgMapSection(
 
   if (input.parentSectionId) {
     const parent = sections.find(
-      (section) => section.id === input.parentSectionId,
+      (section) => section.id === input.parentSectionId
     )
     if (!parent) {
       throw new AppError("Secao pai nao encontrada.", 404)
@@ -442,7 +442,7 @@ export async function updateRpgMapSection(
     rpgId: params.rpgId,
     mapId: params.mapId,
     sectionId: params.sectionId,
-    ...input,
+    ...input
   })
   if (!section) {
     throw new AppError("Secao nao encontrada.", 404)
@@ -453,7 +453,7 @@ export async function updateRpgMapSection(
 export async function deleteRpgMapSection(
   repository: RpgMapRepository,
   accessService: RpgMapAccessService,
-  params: { rpgId: string; mapId: string; sectionId: string; userId: string },
+  params: { rpgId: string; mapId: string; sectionId: string; userId: string }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   ensureCanView(access)
@@ -461,7 +461,7 @@ export async function deleteRpgMapSection(
   const deleted = await repository.deleteSection({
     rpgId: params.rpgId,
     mapId: params.mapId,
-    sectionId: params.sectionId,
+    sectionId: params.sectionId
   })
   if (!deleted) {
     throw new AppError("Secao nao encontrada.", 404)
@@ -478,7 +478,7 @@ export async function reorderRpgMapSection(
     sectionId: string
     userId: string
     body: unknown
-  },
+  }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   ensureCanView(access)
@@ -487,14 +487,14 @@ export async function reorderRpgMapSection(
   if (!parsed.success) {
     throw new AppError(
       parsed.error.issues[0]?.message ?? "Dados invalidos.",
-      400,
+      400
     )
   }
 
   const current = await repository.findSection({
     rpgId: params.rpgId,
     mapId: params.mapId,
-    sectionId: params.sectionId,
+    sectionId: params.sectionId
   })
   if (!current) {
     throw new AppError("Secao nao encontrada.", 404)
@@ -505,7 +505,7 @@ export async function reorderRpgMapSection(
     mapId: params.mapId,
     sectionId: params.sectionId,
     parentSectionId: current.parentSectionId,
-    direction: parsed.data.direction,
+    direction: parsed.data.direction
   })
   if (!adjacent) {
     return { section: current }
@@ -515,13 +515,13 @@ export async function reorderRpgMapSection(
     rpgId: params.rpgId,
     mapId: params.mapId,
     sectionId: params.sectionId,
-    otherSectionId: adjacent.id,
+    otherSectionId: adjacent.id
   })
 
   const section = await repository.findSection({
     rpgId: params.rpgId,
     mapId: params.mapId,
-    sectionId: params.sectionId,
+    sectionId: params.sectionId
   })
   if (!section) {
     throw new AppError("Secao nao encontrada.", 404)
@@ -532,18 +532,18 @@ export async function reorderRpgMapSection(
 export async function updateRpgMapImage(
   repository: RpgMapRepository,
   accessService: RpgMapAccessService,
-  params: { rpgId: string; mapId: string; userId: string; mapImage: unknown },
+  params: { rpgId: string; mapId: string; userId: string; mapImage: unknown }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   const owner = await repository.findMapOwner({
     rpgId: params.rpgId,
-    mapId: params.mapId,
+    mapId: params.mapId
   })
   assertCanManageOwnResource(
     access,
     owner,
     params.userId,
-    "Mapa nao encontrado.",
+    "Mapa nao encontrado."
   )
 
   const current = await repository.findMap(params.rpgId, params.mapId)
@@ -558,7 +558,7 @@ export async function updateRpgMapImage(
     title: current.title,
     description: current.description,
     type: current.type,
-    image: mapImage,
+    image: mapImage
   })
   if (!updated) {
     throw new AppError("Mapa nao encontrado.", 404)
@@ -566,14 +566,14 @@ export async function updateRpgMapImage(
 
   return {
     message: "Mapa atualizado com sucesso.",
-    mapImage,
+    mapImage
   }
 }
 
 export async function createRpgMapMarkerGroup(
   repository: RpgMapRepository,
   accessService: RpgMapAccessService,
-  params: { rpgId: string; mapId: string; userId: string; body: unknown },
+  params: { rpgId: string; mapId: string; userId: string; body: unknown }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   ensureCanManage(access)
@@ -588,15 +588,15 @@ export async function createRpgMapMarkerGroup(
     rpgId: params.rpgId,
     mapId: params.mapId,
     userId: params.userId,
-    ...input,
+    ...input
   })
   return {
     markerGroup: {
       ...withManagedPermissions(access, markerGroup),
       markers: markerGroup.markers.map((marker) =>
-        withManagedPermissions(access, marker),
-      ),
-    },
+        withManagedPermissions(access, marker)
+      )
+    }
   }
 }
 
@@ -609,7 +609,7 @@ export async function updateRpgMapMarkerGroup(
     groupId: string
     userId: string
     body: unknown
-  },
+  }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   ensureCanManage(access)
@@ -619,7 +619,7 @@ export async function updateRpgMapMarkerGroup(
     rpgId: params.rpgId,
     mapId: params.mapId,
     groupId: params.groupId,
-    ...input,
+    ...input
   })
   if (!markerGroup) {
     throw new AppError("Grupo de marcadores nao encontrado.", 404)
@@ -629,16 +629,16 @@ export async function updateRpgMapMarkerGroup(
     markerGroup: {
       ...withManagedPermissions(access, markerGroup),
       markers: markerGroup.markers.map((marker) =>
-        withManagedPermissions(access, marker),
-      ),
-    },
+        withManagedPermissions(access, marker)
+      )
+    }
   }
 }
 
 export async function deleteRpgMapMarkerGroup(
   repository: RpgMapRepository,
   accessService: RpgMapAccessService,
-  params: { rpgId: string; mapId: string; groupId: string; userId: string },
+  params: { rpgId: string; mapId: string; groupId: string; userId: string }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   ensureCanManage(access)
@@ -646,7 +646,7 @@ export async function deleteRpgMapMarkerGroup(
   const deleted = await repository.deleteMarkerGroup({
     rpgId: params.rpgId,
     mapId: params.mapId,
-    groupId: params.groupId,
+    groupId: params.groupId
   })
   if (!deleted) {
     throw new AppError("Grupo de marcadores nao encontrado.", 404)

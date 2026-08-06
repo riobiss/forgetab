@@ -8,7 +8,7 @@ type CharacterAbilitiesPageProps = {
 }
 
 export default function CharacterAbilitiesPage({
-  data,
+  data
 }: CharacterAbilitiesPageProps) {
   return (
     <div className={styles.page}>

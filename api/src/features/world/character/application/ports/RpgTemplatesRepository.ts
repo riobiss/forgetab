@@ -4,7 +4,7 @@ import type {
   CharacterIdentityTemplateRow,
   IdentityTemplateRow,
   SkillTemplateRow,
-  StatusTemplateRow,
+  StatusTemplateRow
 } from "@/features/world/character/application/types"
 
 export interface RpgTemplatesRepository {
@@ -13,7 +13,7 @@ export interface RpgTemplatesRepository {
   getSkillTemplates(rpgId: string): Promise<SkillTemplateRow[]>
   getIdentityTemplates(rpgId: string): Promise<CharacterIdentityTemplateRow[]>
   getCharacteristicTemplates(
-    rpgId: string,
+    rpgId: string
   ): Promise<CharacterCharacteristicTemplateRow[]>
   getRaceTemplates(rpgId: string): Promise<IdentityTemplateRow[]>
   getClassTemplates(rpgId: string): Promise<IdentityTemplateRow[]>

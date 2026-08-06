@@ -4,13 +4,13 @@ import { writeJson } from "@/features/http/presentation/fastifyJson"
 
 export async function requireAuth(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const authPayload = await getAuthPayloadFromFastifyRequest(request)
   if (!authPayload) {
     return {
       ok: false as const,
-      response: writeJson(reply, 401, { message: "Usuario nao autenticado." }),
+      response: writeJson(reply, 401, { message: "Usuario nao autenticado." })
     }
   }
 

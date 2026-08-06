@@ -4,7 +4,7 @@ import type { RpgMapRepository } from "@/features/world/location/application/por
 import {
   getRpgMapDetail,
   listRpgMaps,
-  updateRpgMapImage,
+  updateRpgMapImage
 } from "@/features/world/location/application/use-cases/rpgMap"
 
 function createRepositoryMock(): RpgMapRepository {
@@ -20,8 +20,8 @@ function createRepositoryMock(): RpgMapRepository {
         order: 0,
         sectionsCount: 1,
         createdAt: "2026-03-19T00:00:00.000Z",
-        updatedAt: "2026-03-19T00:00:00.000Z",
-      },
+        updatedAt: "2026-03-19T00:00:00.000Z"
+      }
     ]),
     findMap: vi.fn().mockResolvedValue({
       id: "map-1",
@@ -33,7 +33,7 @@ function createRepositoryMock(): RpgMapRepository {
       order: 0,
       sectionsCount: 1,
       createdAt: "2026-03-19T00:00:00.000Z",
-      updatedAt: "2026-03-19T00:00:00.000Z",
+      updatedAt: "2026-03-19T00:00:00.000Z"
     }),
     createMap: vi.fn(),
     updateMap: vi.fn().mockImplementation(async ({ image }) => ({
@@ -46,7 +46,7 @@ function createRepositoryMock(): RpgMapRepository {
       order: 0,
       sectionsCount: 1,
       createdAt: "2026-03-19T00:00:00.000Z",
-      updatedAt: "2026-03-19T00:00:00.000Z",
+      updatedAt: "2026-03-19T00:00:00.000Z"
     })),
     deleteMap: vi.fn(),
     findMapOwner: vi.fn().mockResolvedValue({ createdByUserId: "user-1" }),
@@ -62,8 +62,8 @@ function createRepositoryMock(): RpgMapRepository {
         order: 0,
         customFields: null,
         createdAt: "2026-03-19T00:00:00.000Z",
-        updatedAt: "2026-03-19T00:00:00.000Z",
-      },
+        updatedAt: "2026-03-19T00:00:00.000Z"
+      }
     ]),
     findSection: vi.fn().mockResolvedValue(null),
     createSection: vi.fn(),
@@ -79,7 +79,7 @@ function createRepositoryMock(): RpgMapRepository {
     deleteMarkerGroup: vi.fn(),
     findMarkerGroupOwner: vi
       .fn()
-      .mockResolvedValue({ createdByUserId: "user-1" }),
+      .mockResolvedValue({ createdByUserId: "user-1" })
   }
 }
 
@@ -89,8 +89,8 @@ function createAccessServiceMock(): RpgMapAccessService {
       exists: true,
       userId: "user-1",
       canManage: true,
-      isAcceptedMember: true,
-    }),
+      isAcceptedMember: true
+    })
   }
 }
 
@@ -101,7 +101,7 @@ describe("rpgMap use-cases", () => {
 
     const result = await listRpgMaps(repository, accessService, {
       rpgId: "rpg-1",
-      userId: "user-1",
+      userId: "user-1"
     })
 
     expect(result.maps[0]?.canEdit).toBe(true)
@@ -114,7 +114,7 @@ describe("rpgMap use-cases", () => {
     const result = await getRpgMapDetail(repository, accessService, {
       rpgId: "rpg-1",
       mapId: "map-1",
-      userId: "user-1",
+      userId: "user-1"
     })
 
     expect(result.tree).toHaveLength(1)
@@ -129,13 +129,13 @@ describe("rpgMap use-cases", () => {
       rpgId: "rpg-1",
       mapId: "map-1",
       userId: "user-1",
-      mapImage: "https://img.com/next.png",
+      mapImage: "https://img.com/next.png"
     })
 
     expect(repository.updateMap).toHaveBeenCalled()
     expect(result).toEqual({
       message: "Mapa atualizado com sucesso.",
-      mapImage: "https://img.com/next.png",
+      mapImage: "https://img.com/next.png"
     })
   })
 })

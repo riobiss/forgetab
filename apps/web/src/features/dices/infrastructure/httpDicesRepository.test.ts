@@ -3,11 +3,11 @@ import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import {
   DicesTechnicalError,
   DicesValidationError,
-  httpDicesRepository,
+  httpDicesRepository
 } from "@/features/dices/infrastructure/httpDicesRepository"
 
 vi.mock("@/features/http/infrastructure/apiFetch", () => ({
-  apiFetch: vi.fn(),
+  apiFetch: vi.fn()
 }))
 
 const mockedApiFetch = vi.mocked(apiFetch)
@@ -22,20 +22,20 @@ describe("httpDicesRepository", () => {
       new Response(
         JSON.stringify({
           provider: "random-org",
-          groups: [{ diceCount: 1, diceSides: 20, results: [17], total: 17 }],
+          groups: [{ diceCount: 1, diceSides: 20, results: [17], total: 17 }]
         }),
         {
           status: 200,
-          headers: { "content-type": "application/json" },
-        },
-      ),
+          headers: { "content-type": "application/json" }
+        }
+      )
     )
 
     await expect(
-      httpDicesRepository.roll({ entries: [{ diceCount: 1, diceSides: 20 }] }),
+      httpDicesRepository.roll({ entries: [{ diceCount: 1, diceSides: 20 }] })
     ).resolves.toEqual({
       provider: "random-org",
-      groups: [{ diceCount: 1, diceSides: 20, results: [17], total: 17 }],
+      groups: [{ diceCount: 1, diceSides: 20, results: [17], total: 17 }]
     })
   })
 
@@ -45,17 +45,17 @@ describe("httpDicesRepository", () => {
         JSON.stringify({ message: "Escolha entre 1 e 100 dados por linha." }),
         {
           status: 400,
-          headers: { "content-type": "application/json" },
-        },
-      ),
+          headers: { "content-type": "application/json" }
+        }
+      )
     )
 
     const promise = httpDicesRepository.roll({
-      entries: [{ diceCount: 101, diceSides: 20 }],
+      entries: [{ diceCount: 101, diceSides: 20 }]
     })
 
     await expect(promise).rejects.toThrow(
-      "Escolha entre 1 e 100 dados por linha.",
+      "Escolha entre 1 e 100 dados por linha."
     )
     await expect(promise).rejects.toBeInstanceOf(DicesValidationError)
   })
@@ -63,16 +63,16 @@ describe("httpDicesRepository", () => {
   it("troca falhas tecnicas por erro tecnico com mensagem segura", async () => {
     mockedApiFetch.mockRejectedValue(
       new Error(
-        "Falha ao conectar com a API em http://localhost:4000/api/dices/roll.",
-      ),
+        "Falha ao conectar com a API em http://localhost:4000/api/dices/roll."
+      )
     )
 
     const promise = httpDicesRepository.roll({
-      entries: [{ diceCount: 1, diceSides: 20 }],
+      entries: [{ diceCount: 1, diceSides: 20 }]
     })
 
     await expect(promise).rejects.toThrow(
-      "Nao foi possivel girar os dados agora. Tente novamente.",
+      "Nao foi possivel girar os dados agora. Tente novamente."
     )
     await expect(promise).rejects.toBeInstanceOf(DicesTechnicalError)
   })
@@ -81,12 +81,12 @@ describe("httpDicesRepository", () => {
     mockedApiFetch.mockResolvedValue(
       new Response("Internal Server Error", {
         status: 500,
-        headers: { "content-type": "text/plain" },
-      }),
+        headers: { "content-type": "text/plain" }
+      })
     )
 
     await expect(
-      httpDicesRepository.roll({ entries: [{ diceCount: 1, diceSides: 20 }] }),
+      httpDicesRepository.roll({ entries: [{ diceCount: 1, diceSides: 20 }] })
     ).rejects.toThrow("Nao foi possivel girar os dados agora. Tente novamente.")
   })
 })

@@ -6,13 +6,25 @@ import { toRpgConfigRepositoryError } from "./rpgConfigPersistenceErrors"
 
 describe("toRpgConfigRepositoryError", () => {
   it.each([
-    ['relation "rpg_attribute_templates" does not exist', "attribute_schema_missing"],
+    [
+      'relation "rpg_attribute_templates" does not exist',
+      "attribute_schema_missing"
+    ],
     ['relation "rpg_status_templates" does not exist', "status_schema_missing"],
     ['relation "rpg_skill_templates" does not exist', "skill_schema_missing"],
-    ['column "lore" of relation "rpg_race_templates" does not exist', "race_schema_missing"],
+    [
+      'column "lore" of relation "rpg_race_templates" does not exist',
+      "race_schema_missing"
+    ],
     ['relation "rpg_class_templates" does not exist', "class_schema_missing"],
-    ['relation "rpg_character_identity_templates" does not exist', "identity_schema_missing"],
-    ['relation "rpg_character_characteristic_templates" does not exist', "characteristic_schema_missing"],
+    [
+      'relation "rpg_character_identity_templates" does not exist',
+      "identity_schema_missing"
+    ],
+    [
+      'relation "rpg_character_characteristic_templates" does not exist',
+      "characteristic_schema_missing"
+    ]
   ] as const)("traduz %s para %s", (message, code) => {
     const source = new Error(message)
     const result = toRpgConfigRepositoryError(source)
@@ -29,8 +41,8 @@ describe("toRpgConfigRepositoryError", () => {
   })
 
   it("classifica falhas inesperadas como unknown", () => {
-    expect(toRpgConfigRepositoryError(new Error("connection refused")).code).toBe(
-      "unknown",
-    )
+    expect(
+      toRpgConfigRepositoryError(new Error("connection refused")).code
+    ).toBe("unknown")
   })
 })

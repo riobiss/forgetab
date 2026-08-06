@@ -7,7 +7,7 @@ function createRepositoryMock(): CharacterStatusCurrentRepository {
     getRpg: vi.fn(),
     getMembership: vi.fn(),
     getCharacter: vi.fn(),
-    updateCharacterStatus: vi.fn(),
+    updateCharacterStatus: vi.fn()
   }
 }
 
@@ -21,8 +21,8 @@ describe("updateCharacterStatusCurrentUseCase", () => {
         rpgId: "rpg-1",
         characterId: "char-1",
         userId: "user-1",
-        body: { key: "life", value: 5 },
-      }),
+        body: { key: "life", value: 5 }
+      })
     ).rejects.toMatchObject({ message: "RPG nao encontrado.", status: 404 })
   })
 
@@ -30,17 +30,17 @@ describe("updateCharacterStatusCurrentUseCase", () => {
     const repository = createRepositoryMock()
     vi.mocked(repository.getRpg).mockResolvedValue({
       id: "rpg-1",
-      ownerId: "owner-1",
+      ownerId: "owner-1"
     })
     vi.mocked(repository.getMembership).mockResolvedValue({
       status: "accepted",
-      role: "player",
+      role: "player"
     })
     vi.mocked(repository.getCharacter).mockResolvedValue({
       id: "char-1",
       createdByUserId: "other-user",
       statuses: { life: 10 },
-      currentStatuses: { life: 10 },
+      currentStatuses: { life: 10 }
     })
 
     await expect(
@@ -48,11 +48,11 @@ describe("updateCharacterStatusCurrentUseCase", () => {
         rpgId: "rpg-1",
         characterId: "char-1",
         userId: "user-1",
-        body: { key: "life", value: 5 },
-      }),
+        body: { key: "life", value: 5 }
+      })
     ).rejects.toMatchObject({
       message: "Sem permissao para editar este personagem.",
-      status: 403,
+      status: 403
     })
   })
 
@@ -60,13 +60,13 @@ describe("updateCharacterStatusCurrentUseCase", () => {
     const repository = createRepositoryMock()
     vi.mocked(repository.getRpg).mockResolvedValue({
       id: "rpg-1",
-      ownerId: "owner-1",
+      ownerId: "owner-1"
     })
     vi.mocked(repository.getCharacter).mockResolvedValue({
       id: "char-1",
       createdByUserId: "owner-1",
       statuses: { life: 10 },
-      currentStatuses: { life: 10 },
+      currentStatuses: { life: 10 }
     })
 
     await expect(
@@ -74,11 +74,11 @@ describe("updateCharacterStatusCurrentUseCase", () => {
         rpgId: "rpg-1",
         characterId: "char-1",
         userId: "owner-1",
-        body: { key: "life", value: 11 },
-      }),
+        body: { key: "life", value: 11 }
+      })
     ).rejects.toMatchObject({
       message: "Valor atual fora do limite permitido.",
-      status: 400,
+      status: 400
     })
   })
 
@@ -86,13 +86,13 @@ describe("updateCharacterStatusCurrentUseCase", () => {
     const repository = createRepositoryMock()
     vi.mocked(repository.getRpg).mockResolvedValue({
       id: "rpg-1",
-      ownerId: "owner-1",
+      ownerId: "owner-1"
     })
     vi.mocked(repository.getCharacter).mockResolvedValue({
       id: "char-1",
       createdByUserId: "owner-1",
       statuses: { life: 10, mana: 5 },
-      currentStatuses: { life: 9, mana: 5 },
+      currentStatuses: { life: 9, mana: 5 }
     })
     vi.mocked(repository.updateCharacterStatus).mockResolvedValue(true)
 
@@ -100,14 +100,14 @@ describe("updateCharacterStatusCurrentUseCase", () => {
       rpgId: "rpg-1",
       characterId: "char-1",
       userId: "owner-1",
-      body: { key: "life", value: 6 },
+      body: { key: "life", value: 6 }
     })
 
     expect(result).toEqual({
       message: "Status atual salvo.",
       key: "life",
       value: 6,
-      max: 10,
+      max: 10
     })
     expect(repository.updateCharacterStatus).toHaveBeenCalledWith(
       "rpg-1",
@@ -115,8 +115,8 @@ describe("updateCharacterStatusCurrentUseCase", () => {
       {
         currentStatuses: { life: 6, mana: 5 },
         nextValue: 6,
-        coreColumn: "life",
-      },
+        coreColumn: "life"
+      }
     )
   })
 })

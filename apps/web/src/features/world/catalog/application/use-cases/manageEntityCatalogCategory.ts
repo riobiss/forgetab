@@ -6,17 +6,14 @@ export type EntityCatalogCategoryItemDraft = {
 }
 
 export function getEntityCatalogTemplateCategory(
-  item: EntityCatalogTemplateRecord,
+  item: EntityCatalogTemplateRecord
 ) {
   return typeof item.category === "string" && item.category.trim().length > 0
     ? item.category.trim()
     : "geral"
 }
 
-function getTemplateIdentity(
-  item: EntityCatalogTemplateRecord,
-  index: number,
-) {
+function getTemplateIdentity(item: EntityCatalogTemplateRecord, index: number) {
   if (typeof item.id === "string" && item.id.trim()) return `id:${item.id}`
   if (typeof item.key === "string" && item.key.trim()) return `key:${item.key}`
   return `index:${index}`
@@ -24,17 +21,17 @@ function getTemplateIdentity(
 
 export function getEntityCatalogCategoryDrafts(
   collection: EntityCatalogTemplateRecord[],
-  category: string,
+  category: string
 ): EntityCatalogCategoryItemDraft[] {
   return collection.flatMap((item, index) =>
     getEntityCatalogTemplateCategory(item) === category
       ? [
           {
             identity: getTemplateIdentity(item, index),
-            label: typeof item.label === "string" ? item.label : "",
-          },
+            label: typeof item.label === "string" ? item.label : ""
+          }
         ]
-      : [],
+      : []
   )
 }
 
@@ -44,18 +41,16 @@ export function updateEntityCatalogCategory(
     currentCategory: string
     nextCategory: string
     items: EntityCatalogCategoryItemDraft[]
-  },
+  }
 ) {
   const nextCategory = params.nextCategory.trim() || params.currentCategory
   const draftsByIdentity = new Map(
-    params.items.map((item) => [item.identity, item]),
+    params.items.map((item) => [item.identity, item])
   )
 
   return collection.reduce<EntityCatalogTemplateRecord[]>(
     (result, item, index) => {
-      if (
-        getEntityCatalogTemplateCategory(item) !== params.currentCategory
-      ) {
+      if (getEntityCatalogTemplateCategory(item) !== params.currentCategory) {
         result.push(item)
         return result
       }
@@ -65,20 +60,20 @@ export function updateEntityCatalogCategory(
         result.push({
           ...item,
           label: draft.label.trim() || item.label,
-          category: nextCategory,
+          category: nextCategory
         })
       }
       return result
     },
-    [],
+    []
   )
 }
 
 export function deleteEntityCatalogCategory(
   collection: EntityCatalogTemplateRecord[],
-  category: string,
+  category: string
 ) {
   return collection.filter(
-    (item) => getEntityCatalogTemplateCategory(item) !== category,
+    (item) => getEntityCatalogTemplateCategory(item) !== category
   )
 }

@@ -6,7 +6,7 @@ import type {
   RpgMapSectionDto,
   UpsertRpgMapMarkerGroupPayloadDto,
   UpsertRpgMapPayloadDto,
-  UpsertRpgMapSectionPayloadDto,
+  UpsertRpgMapSectionPayloadDto
 } from "@forgetab/world-contracts/location"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 
@@ -17,7 +17,7 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     throw new Error(
       payload.message ??
-        `${response.status} ${response.statusText || "Request failed"}${payload.url ? ` (${payload.url})` : ""}`,
+        `${response.status} ${response.statusText || "Request failed"}${payload.url ? ` (${payload.url})` : ""}`
     )
   }
   return payload
@@ -26,13 +26,13 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
 export const httpRpgMapGateway: RpgMapGateway = {
   async fetchMaps(rpgId) {
     return parseJsonResponse<{ maps: RpgMapDto[]; canManage: boolean }>(
-      await apiFetch(`/api/rpg/${rpgId}/maps`),
+      await apiFetch(`/api/rpg/${rpgId}/maps`)
     )
   },
 
   async fetchMap(rpgId, mapId) {
     return parseJsonResponse<RpgMapDetailViewDto>(
-      await apiFetch(`/api/rpg/${rpgId}/maps/${encodeURIComponent(mapId)}`),
+      await apiFetch(`/api/rpg/${rpgId}/maps/${encodeURIComponent(mapId)}`)
     )
   },
 
@@ -40,7 +40,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
     const response = await apiFetch(`/api/rpg/${rpgId}/maps`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload satisfies UpsertRpgMapPayloadDto),
+      body: JSON.stringify(payload satisfies UpsertRpgMapPayloadDto)
     })
     const result = await parseJsonResponse<{ map?: RpgMapDto }>(response)
     if (!result.map) throw new Error("Nao foi possivel criar o mapa.")
@@ -51,7 +51,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
     const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload satisfies UpsertRpgMapPayloadDto),
+      body: JSON.stringify(payload satisfies UpsertRpgMapPayloadDto)
     })
     const result = await parseJsonResponse<{ map?: RpgMapDto }>(response)
     if (!result.map) throw new Error("Nao foi possivel atualizar o mapa.")
@@ -60,7 +60,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
 
   async deleteMap(rpgId, mapId) {
     const response = await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
-      method: "DELETE",
+      method: "DELETE"
     })
     await parseJsonResponse<{ message?: string }>(response)
   },
@@ -71,11 +71,11 @@ export const httpRpgMapGateway: RpgMapGateway = {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload satisfies UpsertRpgMapSectionPayloadDto),
-      },
+        body: JSON.stringify(payload satisfies UpsertRpgMapSectionPayloadDto)
+      }
     )
     const result = await parseJsonResponse<{ section?: RpgMapSectionDto }>(
-      response,
+      response
     )
     if (!result.section) throw new Error("Nao foi possivel criar a secao.")
     return result.section
@@ -87,11 +87,11 @@ export const httpRpgMapGateway: RpgMapGateway = {
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload satisfies UpsertRpgMapSectionPayloadDto),
-      },
+        body: JSON.stringify(payload satisfies UpsertRpgMapSectionPayloadDto)
+      }
     )
     const result = await parseJsonResponse<{ section?: RpgMapSectionDto }>(
-      response,
+      response
     )
     if (!result.section) throw new Error("Nao foi possivel atualizar a secao.")
     return result.section
@@ -101,8 +101,8 @@ export const httpRpgMapGateway: RpgMapGateway = {
     const response = await apiFetch(
       `/api/rpg/${rpgId}/maps/${mapId}/sections/${sectionId}`,
       {
-        method: "DELETE",
-      },
+        method: "DELETE"
+      }
     )
     await parseJsonResponse<{ message?: string }>(response)
   },
@@ -113,11 +113,11 @@ export const httpRpgMapGateway: RpgMapGateway = {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ direction }),
-      },
+        body: JSON.stringify({ direction })
+      }
     )
     const result = await parseJsonResponse<{ section?: RpgMapSectionDto }>(
-      response,
+      response
     )
     if (!result.section) throw new Error("Nao foi possivel reordenar a secao.")
     return result.section
@@ -130,9 +130,9 @@ export const httpRpgMapGateway: RpgMapGateway = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
-          payload satisfies UpsertRpgMapMarkerGroupPayloadDto,
-        ),
-      },
+          payload satisfies UpsertRpgMapMarkerGroupPayloadDto
+        )
+      }
     )
     const result = await parseJsonResponse<{
       markerGroup?: RpgMapMarkerGroupDto
@@ -149,9 +149,9 @@ export const httpRpgMapGateway: RpgMapGateway = {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
-          payload satisfies UpsertRpgMapMarkerGroupPayloadDto,
-        ),
-      },
+          payload satisfies UpsertRpgMapMarkerGroupPayloadDto
+        )
+      }
     )
     const result = await parseJsonResponse<{
       markerGroup?: RpgMapMarkerGroupDto
@@ -165,8 +165,8 @@ export const httpRpgMapGateway: RpgMapGateway = {
     const response = await apiFetch(
       `/api/rpg/${rpgId}/maps/${mapId}/marker-groups/${groupId}`,
       {
-        method: "DELETE",
-      },
+        method: "DELETE"
+      }
     )
     await parseJsonResponse<{ message?: string }>(response)
   },
@@ -180,8 +180,8 @@ export const httpRpgMapGateway: RpgMapGateway = {
         title: current.map.title,
         description: current.map.description,
         type: current.map.type,
-        image: mapImage,
-      } satisfies UpsertRpgMapPayloadDto),
+        image: mapImage
+      } satisfies UpsertRpgMapPayloadDto)
     })
     const payload = await parseJsonResponse<{ map?: RpgMapDto }>(response)
     return { mapImage: payload.map?.image ?? mapImage }
@@ -196,7 +196,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
 
     const response = await apiFetch("/api/uploads/map-image", {
       method: "POST",
-      body: formData,
+      body: formData
     })
     return parseJsonResponse<{ url: string; message?: string }>(response)
   },
@@ -205,7 +205,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
     const response = await apiFetch("/api/uploads/map-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url })
     })
     return parseJsonResponse<{ message?: string }>(response)
   },
@@ -219,7 +219,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
 
     const response = await apiFetch("/api/uploads/section-image", {
       method: "POST",
-      body: formData,
+      body: formData
     })
     return parseJsonResponse<{ url: string; message?: string }>(response)
   },
@@ -228,7 +228,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
     const response = await apiFetch("/api/uploads/section-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url })
     })
     return parseJsonResponse<{ message?: string }>(response)
   },
@@ -242,7 +242,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
 
     const response = await apiFetch("/api/uploads/marker-image", {
       method: "POST",
-      body: formData,
+      body: formData
     })
     return parseJsonResponse<{ url: string; message?: string }>(response)
   },
@@ -251,8 +251,8 @@ export const httpRpgMapGateway: RpgMapGateway = {
     const response = await apiFetch("/api/uploads/marker-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url })
     })
     return parseJsonResponse<{ message?: string }>(response)
-  },
+  }
 }

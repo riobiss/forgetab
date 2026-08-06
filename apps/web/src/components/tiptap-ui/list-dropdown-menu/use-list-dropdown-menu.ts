@@ -19,7 +19,7 @@ import {
   canToggleList,
   isListActive,
   listIcons,
-  type ListType,
+  type ListType
 } from "@/components/tiptap-ui/list-button"
 
 /**
@@ -52,18 +52,18 @@ export const listOptions: ListOption[] = [
   {
     label: "Bullet List",
     type: "bulletList",
-    icon: ListIcon,
+    icon: ListIcon
   },
   {
     label: "Ordered List",
     type: "orderedList",
-    icon: ListOrderedIcon,
+    icon: ListOrderedIcon
   },
   {
     label: "Task List",
     type: "taskList",
-    icon: ListTodoIcon,
-  },
+    icon: ListTodoIcon
+  }
 ]
 
 export function canToggleAnyList(
@@ -168,7 +168,7 @@ export function useListDropdownMenu(config?: UseListDropdownMenuConfig) {
   const {
     editor: providedEditor,
     types = ["bulletList", "orderedList", "taskList"],
-    hideWhenUnavailable = false,
+    hideWhenUnavailable = false
   } = config || {}
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -193,7 +193,7 @@ export function useListDropdownMenu(config?: UseListDropdownMenuConfig) {
           listTypes: types,
           hideWhenUnavailable,
           listInSchema,
-          canToggleAny,
+          canToggleAny
         })
       )
     }
@@ -215,6 +215,6 @@ export function useListDropdownMenu(config?: UseListDropdownMenuConfig) {
     types,
     filteredLists,
     label: "List",
-    Icon: activeList ? listIcons[activeList.type] : ListIcon,
+    Icon: activeList ? listIcons[activeList.type] : ListIcon
   }
 }

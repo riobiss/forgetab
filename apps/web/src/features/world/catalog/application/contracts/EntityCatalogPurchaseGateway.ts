@@ -3,6 +3,6 @@ import type { EntityCatalogAbilityPurchaseResult } from "@/features/world/catalo
 export interface EntityCatalogPurchaseGateway {
   buySkill(
     characterId: string,
-    payload: { skillId: string; level: number },
+    payload: { skillId: string; level: number }
   ): Promise<EntityCatalogAbilityPurchaseResult>
 }

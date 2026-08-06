@@ -4,7 +4,7 @@ export const actionTypeLabel: Record<ActionType, string> = {
   action: "Acao",
   bonus: "Bonus",
   reaction: "Reacao",
-  passive: "Passiva",
+  passive: "Passiva"
 }
 
 export const skillTypeLabel: Record<SkillType, string> = {
@@ -18,7 +18,7 @@ export const skillTypeLabel: Record<SkillType, string> = {
   mobility: "Mobilidade",
   summon: "Invocacao",
   utility: "Utilidade",
-  resource: "Recurso",
+  resource: "Recurso"
 }
 
 export const skillTagLabel: Record<SkillTag, string> = {
@@ -40,5 +40,5 @@ export const skillTagLabel: Record<SkillTag, string> = {
   void: "Vazio",
   life: "Vida",
   death: "Morte",
-  energy: "Energia",
+  energy: "Energia"
 }

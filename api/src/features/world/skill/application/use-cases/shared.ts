@@ -13,12 +13,12 @@ export function mapSkillError(error: unknown, fallbackMessage: string): never {
       case "skills_schema_missing":
         throw new AppError(
           "Tabela skills nao existe no banco. Rode a migration.",
-          500,
+          500
         )
       case "skill_levels_schema_missing":
         throw new AppError(
           "Tabela skill_levels nao existe no banco. Rode a migration.",
-          500,
+          500
         )
     }
   }

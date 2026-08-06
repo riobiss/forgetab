@@ -7,7 +7,7 @@ import type { LibraryDependencies } from "@/features/world/library/application/c
 import {
   createLibraryBookUseCase,
   loadLibraryBookUseCase,
-  updateLibraryBookUseCase,
+  updateLibraryBookUseCase
 } from "@/features/world/library/application/use-cases/library"
 import { dismissToast } from "@/lib/toast"
 import {
@@ -15,12 +15,12 @@ import {
   createDefaultLibraryBookDraft,
   createLibraryBookDraftSnapshot,
   parseLibraryBookDraft,
-  serializeLibraryBookDraft,
+  serializeLibraryBookDraft
 } from "./libraryBookEditorDraft"
 import {
   DEFAULT_LIBRARY_BOOK_TITLE,
   type LibraryBookDraft,
-  type LibraryBookMetadata,
+  type LibraryBookMetadata
 } from "./libraryBookEditor.types"
 
 type Params = {
@@ -35,7 +35,7 @@ type Params = {
 
 function mergeDraftWithServerMetadata(
   serverDraft: LibraryBookDraft,
-  restoredDraft: LibraryBookDraft | null,
+  restoredDraft: LibraryBookDraft | null
 ) {
   if (!restoredDraft) {
     return serverDraft
@@ -43,7 +43,7 @@ function mergeDraftWithServerMetadata(
 
   return createLibraryBookDraftSnapshot({
     ...serverDraft,
-    content: restoredDraft.content,
+    content: restoredDraft.content
   })
 }
 
@@ -54,26 +54,26 @@ export function useLibraryBookEditorState({
   bookId,
   forceReadOnly = false,
   deps,
-  onPersist,
+  onPersist
 }: Params) {
   const isEdit = mode === "edit"
   const [loading, setLoading] = useState(isEdit)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [draft, setDraft] = useState<LibraryBookDraft>(
-    createDefaultLibraryBookDraft,
+    createDefaultLibraryBookDraft
   )
   const [editorKey, setEditorKey] = useState("new")
   const [canEdit, setCanEdit] = useState(!isEdit && !forceReadOnly)
   const [contentEditing, setContentEditing] = useState(
-    !isEdit && !forceReadOnly,
+    !isEdit && !forceReadOnly
   )
   const [currentBookId, setCurrentBookId] = useState<string | null>(
-    bookId ?? null,
+    bookId ?? null
   )
   const [draftHydrated, setDraftHydrated] = useState(false)
   const [savedSignature, setSavedSignature] = useState(
-    serializeLibraryBookDraft(createDefaultLibraryBookDraft()),
+    serializeLibraryBookDraft(createDefaultLibraryBookDraft())
   )
   const persistedMetadataRef = useRef<LibraryBookMetadata>({
     title: DEFAULT_LIBRARY_BOOK_TITLE,
@@ -81,14 +81,14 @@ export function useLibraryBookEditorState({
     visibility: "private",
     allowedCharacterIds: [],
     allowedClassKeys: [],
-    allowedRaceKeys: [],
+    allowedRaceKeys: []
   })
   const draftStorageKey = useMemo(
     () => buildLibraryBookDraftStorageKey({ rpgId, sectionId, bookId }),
-    [bookId, rpgId, sectionId],
+    [bookId, rpgId, sectionId]
   )
   const lastSavedSignatureRef = useRef(
-    serializeLibraryBookDraft(createDefaultLibraryBookDraft()),
+    serializeLibraryBookDraft(createDefaultLibraryBookDraft())
   )
   const ignoreFirstEditorSyncRef = useRef(false)
 
@@ -121,7 +121,7 @@ export function useLibraryBookEditorState({
         const nextDraft = shouldRestoreDraft
           ? mergeDraftWithServerMetadata(
               defaultSnapshot,
-              restoredDraft as LibraryBookDraft,
+              restoredDraft as LibraryBookDraft
             )
           : defaultSnapshot
 
@@ -138,7 +138,7 @@ export function useLibraryBookEditorState({
           visibility: nextDraft.visibility,
           allowedCharacterIds: nextDraft.allowedCharacterIds,
           allowedClassKeys: nextDraft.allowedClassKeys,
-          allowedRaceKeys: nextDraft.allowedRaceKeys,
+          allowedRaceKeys: nextDraft.allowedRaceKeys
         }
         lastSavedSignatureRef.current = defaultSignature
         setSavedSignature(defaultSignature)
@@ -163,7 +163,7 @@ export function useLibraryBookEditorState({
           allowedRaceKeys: Array.isArray(book.allowedRaceKeys)
             ? book.allowedRaceKeys
             : [],
-          content: book.content,
+          content: book.content
         })
         const serverSignature = serializeLibraryBookDraft(serverDraft)
         const restoredDraft = !forceReadOnly
@@ -176,13 +176,13 @@ export function useLibraryBookEditorState({
         const nextDraft = shouldRestoreDraft
           ? mergeDraftWithServerMetadata(
               serverDraft,
-              restoredDraft as LibraryBookDraft,
+              restoredDraft as LibraryBookDraft
             )
           : serverDraft
 
         setDraft(nextDraft)
         setEditorKey(
-          `edit-${book.id}-${shouldRestoreDraft ? "draft" : "saved"}`,
+          `edit-${book.id}-${shouldRestoreDraft ? "draft" : "saved"}`
         )
         setCurrentBookId(book.id)
         setCanEdit(payload.canEdit && !forceReadOnly)
@@ -200,13 +200,13 @@ export function useLibraryBookEditorState({
             : [],
           allowedRaceKeys: Array.isArray(book.allowedRaceKeys)
             ? book.allowedRaceKeys
-            : [],
+            : []
         }
         lastSavedSignatureRef.current = serverSignature
         setSavedSignature(serverSignature)
       } catch (cause) {
         setError(
-          cause instanceof Error ? cause.message : "Erro ao carregar livro.",
+          cause instanceof Error ? cause.message : "Erro ao carregar livro."
         )
       } finally {
         setLoading(false)
@@ -240,7 +240,7 @@ export function useLibraryBookEditorState({
     draftHydrated,
     draftStorageKey,
     forceReadOnly,
-    loading,
+    loading
   ])
 
   async function saveBook() {
@@ -248,7 +248,7 @@ export function useLibraryBookEditorState({
     setSaving(true)
     setError("")
     const loadingToastId = toast.loading(
-      currentBookId ? "Salvando livro..." : "Criando livro...",
+      currentBookId ? "Salvando livro..." : "Criando livro..."
     )
 
     try {
@@ -262,18 +262,18 @@ export function useLibraryBookEditorState({
         visibility: metadata.visibility,
         allowedCharacterIds: metadata.allowedCharacterIds,
         allowedClassKeys: metadata.allowedClassKeys,
-        allowedRaceKeys: metadata.allowedRaceKeys,
+        allowedRaceKeys: metadata.allowedRaceKeys
       }
       const book = currentBookId
         ? await updateLibraryBookUseCase(deps, {
             rpgId,
             bookId: currentBookId,
-            payload,
+            payload
           })
         : await createLibraryBookUseCase(deps, {
             rpgId,
             sectionId,
-            payload,
+            payload
           })
 
       const savedDraft = createLibraryBookDraftSnapshot({
@@ -289,7 +289,7 @@ export function useLibraryBookEditorState({
         allowedRaceKeys: Array.isArray(book.allowedRaceKeys)
           ? book.allowedRaceKeys
           : [],
-        content: book.content,
+        content: book.content
       })
 
       setDraft(savedDraft)
@@ -306,7 +306,7 @@ export function useLibraryBookEditorState({
           : [],
         allowedRaceKeys: Array.isArray(book.allowedRaceKeys)
           ? book.allowedRaceKeys
-          : [],
+          : []
       }
       const nextSavedSignature = serializeLibraryBookDraft(savedDraft)
       lastSavedSignatureRef.current = nextSavedSignature
@@ -314,9 +314,7 @@ export function useLibraryBookEditorState({
       window.localStorage.removeItem(draftStorageKey)
       onPersist?.(book.id)
       toast.success(
-        currentBookId
-          ? "Livro salvo com sucesso."
-          : "Livro criado com sucesso.",
+        currentBookId ? "Livro salvo com sucesso." : "Livro criado com sucesso."
       )
     } catch (cause) {
       const message =
@@ -377,6 +375,6 @@ export function useLibraryBookEditorState({
     setDraft,
     toggleContentEditing,
     updateDraftContent,
-    saveBook,
+    saveBook
   }
 }

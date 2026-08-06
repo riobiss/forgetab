@@ -20,41 +20,41 @@ const mocks = vi.hoisted(() => ({
   loadCharacterDetailUseCase: vi.fn(),
   getEditableCharacter: vi.fn(),
   updateCharacter: vi.fn(),
-  deleteCharacter: vi.fn(),
+  deleteCharacter: vi.fn()
 }))
 
 vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
-  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
+  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest
 }))
 
 vi.mock(
   "@/features/world/character/application/dashboard/use-cases/loadCharactersDashboard",
   () => ({
-    loadCharactersDashboardUseCase: mocks.loadCharactersDashboardUseCase,
-  }),
+    loadCharactersDashboardUseCase: mocks.loadCharactersDashboardUseCase
+  })
 )
 
 vi.mock(
   "@/features/world/character/application/progression/use-cases/characterProgression",
   () => ({
     grantCharacterXpUseCase: mocks.grantCharacterXpUseCase,
-    grantCharacterPointsUseCase: mocks.grantCharacterPointsUseCase,
-  }),
+    grantCharacterPointsUseCase: mocks.grantCharacterPointsUseCase
+  })
 )
 
 vi.mock(
   "@/features/world/character/application/abilities/use-cases/characterSkillPurchase",
   () => ({
     buyCharacterSkillUseCase: mocks.buyCharacterSkillUseCase,
-    removeCharacterSkillUseCase: mocks.removeCharacterSkillUseCase,
-  }),
+    removeCharacterSkillUseCase: mocks.removeCharacterSkillUseCase
+  })
 )
 
 vi.mock(
   "@/features/world/character/application/abilities/use-cases/characterAbilities",
   () => ({
-    loadCharacterAbilitiesUseCase: mocks.loadCharacterAbilitiesUseCase,
-  }),
+    loadCharacterAbilitiesUseCase: mocks.loadCharacterAbilitiesUseCase
+  })
 )
 
 vi.mock(
@@ -63,8 +63,8 @@ vi.mock(
     addNpcMonsterCharacterAbilityUseCase:
       mocks.addNpcMonsterCharacterAbilityUseCase,
     removeNpcMonsterCharacterAbilityUseCase:
-      mocks.removeNpcMonsterCharacterAbilityUseCase,
-  }),
+      mocks.removeNpcMonsterCharacterAbilityUseCase
+  })
 )
 
 vi.mock(
@@ -72,48 +72,66 @@ vi.mock(
   () => ({
     getCharacterInventoryUseCase: mocks.getCharacterInventoryUseCase,
     removeCharacterInventoryItemApiUseCase:
-      mocks.removeCharacterInventoryItemApiUseCase,
-  }),
+      mocks.removeCharacterInventoryItemApiUseCase
+  })
 )
 
 vi.mock(
   "@/features/world/character/application/statusCurrent/use-cases/characterStatusCurrent",
   () => ({
     updateCharacterStatusCurrentUseCase:
-      mocks.updateCharacterStatusCurrentUseCase,
-  }),
+      mocks.updateCharacterStatusCurrentUseCase
+  })
 )
 
-vi.mock("@/features/world/character/application/use-cases/getRpgAccess", () => ({
-  getRpgAccess: mocks.getRpgAccess,
-}))
+vi.mock(
+  "@/features/world/character/application/use-cases/getRpgAccess",
+  () => ({
+    getRpgAccess: mocks.getRpgAccess
+  })
+)
 
-vi.mock("@/features/world/character/application/use-cases/listCharacters", () => ({
-  listCharacters: mocks.listCharacters,
-}))
+vi.mock(
+  "@/features/world/character/application/use-cases/listCharacters",
+  () => ({
+    listCharacters: mocks.listCharacters
+  })
+)
 
-vi.mock("@/features/world/character/application/use-cases/createCharacter", () => ({
-  createCharacter: mocks.createCharacter,
-}))
+vi.mock(
+  "@/features/world/character/application/use-cases/createCharacter",
+  () => ({
+    createCharacter: mocks.createCharacter
+  })
+)
 
 vi.mock(
   "@/features/world/character/application/detail/use-cases/loadCharacterDetail",
   () => ({
-    loadCharacterDetailUseCase: mocks.loadCharacterDetailUseCase,
-  }),
+    loadCharacterDetailUseCase: mocks.loadCharacterDetailUseCase
+  })
 )
 
-vi.mock("@/features/world/character/application/use-cases/getEditableCharacter", () => ({
-  getEditableCharacter: mocks.getEditableCharacter,
-}))
+vi.mock(
+  "@/features/world/character/application/use-cases/getEditableCharacter",
+  () => ({
+    getEditableCharacter: mocks.getEditableCharacter
+  })
+)
 
-vi.mock("@/features/world/character/application/use-cases/updateCharacter", () => ({
-  updateCharacter: mocks.updateCharacter,
-}))
+vi.mock(
+  "@/features/world/character/application/use-cases/updateCharacter",
+  () => ({
+    updateCharacter: mocks.updateCharacter
+  })
+)
 
-vi.mock("@/features/world/character/application/use-cases/deleteCharacter", () => ({
-  deleteCharacter: mocks.deleteCharacter,
-}))
+vi.mock(
+  "@/features/world/character/application/use-cases/deleteCharacter",
+  () => ({
+    deleteCharacter: mocks.deleteCharacter
+  })
+)
 
 import { buildApiServer } from "@api/app"
 
@@ -140,7 +158,7 @@ describe("characters routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/characters",
+      url: "/api/rpg/rpg-1/characters"
     })
 
     expect(response.statusCode).toBe(401)
@@ -163,13 +181,13 @@ describe("characters routes", () => {
         canManageNpcMonster: false,
         isAcceptedMember: true,
         ownPlayerCount: 1,
-        allowMultiplePlayerCharacters: false,
-      },
+        allowMultiplePlayerCharacters: false
+      }
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/characters/dashboard?type=player",
+      url: "/api/rpg/rpg-1/characters/dashboard?type=player"
     })
 
     expect(response.statusCode).toBe(200)
@@ -178,8 +196,8 @@ describe("characters routes", () => {
       expect.objectContaining({
         rpgId: "rpg-1",
         userId: "user-1",
-        filterType: "player",
-      }),
+        filterType: "player"
+      })
     )
     expect(response.json()).toEqual({
       rpgId: "rpg-1",
@@ -193,19 +211,19 @@ describe("characters routes", () => {
       canManageNpcMonster: false,
       isAcceptedMember: true,
       ownPlayerCount: 1,
-      allowMultiplePlayerCharacters: false,
+      allowMultiplePlayerCharacters: false
     })
   })
 
   it("retorna 404 quando dashboard do RPG nao existe", async () => {
     server = buildApiServer()
     mocks.loadCharactersDashboardUseCase.mockResolvedValue({
-      status: "not_found",
+      status: "not_found"
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/characters/dashboard",
+      url: "/api/rpg/rpg-1/characters/dashboard"
     })
 
     expect(response.statusCode).toBe(404)
@@ -216,12 +234,12 @@ describe("characters routes", () => {
     server = buildApiServer()
     mocks.getRpgAccess.mockResolvedValue({
       exists: false,
-      canAccess: false,
+      canAccess: false
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/characters",
+      url: "/api/rpg/rpg-1/characters"
     })
 
     expect(response.statusCode).toBe(404)
@@ -239,7 +257,7 @@ describe("characters routes", () => {
       useInventoryWeightLimit: false,
       allowMultiplePlayerCharacters: false,
       progressionMode: "xp_level",
-      progressionTiers: [{ label: "Level 1", required: 0 }],
+      progressionTiers: [{ label: "Level 1", required: 0 }]
     }
     mocks.getRpgAccess.mockResolvedValue(access)
     mocks.listCharacters.mockResolvedValue({
@@ -250,12 +268,12 @@ describe("characters routes", () => {
       useInventoryWeightLimit: false,
       allowMultiplePlayerCharacters: false,
       progressionMode: "xp_level",
-      progressionTiers: [{ label: "Level 1", required: 0 }],
+      progressionTiers: [{ label: "Level 1", required: 0 }]
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/characters",
+      url: "/api/rpg/rpg-1/characters"
     })
 
     expect(response.statusCode).toBe(200)
@@ -267,7 +285,7 @@ describe("characters routes", () => {
       useInventoryWeightLimit: false,
       allowMultiplePlayerCharacters: false,
       progressionMode: "xp_level",
-      progressionTiers: [{ label: "Level 1", required: 0 }],
+      progressionTiers: [{ label: "Level 1", required: 0 }]
     })
   })
 
@@ -278,13 +296,13 @@ describe("characters routes", () => {
     mocks.getRpgAccess.mockResolvedValue(access)
     mocks.createCharacter.mockResolvedValue({
       id: "char-1",
-      name: "Personagem 2",
+      name: "Personagem 2"
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/rpg/rpg-1/characters",
-      payload: body,
+      payload: body
     })
 
     expect(response.statusCode).toBe(201)
@@ -294,13 +312,13 @@ describe("characters routes", () => {
       access,
       payload: body,
       characterRepository: expect.anything(),
-      rpgTemplatesRepository: expect.anything(),
+      rpgTemplatesRepository: expect.anything()
     })
     expect(response.json()).toEqual({
       character: {
         id: "char-1",
-        name: "Personagem 2",
-      },
+        name: "Personagem 2"
+      }
     })
   })
 
@@ -308,18 +326,18 @@ describe("characters routes", () => {
     server = buildApiServer()
     mocks.getRpgAccess.mockResolvedValue({ exists: true, canAccess: true })
     mocks.createCharacter.mockRejectedValue(
-      new AppError("Voce ja possui um personagem player neste RPG.", 409),
+      new AppError("Voce ja possui um personagem player neste RPG.", 409)
     )
 
     const response = await server.inject({
       method: "POST",
       url: "/api/rpg/rpg-1/characters",
-      payload: { name: "Personagem 2", characterType: "player" },
+      payload: { name: "Personagem 2", characterType: "player" }
     })
 
     expect(response.statusCode).toBe(409)
     expect(response.json()).toEqual({
-      message: "Voce ja possui um personagem player neste RPG.",
+      message: "Voce ja possui um personagem player neste RPG."
     })
   })
 
@@ -328,12 +346,12 @@ describe("characters routes", () => {
     mocks.getEditableCharacter.mockResolvedValue({
       id: "char-1",
       name: "Goblin",
-      characterType: "npc",
+      characterType: "npc"
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/characters/char-1",
+      url: "/api/rpg/rpg-1/characters/char-1"
     })
 
     expect(response.statusCode).toBe(200)
@@ -341,25 +359,25 @@ describe("characters routes", () => {
       character: {
         id: "char-1",
         name: "Goblin",
-        characterType: "npc",
-      },
+        characterType: "npc"
+      }
     })
   })
 
   it("retorna 403 quando nao pode gerenciar personagem", async () => {
     server = buildApiServer()
     mocks.getEditableCharacter.mockRejectedValue(
-      new AppError("Sem permissao para gerenciar personagem.", 403),
+      new AppError("Sem permissao para gerenciar personagem.", 403)
     )
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/characters/char-1",
+      url: "/api/rpg/rpg-1/characters/char-1"
     })
 
     expect(response.statusCode).toBe(403)
     expect(response.json()).toEqual({
-      message: "Sem permissao para gerenciar personagem.",
+      message: "Sem permissao para gerenciar personagem."
     })
   })
 
@@ -388,13 +406,13 @@ describe("characters routes", () => {
         characteristicsItems: [],
         maskStatuses: false,
         maskAttributes: false,
-        maskSkills: false,
-      },
+        maskSkills: false
+      }
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/characters/char-1/detail",
+      url: "/api/rpg/rpg-1/characters/char-1/detail"
     })
 
     expect(response.statusCode).toBe(200)
@@ -419,7 +437,7 @@ describe("characters routes", () => {
       characteristicsItems: [],
       maskStatuses: false,
       maskAttributes: false,
-      maskSkills: false,
+      maskSkills: false
     })
   })
 
@@ -429,13 +447,13 @@ describe("characters routes", () => {
     mocks.updateCharacter.mockResolvedValue(undefined)
     mocks.getEditableCharacter.mockResolvedValue({
       id: "char-1",
-      name: "Goblin Rei",
+      name: "Goblin Rei"
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/rpg/rpg-1/characters/char-1",
-      payload,
+      payload
     })
 
     expect(response.statusCode).toBe(200)
@@ -443,8 +461,8 @@ describe("characters routes", () => {
       message: "Personagem atualizado com sucesso.",
       character: {
         id: "char-1",
-        name: "Goblin Rei",
-      },
+        name: "Goblin Rei"
+      }
     })
   })
 
@@ -454,12 +472,12 @@ describe("characters routes", () => {
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/rpg/rpg-1/characters/char-1",
+      url: "/api/rpg/rpg-1/characters/char-1"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      message: "Personagem deletado com sucesso.",
+      message: "Personagem deletado com sucesso."
     })
   })
 
@@ -470,12 +488,12 @@ describe("characters routes", () => {
       inventory: [],
       isOwner: true,
       useInventoryWeightLimit: false,
-      maxCarryWeight: null,
+      maxCarryWeight: null
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/characters/char-1/inventory",
+      url: "/api/rpg/rpg-1/characters/char-1/inventory"
     })
 
     expect(response.statusCode).toBe(200)
@@ -484,7 +502,7 @@ describe("characters routes", () => {
       inventory: [],
       isOwner: true,
       useInventoryWeightLimit: false,
-      maxCarryWeight: null,
+      maxCarryWeight: null
     })
   })
 
@@ -493,13 +511,13 @@ describe("characters routes", () => {
 
     const response = await server.inject({
       method: "POST",
-      url: "/api/rpg/rpg-1/characters/char-1/inventory",
+      url: "/api/rpg/rpg-1/characters/char-1/inventory"
     })
 
     expect(response.statusCode).toBe(405)
     expect(response.json()).toEqual({
       message:
-        "Dar item por esta rota foi desativado. Use a pagina de itens do RPG.",
+        "Dar item por esta rota foi desativado. Use a pagina de itens do RPG."
     })
   })
 
@@ -509,13 +527,13 @@ describe("characters routes", () => {
       message: "Item removido do inventario.",
       inventoryItemId: "inv-1",
       removedQuantity: 2,
-      remainingQuantity: 0,
+      remainingQuantity: 0
     })
 
     const response = await server.inject({
       method: "DELETE",
       url: "/api/rpg/rpg-1/characters/char-1/inventory",
-      payload: { inventoryItemId: "inv-1", quantity: 5 },
+      payload: { inventoryItemId: "inv-1", quantity: 5 }
     })
 
     expect(response.statusCode).toBe(200)
@@ -523,7 +541,7 @@ describe("characters routes", () => {
       message: "Item removido do inventario.",
       inventoryItemId: "inv-1",
       removedQuantity: 2,
-      remainingQuantity: 0,
+      remainingQuantity: 0
     })
   })
 
@@ -533,13 +551,13 @@ describe("characters routes", () => {
       message: "Status atual salvo.",
       key: "life",
       value: 6,
-      max: 10,
+      max: 10
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/rpg/rpg-1/characters/char-1/status-current",
-      payload: { key: "life", value: 6 },
+      payload: { key: "life", value: 6 }
     })
 
     expect(response.statusCode).toBe(200)
@@ -547,7 +565,7 @@ describe("characters routes", () => {
       message: "Status atual salvo.",
       key: "life",
       value: 6,
-      max: 10,
+      max: 10
     })
   })
 
@@ -557,13 +575,13 @@ describe("characters routes", () => {
       success: true,
       progressionCurrent: 105,
       progressionLabel: "Level 2",
-      progressionRequired: 100,
+      progressionRequired: 100
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/characters/char-1/grant-xp",
-      payload: { amount: 10 },
+      payload: { amount: 10 }
     })
 
     expect(response.statusCode).toBe(200)
@@ -571,7 +589,7 @@ describe("characters routes", () => {
       success: true,
       progressionCurrent: 105,
       progressionLabel: "Level 2",
-      progressionRequired: 100,
+      progressionRequired: 100
     })
   })
 
@@ -579,19 +597,19 @@ describe("characters routes", () => {
     server = buildApiServer()
     mocks.grantCharacterPointsUseCase.mockResolvedValue({
       success: true,
-      remainingPoints: 11,
+      remainingPoints: 11
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/characters/char-1/grant-points",
-      payload: { amount: 3 },
+      payload: { amount: 3 }
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       success: true,
-      remainingPoints: 11,
+      remainingPoints: 11
     })
   })
 
@@ -600,20 +618,20 @@ describe("characters routes", () => {
     mocks.buyCharacterSkillUseCase.mockResolvedValue({
       status: 200,
       success: true,
-      remainingPoints: 3,
+      remainingPoints: 3
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/characters/char-1/buy-skill",
-      payload: { skillId: "skill-1", level: 1 },
+      payload: { skillId: "skill-1", level: 1 }
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       status: 200,
       success: true,
-      remainingPoints: 3,
+      remainingPoints: 3
     })
   })
 
@@ -622,20 +640,20 @@ describe("characters routes", () => {
     mocks.removeCharacterSkillUseCase.mockResolvedValue({
       status: 200,
       success: true,
-      remainingPoints: 5,
+      remainingPoints: 5
     })
 
     const response = await server.inject({
       method: "DELETE",
       url: "/api/characters/char-1/buy-skill",
-      payload: { skillId: "skill-1", level: 1 },
+      payload: { skillId: "skill-1", level: 1 }
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       status: 200,
       success: true,
-      remainingPoints: 5,
+      remainingPoints: 5
     })
   })
 
@@ -646,12 +664,12 @@ describe("characters routes", () => {
       characterId: "char-1",
       characterName: "Arthas",
       classLabel: "Paladino",
-      abilities: [{ id: "ability-1", name: "Golpe Sombrio" }],
+      abilities: [{ id: "ability-1", name: "Golpe Sombrio" }]
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/characters/char-1/abilities",
+      url: "/api/rpg/rpg-1/characters/char-1/abilities"
     })
 
     expect(response.statusCode).toBe(200)
@@ -660,7 +678,7 @@ describe("characters routes", () => {
       characterId: "char-1",
       characterName: "Arthas",
       classLabel: "Paladino",
-      abilities: [{ id: "ability-1", name: "Golpe Sombrio" }],
+      abilities: [{ id: "ability-1", name: "Golpe Sombrio" }]
     })
   })
 
@@ -670,7 +688,7 @@ describe("characters routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/characters/char-1/abilities",
+      url: "/api/rpg/rpg-1/characters/char-1/abilities"
     })
 
     expect(response.statusCode).toBe(404)
@@ -681,19 +699,19 @@ describe("characters routes", () => {
     server = buildApiServer()
     mocks.addNpcMonsterCharacterAbilityUseCase.mockResolvedValue({
       message: "Habilidade adicionada com sucesso.",
-      ability: { id: "ability-1", name: "Mordida" },
+      ability: { id: "ability-1", name: "Mordida" }
     })
 
     const response = await server.inject({
       method: "POST",
       url: "/api/rpg/rpg-1/characters/char-1/abilities",
-      payload: { name: "Mordida" },
+      payload: { name: "Mordida" }
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       message: "Habilidade adicionada com sucesso.",
-      ability: { id: "ability-1", name: "Mordida" },
+      ability: { id: "ability-1", name: "Mordida" }
     })
   })
 
@@ -701,19 +719,19 @@ describe("characters routes", () => {
     server = buildApiServer()
     mocks.removeNpcMonsterCharacterAbilityUseCase.mockResolvedValue({
       message: "Habilidade removida com sucesso.",
-      removedAbilityId: "ability-1",
+      removedAbilityId: "ability-1"
     })
 
     const response = await server.inject({
       method: "DELETE",
       url: "/api/rpg/rpg-1/characters/char-1/abilities",
-      payload: { abilityId: "ability-1" },
+      payload: { abilityId: "ability-1" }
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       message: "Habilidade removida com sucesso.",
-      removedAbilityId: "ability-1",
+      removedAbilityId: "ability-1"
     })
   })
 })

@@ -1,6 +1,6 @@
 import type {
   CreateOrUpdateSkillPayloadDto,
-  UpdateSkillLevelPayloadDto,
+  UpdateSkillLevelPayloadDto
 } from "@/features/world/skills/application/skillsDashboard/types"
 import type { SkillCategory, SkillTag, SkillType } from "@/types/skillBuilder"
 
@@ -54,7 +54,7 @@ function toOptionalNumber(value: unknown): number | null {
 function buildLevelPayload(
   meta: SkillMetaInput,
   level: SkillLevelInput,
-  fallbackLevelRequired: number,
+  fallbackLevelRequired: number
 ): UpdateSkillLevelPayloadDto {
   return {
     levelRequired:
@@ -68,7 +68,7 @@ function buildLevelPayload(
       customFields: level.customFields.map((field) => ({
         id: field.id,
         name: field.name,
-        value: field.value,
+        value: field.value
       })),
       damage: toOptionalText(level.damage),
       cooldown: toOptionalText(level.cooldown),
@@ -78,16 +78,16 @@ function buildLevelPayload(
       resourceCost: toOptionalText(level.resourceCost),
       category: meta.category || null,
       type: meta.type || null,
-      actionType: meta.actionType || null,
+      actionType: meta.actionType || null
     },
     cost: {
       points: toOptionalNumber(level.costPoints),
-      custom: toOptionalText(level.costCustom),
+      custom: toOptionalText(level.costCustom)
     },
     requirement: {
       levelRequired: toOptionalNumber(level.levelRequired),
-      notes: toOptionalText(level.prerequisite),
-    },
+      notes: toOptionalText(level.prerequisite)
+    }
   }
 }
 
@@ -101,17 +101,17 @@ export function mapCreateSkillPayload(params: {
     tags: params.meta.tags,
     classIds: params.meta.classIds,
     raceIds: params.meta.raceIds,
-    level1: buildLevelPayload(params.meta, params.level, 1),
+    level1: buildLevelPayload(params.meta, params.level, 1)
   }
 }
 
 export function mapUpdateSkillMetaPayload(
-  meta: SkillMetaInput,
+  meta: SkillMetaInput
 ): CreateOrUpdateSkillPayloadDto {
   return {
     tags: meta.tags,
     classIds: meta.classIds,
-    raceIds: meta.raceIds,
+    raceIds: meta.raceIds
   }
 }
 
@@ -123,6 +123,6 @@ export function mapUpdateSkillLevelPayload(params: {
   return buildLevelPayload(
     params.meta,
     params.level,
-    params.fallbackLevelRequired,
+    params.fallbackLevelRequired
   )
 }

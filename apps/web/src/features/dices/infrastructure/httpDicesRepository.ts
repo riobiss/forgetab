@@ -36,7 +36,7 @@ export const httpDicesRepository: DicesRepository = {
       const response = await apiFetch("/api/dices/roll", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       })
       return await parseJsonResponse<DiceRollResponse>(response)
     } catch (error) {
@@ -49,5 +49,5 @@ export const httpDicesRepository: DicesRepository = {
 
       throw new DicesTechnicalError(GENERIC_DICE_ROLL_ERROR)
     }
-  },
+  }
 }

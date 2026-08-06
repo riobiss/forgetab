@@ -45,7 +45,7 @@ export async function getUserIdFromRequest(request: Request) {
 export async function canAccessOwnedRpg(rpgId: string, userId: string) {
   const rpg = await prisma.rpg.findFirst({
     where: { id: rpgId, ownerId: userId },
-    select: { id: true },
+    select: { id: true }
   })
 
   return Boolean(rpg)
@@ -66,7 +66,7 @@ export async function skillBelongsToUser(skillId: string, userId: string) {
 export async function validateLinkIds({
   rpgId,
   classIds,
-  raceIds,
+  raceIds
 }: {
   rpgId: string | null
   classIds: string[]
@@ -75,7 +75,7 @@ export async function validateLinkIds({
   if (!rpgId && (classIds.length > 0 || raceIds.length > 0)) {
     return {
       ok: false as const,
-      message: "Vinculos de classe/raca exigem um rpgId.",
+      message: "Vinculos de classe/raca exigem um rpgId."
     }
   }
 
@@ -84,7 +84,9 @@ export async function validateLinkIds({
   }
 
   if (classIds.length > 0) {
-    const classMatches = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+    const classMatches = await prisma.$queryRaw<
+      Array<{ id: string }>
+    >(Prisma.sql`
       SELECT id
       FROM rpg_class_templates
       WHERE rpg_id = ${rpgId}
@@ -94,13 +96,15 @@ export async function validateLinkIds({
     if (classMatches.length !== classIds.length) {
       return {
         ok: false as const,
-        message: "Uma ou mais classes informadas sao invalidas para este RPG.",
+        message: "Uma ou mais classes informadas sao invalidas para este RPG."
       }
     }
   }
 
   if (raceIds.length > 0) {
-    const raceMatches = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+    const raceMatches = await prisma.$queryRaw<
+      Array<{ id: string }>
+    >(Prisma.sql`
       SELECT id
       FROM rpg_race_templates
       WHERE rpg_id = ${rpgId}
@@ -110,7 +114,7 @@ export async function validateLinkIds({
     if (raceMatches.length !== raceIds.length) {
       return {
         ok: false as const,
-        message: "Uma ou mais racas informadas sao invalidas para este RPG.",
+        message: "Uma ou mais racas informadas sao invalidas para este RPG."
       }
     }
   }
@@ -137,7 +141,10 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
       LIMIT 1
     `)
   } catch (error) {
-    if (!(error instanceof Error) || !error.message.includes('column "tags" does not exist')) {
+    if (
+      !(error instanceof Error) ||
+      !error.message.includes('column "tags" does not exist')
+    ) {
       throw error
     }
 
@@ -162,13 +169,17 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
     return null
   }
 
-  const classRows = await prisma.$queryRaw<Array<{ classTemplateId: string }>>(Prisma.sql`
+  const classRows = await prisma.$queryRaw<
+    Array<{ classTemplateId: string }>
+  >(Prisma.sql`
     SELECT class_template_id AS "classTemplateId"
     FROM skill_class_links
     WHERE skill_id = ${skillId}
   `)
 
-  const raceRows = await prisma.$queryRaw<Array<{ raceTemplateId: string }>>(Prisma.sql`
+  const raceRows = await prisma.$queryRaw<
+    Array<{ raceTemplateId: string }>
+  >(Prisma.sql`
     SELECT race_template_id AS "raceTemplateId"
     FROM skill_race_links
     WHERE skill_id = ${skillId}
@@ -205,8 +216,8 @@ export async function fetchSkillById(skillId: string, ownerId: string) {
       target: normalizeJsonObject(level.target),
       area: normalizeJsonObject(level.area),
       scaling: normalizeJsonObject(level.scaling),
-      requirement: normalizeJsonObject(level.requirement),
-    })),
+      requirement: normalizeJsonObject(level.requirement)
+    }))
   }
 }
 
@@ -229,7 +240,10 @@ export async function fetchSkillList(ownerId: string, rpgId?: string | null) {
       ORDER BY updated_at DESC
     `)
   } catch (error) {
-    if (!(error instanceof Error) || !error.message.includes('column "tags" does not exist')) {
+    if (
+      !(error instanceof Error) ||
+      !error.message.includes('column "tags" does not exist')
+    ) {
       throw error
     }
 
@@ -257,7 +271,7 @@ export async function fetchRpgAbilityCategoryConfig(rpgId: string | null) {
   if (!rpgId) {
     return {
       enabled: false,
-      categories: [] as string[],
+      categories: [] as string[]
     }
   }
 
@@ -276,17 +290,21 @@ export async function fetchRpgAbilityCategoryConfig(rpgId: string | null) {
     const row = rows[0]
     return {
       enabled: Boolean(row?.enabled),
-      categories: normalizeEnabledAbilityCategories(row?.categories),
+      categories: normalizeEnabledAbilityCategories(row?.categories)
     }
   } catch (error) {
     if (
       error instanceof Error &&
-      (error.message.includes('column "ability_categories_enabled" does not exist') ||
-        error.message.includes('column "enabled_ability_categories" does not exist'))
+      (error.message.includes(
+        'column "ability_categories_enabled" does not exist'
+      ) ||
+        error.message.includes(
+          'column "enabled_ability_categories" does not exist'
+        ))
     ) {
       return {
         enabled: false,
-        categories: [] as string[],
+        categories: [] as string[]
       }
     }
 

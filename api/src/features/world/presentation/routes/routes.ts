@@ -7,22 +7,22 @@ import {
   getRpgDashboardHandler,
   getRpgByIdHandler,
   listRpgCatalogHandler,
-  updateRpgHandler,
+  updateRpgHandler
 } from "@/features/world/presentation/handlers"
 
 export function worldRoutes(app: FastifyInstance) {
   registerFastifyRoute(app, "get", "/api/rpg", (request, reply) =>
-    listRpgCatalogHandler(request, reply),
+    listRpgCatalogHandler(request, reply)
   )
   registerFastifyRoute(app, "post", "/api/rpg", (request, reply) =>
-    createRpgHandler(request, reply),
+    createRpgHandler(request, reply)
   )
 
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId", (request, reply) =>
     getRpgByIdHandler(
       request as FastifyRequest<{ Params: { rpgId: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(
     app,
@@ -31,19 +31,19 @@ export function worldRoutes(app: FastifyInstance) {
     (request, reply) =>
       getRpgDashboardHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(app, "patch", "/api/rpg/:rpgId", (request, reply) =>
     updateRpgHandler(
       request as FastifyRequest<{ Params: { rpgId: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(app, "delete", "/api/rpg/:rpgId", (request, reply) =>
     deleteRpgHandler(
       request as FastifyRequest<{ Params: { rpgId: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
 }

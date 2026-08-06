@@ -1,7 +1,7 @@
 import type {
   AuthClientGateway,
   LoginPayload,
-  RegisterPayload,
+  RegisterPayload
 } from "@/features/auth/application/contracts/AuthClientGateway"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 
@@ -20,7 +20,7 @@ async function parseResponse(response: Response) {
   return {
     message: payload.message,
     token: payload.token,
-    maxAge: payload.maxAge,
+    maxAge: payload.maxAge
   }
 }
 
@@ -29,7 +29,7 @@ export const httpAuthClientGateway: AuthClientGateway = {
     const response = await apiFetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
 
     return parseResponse(response)
@@ -38,7 +38,7 @@ export const httpAuthClientGateway: AuthClientGateway = {
     const response = await apiFetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
 
     return parseResponse(response)
@@ -46,11 +46,11 @@ export const httpAuthClientGateway: AuthClientGateway = {
   async logout() {
     const response = await apiFetch("/api/auth/logout", {
       method: "POST",
-      cache: "no-store",
+      cache: "no-store"
     })
 
     if (!response.ok) {
       throw new Error("Nao foi possivel encerrar a sessao.")
     }
-  },
+  }
 }

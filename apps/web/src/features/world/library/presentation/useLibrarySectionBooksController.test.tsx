@@ -3,12 +3,12 @@ import { describe, expect, it, vi } from "vitest"
 import type { LibraryDependencies } from "@/features/world/library/application/contracts/LibraryDependencies"
 import type {
   LibraryBookDto,
-  LibrarySectionDto,
+  LibrarySectionDto
 } from "@/features/world/library/application/types"
 import { useLibrarySectionBooksController } from "./useLibrarySectionBooksController"
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: vi.fn() })
 }))
 
 const section: LibrarySectionDto = {
@@ -18,7 +18,7 @@ const section: LibrarySectionDto = {
   description: null,
   visibility: "public",
   createdAt: "2026-01-01T00:00:00.000Z",
-  updatedAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-01T00:00:00.000Z"
 }
 
 const book: LibraryBookDto = {
@@ -34,7 +34,7 @@ const book: LibraryBookDto = {
   allowedClassKeys: ["mago"],
   allowedRaceKeys: ["elfo"],
   createdAt: "2026-01-01T00:00:00.000Z",
-  updatedAt: "2026-01-02T00:00:00.000Z",
+  updatedAt: "2026-01-02T00:00:00.000Z"
 }
 
 function createDependencies(): LibraryDependencies {
@@ -48,19 +48,19 @@ function createDependencies(): LibraryDependencies {
       fetchSectionBooks: vi.fn().mockResolvedValue({
         books: [book],
         canManage: true,
-        canCreate: true,
+        canCreate: true
       }),
       fetchVisibilityOptions: vi.fn().mockResolvedValue({
         players: [{ id: "user-1", username: "ana", name: "Ana" }],
         races: [{ key: "elfo", label: "Elfo" }],
-        classes: [{ key: "mago", label: "Mago" }],
+        classes: [{ key: "mago", label: "Mago" }]
       }),
       fetchBook: vi.fn(),
       createBook: vi.fn(),
       updateBook: vi.fn(),
       deleteBook: vi.fn(),
-      uploadLibraryImage: vi.fn(),
-    },
+      uploadLibraryImage: vi.fn()
+    }
   }
 }
 
@@ -71,8 +71,8 @@ describe("useLibrarySectionBooksController", () => {
       useLibrarySectionBooksController({
         rpgId: "rpg-1",
         sectionId: "section-1",
-        deps,
-      }),
+        deps
+      })
     )
 
     await waitFor(() => expect(result.current.loading).toBe(false))
@@ -83,7 +83,7 @@ describe("useLibrarySectionBooksController", () => {
     act(() => result.current.openEditModal(book))
     expect(result.current.editModal.isOpen).toBe(true)
     expect(result.current.editModal.selectedPlayerOptions).toEqual([
-      { value: "user-1", label: "@ana - Ana" },
+      { value: "user-1", label: "@ana - Ana" }
     ])
     expect(result.current.editModal.selectedRaceOptions[0]?.value).toBe("elfo")
     expect(result.current.editModal.selectedClassOptions[0]?.value).toBe("mago")
@@ -95,8 +95,8 @@ describe("useLibrarySectionBooksController", () => {
       useLibrarySectionBooksController({
         rpgId: "rpg-1",
         sectionId: "section-1",
-        deps,
-      }),
+        deps
+      })
     )
     await waitFor(() => expect(result.current.loading).toBe(false))
 
@@ -106,7 +106,7 @@ describe("useLibrarySectionBooksController", () => {
     act(() => result.current.openCreateModal())
     await act(async () => result.current.createModal.onCreate())
     expect(result.current.createModal.error).toBe(
-      "Informe um nome com pelo menos 2 caracteres.",
+      "Informe um nome com pelo menos 2 caracteres."
     )
     expect(deps.gateway.createBook).not.toHaveBeenCalled()
   })

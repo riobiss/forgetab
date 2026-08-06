@@ -12,7 +12,7 @@ import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 import type { UseColorHighlightConfig } from "@/components/tiptap-ui/color-highlight-button"
 import {
   COLOR_HIGHLIGHT_SHORTCUT_KEY,
-  useColorHighlight,
+  useColorHighlight
 } from "@/components/tiptap-ui/color-highlight-button"
 
 // --- UI Primitives ---
@@ -37,7 +37,7 @@ export interface ColorHighlightButtonProps
 }
 
 export function ColorHighlightShortcutBadge({
-  shortcutKeys = COLOR_HIGHLIGHT_SHORTCUT_KEY,
+  shortcutKeys = COLOR_HIGHLIGHT_SHORTCUT_KEY
 }: {
   shortcutKeys?: string
 }) {
@@ -100,7 +100,7 @@ export const ColorHighlightButton = forwardRef<
       isActive,
       handleColorHighlight,
       label,
-      shortcutKeys,
+      shortcutKeys
     } = useColorHighlight({
       editor,
       highlightColor,
@@ -108,7 +108,7 @@ export const ColorHighlightButton = forwardRef<
       label: text || `Toggle highlight (${highlightColor})`,
       hideWhenUnavailable,
       mode,
-      onApplied,
+      onApplied
     })
 
     const handleClick = useCallback(
@@ -124,7 +124,7 @@ export const ColorHighlightButton = forwardRef<
       () =>
         ({
           ...style,
-          "--highlight-color": highlightColor,
+          "--highlight-color": highlightColor
         }) as React.CSSProperties,
       [highlightColor, style]
     )

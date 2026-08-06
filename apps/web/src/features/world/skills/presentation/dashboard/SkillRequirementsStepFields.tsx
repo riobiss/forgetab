@@ -20,7 +20,7 @@ export function SkillRequirementsStepFields({
   setMetaForm,
   levelForm,
   setLevelForm,
-  costResourceName = "Pontos",
+  costResourceName = "Pontos"
 }: SkillRequirementsStepFieldsProps) {
   return (
     <div className={styles.bindingGrid}>
@@ -34,7 +34,7 @@ export function SkillRequirementsStepFields({
               onChange={() =>
                 setMetaForm((prev) => ({
                   ...prev,
-                  classIds: toggleId(prev.classIds, item.id),
+                  classIds: toggleId(prev.classIds, item.id)
                 }))
               }
             />
@@ -52,7 +52,7 @@ export function SkillRequirementsStepFields({
               onChange={() =>
                 setMetaForm((prev) => ({
                   ...prev,
-                  raceIds: toggleId(prev.raceIds, item.id),
+                  raceIds: toggleId(prev.raceIds, item.id)
                 }))
               }
             />
@@ -67,7 +67,12 @@ export function SkillRequirementsStepFields({
           onWheel={(event) => event.currentTarget.blur()}
           min={1}
           value={levelForm.levelRequired}
-          onChange={(event) => setLevelForm((prev) => ({ ...prev, levelRequired: event.target.value }))}
+          onChange={(event) =>
+            setLevelForm((prev) => ({
+              ...prev,
+              levelRequired: event.target.value
+            }))
+          }
         />
       </label>
       <label className={`${styles.field} ${styles.spanTwo}`}>
@@ -75,7 +80,12 @@ export function SkillRequirementsStepFields({
         <textarea
           rows={2}
           value={levelForm.prerequisite}
-          onChange={(event) => setLevelForm((prev) => ({ ...prev, prerequisite: event.target.value }))}
+          onChange={(event) =>
+            setLevelForm((prev) => ({
+              ...prev,
+              prerequisite: event.target.value
+            }))
+          }
         />
       </label>
       <label className={styles.field}>
@@ -86,7 +96,12 @@ export function SkillRequirementsStepFields({
           min={0}
           step={1}
           value={levelForm.costPoints}
-          onChange={(event) => setLevelForm((prev) => ({ ...prev, costPoints: event.target.value }))}
+          onChange={(event) =>
+            setLevelForm((prev) => ({
+              ...prev,
+              costPoints: event.target.value
+            }))
+          }
         />
       </label>
     </div>

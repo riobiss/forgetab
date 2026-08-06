@@ -6,21 +6,21 @@ const mocks = vi.hoisted(() => ({
   refresh: vi.fn(),
   loadRpgEditorBootstrapUseCase: vi.fn(),
   saveRpgRacesUseCase: vi.fn(),
-  saveRpgClassesUseCase: vi.fn(),
+  saveRpgClassesUseCase: vi.fn()
 }))
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mocks.push, refresh: mocks.refresh }),
+  useRouter: () => ({ push: mocks.push, refresh: mocks.refresh })
 }))
 
 vi.mock("@/features/world/presentation/editor/dependencies", () => ({
-  createRpgEditorDependencies: () => ({ gateway: {} }),
+  createRpgEditorDependencies: () => ({ gateway: {} })
 }))
 
 vi.mock("@/features/world/application/editor/use-cases/rpgEditor", () => ({
   loadRpgEditorBootstrapUseCase: mocks.loadRpgEditorBootstrapUseCase,
   saveRpgRacesUseCase: mocks.saveRpgRacesUseCase,
-  saveRpgClassesUseCase: mocks.saveRpgClassesUseCase,
+  saveRpgClassesUseCase: mocks.saveRpgClassesUseCase
 }))
 
 import { useAdvancedIdentityEditor } from "@/features/world/presentation/editor/edit/advanced/useAdvancedIdentityEditor"
@@ -38,8 +38,8 @@ function createBootstrap() {
         attributeBonuses: { str: 1 },
         skillBonuses: { fight: 2 },
         lore: undefined,
-        catalogMeta: undefined,
-      },
+        catalogMeta: undefined
+      }
     ],
     classes: [
       {
@@ -48,12 +48,12 @@ function createBootstrap() {
         category: "geral",
         attributeBonuses: { str: 0 },
         skillBonuses: { fight: 1 },
-        catalogMeta: undefined,
-      },
+        catalogMeta: undefined
+      }
     ],
     statuses: [],
     identityFields: [],
-    characteristicFields: [],
+    characteristicFields: []
   }
 }
 
@@ -70,8 +70,8 @@ describe("useAdvancedIdentityEditor", () => {
       useAdvancedIdentityEditor({
         rpgId: "rpg-1",
         type: "race",
-        templateKey: "elfo",
-      }),
+        templateKey: "elfo"
+      })
     )
 
     await waitFor(() => {
@@ -80,10 +80,10 @@ describe("useAdvancedIdentityEditor", () => {
 
     expect(result.current.draft?.label).toBe("Elfo")
     expect(result.current.attributeTemplates).toEqual([
-      { key: "str", label: "Forca" },
+      { key: "str", label: "Forca" }
     ])
     expect(result.current.skillTemplates).toEqual([
-      { key: "fight", label: "Luta" },
+      { key: "fight", label: "Luta" }
     ])
   })
 
@@ -92,8 +92,8 @@ describe("useAdvancedIdentityEditor", () => {
       useAdvancedIdentityEditor({
         rpgId: "rpg-1",
         type: "race",
-        templateKey: "elfo",
-      }),
+        templateKey: "elfo"
+      })
     )
 
     await waitFor(() => {

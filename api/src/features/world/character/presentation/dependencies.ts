@@ -39,7 +39,7 @@ export const characterRouteDeps = {
   characterDetailRepository: prismaCharacterDetailRepository,
   characterDetailPermissionService,
   rpgConfigRepository: prismaRpgConfigRepository,
-  rpgConfigAccessService,
+  rpgConfigAccessService
 } as const
 
 export async function loadCharactersDashboardContext(params: {
@@ -63,13 +63,13 @@ export async function loadCharactersDashboardContext(params: {
               repository: characterRouteDeps.characterDetailRepository,
               rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
               permissionService:
-                characterRouteDeps.characterDetailPermissionService,
+                characterRouteDeps.characterDetailPermissionService
             },
             {
               rpgId: params.rpgId,
               characterId,
-              userId,
-            },
+              userId
+            }
           )
 
           return detailResult.status === "ok" ? detailResult.data : null
@@ -78,6 +78,6 @@ export async function loadCharactersDashboardContext(params: {
 
   return {
     editorBootstrap: null,
-    selectedCharacterDetail,
+    selectedCharacterDetail
   }
 }

@@ -20,7 +20,10 @@ export function parseStringList(value: unknown) {
     .filter((entry) => entry.length > 0)
 }
 
-export function wrapLibraryError(error: unknown, fallbackMessage: string): never {
+export function wrapLibraryError(
+  error: unknown,
+  fallbackMessage: string
+): never {
   if (error instanceof AppError) throw error
 
   if (
@@ -29,7 +32,7 @@ export function wrapLibraryError(error: unknown, fallbackMessage: string): never
   ) {
     throw new AppError(
       "Estrutura da biblioteca indisponivel. Rode as migrations mais recentes.",
-      500,
+      500
     )
   }
 
@@ -41,9 +44,12 @@ export function ensureCanViewRpg(exists: boolean, canView: boolean) {
 }
 
 export function canViewLibrarySection(
-  section: { createdByUserId?: string | null; visibility: "private" | "public" },
+  section: {
+    createdByUserId?: string | null
+    visibility: "private" | "public"
+  },
   userId: string,
-  canManage: boolean,
+  canManage: boolean
 ) {
   return (
     canManage ||
@@ -53,9 +59,12 @@ export function canViewLibrarySection(
 }
 
 export function ensureCanViewLibrarySection(
-  section: { createdByUserId?: string | null; visibility: "private" | "public" },
+  section: {
+    createdByUserId?: string | null
+    visibility: "private" | "public"
+  },
   userId: string,
-  canManage: boolean,
+  canManage: boolean
 ) {
   if (!canViewLibrarySection(section, userId, canManage)) {
     throw new AppError("Secao nao encontrada.", 404)
@@ -66,7 +75,7 @@ export function ensureCanManageOwnedResource(
   access: { exists: boolean; canManage: boolean },
   owner: { createdByUserId: string | null } | null,
   userId: string,
-  resource: "Secao" | "Livro",
+  resource: "Secao" | "Livro"
 ) {
   if (!access.exists) throw new AppError("RPG nao encontrado.", 404)
   if (!owner) throw new AppError(`${resource} nao encontrado.`, 404)
@@ -74,7 +83,7 @@ export function ensureCanManageOwnedResource(
 
   throw new AppError(
     `Voce so pode editar ou remover ${resource === "Secao" ? "secoes" : "livros"} criados por voce.`,
-    403,
+    403
   )
 }
 
@@ -89,13 +98,15 @@ export function canViewLibraryBook(
   userId: string,
   canManage: boolean,
   viewerCharacters: ViewerCharacter[],
-  options?: { allowUnlisted?: boolean },
+  options?: { allowUnlisted?: boolean }
 ) {
   if (canManage || book.createdByUserId === userId) return true
   if (book.visibility === "public") return true
   if (book.visibility === "unlisted") return Boolean(options?.allowUnlisted)
 
-  const allowedUsersOrCharacterIds = new Set(parseStringList(book.allowedCharacterIds))
+  const allowedUsersOrCharacterIds = new Set(
+    parseStringList(book.allowedCharacterIds)
+  )
   const allowedClassKeys = new Set(parseStringList(book.allowedClassKeys))
   const allowedRaceKeys = new Set(parseStringList(book.allowedRaceKeys))
 
@@ -113,6 +124,6 @@ export function canViewLibraryBook(
     (character) =>
       allowedUsersOrCharacterIds.has(character.id) ||
       Boolean(character.classKey && allowedClassKeys.has(character.classKey)) ||
-      Boolean(character.raceKey && allowedRaceKeys.has(character.raceKey)),
+      Boolean(character.raceKey && allowedRaceKeys.has(character.raceKey))
   )
 }

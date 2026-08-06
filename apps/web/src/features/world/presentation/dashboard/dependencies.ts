@@ -7,6 +7,6 @@ export type RpgDashboardDependencies = {
 
 export function createRpgDashboardDependencies(): RpgDashboardDependencies {
   return {
-    gateway: httpRpgDashboardGateway,
+    gateway: httpRpgDashboardGateway
   }
 }

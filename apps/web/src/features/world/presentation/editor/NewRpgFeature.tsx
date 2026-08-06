@@ -2,18 +2,21 @@
 
 import { useMemo } from "react"
 import NewRpgForm from "./NewRpgForm"
-import { createRpgEditorDependencies, type RpgEditorGatewayFactory } from "./dependencies"
+import {
+  createRpgEditorDependencies,
+  type RpgEditorGatewayFactory
+} from "./dependencies"
 
 type NewRpgFeatureProps = {
   gatewayFactory?: RpgEditorGatewayFactory
 }
 
 export default function NewRpgFeature({
-  gatewayFactory = "http",
+  gatewayFactory = "http"
 }: NewRpgFeatureProps) {
   const deps = useMemo(
     () => createRpgEditorDependencies(gatewayFactory),
-    [gatewayFactory],
+    [gatewayFactory]
   )
 
   return <NewRpgForm deps={deps} />

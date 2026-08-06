@@ -1,7 +1,7 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import {
   mapEntityCatalogAbilities,
-  type EntityCatalogAbilityRow,
+  type EntityCatalogAbilityRow
 } from "@/features/world/catalog/infrastructure/repositories/entityCatalogAbilityMappers.js"
 import { prisma } from "@/lib/prisma"
 import type { EntityCatalogAbilityRepository } from "@/features/world/catalog/application/ports/EntityCatalogAbilityRepository"
@@ -67,5 +67,5 @@ export async function listRaceCatalogAbilities(templateId: string) {
 export const prismaEntityCatalogAbilityRepository: EntityCatalogAbilityRepository =
   {
     listClassAbilities: listClassCatalogAbilities,
-    listRaceAbilities: listRaceCatalogAbilities,
+    listRaceAbilities: listRaceCatalogAbilities
   }

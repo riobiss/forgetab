@@ -15,15 +15,15 @@ export const prismaProfileReader: ProfileReader = {
             select: {
               id: true,
               title: true,
-              createdAt: true,
+              createdAt: true
             },
             orderBy: {
-              title: "asc",
-            },
+              title: "asc"
+            }
           },
           rpgMembers: {
             where: {
-              status: "accepted",
+              status: "accepted"
             },
             select: {
               createdAt: true,
@@ -32,31 +32,31 @@ export const prismaProfileReader: ProfileReader = {
               rpg: {
                 select: {
                   id: true,
-                  title: true,
-                },
-              },
-            },
+                  title: true
+                }
+              }
+            }
           },
           characters: {
             select: {
               id: true,
               name: true,
-              rpgId: true,
+              rpgId: true
             },
             orderBy: {
-              name: "asc",
-            },
-          },
-        },
+              name: "asc"
+            }
+          }
+        }
       }),
       prisma.rpgUserProfile.findMany({
         where: { userId },
         select: {
           rpgId: true,
           displayName: true,
-          profileImageUrl: true,
-        },
-      }),
+          profileImageUrl: true
+        }
+      })
     ])
 
     return user
@@ -71,11 +71,11 @@ export const prismaProfileReader: ProfileReader = {
             rpgTitle: membership.rpg.title,
             createdAt: membership.createdAt,
             requestedAt: membership.requestedAt,
-            respondedAt: membership.respondedAt,
+            respondedAt: membership.respondedAt
           })),
           rpgDisplayNames: rpgProfileRows,
-          characters: user.characters,
+          characters: user.characters
         }
       : null
-  },
+  }
 }

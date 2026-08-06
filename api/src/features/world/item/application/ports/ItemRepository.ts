@@ -83,10 +83,20 @@ export interface ItemRepository {
   listCharacterSummaries(rpgId: string): Promise<ItemCharacterSummary[]>
   findById(rpgId: string, itemId: string): Promise<ItemRecord | null>
   create(rpgId: string, input: NormalizedBaseItemInput): Promise<ItemRecord>
-  update(rpgId: string, itemId: string, input: NormalizedBaseItemInput): Promise<ItemRecord | null>
-  delete(rpgId: string, itemId: string): Promise<{ id: string; image: string | null } | null>
+  update(
+    rpgId: string,
+    itemId: string,
+    input: NormalizedBaseItemInput
+  ): Promise<ItemRecord | null>
+  delete(
+    rpgId: string,
+    itemId: string
+  ): Promise<{ id: string; image: string | null } | null>
   baseItemExists(rpgId: string, itemId: string): Promise<boolean>
-  listExistingCharacterIds(rpgId: string, characterIds: string[]): Promise<string[]>
+  listExistingCharacterIds(
+    rpgId: string,
+    characterIds: string[]
+  ): Promise<string[]>
   giveToCharacters(input: GiveItemInput): Promise<void>
 }
 

@@ -3,12 +3,12 @@ import type { RpgMembershipAccessService } from "@/features/world/application/me
 import type { RpgMembershipRepository } from "@/features/world/application/membership/ports/RpgMembershipRepository"
 import {
   wrapCharacterRequestsError,
-  wrapMembersError,
+  wrapMembersError
 } from "@/features/world/application/membership/use-cases/shared"
 
 export async function listRpgMembersUseCase(
   repository: RpgMembershipRepository,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     const rpg = await repository.getRpgSummary(params.rpgId)
@@ -16,7 +16,7 @@ export async function listRpgMembersUseCase(
     if (rpg.ownerId !== params.userId) {
       const membership = await repository.getMembership(
         params.rpgId,
-        params.userId,
+        params.userId
       )
       if (membership?.status !== "accepted") {
         throw new AppError("RPG nao encontrado.", 404)
@@ -32,7 +32,7 @@ export async function listRpgMembersUseCase(
 
 export async function requestJoinRpgUseCase(
   repository: RpgMembershipRepository,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     const rpg = await repository.getRpgSummary(params.rpgId)
@@ -68,7 +68,7 @@ export async function processMemberActionUseCase(
     userId: string
     memberId: string
     action: "accept" | "reject" | "toggleModerator"
-  },
+  }
 ) {
   try {
     const permission = await access.getPermission(params.rpgId, params.userId)
@@ -76,7 +76,7 @@ export async function processMemberActionUseCase(
     if (!permission.canManage) {
       throw new AppError(
         "Somente mestre ou moderador podem gerenciar membros.",
-        403,
+        403
       )
     }
 
@@ -84,26 +84,26 @@ export async function processMemberActionUseCase(
       const updated = await repository.toggleModerator(
         params.rpgId,
         params.memberId,
-        permission.ownerId ?? "",
+        permission.ownerId ?? ""
       )
       if (!updated)
         throw new AppError(
           "Membro nao encontrado para alternar moderacao.",
-          404,
+          404
         )
       return {
         message:
           updated.role === "moderator"
             ? "Membro promovido para moderador."
             : "Membro removido da moderacao.",
-        role: updated.role,
+        role: updated.role
       }
     }
 
     const updated = await repository.processMembershipRequest(
       params.rpgId,
       params.memberId,
-      params.action === "accept" ? "accepted" : "rejected",
+      params.action === "accept" ? "accepted" : "rejected"
     )
     if (!updated)
       throw new AppError("Solicitacao nao encontrada ou ja processada.", 404)
@@ -111,7 +111,7 @@ export async function processMemberActionUseCase(
       message:
         params.action === "accept"
           ? "Solicitacao aprovada."
-          : "Solicitacao recusada.",
+          : "Solicitacao recusada."
     }
   } catch (error) {
     wrapMembersError(error, "Erro interno ao processar solicitacao.")
@@ -121,7 +121,7 @@ export async function processMemberActionUseCase(
 export async function expelMemberUseCase(
   access: RpgMembershipAccessService,
   repository: RpgMembershipRepository,
-  params: { rpgId: string; userId: string; memberId: string },
+  params: { rpgId: string; userId: string; memberId: string }
 ) {
   try {
     const permission = await access.getPermission(params.rpgId, params.userId)
@@ -129,14 +129,14 @@ export async function expelMemberUseCase(
     if (!permission.canManage) {
       throw new AppError(
         "Somente mestre ou moderador podem gerenciar membros.",
-        403,
+        403
       )
     }
 
     const deleted = await repository.expelMember(
       params.rpgId,
       params.memberId,
-      permission.ownerId ?? "",
+      permission.ownerId ?? ""
     )
     if (!deleted)
       throw new AppError("Membro nao encontrado para expulsao.", 404)
@@ -149,7 +149,7 @@ export async function expelMemberUseCase(
 export async function getCharacterRequestsUseCase(
   access: RpgMembershipAccessService,
   repository: RpgMembershipRepository,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     const rpg = await repository.getRpgSummary(params.rpgId)
@@ -161,7 +161,7 @@ export async function getCharacterRequestsUseCase(
     if (!permission.canManage) {
       const membership = await repository.getMembership(
         params.rpgId,
-        params.userId,
+        params.userId
       )
       isAcceptedMember = membership?.status === "accepted"
     }
@@ -172,31 +172,31 @@ export async function getCharacterRequestsUseCase(
 
     if (permission.canManage) {
       const pendingRequests = await repository.listPendingCharacterRequests(
-        params.rpgId,
+        params.rpgId
       )
       return {
         isOwner: true,
         pendingRequests,
         canRequest: false,
-        canCreate: true,
+        canCreate: true
       }
     }
 
     const userRequest = await repository.getCharacterRequest(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     const requestStatus = userRequest?.status ?? null
     return {
       isOwner: false,
       canRequest: isAcceptedMember,
       canCreate: isAcceptedMember && requestStatus === "accepted",
-      requestStatus,
+      requestStatus
     }
   } catch (error) {
     wrapCharacterRequestsError(
       error,
-      "Erro interno ao consultar solicitacoes de personagem.",
+      "Erro interno ao consultar solicitacoes de personagem."
     )
   }
 }
@@ -204,7 +204,7 @@ export async function getCharacterRequestsUseCase(
 export async function requestCharacterCreationUseCase(
   access: RpgMembershipAccessService,
   repository: RpgMembershipRepository,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     const rpg = await repository.getRpgSummary(params.rpgId)
@@ -214,29 +214,29 @@ export async function requestCharacterCreationUseCase(
     if (permission.canManage) {
       throw new AppError(
         "Mestre ou moderador nao precisam solicitar criacao de personagem.",
-        400,
+        400
       )
     }
 
     const membership = await repository.getMembership(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     if (membership?.status !== "accepted") {
       throw new AppError(
         "Somente membros aceitos podem solicitar criacao de personagem.",
-        403,
+        403
       )
     }
 
     const existing = await repository.getCharacterRequest(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     if (!existing) {
       await repository.createPendingCharacterRequest(
         params.rpgId,
-        params.userId,
+        params.userId
       )
       return { message: "Solicitacao enviada para o mestre.", status: 201 }
     }
@@ -246,7 +246,7 @@ export async function requestCharacterCreationUseCase(
     if (existing.status === "accepted") {
       throw new AppError(
         "Sua permissao para criar personagem ja foi aprovada.",
-        409,
+        409
       )
     }
 
@@ -255,7 +255,7 @@ export async function requestCharacterCreationUseCase(
   } catch (error) {
     wrapCharacterRequestsError(
       error,
-      "Erro interno ao solicitar criacao de personagem.",
+      "Erro interno ao solicitar criacao de personagem."
     )
   }
 }
@@ -268,7 +268,7 @@ export async function processCharacterCreationRequestUseCase(
     userId: string
     requestId: string
     action: "accept" | "reject"
-  },
+  }
 ) {
   try {
     const permission = await access.getPermission(params.rpgId, params.userId)
@@ -276,14 +276,14 @@ export async function processCharacterCreationRequestUseCase(
     if (!permission.canManage) {
       throw new AppError(
         "Somente mestre ou moderador podem processar solicitacoes.",
-        403,
+        403
       )
     }
 
     const updated = await repository.processCharacterRequest(
       params.rpgId,
       params.requestId,
-      params.action === "accept" ? "accepted" : "rejected",
+      params.action === "accept" ? "accepted" : "rejected"
     )
     if (!updated)
       throw new AppError("Solicitacao nao encontrada ou ja processada.", 404)
@@ -291,12 +291,12 @@ export async function processCharacterCreationRequestUseCase(
       message:
         params.action === "accept"
           ? "Solicitacao aprovada."
-          : "Solicitacao recusada.",
+          : "Solicitacao recusada."
     }
   } catch (error) {
     wrapCharacterRequestsError(
       error,
-      "Erro interno ao processar solicitacao de personagem.",
+      "Erro interno ao processar solicitacao de personagem."
     )
   }
 }
@@ -309,7 +309,7 @@ export async function processCharacterOfferUseCase(
     userId: string
     offerId: string
     action: "accept" | "reject"
-  },
+  }
 ) {
   try {
     const permission = await access.getPermission(params.rpgId, params.userId)
@@ -317,13 +317,13 @@ export async function processCharacterOfferUseCase(
     if (permission.canManage) {
       throw new AppError(
         "Somente o jogador pode responder a proposta de personagem.",
-        403,
+        403
       )
     }
 
     const membership = await repository.getMembership(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     if (membership?.status !== "accepted") {
       throw new AppError("RPG nao encontrado.", 404)
@@ -332,12 +332,12 @@ export async function processCharacterOfferUseCase(
     const offer = await repository.getPendingCharacterOffer(
       params.rpgId,
       params.offerId,
-      params.userId,
+      params.userId
     )
     if (!offer) {
       throw new AppError(
         "Proposta de personagem nao encontrada ou ja processada.",
-        404,
+        404
       )
     }
     if (
@@ -352,23 +352,23 @@ export async function processCharacterOfferUseCase(
       params.rpgId,
       params.offerId,
       params.userId,
-      params.action === "accept" ? "accepted" : "rejected",
+      params.action === "accept" ? "accepted" : "rejected"
     )
     if (!updated)
       throw new AppError(
         "Proposta de personagem nao encontrada ou ja processada.",
-        404,
+        404
       )
     return {
       message:
         params.action === "accept"
           ? "Personagem aceito."
-          : "Personagem recusado.",
+          : "Personagem recusado."
     }
   } catch (error) {
     wrapCharacterRequestsError(
       error,
-      "Erro interno ao processar proposta de personagem.",
+      "Erro interno ao processar proposta de personagem."
     )
   }
 }
@@ -381,7 +381,7 @@ export async function processCharacterRequestUseCase(
     userId: string
     requestId: string
     action: "accept" | "reject"
-  },
+  }
 ) {
   try {
     const permission = await access.getPermission(params.rpgId, params.userId)
@@ -389,18 +389,18 @@ export async function processCharacterRequestUseCase(
       return processCharacterCreationRequestUseCase(
         { getPermission: async () => permission },
         repository,
-        params,
+        params
       )
     }
     return processCharacterOfferUseCase(
       { getPermission: async () => permission },
       repository,
-      { ...params, offerId: params.requestId },
+      { ...params, offerId: params.requestId }
     )
   } catch (error) {
     wrapCharacterRequestsError(
       error,
-      "Erro interno ao processar solicitacao de personagem.",
+      "Erro interno ao processar solicitacao de personagem."
     )
   }
 }

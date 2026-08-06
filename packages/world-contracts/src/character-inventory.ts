@@ -1,9 +1,5 @@
 export type CharacterInventoryRarityDto =
-  | "common"
-  | "uncommon"
-  | "rare"
-  | "epic"
-  | "legendary"
+  "common" | "uncommon" | "rare" | "epic" | "legendary"
 
 export type CharacterInventoryItemDto = {
   id: string

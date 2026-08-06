@@ -5,12 +5,12 @@ import {
   useState,
   type ChangeEvent,
   type Dispatch,
-  type SetStateAction,
+  type SetStateAction
 } from "react"
 import { toast } from "react-hot-toast"
 import {
   deleteRpgMapSectionImageByUrlUseCase,
-  uploadRpgMapSectionImageUseCase,
+  uploadRpgMapSectionImageUseCase
 } from "@/features/world/location/application/use-cases/rpgMapImages.client"
 import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import type { SectionFormState } from "./useRpgMapSectionModalState"
@@ -28,7 +28,7 @@ export function useRpgMapSectionImages(params: {
   }
 
   async function handleSectionImageChange(
-    event: ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>
   ) {
     const file = event.currentTarget.files?.[0]
     event.currentTarget.value = ""
@@ -42,18 +42,18 @@ export function useRpgMapSectionImages(params: {
     try {
       const payload = await uploadRpgMapSectionImageUseCase(
         rpgMapPresentationDeps.rpgMapGateway,
-        { file },
+        { file }
       )
       params.setSectionForm((current) => ({
         ...current,
-        images: [...current.images, payload.url].slice(0, 5),
+        images: [...current.images, payload.url].slice(0, 5)
       }))
       toast.success("Imagem da secao adicionada com sucesso.")
     } catch (cause) {
       toast.error(
         cause instanceof Error
           ? cause.message
-          : "Erro ao enviar imagem da secao.",
+          : "Erro ao enviar imagem da secao."
       )
     } finally {
       setSectionImageUploading(false)
@@ -67,11 +67,11 @@ export function useRpgMapSectionImages(params: {
     try {
       await deleteRpgMapSectionImageByUrlUseCase(
         rpgMapPresentationDeps.rpgMapGateway,
-        { url: imageUrl },
+        { url: imageUrl }
       )
       params.setSectionForm((current) => ({
         ...current,
-        images: current.images.filter((image) => image !== imageUrl),
+        images: current.images.filter((image) => image !== imageUrl)
       }))
       toast.success("Imagem da secao removida com sucesso.")
       return true
@@ -79,7 +79,7 @@ export function useRpgMapSectionImages(params: {
       toast.error(
         cause instanceof Error
           ? cause.message
-          : "Erro ao remover imagem da secao.",
+          : "Erro ao remover imagem da secao."
       )
       return false
     } finally {
@@ -92,6 +92,6 @@ export function useRpgMapSectionImages(params: {
     openSectionImagePicker,
     removeSectionImage,
     sectionImageInputRef,
-    sectionImageUploading,
+    sectionImageUploading
   }
 }

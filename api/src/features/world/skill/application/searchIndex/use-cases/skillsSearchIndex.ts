@@ -1,6 +1,6 @@
 import type {
   SkillSearchIndexEntry,
-  SkillSearchIndexRow,
+  SkillSearchIndexRow
 } from "@/features/world/skill/application/searchIndex/types"
 import type { SkillsSearchIndexRepository } from "@/features/world/skill/application/searchIndex/ports/SkillsSearchIndexRepository"
 import { mapSkillError } from "@/features/world/skill/application/use-cases/shared"
@@ -29,10 +29,9 @@ export function normalizeSkillSearchIndexParams(body: {
       rawIds
         .filter((item): item is string => typeof item === "string")
         .map((item) => item.trim())
-        .filter((item) => item.length > 0),
-    ),
-  )
-    .slice(0, MAX_SEARCH_INDEX_SKILLS)
+        .filter((item) => item.length > 0)
+    )
+  ).slice(0, MAX_SEARCH_INDEX_SKILLS)
 
   const rpgId =
     typeof body.rpgId === "string" && body.rpgId.trim().length > 0
@@ -67,7 +66,7 @@ export function buildSkillSearchIndex(rows: SkillSearchIndexRow[]) {
         searchParts: [],
         categories: new Set<string>(),
         types: new Set<string>(),
-        actionTypes: new Set<string>(),
+        actionTypes: new Set<string>()
       })
     }
 
@@ -105,11 +104,11 @@ export function buildSkillSearchIndex(rows: SkillSearchIndexRow[]) {
             categories: Array.from(bucket.categories),
             types: Array.from(bucket.types),
             actionTypes: Array.from(bucket.actionTypes),
-            tags: Array.from(new Set(bucket.tags)),
-          },
-        },
-      ],
-    ),
+            tags: Array.from(new Set(bucket.tags))
+          }
+        }
+      ]
+    )
   )
 }
 
@@ -119,7 +118,7 @@ export async function loadSkillsSearchIndexUseCase(
     userId: string
     skillIds: string[]
     rpgId?: string | null
-  },
+  }
 ) {
   if (params.skillIds.length === 0) {
     return {}

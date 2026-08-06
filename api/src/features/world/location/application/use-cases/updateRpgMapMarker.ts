@@ -33,7 +33,7 @@ export async function updateRpgMapMarker(
     markerId: string
     userId: string
     body: unknown
-  },
+  }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   if (!access.exists) {
@@ -57,7 +57,7 @@ export async function updateRpgMapMarker(
     location: optionalText(body.location),
     shortDescription: optionalText(body.shortDescription),
     image: optionalText(body.image),
-    color: optionalText(body.color),
+    color: optionalText(body.color)
   })
   if (!updated) {
     throw new AppError("Marcador nao encontrado.", 404)
@@ -65,6 +65,6 @@ export async function updateRpgMapMarker(
 
   return {
     markerId: params.markerId,
-    groupId: params.groupId,
+    groupId: params.groupId
   }
 }

@@ -10,7 +10,11 @@ function encodeCookieValue(value: string) {
   return encodeURIComponent(value)
 }
 
-export function serializeCookie(name: string, value: string, options: CookieOptions = {}) {
+export function serializeCookie(
+  name: string,
+  value: string,
+  options: CookieOptions = {}
+) {
   const parts = [`${name}=${encodeCookieValue(value)}`]
 
   if (typeof options.maxAge === "number") {

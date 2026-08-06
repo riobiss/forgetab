@@ -29,7 +29,7 @@ export default function LibraryBookEditorClient({
   embedded = false,
   onPersist,
   onCancel,
-  deps,
+  deps
 }: Props) {
   const editor = useLibraryBookEditorState({
     rpgId,
@@ -38,7 +38,7 @@ export default function LibraryBookEditorClient({
     bookId,
     forceReadOnly,
     deps,
-    onPersist,
+    onPersist
   })
 
   if (editor.loading) {

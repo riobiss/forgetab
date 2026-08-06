@@ -1,7 +1,7 @@
 import type { CharacterInventoryGateway } from "@/features/world/characters/application/inventory/contracts/CharacterInventoryGateway"
 import type {
   CharacterInventoryDataDto,
-  CharacterInventoryItemDto,
+  CharacterInventoryItemDto
 } from "@forgetab/world-contracts/character-inventory"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
@@ -9,10 +9,10 @@ import { parseApiResponse as parseJson } from "@/features/http/infrastructure/pa
 export const httpCharacterInventoryGateway: CharacterInventoryGateway = {
   async fetchInventory(
     rpgId: string,
-    characterId: string,
+    characterId: string
   ): Promise<CharacterInventoryDataDto> {
     const response = await apiFetch(
-      `/api/rpg/${rpgId}/characters/${characterId}/inventory`,
+      `/api/rpg/${rpgId}/characters/${characterId}/inventory`
     )
     const payload = await parseJson<{
       characterName?: string
@@ -25,22 +25,22 @@ export const httpCharacterInventoryGateway: CharacterInventoryGateway = {
       characterName: payload.characterName ?? "Personagem",
       inventory: payload.inventory ?? [],
       useInventoryWeightLimit: Boolean(payload.useInventoryWeightLimit),
-      maxCarryWeight: payload.maxCarryWeight ?? null,
+      maxCarryWeight: payload.maxCarryWeight ?? null
     }
   },
 
   async removeInventoryItem(
     rpgId: string,
     characterId: string,
-    params: { inventoryItemId: string; quantity: number },
+    params: { inventoryItemId: string; quantity: number }
   ): Promise<{ inventoryItemId: string; remainingQuantity: number }> {
     const response = await apiFetch(
       `/api/rpg/${rpgId}/characters/${characterId}/inventory`,
       {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params),
-      },
+        body: JSON.stringify(params)
+      }
     )
     const payload = await parseJson<{
       inventoryItemId?: string
@@ -49,7 +49,7 @@ export const httpCharacterInventoryGateway: CharacterInventoryGateway = {
 
     return {
       inventoryItemId: payload.inventoryItemId ?? params.inventoryItemId,
-      remainingQuantity: payload.remainingQuantity ?? 0,
+      remainingQuantity: payload.remainingQuantity ?? 0
     }
-  },
+  }
 }

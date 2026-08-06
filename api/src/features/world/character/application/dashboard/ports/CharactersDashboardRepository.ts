@@ -1,7 +1,7 @@
 import type {
   CharacterDashboardCardDto,
   CharactersDashboardFilterType,
-  CharactersDashboardRpgDto,
+  CharactersDashboardRpgDto
 } from "@/features/world/character/application/dashboard/types"
 
 export interface CharactersDashboardRepository {

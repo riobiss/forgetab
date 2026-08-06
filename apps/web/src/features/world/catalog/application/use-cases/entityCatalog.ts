@@ -1,12 +1,12 @@
 import {
   getCatalogMetaExcerpt,
-  getCatalogMetaSearchText,
+  getCatalogMetaSearchText
 } from "@/features/world/catalog/domain/catalogMeta"
 import type {
   EntityCatalogFilters,
   EntityCatalogGroup,
   EntityCatalogItem,
-  EntityCatalogSort,
+  EntityCatalogSort
 } from "@/features/world/catalog/application/types"
 
 function normalizeText(value: string) {
@@ -28,8 +28,8 @@ export function searchCatalogItems(items: EntityCatalogItem[], search: string) {
         item.slug,
         item.category,
         getCatalogMetaExcerpt(item.meta) ?? "",
-        getCatalogMetaSearchText(item.meta),
-      ].join(" "),
+        getCatalogMetaSearchText(item.meta)
+      ].join(" ")
     )
 
     return haystack.includes(normalizedSearch)
@@ -38,7 +38,7 @@ export function searchCatalogItems(items: EntityCatalogItem[], search: string) {
 
 export function filterCatalogItemsByCategory(
   items: EntityCatalogItem[],
-  category: string,
+  category: string
 ) {
   if (!category || category === "all") return items
   return items.filter((item) => item.category === category)
@@ -46,7 +46,7 @@ export function filterCatalogItemsByCategory(
 
 export function sortCatalogItems(
   items: EntityCatalogItem[],
-  sort: EntityCatalogSort,
+  sort: EntityCatalogSort
 ) {
   const sorted = [...items]
   sorted.sort((left, right) => {
@@ -71,7 +71,7 @@ export function sortCatalogItems(
 }
 
 export function groupCatalogItems(
-  items: EntityCatalogItem[],
+  items: EntityCatalogItem[]
 ): EntityCatalogGroup[] {
   const groups = items.reduce<Map<string, EntityCatalogItem[]>>((acc, item) => {
     const key = item.category?.trim() || "geral"
@@ -87,27 +87,27 @@ export function groupCatalogItems(
       key,
       label: key,
       count: groupItems.length,
-      items: groupItems,
+      items: groupItems
     }))
 }
 
 export function buildEntityCatalogGroups(
   items: EntityCatalogItem[],
-  filters: EntityCatalogFilters,
+  filters: EntityCatalogFilters
 ) {
   return groupCatalogItems(
     sortCatalogItems(
       filterCatalogItemsByCategory(
         searchCatalogItems(items, filters.search),
-        filters.category,
+        filters.category
       ),
-      filters.sort,
-    ),
+      filters.sort
+    )
   )
 }
 
 export function getEntityCatalogCategoryOptions(items: EntityCatalogItem[]) {
   return [...new Set(items.map((item) => item.category).filter(Boolean))].sort(
-    (left, right) => left.localeCompare(right, "pt-BR"),
+    (left, right) => left.localeCompare(right, "pt-BR")
   )
 }

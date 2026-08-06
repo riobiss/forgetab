@@ -4,7 +4,7 @@ export type ProfileWriter = {
     data: {
       name?: string
       username?: string
-    },
+    }
   ): Promise<{
     name: string | null
     username: string | null

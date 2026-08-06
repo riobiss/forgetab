@@ -9,7 +9,7 @@ type MemberStatusRow = {
 
 export async function getMembershipStatus(
   rpgId: string,
-  userId: string,
+  userId: string
 ): Promise<MemberStatus | null> {
   const membership = await prisma.$queryRaw<MemberStatusRow[]>(Prisma.sql`
     SELECT status
@@ -24,7 +24,7 @@ export async function getMembershipStatus(
 
 export async function isAcceptedMember(
   rpgId: string,
-  userId: string,
+  userId: string
 ): Promise<boolean> {
   const status = await getMembershipStatus(rpgId, userId)
   return status === "accepted"

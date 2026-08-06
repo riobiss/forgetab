@@ -29,10 +29,10 @@ export default function StatusOptionsSection({
   onToggleStatus,
   onAddCustomStatus,
   onUpdateCustomStatusLabel,
-  onRemoveCustomStatus,
+  onRemoveCustomStatus
 }: Props) {
   const customKeys = selectedStatusKeys.filter(
-    (key) => !coreStatusOptions.some((option) => option.key === key),
+    (key) => !coreStatusOptions.some((option) => option.key === key)
   )
 
   return (
@@ -66,7 +66,9 @@ export default function StatusOptionsSection({
             <input
               type="text"
               value={newCustomStatusLabel}
-              onChange={(event) => onNewCustomStatusLabelChange(event.target.value)}
+              onChange={(event) =>
+                onNewCustomStatusLabelChange(event.target.value)
+              }
               placeholder="Ex.: Energia Arcana"
             />
             <button
@@ -87,7 +89,9 @@ export default function StatusOptionsSection({
                   <input
                     type="text"
                     value={statusLabelByKey[key] ?? key}
-                    onChange={(event) => onUpdateCustomStatusLabel(key, event.target.value)}
+                    onChange={(event) =>
+                      onUpdateCustomStatusLabel(key, event.target.value)
+                    }
                   />
                   <button
                     type="button"

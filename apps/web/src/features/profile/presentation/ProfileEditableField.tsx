@@ -18,7 +18,7 @@ export default function ProfileEditableField({
   field,
   value,
   displayValue,
-  editLabel,
+  editLabel
 }: Props) {
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
@@ -36,7 +36,7 @@ export default function ProfileEditableField({
       router.refresh()
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "Erro ao atualizar perfil.",
+        error instanceof Error ? error.message : "Erro ao atualizar perfil."
       )
     } finally {
       setIsSaving(false)

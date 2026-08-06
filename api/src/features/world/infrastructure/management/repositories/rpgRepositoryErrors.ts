@@ -57,7 +57,7 @@ export function mapRpgRepositoryError(error: unknown): never {
       "enabled_ability_categories",
       "use_mundi_map",
       "progression_mode",
-      "progression_tiers",
+      "progression_tiers"
     ])
   ) {
     throw new RpgManagementRepositoryError("RPG_SCHEMA_OUTDATED")

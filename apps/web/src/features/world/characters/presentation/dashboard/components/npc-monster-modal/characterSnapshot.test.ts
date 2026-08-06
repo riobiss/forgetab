@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
 import type {
   CharacterEditorBootstrapDto,
-  CharacterEditorSummaryDto,
+  CharacterEditorSummaryDto
 } from "@/features/world/characters/application/editor"
 import {
   mergeCharacterSnapshot,
-  upsertCharacterSnapshot,
+  upsertCharacterSnapshot
 } from "./characterSnapshot"
 
 const character = {
@@ -15,7 +15,7 @@ const character = {
   attributes: { strength: 2 },
   skills: {},
   identity: {},
-  characteristics: {},
+  characteristics: {}
 } as unknown as CharacterEditorSummaryDto
 
 describe("character snapshot", () => {
@@ -23,25 +23,25 @@ describe("character snapshot", () => {
     const merged = mergeCharacterSnapshot(
       character,
       { name: "Goblin Chefe", statuses: { hp: 12 } },
-      { id: "character-1", statuses: {} } as CharacterEditorSummaryDto,
+      { id: "character-1", statuses: {} } as CharacterEditorSummaryDto
     )
 
     expect(merged).toMatchObject({
       id: "character-1",
       name: "Goblin Chefe",
       statuses: { hp: 12 },
-      attributes: { strength: 2 },
+      attributes: { strength: 2 }
     })
   })
 
   it("insere ou substitui o personagem no bootstrap", () => {
     const bootstrap = {
-      characters: [],
+      characters: []
     } as unknown as CharacterEditorBootstrapDto
     const inserted = upsertCharacterSnapshot(bootstrap, character)
     const updated = upsertCharacterSnapshot(inserted, {
       ...character,
-      name: "Goblin Atualizado",
+      name: "Goblin Atualizado"
     })
 
     expect(inserted.characters).toHaveLength(1)

@@ -1,7 +1,11 @@
 .editorShell {
   border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    var(--color-bg-app)
+  );
   overflow: hidden;
 }
 

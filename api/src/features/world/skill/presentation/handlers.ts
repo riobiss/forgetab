@@ -1,11 +1,15 @@
 export { createSkillHandler, listSkillsHandler } from "./collectionHandlers"
-export { deleteSkillHandler, getSkillByIdHandler, updateSkillHandler } from "./detailHandlers"
+export {
+  deleteSkillHandler,
+  getSkillByIdHandler,
+  updateSkillHandler
+} from "./detailHandlers"
 export {
   createSkillLevelHandler,
   deleteSkillLevelHandler,
-  updateSkillLevelHandler,
+  updateSkillLevelHandler
 } from "./levelHandlers"
 export {
   getSkillsSearchIndexHandler,
-  getSkillsSearchIndexPayload,
+  getSkillsSearchIndexPayload
 } from "./searchIndexHandlers"

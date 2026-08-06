@@ -10,11 +10,11 @@ import {
   saveRpgCharacterIdentityFieldsUseCase,
   saveRpgSkillsUseCase,
   saveRpgStatusesUseCase,
-  updateRpgUseCase,
+  updateRpgUseCase
 } from "@/features/world/application/editor/use-cases/rpgEditor"
 import {
   normalizeEnabledAbilityCategories,
-  type AbilityCategoryKey,
+  type AbilityCategoryKey
 } from "@/lib/rpg/abilityCategories"
 import {
   enforceXpLevelPattern,
@@ -22,13 +22,13 @@ import {
   isProgressionMode,
   normalizeProgressionTiers,
   type ProgressionMode,
-  type ProgressionTier,
+  type ProgressionTier
 } from "@/lib/rpg/progression"
 import type {
   AttributeTemplate,
   CatalogOption,
   CharacterIdentityTemplate,
-  IdentityTemplate,
+  IdentityTemplate
 } from "@/features/world/presentation/editor/edit/components/shared/types"
 import type { Visibility } from "@/features/world/presentation/editor/edit/hooks/useEditRpgState"
 
@@ -39,12 +39,12 @@ function isLegacyFiveLevelDefault(tiers: ProgressionTier[]) {
     ["Level 2", 100],
     ["Level 3", 250],
     ["Level 4", 450],
-    ["Level 5", 700],
+    ["Level 5", 700]
   ] as const
 
   return expected.every(
     ([label, required], index) =>
-      tiers[index]?.label === label && tiers[index]?.required === required,
+      tiers[index]?.label === label && tiers[index]?.required === required
   )
 }
 
@@ -98,7 +98,7 @@ type UseEditRpgDataParams = {
   setClassDrafts: (value: IdentityTemplate[]) => void
   setCharacterIdentityTemplates: (value: CharacterIdentityTemplate[]) => void
   setCharacterCharacteristicTemplates: (
-    value: CharacterIdentityTemplate[],
+    value: CharacterIdentityTemplate[]
   ) => void
 }
 
@@ -151,7 +151,7 @@ export function useEditRpgData({
   setRaceDrafts,
   setClassDrafts,
   setCharacterIdentityTemplates,
-  setCharacterCharacteristicTemplates,
+  setCharacterCharacteristicTemplates
 }: UseEditRpgDataParams) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -195,26 +195,26 @@ export function useEditRpgData({
         setUseRaceBonuses(
           typeof rpg.useRaceBonuses === "boolean"
             ? rpg.useRaceBonuses
-            : legacyClassRaceFlag,
+            : legacyClassRaceFlag
         )
         setUseClassBonuses(
           typeof rpg.useClassBonuses === "boolean"
             ? rpg.useClassBonuses
-            : legacyClassRaceFlag,
+            : legacyClassRaceFlag
         )
         setUseInventoryWeightLimit(Boolean(rpg.useInventoryWeightLimit))
         setAllowMultiplePlayerCharacters(
-          Boolean(rpg.allowMultiplePlayerCharacters),
+          Boolean(rpg.allowMultiplePlayerCharacters)
         )
         setUsersCanManageOwnXp(Boolean(rpg.usersCanManageOwnXp ?? true))
         setAllowSkillPointDistribution(
-          Boolean(rpg.allowSkillPointDistribution ?? true),
+          Boolean(rpg.allowSkillPointDistribution ?? true)
         )
         setAbilityCategoriesEnabled(
-          Boolean(rpg.abilityCategoriesEnabled ?? false),
+          Boolean(rpg.abilityCategoriesEnabled ?? false)
         )
         setEnabledAbilityCategories(
-          normalizeEnabledAbilityCategories(rpg.enabledAbilityCategories),
+          normalizeEnabledAbilityCategories(rpg.enabledAbilityCategories)
         )
 
         const loadedProgressionMode = isProgressionMode(rpg.progressionMode)
@@ -224,13 +224,13 @@ export function useEditRpgData({
 
         const loadedTiers = normalizeProgressionTiers(
           rpg.progressionTiers,
-          loadedProgressionMode,
+          loadedProgressionMode
         )
         setProgressionTiers(
           loadedProgressionMode === "xp_level" &&
             isLegacyFiveLevelDefault(loadedTiers)
             ? loadedTiers.slice(0, 2)
-            : loadedTiers,
+            : loadedTiers
         )
 
         setCostsEnabled(Boolean(rpg.costsEnabled))
@@ -243,14 +243,14 @@ export function useEditRpgData({
           loadedStatuses.reduce<Record<string, string>>((acc, item) => {
             acc[item.key] = item.label
             return acc
-          }, {}),
+          }, {})
         )
 
         setSkillTemplates(
           (payload.skills ?? []).map((item) => ({
             key: item.key,
-            label: item.label,
-          })),
+            label: item.label
+          }))
         )
         setRaceDrafts(
           (payload.races ?? []).map((item, index) => ({
@@ -261,8 +261,8 @@ export function useEditRpgData({
             attributeBonuses: item.attributeBonuses ?? {},
             skillBonuses: item.skillBonuses ?? {},
             lore: item.lore,
-            catalogMeta: item.catalogMeta,
-          })),
+            catalogMeta: item.catalogMeta
+          }))
         )
         setClassDrafts(
           (payload.classes ?? []).map((item, index) => ({
@@ -272,8 +272,8 @@ export function useEditRpgData({
             category: item.category,
             attributeBonuses: item.attributeBonuses ?? {},
             skillBonuses: item.skillBonuses ?? {},
-            catalogMeta: item.catalogMeta,
-          })),
+            catalogMeta: item.catalogMeta
+          }))
         )
         setCharacterIdentityTemplates(payload.identityFields ?? [])
         setCharacterCharacteristicTemplates(payload.characteristicFields ?? [])
@@ -283,7 +283,7 @@ export function useEditRpgData({
         setError(
           cause instanceof Error
             ? cause.message
-            : "Erro de conexao ao carregar RPG.",
+            : "Erro de conexao ao carregar RPG."
         )
         setCanEdit(false)
       } finally {
@@ -319,7 +319,7 @@ export function useEditRpgData({
     setUseMundiMap,
     setUseRaceBonuses,
     setUsersCanManageOwnXp,
-    setVisibility,
+    setVisibility
   ])
 
   async function saveAll() {
@@ -354,22 +354,22 @@ export function useEditRpgData({
                   ? enforceXpLevelPattern(
                       progressionTiers.map((item) => ({
                         label: item.label.trim() || "Level",
-                        required: Math.max(0, Math.floor(item.required)),
-                      })),
+                        required: Math.max(0, Math.floor(item.required))
+                      }))
                     )
                   : progressionTiers.map((item) => ({
                       label: item.label.trim() || "Etapa",
-                      required: Math.max(0, Math.floor(item.required)),
+                      required: Math.max(0, Math.floor(item.required))
                     }))
-                : getDefaultProgressionTiers(progressionMode),
-          },
+                : getDefaultProgressionTiers(progressionMode)
+          }
         }),
         saveRpgAttributesUseCase(deps, {
           rpgId,
           attributes: attributeTemplates.map((item) => ({
             key: item.key,
-            label: item.label,
-          })),
+            label: item.label
+          }))
         }),
         saveRpgStatusesUseCase(deps, {
           rpgId,
@@ -378,12 +378,12 @@ export function useEditRpgData({
             label:
               statusLabelByKey[key] ??
               coreStatusOptions.find((option) => option.key === key)?.label ??
-              key,
-          })),
+              key
+          }))
         }),
         saveRpgSkillsUseCase(deps, {
           rpgId,
-          skills: skillTemplates.map((item) => item.label),
+          skills: skillTemplates.map((item) => item.label)
         }),
         saveRpgCharacterIdentityFieldsUseCase(deps, {
           rpgId,
@@ -391,8 +391,8 @@ export function useEditRpgData({
             key: item.key,
             label: item.label,
             required: item.required,
-            position: item.position,
-          })),
+            position: item.position
+          }))
         }),
         saveRpgCharacterCharacteristicFieldsUseCase(deps, {
           rpgId,
@@ -400,9 +400,9 @@ export function useEditRpgData({
             key: item.key,
             label: item.label,
             required: item.required,
-            position: item.position,
-          })),
-        }),
+            position: item.position
+          }))
+        })
       ])
       setIdentitySuccess("Tudo salvo com sucesso.")
       return true
@@ -447,6 +447,6 @@ export function useEditRpgData({
     canDelete,
     identitySuccess,
     saveAll,
-    deleteRpg,
+    deleteRpg
   }
 }

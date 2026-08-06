@@ -8,8 +8,8 @@ export const httpPublicMarkerSectionSyncGateway: MarkerSectionSyncGateway = {
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params.update),
-      },
+        body: JSON.stringify(params.update)
+      }
     )
     const payload = (await response.json().catch(() => ({}))) as {
       message?: string
@@ -17,8 +17,8 @@ export const httpPublicMarkerSectionSyncGateway: MarkerSectionSyncGateway = {
     if (!response.ok) {
       throw new Error(
         payload.message ??
-          `${response.status} ${response.statusText || "Request failed"}`,
+          `${response.status} ${response.statusText || "Request failed"}`
       )
     }
-  },
+  }
 }

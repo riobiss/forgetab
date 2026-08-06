@@ -12,7 +12,12 @@ type Props = {
   onChange: (value: JSONContent) => void
 }
 
-export default function RichTextField({ label, description, value, onChange }: Props) {
+export default function RichTextField({
+  label,
+  description,
+  value,
+  onChange
+}: Props) {
   return (
     <section className={styles.field}>
       <div className={styles.header}>

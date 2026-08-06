@@ -1,6 +1,11 @@
 import { abilityCategoryKeys } from "@/lib/rpg/abilityCategories"
 
-export const actionTypeValues = ["action", "bonus", "reaction", "passive"] as const
+export const actionTypeValues = [
+  "action",
+  "bonus",
+  "reaction",
+  "passive"
+] as const
 export const skillCategoryValues = abilityCategoryKeys
 export const skillTypeValues = [
   "attack",
@@ -13,7 +18,7 @@ export const skillTypeValues = [
   "mobility",
   "summon",
   "utility",
-  "resource",
+  "resource"
 ] as const
 export const skillTagValues = [
   "ice",
@@ -34,7 +39,7 @@ export const skillTagValues = [
   "void",
   "life",
   "death",
-  "energy",
+  "energy"
 ] as const
 
 export type SkillCategory = (typeof skillCategoryValues)[number]
@@ -126,12 +131,17 @@ export type Skill = {
   updatedAt: string
 }
 
-export function resolveSkillLevelForPlayer(levels: SkillLevel[], playerLevel: number) {
+export function resolveSkillLevelForPlayer(
+  levels: SkillLevel[],
+  playerLevel: number
+) {
   if (levels.length === 0) {
     return null
   }
 
-  const sorted = [...levels].sort((left, right) => left.levelRequired - right.levelRequired)
+  const sorted = [...levels].sort(
+    (left, right) => left.levelRequired - right.levelRequired
+  )
   let best = sorted[0]
 
   for (const level of sorted) {

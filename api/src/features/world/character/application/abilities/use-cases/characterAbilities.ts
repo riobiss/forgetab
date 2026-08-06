@@ -26,7 +26,7 @@ function toOptionalText(value: unknown) {
 
 export async function loadCharacterAbilitiesUseCase(
   deps: LoadDependencies,
-  params: { rpgId: string; characterId: string; userId: string | null },
+  params: { rpgId: string; characterId: string; userId: string | null }
 ): Promise<CharacterAbilitiesViewModel | null> {
   const dbRpg = await deps.repository.getRpg(params.rpgId)
   if (!dbRpg) {
@@ -40,7 +40,7 @@ export async function loadCharacterAbilitiesUseCase(
   if (params.userId && !isOwner) {
     const membership = await deps.rpgAccessRepository.getMembership(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     isAcceptedMember = membership?.status === "accepted"
     isModerator =
@@ -53,7 +53,7 @@ export async function loadCharacterAbilitiesUseCase(
 
   const character = await deps.repository.getCharacter(
     params.rpgId,
-    params.characterId,
+    params.characterId
   )
   if (!character) {
     return null
@@ -63,7 +63,7 @@ export async function loadCharacterAbilitiesUseCase(
     params.userId &&
     (character.characterType === "player"
       ? isOwner || isModerator || character.createdByUserId === params.userId
-      : isOwner || isModerator),
+      : isOwner || isModerator)
   )
   if (!canViewAbilities) {
     return null
@@ -81,7 +81,7 @@ export async function loadCharacterAbilitiesUseCase(
     ? await Promise.all([
         deps.repository.listPurchasedSkillLevels(params.rpgId, ownedSkillIds),
         deps.repository.listSkillClassLinks(params.rpgId, ownedSkillIds),
-        deps.repository.listSkillRaceLinks(params.rpgId, ownedSkillIds),
+        deps.repository.listSkillRaceLinks(params.rpgId, ownedSkillIds)
       ])
     : [[], [], []]
 
@@ -91,7 +91,7 @@ export async function loadCharacterAbilitiesUseCase(
       acc[row.skillId].push(row.classLabel)
       return acc
     },
-    {},
+    {}
   )
 
   const allowedRaceMap = raceLinkRows.reduce<Record<string, string[]>>(
@@ -100,7 +100,7 @@ export async function loadCharacterAbilitiesUseCase(
       acc[row.skillId].push(row.raceLabel)
       return acc
     },
-    {},
+    {}
   )
 
   const levelBySkillAndLevel = new Map<string, (typeof purchasedRows)[number]>()
@@ -111,7 +111,7 @@ export async function loadCharacterAbilitiesUseCase(
   const abilities = owned.reduce<CharacterAbilitiesViewModel["abilities"]>(
     (acc, ownedLevel) => {
       const row = levelBySkillAndLevel.get(
-        `${ownedLevel.skillId}:${ownedLevel.level}`,
+        `${ownedLevel.skillId}:${ownedLevel.level}`
       )
       if (!row) return acc
 
@@ -144,7 +144,7 @@ export async function loadCharacterAbilitiesUseCase(
         })
         .filter(
           (item): item is { id: string; name: string; value: string | null } =>
-            Boolean(item),
+            Boolean(item)
         )
 
       acc.push({
@@ -180,12 +180,12 @@ export async function loadCharacterAbilitiesUseCase(
         allowedClasses: allowedClassMap[row.skillId] ?? [],
         allowedRaces: allowedRaceMap[row.skillId] ?? [],
         pointsCost: deps.parserService.parseCostPoints(row.cost),
-        costCustom: toOptionalText(cost.custom),
+        costCustom: toOptionalText(cost.custom)
       })
 
       return acc
     },
-    [],
+    []
   )
 
   return {
@@ -193,6 +193,6 @@ export async function loadCharacterAbilitiesUseCase(
     characterId: params.characterId,
     characterName: character.name,
     classLabel,
-    abilities,
+    abilities
   }
 }

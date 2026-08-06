@@ -8,7 +8,7 @@ type GetSkillByIdDeps = {
 
 export async function getSkillById(
   deps: GetSkillByIdDeps,
-  params: { skillId: string; userId: string },
+  params: { skillId: string; userId: string }
 ) {
   try {
     const skill = await deps.repository.findById(params.skillId, params.userId)

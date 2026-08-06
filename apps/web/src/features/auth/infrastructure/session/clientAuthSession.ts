@@ -43,5 +43,5 @@ export function clearClientAuthSession() {
 
 export const clientAuthSession: AuthClientSession = {
   persist: persistClientAuthSession,
-  clear: clearClientAuthSession,
+  clear: clearClientAuthSession
 }

@@ -3,29 +3,29 @@ import { describe, expect, it, vi } from "vitest"
 import {
   deleteRpgUseCase,
   loadRpgCatalogUseCase,
-  type RpgCatalogRepository,
+  type RpgCatalogRepository
 } from "./catalog"
 
 describe("world catalog contracts", () => {
   it("carrega RPGs criados e publicos pelo port compartilhado", async () => {
     const repository: RpgCatalogRepository = {
       listOwnedByUser: vi.fn().mockResolvedValue([{ id: "owned" }]),
-      listPublicExcludingUser: vi.fn().mockResolvedValue([{ id: "public" }]),
+      listPublicExcludingUser: vi.fn().mockResolvedValue([{ id: "public" }])
     } as RpgCatalogRepository
 
     await expect(
-      loadRpgCatalogUseCase(repository, { userId: "user-1" }),
+      loadRpgCatalogUseCase(repository, { userId: "user-1" })
     ).resolves.toMatchObject({
       userId: "user-1",
       createdRpgs: [{ id: "owned" }],
-      publicRpgs: [{ id: "public" }],
+      publicRpgs: [{ id: "public" }]
     })
   })
 
   it("nao consulta RPGs proprios para visitante anonimo", async () => {
     const repository: RpgCatalogRepository = {
       listOwnedByUser: vi.fn(),
-      listPublicExcludingUser: vi.fn().mockResolvedValue([]),
+      listPublicExcludingUser: vi.fn().mockResolvedValue([])
     }
 
     const result = await loadRpgCatalogUseCase(repository, { userId: null })

@@ -13,7 +13,7 @@ export interface CharacterProgressionRepository {
   findById(characterId: string): Promise<CharacterProgressionSummary | null>
   updateSkillPoints(
     characterId: string,
-    amount: number,
+    amount: number
   ): Promise<{ skillPoints: number }>
   updateProgression(params: {
     characterId: string

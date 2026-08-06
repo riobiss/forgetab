@@ -11,5 +11,11 @@ export default async function LibrarySectionsPage({ params }: PageProps) {
   const { rpgId } = await params
   const { rpgTitle } = await loadLibraryPageData(rpgId)
 
-  return <LibrarySectionsFeature rpgId={rpgId} rpgTitle={rpgTitle} gatewayFactory="http" />
+  return (
+    <LibrarySectionsFeature
+      rpgId={rpgId}
+      rpgTitle={rpgTitle}
+      gatewayFactory="http"
+    />
+  )
 }

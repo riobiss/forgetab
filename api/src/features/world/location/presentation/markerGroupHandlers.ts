@@ -2,20 +2,20 @@ import type { FastifyReply, FastifyRequest } from "fastify"
 import {
   createRpgMapMarkerGroup,
   deleteRpgMapMarkerGroup,
-  updateRpgMapMarkerGroup,
+  updateRpgMapMarkerGroup
 } from "@/features/world/location/application/use-cases/rpgMap"
 import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { rpgMapRouteDeps } from "./dependencies"
 import type { GroupRouteParams, MapRouteParams } from "./routeTypes"
 
 export async function createRpgMapMarkerGroupHandler(
   request: FastifyRequest<{ Params: MapRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -28,22 +28,22 @@ export async function createRpgMapMarkerGroupHandler(
         rpgId: request.params.rpgId,
         mapId: request.params.mapId,
         userId: auth.userId,
-        body,
-      },
+        body
+      }
     )
     return writeJson(reply, 201, payload)
   } catch (error) {
     return writeError(
       reply,
       error,
-      "Erro interno ao criar grupo de marcadores.",
+      "Erro interno ao criar grupo de marcadores."
     )
   }
 }
 
 export async function updateRpgMapMarkerGroupHandler(
   request: FastifyRequest<{ Params: GroupRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -57,22 +57,22 @@ export async function updateRpgMapMarkerGroupHandler(
         mapId: request.params.mapId,
         groupId: request.params.groupId,
         userId: auth.userId,
-        body,
-      },
+        body
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(
       reply,
       error,
-      "Erro interno ao atualizar grupo de marcadores.",
+      "Erro interno ao atualizar grupo de marcadores."
     )
   }
 }
 
 export async function deleteRpgMapMarkerGroupHandler(
   request: FastifyRequest<{ Params: GroupRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -84,15 +84,15 @@ export async function deleteRpgMapMarkerGroupHandler(
         rpgId: request.params.rpgId,
         mapId: request.params.mapId,
         groupId: request.params.groupId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(
       reply,
       error,
-      "Erro interno ao remover grupo de marcadores.",
+      "Erro interno ao remover grupo de marcadores."
     )
   }
 }

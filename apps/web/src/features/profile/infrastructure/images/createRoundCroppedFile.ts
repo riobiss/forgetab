@@ -5,7 +5,7 @@ async function loadImage(src: string): Promise<HTMLImageElement> {
     const image = new Image()
     image.addEventListener("load", () => resolve(image))
     image.addEventListener("error", () =>
-      reject(new Error("Nao foi possivel carregar a imagem.")),
+      reject(new Error("Nao foi possivel carregar a imagem."))
     )
     image.src = src
   })
@@ -13,7 +13,7 @@ async function loadImage(src: string): Promise<HTMLImageElement> {
 
 export async function createRoundCroppedFile(
   imageSrc: string,
-  crop: Area,
+  crop: Area
 ): Promise<File> {
   const image = await loadImage(imageSrc)
   const size = Math.min(crop.width, crop.height)
@@ -41,12 +41,12 @@ export async function createRoundCroppedFile(
     0,
     0,
     size,
-    size,
+    size
   )
   context.restore()
 
   const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/png"),
+    canvas.toBlob(resolve, "image/png")
   )
 
   if (!blob) {

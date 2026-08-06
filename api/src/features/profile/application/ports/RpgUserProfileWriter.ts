@@ -5,6 +5,10 @@ export type RpgUserProfileWriter = {
     values: {
       displayName?: string | null
       profileImageUrl?: string | null
-    },
-  ): Promise<{ rpgId: string; nickname: string | null; profileImageUrl: string | null }>
+    }
+  ): Promise<{
+    rpgId: string
+    nickname: string | null
+    profileImageUrl: string | null
+  }>
 }

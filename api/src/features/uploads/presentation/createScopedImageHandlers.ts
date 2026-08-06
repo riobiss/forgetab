@@ -1,14 +1,14 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import {
   deleteScopedImage,
-  uploadScopedImage,
+  uploadScopedImage
 } from "@/features/media/application/use-cases/scopedImages"
 import { imageKitScopedImageService } from "@/features/media/infrastructure/imageKitScopedImageService"
 import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 
 type Config = {
@@ -33,7 +33,7 @@ export function createScopedImageHandlers(config: Config) {
                 ? Buffer.from(
                     rawBody.buffer,
                     rawBody.byteOffset,
-                    rawBody.byteLength,
+                    rawBody.byteLength
                   )
                 : Buffer.from(JSON.stringify(rawBody))
 
@@ -41,7 +41,7 @@ export function createScopedImageHandlers(config: Config) {
       method: request.method,
       headers: new Headers(request.headers as Record<string, string>),
       body,
-      duplex: body ? "half" : undefined,
+      duplex: body ? "half" : undefined
     } as RequestInit & { duplex?: "half" })
   }
 
@@ -67,15 +67,15 @@ export function createScopedImageHandlers(config: Config) {
           folder: config.folder,
           fileName,
           file,
-          oldUrl,
-        },
+          oldUrl
+        }
       )
 
       return writeJson(reply, 201, {
         message: "Imagem enviada com sucesso.",
         url: payload.url,
         fileId: payload.fileId,
-        thumbnailUrl: payload.thumbnailUrl,
+        thumbnailUrl: payload.thumbnailUrl
       })
     } catch (error) {
       return writeError(reply, error, "Erro interno ao enviar imagem.")
@@ -99,8 +99,8 @@ export function createScopedImageHandlers(config: Config) {
         {
           userId: auth.userId,
           folder: config.folder,
-          url: body.url,
-        },
+          url: body.url
+        }
       )
 
       return writeJson(reply, 200, { message: "Imagem removida com sucesso." })

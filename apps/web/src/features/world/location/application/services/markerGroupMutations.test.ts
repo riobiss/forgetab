@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import type {
   MarkerGroup,
-  PendingMarker,
+  PendingMarker
 } from "@/features/world/location/application/models/markerGroups"
 import {
   appendPendingMarkers,
   createPrivateMarkerGroup,
   removeMarkerFromGroup,
   updateMarkerGroupDetails,
-  updateMarkerInGroup,
+  updateMarkerInGroup
 } from "./markerGroupMutations"
 
 const pending: PendingMarker = {
@@ -20,7 +20,7 @@ const pending: PendingMarker = {
   x: 10,
   y: 20,
   size: 1,
-  pinStyle: "default",
+  pinStyle: "default"
 }
 
 const group: MarkerGroup = {
@@ -43,9 +43,9 @@ const group: MarkerGroup = {
       size: 1,
       pinStyle: "default",
       canEdit: true,
-      canDelete: true,
-    },
-  ],
+      canDelete: true
+    }
+  ]
 }
 
 describe("markerGroupMutations", () => {
@@ -55,8 +55,8 @@ describe("markerGroupMutations", () => {
         id: "group-2",
         name: " Torres ",
         color: "#000",
-        pendingMarkers: [pending],
-      }),
+        pendingMarkers: [pending]
+      })
     ).toEqual({
       id: "group-2",
       name: "Torres",
@@ -77,17 +77,17 @@ describe("markerGroupMutations", () => {
           size: 1,
           pinStyle: "default",
           canEdit: true,
-          canDelete: true,
-        },
-      ],
+          canDelete: true
+        }
+      ]
     })
     expect(
       createPrivateMarkerGroup({
         id: "group-2",
         name: "",
         color: "#000",
-        pendingMarkers: [pending],
-      }),
+        pendingMarkers: [pending]
+      })
     ).toBeNull()
   })
 
@@ -96,17 +96,17 @@ describe("markerGroupMutations", () => {
       expect.objectContaining({
         id: "marker-2",
         name: "Torre",
-        color: "#fff",
-      }),
+        color: "#fff"
+      })
     )
     expect(
-      appendPendingMarkers({ ...group, canEdit: false }, [pending]),
+      appendPendingMarkers({ ...group, canEdit: false }, [pending])
     ).toBeNull()
   })
 
   it("valida e atualiza os dados do grupo e do marcador", () => {
     expect(
-      updateMarkerGroupDetails(group, { name: " Vilas ", color: "#123" }),
+      updateMarkerGroupDetails(group, { name: " Vilas ", color: "#123" })
     ).toEqual({ ...group, name: "Vilas", color: "#123" })
 
     expect(
@@ -120,8 +120,8 @@ describe("markerGroupMutations", () => {
         x: 5,
         y: 6,
         size: 2,
-        pinStyle: "label",
-      })?.markers[0],
+        pinStyle: "label"
+      })?.markers[0]
     ).toEqual({
       ...group.markers[0],
       name: "Capital",
@@ -132,34 +132,37 @@ describe("markerGroupMutations", () => {
       x: 5,
       y: 6,
       size: 2,
-      pinStyle: "label",
+      pinStyle: "label"
     })
   })
 
   it("distingue atualizacao, exclusao do grupo e falta de permissao", () => {
     expect(
       removeMarkerFromGroup(
-        { ...group, markers: [...group.markers, { ...group.markers[0]!, id: "marker-2" }] },
-        "marker-1",
-      ),
+        {
+          ...group,
+          markers: [...group.markers, { ...group.markers[0]!, id: "marker-2" }]
+        },
+        "marker-1"
+      )
     ).toEqual({
       action: "update_group",
       group: {
         ...group,
-        markers: [{ ...group.markers[0], id: "marker-2" }],
-      },
+        markers: [{ ...group.markers[0], id: "marker-2" }]
+      }
     })
     expect(removeMarkerFromGroup(group, "marker-1")).toEqual({
-      action: "delete_group",
+      action: "delete_group"
     })
     expect(
       removeMarkerFromGroup(
         {
           ...group,
-          markers: [{ ...group.markers[0]!, canDelete: false }],
+          markers: [{ ...group.markers[0]!, canDelete: false }]
         },
-        "marker-1",
-      ),
+        "marker-1"
+      )
     ).toEqual({ action: "not_allowed" })
   })
 })

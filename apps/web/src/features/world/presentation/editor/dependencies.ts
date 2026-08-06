@@ -4,7 +4,7 @@ import { httpRpgEditorGateway } from "@/features/world/infrastructure/editor/gat
 export type RpgEditorGatewayFactory = "http"
 
 export function createRpgEditorDependencies(
-  factory: RpgEditorGatewayFactory = "http",
+  factory: RpgEditorGatewayFactory = "http"
 ): RpgEditorDependencies {
   switch (factory) {
     case "http":

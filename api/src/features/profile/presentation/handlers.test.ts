@@ -5,28 +5,28 @@ const mocks = vi.hoisted(() => ({
   getByUserId: vi.fn(),
   updateByUserId: vi.fn(),
   updateRpgProfile: vi.fn(),
-  canEditRpgProfile: vi.fn(),
+  canEditRpgProfile: vi.fn()
 }))
 
 vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
-  getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest,
+  getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest
 }))
 
 vi.mock("@/features/profile/presentation/dependencies", () => ({
   profileRouteDeps: {
     reader: {
-      getByUserId: mocks.getByUserId,
+      getByUserId: mocks.getByUserId
     },
     writer: {
-      updateByUserId: mocks.updateByUserId,
+      updateByUserId: mocks.updateByUserId
     },
     rpgProfileWriter: {
-      updateRpgProfile: mocks.updateRpgProfile,
+      updateRpgProfile: mocks.updateRpgProfile
     },
     rpgProfileAccessService: {
-      canEditRpgProfile: mocks.canEditRpgProfile,
-    },
-  },
+      canEditRpgProfile: mocks.canEditRpgProfile
+    }
+  }
 }))
 
 import { buildApiServer } from "@api/app"
@@ -38,7 +38,7 @@ describe("profile routes", () => {
     vi.clearAllMocks()
     mocks.getAuthPayloadFromFastifyRequest.mockResolvedValue({
       userId: "user-1",
-      email: "user@email.com",
+      email: "user@email.com"
     })
     mocks.canEditRpgProfile.mockResolvedValue(true)
   })
@@ -58,7 +58,7 @@ describe("profile routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/profile",
+      url: "/api/profile"
     })
 
     expect(response.statusCode).toBe(401)
@@ -76,23 +76,23 @@ describe("profile routes", () => {
         {
           id: "rpg-1",
           title: "Mesa Um",
-          createdAt: new Date("2026-01-02T00:00:00.000Z"),
-        },
+          createdAt: new Date("2026-01-02T00:00:00.000Z")
+        }
       ],
       memberships: [],
       rpgDisplayNames: [
         {
           rpgId: "rpg-1",
           displayName: "O Cronista",
-          profileImageUrl: "https://cdn.example.com/profile.png",
-        },
+          profileImageUrl: "https://cdn.example.com/profile.png"
+        }
       ],
-      characters: [{ id: "char-1", name: "Arthas", rpgId: "rpg-1" }],
+      characters: [{ id: "char-1", name: "Arthas", rpgId: "rpg-1" }]
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/profile",
+      url: "/api/profile"
     })
 
     expect(response.statusCode).toBe(200)
@@ -109,9 +109,9 @@ describe("profile routes", () => {
           nickname: "O Cronista",
           profileImageUrl: "https://cdn.example.com/profile.png",
           joinedAt: "2026-01-02T00:00:00.000Z",
-          characters: [{ id: "char-1", name: "Arthas" }],
-        },
-      ],
+          characters: [{ id: "char-1", name: "Arthas" }]
+        }
+      ]
     })
   })
 
@@ -121,7 +121,7 @@ describe("profile routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/profile",
+      url: "/api/profile"
     })
 
     expect(response.statusCode).toBe(200)
@@ -130,7 +130,7 @@ describe("profile routes", () => {
       username: null,
       email: "user@email.com",
       createdAt: null,
-      rpgProfiles: [],
+      rpgProfiles: []
     })
   })
 
@@ -138,7 +138,7 @@ describe("profile routes", () => {
     server = buildApiServer()
     mocks.updateByUserId.mockResolvedValueOnce({
       name: "Novo Nome",
-      username: "novo_user",
+      username: "novo_user"
     })
 
     const response = await server.inject({
@@ -146,18 +146,18 @@ describe("profile routes", () => {
       url: "/api/profile",
       payload: {
         name: " Novo Nome ",
-        username: "@novo_user",
-      },
+        username: "@novo_user"
+      }
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.updateByUserId).toHaveBeenCalledWith("user-1", {
       name: "Novo Nome",
-      username: "novo_user",
+      username: "novo_user"
     })
     expect(response.json()).toEqual({
       name: "Novo Nome",
-      username: "novo_user",
+      username: "novo_user"
     })
   })
 
@@ -168,14 +168,15 @@ describe("profile routes", () => {
       method: "PATCH",
       url: "/api/profile",
       payload: {
-        username: "nao pode",
-      },
+        username: "nao pode"
+      }
     })
 
     expect(response.statusCode).toBe(400)
     expect(mocks.updateByUserId).not.toHaveBeenCalled()
     expect(response.json()).toEqual({
-      message: "Username deve ter 3 a 30 caracteres e usar apenas letras, numeros e underline.",
+      message:
+        "Username deve ter 3 a 30 caracteres e usar apenas letras, numeros e underline."
     })
   })
 
@@ -184,25 +185,25 @@ describe("profile routes", () => {
     mocks.updateRpgProfile.mockResolvedValueOnce({
       rpgId: "rpg-1",
       nickname: "O Cronista",
-      profileImageUrl: null,
+      profileImageUrl: null
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/profile/rpg/rpg-1",
       payload: {
-        displayName: " O Cronista ",
-      },
+        displayName: " O Cronista "
+      }
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.updateRpgProfile).toHaveBeenCalledWith("user-1", "rpg-1", {
-      displayName: "O Cronista",
+      displayName: "O Cronista"
     })
     expect(response.json()).toEqual({
       rpgId: "rpg-1",
       nickname: "O Cronista",
-      profileImageUrl: null,
+      profileImageUrl: null
     })
   })
 
@@ -211,25 +212,25 @@ describe("profile routes", () => {
     mocks.updateRpgProfile.mockResolvedValueOnce({
       rpgId: "rpg-1",
       nickname: null,
-      profileImageUrl: "https://cdn.example.com/profile.png",
+      profileImageUrl: "https://cdn.example.com/profile.png"
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/profile/rpg/rpg-1",
       payload: {
-        displayName: "   ",
-      },
+        displayName: "   "
+      }
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.updateRpgProfile).toHaveBeenCalledWith("user-1", "rpg-1", {
-      displayName: null,
+      displayName: null
     })
     expect(response.json()).toEqual({
       rpgId: "rpg-1",
       nickname: null,
-      profileImageUrl: "https://cdn.example.com/profile.png",
+      profileImageUrl: "https://cdn.example.com/profile.png"
     })
   })
 
@@ -238,25 +239,25 @@ describe("profile routes", () => {
     mocks.updateRpgProfile.mockResolvedValueOnce({
       rpgId: "rpg-1",
       nickname: "O Cronista",
-      profileImageUrl: "https://cdn.example.com/profile.png",
+      profileImageUrl: "https://cdn.example.com/profile.png"
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/profile/rpg/rpg-1",
       payload: {
-        profileImageUrl: "https://cdn.example.com/profile.png",
-      },
+        profileImageUrl: "https://cdn.example.com/profile.png"
+      }
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.updateRpgProfile).toHaveBeenCalledWith("user-1", "rpg-1", {
-      profileImageUrl: "https://cdn.example.com/profile.png",
+      profileImageUrl: "https://cdn.example.com/profile.png"
     })
     expect(response.json()).toEqual({
       rpgId: "rpg-1",
       nickname: "O Cronista",
-      profileImageUrl: "https://cdn.example.com/profile.png",
+      profileImageUrl: "https://cdn.example.com/profile.png"
     })
   })
 })

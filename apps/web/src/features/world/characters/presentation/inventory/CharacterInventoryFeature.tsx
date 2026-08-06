@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import CharacterInventoryPage from "./CharacterInventoryPage"
 import {
   createCharacterInventoryDependencies,
-  type CharacterInventoryGatewayFactory,
+  type CharacterInventoryGatewayFactory
 } from "./dependencies"
 
 type CharacterInventoryFeatureProps = {
@@ -16,12 +16,18 @@ type CharacterInventoryFeatureProps = {
 export default function CharacterInventoryFeature({
   rpgId,
   characterId,
-  gatewayFactory = "http",
+  gatewayFactory = "http"
 }: CharacterInventoryFeatureProps) {
   const deps = useMemo(
     () => createCharacterInventoryDependencies(gatewayFactory),
-    [gatewayFactory],
+    [gatewayFactory]
   )
 
-  return <CharacterInventoryPage rpgId={rpgId} characterId={characterId} deps={deps} />
+  return (
+    <CharacterInventoryPage
+      rpgId={rpgId}
+      characterId={characterId}
+      deps={deps}
+    />
+  )
 }

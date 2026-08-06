@@ -9,7 +9,7 @@ import {
   skillTypeValues,
   type ActionType,
   type SkillCategory,
-  type SkillType,
+  type SkillType
 } from "@/types/skillBuilder"
 import { skillTagLabel } from "./constants"
 import type {
@@ -18,7 +18,7 @@ import type {
   SkillDetail,
   SkillListItem,
   SkillsDashboardProps,
-  TemplateOption,
+  TemplateOption
 } from "./types"
 import { useSkillsDataController } from "./useSkillsDataController"
 import { useSkillsFilters } from "./useSkillsFilters"
@@ -28,7 +28,7 @@ import {
   createInitialLevel,
   mapLevelToForm,
   createInitialMeta,
-  resolveCategoryLabel,
+  resolveCategoryLabel
 } from "./utils"
 
 export type SkillsDashboardState = {
@@ -112,7 +112,7 @@ export type SkillsDashboardState = {
 export function useSkillsDashboardState(
   params: Pick<SkillsDashboardProps, "ownedRpgs" | "initialRpgId"> & {
     deps: SkillsDashboardDependencies
-  },
+  }
 ): SkillsDashboardState {
   const { ownedRpgs, initialRpgId, deps } = params
   const initialSelection =
@@ -172,7 +172,7 @@ export function useSkillsDashboardState(
     toggleCategoryFilter,
     toggleTypeFilter,
     toggleActionTypeFilter,
-    toggleTagFilter,
+    toggleTagFilter
   } = useSkillsFilters({ skills, skillSearchIndex, skillFilterMetaById })
   const {
     createOpen,
@@ -195,28 +195,28 @@ export function useSkillsDashboardState(
     openEditModal,
     closeEditModal,
     openCustomFieldModal,
-    closeCustomFieldModal,
+    closeCustomFieldModal
   } = useSkillsModalController({
     setMetaForm,
     setLevelForm,
     createInitialMeta,
     createInitialLevel,
-    filtersOpen,
+    filtersOpen
   })
 
   const selectedLevel = useMemo(
     () =>
       activeSkill?.levels.find((level) => level.id === selectedLevelId) ?? null,
-    [activeSkill, selectedLevelId],
+    [activeSkill, selectedLevelId]
   )
   const createCategoryOptions = useMemo(
     () =>
       abilityCategoryDefinitions.filter(
         (option) =>
           !abilityCategoriesEnabled ||
-          enabledAbilityCategories.includes(option.key as SkillCategory),
+          enabledAbilityCategories.includes(option.key as SkillCategory)
       ),
-    [abilityCategoriesEnabled, enabledAbilityCategories],
+    [abilityCategoriesEnabled, enabledAbilityCategories]
   )
   const editCategoryOptions = useMemo(() => {
     if (!metaForm.category) return createCategoryOptions
@@ -231,23 +231,23 @@ export function useSkillsDashboardState(
       {
         key: metaForm.category,
         label: `${resolveCategoryLabel(metaForm.category)} (indisponivel)`,
-        description: "",
-      },
+        description: ""
+      }
     ]
   }, [createCategoryOptions, metaForm.category])
   const tagOptions = useMemo<ReactSelectOption[]>(
     () =>
       skillTagValues.map((tag) => ({
         value: tag,
-        label: skillTagLabel[tag],
+        label: skillTagLabel[tag]
       })),
-    [],
+    []
   )
   const selectedRpgTitle = useMemo(
     () =>
       ownedRpgs.find((item) => item.id === selectedRpgId)?.title ??
       "Habilidades",
-    [ownedRpgs, selectedRpgId],
+    [ownedRpgs, selectedRpgId]
   )
   const categoryFilterOptions = useMemo(() => [...skillCategoryValues], [])
   const typeFilterOptions = useMemo(() => [...skillTypeValues], [])
@@ -258,10 +258,10 @@ export function useSkillsDashboardState(
         new Set(
           Object.values(skillFilterMetaById)
             .flatMap((item) => item.tags)
-            .filter((item) => item.length > 0),
-        ),
+            .filter((item) => item.length > 0)
+        )
       ),
-    [skillFilterMetaById],
+    [skillFilterMetaById]
   )
   useSkillsDataController({
     deps,
@@ -286,7 +286,7 @@ export function useSkillsDashboardState(
     setEnabledAbilityCategories,
     setEditOpen,
     setLoading,
-    setError,
+    setError
   })
 
   useEffect(() => {
@@ -307,7 +307,7 @@ export function useSkillsDashboardState(
         : "",
       actionType: actionTypeValues.includes(stats.actionType as ActionType)
         ? (stats.actionType as ActionType)
-        : "",
+        : ""
     }))
   }, [selectedLevel, createOpen])
 
@@ -328,7 +328,7 @@ export function useSkillsDashboardState(
     abilityCategoriesEnabled,
     createOpen,
     enabledAbilityCategories,
-    metaForm.category,
+    metaForm.category
   ])
 
   const actions = useSkillsDashboardActions({
@@ -357,7 +357,7 @@ export function useSkillsDashboardState(
     setSelectedLevelId,
     setNewCustomFieldName,
     setNewCustomFieldValue,
-    setCustomFieldModalOpen,
+    setCustomFieldModalOpen
   })
 
   return {
@@ -428,6 +428,6 @@ export function useSkillsDashboardState(
     createSnapshotLevel: actions.createSnapshotLevel,
     saveAll: actions.saveAll,
     deleteSelectedLevel: actions.deleteSelectedLevel,
-    deleteActiveSkill: actions.deleteActiveSkill,
+    deleteActiveSkill: actions.deleteActiveSkill
   }
 }

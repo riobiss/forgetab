@@ -3,13 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
   fetchRpgPageAccess: vi.fn(),
-  dashboardSpy: vi.fn(),
+  dashboardSpy: vi.fn()
 }))
 
 vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("NOT_FOUND")
-  },
+  }
 }))
 
 vi.mock(
@@ -18,7 +18,7 @@ vi.mock(
     class HttpPageAccessError extends Error {
       constructor(
         message: string,
-        readonly status: number,
+        readonly status: number
       ) {
         super(message)
         this.name = "HttpPageAccessError"
@@ -27,17 +27,20 @@ vi.mock(
 
     return {
       fetchRpgPageAccess: mocks.fetchRpgPageAccess,
-      HttpPageAccessError,
+      HttpPageAccessError
     }
-  },
+  }
 )
 
-vi.mock("@/features/world/skills/presentation/dashboard/SkillsDashboardFeature", () => ({
-  default: (props: unknown) => {
-    mocks.dashboardSpy(props)
-    return <div data-testid="skills-dashboard" />
-  },
-}))
+vi.mock(
+  "@/features/world/skills/presentation/dashboard/SkillsDashboardFeature",
+  () => ({
+    default: (props: unknown) => {
+      mocks.dashboardSpy(props)
+      return <div data-testid="skills-dashboard" />
+    }
+  })
+)
 
 import SkillsPage from "./page"
 import { HttpPageAccessError } from "@/features/world/infrastructure/management/repositories/httpRpgPageAccessRepository"
@@ -48,7 +51,7 @@ describe("RpgSkillsBuilderPage", () => {
     mocks.fetchRpgPageAccess.mockResolvedValue({
       id: "rpg-1",
       title: "Campanha",
-      canManage: true,
+      canManage: true
     })
   })
 
@@ -63,8 +66,8 @@ describe("RpgSkillsBuilderPage", () => {
         initialRpgId: "rpg-1",
         gatewayFactory: "http",
         hideRpgSelector: true,
-        title: "Habilidades - Campanha",
-      }),
+        title: "Habilidades - Campanha"
+      })
     )
   })
 
@@ -72,21 +75,21 @@ describe("RpgSkillsBuilderPage", () => {
     mocks.fetchRpgPageAccess.mockResolvedValueOnce({
       id: "rpg-1",
       title: "Campanha",
-      canManage: false,
+      canManage: false
     })
 
     await expect(
-      SkillsPage({ params: Promise.resolve({ rpgId: "rpg-1" }) }),
+      SkillsPage({ params: Promise.resolve({ rpgId: "rpg-1" }) })
     ).rejects.toThrow("NOT_FOUND")
   })
 
   it("retorna notFound quando a API nega acesso", async () => {
     mocks.fetchRpgPageAccess.mockRejectedValueOnce(
-      new HttpPageAccessError("Nao autorizado.", 401),
+      new HttpPageAccessError("Nao autorizado.", 401)
     )
 
     await expect(
-      SkillsPage({ params: Promise.resolve({ rpgId: "rpg-1" }) }),
+      SkillsPage({ params: Promise.resolve({ rpgId: "rpg-1" }) })
     ).rejects.toThrow("NOT_FOUND")
   })
 })

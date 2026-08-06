@@ -1,7 +1,7 @@
 import styles from "./AdvancedIdentityEditor.module.css"
 import type {
   CatalogRichTextField,
-  EntityCatalogMeta,
+  EntityCatalogMeta
 } from "@/features/world/catalog/domain/types"
 import { createDefaultRaceLore, type RaceLore } from "@/lib/rpg/raceLore"
 import type { IdentityTemplateDraft } from "@/features/world/presentation/editor/edit/advanced/types"
@@ -41,11 +41,12 @@ export default function AdvancedIdentityEditor({
   success,
   onChange,
   onSave,
-  onCancel,
+  onCancel
 }: Props) {
   const typeLabel = type === "race" ? "Raca" : "Classe"
   const title = mode === "create" ? `Criar ${typeLabel}` : `Editar ${typeLabel}`
-  const raceLore = type === "race" ? (draft.lore ?? createDefaultRaceLore(draft.label)) : null
+  const raceLore =
+    type === "race" ? (draft.lore ?? createDefaultRaceLore(draft.label)) : null
   const richTextFields: Array<{
     key: CatalogRichTextField
     label: string
@@ -53,21 +54,57 @@ export default function AdvancedIdentityEditor({
   }> =
     type === "race"
       ? [
-          { key: "description", label: "Descricao", description: "Apresentacao principal da raca." },
-          { key: "origin", label: "Origem", description: "Contexto de origem com editor rico." },
-          { key: "kingdoms", label: "Reinos", description: "Texto rico para reinos, regioes e expansao politica." },
-          { key: "lore", label: "Lore", description: "Lore livre para aprofundamento narrativo." },
-          { key: "notes", label: "Observacoes", description: "Notas internas ou observacoes finais." },
+          {
+            key: "description",
+            label: "Descricao",
+            description: "Apresentacao principal da raca."
+          },
+          {
+            key: "origin",
+            label: "Origem",
+            description: "Contexto de origem com editor rico."
+          },
+          {
+            key: "kingdoms",
+            label: "Reinos",
+            description: "Texto rico para reinos, regioes e expansao politica."
+          },
+          {
+            key: "lore",
+            label: "Lore",
+            description: "Lore livre para aprofundamento narrativo."
+          },
+          {
+            key: "notes",
+            label: "Observacoes",
+            description: "Notas internas ou observacoes finais."
+          }
         ]
       : [
-          { key: "description", label: "Descricao", description: "Apresentacao principal da classe." },
-          { key: "lore", label: "Lore", description: "Lore, identidade e estilo narrativo da classe." },
-          { key: "notes", label: "Observacoes", description: "Detalhes opcionais, restricoes e notas." },
+          {
+            key: "description",
+            label: "Descricao",
+            description: "Apresentacao principal da classe."
+          },
+          {
+            key: "lore",
+            label: "Lore",
+            description: "Lore, identidade e estilo narrativo da classe."
+          },
+          {
+            key: "notes",
+            label: "Observacoes",
+            description: "Detalhes opcionais, restricoes e notas."
+          }
         ]
 
   function updateLabel(value: string) {
     if (type === "race") {
-      onChange({ ...draft, label: value, lore: draft.lore ?? createDefaultRaceLore(value) })
+      onChange({
+        ...draft,
+        label: value,
+        lore: draft.lore ?? createDefaultRaceLore(value)
+      })
       return
     }
 
@@ -78,27 +115,30 @@ export default function AdvancedIdentityEditor({
     onChange({ ...draft, catalogMeta: nextMeta })
   }
 
-  function updateRichTextField(field: CatalogRichTextField, value: Record<string, unknown>) {
+  function updateRichTextField(
+    field: CatalogRichTextField,
+    value: Record<string, unknown>
+  ) {
     updateCatalogMeta({
       ...draft.catalogMeta,
       richText: {
         ...draft.catalogMeta.richText,
-        [field]: value,
-      },
+        [field]: value
+      }
     })
   }
 
   function updateBonus(
     scope: "attributeBonuses" | "skillBonuses",
     key: string,
-    value: string,
+    value: string
   ) {
     onChange({
       ...draft,
       [scope]: {
         ...draft[scope],
-        [key]: Number(value),
-      },
+        [key]: Number(value)
+      }
     })
   }
 
@@ -116,7 +156,7 @@ export default function AdvancedIdentityEditor({
 
   function updateRaceArrayField(
     field: "thoughts" | "notableFigures" | "racialTraits" | "commonClasses",
-    value: string,
+    value: string
   ) {
     if (!raceLore) return
     updateRaceLore({ ...raceLore, [field]: parseLines(value) })
@@ -134,9 +174,9 @@ export default function AdvancedIdentityEditor({
           culture: [],
           physicalTraits: [],
           clothing: [],
-          commonNames: [],
-        },
-      ],
+          commonNames: []
+        }
+      ]
     })
   }
 
@@ -144,7 +184,9 @@ export default function AdvancedIdentityEditor({
     if (!raceLore) return
     updateRaceLore({
       ...raceLore,
-      kingdoms: raceLore.kingdoms.filter((_, currentIndex) => currentIndex !== index),
+      kingdoms: raceLore.kingdoms.filter(
+        (_, currentIndex) => currentIndex !== index
+      )
     })
   }
 
@@ -157,7 +199,7 @@ export default function AdvancedIdentityEditor({
       | "physicalTraits"
       | "clothing"
       | "commonNames",
-    value: string,
+    value: string
   ) {
     if (!raceLore) return
     updateRaceLore({
@@ -168,7 +210,7 @@ export default function AdvancedIdentityEditor({
           return { ...kingdom, [field]: value }
         }
         return { ...kingdom, [field]: parseLines(value) }
-      }),
+      })
     })
   }
 
@@ -176,7 +218,10 @@ export default function AdvancedIdentityEditor({
     if (!raceLore) return
     updateRaceLore({
       ...raceLore,
-      variations: [...raceLore.variations, { name: "", description: "", traits: [] }],
+      variations: [
+        ...raceLore.variations,
+        { name: "", description: "", traits: [] }
+      ]
     })
   }
 
@@ -184,14 +229,16 @@ export default function AdvancedIdentityEditor({
     if (!raceLore) return
     updateRaceLore({
       ...raceLore,
-      variations: raceLore.variations.filter((_, currentIndex) => currentIndex !== index),
+      variations: raceLore.variations.filter(
+        (_, currentIndex) => currentIndex !== index
+      )
     })
   }
 
   function updateVariationField(
     index: number,
     field: "name" | "description" | "traits",
-    value: string,
+    value: string
   ) {
     if (!raceLore) return
     updateRaceLore({
@@ -202,13 +249,13 @@ export default function AdvancedIdentityEditor({
           return { ...variation, traits: parseLines(value) }
         }
         return { ...variation, [field]: value }
-      }),
+      })
     })
   }
 
   const attributeItems = attributeTemplates.map((item) => ({
     key: item.key,
-    label: item.label,
+    label: item.label
   }))
 
   return (
@@ -230,8 +277,14 @@ export default function AdvancedIdentityEditor({
         <input
           type="text"
           value={draft.category ?? "geral"}
-          onChange={(event) => onChange({ ...draft, category: event.target.value })}
-          placeholder={type === "race" ? "Ex.: ancestrais, humanoides..." : "Ex.: marcial, mistica..."}
+          onChange={(event) =>
+            onChange({ ...draft, category: event.target.value })
+          }
+          placeholder={
+            type === "race"
+              ? "Ex.: ancestrais, humanoides..."
+              : "Ex.: marcial, mistica..."
+          }
         />
       </label>
 
@@ -242,7 +295,7 @@ export default function AdvancedIdentityEditor({
           onChange={(event) =>
             updateCatalogMeta({
               ...draft.catalogMeta,
-              shortDescription: event.target.value.trim() || null,
+              shortDescription: event.target.value.trim() || null
             })
           }
           rows={3}
@@ -257,8 +310,13 @@ export default function AdvancedIdentityEditor({
             key={field.key}
             label={field.label}
             description={field.description}
-            value={draft.catalogMeta.richText[field.key] as Record<string, unknown> | null | undefined}
-            onChange={(value) => updateRichTextField(field.key, value as Record<string, unknown>)}
+            value={
+              draft.catalogMeta.richText[field.key] as
+                Record<string, unknown> | null | undefined
+            }
+            onChange={(value) =>
+              updateRichTextField(field.key, value as Record<string, unknown>)
+            }
           />
         ))}
       </section>
@@ -302,7 +360,9 @@ export default function AdvancedIdentityEditor({
             <span>O que alguns pensam (1 linha por item)</span>
             <textarea
               value={linesToText(raceLore.thoughts)}
-              onChange={(event) => updateRaceArrayField("thoughts", event.target.value)}
+              onChange={(event) =>
+                updateRaceArrayField("thoughts", event.target.value)
+              }
               rows={4}
             />
           </label>
@@ -310,7 +370,11 @@ export default function AdvancedIdentityEditor({
           <section className={styles.subSection}>
             <div className={styles.inlineHeader}>
               <h3>Reinos</h3>
-              <button type="button" className={styles.secondaryButton} onClick={addKingdom}>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={addKingdom}
+              >
                 Adicionar reino
               </button>
             </div>
@@ -335,7 +399,9 @@ export default function AdvancedIdentityEditor({
                   <input
                     type="text"
                     value={kingdom.name}
-                    onChange={(event) => updateKingdomField(index, "name", event.target.value)}
+                    onChange={(event) =>
+                      updateKingdomField(index, "name", event.target.value)
+                    }
                   />
                 </label>
 
@@ -345,7 +411,11 @@ export default function AdvancedIdentityEditor({
                     rows={4}
                     value={kingdom.description}
                     onChange={(event) =>
-                      updateKingdomField(index, "description", event.target.value)
+                      updateKingdomField(
+                        index,
+                        "description",
+                        event.target.value
+                      )
                     }
                   />
                 </label>
@@ -367,7 +437,11 @@ export default function AdvancedIdentityEditor({
                     rows={3}
                     value={linesToText(kingdom.physicalTraits)}
                     onChange={(event) =>
-                      updateKingdomField(index, "physicalTraits", event.target.value)
+                      updateKingdomField(
+                        index,
+                        "physicalTraits",
+                        event.target.value
+                      )
                     }
                   />
                 </label>
@@ -389,7 +463,11 @@ export default function AdvancedIdentityEditor({
                     rows={3}
                     value={linesToText(kingdom.commonNames)}
                     onChange={(event) =>
-                      updateKingdomField(index, "commonNames", event.target.value)
+                      updateKingdomField(
+                        index,
+                        "commonNames",
+                        event.target.value
+                      )
                     }
                   />
                 </label>
@@ -433,7 +511,11 @@ export default function AdvancedIdentityEditor({
           <section className={styles.subSection}>
             <div className={styles.inlineHeader}>
               <h3>Variacoes</h3>
-              <button type="button" className={styles.secondaryButton} onClick={addVariation}>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={addVariation}
+              >
                 Adicionar variacao
               </button>
             </div>
@@ -470,7 +552,11 @@ export default function AdvancedIdentityEditor({
                     rows={4}
                     value={variation.description}
                     onChange={(event) =>
-                      updateVariationField(index, "description", event.target.value)
+                      updateVariationField(
+                        index,
+                        "description",
+                        event.target.value
+                      )
                     }
                   />
                 </label>
@@ -508,7 +594,7 @@ export default function AdvancedIdentityEditor({
         <NumericTemplateGrid
           items={skillTemplates.map((skill) => ({
             key: skill.key,
-            label: skill.label,
+            label: skill.label
           }))}
           values={draft.skillBonuses}
           onChange={(key, value) => updateBonus("skillBonuses", key, value)}
@@ -525,7 +611,11 @@ export default function AdvancedIdentityEditor({
         <button type="button" onClick={() => void onSave()} disabled={saving}>
           {saving ? "Salvando..." : "Salvar"}
         </button>
-        <button type="button" className={styles.secondaryButton} onClick={onCancel}>
+        <button
+          type="button"
+          className={styles.secondaryButton}
+          onClick={onCancel}
+        >
           Voltar
         </button>
       </div>

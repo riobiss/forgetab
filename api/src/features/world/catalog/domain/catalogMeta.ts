@@ -2,7 +2,7 @@ import type {
   CatalogRichTextField,
   CatalogRichTextMap,
   EntityCatalogMeta,
-  RichTextDocument,
+  RichTextDocument
 } from "@/features/world/catalog/domain/types"
 
 const RICH_TEXT_FIELDS: CatalogRichTextField[] = [
@@ -10,7 +10,7 @@ const RICH_TEXT_FIELDS: CatalogRichTextField[] = [
   "origin",
   "kingdoms",
   "lore",
-  "notes",
+  "notes"
 ]
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -48,7 +48,7 @@ export function normalizeEntityCatalogMeta(value: unknown): EntityCatalogMeta {
 
   return {
     shortDescription: normalizeShortDescription(value.shortDescription),
-    richText,
+    richText
   }
 }
 
@@ -60,11 +60,11 @@ export function serializeEntityCatalogMeta(meta: EntityCatalogMeta) {
       }
       return acc
     },
-    {},
+    {}
   )
 
   return {
     shortDescription: meta.shortDescription?.trim() || null,
-    richText,
+    richText
   }
 }

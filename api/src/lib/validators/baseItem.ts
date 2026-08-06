@@ -6,7 +6,7 @@ export const baseItemTypeValues = [
   "material",
   "tool",
   "quest",
-  "special",
+  "special"
 ] as const
 
 export const baseItemRarityValues = [
@@ -14,19 +14,16 @@ export const baseItemRarityValues = [
   "uncommon",
   "rare",
   "epic",
-  "legendary",
+  "legendary"
 ] as const
 
 const namedDescriptionSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .max(120, "Nome deve ter no maximo 120 caracteres."),
+  name: z.string().trim().max(120, "Nome deve ter no maximo 120 caracteres."),
   description: z
     .string()
     .trim()
     .min(1, "Descricao e obrigatoria.")
-    .max(500, "Descricao deve ter no maximo 500 caracteres."),
+    .max(500, "Descricao deve ter no maximo 500 caracteres.")
 })
 
 const customFieldSchema = z.object({
@@ -40,7 +37,7 @@ const customFieldSchema = z.object({
     .trim()
     .max(500, "Valor deve ter no maximo 500 caracteres.")
     .nullable()
-    .optional(),
+    .optional()
 })
 
 export const createBaseItemSchema = z.object({
@@ -104,7 +101,11 @@ export const createBaseItemSchema = z.object({
   abilities: z.array(namedDescriptionSchema).max(20).nullable().optional(),
   effects: z.array(namedDescriptionSchema).max(20).nullable().optional(),
   customFields: z.array(customFieldSchema).max(20).nullable().optional(),
-  weight: z.number().min(0, "Peso deve ser maior ou igual a 0.").nullable().optional(),
+  weight: z
+    .number()
+    .min(0, "Peso deve ser maior ou igual a 0.")
+    .nullable()
+    .optional(),
   duration: z
     .string()
     .trim()
@@ -116,7 +117,7 @@ export const createBaseItemSchema = z.object({
     .int()
     .min(0, "Durabilidade deve ser maior ou igual a 0.")
     .nullable()
-    .optional(),
+    .optional()
 })
 
 export type CreateBaseItemInput = z.infer<typeof createBaseItemSchema>

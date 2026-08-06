@@ -7,12 +7,12 @@ type GetSkillsDeps = {
 
 export async function getSkills(
   deps: GetSkillsDeps,
-  params: { userId: string; rpgId?: string | null },
+  params: { userId: string; rpgId?: string | null }
 ) {
   try {
     const skills = await deps.repository.listByOwner(
       params.userId,
-      params.rpgId,
+      params.rpgId
     )
     return { skills }
   } catch (error) {

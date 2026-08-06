@@ -2,7 +2,7 @@ import type {
   Dispatch,
   FormEvent,
   MutableRefObject,
-  SetStateAction,
+  SetStateAction
 } from "react"
 import { toast } from "react-hot-toast"
 import type { ItemsDashboardDependencies } from "@/features/world/items/application/dashboard/contracts/ItemsDashboardDependencies"
@@ -13,7 +13,7 @@ import {
   deleteItemUseCase,
   giveItemUseCase,
   updateItemUseCase,
-  uploadItemImageUseCase,
+  uploadItemImageUseCase
 } from "@/features/world/items/application/dashboard/use-cases/itemsDashboard"
 import { dismissToast } from "@/lib/toast"
 import type { BaseItem, CharacterSummary } from "./types"
@@ -49,7 +49,7 @@ type UseItemsDashboardActionsParams = {
 }
 
 export function useItemsDashboardActions(
-  params: UseItemsDashboardActionsParams,
+  params: UseItemsDashboardActionsParams
 ) {
   function openGiveModal(itemId: string) {
     params.setGiveModalItemId(itemId)
@@ -69,7 +69,7 @@ export function useItemsDashboardActions(
   async function handleDelete(itemId: string) {
     if (params.deletingRef.current) return
     const confirmed = window.confirm(
-      "Tem certeza que deseja deletar este item?",
+      "Tem certeza que deseja deletar este item?"
     )
     if (!confirmed) {
       return
@@ -86,7 +86,7 @@ export function useItemsDashboardActions(
       params.setLoadingError(
         cause instanceof Error
           ? cause.message
-          : "Erro de conexao ao deletar item.",
+          : "Erro de conexao ao deletar item."
       )
     } finally {
       params.setDeletingItemId(null)
@@ -115,8 +115,8 @@ export function useItemsDashboardActions(
         payload: {
           baseItemId: params.selectedGiveItem.id,
           quantity: params.giveQuantity,
-          characterIds: [params.selectedCharacterId],
-        },
+          characterIds: [params.selectedCharacterId]
+        }
       })
       params.setGiveSuccess(result.message)
       setTimeout(() => closeGiveModal(), 700)
@@ -124,7 +124,7 @@ export function useItemsDashboardActions(
       params.setGiveError(
         cause instanceof Error
           ? cause.message
-          : "Erro de conexao ao entregar item.",
+          : "Erro de conexao ao entregar item."
       )
     } finally {
       params.setGiving(false)
@@ -140,7 +140,7 @@ export function useItemsDashboardActions(
     params.setUploadError("")
     const isEditing = params.editorMode === "edit"
     const loadingToastId = toast.loading(
-      isEditing ? "Salvando item..." : "Criando item...",
+      isEditing ? "Salvando item..." : "Criando item..."
     )
     let uploadedImageUrl = ""
     let hasFreshUpload = false
@@ -152,7 +152,7 @@ export function useItemsDashboardActions(
         params.setUploadingImage(true)
         try {
           const upload = await uploadItemImageUseCase(params.deps, {
-            file: params.selectedImageFile,
+            file: params.selectedImageFile
           })
           uploadedImageUrl = upload.url
           hasFreshUpload = true
@@ -167,30 +167,32 @@ export function useItemsDashboardActions(
           ? await updateItemUseCase(params.deps, {
               rpgId: params.rpgId,
               itemId: params.editingItemId,
-              payload,
+              payload
             })
           : await createItemUseCase(params.deps, {
               rpgId: params.rpgId,
-              payload,
+              payload
             })
 
       params.setItems((prev) => {
         if (isEditing) {
-          return prev.map((item) => (item.id === savedItem.id ? savedItem : item))
+          return prev.map((item) =>
+            item.id === savedItem.id ? savedItem : item
+          )
         }
 
         return [savedItem, ...prev]
       })
 
       toast.success(
-        isEditing ? "Item salvo com sucesso." : "Item criado com sucesso.",
+        isEditing ? "Item salvo com sucesso." : "Item criado com sucesso."
       )
       params.closeEditorModal()
     } catch (cause) {
       if (hasFreshUpload && uploadedImageUrl) {
         try {
           await deleteItemImageByUrlUseCase(params.deps, {
-            url: uploadedImageUrl,
+            url: uploadedImageUrl
           })
         } catch {
           // Nao bloqueia a resposta de erro se a limpeza da imagem falhar.
@@ -216,6 +218,6 @@ export function useItemsDashboardActions(
     closeGiveModal,
     handleDelete,
     handleGiveItem,
-    handleSaveItem,
+    handleSaveItem
   }
 }

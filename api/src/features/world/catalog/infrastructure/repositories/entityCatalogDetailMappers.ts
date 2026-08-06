@@ -2,18 +2,18 @@ import type { Prisma } from "../../../../../../generated/prisma/client.js"
 import { normalizeEntityCatalogMeta } from "@/features/world/catalog/domain/catalogMeta"
 import type {
   EntityCatalogAbilityPurchaseState,
-  EntityCatalogTemplateOption,
+  EntityCatalogTemplateOption
 } from "@/features/world/catalog/application/types"
 import type { EntityCatalogDetailSnapshot } from "@/features/world/catalog/application/ports/EntityCatalogDetailRepository.js"
 import { parseCharacterAbilities } from "@/features/world/character/application/abilities/rules/characterAbilityRules.js"
 import { normalizeRpgVisibility } from "@/features/world/infrastructure/shared/normalizeRpgVisibility.js"
 import type {
   DbClassRow,
-  DbRaceRow,
+  DbRaceRow
 } from "@/features/world/catalog/infrastructure/repositories/entityCatalogDetailRows"
 
 export function toTemplateOptions(
-  rows: Array<{ key: string; label: string }>,
+  rows: Array<{ key: string; label: string }>
 ): EntityCatalogTemplateOption[] {
   return rows.map((row) => ({ key: row.key, label: row.label }))
 }
@@ -35,12 +35,12 @@ export function toOwnedBySkill(value: Prisma.JsonValue) {
       }
       return acc
     },
-    {},
+    {}
   )
 }
 
 export function mapClassDetailRow(
-  row: DbClassRow,
+  row: DbClassRow
 ): EntityCatalogDetailSnapshot {
   const catalogMeta = normalizeEntityCatalogMeta(row.catalogMeta)
 
@@ -59,8 +59,8 @@ export function mapClassDetailRow(
       category: row.category?.trim() || "geral",
       attributeBonuses: toBonusRecord(row.attributeBonuses),
       skillBonuses: toBonusRecord(row.skillBonuses),
-      catalogMeta,
-    },
+      catalogMeta
+    }
   }
 }
 
@@ -83,8 +83,8 @@ export function mapRaceDetailRow(row: DbRaceRow): EntityCatalogDetailSnapshot {
       attributeBonuses: toBonusRecord(row.attributeBonuses),
       skillBonuses: toBonusRecord(row.skillBonuses),
       catalogMeta,
-      lore: row.lore,
-    },
+      lore: row.lore
+    }
   }
 }
 
@@ -97,6 +97,6 @@ export function emptyPurchaseState(params: {
     costsEnabled: params.costsEnabled,
     costResourceName: params.costResourceName,
     initialPoints: 0,
-    initialOwnedBySkill: {},
+    initialOwnedBySkill: {}
   }
 }

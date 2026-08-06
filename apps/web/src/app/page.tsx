@@ -5,16 +5,19 @@ export default function HomePage() {
   const highlights = [
     {
       title: "Mundo vivo",
-      description: "Crie campanhas com mapa, raças, classes, itens e biblioteca própria.",
+      description:
+        "Crie campanhas com mapa, raças, classes, itens e biblioteca própria."
     },
     {
       title: "Dados confiáveis",
-      description: "Role dados com random.org e mantenha resultados claros para a mesa.",
+      description:
+        "Role dados com random.org e mantenha resultados claros para a mesa."
     },
     {
       title: "Progressão sólida",
-      description: "Gerencie habilidades, evolução e decisões de personagem sem planilhas.",
-    },
+      description:
+        "Gerencie habilidades, evolução e decisões de personagem sem planilhas."
+    }
   ]
 
   return (
@@ -24,8 +27,8 @@ export default function HomePage() {
           <p className={styles.kicker}>Plataforma para campanhas de RPG</p>
           <h1 className={styles.title}>ForgeTab</h1>
           <p className={styles.subtitle}>
-            Monte universos, organize personagens e conduza combates com uma interface
-            moderna para narradores e jogadores.
+            Monte universos, organize personagens e conduza combates com uma
+            interface moderna para narradores e jogadores.
           </p>
 
           <div className={styles.actions}>

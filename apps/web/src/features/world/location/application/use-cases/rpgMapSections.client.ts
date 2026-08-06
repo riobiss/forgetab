@@ -7,7 +7,7 @@ export function createRpgMapSectionUseCase(
     rpgId: string
     mapId: string
     payload: UpsertRpgMapSectionPayloadDto
-  },
+  }
 ) {
   return gateway.createSection(params.rpgId, params.mapId, params.payload)
 }
@@ -19,19 +19,19 @@ export function updateRpgMapSectionUseCase(
     mapId: string
     sectionId: string
     payload: UpsertRpgMapSectionPayloadDto
-  },
+  }
 ) {
   return gateway.updateSection(
     params.rpgId,
     params.mapId,
     params.sectionId,
-    params.payload,
+    params.payload
   )
 }
 
 export function deleteRpgMapSectionUseCase(
   gateway: RpgMapSectionsGateway,
-  params: { rpgId: string; mapId: string; sectionId: string },
+  params: { rpgId: string; mapId: string; sectionId: string }
 ) {
   return gateway.deleteSection(params.rpgId, params.mapId, params.sectionId)
 }
@@ -43,12 +43,12 @@ export function reorderRpgMapSectionUseCase(
     mapId: string
     sectionId: string
     direction: "up" | "down"
-  },
+  }
 ) {
   return gateway.reorderSection(
     params.rpgId,
     params.mapId,
     params.sectionId,
-    params.direction,
+    params.direction
   )
 }

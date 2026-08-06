@@ -4,7 +4,8 @@ import type { RpgMapSectionsGateway } from "./RpgMapSectionsGateway"
 import type { RpgMapsGateway } from "./RpgMapsGateway"
 
 export interface RpgMapGateway
-  extends RpgMapsGateway,
+  extends
+    RpgMapsGateway,
     RpgMapSectionsGateway,
     RpgMapMarkerGroupsGateway,
     RpgMapImagesGateway {}

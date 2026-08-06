@@ -6,7 +6,7 @@ import { updateRpg } from "@/features/world/application/management/use-cases/upd
 import {
   parseJsonBody,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { requireAuth } from "@/features/world/presentation/auth"
 import { rpgRouteDeps } from "@/features/world/presentation/dependencies"
@@ -14,7 +14,7 @@ import type { RpgRouteParams } from "./routeTypes"
 
 export async function createRpgHandler(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireAuth(request, reply)
   if (!auth.ok) return auth.response
@@ -22,7 +22,7 @@ export async function createRpgHandler(
   try {
     const payload = await createRpg(
       { repository: rpgRouteDeps.repository },
-      { userId: auth.authPayload.userId, body: parseJsonBody(request.body) },
+      { userId: auth.authPayload.userId, body: parseJsonBody(request.body) }
     )
 
     return writeJson(reply, 201, payload)
@@ -33,7 +33,7 @@ export async function createRpgHandler(
 
 export async function getRpgByIdHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireAuth(request, reply)
   if (!auth.ok) return auth.response
@@ -42,9 +42,9 @@ export async function getRpgByIdHandler(
     const payload = await getRpgById(
       {
         repository: rpgRouteDeps.repository,
-        permissionService: rpgRouteDeps.permissionService,
+        permissionService: rpgRouteDeps.permissionService
       },
-      { rpgId: request.params.rpgId, userId: auth.authPayload.userId },
+      { rpgId: request.params.rpgId, userId: auth.authPayload.userId }
     )
 
     return writeJson(reply, 200, payload)
@@ -55,7 +55,7 @@ export async function getRpgByIdHandler(
 
 export async function updateRpgHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireAuth(request, reply)
   if (!auth.ok) return auth.response
@@ -65,13 +65,13 @@ export async function updateRpgHandler(
       {
         repository: rpgRouteDeps.repository,
         permissionService: rpgRouteDeps.permissionService,
-        imageGateway: rpgRouteDeps.imageGateway,
+        imageGateway: rpgRouteDeps.imageGateway
       },
       {
         rpgId: request.params.rpgId,
         userId: auth.authPayload.userId,
-        body: parseJsonBody(request.body),
-      },
+        body: parseJsonBody(request.body)
+      }
     )
 
     return writeJson(reply, 200, payload)
@@ -82,7 +82,7 @@ export async function updateRpgHandler(
 
 export async function deleteRpgHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireAuth(request, reply)
   if (!auth.ok) return auth.response
@@ -91,9 +91,9 @@ export async function deleteRpgHandler(
     const payload = await deleteRpg(
       {
         repository: rpgRouteDeps.repository,
-        imageGateway: rpgRouteDeps.imageGateway,
+        imageGateway: rpgRouteDeps.imageGateway
       },
-      { rpgId: request.params.rpgId, userId: auth.authPayload.userId },
+      { rpgId: request.params.rpgId, userId: auth.authPayload.userId }
     )
 
     return writeJson(reply, 200, payload)

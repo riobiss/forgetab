@@ -2,16 +2,16 @@
 
 import {
   normalizeCustomFieldType,
-  type CustomFieldType,
+  type CustomFieldType
 } from "@/features/world/location/presentation/types/typedCustomField"
 import type {
   JsonMapValue,
   RpgMapDetailViewDto,
-  RpgMapSectionDto,
+  RpgMapSectionDto
 } from "@forgetab/world-contracts/location"
 import type {
   LinkedSectionSnapshot,
-  MarkerPinStyle,
+  MarkerPinStyle
 } from "@/features/world/location/presentation/types/mapMarkers"
 import {
   getLinkedMarkerId,
@@ -22,7 +22,7 @@ import {
   SECTION_LINK_LOCATION,
   SECTION_LINK_MARKER_GROUP_ID,
   SECTION_LINK_MARKER_ID,
-  SECTION_LINK_MARKER_NAME,
+  SECTION_LINK_MARKER_NAME
 } from "@/features/world/location/application/services/sectionMarkerFields"
 import type { SectionMarkerLink } from "@/features/world/location/application/services/sectionMarkerReconciliation"
 
@@ -36,7 +36,7 @@ export {
   SECTION_LINK_LOCATION,
   SECTION_LINK_MARKER_GROUP_ID,
   SECTION_LINK_MARKER_ID,
-  SECTION_LINK_MARKER_NAME,
+  SECTION_LINK_MARKER_NAME
 } from "@/features/world/location/application/services/sectionMarkerFields"
 
 export type MarkerLinkOption = SectionMarkerLink & {
@@ -53,14 +53,14 @@ export const RESERVED_SECTION_FIELD_NAMES = new Set([
   SECTION_LINK_MARKER_ID,
   SECTION_LINK_MARKER_GROUP_ID,
   SECTION_LINK_MARKER_NAME,
-  SECTION_IMAGES,
+  SECTION_IMAGES
 ])
 
 const INTERNAL_SECTION_FIELD_NAMES = new Set([
   SECTION_LINK_MARKER_ID,
   SECTION_LINK_MARKER_GROUP_ID,
   SECTION_LINK_MARKER_NAME,
-  SECTION_IMAGES,
+  SECTION_IMAGES
 ])
 
 export function getSectionImages(value: JsonMapValue | null | undefined) {
@@ -76,19 +76,19 @@ export function getSectionImages(value: JsonMapValue | null | undefined) {
 }
 
 function parseSectionCustomFieldValue(
-  value: unknown,
+  value: unknown
 ): SerializedSectionCustomField {
   if (typeof value === "object" && value !== null && !Array.isArray(value)) {
     const valueRecord = value as Record<string, unknown>
     return {
       value: valueRecord.value == null ? "" : String(valueRecord.value),
-      type: normalizeCustomFieldType(valueRecord.type),
+      type: normalizeCustomFieldType(valueRecord.type)
     }
   }
 
   return {
     value: value == null ? "" : String(value),
-    type: "text",
+    type: "text"
   }
 }
 
@@ -98,18 +98,18 @@ export function customFieldsToDraft(value: JsonMapValue | null | undefined) {
     .map(([name, fieldValue], index) => ({
       ...parseSectionCustomFieldValue(fieldValue),
       id: `field-${index}-${name}`,
-      key: name,
+      key: name
     }))
 }
 
 export function customFieldsToObject(
-  fields: Array<{ key: string; value: string; type: CustomFieldType }>,
+  fields: Array<{ key: string; value: string; type: CustomFieldType }>
 ) {
   const entries = fields
     .map((field) => ({
       key: field.key.trim(),
       value: field.value.trim(),
-      type: normalizeCustomFieldType(field.type),
+      type: normalizeCustomFieldType(field.type)
     }))
     .filter((field) => field.key.length > 0)
 
@@ -120,14 +120,14 @@ export function customFieldsToObject(
   return Object.fromEntries(
     entries.map((field) => [
       field.key,
-      { value: field.value, type: field.type },
-    ]),
+      { value: field.value, type: field.type }
+    ])
   )
 }
 
 export function applySectionImagesToCustomFields(
   customFields: JsonMapValue | null,
-  images: string[],
+  images: string[]
 ) {
   const nextCustomFields = { ...(customFields ?? {}) }
   const normalizedImages = images
@@ -145,7 +145,7 @@ export function applySectionImagesToCustomFields(
 }
 
 export function buildMarkerOptions(
-  detail: RpgMapDetailViewDto | null,
+  detail: RpgMapDetailViewDto | null
 ): MarkerLinkOption[] {
   return (detail?.markerGroups ?? []).flatMap((group) =>
     group.markers.map((marker) => ({
@@ -158,33 +158,33 @@ export function buildMarkerOptions(
       image: marker.image,
       color: marker.color || group.color,
       size: marker.size ?? null,
-      pinStyle: marker.pinStyle === "label" ? "label" : "default",
-    })),
+      pinStyle: marker.pinStyle === "label" ? "label" : "default"
+    }))
   )
 }
 
 function buildMarkerDisplayFields(
-  customFields: JsonMapValue | null | undefined,
+  customFields: JsonMapValue | null | undefined
 ) {
   return Object.entries(customFields ?? {})
     .map(([name, value]) => ({
       name,
-      parsed: parseSectionCustomFieldValue(value),
+      parsed: parseSectionCustomFieldValue(value)
     }))
     .filter(
       ({ name, parsed }) =>
         !INTERNAL_SECTION_FIELD_NAMES.has(name) &&
-        getStringValue(parsed.value).length > 0,
+        getStringValue(parsed.value).length > 0
     )
     .map(({ name, parsed }) => ({
       name,
       value: parsed.value,
-      type: parsed.type,
+      type: parsed.type
     }))
 }
 
 export function buildLinkedSectionSnapshots(
-  sections: RpgMapSectionDto[],
+  sections: RpgMapSectionDto[]
 ): LinkedSectionSnapshot[] {
   return sections
     .map((section) => {
@@ -200,7 +200,7 @@ export function buildLinkedSectionSnapshots(
         description: section.description?.trim() || null,
         type: section.type?.trim() || null,
         images: getSectionImages(section.customFields),
-        customFields: buildMarkerDisplayFields(section.customFields),
+        customFields: buildMarkerDisplayFields(section.customFields)
       }
     })
     .filter((section): section is LinkedSectionSnapshot => Boolean(section))
@@ -208,7 +208,7 @@ export function buildLinkedSectionSnapshots(
 
 function buildMergedSectionCustomFields(
   customFields: JsonMapValue | null | undefined,
-  linkedMarker: MarkerLinkOption | null,
+  linkedMarker: MarkerLinkOption | null
 ) {
   const merged = { ...(customFields ?? {}) }
 
@@ -230,19 +230,19 @@ function buildMergedSectionCustomFields(
   return Object.entries(merged)
     .map(([name, value]) => ({
       name,
-      parsed: parseSectionCustomFieldValue(value),
+      parsed: parseSectionCustomFieldValue(value)
     }))
     .filter(
       ({ name, parsed }) =>
         !INTERNAL_SECTION_FIELD_NAMES.has(name) &&
-        getStringValue(parsed.value).length > 0,
+        getStringValue(parsed.value).length > 0
     )
     .map(({ name, parsed }) => [name, parsed] as const)
 }
 
 export function buildSectionRenderState(
   section: RpgMapSectionDto,
-  linkedMarker: MarkerLinkOption | null,
+  linkedMarker: MarkerLinkOption | null
 ) {
   const sectionImages = getSectionImages(section.customFields)
   return {
@@ -258,7 +258,7 @@ export function buildSectionRenderState(
           : [],
     customFields: buildMergedSectionCustomFields(
       section.customFields,
-      linkedMarker,
-    ),
+      linkedMarker
+    )
   }
 }

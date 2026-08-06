@@ -7,7 +7,7 @@ function fail(message: string): never {
 
 export function clampCharacterCurrentStatuses(
   currentStatuses: unknown,
-  nextStatuses: Record<string, number>,
+  nextStatuses: Record<string, number>
 ) {
   const currentStatusesRecord =
     currentStatuses &&
@@ -26,7 +26,7 @@ export function clampCharacterCurrentStatuses(
       acc[key] = Math.max(0, Math.min(Math.floor(maxValue), currentNumber))
       return acc
     },
-    {},
+    {}
   )
 }
 
@@ -37,7 +37,7 @@ export function resolveCharacterTextRecord(value: unknown) {
 }
 
 export function validateCharacterCoreStatuses(
-  statuses: Record<string, number>,
+  statuses: Record<string, number>
 ) {
   const life = validateStat("vida", statuses.life ?? 0)
   if (!life.ok) fail(life.message)
@@ -55,6 +55,6 @@ export function validateCharacterCoreStatuses(
     defense: defense.value,
     mana: mana.value,
     exhaustion: exhaustion.value,
-    sanity: sanity.value,
+    sanity: sanity.value
   }
 }

@@ -1,11 +1,11 @@
 import {
   createBaseItemSchema,
-  type CreateBaseItemInput,
+  type CreateBaseItemInput
 } from "@/lib/validators/baseItem"
 import type {
   NormalizedCustomField,
   NormalizedBaseItemInput,
-  NormalizedNamedDescription,
+  NormalizedNamedDescription
 } from "@/features/world/item/application/ports/ItemRepository"
 import { ItemRepositoryError } from "@/features/world/item/application/errors/ItemRepositoryError"
 import { AppError } from "@/features/shared/application/errors/AppError"
@@ -16,16 +16,16 @@ function normalizeOptionalText(value: string | null | undefined) {
 }
 
 function normalizeNamedEntries(
-  entries: CreateBaseItemInput["abilities"] | CreateBaseItemInput["effects"],
+  entries: CreateBaseItemInput["abilities"] | CreateBaseItemInput["effects"]
 ) {
   return (entries ?? [])
     .map((entry) => ({
       name: entry.name.trim(),
-      description: entry.description.trim(),
+      description: entry.description.trim()
     }))
     .filter(
       (entry): entry is NormalizedNamedDescription =>
-        entry.description.length > 0,
+        entry.description.length > 0
     )
 }
 
@@ -33,19 +33,19 @@ function normalizeCustomFields(entries: CreateBaseItemInput["customFields"]) {
   return (entries ?? [])
     .map((entry) => ({
       name: entry.name.trim(),
-      value: normalizeOptionalText(entry.value),
+      value: normalizeOptionalText(entry.value)
     }))
     .filter((entry): entry is NormalizedCustomField => entry.name.length > 0)
 }
 
 export function parseAndNormalizeBaseItem(
-  body: unknown,
+  body: unknown
 ): NormalizedBaseItemInput {
   const parsed = createBaseItemSchema.safeParse(body)
   if (!parsed.success) {
     throw new AppError(
       parsed.error.issues[0]?.message ?? "Dados invalidos.",
-      400,
+      400
     )
   }
 
@@ -87,7 +87,7 @@ export function parseAndNormalizeBaseItem(
     customFields,
     weight,
     duration,
-    durability,
+    durability
   }
 }
 
@@ -99,7 +99,7 @@ export function ensureCanManageRpg(canManage: boolean) {
 
 export function mapBaseItemsError(
   error: unknown,
-  fallbackMessage: string,
+  fallbackMessage: string
 ): never {
   if (error instanceof AppError) {
     throw error
@@ -111,7 +111,7 @@ export function mapBaseItemsError(
   ) {
     throw new AppError(
       "Tabela de inventario nao existe no banco. Rode a migration.",
-      500,
+      500
     )
   }
 
@@ -121,7 +121,7 @@ export function mapBaseItemsError(
   ) {
     throw new AppError(
       "Estrutura de itens desatualizada. Rode a migration mais recente.",
-      500,
+      500
     )
   }
 

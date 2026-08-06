@@ -17,7 +17,7 @@ export default function CharacterEditorTextSection({
   fields,
   values,
   editInModal = false,
-  onFieldChange,
+  onFieldChange
 }: Props) {
   if (fields.length === 0) {
     return null
@@ -27,7 +27,7 @@ export default function CharacterEditorTextSection({
     <section className={`${styles.section} characterEditorSection`}>
       <h2>{title}</h2>
       <div className={styles.identityGrid}>
-        {fields.map((field) => (
+        {fields.map((field) =>
           editInModal ? (
             <EditableModalField
               key={`${title}-${field.key}`}
@@ -42,12 +42,14 @@ export default function CharacterEditorTextSection({
               <input
                 type="text"
                 value={values[field.key] ?? ""}
-                onChange={(event) => onFieldChange(field.key, event.target.value)}
+                onChange={(event) =>
+                  onFieldChange(field.key, event.target.value)
+                }
                 required={field.required}
               />
             </label>
           )
-        ))}
+        )}
       </div>
     </section>
   )

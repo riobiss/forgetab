@@ -17,7 +17,7 @@ function isSingleDiceRoll(roll: RollHistoryItem) {
 
 export function RollSummary({
   roll,
-  recentSingleRollResults = [],
+  recentSingleRollResults = []
 }: RollSummaryProps) {
   const shouldShowRecentRolls =
     isSingleDiceRoll(roll) && recentSingleRollResults.length > 0

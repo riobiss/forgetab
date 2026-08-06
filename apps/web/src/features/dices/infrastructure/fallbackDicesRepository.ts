@@ -8,7 +8,7 @@ type FallbackDicesRepositoryOptions = {
 export function createFallbackDicesRepository(
   primaryRepository: DicesRepository,
   fallbackRepository: DicesRepository,
-  options: FallbackDicesRepositoryOptions = {},
+  options: FallbackDicesRepositoryOptions = {}
 ): DicesRepository {
   return {
     async roll(payload) {
@@ -25,6 +25,6 @@ export function createFallbackDicesRepository(
 
         throw error
       }
-    },
+    }
   }
 }

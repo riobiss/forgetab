@@ -102,7 +102,7 @@ function useFileUpload(options: UploadOptions) {
       file,
       progress: 0,
       status: "uploading",
-      abortController,
+      abortController
     }
 
     setFileItems((prev) => [...prev, newFileItem])
@@ -208,7 +208,7 @@ function useFileUpload(options: UploadOptions) {
     fileItems,
     uploadFiles,
     removeFileItem,
-    clearAllFiles,
+    clearAllFiles
   }
 }
 
@@ -286,7 +286,7 @@ interface ImageUploadDragAreaProps {
  */
 const ImageUploadDragArea: React.FC<ImageUploadDragAreaProps> = ({
   onFile,
-  children,
+  children
 }) => {
   const [isDragOver, setIsDragOver] = useState(false)
   const [isDragActive, setIsDragActive] = useState(false)
@@ -353,7 +353,7 @@ interface ImageUploadPreviewProps {
  */
 const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
   fileItem,
-  onRemove,
+  onRemove
 }) => {
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes"
@@ -410,7 +410,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
 
 const DropZoneContent: React.FC<{ maxSize: number; limit: number }> = ({
   maxSize,
-  limit,
+  limit
 }) => (
   <>
     <div className="tiptap-image-upload-dropzone">
@@ -444,7 +444,7 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
     accept,
     upload: extension.options.upload,
     onSuccess: extension.options.onSuccess,
-    onError: extension.options.onError,
+    onError: extension.options.onError
   }
 
   const { fileItems, uploadFiles, removeFileItem, clearAllFiles } =
@@ -466,8 +466,8 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
               ...extension.options,
               src: url,
               alt: filename,
-              title: filename,
-            },
+              title: filename
+            }
           }
         })
 

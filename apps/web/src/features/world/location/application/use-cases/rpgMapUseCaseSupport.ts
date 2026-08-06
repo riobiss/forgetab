@@ -1,7 +1,7 @@
 import type {
   JsonMapValue,
   RpgMapSectionDto,
-  RpgMapSectionTreeNodeDto,
+  RpgMapSectionTreeNodeDto
 } from "@forgetab/world-contracts/location"
 import { AppError } from "@/shared/errors/AppError"
 
@@ -15,9 +15,7 @@ export function normalizeOptionalText(value: unknown) {
   return value.trim() || null
 }
 
-export function normalizeObjectOrNull(
-  value: unknown,
-): JsonMapValue | null {
+export function normalizeObjectOrNull(value: unknown): JsonMapValue | null {
   if (value == null) return null
   if (Array.isArray(value) || typeof value !== "object") return {}
   return value as JsonMapValue
@@ -45,24 +43,26 @@ export function ensureCanManage(access: {
   }
 }
 
-export function withPermissions<
-  T extends { createdByUserId?: string | null },
->(access: { canManage: boolean }, userId: string, entity: T) {
+export function withPermissions<T extends { createdByUserId?: string | null }>(
+  access: { canManage: boolean },
+  userId: string,
+  entity: T
+) {
   return {
     ...entity,
     canEdit: access.canManage || entity.createdByUserId === userId,
-    canDelete: access.canManage || entity.createdByUserId === userId,
+    canDelete: access.canManage || entity.createdByUserId === userId
   }
 }
 
 export function withManagedPermissions<T>(
   access: { canManage: boolean },
-  entity: T,
+  entity: T
 ) {
   return {
     ...entity,
     canEdit: access.canManage,
-    canDelete: access.canManage,
+    canDelete: access.canManage
   }
 }
 
@@ -70,7 +70,7 @@ export function assertCanManageOwnResource(
   access: { exists: boolean; canManage: boolean },
   owner: { createdByUserId: string | null } | null,
   userId: string,
-  notFoundMessage: string,
+  notFoundMessage: string
 ) {
   if (!access.exists) {
     throw new AppError("RPG nao encontrado.", 404)
@@ -82,12 +82,12 @@ export function assertCanManageOwnResource(
 
   throw new AppError(
     "Voce so pode editar ou remover registros criados por voce.",
-    403,
+    403
   )
 }
 
 export function buildSectionTree(
-  sections: RpgMapSectionDto[],
+  sections: RpgMapSectionDto[]
 ): RpgMapSectionTreeNodeDto[] {
   const nodes = new Map<string, RpgMapSectionTreeNodeDto>()
   const roots: RpgMapSectionTreeNodeDto[] = []
@@ -113,7 +113,7 @@ export function buildSectionTree(
   function sortNodes(items: RpgMapSectionTreeNodeDto[]) {
     items.sort(
       (left, right) =>
-        left.order - right.order || left.name.localeCompare(right.name),
+        left.order - right.order || left.name.localeCompare(right.name)
     )
     for (const item of items) sortNodes(item.children)
   }
@@ -125,7 +125,7 @@ export function buildSectionTree(
 export function ensureParentIsValid(
   sectionId: string,
   parentSectionId: string | null,
-  sections: RpgMapSectionDto[],
+  sections: RpgMapSectionDto[]
 ) {
   if (!parentSectionId) return
   if (parentSectionId === sectionId) {
@@ -146,7 +146,7 @@ export function ensureParentIsValid(
     if (current === parentSectionId) {
       throw new AppError(
         "Nao e possivel mover uma secao para dentro da propria descendencia.",
-        400,
+        400
       )
     }
     stack.push(...(childrenByParent.get(current) ?? []))

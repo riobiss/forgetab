@@ -40,7 +40,7 @@ export function ReactSelectField({
   placeholder,
   required,
   isDisabled,
-  classNames,
+  classNames
 }: ReactSelectFieldProps) {
   const fallbackId = useId()
   const selectId = inputId ?? fallbackId
@@ -48,18 +48,33 @@ export function ReactSelectField({
     () =>
       options.map((option, index) => ({
         option,
-        radixValue: option.value === "" ? `__radix_empty__${index}` : option.value,
+        radixValue:
+          option.value === "" ? `__radix_empty__${index}` : option.value
       })),
-    [options],
+    [options]
   )
 
   const selectedRadixValue =
-    mappedOptions.find((entry) => entry.option.value === (value?.value ?? ""))?.radixValue ?? ""
+    mappedOptions.find((entry) => entry.option.value === (value?.value ?? ""))
+      ?.radixValue ?? ""
 
   return (
-    <div className={[styles.wrapper, classNames?.wrapper?.(), classNames?.container?.()].filter(Boolean).join(" ")}>
+    <div
+      className={[
+        styles.wrapper,
+        classNames?.wrapper?.(),
+        classNames?.container?.()
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       {label ? (
-        <label htmlFor={selectId} className={[styles.label, classNames?.label?.()].filter(Boolean).join(" ")}>
+        <label
+          htmlFor={selectId}
+          className={[styles.label, classNames?.label?.()]
+            .filter(Boolean)
+            .join(" ")}
+        >
           {label}
         </label>
       ) : null}
@@ -68,18 +83,24 @@ export function ReactSelectField({
         disabled={isDisabled}
         required={required}
         onValueChange={(nextValue) => {
-          const selected = mappedOptions.find((entry) => entry.radixValue === nextValue)?.option ?? null
+          const selected =
+            mappedOptions.find((entry) => entry.radixValue === nextValue)
+              ?.option ?? null
           onChange?.(selected)
         }}
       >
         <Select.Trigger
           id={selectId}
-          className={[styles.control, classNames?.control?.()].filter(Boolean).join(" ")}
+          className={[styles.control, classNames?.control?.()]
+            .filter(Boolean)
+            .join(" ")}
           aria-label={label}
         >
           <Select.Value
             className={styles.singleValue}
-            placeholder={<span className={styles.placeholder}>{placeholder}</span>}
+            placeholder={
+              <span className={styles.placeholder}>{placeholder}</span>
+            }
           />
           <Select.Icon className={styles.dropdownIndicator}>▾</Select.Icon>
         </Select.Trigger>

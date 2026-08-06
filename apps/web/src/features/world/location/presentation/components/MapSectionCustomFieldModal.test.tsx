@@ -10,7 +10,7 @@ describe("MapSectionCustomFieldModal", () => {
     const onChangeDraft = vi.fn(
       (updater: (current: CustomFieldDraftState) => CustomFieldDraftState) => {
         draftState = updater(draftState)
-      },
+      }
     )
     const onSave = vi.fn()
     const onClose = vi.fn()
@@ -25,14 +25,14 @@ describe("MapSectionCustomFieldModal", () => {
         onChangeDraft={onChangeDraft}
         onSave={onSave}
         onClose={onClose}
-      />,
+      />
     )
 
     fireEvent.change(screen.getByLabelText("Chave"), {
-      target: { value: "Clima" },
+      target: { value: "Clima" }
     })
     fireEvent.change(screen.getByLabelText("Valor"), {
-      target: { value: "Frio" },
+      target: { value: "Frio" }
     })
     expect(draftState).toEqual({ key: "Clima", value: "Frio", type: "text" })
 

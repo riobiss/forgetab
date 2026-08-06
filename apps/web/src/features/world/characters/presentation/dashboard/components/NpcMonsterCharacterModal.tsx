@@ -15,12 +15,12 @@ import {
   loadCharacterEditorBootstrapUseCase,
   loadEditableCharacterUseCase,
   updateCharacterUseCase,
-  uploadCharacterImageUseCase,
+  uploadCharacterImageUseCase
 } from "@/features/world/characters/application/editor"
 import {
   buildNpcMonsterBasicUpdatePayload,
   buildNpcMonsterBonusUpdatePayload,
-  buildNpcMonsterCreatePayload,
+  buildNpcMonsterCreatePayload
 } from "@/features/world/characters/application/npc-monster"
 import { createCharactersEditorDependencies } from "@/features/world/characters/presentation/editor/dependencies"
 import styles from "../CharactersDashboardPage.module.css"
@@ -31,29 +31,29 @@ import {
   NpcMonsterBonusStep,
   NpcMonsterExtraFieldModal,
   NpcMonsterInventoryStep,
-  NpcMonsterPickerModal,
+  NpcMonsterPickerModal
 } from "./npc-monster-modal/components"
 import {
   ExtraField,
   NarrativeStatus,
   NumericInputValue,
   SecretFieldKey,
-  StepKey,
+  StepKey
 } from "./npc-monster-modal/types"
 import {
   applyCharacterSnapshot,
   createEmptyExtraField,
-  parseNumericInputValue,
+  parseNumericInputValue
 } from "./npc-monster-modal/utils"
 import {
   buildNpcMonsterFormState,
   buildNpcMonsterSecretFieldOptions,
-  getNpcMonsterImageStatusText,
+  getNpcMonsterImageStatusText
 } from "./npc-monster-modal/presentation"
 import { useNpcMonsterLoadout } from "./npc-monster-modal/hooks/useNpcMonsterLoadout"
 import {
   mergeCharacterSnapshot,
-  upsertCharacterSnapshot,
+  upsertCharacterSnapshot
 } from "./npc-monster-modal/characterSnapshot"
 
 type Props = {
@@ -75,7 +75,7 @@ export default function NpcMonsterCharacterModal({
   characterType,
   characterId,
   initialBootstrap = null,
-  onClose,
+  onClose
 }: Props) {
   const router = useRouter()
   const [step, setStep] = useState<StepKey>("basic")
@@ -87,7 +87,7 @@ export default function NpcMonsterCharacterModal({
   const [editingCharacter, setEditingCharacter] =
     useState<CharacterEditorSummaryDto | null>(null)
   const [createdCharacterId, setCreatedCharacterId] = useState<string | null>(
-    characterId ?? null,
+    characterId ?? null
   )
   const [image, setImage] = useState("")
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
@@ -111,7 +111,7 @@ export default function NpcMonsterCharacterModal({
     Record<string, NumericInputValue>
   >({})
   const [extraFields, setExtraFields] = useState<ExtraField[]>([
-    createEmptyExtraField(),
+    createEmptyExtraField()
   ])
   const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false)
   const [newFieldKey, setNewFieldKey] = useState("")
@@ -137,11 +137,11 @@ export default function NpcMonsterCharacterModal({
     addInventoryItem,
     removeInventoryItem,
     addAbility,
-    removeAbility,
+    removeAbility
   } = useNpcMonsterLoadout({
     isOpen,
     rpgId,
-    characterId: createdCharacterId,
+    characterId: createdCharacterId
   })
   const [deleting, setDeleting] = useState(false)
 
@@ -162,17 +162,17 @@ export default function NpcMonsterCharacterModal({
             ? await Promise.all([
                 loadCharacterEditorBootstrapUseCase(deps, {
                   rpgId,
-                  includeCharacters: false,
+                  includeCharacters: false
                 }),
-                loadEditableCharacterUseCase(deps, { rpgId, characterId }),
+                loadEditableCharacterUseCase(deps, { rpgId, characterId })
               ])
             : [
                 initialBootstrap ??
                   (await loadCharacterEditorBootstrapUseCase(deps, {
                     rpgId,
-                    includeCharacters: true,
+                    includeCharacters: true
                   })),
-                null,
+                null
               ]
         if (cancelled) {
           return
@@ -203,7 +203,7 @@ export default function NpcMonsterCharacterModal({
           setStatusValues,
           setAttributeValues,
           setSkillValues,
-          setExtraFields,
+          setExtraFields
         })
         setCustomFieldModalOpen(false)
         setNewFieldKey("")
@@ -213,7 +213,7 @@ export default function NpcMonsterCharacterModal({
           setError(
             cause instanceof Error
               ? cause.message
-              : "Nao foi possivel carregar o formulario.",
+              : "Nao foi possivel carregar o formulario."
           )
         }
       } finally {
@@ -279,10 +279,10 @@ export default function NpcMonsterCharacterModal({
     statusValues,
     attributeValues,
     skillValues,
-    extraFields,
+    extraFields
   })
   function applyLocalCharacterSnapshot(
-    nextCharacter: CharacterEditorSummaryDto,
+    nextCharacter: CharacterEditorSummaryDto
   ) {
     if (!bootstrap) {
       return
@@ -308,13 +308,13 @@ export default function NpcMonsterCharacterModal({
       setStatusValues,
       setAttributeValues,
       setSkillValues,
-      setExtraFields,
+      setExtraFields
     })
   }
 
   async function persistCharacter(
     payload: UpsertCharacterPayloadDto | UpdateCharacterPayloadDto,
-    successMessage: string,
+    successMessage: string
   ) {
     const targetCharacterId = createdCharacterId ?? null
 
@@ -322,20 +322,20 @@ export default function NpcMonsterCharacterModal({
       const updatedCharacter = await updateCharacterUseCase(deps, {
         rpgId,
         characterId: targetCharacterId,
-        payload,
+        payload
       })
       setCreatedCharacterId(targetCharacterId)
       applyLocalCharacterSnapshot(
-        mergeCharacterSnapshot(editingCharacter, payload, updatedCharacter),
+        mergeCharacterSnapshot(editingCharacter, payload, updatedCharacter)
       )
     } else {
       const created = await createCharacterUseCase(deps, {
         rpgId,
-        payload: payload as UpsertCharacterPayloadDto,
+        payload: payload as UpsertCharacterPayloadDto
       })
       setCreatedCharacterId(created.id)
       applyLocalCharacterSnapshot(
-        mergeCharacterSnapshot(editingCharacter, payload, created),
+        mergeCharacterSnapshot(editingCharacter, payload, created)
       )
     }
 
@@ -357,7 +357,7 @@ export default function NpcMonsterCharacterModal({
     try {
       if (selectedImageFile) {
         const upload = await uploadCharacterImageUseCase(deps, {
-          file: selectedImageFile,
+          file: selectedImageFile
         })
         uploadedImageUrl = upload.url
         submittedImage = upload.url
@@ -370,28 +370,28 @@ export default function NpcMonsterCharacterModal({
               currentCharacter,
               basic: {
                 ...formState,
-                image: submittedImage ?? "",
-              },
+                image: submittedImage ?? ""
+              }
             })
           : buildNpcMonsterCreatePayload({
               currentCharacter,
               characterType,
               basic: {
                 ...formState,
-                image: submittedImage ?? "",
+                image: submittedImage ?? ""
               },
               bonus: {
                 statusValues,
                 attributeValues,
-                skillValues,
-              },
+                skillValues
+              }
             })
 
       await persistCharacter(
         payload,
         mode === "edit" || createdCharacterId
           ? "Personagem salvo com sucesso."
-          : "Personagem criado com sucesso.",
+          : "Personagem criado com sucesso."
       )
 
       setSelectedImageFile(null)
@@ -406,7 +406,7 @@ export default function NpcMonsterCharacterModal({
       if (uploadedFreshImage && uploadedImageUrl) {
         try {
           await deleteCharacterImageByUrlUseCase(deps, {
-            url: uploadedImageUrl,
+            url: uploadedImageUrl
           })
         } catch {
           // Ignore cleanup failures after an unsuccessful submit.
@@ -439,8 +439,8 @@ export default function NpcMonsterCharacterModal({
       {
         id: crypto.randomUUID(),
         key,
-        value: newFieldValue.trim(),
-      },
+        value: newFieldValue.trim()
+      }
     ])
     setNewFieldKey("")
     setNewFieldValue("")
@@ -450,21 +450,21 @@ export default function NpcMonsterCharacterModal({
   function updateAttributeValue(key: string, value: string) {
     setAttributeValues((current) => ({
       ...current,
-      [key]: parseNumericInputValue(value),
+      [key]: parseNumericInputValue(value)
     }))
   }
 
   function updateStatusValue(key: string, value: string) {
     setStatusValues((current) => ({
       ...current,
-      [key]: parseNumericInputValue(value),
+      [key]: parseNumericInputValue(value)
     }))
   }
 
   function updateSkillValue(key: string, value: string) {
     setSkillValues((current) => ({
       ...current,
-      [key]: parseNumericInputValue(value),
+      [key]: parseNumericInputValue(value)
     }))
   }
 
@@ -480,9 +480,9 @@ export default function NpcMonsterCharacterModal({
         buildNpcMonsterBonusUpdatePayload({
           statusValues,
           attributeValues,
-          skillValues,
+          skillValues
         }),
-        "Bonus salvos com sucesso.",
+        "Bonus salvos com sucesso."
       )
     } catch (cause) {
       const message =
@@ -510,7 +510,7 @@ export default function NpcMonsterCharacterModal({
       setError("")
       await deleteCharacterUseCase(deps, {
         rpgId,
-        characterId: createdCharacterId,
+        characterId: createdCharacterId
       })
       toast.success("Personagem deletado com sucesso.")
       router.refresh()
@@ -629,13 +629,13 @@ export default function NpcMonsterCharacterModal({
             onExtraFieldValueChange={(fieldId, value) =>
               setExtraFields((current) =>
                 current.map((item) =>
-                  item.id === fieldId ? { ...item, value } : item,
-                ),
+                  item.id === fieldId ? { ...item, value } : item
+                )
               )
             }
             onRemoveExtraField={(fieldId) =>
               setExtraFields((current) =>
-                current.filter((item) => item.id !== fieldId),
+                current.filter((item) => item.id !== fieldId)
               )
             }
             onResetError={() => setError("")}

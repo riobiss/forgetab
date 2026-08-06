@@ -1,11 +1,11 @@
 import type {
   CharacterStatusCurrentDependencies,
-  UpdateCharacterStatusCurrentInput,
+  UpdateCharacterStatusCurrentInput
 } from "@/features/world/characters/application/status-current/contracts/CharacterStatusCurrentGateway"
 
 export function updateCharacterStatusCurrentClientUseCase(
   dependencies: CharacterStatusCurrentDependencies,
-  input: UpdateCharacterStatusCurrentInput,
+  input: UpdateCharacterStatusCurrentInput
 ) {
   return dependencies.gateway.update(input)
 }

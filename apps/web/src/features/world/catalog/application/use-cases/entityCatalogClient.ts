@@ -3,7 +3,7 @@ import slugify from "@/utils/slugify"
 import type { EntityCatalogDependencies } from "@/features/world/catalog/application/contracts/EntityCatalogDependencies"
 import type {
   EntityCatalogAbilityPurchaseResult,
-  EntityCatalogTemplateRecord,
+  EntityCatalogTemplateRecord
 } from "@/features/world/catalog/application/types"
 
 type CollectionParams = {
@@ -26,25 +26,25 @@ type UpdateTemplateParams = CollectionParams & {
 
 export async function loadEntityCatalogCollectionUseCase(
   deps: EntityCatalogDependencies,
-  params: CollectionParams,
+  params: CollectionParams
 ) {
   return deps.collectionGateway.fetchCollection(params.rpgId, params.entityType)
 }
 
 export async function saveEntityCatalogCollectionUseCase(
   deps: EntityCatalogDependencies,
-  params: SaveCollectionParams,
+  params: SaveCollectionParams
 ) {
   await deps.collectionGateway.saveCollection(
     params.rpgId,
     params.entityType,
-    params.collection,
+    params.collection
   )
 }
 
 export async function createEntityCatalogEntryUseCase(
   deps: EntityCatalogDependencies,
-  params: CreateEntryParams,
+  params: CreateEntryParams
 ): Promise<{ href: string }> {
   const label =
     typeof params.entry.label === "string" ? params.entry.label.trim() : ""
@@ -52,24 +52,24 @@ export async function createEntityCatalogEntryUseCase(
     throw new Error(
       params.entityType === "class"
         ? "Informe o nome da classe."
-        : "Informe o nome da raca.",
+        : "Informe o nome da raca."
     )
   }
 
   const currentCollection = await loadEntityCatalogCollectionUseCase(
     deps,
-    params,
+    params
   )
   const nextCollection = [...currentCollection, params.entry]
 
   await saveEntityCatalogCollectionUseCase(deps, {
     ...params,
-    collection: nextCollection,
+    collection: nextCollection
   })
 
   const refreshedCollection = await loadEntityCatalogCollectionUseCase(
     deps,
-    params,
+    params
   )
   const expectedKey = slugify(label)
   const created = refreshedCollection.find((item) => item.key === expectedKey)
@@ -78,7 +78,7 @@ export async function createEntityCatalogEntryUseCase(
     throw new Error(
       params.entityType === "class"
         ? "Classe criada, mas nao localizada."
-        : "Raca criada, mas nao localizada.",
+        : "Raca criada, mas nao localizada."
     )
   }
 
@@ -99,39 +99,39 @@ export async function createEntityCatalogEntryUseCase(
 
 export async function updateEntityCatalogTemplateUseCase(
   deps: EntityCatalogDependencies,
-  params: UpdateTemplateParams,
+  params: UpdateTemplateParams
 ) {
   const currentCollection = await loadEntityCatalogCollectionUseCase(
     deps,
-    params,
+    params
   )
   const templateExists = currentCollection.some(
-    (item) => item.key === params.templateKey,
+    (item) => item.key === params.templateKey
   )
   if (!templateExists) {
     throw new Error(
       params.entityType === "class"
         ? "Classe nao encontrada."
-        : "Raca nao encontrada.",
+        : "Raca nao encontrada."
     )
   }
 
   const nextCollection = currentCollection.map((item) =>
-    item.key === params.templateKey ? params.nextTemplate : item,
+    item.key === params.templateKey ? params.nextTemplate : item
   )
 
   await saveEntityCatalogCollectionUseCase(deps, {
     ...params,
-    collection: nextCollection,
+    collection: nextCollection
   })
 }
 
 export async function buyEntityCatalogSkillUseCase(
   deps: EntityCatalogDependencies,
-  params: { characterId: string; skillId: string; level: number },
+  params: { characterId: string; skillId: string; level: number }
 ): Promise<EntityCatalogAbilityPurchaseResult> {
   return deps.purchaseGateway.buySkill(params.characterId, {
     skillId: params.skillId,
-    level: params.level,
+    level: params.level
   })
 }

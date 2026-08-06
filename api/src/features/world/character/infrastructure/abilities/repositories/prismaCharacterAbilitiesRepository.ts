@@ -4,7 +4,7 @@ import type {
   CharacterAbilitiesClassRow,
   CharacterAbilitiesPurchasedSkillLevelRow,
   CharacterAbilitiesSkillClassLinkRow,
-  CharacterAbilitiesSkillRaceLinkRow,
+  CharacterAbilitiesSkillRaceLinkRow
 } from "@/features/world/character/application/abilities/types.js"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
@@ -14,7 +14,7 @@ export const prismaCharacterAbilitiesRepository: CharacterAbilitiesRepository =
     async getRpg(rpgId: string) {
       const row = await prisma.rpg.findUnique({
         where: { id: rpgId },
-        select: { id: true, ownerId: true, visibility: true },
+        select: { id: true, ownerId: true, visibility: true }
       })
 
       if (!row) {
@@ -23,13 +23,13 @@ export const prismaCharacterAbilitiesRepository: CharacterAbilitiesRepository =
 
       return {
         ...row,
-        visibility: row.visibility === "private" ? "private" : "public",
+        visibility: row.visibility === "private" ? "private" : "public"
       }
     },
 
     async getCharacter(
       rpgId: string,
-      characterId: string,
+      characterId: string
     ): Promise<CharacterAbilitiesCharacterRow | null> {
       const rows = await prisma.$queryRaw<
         CharacterAbilitiesCharacterRow[]
@@ -54,7 +54,7 @@ export const prismaCharacterAbilitiesRepository: CharacterAbilitiesRepository =
 
     async getClassByKey(
       rpgId: string,
-      classKey: string,
+      classKey: string
     ): Promise<CharacterAbilitiesClassRow | null> {
       const rows = await prisma.$queryRaw<
         CharacterAbilitiesClassRow[]
@@ -157,5 +157,5 @@ export const prismaCharacterAbilitiesRepository: CharacterAbilitiesRepository =
       WHERE srl.skill_id IN (${Prisma.join(ownedSkillIds)})
         AND rt.rpg_id = ${rpgId}
     `)
-    },
+    }
   }

@@ -2,7 +2,7 @@ import { normalizeEnabledAbilityCategories } from "@/lib/rpg/abilityCategories"
 import {
   isProgressionMode,
   normalizeProgressionTiers,
-  type ProgressionMode,
+  type ProgressionMode
 } from "@/lib/rpg/progression"
 import type { RpgPermissionService } from "@/features/world/application/management/ports/RpgPermissionService"
 import type { RpgRepository } from "@/features/world/application/management/ports/RpgRepository"
@@ -15,7 +15,7 @@ type GetRpgByIdDependencies = {
 
 export async function getRpgById(
   deps: GetRpgByIdDependencies,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   const rpg = await deps.repository.findById(params.rpgId)
 
@@ -25,7 +25,7 @@ export async function getRpgById(
 
   const permission = await deps.permissionService.getPermission(
     params.rpgId,
-    params.userId,
+    params.userId
   )
   if (
     !permission.isOwner &&
@@ -58,15 +58,15 @@ export async function getRpgById(
       allowSkillPointDistribution: rpg.allowSkillPointDistribution,
       abilityCategoriesEnabled: rpg.abilityCategoriesEnabled,
       enabledAbilityCategories: normalizeEnabledAbilityCategories(
-        rpg.enabledAbilityCategories,
+        rpg.enabledAbilityCategories
       ),
       progressionMode,
       progressionTiers: normalizeProgressionTiers(
         rpg.progressionTiers,
-        progressionMode,
+        progressionMode
       ),
       canManage: permission.canManage,
-      canDelete: permission.isOwner,
-    },
+      canDelete: permission.isOwner
+    }
   }
 }

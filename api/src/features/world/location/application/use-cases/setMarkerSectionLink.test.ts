@@ -8,8 +8,8 @@ function createAccessService(
     exists: true,
     userId: "user-1",
     canManage: false,
-    isAcceptedMember: true,
-  },
+    isAcceptedMember: true
+  }
 ): RpgMapAccessService {
   return { getAccess: vi.fn().mockResolvedValue(access) }
 }
@@ -17,8 +17,8 @@ function createAccessService(
 function createRepository(
   status: Awaited<ReturnType<MarkerSectionLinkRepository["setLink"]>> = {
     status: "linked",
-    sectionId: "section-1",
-  },
+    sectionId: "section-1"
+  }
 ): MarkerSectionLinkRepository {
   return { setLink: vi.fn().mockResolvedValue(status) }
 }
@@ -33,8 +33,8 @@ const body = {
     location: " Norte ",
     shortDescription: null,
     image: null,
-    color: " #fff ",
-  },
+    color: " #fff "
+  }
 }
 
 describe("setMarkerSectionLink", () => {
@@ -46,11 +46,11 @@ describe("setMarkerSectionLink", () => {
         rpgId: "rpg-1",
         mapId: "map-1",
         userId: "user-1",
-        body,
-      }),
+        body
+      })
     ).resolves.toEqual({
       markerId: "marker-1",
-      sectionId: "section-1",
+      sectionId: "section-1"
     })
 
     expect(repository.setLink).toHaveBeenCalledWith({
@@ -65,8 +65,8 @@ describe("setMarkerSectionLink", () => {
         location: "Norte",
         shortDescription: null,
         image: null,
-        color: "#fff",
-      },
+        color: "#fff"
+      }
     })
   })
 
@@ -76,7 +76,7 @@ describe("setMarkerSectionLink", () => {
       exists: true,
       userId: "user-2",
       canManage: false,
-      isAcceptedMember: false,
+      isAcceptedMember: false
     })
 
     await expect(
@@ -84,8 +84,8 @@ describe("setMarkerSectionLink", () => {
         rpgId: "rpg-1",
         mapId: "map-1",
         userId: "user-2",
-        body,
-      }),
+        body
+      })
     ).rejects.toThrow("RPG nao encontrado.")
     expect(repository.setLink).not.toHaveBeenCalled()
   })
@@ -101,10 +101,10 @@ describe("setMarkerSectionLink", () => {
           userId: "user-1",
           body: {
             ...body,
-            marker: { ...body.marker, visibility: "public" },
-          },
-        },
-      ),
+            marker: { ...body.marker, visibility: "public" }
+          }
+        }
+      )
     ).rejects.toThrow("Marcador nao encontrado.")
   })
 })

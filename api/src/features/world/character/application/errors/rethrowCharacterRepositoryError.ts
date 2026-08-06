@@ -11,7 +11,7 @@ const messageByCode = {
   progression_schema_outdated:
     "Estrutura de progressao desatualizada. Rode a migration mais recente.",
   ability_schema_outdated:
-    "Estrutura de habilidades desatualizada. Rode a migration mais recente.",
+    "Estrutura de habilidades desatualizada. Rode a migration mais recente."
 } as const
 
 export function rethrowCharacterRepositoryError(error: unknown): never {
@@ -19,10 +19,7 @@ export function rethrowCharacterRepositoryError(error: unknown): never {
     throw error
   }
 
-  if (
-    error instanceof CharacterRepositoryError &&
-    error.code !== "unknown"
-  ) {
+  if (error instanceof CharacterRepositoryError && error.code !== "unknown") {
     throw new AppError(messageByCode[error.code], 500)
   }
 

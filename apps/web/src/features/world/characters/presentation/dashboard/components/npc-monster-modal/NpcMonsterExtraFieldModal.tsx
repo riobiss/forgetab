@@ -19,7 +19,7 @@ export default function NpcMonsterExtraFieldModal({
   onClose,
   onKeyChange,
   onValueChange,
-  onSubmit,
+  onSubmit
 }: Props) {
   if (!isOpen) {
     return null
@@ -33,21 +33,38 @@ export default function NpcMonsterExtraFieldModal({
       aria-label="Novo campo"
       onClick={onClose}
     >
-      <section className={styles.nestedModalShell} onClick={(event) => event.stopPropagation()}>
+      <section
+        className={styles.nestedModalShell}
+        onClick={(event) => event.stopPropagation()}
+      >
         <h3 className={styles.nestedModalTitle}>Novo campo</h3>
         <label className={styles.modalField}>
           <span>Chave</span>
-          <input value={newFieldKey} onChange={(event) => onKeyChange(event.target.value)} />
+          <input
+            value={newFieldKey}
+            onChange={(event) => onKeyChange(event.target.value)}
+          />
         </label>
         <label className={styles.modalField}>
           <span>Valor</span>
-          <input value={newFieldValue} onChange={(event) => onValueChange(event.target.value)} />
+          <input
+            value={newFieldValue}
+            onChange={(event) => onValueChange(event.target.value)}
+          />
         </label>
         <div className={styles.modalFooter}>
-          <button type="button" className={styles.modalSecondaryButton} onClick={onClose}>
+          <button
+            type="button"
+            className={styles.modalSecondaryButton}
+            onClick={onClose}
+          >
             Cancelar
           </button>
-          <button type="button" className={styles.modalPrimaryButton} onClick={onSubmit}>
+          <button
+            type="button"
+            className={styles.modalPrimaryButton}
+            onClick={onSubmit}
+          >
             Criar campo
           </button>
         </div>

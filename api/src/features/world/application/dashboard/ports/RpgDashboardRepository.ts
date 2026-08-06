@@ -2,7 +2,7 @@ import type { JsonValue } from "@/features/shared/application/json"
 import type {
   AcceptedMemberSummary,
   PendingCharacterOfferSummary,
-  PendingRequestSummary,
+  PendingRequestSummary
 } from "@forgetab/world-contracts/dashboard"
 
 export type DbRpgRow = {
@@ -47,12 +47,12 @@ export interface RpgDashboardRepository {
   listPendingCharacterRequests(rpgId: string): Promise<PendingRequestSummary[]>
   listPendingCharacterOffers(
     rpgId: string,
-    userId: string,
+    userId: string
   ): Promise<PendingCharacterOfferSummary[]>
   listAcceptedMembers(rpgId: string): Promise<AcceptedMemberSummary[]>
   countAcceptedMembers(rpgId: string): Promise<number>
   getTemplatesPresence(
-    rpgId: string,
+    rpgId: string
   ): Promise<{ hasRaces: boolean; hasClasses: boolean }>
   getSpectatorVisionData(rpgId: string): Promise<{
     charactersRows: SpectatorCharacterRow[]

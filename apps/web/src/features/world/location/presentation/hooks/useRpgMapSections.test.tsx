@@ -11,50 +11,47 @@ const mocks = vi.hoisted(() => ({
   syncPrivateMarker: vi.fn(),
   syncPublicMarker: vi.fn(),
   updateSection: vi.fn(),
-  uploadSectionImage: vi.fn(),
+  uploadSectionImage: vi.fn()
 }))
 
 vi.mock("react-hot-toast", () => ({
   toast: {
     error: vi.fn(),
-    success: vi.fn(),
-  },
+    success: vi.fn()
+  }
 }))
 
-vi.mock(
-  "@/features/world/location/presentation/dependencies",
-  () => ({
-    rpgMapPresentationDeps: {
-      rpgMapGateway: {
-        createSection: mocks.createSection,
-        deleteSection: mocks.deleteSection,
-        deleteSectionImage: mocks.deleteSectionImage,
-        updateSection: mocks.updateSection,
-        uploadSectionImage: mocks.uploadSectionImage,
-      },
-      markerSectionLinkGateway: {
-        setLink: mocks.setLink,
-      },
-      markerSectionSyncGateways: {
-        privateMarkers: {
-          update: mocks.syncPrivateMarker,
-        },
-        publicMarkers: {
-          update: mocks.syncPublicMarker,
-        },
-      },
+vi.mock("@/features/world/location/presentation/dependencies", () => ({
+  rpgMapPresentationDeps: {
+    rpgMapGateway: {
+      createSection: mocks.createSection,
+      deleteSection: mocks.deleteSection,
+      deleteSectionImage: mocks.deleteSectionImage,
+      updateSection: mocks.updateSection,
+      uploadSectionImage: mocks.uploadSectionImage
     },
-  }),
-)
+    markerSectionLinkGateway: {
+      setLink: mocks.setLink
+    },
+    markerSectionSyncGateways: {
+      privateMarkers: {
+        update: mocks.syncPrivateMarker
+      },
+      publicMarkers: {
+        update: mocks.syncPublicMarker
+      }
+    }
+  }
+}))
 
 const detail = {
   sections: [],
   tree: [],
-  markerGroups: [],
+  markerGroups: []
 } as unknown as RpgMapDetailViewDto
 
 function renderSections(
-  markerOptions: Parameters<typeof useRpgMapSections>[0]["markerOptions"] = [],
+  markerOptions: Parameters<typeof useRpgMapSections>[0]["markerOptions"] = []
 ) {
   const loadDetail = vi.fn().mockResolvedValue(undefined)
   const loadMaps = vi.fn().mockResolvedValue(undefined)
@@ -68,14 +65,14 @@ function renderSections(
       selectedSectionId: null,
       setSelectedSectionId,
       loadDetail,
-      loadMaps,
-    }),
+      loadMaps
+    })
   )
 
   return {
     ...rendered,
     loadDetail,
-    loadMaps,
+    loadMaps
   }
 }
 
@@ -93,7 +90,7 @@ describe("useRpgMapSections", () => {
       result.current.setSectionForm((current) => ({
         ...current,
         name: "Capital",
-        description: "Centro do reino",
+        description: "Centro do reino"
       }))
     })
 
@@ -106,7 +103,7 @@ describe("useRpgMapSections", () => {
       description: "Centro do reino",
       type: null,
       parentSectionId: null,
-      customFields: null,
+      customFields: null
     })
     expect(loadDetail).toHaveBeenCalledWith("map-1", "section-1")
     expect(loadMaps).toHaveBeenCalledOnce()
@@ -124,7 +121,7 @@ describe("useRpgMapSections", () => {
       image: null,
       color: null,
       size: null,
-      pinStyle: "default" as const,
+      pinStyle: "default" as const
     }
     const { result } = renderSections([marker])
 
@@ -133,7 +130,7 @@ describe("useRpgMapSections", () => {
       result.current.setSectionForm((current) => ({
         ...current,
         name: "Capital",
-        linkedMarkerId: marker.id,
+        linkedMarkerId: marker.id
       }))
     })
 
@@ -150,7 +147,7 @@ describe("useRpgMapSections", () => {
     const { result } = renderSections()
     const section = {
       id: "section-1",
-      name: "Capital",
+      name: "Capital"
     } as Parameters<typeof result.current.deleteSection>[0]
 
     act(() => {

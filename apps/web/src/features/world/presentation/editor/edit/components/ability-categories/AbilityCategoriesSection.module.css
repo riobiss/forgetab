@@ -4,7 +4,11 @@
   padding: 0.72rem;
   display: grid;
   gap: 0.62rem;
-  background: color-mix(in srgb, var(--color-bg-app) 88%, var(--color-bg-surface));
+  background: color-mix(
+    in srgb,
+    var(--color-bg-app) 88%,
+    var(--color-bg-surface)
+  );
 }
 
 .section h3 {

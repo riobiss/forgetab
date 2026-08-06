@@ -4,14 +4,14 @@ import type {
   CharacterDetailLabelDto,
   CharacterDetailRowDto,
   CharacterDetailRpgDto,
-  CharacterDetailTemplateFieldDto,
+  CharacterDetailTemplateFieldDto
 } from "@/features/world/character/application/detail/types.js"
 import { prisma } from "@/lib/prisma"
 import {
   getDefaultProgressionTiers,
   isProgressionMode,
   normalizeProgressionTiers,
-  type ProgressionMode,
+  type ProgressionMode
 } from "@/lib/rpg/progression"
 import { normalizeRpgVisibility } from "@/features/world/infrastructure/shared/normalizeRpgVisibility.js"
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
@@ -48,7 +48,7 @@ export const prismaCharacterDetailRepository: CharacterDetailRepository = {
       if (
         !(error instanceof Error) ||
         !error.message.includes(
-          'column "users_can_manage_own_xp" does not exist',
+          'column "users_can_manage_own_xp" does not exist'
         )
       ) {
         throw error
@@ -98,7 +98,7 @@ export const prismaCharacterDetailRepository: CharacterDetailRepository = {
         : "xp_level"
       progressionTiers = normalizeProgressionTiers(
         rows[0]?.progressionTiers,
-        progressionMode,
+        progressionMode
       )
     } catch (error) {
       if (
@@ -114,13 +114,13 @@ export const prismaCharacterDetailRepository: CharacterDetailRepository = {
       ...rpgRow,
       visibility: normalizeRpgVisibility(rpgRow.visibility),
       progressionMode,
-      progressionTiers,
+      progressionTiers
     }
   },
 
   async getCharacter(
     rpgId: string,
-    characterId: string,
+    characterId: string
   ): Promise<CharacterDetailRowDto | null> {
     let rows: CharacterDetailRowDto[] = []
 
@@ -164,12 +164,12 @@ export const prismaCharacterDetailRepository: CharacterDetailRepository = {
         error instanceof Error &&
         (error.message.includes('column "skill_points" does not exist') ||
           error.message.includes(
-            'column "cost_resource_name" does not exist',
+            'column "cost_resource_name" does not exist'
           ) ||
           error.message.includes('column "progression_mode" does not exist') ||
           error.message.includes('column "progression_label" does not exist') ||
           error.message.includes(
-            'column "progression_required" does not exist',
+            'column "progression_required" does not exist'
           ) ||
           error.message.includes('column "progression_current" does not exist'))
       ) {
@@ -233,7 +233,7 @@ export const prismaCharacterDetailRepository: CharacterDetailRepository = {
   },
 
   listIdentityFields(
-    rpgId: string,
+    rpgId: string
   ): Promise<CharacterDetailTemplateFieldDto[]> {
     return prisma.$queryRaw<CharacterDetailTemplateFieldDto[]>(Prisma.sql`
       SELECT key, label, position
@@ -244,7 +244,7 @@ export const prismaCharacterDetailRepository: CharacterDetailRepository = {
   },
 
   listCharacteristicFields(
-    rpgId: string,
+    rpgId: string
   ): Promise<CharacterDetailTemplateFieldDto[]> {
     return prisma.$queryRaw<CharacterDetailTemplateFieldDto[]>(Prisma.sql`
       SELECT key, label, position
@@ -277,5 +277,5 @@ export const prismaCharacterDetailRepository: CharacterDetailRepository = {
       FROM rpg_class_templates
       WHERE rpg_id = ${rpgId}
     `)
-  },
+  }
 }

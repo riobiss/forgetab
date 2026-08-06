@@ -5,7 +5,10 @@ export type RpgManagementRepositoryErrorCode =
   | "USER_REFERENCE_INVALID"
 
 export class RpgManagementRepositoryError extends Error {
-  constructor(public readonly code: RpgManagementRepositoryErrorCode, message?: string) {
+  constructor(
+    public readonly code: RpgManagementRepositoryErrorCode,
+    message?: string
+  ) {
     super(message ?? code)
     this.name = "RpgManagementRepositoryError"
   }

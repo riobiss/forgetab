@@ -10,7 +10,7 @@ interface ThrottleSettings {
 
 const defaultOptions: ThrottleSettings = {
   leading: false,
-  trailing: true,
+  trailing: true
 }
 
 /**

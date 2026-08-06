@@ -5,7 +5,7 @@ import type {
   SkillSearchIndexItemDto,
   SkillListItemDto,
   TemplateOptionDto,
-  UpdateSkillLevelPayloadDto,
+  UpdateSkillLevelPayloadDto
 } from "@/features/world/skills/application/skillsDashboard/types"
 
 export interface SkillsDashboardGateway {
@@ -21,13 +21,13 @@ export interface SkillsDashboardGateway {
   createSkill(payload: CreateOrUpdateSkillPayloadDto): Promise<SkillDetailDto>
   updateSkillMeta(
     skillId: string,
-    payload: CreateOrUpdateSkillPayloadDto,
+    payload: CreateOrUpdateSkillPayloadDto
   ): Promise<SkillDetailDto>
   createSkillLevelSnapshot(skillId: string): Promise<SkillDetailDto>
   updateSkillLevel(
     skillId: string,
     levelId: string,
-    payload: UpdateSkillLevelPayloadDto,
+    payload: UpdateSkillLevelPayloadDto
   ): Promise<SkillDetailDto>
   deleteSkillLevel(skillId: string, levelId: string): Promise<SkillDetailDto>
   deleteSkill(skillId: string): Promise<{ id: string }>

@@ -9,7 +9,10 @@ type GlobalErrorPageProps = {
   reset: () => void
 }
 
-export default function GlobalErrorPage({ error, reset }: GlobalErrorPageProps) {
+export default function GlobalErrorPage({
+  error,
+  reset
+}: GlobalErrorPageProps) {
   useEffect(() => {
     console.error(error)
   }, [error])
@@ -18,7 +21,10 @@ export default function GlobalErrorPage({ error, reset }: GlobalErrorPageProps) 
     <html lang="pt-br">
       <body>
         <main className={`${styles.page} ${styles.globalPage}`}>
-          <section className={styles.panel} aria-labelledby="global-error-title">
+          <section
+            className={styles.panel}
+            aria-labelledby="global-error-title"
+          >
             <p className={styles.eyebrow}>Erro</p>
             <h1 id="global-error-title" className={styles.title}>
               A aplicação encontrou um problema
@@ -27,7 +33,11 @@ export default function GlobalErrorPage({ error, reset }: GlobalErrorPageProps) 
               Tente recarregar a tela. Se o erro continuar, volte para o início.
             </p>
             <div className={styles.actions}>
-              <button className={styles.primaryAction} type="button" onClick={reset}>
+              <button
+                className={styles.primaryAction}
+                type="button"
+                onClick={reset}
+              >
                 Tentar novamente
               </button>
               <Link className={styles.secondaryAction} href="/">

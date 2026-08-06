@@ -15,7 +15,7 @@ function createAuthCookieHeader(cookie: AuthCookie) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: cookie.maxAge,
+    maxAge: cookie.maxAge
   })
 }
 
@@ -23,7 +23,7 @@ export function writeAuthSuccessResponse(
   reply: FastifyReply,
   body: unknown,
   cookie: AuthCookie,
-  options: { status?: number } = {},
+  options: { status?: number } = {}
 ) {
   reply.code(options.status ?? 200)
   reply.header("Content-Type", "application/json; charset=utf-8")
@@ -34,7 +34,7 @@ export function writeAuthSuccessResponse(
 export function writeAuthErrorResponse(
   reply: FastifyReply,
   error: unknown,
-  fallbackMessage: string,
+  fallbackMessage: string
 ) {
   if (error instanceof AuthRateLimitError) {
     reply.code(error.status)

@@ -3,7 +3,7 @@ import { parseApiResponse } from "@/features/http/infrastructure/parseApiRespons
 export class HttpEntityCatalogError extends Error {
   constructor(
     message: string,
-    readonly status: number,
+    readonly status: number
   ) {
     super(message)
     this.name = "HttpEntityCatalogError"
@@ -12,11 +12,11 @@ export class HttpEntityCatalogError extends Error {
 
 export async function parseEntityCatalogResponse<T>(
   response: Response,
-  fallbackMessage: string,
+  fallbackMessage: string
 ): Promise<T> {
   return parseApiResponse<T>(response, {
     fallbackMessage,
     errorFactory: (message, status) =>
-      new HttpEntityCatalogError(message, status),
+      new HttpEntityCatalogError(message, status)
   })
 }

@@ -5,7 +5,7 @@ import {
   skillTypeValues,
   type ActionType,
   type SkillCategory,
-  type SkillType,
+  type SkillType
 } from "@/types/skillBuilder"
 import { abilityCategoryLabelByKey } from "@/lib/rpg/abilityCategories"
 import type { LevelForm, MetaForm, SkillDetail, SkillLevel } from "./types"
@@ -39,7 +39,7 @@ export function mapSkillToMetaForm(skill: SkillDetail): MetaForm {
     tags: Array.from(new Set(normalizedTags)),
     description: "",
     classIds: skill.classIds,
-    raceIds: skill.raceIds,
+    raceIds: skill.raceIds
   }
 }
 
@@ -47,12 +47,16 @@ export function mapLevelToForm(level: SkillLevel): LevelForm {
   const stats = level.stats ?? {}
   const cost = level.cost ?? {}
   const requirement = level.requirement ?? {}
-  const statsNotesListRaw = Array.isArray(stats.notesList) ? stats.notesList : []
+  const statsNotesListRaw = Array.isArray(stats.notesList)
+    ? stats.notesList
+    : []
   const statsNotesList = statsNotesListRaw
     .map((item) => (typeof item === "string" ? item : ""))
     .filter((item) => item.trim().length > 0)
   const fallbackNote = typeof stats.notes === "string" ? stats.notes : ""
-  const customFieldsRaw = Array.isArray(stats.customFields) ? stats.customFields : []
+  const customFieldsRaw = Array.isArray(stats.customFields)
+    ? stats.customFields
+    : []
   const customFields = customFieldsRaw
     .map((item, index) => {
       if (!item || typeof item !== "object" || Array.isArray(item)) return null
@@ -60,15 +64,26 @@ export function mapLevelToForm(level: SkillLevel): LevelForm {
       const name = typeof record.name === "string" ? record.name.trim() : ""
       if (!name) return null
       const value = typeof record.value === "string" ? record.value : ""
-      const id = typeof record.id === "string" && record.id.trim() ? record.id : `custom-${index}`
+      const id =
+        typeof record.id === "string" && record.id.trim()
+          ? record.id
+          : `custom-${index}`
       return { id, name, value }
     })
-    .filter((item): item is { id: string; name: string; value: string } => Boolean(item))
+    .filter((item): item is { id: string; name: string; value: string } =>
+      Boolean(item)
+    )
 
   return {
     levelName: typeof stats.name === "string" ? stats.name : "",
-    levelDescription: typeof stats.description === "string" ? stats.description : "",
-    notesList: statsNotesList.length > 0 ? statsNotesList : fallbackNote ? [fallbackNote] : [""],
+    levelDescription:
+      typeof stats.description === "string" ? stats.description : "",
+    notesList:
+      statsNotesList.length > 0
+        ? statsNotesList
+        : fallbackNote
+          ? [fallbackNote]
+          : [""],
     levelRequired: String(level.levelRequired),
     summary: level.summary ?? "",
     damage: typeof stats.damage === "string" ? stats.damage : "",
@@ -76,23 +91,31 @@ export function mapLevelToForm(level: SkillLevel): LevelForm {
     range: typeof stats.range === "string" ? stats.range : "",
     duration: typeof stats.duration === "string" ? stats.duration : "",
     castTime: typeof stats.castTime === "string" ? stats.castTime : "",
-    resourceCost: typeof stats.resourceCost === "string" ? stats.resourceCost : "",
+    resourceCost:
+      typeof stats.resourceCost === "string" ? stats.resourceCost : "",
     costPoints: typeof cost.points === "number" ? String(cost.points) : "",
     costCustom: typeof cost.custom === "string" ? cost.custom : "",
-    prerequisite: typeof requirement.notes === "string" ? requirement.notes : "",
+    prerequisite:
+      typeof requirement.notes === "string" ? requirement.notes : "",
     levelCategory: skillCategoryValues.includes(stats.category as SkillCategory)
       ? (stats.category as SkillCategory)
       : "",
-    levelType: skillTypeValues.includes(stats.type as SkillType) ? (stats.type as SkillType) : "",
+    levelType: skillTypeValues.includes(stats.type as SkillType)
+      ? (stats.type as SkillType)
+      : "",
     levelActionType: actionTypeValues.includes(stats.actionType as ActionType)
       ? (stats.actionType as ActionType)
       : "",
-    customFields,
+    customFields
   }
 }
 
 export function getLevelCostPoints(level: SkillLevel) {
-  if (!level.cost || typeof level.cost !== "object" || Array.isArray(level.cost)) {
+  if (
+    !level.cost ||
+    typeof level.cost !== "object" ||
+    Array.isArray(level.cost)
+  ) {
     return null
   }
 
@@ -113,7 +136,7 @@ export function createInitialMeta(): MetaForm {
     tags: [],
     description: "",
     classIds: [],
-    raceIds: [],
+    raceIds: []
   }
 }
 
@@ -136,7 +159,7 @@ export function createInitialLevel(): LevelForm {
     levelCategory: "",
     levelType: "",
     levelActionType: "",
-    customFields: [],
+    customFields: []
   }
 }
 

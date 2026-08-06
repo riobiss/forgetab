@@ -11,7 +11,7 @@ type DeleteRpgDependencies = {
 
 export async function deleteRpg(
   deps: DeleteRpgDependencies,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     let imageUrl: string | null = null
@@ -19,7 +19,7 @@ export async function deleteRpg(
     try {
       imageUrl = await deps.repository.getOwnedImage(
         params.rpgId,
-        params.userId,
+        params.userId
       )
     } catch (error) {
       if (
@@ -32,7 +32,7 @@ export async function deleteRpg(
 
     const deleted = await deps.repository.deleteOwned(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     if (!deleted) {
       throw new AppError("RPG nao encontrado.", 404)
@@ -41,7 +41,7 @@ export async function deleteRpg(
     try {
       await deps.imageGateway.deleteRpgImageByUrl({
         ownerId: params.userId,
-        imageUrl,
+        imageUrl
       })
     } catch {
       // Nao bloqueia a exclusao do RPG caso a limpeza da imagem falhe.
@@ -55,7 +55,7 @@ export async function deleteRpg(
 
     const mapped = mapRpgManagementRepositoryError(
       error,
-      "Erro interno ao deletar RPG.",
+      "Erro interno ao deletar RPG."
     )
     if (mapped) {
       throw mapped

@@ -31,7 +31,7 @@ export function MapFormModal({
   saving,
   onChangeForm,
   onSave,
-  onClose,
+  onClose
 }: Props) {
   if (!isOpen) {
     return null
@@ -53,7 +53,7 @@ export function MapFormModal({
             onChange={(event) =>
               onChangeForm((current) => ({
                 ...current,
-                title: event.target.value,
+                title: event.target.value
               }))
             }
           />
@@ -66,7 +66,7 @@ export function MapFormModal({
             onChange={(event) =>
               onChangeForm((current) => ({
                 ...current,
-                description: event.target.value,
+                description: event.target.value
               }))
             }
           />
@@ -78,7 +78,7 @@ export function MapFormModal({
             onChange={(event) =>
               onChangeForm((current) => ({
                 ...current,
-                type: event.target.value,
+                type: event.target.value
               }))
             }
             placeholder="planet, kingdom, station..."

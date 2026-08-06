@@ -6,19 +6,19 @@ import {
   getIdentityTemplates,
   getRaceTemplates,
   getSkillTemplates,
-  getStatusTemplates,
+  getStatusTemplates
 } from "@/features/world/application/config/use-cases/rpgConfig"
 import {
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { rpgConfigRouteDeps } from "./dependencies"
 import type { RpgRouteParams } from "./routeTypes"
 
 export async function getAttributeTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -26,7 +26,7 @@ export async function getAttributeTemplatesHandler(
     const payload = await getAttributeTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -36,7 +36,7 @@ export async function getAttributeTemplatesHandler(
 
 export async function getStatusTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -44,7 +44,7 @@ export async function getStatusTemplatesHandler(
     const payload = await getStatusTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -54,7 +54,7 @@ export async function getStatusTemplatesHandler(
 
 export async function getSkillTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -62,7 +62,7 @@ export async function getSkillTemplatesHandler(
     const payload = await getSkillTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -72,7 +72,7 @@ export async function getSkillTemplatesHandler(
 
 export async function getRaceTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -80,7 +80,7 @@ export async function getRaceTemplatesHandler(
     const payload = await getRaceTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -90,7 +90,7 @@ export async function getRaceTemplatesHandler(
 
 export async function getClassTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -98,7 +98,7 @@ export async function getClassTemplatesHandler(
     const payload = await getClassTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -108,7 +108,7 @@ export async function getClassTemplatesHandler(
 
 export async function getIdentityTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -116,21 +116,21 @@ export async function getIdentityTemplatesHandler(
     const payload = await getIdentityTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(
       reply,
       error,
-      "Erro interno ao buscar campos de identidade.",
+      "Erro interno ao buscar campos de identidade."
     )
   }
 }
 
 export async function getCharacteristicTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -138,14 +138,14 @@ export async function getCharacteristicTemplatesHandler(
     const payload = await getCharacteristicTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(
       reply,
       error,
-      "Erro interno ao buscar campos de caracteristicas.",
+      "Erro interno ao buscar campos de caracteristicas."
     )
   }
 }

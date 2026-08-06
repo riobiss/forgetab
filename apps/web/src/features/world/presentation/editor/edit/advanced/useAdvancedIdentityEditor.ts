@@ -7,12 +7,12 @@ import { normalizeEntityCatalogMeta } from "@/features/world/catalog/domain/cata
 import {
   createDefaultRaceLore,
   normalizeRaceLore,
-  type RaceLore,
+  type RaceLore
 } from "@/lib/rpg/raceLore"
 import {
   loadRpgEditorBootstrapUseCase,
   saveRpgClassesUseCase,
-  saveRpgRacesUseCase,
+  saveRpgRacesUseCase
 } from "@/features/world/application/editor/use-cases/rpgEditor"
 import type { AttributeTemplate } from "@/features/world/presentation/editor/edit/components/shared/types"
 import { createRpgEditorDependencies } from "@/features/world/presentation/editor/dependencies"
@@ -70,7 +70,7 @@ export function useAdvancedIdentityEditor(params: {
         setSuccess("")
 
         const payload = await loadRpgEditorBootstrapUseCase(deps, {
-          rpgId: params.rpgId,
+          rpgId: params.rpgId
         })
         if (!payload.rpg?.canManage) {
           setError("Voce nao pode editar este RPG.")
@@ -81,7 +81,7 @@ export function useAdvancedIdentityEditor(params: {
         const attributeKeys = attributes.map((item) => item.key)
         const skills = (payload.skills ?? []).map((item) => ({
           key: item.key,
-          label: item.label,
+          label: item.label
         }))
         const templates =
           params.type === "race"
@@ -101,8 +101,8 @@ export function useAdvancedIdentityEditor(params: {
               params.type === "race"
                 ? normalizeRaceLore(item.lore, item.label)
                 : undefined,
-            catalogMeta: item.catalogMeta,
-          })),
+            catalogMeta: item.catalogMeta
+          }))
         )
 
         if (mode === "create") {
@@ -115,7 +115,7 @@ export function useAdvancedIdentityEditor(params: {
                 acc[key] = 0
                 return acc
               },
-              {},
+              {}
             ),
             skillBonuses: skills.reduce<Record<string, number>>((acc, item) => {
               acc[item.key] = 0
@@ -124,17 +124,17 @@ export function useAdvancedIdentityEditor(params: {
             ...(params.type === "race"
               ? { lore: createDefaultRaceLore() }
               : {}),
-            catalogMeta: normalizeEntityCatalogMeta(undefined),
+            catalogMeta: normalizeEntityCatalogMeta(undefined)
           })
           return
         }
 
         const current = templates.find(
-          (item) => item.key === params.templateKey,
+          (item) => item.key === params.templateKey
         )
         if (!current) {
           setError(
-            `${params.type === "race" ? "Raca" : "Classe"} nao encontrada.`,
+            `${params.type === "race" ? "Raca" : "Classe"} nao encontrada.`
           )
           return
         }
@@ -148,7 +148,7 @@ export function useAdvancedIdentityEditor(params: {
               acc[key] = Number(current.attributeBonuses?.[key] ?? 0)
               return acc
             },
-            {},
+            {}
           ),
           skillBonuses: skills.reduce<Record<string, number>>((acc, item) => {
             acc[item.key] = Number(current.skillBonuses?.[item.key] ?? 0)
@@ -157,13 +157,13 @@ export function useAdvancedIdentityEditor(params: {
           ...(params.type === "race"
             ? { lore: normalizeRaceLore(current.lore, current.label) }
             : {}),
-          catalogMeta: normalizeEntityCatalogMeta(current.catalogMeta),
+          catalogMeta: normalizeEntityCatalogMeta(current.catalogMeta)
         })
       } catch (cause) {
         setError(
           cause instanceof Error
             ? cause.message
-            : "Erro de conexao ao carregar editor avancado.",
+            : "Erro de conexao ao carregar editor avancado."
         )
       } finally {
         setLoading(false)
@@ -179,7 +179,7 @@ export function useAdvancedIdentityEditor(params: {
     const label = draft.label.trim()
     if (label.length < 2) {
       setError(
-        `Toda ${params.type === "race" ? "raca" : "classe"} precisa de nome com 2+ caracteres.`,
+        `Toda ${params.type === "race" ? "raca" : "classe"} precisa de nome com 2+ caracteres.`
       )
       return
     }
@@ -190,7 +190,7 @@ export function useAdvancedIdentityEditor(params: {
         acc[key] = Math.floor(Number(draft.attributeBonuses[key] ?? 0))
         return acc
       },
-      {},
+      {}
     )
     if (
       Object.values(parsedAttributes).some((value) => !Number.isFinite(value))
@@ -204,7 +204,7 @@ export function useAdvancedIdentityEditor(params: {
         acc[item.key] = Math.floor(Number(draft.skillBonuses[item.key] ?? 0))
         return acc
       },
-      {},
+      {}
     )
     if (Object.values(parsedSkills).some((value) => !Number.isFinite(value))) {
       setError("Valor invalido em bonus de pericias.")
@@ -220,14 +220,14 @@ export function useAdvancedIdentityEditor(params: {
       ...(params.type === "race"
         ? { lore: normalizeRaceLore(draft.lore, label) }
         : {}),
-      catalogMeta: draft.catalogMeta,
+      catalogMeta: draft.catalogMeta
     }
 
     const nextTemplates =
       mode === "create"
         ? [...identityTemplates, payloadTemplate]
         : identityTemplates.map((item) =>
-            item.key === draft.key ? { ...item, ...payloadTemplate } : item,
+            item.key === draft.key ? { ...item, ...payloadTemplate } : item
           )
 
     try {
@@ -238,20 +238,20 @@ export function useAdvancedIdentityEditor(params: {
       if (params.type === "race") {
         await saveRpgRacesUseCase(deps, {
           rpgId: params.rpgId,
-          races: nextTemplates,
+          races: nextTemplates
         })
       } else {
         await saveRpgClassesUseCase(deps, {
           rpgId: params.rpgId,
-          classes: nextTemplates,
+          classes: nextTemplates
         })
       }
 
       setSuccess(
-        `${params.type === "race" ? "Raca" : "Classe"} salva com sucesso.`,
+        `${params.type === "race" ? "Raca" : "Classe"} salva com sucesso.`
       )
       toast.success(
-        `${params.type === "race" ? "Raca" : "Classe"} salva com sucesso.`,
+        `${params.type === "race" ? "Raca" : "Classe"} salva com sucesso.`
       )
       router.push(`/rpg/${params.rpgId}?modal=edit&editor=rpg`)
       router.refresh()
@@ -280,6 +280,6 @@ export function useAdvancedIdentityEditor(params: {
     attributeTemplates,
     skillTemplates,
     handleSave,
-    handleCancel,
+    handleCancel
   }
 }

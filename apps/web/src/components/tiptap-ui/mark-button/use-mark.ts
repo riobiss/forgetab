@@ -57,7 +57,7 @@ export const markIcons = {
   strike: StrikeIcon,
   code: Code2Icon,
   superscript: SuperscriptIcon,
-  subscript: SubscriptIcon,
+  subscript: SubscriptIcon
 }
 
 export const MARK_SHORTCUT_KEYS: Record<Mark, string> = {
@@ -67,7 +67,7 @@ export const MARK_SHORTCUT_KEYS: Record<Mark, string> = {
   strike: "mod+shift+s",
   code: "mod+e",
   superscript: "mod+.",
-  subscript: "mod+,",
+  subscript: "mod+,"
 }
 
 /**
@@ -173,7 +173,7 @@ export function useMark(config: UseMarkConfig) {
     editor: providedEditor,
     type,
     hideWhenUnavailable = false,
-    onToggled,
+    onToggled
   } = config
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -214,6 +214,6 @@ export function useMark(config: UseMarkConfig) {
     canToggle,
     label: getFormattedMarkName(type),
     shortcutKeys: MARK_SHORTCUT_KEYS[type],
-    Icon: markIcons[type],
+    Icon: markIcons[type]
   }
 }

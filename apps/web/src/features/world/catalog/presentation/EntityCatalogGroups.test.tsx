@@ -16,10 +16,10 @@ const groups = [
         category: "arcana",
         meta: { shortDescription: "Domina magia", richText: {} },
         href: "/rpg/rpg-1/classes/class-1",
-        entityType: "class" as const,
-      },
-    ],
-  },
+        entityType: "class" as const
+      }
+    ]
+  }
 ]
 
 describe("EntityCatalogGroups", () => {
@@ -34,7 +34,7 @@ describe("EntityCatalogGroups", () => {
         canManage
         onToggleGroup={onToggleGroup}
         onManageCategory={onManageCategory}
-      />,
+      />
     )
 
     expect(container.querySelector("button button")).toBeNull()
@@ -43,7 +43,7 @@ describe("EntityCatalogGroups", () => {
     expect(onToggleGroup).toHaveBeenCalledWith("arcana")
 
     await user.click(
-      screen.getByRole("button", { name: "Gerenciar categoria arcana" }),
+      screen.getByRole("button", { name: "Gerenciar categoria arcana" })
     )
     expect(onManageCategory).toHaveBeenCalledWith("arcana")
   })

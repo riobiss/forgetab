@@ -8,21 +8,21 @@ import {
   getItemsDashboardHandler,
   giveItemHandler,
   listItemsHandler,
-  updateItemHandler,
+  updateItemHandler
 } from "@/features/world/item/presentation/handlers"
 
 export function itemRoutes(app: FastifyInstance) {
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId/items", (request, reply) =>
     listItemsHandler(
       request as FastifyRequest<{ Params: { rpgId: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(app, "post", "/api/rpg/:rpgId/items", (request, reply) =>
     createItemHandler(
       request as FastifyRequest<{ Params: { rpgId: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(
     app,
@@ -31,8 +31,8 @@ export function itemRoutes(app: FastifyInstance) {
     (request, reply) =>
       getItemsDashboardHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -41,8 +41,8 @@ export function itemRoutes(app: FastifyInstance) {
     (request, reply) =>
       giveItemHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -53,8 +53,8 @@ export function itemRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; itemId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -65,8 +65,8 @@ export function itemRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; itemId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -77,7 +77,7 @@ export function itemRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; itemId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
 }

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { loadProfilePageUseCase } from "@/features/profile/application/use-cases/loadProfilePage"
 import {
   httpProfileReader,
-  HttpProfileError,
+  HttpProfileError
 } from "@/features/profile/infrastructure/repositories/httpProfileRepository"
 import ProfilePage from "@/features/profile/presentation/ProfilePage"
 

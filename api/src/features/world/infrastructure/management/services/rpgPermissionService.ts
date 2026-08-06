@@ -11,7 +11,7 @@ export const rpgPermissionService: RpgPermissionService = {
       isOwner: permission.isOwner,
       isAcceptedMember: permission.isAcceptedMember,
       isModerator: permission.isModerator,
-      canManage: permission.canManage,
+      canManage: permission.canManage
     }
-  },
+  }
 }

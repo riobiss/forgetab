@@ -46,7 +46,7 @@ export function MapMarkersModal({
   onEdit,
   onDeleteGroup,
   onClear,
-  onClose,
+  onClose
 }: Props) {
   if (!isOpen) {
     return null
@@ -118,7 +118,7 @@ export function MapMarkersModal({
                 onClick={() => {
                   setAreMarkersVisible(true)
                   setVisibleMarkerGroupIds(
-                    allMarkerGroups.map((group) => group.id),
+                    allMarkerGroups.map((group) => group.id)
                   )
                 }}
               >

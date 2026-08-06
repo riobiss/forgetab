@@ -3,7 +3,7 @@ import type { ItemsDashboardGateway } from "@/features/world/items/application/d
 import {
   deleteItemUseCase,
   giveItemUseCase,
-  loadItemsDashboardData,
+  loadItemsDashboardData
 } from "@/features/world/items/application/dashboard/use-cases/itemsDashboard"
 
 function createGatewayMock(): ItemsDashboardGateway {
@@ -15,7 +15,7 @@ function createGatewayMock(): ItemsDashboardGateway {
     uploadItemImage: vi.fn(),
     deleteItemImageByUrl: vi.fn(),
     deleteItem: vi.fn(),
-    giveItem: vi.fn(),
+    giveItem: vi.fn()
   }
 }
 
@@ -47,18 +47,18 @@ describe("itemsDashboard use-cases", () => {
             duration: null,
             durability: null,
             createdAt: "2026-03-05T00:00:00.000Z",
-            updatedAt: "2026-03-05T00:00:00.000Z",
-          },
+            updatedAt: "2026-03-05T00:00:00.000Z"
+          }
         ],
-        characters: [{ id: "char-1", name: "Aria", characterType: "player" }],
-      },
+        characters: [{ id: "char-1", name: "Aria", characterType: "player" }]
+      }
     )
 
     const result = await loadItemsDashboardData({ gateway }, { rpgId: "rpg-1" })
 
     expect(result.items).toHaveLength(1)
     expect(result.characters).toEqual([
-      { id: "char-1", name: "Aria", characterType: "player" },
+      { id: "char-1", name: "Aria", characterType: "player" }
     ])
     expect(gateway.fetchDashboardData).toHaveBeenCalledWith("rpg-1")
   })
@@ -74,18 +74,18 @@ describe("itemsDashboard use-cases", () => {
   it("giveItemUseCase delega payload e retorna mensagem", async () => {
     const gateway = createGatewayMock()
     ;(gateway.giveItem as ReturnType<typeof vi.fn>).mockResolvedValue({
-      message: "Item enviado para 1 personagem(ns).",
+      message: "Item enviado para 1 personagem(ns)."
     })
 
     const payload = {
       baseItemId: "item-1",
       quantity: 2,
-      characterIds: ["char-1"],
+      characterIds: ["char-1"]
     }
 
     const result = await giveItemUseCase(
       { gateway },
-      { rpgId: "rpg-1", payload },
+      { rpgId: "rpg-1", payload }
     )
 
     expect(gateway.giveItem).toHaveBeenCalledWith("rpg-1", payload)

@@ -59,7 +59,7 @@ export function useMenuNavigation<T>({
   onSelect,
   onClose,
   orientation = "vertical",
-  autoSelectFirstItem = true,
+  autoSelectFirstItem = true
 }: MenuNavigationOptions<T>) {
   const [selectedIndex, setSelectedIndex] = useState<number>(
     autoSelectFirstItem ? 0 : -1
@@ -180,7 +180,7 @@ export function useMenuNavigation<T>({
     selectedIndex,
     onSelect,
     onClose,
-    orientation,
+    orientation
   ])
 
   useEffect(() => {
@@ -191,6 +191,6 @@ export function useMenuNavigation<T>({
 
   return {
     selectedIndex: items.length ? selectedIndex : undefined,
-    setSelectedIndex,
+    setSelectedIndex
   }
 }

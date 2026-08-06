@@ -15,7 +15,7 @@ type CatalogRow = {
 
 function getFallbackShortDescription(
   row: CatalogRow,
-  entityType: CatalogEntityType,
+  entityType: CatalogEntityType
 ) {
   if (entityType !== "race") return null
   if (!row.lore || typeof row.lore !== "object" || Array.isArray(row.lore))
@@ -66,9 +66,9 @@ export const prismaEntityCatalogRepository: EntityCatalogRepository = {
         category: row.category?.trim() || "geral",
         meta: {
           ...meta,
-          shortDescription,
-        },
+          shortDescription
+        }
       }
     })
-  },
+  }
 }

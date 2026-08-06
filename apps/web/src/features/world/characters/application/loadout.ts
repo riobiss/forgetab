@@ -2,7 +2,7 @@ export type { NpcMonsterLoadoutDependencies } from "@/features/world/characters/
 export type {
   NpcMonsterAbilitiesDataDto,
   NpcMonsterLoadoutItemOptionDto,
-  NpcMonsterLoadoutSkillOptionDto,
+  NpcMonsterLoadoutSkillOptionDto
 } from "@/features/world/characters/application/loadout/types"
 export type { CharacterInventoryItemDto } from "@forgetab/world-contracts/character-inventory"
 export type { PurchasedAbilityViewDto } from "@/features/world/characters/application/abilities/types"
@@ -14,5 +14,5 @@ export {
   loadNpcMonsterAbilitiesUseCase,
   loadNpcMonsterInventoryUseCase,
   removeNpcMonsterAbilityUseCase,
-  removeNpcMonsterInventoryItemUseCase,
+  removeNpcMonsterInventoryItemUseCase
 } from "@/features/world/characters/application/loadout/use-cases/npcMonsterLoadout"

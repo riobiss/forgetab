@@ -16,7 +16,7 @@ export default function RadixSwitchField({
   label,
   description,
   checked,
-  onCheckedChange,
+  onCheckedChange
 }: Props) {
   return (
     <div className={styles.switchRow}>
@@ -24,7 +24,9 @@ export default function RadixSwitchField({
         <label htmlFor={id} className={styles.switchLabel}>
           {label}
         </label>
-        {description ? <span className={styles.switchDescription}>{description}</span> : null}
+        {description ? (
+          <span className={styles.switchDescription}>{description}</span>
+        ) : null}
       </div>
       <Switch.Root
         id={id}

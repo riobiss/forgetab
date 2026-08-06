@@ -5,20 +5,20 @@ import {
   healthHandler,
   loginHandler,
   logoutHandler,
-  registerHandler,
+  registerHandler
 } from "@/features/auth/presentation/handlers"
 
 export function authRoutes(app: FastifyInstance) {
   registerFastifyRoute(app, "get", "/api/health", (_request, reply) =>
-    healthHandler(reply),
+    healthHandler(reply)
   )
   registerFastifyRoute(app, "post", "/api/auth/login", (request, reply) =>
-    loginHandler(request, reply),
+    loginHandler(request, reply)
   )
   registerFastifyRoute(app, "post", "/api/auth/register", (request, reply) =>
-    registerHandler(request, reply),
+    registerHandler(request, reply)
   )
   registerFastifyRoute(app, "post", "/api/auth/logout", (_request, reply) =>
-    logoutHandler(reply),
+    logoutHandler(reply)
   )
 }

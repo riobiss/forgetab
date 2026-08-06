@@ -25,7 +25,7 @@ export const entityCatalogPageAccessService: EntityCatalogPageAccessService = {
       return {
         exists: true,
         canRead: rpg.visibility === "public",
-        canManage: false,
+        canManage: false
       }
     }
 
@@ -36,7 +36,7 @@ export const entityCatalogPageAccessService: EntityCatalogPageAccessService = {
         rpg.visibility === "public" ||
         permission.isOwner ||
         permission.isAcceptedMember,
-      canManage: permission.canManage,
+      canManage: permission.canManage
     }
-  },
+  }
 }

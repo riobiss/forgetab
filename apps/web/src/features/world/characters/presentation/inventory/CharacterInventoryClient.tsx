@@ -1,23 +1,32 @@
 "use client"
 
-import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react"
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState
+} from "react"
 import Link from "next/link"
 import { Filter } from "lucide-react"
 import type { CharacterInventoryDependencies } from "@/features/world/characters/application/inventory/contracts/CharacterInventoryDependencies"
-import type { CharacterInventoryItemDto, CharacterInventoryRarityDto } from "@forgetab/world-contracts/character-inventory"
+import type {
+  CharacterInventoryItemDto,
+  CharacterInventoryRarityDto
+} from "@forgetab/world-contracts/character-inventory"
 import {
   loadCharacterInventoryUseCase,
-  removeCharacterInventoryItemUseCase,
+  removeCharacterInventoryItemUseCase
 } from "@/features/world/characters/application/inventory/use-cases/characterInventory"
 import styles from "./CharacterInventoryPage.module.css"
 import InventoryCards from "./components/InventoryCards"
 import { InventoryCardItem } from "./types"
-import { baseItemRarityValues, baseItemTypeValues } from "@/lib/validators/baseItem"
-import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
 import {
-  matchesInventorySearch,
-  toInventoryCardItem,
-} from "./utils"
+  baseItemRarityValues,
+  baseItemTypeValues
+} from "@/lib/validators/baseItem"
+import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
+import { matchesInventorySearch, toInventoryCardItem } from "./utils"
 
 type Props = {
   rpgId: string
@@ -25,7 +34,11 @@ type Props = {
   deps: CharacterInventoryDependencies
 }
 
-export default function CharacterInventoryClient({ rpgId, characterId, deps }: Props) {
+export default function CharacterInventoryClient({
+  rpgId,
+  characterId,
+  deps
+}: Props) {
   const [inventory, setInventory] = useState<CharacterInventoryItemDto[]>([])
   const [characterName, setCharacterName] = useState("Personagem")
   const [loading, setLoading] = useState(true)
@@ -35,7 +48,9 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
   const [selectedCategory, setSelectedCategory] = useState<
     (typeof baseItemTypeValues)[number] | "all"
   >("all")
-  const [selectedRarity, setSelectedRarity] = useState<CharacterInventoryRarityDto | "all">("all")
+  const [selectedRarity, setSelectedRarity] = useState<
+    CharacterInventoryRarityDto | "all"
+  >("all")
   const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
   const [maxCarryWeight, setMaxCarryWeight] = useState<number | null>(null)
@@ -45,10 +60,12 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
   const totalWeight = useMemo(
     () =>
       inventory.reduce(
-        (acc, item) => acc + (item.itemWeight !== null ? item.itemWeight * item.quantity : 0),
-        0,
+        (acc, item) =>
+          acc +
+          (item.itemWeight !== null ? item.itemWeight * item.quantity : 0),
+        0
       ),
-    [inventory],
+    [inventory]
   )
   const activeExtraFilters =
     (selectedCategory === "all" ? 0 : 1) + (selectedRarity === "all" ? 0 : 1)
@@ -57,7 +74,9 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
     return inventory.filter((item) => {
       const itemTypeNormalized = item.itemType.toLowerCase()
       const matchesCategory =
-        selectedCategory === "all" ? true : itemTypeNormalized === selectedCategory
+        selectedCategory === "all"
+          ? true
+          : itemTypeNormalized === selectedCategory
       const matchesRarity =
         selectedRarity === "all" ? true : item.itemRarity === selectedRarity
       if (!matchesCategory || !matchesRarity) {
@@ -73,7 +92,7 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
   }, [deferredSearch, inventory, selectedCategory, selectedRarity])
 
   const cardItems: InventoryCardItem[] = filteredInventory.map((item) =>
-    toInventoryCardItem(item),
+    toInventoryCardItem(item)
   )
 
   const loadInventory = useCallback(async () => {
@@ -81,13 +100,20 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
       setLoading(true)
       setError("")
 
-      const payload = await loadCharacterInventoryUseCase(deps, { rpgId, characterId })
+      const payload = await loadCharacterInventoryUseCase(deps, {
+        rpgId,
+        characterId
+      })
       setCharacterName(payload.characterName)
       setInventory(payload.inventory)
       setUseInventoryWeightLimit(payload.useInventoryWeightLimit)
       setMaxCarryWeight(payload.maxCarryWeight)
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro de conexao ao carregar inventario.")
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Erro de conexao ao carregar inventario."
+      )
       setCharacterName("Personagem")
       setInventory([])
       setUseInventoryWeightLimit(false)
@@ -107,7 +133,7 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
           rpgId,
           characterId,
           inventoryItemId,
-          quantity,
+          quantity
         })
         const remaining = payload.remainingQuantity
         setInventory((prev) => {
@@ -116,20 +142,22 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
           }
 
           return prev.map((item) =>
-            item.id === inventoryItemId ? { ...item, quantity: remaining } : item,
+            item.id === inventoryItemId
+              ? { ...item, quantity: remaining }
+              : item
           )
         })
       } catch (cause) {
         setError(
           cause instanceof Error
             ? cause.message
-            : "Erro de conexao ao remover item do inventario.",
+            : "Erro de conexao ao remover item do inventario."
         )
       } finally {
         setRemovingItemId(null)
       }
     },
-    [characterId, deps, rpgId],
+    [characterId, deps, rpgId]
   )
 
   useEffect(() => {
@@ -160,7 +188,9 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
       <section className={styles.section}>
         <div className={styles.filters}>
           <div className={styles.filtersTopRow}>
-            <label className={`${styles.filterField} ${styles.filterFieldSearch}`}>
+            <label
+              className={`${styles.filterField} ${styles.filterFieldSearch}`}
+            >
               <input
                 type="search"
                 value={search}
@@ -180,7 +210,9 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
             >
               <Filter size={18} aria-hidden="true" />
               {activeExtraFilters > 0 ? (
-                <span className={styles.filtersCount}>{activeExtraFilters}</span>
+                <span className={styles.filtersCount}>
+                  {activeExtraFilters}
+                </span>
               ) : null}
             </button>
           </div>
@@ -194,7 +226,12 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
               aria-label="Fechar filtros"
               onClick={() => setIsFiltersDrawerOpen(false)}
             />
-            <aside id="inventory-filters-drawer" className={styles.drawer} role="dialog" aria-modal="true">
+            <aside
+              id="inventory-filters-drawer"
+              className={styles.drawer}
+              role="dialog"
+              aria-modal="true"
+            >
               <div className={styles.drawerHeader}>
                 <h3 className={styles.drawerTitle}>Filtros</h3>
                 <button
@@ -285,14 +322,18 @@ export default function CharacterInventoryClient({ rpgId, characterId, deps }: P
           </>
         ) : null}
 
-        {loading ? <p className={styles.emptyState}>Carregando items...</p> : null}
+        {loading ? (
+          <p className={styles.emptyState}>Carregando items...</p>
+        ) : null}
         {error ? <p className={styles.errorText}>{error}</p> : null}
 
         {!loading && !error && !hasInventory ? (
           <p className={styles.emptyState}>Nenhum item.</p>
         ) : null}
         {!loading && !error && hasInventory && cardItems.length === 0 ? (
-          <p className={styles.emptyState}>Nenhum item encontrado com os filtros atuais.</p>
+          <p className={styles.emptyState}>
+            Nenhum item encontrado com os filtros atuais.
+          </p>
         ) : null}
 
         {!loading && !error && hasInventory && cardItems.length > 0 ? (

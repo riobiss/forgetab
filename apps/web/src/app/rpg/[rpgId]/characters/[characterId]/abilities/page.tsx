@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import {
   fetchCharacterAbilitiesViewModel,
-  HttpCharacterAbilitiesError,
+  HttpCharacterAbilitiesError
 } from "@/features/world/characters/infrastructure/abilities/repositories/httpCharacterAbilitiesPageRepository"
 import CharacterAbilitiesPage from "@/features/world/characters/presentation/abilities/CharacterAbilitiesPage"
 

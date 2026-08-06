@@ -31,7 +31,7 @@ export async function resolveCharacterManagementPermission(params: {
   const access = await getRpgAccess({
     rpgId: params.rpgId,
     userId: params.userId,
-    repository: prismaRpgAccessRepository,
+    repository: prismaRpgAccessRepository
   })
 
   if (!access.exists || !access.canAccess) {
@@ -40,7 +40,7 @@ export async function resolveCharacterManagementPermission(params: {
 
   const [character, rpgAccessRow] = await Promise.all([
     getCharacterSnapshotById(params.rpgId, params.characterId),
-    prismaRpgAccessRepository.getRpgAccessRow(params.rpgId),
+    prismaRpgAccessRepository.getRpgAccessRow(params.rpgId)
   ])
 
   if (!character) {
@@ -69,6 +69,6 @@ export async function resolveCharacterManagementPermission(params: {
     currentCurrentStatuses: character.currentStatuses,
     currentIdentity: character.identity,
     currentCharacteristics: character.characteristics,
-    currentProgressionCurrent: character.progressionCurrent,
+    currentProgressionCurrent: character.progressionCurrent
   }
 }

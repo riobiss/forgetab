@@ -5,7 +5,7 @@ import {
   SECTION_LINK_LOCATION,
   SECTION_LINK_MARKER_GROUP_ID,
   SECTION_LINK_MARKER_ID,
-  SECTION_LINK_MARKER_NAME,
+  SECTION_LINK_MARKER_NAME
 } from "./sectionMarkerFields"
 
 export type SectionMarkerLink = {
@@ -30,7 +30,7 @@ export type SectionSavePayload = {
 export function applyLinkedMarkerToPayload(
   payload: SectionSavePayload,
   linkedMarker: SectionMarkerLink,
-  preference: "marker" | "section",
+  preference: "marker" | "section"
 ): SectionSavePayload {
   const nextCustomFields = { ...(payload.customFields ?? {}) }
   const normalizedSectionName = payload.name.trim()
@@ -43,7 +43,7 @@ export function applyLinkedMarkerToPayload(
   for (const [field, markerValue] of [
     [SECTION_LINK_LOCATION, linkedMarker.location],
     [SECTION_LINK_IMAGE, linkedMarker.image],
-    [SECTION_LINK_COLOR, linkedMarker.color],
+    [SECTION_LINK_COLOR, linkedMarker.color]
   ] as const) {
     if (preference !== "marker" && nextCustomFields[field]) continue
     if (markerValue) nextCustomFields[field] = markerValue
@@ -61,13 +61,13 @@ export function applyLinkedMarkerToPayload(
         ? (linkedMarker.shortDescription ?? payload.description)
         : payload.description,
     customFields:
-      Object.keys(nextCustomFields).length > 0 ? nextCustomFields : null,
+      Object.keys(nextCustomFields).length > 0 ? nextCustomFields : null
   }
 }
 
 export function findLinkedMarkerConflicts(
   payload: SectionSavePayload,
-  linkedMarker: SectionMarkerLink,
+  linkedMarker: SectionMarkerLink
 ) {
   const customFields = payload.customFields ?? {}
   const conflicts: string[] = []
@@ -89,7 +89,7 @@ export function findLinkedMarkerConflicts(
   for (const [label, field, markerValue] of [
     ["Localizacao", SECTION_LINK_LOCATION, linkedMarker.location],
     ["Imagem", SECTION_LINK_IMAGE, linkedMarker.image],
-    ["Cor", SECTION_LINK_COLOR, linkedMarker.color],
+    ["Cor", SECTION_LINK_COLOR, linkedMarker.color]
   ] as const) {
     const sectionValue =
       typeof customFields[field] === "string"

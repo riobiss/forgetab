@@ -21,9 +21,9 @@ const group: MarkerGroup = {
       x: 1,
       y: 2,
       size: 1,
-      pinStyle: "default",
-    },
-  ],
+      pinStyle: "default"
+    }
+  ]
 }
 
 const saved: RpgMapMarkerGroupDto = {
@@ -56,16 +56,16 @@ const saved: RpgMapMarkerGroupDto = {
       canEdit: true,
       canDelete: true,
       createdAt: "2026-01-01T00:00:00.000Z",
-      updatedAt: "2026-01-01T00:00:00.000Z",
-    },
-  ],
+      updatedAt: "2026-01-01T00:00:00.000Z"
+    }
+  ]
 }
 
 function gateway() {
   return {
     createMarkerGroup: vi.fn().mockResolvedValue(saved),
     updateMarkerGroup: vi.fn().mockResolvedValue(saved),
-    deleteMarkerGroup: vi.fn(),
+    deleteMarkerGroup: vi.fn()
   } as RpgMapMarkerGroupsGateway
 }
 
@@ -75,7 +75,7 @@ describe("savePublicMarkerGroupUseCase", () => {
     const result = await savePublicMarkerGroupUseCase(api, {
       rpgId: "rpg-1",
       mapId: "map-1",
-      group,
+      group
     })
 
     expect(api.createMarkerGroup).toHaveBeenCalledWith("rpg-1", "map-1", {
@@ -92,17 +92,17 @@ describe("savePublicMarkerGroupUseCase", () => {
           x: 1,
           y: 2,
           size: 1,
-          pinStyle: "default",
-        },
-      ],
+          pinStyle: "default"
+        }
+      ]
     })
     expect(api.updateMarkerGroup).not.toHaveBeenCalled()
     expect(result).toEqual(
       expect.objectContaining({
         id: "public-group",
         visibility: "public",
-        canEdit: true,
-      }),
+        canEdit: true
+      })
     )
   })
 
@@ -111,14 +111,14 @@ describe("savePublicMarkerGroupUseCase", () => {
     await savePublicMarkerGroupUseCase(api, {
       rpgId: "rpg-1",
       mapId: "map-1",
-      group: { ...group, id: "public-group", visibility: "public" },
+      group: { ...group, id: "public-group", visibility: "public" }
     })
 
     expect(api.updateMarkerGroup).toHaveBeenCalledWith(
       "rpg-1",
       "map-1",
       "public-group",
-      expect.any(Object),
+      expect.any(Object)
     )
     expect(api.createMarkerGroup).not.toHaveBeenCalled()
   })

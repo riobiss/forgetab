@@ -4,20 +4,20 @@ import {
   deleteRpgMap,
   getRpgMapDetail,
   listRpgMaps,
-  updateRpgMap,
+  updateRpgMap
 } from "@/features/world/location/application/use-cases/rpgMap"
 import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { rpgMapRouteDeps } from "./dependencies"
 import type { MapRouteParams, RpgRouteParams } from "./routeTypes"
 
 export async function listRpgMapsHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -27,8 +27,8 @@ export async function listRpgMapsHandler(
       rpgMapRouteDeps.accessService,
       {
         rpgId: request.params.rpgId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -38,7 +38,7 @@ export async function listRpgMapsHandler(
 
 export async function createRpgMapHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -50,8 +50,8 @@ export async function createRpgMapHandler(
       {
         rpgId: request.params.rpgId,
         userId: auth.userId,
-        body,
-      },
+        body
+      }
     )
     return writeJson(reply, 201, payload)
   } catch (error) {
@@ -61,7 +61,7 @@ export async function createRpgMapHandler(
 
 export async function getRpgMapDetailHandler(
   request: FastifyRequest<{ Params: MapRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -72,8 +72,8 @@ export async function getRpgMapDetailHandler(
       {
         rpgId: request.params.rpgId,
         mapId: request.params.mapId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -83,7 +83,7 @@ export async function getRpgMapDetailHandler(
 
 export async function updateRpgMapHandler(
   request: FastifyRequest<{ Params: MapRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -96,8 +96,8 @@ export async function updateRpgMapHandler(
         rpgId: request.params.rpgId,
         mapId: request.params.mapId,
         userId: auth.userId,
-        body,
-      },
+        body
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -107,7 +107,7 @@ export async function updateRpgMapHandler(
 
 export async function deleteRpgMapHandler(
   request: FastifyRequest<{ Params: MapRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -118,8 +118,8 @@ export async function deleteRpgMapHandler(
       {
         rpgId: request.params.rpgId,
         mapId: request.params.mapId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {

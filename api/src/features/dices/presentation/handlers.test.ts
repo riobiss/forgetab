@@ -5,14 +5,17 @@ import { AppError } from "@/features/shared/application/errors/AppError"
 import { rollDicesHandler } from "@/features/dices/presentation/handlers"
 
 vi.mock("@/features/dices/application/use-cases/rollDices", () => ({
-  rollDicesUseCase: vi.fn(),
+  rollDicesUseCase: vi.fn()
 }))
 
-vi.mock("@/features/dices/random/infrastructure/randomOrgRandomNumberProvider", () => ({
-  randomOrgRandomNumberProvider: {
-    generateIntegers: vi.fn(),
-  },
-}))
+vi.mock(
+  "@/features/dices/random/infrastructure/randomOrgRandomNumberProvider",
+  () => ({
+    randomOrgRandomNumberProvider: {
+      generateIntegers: vi.fn()
+    }
+  })
+)
 
 const mockedRollDicesUseCase = vi.mocked(rollDicesUseCase)
 
@@ -20,7 +23,7 @@ function makeReply() {
   return {
     code: vi.fn().mockReturnThis(),
     header: vi.fn().mockReturnThis(),
-    send: vi.fn((payload) => payload),
+    send: vi.fn((payload) => payload)
   } as unknown as FastifyReply & {
     code: ReturnType<typeof vi.fn>
     header: ReturnType<typeof vi.fn>
@@ -41,34 +44,34 @@ describe("rollDicesHandler", () => {
     const reply = makeReply()
     const payload = {
       provider: "random-org" as const,
-      groups: [{ diceCount: 1, diceSides: 20, results: [20], total: 20 }],
+      groups: [{ diceCount: 1, diceSides: 20, results: [20], total: 20 }]
     }
     mockedRollDicesUseCase.mockResolvedValue(payload)
 
     await expect(
       rollDicesHandler(
         makeRequest({ entries: [{ diceCount: 1, diceSides: 20 }] }),
-        reply,
-      ),
+        reply
+      )
     ).resolves.toEqual(payload)
 
     expect(reply.code).toHaveBeenCalledWith(200)
     expect(mockedRollDicesUseCase).toHaveBeenCalledWith(expect.anything(), [
-      { diceCount: 1, diceSides: 20 },
+      { diceCount: 1, diceSides: 20 }
     ])
   })
 
   it("retorna erro de validacao do use case", async () => {
     const reply = makeReply()
     mockedRollDicesUseCase.mockRejectedValue(
-      new AppError("Escolha entre 1 e 100 dados por linha.", 400),
+      new AppError("Escolha entre 1 e 100 dados por linha.", 400)
     )
 
     await expect(
       rollDicesHandler(
         makeRequest({ entries: [{ diceCount: 101, diceSides: 20 }] }),
-        reply,
-      ),
+        reply
+      )
     ).resolves.toEqual({ message: "Escolha entre 1 e 100 dados por linha." })
 
     expect(reply.code).toHaveBeenCalledWith(400)
@@ -81,10 +84,10 @@ describe("rollDicesHandler", () => {
     await expect(
       rollDicesHandler(
         makeRequest({ entries: [{ diceCount: 1, diceSides: 20 }] }),
-        reply,
-      ),
+        reply
+      )
     ).resolves.toEqual({
-      message: "Erro interno ao girar dados.",
+      message: "Erro interno ao girar dados."
     })
 
     expect(reply.code).toHaveBeenCalledWith(500)

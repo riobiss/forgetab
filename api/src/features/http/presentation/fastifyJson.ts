@@ -29,7 +29,7 @@ export function writeJson(reply: FastifyReply, status: number, body: unknown) {
 export function writeError(
   reply: FastifyReply,
   error: unknown,
-  fallbackMessage: string,
+  fallbackMessage: string
 ) {
   if (error instanceof AppError) {
     return writeJson(reply, error.status, { message: error.message })
@@ -40,13 +40,13 @@ export function writeError(
 
 export async function requireUserId(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const userId = await getUserIdFromFastifyRequest(request)
   if (!userId) {
     return {
       ok: false as const,
-      response: writeJson(reply, 401, { message: "Usuario nao autenticado." }),
+      response: writeJson(reply, 401, { message: "Usuario nao autenticado." })
     }
   }
 

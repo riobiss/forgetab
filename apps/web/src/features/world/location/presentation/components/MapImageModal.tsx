@@ -21,21 +21,33 @@ export function MapImageModal({
   hasCustomMapImage,
   onOpenFilePicker,
   onResetMapImage,
-  onClose,
+  onClose
 }: Props) {
   if (!isOpen) {
     return null
   }
 
   return (
-    <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="Editar imagem do mapa">
+    <div
+      className={styles.modalOverlay}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Editar imagem do mapa"
+    >
       <div className={styles.modal} ref={modalRef} tabIndex={-1}>
         <header className={styles.modalHeader}>
           <div>
             <h2>Editar imagem</h2>
-            <p className={styles.modalSubtle}>Envie, troque ou remova a imagem usada no mapa.</p>
+            <p className={styles.modalSubtle}>
+              Envie, troque ou remova a imagem usada no mapa.
+            </p>
           </div>
-          <button type="button" className={styles.iconButton} onClick={onClose} aria-label="Fechar edicao de imagem">
+          <button
+            type="button"
+            className={styles.iconButton}
+            onClick={onClose}
+            aria-label="Fechar edicao de imagem"
+          >
             <X size={16} />
           </button>
         </header>
@@ -66,7 +78,11 @@ export function MapImageModal({
         </div>
 
         <div className={styles.modalActions}>
-          <button type="button" className={styles.secondaryButton} onClick={onClose}>
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            onClick={onClose}
+          >
             Fechar
           </button>
         </div>

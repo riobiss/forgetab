@@ -6,15 +6,13 @@ import type {
   SkillSearchIndexItemDto,
   SkillListItemDto,
   TemplateOptionDto,
-  UpdateSkillLevelPayloadDto,
+  UpdateSkillLevelPayloadDto
 } from "@/features/world/skills/application/skillsDashboard/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 function skillPath(skillId?: string) {
-  return skillId
-    ? `/api/skills/${encodeURIComponent(skillId)}`
-    : "/api/skills"
+  return skillId ? `/api/skills/${encodeURIComponent(skillId)}` : "/api/skills"
 }
 
 function skillLevelPath(skillId: string, levelId?: string) {
@@ -25,7 +23,7 @@ function skillLevelPath(skillId: string, levelId?: string) {
 export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
   async fetchClasses(rpgId: string): Promise<TemplateOptionDto[]> {
     const response = await apiFetch(
-      `/api/rpg/${encodeURIComponent(rpgId)}/classes`,
+      `/api/rpg/${encodeURIComponent(rpgId)}/classes`
     )
     const payload = await parseJson<{ classes?: TemplateOptionDto[] }>(response)
     return payload.classes ?? []
@@ -33,7 +31,7 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
 
   async fetchRaces(rpgId: string): Promise<TemplateOptionDto[]> {
     const response = await apiFetch(
-      `/api/rpg/${encodeURIComponent(rpgId)}/races`,
+      `/api/rpg/${encodeURIComponent(rpgId)}/races`
     )
     const payload = await parseJson<{ races?: TemplateOptionDto[] }>(response)
     return payload.races ?? []
@@ -41,7 +39,7 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
 
   async fetchSkills(rpgId: string): Promise<SkillListItemDto[]> {
     const response = await apiFetch(
-      `${skillPath()}?rpgId=${encodeURIComponent(rpgId)}`,
+      `${skillPath()}?rpgId=${encodeURIComponent(rpgId)}`
     )
     const payload = await parseJson<{ skills?: SkillListItemDto[] }>(response)
     return payload.skills ?? []
@@ -55,7 +53,7 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
     const response = await apiFetch("/api/skills/search-index", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ skillIds: params.skillIds, rpgId: params.rpgId }),
+      body: JSON.stringify({ skillIds: params.skillIds, rpgId: params.rpgId })
     })
     const payload = await parseJson<{
       index?: Record<string, SkillSearchIndexItemDto>
@@ -79,12 +77,12 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
   },
 
   async createSkill(
-    payload: CreateOrUpdateSkillPayloadDto,
+    payload: CreateOrUpdateSkillPayloadDto
   ): Promise<SkillDetailDto> {
     const response = await apiFetch(skillPath(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
     const result = await parseJson<{ skill?: SkillDetailDto }>(response)
     if (!result.skill) {
@@ -95,12 +93,12 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
 
   async updateSkillMeta(
     skillId: string,
-    payload: CreateOrUpdateSkillPayloadDto,
+    payload: CreateOrUpdateSkillPayloadDto
   ): Promise<SkillDetailDto> {
     const response = await apiFetch(skillPath(skillId), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
     const result = await parseJson<{ skill?: SkillDetailDto }>(response)
     if (!result.skill) {
@@ -113,7 +111,7 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
     const response = await apiFetch(skillLevelPath(skillId), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
+      body: JSON.stringify({})
     })
     const result = await parseJson<{ skill?: SkillDetailDto }>(response)
     if (!result.skill) {
@@ -125,16 +123,13 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
   async updateSkillLevel(
     skillId: string,
     levelId: string,
-    payload: UpdateSkillLevelPayloadDto,
+    payload: UpdateSkillLevelPayloadDto
   ): Promise<SkillDetailDto> {
-    const response = await apiFetch(
-      skillLevelPath(skillId, levelId),
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      },
-    )
+    const response = await apiFetch(skillLevelPath(skillId, levelId), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
     const result = await parseJson<{ skill?: SkillDetailDto }>(response)
     if (!result.skill) {
       throw new Error("Erro ao salvar level.")
@@ -144,14 +139,11 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
 
   async deleteSkillLevel(
     skillId: string,
-    levelId: string,
+    levelId: string
   ): Promise<SkillDetailDto> {
-    const response = await apiFetch(
-      skillLevelPath(skillId, levelId),
-      {
-        method: "DELETE",
-      },
-    )
+    const response = await apiFetch(skillLevelPath(skillId, levelId), {
+      method: "DELETE"
+    })
     const result = await parseJson<{ skill?: SkillDetailDto }>(response)
     if (!result.skill) {
       throw new Error("Erro ao remover level.")
@@ -161,12 +153,12 @@ export const httpSkillsDashboardGateway: SkillsDashboardGateway = {
 
   async deleteSkill(skillId: string): Promise<{ id: string }> {
     const response = await apiFetch(skillPath(skillId), {
-      method: "DELETE",
+      method: "DELETE"
     })
     const result = await parseJson<{ id?: string }>(response)
     if (!result.id) {
       throw new Error("Erro ao remover skill.")
     }
     return { id: result.id }
-  },
+  }
 }

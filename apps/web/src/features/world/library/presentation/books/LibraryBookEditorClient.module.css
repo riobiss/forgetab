@@ -1,6 +1,14 @@
 .page {
-  --library-panel-bg: color-mix(in srgb, var(--color-bg-surface-alt) 94%, var(--color-bg-surface));
-  --library-panel-border: color-mix(in srgb, var(--color-border-strong) 72%, var(--color-border-soft));
+  --library-panel-bg: color-mix(
+    in srgb,
+    var(--color-bg-surface-alt) 94%,
+    var(--color-bg-surface)
+  );
+  --library-panel-border: color-mix(
+    in srgb,
+    var(--color-border-strong) 72%,
+    var(--color-border-soft)
+  );
   min-height: 100vh;
   background:
     radial-gradient(
@@ -59,7 +67,8 @@
 .title {
   margin: 0;
   color: var(--color-text-primary);
-  text-shadow: 0 0 12px color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
+  text-shadow: 0 0 12px
+    color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
   font-size: 2.05rem;
   line-height: 1.05;
 }
@@ -85,7 +94,8 @@
   right: 1.4rem;
   z-index: 950;
   padding: 0.55rem 0.65rem;
-  border: 1px solid color-mix(in srgb, var(--color-border-strong) 72%, var(--color-border-soft));
+  border: 1px solid
+    color-mix(in srgb, var(--color-border-strong) 72%, var(--color-border-soft));
   border-radius: 14px;
   background: color-mix(in srgb, var(--color-bg-surface) 92%, transparent);
   box-shadow: var(--shadow-elevation-sm);
@@ -141,13 +151,13 @@
   margin: 0 auto;
   border: 1px solid var(--library-panel-border);
   border-radius: 18px;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-brand-soft) 22%, var(--library-panel-bg)) 0%,
-      var(--library-panel-bg) 30%,
-      color-mix(in srgb, var(--color-bg-elevated) 72%, var(--library-panel-bg)) 100%
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-brand-soft) 22%, var(--library-panel-bg)) 0%,
+    var(--library-panel-bg) 30%,
+    color-mix(in srgb, var(--color-bg-elevated) 72%, var(--library-panel-bg))
+      100%
+  );
   box-shadow: var(--shadow-elevation-sm);
   max-height: calc(100vh - 200px);
   overflow: auto;

@@ -10,7 +10,7 @@ import {
   listLibrarySectionBooksHandler,
   listLibrarySectionsHandler,
   updateLibraryBookHandler,
-  updateLibrarySectionHandler,
+  updateLibrarySectionHandler
 } from "@/features/world/library/presentation/handlers"
 
 export function libraryRoutes(app: FastifyInstance) {
@@ -21,8 +21,8 @@ export function libraryRoutes(app: FastifyInstance) {
     (request, reply) =>
       listLibrarySectionsHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -31,8 +31,8 @@ export function libraryRoutes(app: FastifyInstance) {
     (request, reply) =>
       createLibrarySectionHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -43,8 +43,8 @@ export function libraryRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; sectionId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -55,8 +55,8 @@ export function libraryRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; sectionId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -67,8 +67,8 @@ export function libraryRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; sectionId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -79,8 +79,8 @@ export function libraryRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; sectionId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -91,8 +91,8 @@ export function libraryRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; sectionId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -103,8 +103,8 @@ export function libraryRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; bookId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -115,8 +115,8 @@ export function libraryRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; bookId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -127,7 +127,7 @@ export function libraryRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; bookId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
 }

@@ -7,7 +7,7 @@ import {
   type ReactNode,
   isValidElement,
   useMemo,
-  useState,
+  useState
 } from "react"
 import { ReactSelectField, type ReactSelectOption } from "./ReactSelectField"
 
@@ -37,13 +37,14 @@ function parseOptions(children: ReactNode): ReactSelectOption[] {
     }>
 
     const rawValue = option.props.value
-    const value = typeof rawValue === "string" ? rawValue : String(rawValue ?? "")
+    const value =
+      typeof rawValue === "string" ? rawValue : String(rawValue ?? "")
     const labelText = Children.toArray(option.props.children).join("")
 
     options.push({
       value,
       label: labelText,
-      isDisabled: Boolean(option.props.disabled),
+      isDisabled: Boolean(option.props.disabled)
     })
   })
 
@@ -59,12 +60,13 @@ export function NativeSelectField({
   required,
   disabled,
   onChange,
-  children,
+  children
 }: NativeSelectFieldProps) {
   const options = useMemo(() => parseOptions(children), [children])
   const [internalValue, setInternalValue] = useState(defaultValue ?? "")
   const selectedValue = value ?? internalValue
-  const selectedOption = options.find((option) => option.value === selectedValue) ?? null
+  const selectedOption =
+    options.find((option) => option.value === selectedValue) ?? null
 
   return (
     <>
@@ -81,7 +83,9 @@ export function NativeSelectField({
           }
 
           if (onChange) {
-            onChange({ target: { value: nextValue } } as ChangeEvent<HTMLSelectElement>)
+            onChange({
+              target: { value: nextValue }
+            } as ChangeEvent<HTMLSelectElement>)
           }
         }}
         isDisabled={disabled}

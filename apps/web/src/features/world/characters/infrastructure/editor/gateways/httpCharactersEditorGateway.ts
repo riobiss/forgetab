@@ -7,18 +7,18 @@ import type {
   CharacterEditorRpgSettingsDto,
   CharacterEditorTemplateFieldDto,
   UpdateCharacterPayloadDto,
-  UpsertCharacterPayloadDto,
+  UpsertCharacterPayloadDto
 } from "@forgetab/world-contracts/character-editor"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 async function fetchCharactersList(
-  rpgId: string,
+  rpgId: string
 ): Promise<CharacterEditorSummaryDto[]> {
   const payload = await apiFetch(`/api/rpg/${rpgId}/characters`, {
-    cache: "no-store",
+    cache: "no-store"
   }).then((response) =>
-    parseJson<{ characters?: CharacterEditorSummaryDto[] }>(response),
+    parseJson<{ characters?: CharacterEditorSummaryDto[] }>(response)
   )
   return payload.characters ?? []
 }
@@ -39,9 +39,9 @@ function buildAssignablePlayers(params: {
     params.characters
       .filter(
         (character) =>
-          character.characterType === "player" && character.createdByUserId,
+          character.characterType === "player" && character.createdByUserId
       )
-      .map((character) => character.createdByUserId as string),
+      .map((character) => character.createdByUserId as string)
   )
   const allowMultiple = Boolean(params.rpg.allowMultiplePlayerCharacters)
 
@@ -50,14 +50,14 @@ function buildAssignablePlayers(params: {
     .map((user) => ({
       userId: user.id,
       username: user.username,
-      name: user.name,
+      name: user.name
     }))
 }
 
 export const httpCharactersEditorGateway: CharactersEditorGateway = {
   async fetchBootstrap(
     rpgId: string,
-    options?: { includeCharacters?: boolean },
+    options?: { includeCharacters?: boolean }
   ): Promise<CharacterEditorBootstrapDto> {
     void options
     const [
@@ -70,48 +70,48 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
       classesPayload,
       identityPayload,
       characteristicsPayload,
-      membersPayload,
+      membersPayload
     ] = await Promise.all([
       apiFetch(`/api/rpg/${rpgId}/attributes`, { cache: "no-store" }).then(
         (response) =>
           parseJson<{ attributes?: CharacterEditorTemplateFieldDto[] }>(
-            response,
-          ),
+            response
+          )
       ),
       apiFetch(`/api/rpg/${rpgId}/statuses`, { cache: "no-store" }).then(
         (response) =>
-          parseJson<{ statuses?: CharacterEditorTemplateFieldDto[] }>(response),
+          parseJson<{ statuses?: CharacterEditorTemplateFieldDto[] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/skills`, { cache: "no-store" }).then(
         (response) =>
-          parseJson<{ skills?: CharacterEditorTemplateFieldDto[] }>(response),
+          parseJson<{ skills?: CharacterEditorTemplateFieldDto[] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/characters`, { cache: "no-store" }).then(
         (response) =>
-          parseJson<{ characters?: CharacterEditorSummaryDto[] }>(response),
+          parseJson<{ characters?: CharacterEditorSummaryDto[] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}`, { cache: "no-store" }).then((response) =>
-        parseJson<{ rpg?: CharacterEditorRpgSettingsDto }>(response),
+        parseJson<{ rpg?: CharacterEditorRpgSettingsDto }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/races`, { cache: "no-store" }).then(
-        (response) => parseJson<{ races?: CharacterOptionDto[] }>(response),
+        (response) => parseJson<{ races?: CharacterOptionDto[] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/classes`, { cache: "no-store" }).then(
-        (response) => parseJson<{ classes?: CharacterOptionDto[] }>(response),
+        (response) => parseJson<{ classes?: CharacterOptionDto[] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/character-identity`, {
-        cache: "no-store",
+        cache: "no-store"
       }).then((response) =>
-        parseJson<{ fields?: CharacterIdentityFieldDto[] }>(response),
+        parseJson<{ fields?: CharacterIdentityFieldDto[] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/character-characteristics`, {
-        cache: "no-store",
+        cache: "no-store"
       }).then((response) =>
-        parseJson<{ fields?: CharacterIdentityFieldDto[] }>(response),
+        parseJson<{ fields?: CharacterIdentityFieldDto[] }>(response)
       ),
       apiFetch(`/api/rpg/${rpgId}/members`, { cache: "no-store" })
         .then((response) => parseJson<{ users?: MemberUserDto[] }>(response))
-        .catch(() => ({ users: [] as MemberUserDto[] })),
+        .catch(() => ({ users: [] as MemberUserDto[] }))
     ])
     const rpg = rpgPayload.rpg ?? null
     const characters = charactersPayload.characters ?? []
@@ -129,22 +129,22 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
       assignablePlayers: buildAssignablePlayers({
         users: membersPayload.users ?? [],
         characters,
-        rpg,
-      }),
+        rpg
+      })
     }
   },
 
   async createCharacter(
     rpgId: string,
-    payload: UpsertCharacterPayloadDto,
+    payload: UpsertCharacterPayloadDto
   ): Promise<CharacterEditorSummaryDto> {
     const response = await apiFetch(`/api/rpg/${rpgId}/characters`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
     const result = await parseJson<{ character?: CharacterEditorSummaryDto }>(
-      response,
+      response
     )
     if (!result.character) {
       throw new Error("Resposta invalida ao criar personagem.")
@@ -155,16 +155,16 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
 
   async fetchCharacter(
     rpgId: string,
-    characterId: string,
+    characterId: string
   ): Promise<CharacterEditorSummaryDto> {
     const response = await apiFetch(
       `/api/rpg/${rpgId}/characters/${characterId}`,
       {
-        cache: "no-store",
-      },
+        cache: "no-store"
+      }
     )
     const result = await parseJson<{ character?: CharacterEditorSummaryDto }>(
-      response,
+      response
     )
     if (!result.character) {
       throw new Error("Resposta invalida ao carregar personagem.")
@@ -176,15 +176,15 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
   async updateCharacter(
     rpgId: string,
     characterId: string,
-    payload: UpdateCharacterPayloadDto,
+    payload: UpdateCharacterPayloadDto
   ): Promise<CharacterEditorSummaryDto> {
     const response = await apiFetch(
       `/api/rpg/${rpgId}/characters/${characterId}`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      },
+        body: JSON.stringify(payload)
+      }
     )
     const result = await parseJson<
       { character?: CharacterEditorSummaryDto } & Record<string, unknown>
@@ -195,7 +195,7 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
 
     const characters = await fetchCharactersList(rpgId)
     const updatedCharacter = characters.find(
-      (character) => character.id === characterId,
+      (character) => character.id === characterId
     )
     if (!updatedCharacter) {
       throw new Error("Nao foi possivel recarregar o personagem atualizado.")
@@ -208,8 +208,8 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
     const response = await apiFetch(
       `/api/rpg/${rpgId}/characters/${characterId}`,
       {
-        method: "DELETE",
-      },
+        method: "DELETE"
+      }
     )
     await parseJson<{ message?: string }>(response)
   },
@@ -219,7 +219,7 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
     formData.append("file", file)
     const response = await apiFetch("/api/uploads/character-image", {
       method: "POST",
-      body: formData,
+      body: formData
     })
     const result = await parseJson<{ url?: string }>(response)
     if (!result.url) {
@@ -232,8 +232,8 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
     const response = await apiFetch("/api/uploads/character-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url })
     })
     await parseJson<{ message?: string }>(response)
-  },
+  }
 }

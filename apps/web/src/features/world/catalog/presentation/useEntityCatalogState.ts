@@ -5,17 +5,17 @@ import {
   useEffect,
   useMemo,
   useState,
-  useTransition,
+  useTransition
 } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
   buildEntityCatalogGroups,
-  getEntityCatalogCategoryOptions,
+  getEntityCatalogCategoryOptions
 } from "@/features/world/catalog/application/use-cases/entityCatalog"
 import type {
   EntityCatalogFilters,
   EntityCatalogItem,
-  EntityCatalogSort,
+  EntityCatalogSort
 } from "@/features/world/catalog/application/types"
 
 const DEFAULT_SORT: EntityCatalogSort = "name-asc"
@@ -42,10 +42,10 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
 
   const [search, setSearch] = useState(searchParams.get("q") ?? "")
   const [category, setCategory] = useState(
-    searchParams.get("category") ?? "all",
+    searchParams.get("category") ?? "all"
   )
   const [sort, setSort] = useState<EntityCatalogSort>(
-    normalizeSort(searchParams.get("sort")),
+    normalizeSort(searchParams.get("sort"))
   )
   const deferredSearch = useDeferredValue(search)
 
@@ -53,18 +53,18 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
     () => ({
       search: deferredSearch,
       category,
-      sort,
+      sort
     }),
-    [category, deferredSearch, sort],
+    [category, deferredSearch, sort]
   )
 
   const groups = useMemo(
     () => buildEntityCatalogGroups(items, filters),
-    [filters, items],
+    [filters, items]
   )
   const categoryOptions = useMemo(
     () => getEntityCatalogCategoryOptions(items),
-    [items],
+    [items]
   )
   const [collapsedGroups, setCollapsedGroups] = useState<
     Record<string, boolean>
@@ -81,7 +81,7 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
       groups.reduce<Record<string, boolean>>((acc, group) => {
         acc[group.key] = current[group.key] ?? true
         return acc
-      }, {}),
+      }, {})
     )
   }, [groups])
 
@@ -123,12 +123,12 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
     router,
     search,
     searchParams,
-    sort,
+    sort
   ])
 
   const visibleCount = groups.reduce(
     (acc, group) => acc + group.items.length,
-    0,
+    0
   )
 
   return {
@@ -146,7 +146,7 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
     toggleGroup(groupKey: string) {
       setCollapsedGroups((current) => ({
         ...current,
-        [groupKey]: !current[groupKey],
+        [groupKey]: !current[groupKey]
       }))
     },
     expandAllGroups() {
@@ -154,7 +154,7 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
         groups.reduce<Record<string, boolean>>((acc, group) => {
           acc[group.key] = false
           return acc
-        }, {}),
+        }, {})
       )
     },
     collapseAllGroups() {
@@ -162,8 +162,8 @@ export function useEntityCatalogState(items: EntityCatalogItem[]) {
         groups.reduce<Record<string, boolean>>((acc, group) => {
           acc[group.key] = true
           return acc
-        }, {}),
+        }, {})
       )
-    },
+    }
   }
 }

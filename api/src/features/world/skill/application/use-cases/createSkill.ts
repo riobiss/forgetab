@@ -1,7 +1,7 @@
 import {
   buildSkillSlug,
   skillMetaCreateSchema,
-  type SkillMetaCreateInput,
+  type SkillMetaCreateInput
 } from "@/lib/validators/skillBuilder"
 import type { RpgPermissionService } from "@/features/world/skill/application/ports/RpgPermissionService"
 import type { SkillCreateRepository } from "@/features/world/skill/application/ports/SkillRepository"
@@ -33,14 +33,14 @@ function readLevel1Name(input: SkillMetaCreateInput) {
 
 export async function createSkill(
   deps: CreateSkillDeps,
-  params: { userId: string; body: unknown },
+  params: { userId: string; body: unknown }
 ) {
   try {
     const parsed = skillMetaCreateSchema.safeParse(params.body)
     if (!parsed.success) {
       throw new AppError(
         parsed.error.issues[0]?.message ?? "Dados invalidos.",
-        400,
+        400
       )
     }
 
@@ -48,7 +48,7 @@ export async function createSkill(
     if (rpgId) {
       const canManage = await deps.permissionService.canManageRpg(
         rpgId,
-        params.userId,
+        params.userId
       )
       if (!canManage) {
         throw new AppError("RPG nao encontrado.", 404)
@@ -77,7 +77,7 @@ export async function createSkill(
     const validatedLinks = await deps.repository.validateLinkIds({
       rpgId,
       classIds: parsed.data.classIds ?? [],
-      raceIds: parsed.data.raceIds ?? [],
+      raceIds: parsed.data.raceIds ?? []
     })
 
     if (!validatedLinks.ok) {
@@ -93,12 +93,12 @@ export async function createSkill(
       tags: parsed.data.tags ?? [],
       classIds: parsed.data.classIds ?? [],
       raceIds: parsed.data.raceIds ?? [],
-      level1: parsed.data.level1,
+      level1: parsed.data.level1
     })
 
     const created = await deps.repository.findById(
       createdSkillId,
-      params.userId,
+      params.userId
     )
     return { skill: created }
   } catch (error) {

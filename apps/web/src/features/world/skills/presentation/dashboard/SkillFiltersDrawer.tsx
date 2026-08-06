@@ -1,4 +1,8 @@
-import { type ActionType, type SkillTag, type SkillType } from "@/types/skillBuilder"
+import {
+  type ActionType,
+  type SkillTag,
+  type SkillType
+} from "@/types/skillBuilder"
 import { actionTypeLabel, skillTagLabel, skillTypeLabel } from "./constants"
 import styles from "./SkillsDashboardClient.module.css"
 
@@ -37,17 +41,31 @@ export function SkillFiltersDrawer({
   onToggleActionType,
   onToggleTag,
   onClear,
-  resolveCategoryLabel,
+  resolveCategoryLabel
 }: SkillFiltersDrawerProps) {
   if (!open) return null
 
   return (
     <>
-      <button type="button" className={styles.drawerBackdrop} aria-label="Fechar filtros" onClick={onClose} />
-      <aside className={styles.drawer} role="dialog" aria-modal="true" aria-label="Filtros de habilidades">
+      <button
+        type="button"
+        className={styles.drawerBackdrop}
+        aria-label="Fechar filtros"
+        onClick={onClose}
+      />
+      <aside
+        className={styles.drawer}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Filtros de habilidades"
+      >
         <div className={styles.drawerHeader}>
           <h3 className={styles.drawerTitle}>Filtros</h3>
-          <button type="button" className={styles.drawerClose} onClick={onClose}>
+          <button
+            type="button"
+            className={styles.drawerClose}
+            onClick={onClose}
+          >
             Fechar
           </button>
         </div>

@@ -13,7 +13,7 @@ import {
   Save,
   Settings2,
   Shield,
-  Trash2,
+  Trash2
 } from "lucide-react"
 import styles from "./page.module.css"
 import AttributeOptionsSection from "./components/attribute-options/AttributeOptionsSection"
@@ -28,7 +28,7 @@ import { useEditRpgState } from "./hooks/useEditRpgState"
 import RadixSwitchField from "./components/shared/RadixSwitchField"
 import {
   deleteRpgImageByUrlUseCase,
-  uploadRpgImageUseCase,
+  uploadRpgImageUseCase
 } from "@/features/world/application/editor/use-cases/rpgEditor"
 import { getProgressionModeLabel } from "@/lib/rpg/progression"
 import { createRpgEditorDependencies } from "@/features/world/presentation/editor/dependencies"
@@ -39,7 +39,7 @@ const CORE_STATUS_OPTIONS: CatalogOption[] = [
   { key: "life", label: "Vida" },
   { key: "mana", label: "Mana" },
   { key: "sanity", label: "Sanidade" },
-  { key: "exhaustion", label: "Exaustão" },
+  { key: "exhaustion", label: "Exaustão" }
 ]
 
 type EditRpgFeatureProps = {
@@ -55,7 +55,7 @@ export default function EditRpgFeature({
   presentation = "standalone",
   onClose,
   onSaved,
-  onDeleted,
+  onDeleted
 }: EditRpgFeatureProps = {}) {
   const params = useParams<{ rpgId: string }>()
   const router = useRouter()
@@ -63,7 +63,7 @@ export default function EditRpgFeature({
   const state = useEditRpgState()
   const deps = useMemo(
     () => providedDeps ?? createRpgEditorDependencies("http"),
-    [providedDeps],
+    [providedDeps]
   )
   const [activeStage, setActiveStage] = useState<
     "basic" | "advanced" | "permissions"
@@ -126,12 +126,12 @@ export default function EditRpgFeature({
     setClassDrafts: state.setClassDrafts,
     setCharacterIdentityTemplates: state.setCharacterIdentityTemplates,
     setCharacterCharacteristicTemplates:
-      state.setCharacterCharacteristicTemplates,
+      state.setCharacterCharacteristicTemplates
   })
 
   async function handleDeleteRpg() {
     const confirmed = window.confirm(
-      "Tem certeza que deseja deletar este RPG? Esta acao nao pode ser desfeita.",
+      "Tem certeza que deseja deletar este RPG? Esta acao nao pode ser desfeita."
     )
     if (!confirmed) return
 
@@ -200,7 +200,7 @@ export default function EditRpgFeature({
         setUploadingImage(true)
         try {
           const upload = await uploadRpgImageUseCase(deps, {
-            file: selectedImageFile,
+            file: selectedImageFile
           })
           uploadedImageUrl = upload.url
           state.setImage(uploadedImageUrl)
@@ -466,7 +466,7 @@ export default function EditRpgFeature({
                                 onChange={(event) =>
                                   state.updateProgressionTierLabel(
                                     index,
-                                    event.target.value,
+                                    event.target.value
                                   )
                                 }
                                 placeholder={
@@ -489,7 +489,7 @@ export default function EditRpgFeature({
                               onChange={(event) =>
                                 state.updateProgressionTierRequired(
                                   index,
-                                  Number(event.target.value || 0),
+                                  Number(event.target.value || 0)
                                 )
                               }
                             />

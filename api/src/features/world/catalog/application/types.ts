@@ -1,6 +1,6 @@
 import type {
   CatalogEntityType,
-  EntityCatalogMeta,
+  EntityCatalogMeta
 } from "@/features/world/catalog/domain/types"
 
 export type EntityCatalogAbilityLevel = {

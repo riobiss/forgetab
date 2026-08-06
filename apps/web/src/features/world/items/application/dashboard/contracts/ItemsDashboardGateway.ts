@@ -3,7 +3,7 @@ import type {
   CharacterSummaryDto,
   GiveItemPayloadDto,
   ItemEditorDetailDto,
-  UpsertItemPayloadDto,
+  UpsertItemPayloadDto
 } from "@/features/world/items/application/dashboard/types"
 
 export interface ItemsDashboardGateway {
@@ -14,18 +14,18 @@ export interface ItemsDashboardGateway {
   fetchItem(rpgId: string, itemId: string): Promise<ItemEditorDetailDto>
   createItem(
     rpgId: string,
-    payload: UpsertItemPayloadDto,
+    payload: UpsertItemPayloadDto
   ): Promise<ItemEditorDetailDto>
   updateItem(
     rpgId: string,
     itemId: string,
-    payload: UpsertItemPayloadDto,
+    payload: UpsertItemPayloadDto
   ): Promise<ItemEditorDetailDto>
   uploadItemImage(file: File): Promise<{ url: string }>
   deleteItemImageByUrl(url: string): Promise<void>
   deleteItem(rpgId: string, itemId: string): Promise<void>
   giveItem(
     rpgId: string,
-    payload: GiveItemPayloadDto,
+    payload: GiveItemPayloadDto
   ): Promise<{ message: string }>
 }

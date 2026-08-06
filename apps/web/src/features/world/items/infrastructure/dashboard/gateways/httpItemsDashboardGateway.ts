@@ -4,7 +4,7 @@ import type {
   CharacterSummaryDto,
   GiveItemPayloadDto,
   ItemEditorDetailDto,
-  UpsertItemPayloadDto,
+  UpsertItemPayloadDto
 } from "@/features/world/items/application/dashboard/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
@@ -16,7 +16,7 @@ function itemPath(rpgId: string, itemId?: string) {
 
 export const httpItemsDashboardGateway: ItemsDashboardGateway = {
   async fetchDashboardData(
-    rpgId: string,
+    rpgId: string
   ): Promise<{ items: BaseItemDto[]; characters: CharacterSummaryDto[] }> {
     const response = await apiFetch(`${itemPath(rpgId)}/dashboard`)
     const payload = await parseJson<{
@@ -25,7 +25,7 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
     }>(response)
     return {
       items: payload.items ?? [],
-      characters: payload.characters ?? [],
+      characters: payload.characters ?? []
     }
   },
 
@@ -38,12 +38,12 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
 
   async createItem(
     rpgId: string,
-    payload: UpsertItemPayloadDto,
+    payload: UpsertItemPayloadDto
   ): Promise<ItemEditorDetailDto> {
     const response = await apiFetch(itemPath(rpgId), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
     const result = await parseJson<{ item?: ItemEditorDetailDto }>(response)
     if (!result.item) throw new Error("Nao foi possivel salvar o item.")
@@ -53,12 +53,12 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
   async updateItem(
     rpgId: string,
     itemId: string,
-    payload: UpsertItemPayloadDto,
+    payload: UpsertItemPayloadDto
   ): Promise<ItemEditorDetailDto> {
     const response = await apiFetch(itemPath(rpgId, itemId), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
     const result = await parseJson<{ item?: ItemEditorDetailDto }>(response)
     if (!result.item) throw new Error("Nao foi possivel salvar o item.")
@@ -70,7 +70,7 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
     formData.append("file", file)
     const response = await apiFetch("/api/uploads/item-image", {
       method: "POST",
-      body: formData,
+      body: formData
     })
     const result = await parseJson<{ url?: string }>(response)
     if (!result.url) throw new Error("Nao foi possivel enviar imagem.")
@@ -81,28 +81,28 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
     const response = await apiFetch("/api/uploads/item-image", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url })
     })
     await parseJson<{ message?: string }>(response)
   },
 
   async deleteItem(rpgId: string, itemId: string): Promise<void> {
     const response = await apiFetch(itemPath(rpgId, itemId), {
-      method: "DELETE",
+      method: "DELETE"
     })
     await parseJson<{ message?: string }>(response)
   },
 
   async giveItem(
     rpgId: string,
-    payload: GiveItemPayloadDto,
+    payload: GiveItemPayloadDto
   ): Promise<{ message: string }> {
     const response = await apiFetch(`${itemPath(rpgId)}/give`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     })
     const result = await parseJson<{ message?: string }>(response)
     return { message: result.message ?? "Item entregue com sucesso." }
-  },
+  }
 }

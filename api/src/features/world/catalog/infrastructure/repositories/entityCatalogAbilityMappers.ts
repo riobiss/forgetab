@@ -1,7 +1,5 @@
 import { normalizeSkillTags } from "@/lib/rpg/skillTags"
-import type {
-  EntityCatalogAbilityView,
-} from "@/features/world/catalog/application/types"
+import type { EntityCatalogAbilityView } from "@/features/world/catalog/application/types"
 
 type JsonLike = Record<string, unknown> | null
 
@@ -30,7 +28,9 @@ function parseJsonObject(value: unknown): JsonLike {
 }
 
 function toOptionalText(value: unknown) {
-  return typeof value === "string" && value.trim().length > 0 ? value.trim() : null
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null
 }
 
 function parseCostPoints(value: unknown) {
@@ -39,16 +39,24 @@ function parseCostPoints(value: unknown) {
 }
 
 function parseNotesList(stats: JsonLike) {
-  const statsNotesListRaw = Array.isArray(stats?.notesList) ? stats.notesList : []
+  const statsNotesListRaw = Array.isArray(stats?.notesList)
+    ? stats.notesList
+    : []
   const statsNotesList = statsNotesListRaw
     .map((item) => (typeof item === "string" ? item.trim() : ""))
     .filter((item) => item.length > 0)
   const fallbackNote = toOptionalText(stats?.notes)
-  return statsNotesList.length > 0 ? statsNotesList : fallbackNote ? [fallbackNote] : []
+  return statsNotesList.length > 0
+    ? statsNotesList
+    : fallbackNote
+      ? [fallbackNote]
+      : []
 }
 
 function parseCustomFields(stats: JsonLike) {
-  const statsCustomFieldsRaw = Array.isArray(stats?.customFields) ? stats.customFields : []
+  const statsCustomFieldsRaw = Array.isArray(stats?.customFields)
+    ? stats.customFields
+    : []
   return statsCustomFieldsRaw
     .map((item, index) => {
       if (!item || typeof item !== "object" || Array.isArray(item)) return null
@@ -62,13 +70,18 @@ function parseCustomFields(stats: JsonLike) {
       return {
         id,
         name,
-        value: toOptionalText(record.value),
+        value: toOptionalText(record.value)
       }
     })
-    .filter((item): item is { id: string; name: string; value: string | null } => Boolean(item))
+    .filter(
+      (item): item is { id: string; name: string; value: string | null } =>
+        Boolean(item)
+    )
 }
 
-export function mapEntityCatalogAbilities(rows: EntityCatalogAbilityRow[]): EntityCatalogAbilityView[] {
+export function mapEntityCatalogAbilities(
+  rows: EntityCatalogAbilityRow[]
+): EntityCatalogAbilityView[] {
   const bySkill = new Map<string, EntityCatalogAbilityView>()
 
   for (const row of rows) {
@@ -84,16 +97,19 @@ export function mapEntityCatalogAbilities(rows: EntityCatalogAbilityRow[]): Enti
         skillType: toOptionalText(row.skillType),
         skillActionType: toOptionalText(row.skillActionType),
         skillTags: normalizeSkillTags(row.skillTags),
-        levels: [],
+        levels: []
       })
     }
 
     bySkill.get(row.skillId)?.levels.push({
       levelNumber: row.levelNumber,
       levelRequired: row.levelRequired,
-      levelCategory: toOptionalText(stats?.category) ?? toOptionalText(row.skillCategory),
+      levelCategory:
+        toOptionalText(stats?.category) ?? toOptionalText(row.skillCategory),
       levelType: toOptionalText(stats?.type) ?? toOptionalText(row.skillType),
-      levelActionType: toOptionalText(stats?.actionType) ?? toOptionalText(row.skillActionType),
+      levelActionType:
+        toOptionalText(stats?.actionType) ??
+        toOptionalText(row.skillActionType),
       levelName: toOptionalText(stats?.name),
       levelDescription: toOptionalText(stats?.description),
       notesList: parseNotesList(stats),
@@ -107,12 +123,12 @@ export function mapEntityCatalogAbilities(rows: EntityCatalogAbilityRow[]): Enti
       castTime: toOptionalText(stats?.castTime),
       resourceCost: toOptionalText(stats?.resourceCost),
       pointsCost: parseCostPoints(row.cost),
-      costCustom: toOptionalText(cost?.custom),
+      costCustom: toOptionalText(cost?.custom)
     })
   }
 
   return Array.from(bySkill.values()).map((skill) => ({
     ...skill,
-    levels: skill.levels.sort((a, b) => a.levelNumber - b.levelNumber),
+    levels: skill.levels.sort((a, b) => a.levelNumber - b.levelNumber)
   }))
 }

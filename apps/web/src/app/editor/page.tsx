@@ -10,7 +10,14 @@ export default function EditorDemoPage() {
   const [json, setJson] = useState<JSONContent>(EMPTY_DOC)
 
   return (
-    <main style={{ minHeight: "100vh", padding: "1rem", maxWidth: 960, margin: "0 auto" }}>
+    <main
+      style={{
+        minHeight: "100vh",
+        padding: "1rem",
+        maxWidth: 960,
+        margin: "0 auto"
+      }}
+    >
       <button
         type="button"
         onClick={() => console.log("editor-json", json)}

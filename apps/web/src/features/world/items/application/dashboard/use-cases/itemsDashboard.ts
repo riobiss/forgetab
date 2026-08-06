@@ -1,63 +1,63 @@
 import type { ItemsDashboardDependencies } from "@/features/world/items/application/dashboard/contracts/ItemsDashboardDependencies"
 import type {
   GiveItemPayloadDto,
-  UpsertItemPayloadDto,
+  UpsertItemPayloadDto
 } from "@/features/world/items/application/dashboard/types"
 
 type Dependencies = ItemsDashboardDependencies
 
 export async function loadItemsDashboardData(
   deps: Dependencies,
-  params: { rpgId: string },
+  params: { rpgId: string }
 ) {
   return deps.gateway.fetchDashboardData(params.rpgId)
 }
 
 export async function deleteItemUseCase(
   deps: Dependencies,
-  params: { rpgId: string; itemId: string },
+  params: { rpgId: string; itemId: string }
 ) {
   await deps.gateway.deleteItem(params.rpgId, params.itemId)
 }
 
 export async function loadItemDetailUseCase(
   deps: Dependencies,
-  params: { rpgId: string; itemId: string },
+  params: { rpgId: string; itemId: string }
 ) {
   return deps.gateway.fetchItem(params.rpgId, params.itemId)
 }
 
 export async function createItemUseCase(
   deps: Dependencies,
-  params: { rpgId: string; payload: UpsertItemPayloadDto },
+  params: { rpgId: string; payload: UpsertItemPayloadDto }
 ) {
   return deps.gateway.createItem(params.rpgId, params.payload)
 }
 
 export async function updateItemUseCase(
   deps: Dependencies,
-  params: { rpgId: string; itemId: string; payload: UpsertItemPayloadDto },
+  params: { rpgId: string; itemId: string; payload: UpsertItemPayloadDto }
 ) {
   return deps.gateway.updateItem(params.rpgId, params.itemId, params.payload)
 }
 
 export async function uploadItemImageUseCase(
   deps: Dependencies,
-  params: { file: File },
+  params: { file: File }
 ) {
   return deps.gateway.uploadItemImage(params.file)
 }
 
 export async function deleteItemImageByUrlUseCase(
   deps: Dependencies,
-  params: { url: string },
+  params: { url: string }
 ) {
   return deps.gateway.deleteItemImageByUrl(params.url)
 }
 
 export async function giveItemUseCase(
   deps: Dependencies,
-  params: { rpgId: string; payload: GiveItemPayloadDto },
+  params: { rpgId: string; payload: GiveItemPayloadDto }
 ) {
   return deps.gateway.giveItem(params.rpgId, params.payload)
 }

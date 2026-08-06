@@ -1,12 +1,12 @@
 import type {
   AuthClientDependencies,
   LoginPayload,
-  RegisterPayload,
+  RegisterPayload
 } from "@/features/auth/application/contracts/AuthClientGateway"
 
 export async function loginClientUseCase(
   deps: AuthClientDependencies,
-  payload: LoginPayload,
+  payload: LoginPayload
 ) {
   const result = await deps.gateway.login(payload)
   deps.session.persist(result.token, result.maxAge)
@@ -15,7 +15,7 @@ export async function loginClientUseCase(
 
 export async function registerClientUseCase(
   deps: AuthClientDependencies,
-  payload: RegisterPayload,
+  payload: RegisterPayload
 ) {
   const result = await deps.gateway.register(payload)
   deps.session.persist(result.token, result.maxAge)

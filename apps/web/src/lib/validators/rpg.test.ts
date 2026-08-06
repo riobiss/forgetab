@@ -6,7 +6,7 @@ describe("createRpgSchema", () => {
     const result = createRpgSchema.safeParse({
       title: "Campanha Alpha",
       description: "Descricao com tamanho minimo ok.",
-      visibility: "private",
+      visibility: "private"
     })
 
     expect(result.success).toBe(true)
@@ -16,7 +16,7 @@ describe("createRpgSchema", () => {
     const result = createRpgSchema.safeParse({
       title: "Campanha Alpha",
       description: "curta",
-      visibility: "public",
+      visibility: "public"
     })
 
     expect(result.success).toBe(false)
@@ -27,7 +27,7 @@ describe("createRpgSchema", () => {
       title: "Campanha Alpha",
       description: "Descricao com tamanho minimo ok.",
       visibility: "public",
-      image: "nao-e-url",
+      image: "nao-e-url"
     })
 
     expect(result.success).toBe(false)
@@ -37,7 +37,7 @@ describe("createRpgSchema", () => {
     const result = createRpgSchema.safeParse({
       title: "Campanha Alpha",
       description: "a".repeat(401),
-      visibility: "public",
+      visibility: "public"
     })
 
     expect(result.success).toBe(false)
@@ -49,7 +49,7 @@ describe("createRpgSchema", () => {
       description: "Descricao com tamanho minimo ok.",
       visibility: "public",
       abilityCategoriesEnabled: true,
-      enabledAbilityCategories: ["tecnicas", "arcana", "tecnicas"],
+      enabledAbilityCategories: ["tecnicas", "arcana", "tecnicas"]
     })
 
     expect(result.success).toBe(true)

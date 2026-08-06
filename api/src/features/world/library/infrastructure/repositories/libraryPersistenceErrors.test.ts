@@ -8,7 +8,7 @@ describe("toLibraryRepositoryError", () => {
   it.each([
     'relation "rpg_library_sections" does not exist',
     'relation "rpg_library_books" does not exist',
-    'column "allowed_character_ids" does not exist',
+    'column "allowed_character_ids" does not exist'
   ])("traduz erro de schema: %s", (message) => {
     const source = new Error(message)
     const result = toLibraryRepositoryError(source)
@@ -26,7 +26,7 @@ describe("toLibraryRepositoryError", () => {
 
   it("classifica falhas inesperadas como unknown", () => {
     expect(toLibraryRepositoryError(new Error("connection refused")).code).toBe(
-      "unknown",
+      "unknown"
     )
   })
 })

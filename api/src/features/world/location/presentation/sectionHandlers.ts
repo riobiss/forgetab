@@ -3,20 +3,20 @@ import {
   createRpgMapSection,
   deleteRpgMapSection,
   reorderRpgMapSection,
-  updateRpgMapSection,
+  updateRpgMapSection
 } from "@/features/world/location/application/use-cases/rpgMap"
 import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { rpgMapRouteDeps } from "./dependencies"
 import type { MapRouteParams, SectionRouteParams } from "./routeTypes"
 
 export async function createRpgMapSectionHandler(
   request: FastifyRequest<{ Params: MapRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -29,8 +29,8 @@ export async function createRpgMapSectionHandler(
         rpgId: request.params.rpgId,
         mapId: request.params.mapId,
         userId: auth.userId,
-        body,
-      },
+        body
+      }
     )
     return writeJson(reply, 201, payload)
   } catch (error) {
@@ -40,7 +40,7 @@ export async function createRpgMapSectionHandler(
 
 export async function updateRpgMapSectionHandler(
   request: FastifyRequest<{ Params: SectionRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -54,8 +54,8 @@ export async function updateRpgMapSectionHandler(
         mapId: request.params.mapId,
         sectionId: request.params.sectionId,
         userId: auth.userId,
-        body,
-      },
+        body
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -65,7 +65,7 @@ export async function updateRpgMapSectionHandler(
 
 export async function deleteRpgMapSectionHandler(
   request: FastifyRequest<{ Params: SectionRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -77,8 +77,8 @@ export async function deleteRpgMapSectionHandler(
         rpgId: request.params.rpgId,
         mapId: request.params.mapId,
         sectionId: request.params.sectionId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -88,7 +88,7 @@ export async function deleteRpgMapSectionHandler(
 
 export async function reorderRpgMapSectionHandler(
   request: FastifyRequest<{ Params: SectionRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -102,8 +102,8 @@ export async function reorderRpgMapSectionHandler(
         mapId: request.params.mapId,
         sectionId: request.params.sectionId,
         userId: auth.userId,
-        body,
-      },
+        body
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {

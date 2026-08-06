@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import type {
   RpgMapDetailViewDto,
-  RpgMapDto,
+  RpgMapDto
 } from "@forgetab/world-contracts/location"
 import { useRpgMapsCatalog } from "./useRpgMapsCatalog"
 
@@ -11,44 +11,41 @@ const mocks = vi.hoisted(() => ({
   deleteMap: vi.fn(),
   fetchMap: vi.fn(),
   fetchMaps: vi.fn(),
-  updateMap: vi.fn(),
+  updateMap: vi.fn()
 }))
 
 vi.mock("react-hot-toast", () => ({
   toast: {
     error: vi.fn(),
-    success: vi.fn(),
-  },
+    success: vi.fn()
+  }
 }))
 
-vi.mock(
-  "@/features/world/location/presentation/dependencies",
-  () => ({
-    rpgMapPresentationDeps: {
-      rpgMapGateway: {
-        createMap: mocks.createMap,
-        deleteMap: mocks.deleteMap,
-        fetchMap: mocks.fetchMap,
-        fetchMaps: mocks.fetchMaps,
-        updateMap: mocks.updateMap,
-      },
-    },
-  }),
-)
+vi.mock("@/features/world/location/presentation/dependencies", () => ({
+  rpgMapPresentationDeps: {
+    rpgMapGateway: {
+      createMap: mocks.createMap,
+      deleteMap: mocks.deleteMap,
+      fetchMap: mocks.fetchMap,
+      fetchMaps: mocks.fetchMaps,
+      updateMap: mocks.updateMap
+    }
+  }
+}))
 
 const maps = [
   {
     id: "map-1",
     title: "Continente",
     description: "Mapa principal",
-    type: "world",
+    type: "world"
   },
   {
     id: "map-2",
     title: "Capital",
     description: "Cidade central",
-    type: "city",
-  },
+    type: "city"
+  }
 ] as RpgMapDto[]
 
 const detail = {
@@ -56,7 +53,7 @@ const detail = {
   sections: [],
   tree: [],
   markerGroups: [],
-  canManage: true,
+  canManage: true
 } as RpgMapDetailViewDto
 
 function renderCatalog(view: "catalog" | "detail" = "catalog") {
@@ -66,13 +63,13 @@ function renderCatalog(view: "catalog" | "detail" = "catalog") {
       rpgId: "rpg-1",
       view,
       initialMapId: view === "detail" ? "map-1" : null,
-      setSelectedSectionId,
-    }),
+      setSelectedSectionId
+    })
   )
 
   return {
     ...rendered,
-    setSelectedSectionId,
+    setSelectedSectionId
   }
 }
 
@@ -112,14 +109,14 @@ describe("useRpgMapsCatalog", () => {
     const createdMap = {
       ...maps[1],
       id: "map-3",
-      title: "Subterraneo",
+      title: "Subterraneo"
     }
     mocks.createMap.mockResolvedValue(createdMap)
     mocks.fetchMaps
       .mockResolvedValueOnce({ maps, canManage: true })
       .mockResolvedValueOnce({
         maps: [...maps, createdMap],
-        canManage: true,
+        canManage: true
       })
     const { result } = renderCatalog()
     await waitFor(() => expect(result.current.loadingMaps).toBe(false))
@@ -129,7 +126,7 @@ describe("useRpgMapsCatalog", () => {
       result.current.setMapForm({
         title: "  Subterraneo  ",
         description: "",
-        type: " dungeon ",
+        type: " dungeon "
       })
     })
 
@@ -141,7 +138,7 @@ describe("useRpgMapsCatalog", () => {
       title: "Subterraneo",
       description: null,
       type: "dungeon",
-      image: null,
+      image: null
     })
     expect(result.current.selectedMapId).toBe("map-3")
     expect(result.current.isMapModalOpen).toBe(false)

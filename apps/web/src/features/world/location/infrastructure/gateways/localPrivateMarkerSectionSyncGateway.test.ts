@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { localPrivateMarkerSectionSyncGateway } from "./localPrivateMarkerSectionSyncGateway"
 import {
   MARKER_STORAGE_PREFIX,
-  MARKER_STORAGE_UPDATED_EVENT,
+  MARKER_STORAGE_UPDATED_EVENT
 } from "@/features/world/location/infrastructure/storage/privateMarkerStorageKeys"
 
 describe("localPrivateMarkerSectionSyncGateway", () => {
@@ -20,10 +20,10 @@ describe("localPrivateMarkerSectionSyncGateway", () => {
           id: "group-1",
           markers: [
             { id: "marker-1", name: "Antigo", x: 10, y: 20 },
-            { id: "marker-2", name: "Preservado", x: 30, y: 40 },
-          ],
-        },
-      ]),
+            { id: "marker-2", name: "Preservado", x: 30, y: 40 }
+          ]
+        }
+      ])
     )
 
     await localPrivateMarkerSectionSyncGateway.update({
@@ -36,12 +36,12 @@ describe("localPrivateMarkerSectionSyncGateway", () => {
         location: "Norte",
         shortDescription: null,
         image: null,
-        color: "#fff",
-      },
+        color: "#fff"
+      }
     })
 
     const groups = JSON.parse(
-      window.localStorage.getItem(`${MARKER_STORAGE_PREFIX}map-1`) ?? "[]",
+      window.localStorage.getItem(`${MARKER_STORAGE_PREFIX}map-1`) ?? "[]"
     )
     expect(groups[0].markers).toEqual([
       {
@@ -52,9 +52,9 @@ describe("localPrivateMarkerSectionSyncGateway", () => {
         location: "Norte",
         shortDescription: null,
         image: null,
-        color: "#fff",
+        color: "#fff"
       },
-      { id: "marker-2", name: "Preservado", x: 30, y: 40 },
+      { id: "marker-2", name: "Preservado", x: 30, y: 40 }
     ])
     expect(listener).toHaveBeenCalledOnce()
     window.removeEventListener(MARKER_STORAGE_UPDATED_EVENT, listener)

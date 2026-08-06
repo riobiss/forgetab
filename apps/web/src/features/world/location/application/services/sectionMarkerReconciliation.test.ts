@@ -3,7 +3,7 @@ import {
   applyLinkedMarkerToPayload,
   findLinkedMarkerConflicts,
   type SectionMarkerLink,
-  type SectionSavePayload,
+  type SectionSavePayload
 } from "./sectionMarkerReconciliation"
 
 const marker: SectionMarkerLink = {
@@ -14,7 +14,7 @@ const marker: SectionMarkerLink = {
   location: "Norte",
   shortDescription: "Capital",
   image: "city.png",
-  color: "#fff",
+  color: "#fff"
 }
 
 const section: SectionSavePayload = {
@@ -26,8 +26,8 @@ const section: SectionSavePayload = {
     Localizacao: "Sul",
     Imagem: "village.png",
     Cor: "#000",
-    Habitantes: "100",
-  },
+    Habitantes: "100"
+  }
 }
 
 describe("sectionMarkerReconciliation", () => {
@@ -37,7 +37,7 @@ describe("sectionMarkerReconciliation", () => {
       "Descricao",
       "Localizacao",
       "Imagem",
-      "Cor",
+      "Cor"
     ])
 
     expect(
@@ -46,10 +46,10 @@ describe("sectionMarkerReconciliation", () => {
           ...section,
           name: "",
           description: null,
-          customFields: { Habitantes: "100" },
+          customFields: { Habitantes: "100" }
         },
-        marker,
-      ),
+        marker
+      )
     ).toEqual([])
   })
 
@@ -65,8 +65,8 @@ describe("sectionMarkerReconciliation", () => {
         Habitantes: "100",
         MarcadorId: "marker-1",
         MarcadorGrupoId: "group-1",
-        MarcadorNome: "Cidade",
-      },
+        MarcadorNome: "Cidade"
+      }
     })
   })
 
@@ -75,11 +75,11 @@ describe("sectionMarkerReconciliation", () => {
       applyLinkedMarkerToPayload(
         {
           ...section,
-          customFields: { Habitantes: "100" },
+          customFields: { Habitantes: "100" }
         },
         marker,
-        "section",
-      ),
+        "section"
+      )
     ).toEqual({
       ...section,
       customFields: {
@@ -89,8 +89,8 @@ describe("sectionMarkerReconciliation", () => {
         MarcadorNome: "Cidade",
         Localizacao: "Norte",
         Imagem: "city.png",
-        Cor: "#fff",
-      },
+        Cor: "#fff"
+      }
     })
   })
 
@@ -101,9 +101,9 @@ describe("sectionMarkerReconciliation", () => {
         ...marker,
         location: null,
         image: null,
-        color: null,
+        color: null
       },
-      "marker",
+      "marker"
     )
 
     expect(result.customFields).not.toHaveProperty("Localizacao")

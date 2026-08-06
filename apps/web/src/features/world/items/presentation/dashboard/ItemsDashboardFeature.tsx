@@ -2,7 +2,10 @@
 
 import { useMemo } from "react"
 import ItemsDashboardClient from "./ItemsDashboardClient"
-import { createItemsDashboardDependencies, type ItemsDashboardGatewayFactory } from "./dependencies"
+import {
+  createItemsDashboardDependencies,
+  type ItemsDashboardGatewayFactory
+} from "./dependencies"
 
 type ItemsDashboardFeatureProps = {
   rpgId: string
@@ -11,11 +14,11 @@ type ItemsDashboardFeatureProps = {
 
 export default function ItemsDashboardFeature({
   rpgId,
-  gatewayFactory = "http",
+  gatewayFactory = "http"
 }: ItemsDashboardFeatureProps) {
   const deps = useMemo(
     () => createItemsDashboardDependencies(gatewayFactory),
-    [gatewayFactory],
+    [gatewayFactory]
   )
   return <ItemsDashboardClient rpgId={rpgId} deps={deps} />
 }

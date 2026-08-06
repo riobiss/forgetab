@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast"
 import {
   deleteRpgMapImageByUrlUseCase,
   persistRpgMapImageUseCase,
-  uploadRpgMapImageUseCase,
+  uploadRpgMapImageUseCase
 } from "@/features/world/location/application/use-cases/rpgMapImages.client"
 import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import { dismissToast } from "@/lib/toast"
@@ -47,13 +47,13 @@ export function useRpgMapImageActions(params: {
     try {
       const uploadPayload = await uploadRpgMapImageUseCase(gateway, {
         file,
-        oldUrl: params.mapSrc !== DEFAULT_MAP_SRC ? params.mapSrc : null,
+        oldUrl: params.mapSrc !== DEFAULT_MAP_SRC ? params.mapSrc : null
       })
 
       await persistRpgMapImageUseCase(gateway, {
         rpgId: params.rpgId,
         mapId: params.mapId,
-        mapImage: uploadPayload.url,
+        mapImage: uploadPayload.url
       })
 
       params.setMapSrc(uploadPayload.url)
@@ -87,7 +87,7 @@ export function useRpgMapImageActions(params: {
       await persistRpgMapImageUseCase(gateway, {
         rpgId: params.rpgId,
         mapId: params.mapId,
-        mapImage: null,
+        mapImage: null
       })
 
       params.setMapSrc(DEFAULT_MAP_SRC)
@@ -108,6 +108,6 @@ export function useRpgMapImageActions(params: {
     isUploading,
     uploadMessage,
     handleMapFile,
-    handleResetMapImage,
+    handleResetMapImage
   }
 }

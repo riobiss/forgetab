@@ -11,5 +11,5 @@ export const rpgRouteDeps = {
   dashboardAccessService: rpgDashboardAccessService,
   repository: prismaRpgRepository,
   permissionService: rpgPermissionService,
-  imageGateway: imageKitGateway,
+  imageGateway: imageKitGateway
 } as const

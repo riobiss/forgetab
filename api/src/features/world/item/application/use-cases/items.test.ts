@@ -17,15 +17,15 @@ const repository = {
   delete: vi.fn(),
   baseItemExists: vi.fn(),
   listExistingCharacterIds: vi.fn(),
-  giveToCharacters: vi.fn(),
+  giveToCharacters: vi.fn()
 }
 
 const permissionService = {
-  canManageRpg: vi.fn(),
+  canManageRpg: vi.fn()
 }
 
 const imageStorageService = {
-  deleteItemImageByUrl: vi.fn(),
+  deleteItemImageByUrl: vi.fn()
 }
 
 describe("items use-cases", () => {
@@ -39,7 +39,7 @@ describe("items use-cases", () => {
 
     const result = await getItems(
       { repository, permissionService },
-      { rpgId: "rpg-1", userId: "user-1" },
+      { rpgId: "rpg-1", userId: "user-1" }
     )
 
     expect(result).toEqual({ items: [{ id: "item-1" }] })
@@ -48,34 +48,35 @@ describe("items use-cases", () => {
 
   it("getItems traduz erro de schema sem conhecer detalhes de SQL", async () => {
     repository.listByRpg.mockRejectedValue(
-      new ItemRepositoryError("schema_outdated"),
+      new ItemRepositoryError("schema_outdated")
     )
 
     await expect(
       getItems(
         { repository, permissionService },
-        { rpgId: "rpg-1", userId: "user-1" },
-      ),
+        { rpgId: "rpg-1", userId: "user-1" }
+      )
     ).rejects.toMatchObject({
       status: 500,
-      message: "Estrutura de itens desatualizada. Rode a migration mais recente.",
+      message:
+        "Estrutura de itens desatualizada. Rode a migration mais recente."
     })
   })
 
   it("getItemsDashboardData agrega itens e personagens", async () => {
     repository.listByRpg.mockResolvedValue([{ id: "item-1" }])
     repository.listCharacterSummaries.mockResolvedValue([
-      { id: "char-1", name: "Aria", characterType: "player" },
+      { id: "char-1", name: "Aria", characterType: "player" }
     ])
 
     const result = await getItemsDashboardData(
       { repository, permissionService },
-      { rpgId: "rpg-1", userId: "user-1" },
+      { rpgId: "rpg-1", userId: "user-1" }
     )
 
     expect(result).toEqual({
       items: [{ id: "item-1" }],
-      characters: [{ id: "char-1", name: "Aria", characterType: "player" }],
+      characters: [{ id: "char-1", name: "Aria", characterType: "player" }]
     })
   })
 
@@ -87,8 +88,8 @@ describe("items use-cases", () => {
       {
         rpgId: "rpg-1",
         userId: "user-1",
-        body: { name: "Espada", type: "equipment", rarity: "common" },
-      },
+        body: { name: "Espada", type: "equipment", rarity: "common" }
+      }
     )
 
     expect(result).toEqual({ item: { id: "item-1", name: "Espada" } })
@@ -101,19 +102,19 @@ describe("items use-cases", () => {
     await expect(
       getItemById(
         { repository, permissionService },
-        { rpgId: "rpg-1", itemId: "item-1", userId: "user-1" },
-      ),
+        { rpgId: "rpg-1", itemId: "item-1", userId: "user-1" }
+      )
     ).rejects.toMatchObject({ status: 404, message: "Item nao encontrado." })
   })
 
   it("updateItem remove imagem anterior quando a URL muda", async () => {
     repository.findById.mockResolvedValue({
       id: "item-1",
-      image: "https://cdn/old.png",
+      image: "https://cdn/old.png"
     })
     repository.update.mockResolvedValue({
       id: "item-1",
-      image: "https://cdn/new.png",
+      image: "https://cdn/new.png"
     })
 
     const result = await updateItem(
@@ -126,17 +127,17 @@ describe("items use-cases", () => {
           name: "Espada",
           image: "https://cdn/new.png",
           type: "equipment",
-          rarity: "common",
-        },
-      },
+          rarity: "common"
+        }
+      }
     )
 
     expect(result).toEqual({
-      item: { id: "item-1", image: "https://cdn/new.png" },
+      item: { id: "item-1", image: "https://cdn/new.png" }
     })
     expect(imageStorageService.deleteItemImageByUrl).toHaveBeenCalledWith(
       "user-1",
-      "https://cdn/old.png",
+      "https://cdn/old.png"
     )
   })
 
@@ -153,26 +154,26 @@ describe("items use-cases", () => {
         body: {
           baseItemId: "item-1",
           characterIds: ["char-1", "char-2"],
-          quantity: 2,
-        },
-      },
+          quantity: 2
+        }
+      }
     )
 
     expect(result).toEqual({
       message: "Item enviado para 2 personagem(ns).",
-      affectedPlayers: 2,
+      affectedPlayers: 2
     })
     expect(repository.giveToCharacters).toHaveBeenCalledWith({
       rpgId: "rpg-1",
       baseItemId: "item-1",
       characterIds: ["char-1", "char-2"],
-      quantity: 2,
+      quantity: 2
     })
   })
 
   it("giveItem traduz ausencia da tabela de inventario", async () => {
     repository.baseItemExists.mockRejectedValue(
-      new ItemRepositoryError("inventory_schema_missing"),
+      new ItemRepositoryError("inventory_schema_missing")
     )
 
     await expect(
@@ -184,13 +185,13 @@ describe("items use-cases", () => {
           body: {
             baseItemId: "item-1",
             characterIds: ["char-1"],
-            quantity: 1,
-          },
-        },
-      ),
+            quantity: 1
+          }
+        }
+      )
     ).rejects.toMatchObject({
       status: 500,
-      message: "Tabela de inventario nao existe no banco. Rode a migration.",
+      message: "Tabela de inventario nao existe no banco. Rode a migration."
     })
   })
 
@@ -199,24 +200,24 @@ describe("items use-cases", () => {
       body: {
         baseItemId: "item-1",
         characterIds: "char-1",
-        quantity: 1,
+        quantity: 1
       },
-      message: "Lista de personagens invalida.",
+      message: "Lista de personagens invalida."
     },
     {
       body: {
         baseItemId: "item-1",
         characterIds: ["char-1"],
-        quantity: 1.5,
+        quantity: 1.5
       },
-      message: "Quantidade deve ser um numero inteiro.",
-    },
+      message: "Quantidade deve ser um numero inteiro."
+    }
   ])("giveItem rejeita payload malformado", async ({ body, message }) => {
     await expect(
       giveItem(
         { repository, permissionService },
-        { rpgId: "rpg-1", userId: "user-1", body },
-      ),
+        { rpgId: "rpg-1", userId: "user-1", body }
+      )
     ).rejects.toMatchObject({ status: 400, message })
 
     expect(repository.giveToCharacters).not.toHaveBeenCalled()
@@ -225,18 +226,18 @@ describe("items use-cases", () => {
   it("deleteItem remove item e tenta limpar imagem", async () => {
     repository.delete.mockResolvedValue({
       id: "item-1",
-      image: "https://cdn/item.png",
+      image: "https://cdn/item.png"
     })
 
     const result = await deleteItem(
       { repository, permissionService, imageStorageService },
-      { rpgId: "rpg-1", itemId: "item-1", userId: "user-1" },
+      { rpgId: "rpg-1", itemId: "item-1", userId: "user-1" }
     )
 
     expect(result).toEqual({ message: "Item deletado com sucesso." })
     expect(imageStorageService.deleteItemImageByUrl).toHaveBeenCalledWith(
       "user-1",
-      "https://cdn/item.png",
+      "https://cdn/item.png"
     )
   })
 })

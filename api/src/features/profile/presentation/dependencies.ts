@@ -7,5 +7,5 @@ export const profileRouteDeps = {
   reader: prismaProfileReader,
   writer: prismaProfileWriter,
   rpgProfileWriter: prismaRpgUserProfileWriter,
-  rpgProfileAccessService: prismaRpgProfileAccessService,
+  rpgProfileAccessService: prismaRpgProfileAccessService
 } as const

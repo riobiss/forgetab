@@ -6,13 +6,13 @@ import { getAuthPayloadFromFastifyRequest } from "@/features/http/presentation/a
 import {
   parseJsonBody,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { profileRouteDeps } from "@/features/profile/presentation/dependencies"
 
 export async function getProfileHandler(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await getAuthPayloadFromFastifyRequest(request)
 
@@ -27,10 +27,10 @@ export async function getProfileHandler(
       async getAuthenticatedUser() {
         return {
           userId: auth.userId,
-          email: auth.email,
+          email: auth.email
         }
-      },
-    },
+      }
+    }
   })
 
   if (result.status === "unauthenticated") {
@@ -44,7 +44,7 @@ export async function getProfileHandler(
 
 export async function updateProfileHandler(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await getAuthPayloadFromFastifyRequest(request)
 
@@ -61,7 +61,7 @@ export async function updateProfileHandler(
     const result = await updateProfileUseCase(profileRouteDeps.writer, {
       userId: auth.userId,
       name: typeof body.name === "string" ? body.name : undefined,
-      username: typeof body.username === "string" ? body.username : undefined,
+      username: typeof body.username === "string" ? body.username : undefined
     })
 
     if (result.status === "invalid") {
@@ -76,7 +76,7 @@ export async function updateProfileHandler(
 
 export async function updateRpgProfileHandler(
   request: FastifyRequest<{ Params: { rpgId: string } }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await getAuthPayloadFromFastifyRequest(request)
 
@@ -91,17 +91,17 @@ export async function updateRpgProfileHandler(
     }
     const hasDisplayName = Object.prototype.hasOwnProperty.call(
       body,
-      "displayName",
+      "displayName"
     )
     const hasProfileImageUrl = Object.prototype.hasOwnProperty.call(
       body,
-      "profileImageUrl",
+      "profileImageUrl"
     )
 
     const result = await updateRpgProfileUseCase(
       {
         accessService: profileRouteDeps.rpgProfileAccessService,
-        writer: profileRouteDeps.rpgProfileWriter,
+        writer: profileRouteDeps.rpgProfileWriter
       },
       {
         userId: auth.userId,
@@ -109,7 +109,7 @@ export async function updateRpgProfileHandler(
         ...(hasDisplayName
           ? {
               displayName:
-                typeof body.displayName === "string" ? body.displayName : null,
+                typeof body.displayName === "string" ? body.displayName : null
             }
           : {}),
         ...(hasProfileImageUrl
@@ -117,10 +117,10 @@ export async function updateRpgProfileHandler(
               profileImageUrl:
                 typeof body.profileImageUrl === "string"
                   ? body.profileImageUrl
-                  : null,
+                  : null
             }
-          : {}),
-      },
+          : {})
+      }
     )
 
     if (result.status === "invalid") {

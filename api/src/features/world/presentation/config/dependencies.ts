@@ -3,5 +3,5 @@ import { rpgConfigAccessService } from "@/features/world/infrastructure/config/s
 
 export const rpgConfigRouteDeps = {
   accessService: rpgConfigAccessService,
-  repository: prismaRpgConfigRepository,
+  repository: prismaRpgConfigRepository
 } as const

@@ -10,42 +10,42 @@ import {
   getSkillsSearchIndexHandler,
   listSkillsHandler,
   updateSkillHandler,
-  updateSkillLevelHandler,
+  updateSkillLevelHandler
 } from "@/features/world/skill/presentation/handlers"
 
 export function skillRoutes(app: FastifyInstance) {
   registerFastifyRoute(app, "get", "/api/skills", (request, reply) =>
     listSkillsHandler(
       request as FastifyRequest<{ Querystring: { rpgId?: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(app, "post", "/api/skills", (request, reply) =>
-    createSkillHandler(request, reply),
+    createSkillHandler(request, reply)
   )
   registerFastifyRoute(
     app,
     "post",
     "/api/skills/search-index",
-    (request, reply) => getSkillsSearchIndexHandler(request, reply),
+    (request, reply) => getSkillsSearchIndexHandler(request, reply)
   )
   registerFastifyRoute(app, "get", "/api/skills/:id", (request, reply) =>
     getSkillByIdHandler(
       request as FastifyRequest<{ Params: { id: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(app, "patch", "/api/skills/:id", (request, reply) =>
     updateSkillHandler(
       request as FastifyRequest<{ Params: { id: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(app, "delete", "/api/skills/:id", (request, reply) =>
     deleteSkillHandler(
       request as FastifyRequest<{ Params: { id: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(
     app,
@@ -54,8 +54,8 @@ export function skillRoutes(app: FastifyInstance) {
     (request, reply) =>
       createSkillLevelHandler(
         request as FastifyRequest<{ Params: { id: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -64,8 +64,8 @@ export function skillRoutes(app: FastifyInstance) {
     (request, reply) =>
       updateSkillLevelHandler(
         request as FastifyRequest<{ Params: { id: string; levelId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -74,7 +74,7 @@ export function skillRoutes(app: FastifyInstance) {
     (request, reply) =>
       deleteSkillLevelHandler(
         request as FastifyRequest<{ Params: { id: string; levelId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
 }

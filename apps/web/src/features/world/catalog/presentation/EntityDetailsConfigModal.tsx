@@ -1,10 +1,6 @@
 "use client"
 
-import type {
-  Dispatch,
-  RefObject,
-  SetStateAction,
-} from "react"
+import type { Dispatch, RefObject, SetStateAction } from "react"
 import NumericTemplateGrid from "@/features/world/presentation/components/NumericTemplateGrid"
 import type { EntityCatalogTemplateOption } from "@/features/world/catalog/application/types"
 import styles from "./EntityDetailsPage.module.css"
@@ -62,7 +58,7 @@ export default function EntityDetailsConfigModal({
   setSkillBonuses,
   saving,
   onSave,
-  onClose,
+  onClose
 }: Props) {
   if (!open) return null
 
@@ -177,18 +173,18 @@ export default function EntityDetailsConfigModal({
           <NumericTemplateGrid
             items={selectedTemplates.map((item) => ({
               key: item.key,
-              label: item.label,
+              label: item.label
             }))}
             values={selectedBonuses}
             onChange={(key, value) =>
               stage === "attributes"
                 ? setAttributeBonuses((current) => ({
                     ...current,
-                    [key]: value,
+                    [key]: value
                   }))
                 : setSkillBonuses((current) => ({
                     ...current,
-                    [key]: value,
+                    [key]: value
                   }))
             }
             gridClassName={styles.grid}

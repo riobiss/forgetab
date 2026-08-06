@@ -9,7 +9,7 @@ describe("MapFormModal", () => {
     const onChangeForm = vi.fn(
       (updater: (current: typeof nextState) => typeof nextState) => {
         nextState = updater(nextState)
-      },
+      }
     )
 
     render(
@@ -23,16 +23,16 @@ describe("MapFormModal", () => {
         onChangeForm={onChangeForm}
         onSave={vi.fn()}
         onClose={vi.fn()}
-      />,
+      />
     )
 
     fireEvent.change(screen.getByLabelText("Nome"), {
-      target: { value: "Novo mapa" },
+      target: { value: "Novo mapa" }
     })
     expect(nextState).toEqual({
       title: "Novo mapa",
       description: "",
-      type: "",
+      type: ""
     })
   })
 
@@ -51,7 +51,7 @@ describe("MapFormModal", () => {
         onChangeForm={vi.fn()}
         onSave={onSave}
         onClose={onClose}
-      />,
+      />
     )
 
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))

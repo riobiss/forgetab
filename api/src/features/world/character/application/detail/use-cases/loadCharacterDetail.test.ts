@@ -14,7 +14,7 @@ function createRepositoryMock(): CharacterDetailRepository {
     listCharacteristicFields: vi.fn(),
     listAttributeLabels: vi.fn(),
     listRaceLabels: vi.fn(),
-    listClassLabels: vi.fn(),
+    listClassLabels: vi.fn()
   }
 }
 
@@ -23,17 +23,17 @@ describe("loadCharacterDetailUseCase", () => {
     const repository = createRepositoryMock()
     const rpgAccessRepository: RpgAccessRepository = {
       getRpgAccessRow: vi.fn(),
-      getMembership: vi.fn(),
+      getMembership: vi.fn()
     }
     const permissionService: CharacterDetailPermissionService = {
-      getRpgPermission: vi.fn(),
+      getRpgPermission: vi.fn()
     }
 
     vi.mocked(repository.getRpg).mockResolvedValue(null)
 
     const result = await loadCharacterDetailUseCase(
       { repository, rpgAccessRepository, permissionService },
-      { rpgId: "rpg-1", characterId: "char-1", userId: "user-1" },
+      { rpgId: "rpg-1", characterId: "char-1", userId: "user-1" }
     )
 
     expect(result).toEqual({ status: "not_found" })
@@ -43,10 +43,10 @@ describe("loadCharacterDetailUseCase", () => {
     const repository = createRepositoryMock()
     const rpgAccessRepository: RpgAccessRepository = {
       getRpgAccessRow: vi.fn(),
-      getMembership: vi.fn(),
+      getMembership: vi.fn()
     }
     const permissionService: CharacterDetailPermissionService = {
-      getRpgPermission: vi.fn(),
+      getRpgPermission: vi.fn()
     }
 
     vi.mocked(repository.getRpg).mockResolvedValue({
@@ -55,20 +55,20 @@ describe("loadCharacterDetailUseCase", () => {
       visibility: "private",
       usersCanManageOwnXp: true,
       progressionMode: "xp_level",
-      progressionTiers: [{ label: "Level 1", required: 0 }],
+      progressionTiers: [{ label: "Level 1", required: 0 }]
     })
     vi.mocked(permissionService.getRpgPermission).mockResolvedValue({
       isOwner: false,
-      canManage: false,
+      canManage: false
     })
     vi.mocked(rpgAccessRepository.getMembership).mockResolvedValue({
       status: "pending",
-      role: "player",
+      role: "player"
     })
 
     const result = await loadCharacterDetailUseCase(
       { repository, rpgAccessRepository, permissionService },
-      { rpgId: "rpg-1", characterId: "char-1", userId: "user-1" },
+      { rpgId: "rpg-1", characterId: "char-1", userId: "user-1" }
     )
 
     expect(result).toEqual({ status: "private_blocked" })
@@ -78,10 +78,10 @@ describe("loadCharacterDetailUseCase", () => {
     const repository = createRepositoryMock()
     const rpgAccessRepository: RpgAccessRepository = {
       getRpgAccessRow: vi.fn(),
-      getMembership: vi.fn(),
+      getMembership: vi.fn()
     }
     const permissionService: CharacterDetailPermissionService = {
-      getRpgPermission: vi.fn(),
+      getRpgPermission: vi.fn()
     }
 
     vi.mocked(repository.getRpg).mockResolvedValue({
@@ -92,16 +92,16 @@ describe("loadCharacterDetailUseCase", () => {
       progressionMode: "xp_level",
       progressionTiers: [
         { label: "Level 1", required: 0 },
-        { label: "Level 2", required: 100 },
-      ],
+        { label: "Level 2", required: 100 }
+      ]
     })
     vi.mocked(permissionService.getRpgPermission).mockResolvedValue({
       isOwner: false,
-      canManage: false,
+      canManage: false
     })
     vi.mocked(rpgAccessRepository.getMembership).mockResolvedValue({
       status: "accepted",
-      role: "player",
+      role: "player"
     })
     vi.mocked(repository.getCharacter).mockResolvedValue({
       id: "char-1",
@@ -129,36 +129,36 @@ describe("loadCharacterDetailUseCase", () => {
       skills: { athletics: 2 },
       identity: { nome: "Arthas", sobrenome: "Menethil" },
       characteristics: { title: "Prince" },
-      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      createdAt: new Date("2026-01-01T00:00:00.000Z")
     })
     vi.mocked(repository.listSkillLabels).mockResolvedValue([
-      { key: "athletics", label: "Atletismo" },
+      { key: "athletics", label: "Atletismo" }
     ])
     vi.mocked(repository.listStatusLabels).mockResolvedValue([
       { key: "life", label: "Vida" },
       { key: "mana", label: "Mana" },
       { key: "sanity", label: "Sanidade" },
-      { key: "exhaustion", label: "Exaustao" },
+      { key: "exhaustion", label: "Exaustao" }
     ])
     vi.mocked(repository.listIdentityFields).mockResolvedValue([
-      { key: "nome", label: "Nome", position: 1 },
+      { key: "nome", label: "Nome", position: 1 }
     ])
     vi.mocked(repository.listCharacteristicFields).mockResolvedValue([
-      { key: "title", label: "Titulo", position: 1 },
+      { key: "title", label: "Titulo", position: 1 }
     ])
     vi.mocked(repository.listAttributeLabels).mockResolvedValue([
-      { key: "strength", label: "Forca" },
+      { key: "strength", label: "Forca" }
     ])
     vi.mocked(repository.listRaceLabels).mockResolvedValue([
-      { key: "human", label: "Humano" },
+      { key: "human", label: "Humano" }
     ])
     vi.mocked(repository.listClassLabels).mockResolvedValue([
-      { id: "class-1", key: "paladin", label: "Paladino" },
+      { id: "class-1", key: "paladin", label: "Paladino" }
     ])
 
     const result = await loadCharacterDetailUseCase(
       { repository, rpgAccessRepository, permissionService },
-      { rpgId: "rpg-1", characterId: "char-1", userId: "user-1" },
+      { rpgId: "rpg-1", characterId: "char-1", userId: "user-1" }
     )
 
     expect(result.status).toBe("ok")
@@ -169,13 +169,13 @@ describe("loadCharacterDetailUseCase", () => {
     expect(result.data.displayName).toBe("Arthas Menethil")
     expect(result.data.canEditCharacter).toBe(true)
     expect(result.data.attributeEntries).toEqual([
-      { key: "strength", label: "Forca", value: 7 },
+      { key: "strength", label: "Forca", value: 7 }
     ])
     expect(result.data.skillEntries).toEqual([
-      { key: "athletics", label: "Atletismo", value: 2 },
+      { key: "athletics", label: "Atletismo", value: 2 }
     ])
     expect(
-      result.data.identityItems.some((item) => item.label === "Raca"),
+      result.data.identityItems.some((item) => item.label === "Raca")
     ).toBe(true)
     expect(result.data.nextProgressionTierText).toBe("Level 2 (100)")
   })
@@ -184,10 +184,10 @@ describe("loadCharacterDetailUseCase", () => {
     const repository = createRepositoryMock()
     const rpgAccessRepository: RpgAccessRepository = {
       getRpgAccessRow: vi.fn(),
-      getMembership: vi.fn(),
+      getMembership: vi.fn()
     }
     const permissionService: CharacterDetailPermissionService = {
-      getRpgPermission: vi.fn(),
+      getRpgPermission: vi.fn()
     }
 
     vi.mocked(repository.getRpg).mockResolvedValue({
@@ -196,15 +196,15 @@ describe("loadCharacterDetailUseCase", () => {
       visibility: "public",
       usersCanManageOwnXp: true,
       progressionMode: "xp_level",
-      progressionTiers: [{ label: "Level 1", required: 0 }],
+      progressionTiers: [{ label: "Level 1", required: 0 }]
     })
     vi.mocked(permissionService.getRpgPermission).mockResolvedValue({
       isOwner: false,
-      canManage: false,
+      canManage: false
     })
     vi.mocked(rpgAccessRepository.getMembership).mockResolvedValue({
       status: "accepted",
-      role: "player",
+      role: "player"
     })
     vi.mocked(repository.getCharacter).mockResolvedValue({
       id: "char-1",
@@ -233,25 +233,21 @@ describe("loadCharacterDetailUseCase", () => {
       identity: {
         nome: "Esfinge",
         "titulo-apelido": "Ancestral",
-        "classe-livre": "Guardia",
+        "classe-livre": "Guardia"
       },
       characteristics: {
         descricao: "Guarda os portoes",
         "status-narrativo": "secreto",
-        "campos-secretos": JSON.stringify([
-          "name",
-          "classLabel",
-          "description",
-        ]),
+        "campos-secretos": JSON.stringify(["name", "classLabel", "description"])
       },
-      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      createdAt: new Date("2026-01-01T00:00:00.000Z")
     })
     vi.mocked(repository.listSkillLabels).mockResolvedValue([])
     vi.mocked(repository.listStatusLabels).mockResolvedValue([
       { key: "life", label: "Vida" },
       { key: "mana", label: "Mana" },
       { key: "sanity", label: "Sanidade" },
-      { key: "exhaustion", label: "Exaustao" },
+      { key: "exhaustion", label: "Exaustao" }
     ])
     vi.mocked(repository.listIdentityFields).mockResolvedValue([])
     vi.mocked(repository.listCharacteristicFields).mockResolvedValue([])
@@ -261,7 +257,7 @@ describe("loadCharacterDetailUseCase", () => {
 
     const result = await loadCharacterDetailUseCase(
       { repository, rpgAccessRepository, permissionService },
-      { rpgId: "rpg-1", characterId: "char-1", userId: "user-2" },
+      { rpgId: "rpg-1", characterId: "char-1", userId: "user-2" }
     )
 
     expect(result.status).toBe("ok")
@@ -272,11 +268,11 @@ describe("loadCharacterDetailUseCase", () => {
     expect(result.data.displayName).not.toBe("Esfinge")
     expect(result.data.displayName).not.toMatch(/[A-Za-z]/)
     expect(
-      result.data.identityItems.find((item) => item.label === "Classe")?.value,
+      result.data.identityItems.find((item) => item.label === "Classe")?.value
     ).not.toBe("Guardia")
     expect(result.data.aboutText).not.toBe("Guarda os portoes")
     expect(
-      result.data.characteristicsItems.find((item) => item.label === "Sobre"),
+      result.data.characteristicsItems.find((item) => item.label === "Sobre")
     ).toBeUndefined()
   })
 })

@@ -7,7 +7,7 @@ import {
   addAbility,
   ownsAbility,
   parseCharacterAbilities,
-  removeAbility,
+  removeAbility
 } from "@/features/world/character/application/abilities/rules/characterAbilityRules"
 import { loadCharacterAbilitiesUseCase } from "@/features/world/character/application/abilities/use-cases/characterAbilities"
 import { rethrowCharacterRepositoryError } from "@/features/world/character/application/errors/rethrowCharacterRepositoryError"
@@ -34,7 +34,7 @@ function validatePayload(payload: { skillId?: unknown; level?: unknown }) {
 
   return {
     skillId: payload.skillId.trim(),
-    level,
+    level
   }
 }
 
@@ -45,7 +45,7 @@ export async function addNpcMonsterCharacterAbilityUseCase(
     characterId: string
     userId: string
     payload: { skillId?: unknown; level?: unknown }
-  },
+  }
 ) {
   const payload = validatePayload(params.payload)
   await assertCanManage(deps.rpgAccessRepository, params.rpgId, params.userId)
@@ -56,7 +56,7 @@ export async function addNpcMonsterCharacterAbilityUseCase(
         rpgId: params.rpgId,
         characterId: params.characterId,
         skillId: payload.skillId,
-        level: payload.level,
+        level: payload.level
       },
       (context) => {
         const character = context.character
@@ -64,7 +64,7 @@ export async function addNpcMonsterCharacterAbilityUseCase(
         if (character.characterType === "player") {
           throw new AppError(
             "Use a ficha do player para gerenciar habilidades de player.",
-            400,
+            400
           )
         }
         if (!context.skillLevelExists) {
@@ -75,7 +75,7 @@ export async function addNpcMonsterCharacterAbilityUseCase(
         if (ownsAbility(abilities, payload.skillId, payload.level)) {
           throw new AppError(
             "Personagem ja possui este level da habilidade.",
-            409,
+            409
           )
         }
         if (
@@ -84,32 +84,31 @@ export async function addNpcMonsterCharacterAbilityUseCase(
         ) {
           throw new AppError(
             `Para adicionar o level ${payload.level}, primeiro adicione o level ${payload.level - 1}.`,
-            400,
+            400
           )
         }
 
         return {
-          abilities: addAbility(abilities, payload.skillId, payload.level),
+          abilities: addAbility(abilities, payload.skillId, payload.level)
         }
-      },
+      }
     )
 
     const view = await loadCharacterAbilitiesUseCase(
       {
         repository: deps.abilitiesRepository,
         rpgAccessRepository: deps.rpgAccessRepository,
-        parserService: deps.parserService,
+        parserService: deps.parserService
       },
       {
         rpgId: params.rpgId,
         characterId: params.characterId,
-        userId: params.userId,
-      },
+        userId: params.userId
+      }
     )
     const ability = view?.abilities.find(
       (item) =>
-        item.skillId === payload.skillId &&
-        item.levelNumber === payload.level,
+        item.skillId === payload.skillId && item.levelNumber === payload.level
     )
     if (!ability) {
       throw new AppError("Habilidade nao encontrada no personagem.", 404)
@@ -128,7 +127,7 @@ export async function removeNpcMonsterCharacterAbilityUseCase(
     characterId: string
     userId: string
     payload: { skillId?: unknown; level?: unknown }
-  },
+  }
 ) {
   const payload = validatePayload(params.payload)
   await assertCanManage(deps.rpgAccessRepository, params.rpgId, params.userId)
@@ -139,7 +138,7 @@ export async function removeNpcMonsterCharacterAbilityUseCase(
         rpgId: params.rpgId,
         characterId: params.characterId,
         skillId: payload.skillId,
-        level: payload.level,
+        level: payload.level
       },
       (context) => {
         const character = context.character
@@ -147,7 +146,7 @@ export async function removeNpcMonsterCharacterAbilityUseCase(
         if (character.characterType === "player") {
           throw new AppError(
             "Use a ficha do player para gerenciar habilidades de player.",
-            400,
+            400
           )
         }
 
@@ -157,13 +156,9 @@ export async function removeNpcMonsterCharacterAbilityUseCase(
         }
 
         return {
-          abilities: removeAbility(
-            abilities,
-            payload.skillId,
-            payload.level,
-          ),
+          abilities: removeAbility(abilities, payload.skillId, payload.level)
         }
-      },
+      }
     )
 
     return { success: true as const }
@@ -175,14 +170,14 @@ export async function removeNpcMonsterCharacterAbilityUseCase(
 async function assertCanManage(
   repository: RpgAccessRepository,
   rpgId: string,
-  userId: string,
+  userId: string
 ) {
   const access = await getRpgAccess({ repository, rpgId, userId })
   if (!access.exists) throw new AppError("RPG nao encontrado.", 404)
   if (!access.isOwner) {
     throw new AppError(
       "Sem permissao para gerenciar habilidades deste personagem.",
-      403,
+      403
     )
   }
 }

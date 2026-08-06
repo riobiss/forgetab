@@ -6,17 +6,17 @@ import {
   useState,
   type Dispatch,
   type MutableRefObject,
-  type SetStateAction,
+  type SetStateAction
 } from "react"
 import type { WorldMapCanvasHandle } from "@/features/world/location/presentation/types/worldMapCanvas"
 import type {
   MapMarkerItem,
-  MarkerGroup,
+  MarkerGroup
 } from "@/features/world/location/presentation/types/mapMarkers"
 import {
   findMarkerSelectionById,
   findNearbyMarkerSelections,
-  type DisplayMapMarkerSelection,
+  type DisplayMapMarkerSelection
 } from "@/features/world/location/presentation/utils/markerDisplay"
 
 type Params = {
@@ -45,7 +45,7 @@ export function useWorldMapMarkerSelection(params: Params) {
     setAreMarkersVisible,
     setIsInteractive,
     setVisibleMarkerGroupIds,
-    visibleMarkerGroupIds,
+    visibleMarkerGroupIds
   } = params
   const [selectedMapMarker, setSelectedMapMarker] =
     useState<DisplayMapMarkerSelection | null>(null)
@@ -65,7 +65,7 @@ export function useWorldMapMarkerSelection(params: Params) {
 
     const match = findMarkerSelectionById(
       displayMarkerGroups,
-      focusMarkerRequest.markerId,
+      focusMarkerRequest.markerId
     )
     if (!match) {
       return
@@ -75,7 +75,7 @@ export function useWorldMapMarkerSelection(params: Params) {
 
     setAreMarkersVisible(true)
     setVisibleMarkerGroupIds((current) =>
-      current.includes(match.group.id) ? current : [...current, match.group.id],
+      current.includes(match.group.id) ? current : [...current, match.group.id]
     )
     closeTransientUi()
     setOverlappingMarkers(null)
@@ -98,7 +98,7 @@ export function useWorldMapMarkerSelection(params: Params) {
           canvasRef.current?.focusMarker(match.marker)
           setSelectedMapMarker({
             marker: match.marker,
-            groupColor: match.groupColor,
+            groupColor: match.groupColor
           })
         })
       })
@@ -113,18 +113,18 @@ export function useWorldMapMarkerSelection(params: Params) {
     frameRef,
     setAreMarkersVisible,
     setIsInteractive,
-    setVisibleMarkerGroupIds,
+    setVisibleMarkerGroupIds
   ])
 
   function handleMarkerPinSelect(
     clickedMarker: MapMarkerItem,
-    groupColor: string,
+    groupColor: string
   ) {
     const nearbyMarkers = findNearbyMarkerSelections(
       displayMarkerGroups,
       visibleMarkerGroupIds,
       clickedMarker,
-      overlapDistance,
+      overlapDistance
     )
 
     if (nearbyMarkers.length > 1) {
@@ -136,7 +136,7 @@ export function useWorldMapMarkerSelection(params: Params) {
     setOverlappingMarkers(null)
     setSelectedMapMarker({
       marker: clickedMarker,
-      groupColor,
+      groupColor
     })
   }
 
@@ -146,11 +146,11 @@ export function useWorldMapMarkerSelection(params: Params) {
     }
 
     const matchedGroup = allMarkerGroups.find((group) =>
-      group.markers.some((marker) => marker.id === selectedMapMarker.marker.id),
+      group.markers.some((marker) => marker.id === selectedMapMarker.marker.id)
     )
     const matchedMarker =
       matchedGroup?.markers.find(
-        (marker) => marker.id === selectedMapMarker.marker.id,
+        (marker) => marker.id === selectedMapMarker.marker.id
       ) ?? null
 
     if (!matchedGroup || !matchedMarker?.canEdit || !matchedGroup.canEdit) {
@@ -160,7 +160,7 @@ export function useWorldMapMarkerSelection(params: Params) {
     setSelectedMapMarker(null)
     return {
       group: matchedGroup,
-      marker: matchedMarker,
+      marker: matchedMarker
     }
   }
 
@@ -170,6 +170,6 @@ export function useWorldMapMarkerSelection(params: Params) {
     setSelectedMapMarker,
     setOverlappingMarkers,
     handleMarkerPinSelect,
-    beginMarkerEditing,
+    beginMarkerEditing
   }
 }

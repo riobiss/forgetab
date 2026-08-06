@@ -9,7 +9,7 @@ import type { AuthTokenService } from "@/features/auth/application/ports/AuthTok
 const REGISTER_RATE_LIMIT = {
   ipLimit: 12,
   emailPerIpLimit: 4,
-  windowMs: 60 * 60 * 1000,
+  windowMs: 60 * 60 * 1000
 }
 
 const GENERIC_REGISTER_CONFLICT_MESSAGE =
@@ -26,18 +26,18 @@ export async function registerUseCase(
     authPasswordService: AuthPasswordService
     authTokenService: AuthTokenService
     authRateLimitService: AuthRateLimitService
-  },
+  }
 ) {
   const ipRate = await deps.authRateLimitService.check(
     `register:ip:${input.clientIp}`,
     REGISTER_RATE_LIMIT.ipLimit,
-    REGISTER_RATE_LIMIT.windowMs,
+    REGISTER_RATE_LIMIT.windowMs
   )
 
   if (!ipRate.allowed) {
     throw new AuthRateLimitError(
       "Muitas tentativas. Tente novamente em instantes.",
-      ipRate.retryAfterSeconds,
+      ipRate.retryAfterSeconds
     )
   }
 
@@ -45,7 +45,7 @@ export async function registerUseCase(
   if (!parsed.success) {
     throw new AppError(
       parsed.error.issues[0]?.message ?? "Dados invalidos.",
-      400,
+      400
     )
   }
 
@@ -56,13 +56,13 @@ export async function registerUseCase(
   const emailRate = await deps.authRateLimitService.check(
     `register:email:${input.clientIp}:${normalizedEmail}`,
     REGISTER_RATE_LIMIT.emailPerIpLimit,
-    REGISTER_RATE_LIMIT.windowMs,
+    REGISTER_RATE_LIMIT.windowMs
   )
 
   if (!emailRate.allowed) {
     throw new AuthRateLimitError(
       "Muitas tentativas. Tente novamente em instantes.",
-      emailRate.retryAfterSeconds,
+      emailRate.retryAfterSeconds
     )
   }
 
@@ -83,16 +83,16 @@ export async function registerUseCase(
     name,
     username: normalizedUsername,
     email: normalizedEmail,
-    passwordHash,
+    passwordHash
   })
   const token = await deps.authTokenService.createToken({
     userId: user.id,
-    email: user.email,
+    email: user.email
   })
 
   return {
     token,
     cookie: deps.authTokenService.getCookieConfig(),
-    user,
+    user
   }
 }

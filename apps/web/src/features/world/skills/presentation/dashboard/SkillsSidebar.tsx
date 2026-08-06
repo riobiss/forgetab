@@ -32,7 +32,7 @@ export function SkillsSidebar({
   onSearchChange,
   onOpenFilters,
   onOpenCreate,
-  onEditSkill,
+  onEditSkill
 }: SkillsSidebarProps) {
   return (
     <aside className={styles.sidebar}>
@@ -41,7 +41,11 @@ export function SkillsSidebar({
         <div className={styles.sidebarTools}>
           <button
             type="button"
-            className={skillSearchOpen ? `${styles.iconButton} ${styles.iconButtonActive}` : styles.iconButton}
+            className={
+              skillSearchOpen
+                ? `${styles.iconButton} ${styles.iconButtonActive}`
+                : styles.iconButton
+            }
             aria-label="Pesquisar habilidades"
             title="Pesquisar habilidades"
             onClick={onToggleSearch}
@@ -50,7 +54,11 @@ export function SkillsSidebar({
           </button>
           <button
             type="button"
-            className={filtersOpen ? `${styles.iconButton} ${styles.iconButtonActive}` : styles.iconButton}
+            className={
+              filtersOpen
+                ? `${styles.iconButton} ${styles.iconButtonActive}`
+                : styles.iconButton
+            }
             aria-label="Filtrar habilidades"
             title="Filtrar habilidades"
             onClick={onOpenFilters}
@@ -80,17 +88,30 @@ export function SkillsSidebar({
         </label>
       ) : null}
       {filteredSkills.map((skill) => (
-        <div key={skill.id} className={selectedSkillId === skill.id ? styles.skillCardActive : styles.skillCard}>
+        <div
+          key={skill.id}
+          className={
+            selectedSkillId === skill.id
+              ? styles.skillCardActive
+              : styles.skillCard
+          }
+        >
           <strong>{skillDisplayNameById[skill.id] ?? skill.slug}</strong>
           <small>{new Date(skill.updatedAt).toLocaleString("pt-BR")}</small>
           <div className={styles.actions}>
-            <button type="button" className={styles.ghostButton} onClick={() => onEditSkill(skill.id)}>
+            <button
+              type="button"
+              className={styles.ghostButton}
+              onClick={() => onEditSkill(skill.id)}
+            >
               Editar
             </button>
           </div>
         </div>
       ))}
-      {filteredSkills.length === 0 ? <p className={styles.muted}>Nenhuma habilidade encontrada.</p> : null}
+      {filteredSkills.length === 0 ? (
+        <p className={styles.muted}>Nenhuma habilidade encontrada.</p>
+      ) : null}
     </aside>
   )
 }

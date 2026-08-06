@@ -4,7 +4,7 @@ import { httpLibraryGateway } from "@/features/world/library/infrastructure/gate
 export type LibraryGatewayFactory = "http"
 
 export function createLibraryDependencies(
-  factory: LibraryGatewayFactory = "http",
+  factory: LibraryGatewayFactory = "http"
 ): LibraryDependencies {
   switch (factory) {
     case "http":

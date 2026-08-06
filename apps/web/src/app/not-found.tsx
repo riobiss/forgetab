@@ -10,7 +10,8 @@ export default function NotFound() {
           Página não encontrada
         </h1>
         <p className={styles.description}>
-          O conteúdo solicitado não existe, foi removido ou você não tem acesso a ele.
+          O conteúdo solicitado não existe, foi removido ou você não tem acesso
+          a ele.
         </p>
         <div className={styles.actions}>
           <Link className={styles.primaryAction} href="/rpg">

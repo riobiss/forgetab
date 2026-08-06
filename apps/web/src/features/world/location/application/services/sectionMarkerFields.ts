@@ -17,9 +17,7 @@ export function getOptionalStringValue(value: unknown) {
   return normalized.length > 0 ? normalized : null
 }
 
-export function getLinkedMarkerId(
-  value: JsonMapValue | null | undefined,
-) {
+export function getLinkedMarkerId(value: JsonMapValue | null | undefined) {
   const markerId = value?.[SECTION_LINK_MARKER_ID]
   return typeof markerId === "string" ? markerId : ""
 }
@@ -51,6 +49,6 @@ export function buildMarkerUpdateFromSection(params: {
       params.marker.image,
     color:
       getOptionalStringValue(customFields[SECTION_LINK_COLOR]) ??
-      params.marker.color,
+      params.marker.color
   }
 }

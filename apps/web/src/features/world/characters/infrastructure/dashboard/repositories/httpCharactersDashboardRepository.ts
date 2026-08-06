@@ -5,7 +5,7 @@ import { createApiResponseParser } from "@/features/http/infrastructure/parseApi
 export class HttpCharactersDashboardError extends Error {
   constructor(
     message: string,
-    readonly status: number,
+    readonly status: number
   ) {
     super(message)
     this.name = "HttpCharactersDashboardError"
@@ -15,7 +15,7 @@ export class HttpCharactersDashboardError extends Error {
 const parseJsonResponse = createApiResponseParser({
   fallbackMessage: "Erro ao carregar dashboard de personagens.",
   errorFactory: (message, status) =>
-    new HttpCharactersDashboardError(message, status),
+    new HttpCharactersDashboardError(message, status)
 })
 
 export async function fetchCharactersDashboardViewModel(
@@ -25,7 +25,7 @@ export async function fetchCharactersDashboardViewModel(
     modal?: string
     viewer?: string
     characterId?: string
-  },
+  }
 ): Promise<CharactersDashboardViewModel> {
   const query = new URLSearchParams()
 
@@ -40,8 +40,8 @@ export async function fetchCharactersDashboardViewModel(
     `/api/rpg/${rpgId}/characters/dashboard${suffix}`,
     {
       next: { revalidate: 0 },
-      cache: "no-store",
-    },
+      cache: "no-store"
+    }
   )
 
   return parseJsonResponse<CharactersDashboardViewModel>(response)

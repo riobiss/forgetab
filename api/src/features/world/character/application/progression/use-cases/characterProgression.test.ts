@@ -3,7 +3,7 @@ import type { CharacterProgressionPermissionService } from "@/features/world/cha
 import type { CharacterProgressionRepository } from "@/features/world/character/application/progression/ports/CharacterProgressionRepository"
 import {
   grantCharacterPointsUseCase,
-  grantCharacterXpUseCase,
+  grantCharacterXpUseCase
 } from "@/features/world/character/application/progression/use-cases/characterProgression"
 
 function createRepositoryMock(): CharacterProgressionRepository {
@@ -15,22 +15,22 @@ function createRepositoryMock(): CharacterProgressionRepository {
       progressionMode: "xp_level",
       progressionTiers: [
         { label: "Level 1", required: 0 },
-        { label: "Level 2", required: 100 },
+        { label: "Level 2", required: 100 }
       ],
-      progressionCurrent: 95,
+      progressionCurrent: 95
     }),
     updateSkillPoints: vi.fn().mockResolvedValue({ skillPoints: 11 }),
     updateProgression: vi.fn().mockResolvedValue({
       progressionCurrent: 105,
       progressionLabel: "Level 2",
-      progressionRequired: 100,
-    }),
+      progressionRequired: 100
+    })
   }
 }
 
 function createPermissionServiceMock(): CharacterProgressionPermissionService {
   return {
-    canManageRpg: vi.fn().mockResolvedValue(true),
+    canManageRpg: vi.fn().mockResolvedValue(true)
   }
 }
 
@@ -41,7 +41,7 @@ describe("characterProgression use-cases", () => {
 
     const result = await grantCharacterPointsUseCase(
       { repository, permissionService },
-      { characterId: "char-1", userId: "user-1", amount: 3 },
+      { characterId: "char-1", userId: "user-1", amount: 3 }
     )
 
     expect(repository.updateSkillPoints).toHaveBeenCalledWith("char-1", 3)
@@ -54,20 +54,20 @@ describe("characterProgression use-cases", () => {
 
     const result = await grantCharacterXpUseCase(
       { repository, permissionService },
-      { characterId: "char-1", userId: "user-1", amount: 10 },
+      { characterId: "char-1", userId: "user-1", amount: 10 }
     )
 
     expect(repository.updateProgression).toHaveBeenCalledWith({
       characterId: "char-1",
       progressionCurrent: 105,
       progressionLabel: "Level 2",
-      progressionRequired: 100,
+      progressionRequired: 100
     })
     expect(result).toEqual({
       success: true,
       progressionCurrent: 105,
       progressionLabel: "Level 2",
-      progressionRequired: 100,
+      progressionRequired: 100
     })
   })
 })

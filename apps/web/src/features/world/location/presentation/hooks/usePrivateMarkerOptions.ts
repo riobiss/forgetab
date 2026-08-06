@@ -6,7 +6,7 @@ import type { MarkerLinkOption } from "@/features/world/location/presentation/ut
 
 export function usePrivateMarkerOptions(
   mapId: string | null,
-  markerColors: string[],
+  markerColors: string[]
 ) {
   const [options, setOptions] = useState<MarkerLinkOption[]>([])
 
@@ -19,11 +19,10 @@ export function usePrivateMarkerOptions(
 
     function loadOptions() {
       try {
-        const groups =
-          rpgMapPresentationDeps.privateMarkerGroupStorage.load(
-            selectedMapId,
-            markerColors,
-          )
+        const groups = rpgMapPresentationDeps.privateMarkerGroupStorage.load(
+          selectedMapId,
+          markerColors
+        )
         setOptions(
           groups.flatMap((group) =>
             group.markers.map((marker) => ({
@@ -36,9 +35,9 @@ export function usePrivateMarkerOptions(
               image: marker.image ?? null,
               color: marker.color || group.color,
               size: marker.size ?? null,
-              pinStyle: marker.pinStyle ?? "default",
-            })),
-          ),
+              pinStyle: marker.pinStyle ?? "default"
+            }))
+          )
         )
       } catch {
         setOptions([])
@@ -48,7 +47,7 @@ export function usePrivateMarkerOptions(
     loadOptions()
     return rpgMapPresentationDeps.privateMarkerGroupStorage.subscribe(
       mapId,
-      loadOptions,
+      loadOptions
     )
   }, [mapId, markerColors])
 

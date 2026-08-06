@@ -50,7 +50,7 @@ export default function MembershipNotifications({
   pendingCharacterRequests,
   pendingCharacterOffers,
   compact = false,
-  simpleJoin = false,
+  simpleJoin = false
 }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const {
@@ -60,7 +60,7 @@ export default function MembershipNotifications({
     error,
     requestToJoin,
     processRequest,
-    processCharacterRequest,
+    processCharacterRequest
   } = useMembershipNotifications(dashboardDeps, { rpgId })
 
   const notificationsCount = isOwner

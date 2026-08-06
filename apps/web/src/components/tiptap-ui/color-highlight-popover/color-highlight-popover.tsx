@@ -18,24 +18,24 @@ import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button"
 import {
   Popover,
   PopoverTrigger,
-  PopoverContent,
+  PopoverContent
 } from "@/components/tiptap-ui-primitive/popover"
 import { Separator } from "@/components/tiptap-ui-primitive/separator"
 import {
   Card,
   CardBody,
-  CardItemGroup,
+  CardItemGroup
 } from "@/components/tiptap-ui-primitive/card"
 
 // --- Tiptap UI ---
 import type {
   HighlightColor,
-  UseColorHighlightConfig,
+  UseColorHighlightConfig
 } from "@/components/tiptap-ui/color-highlight-button"
 import {
   ColorHighlightButton,
   pickHighlightColorsByValue,
-  useColorHighlight,
+  useColorHighlight
 } from "@/components/tiptap-ui/color-highlight-button"
 
 export interface ColorHighlightPopoverContentProps {
@@ -103,9 +103,9 @@ export function ColorHighlightPopoverContent({
     "var(--tt-color-highlight-blue)",
     "var(--tt-color-highlight-red)",
     "var(--tt-color-highlight-purple)",
-    "var(--tt-color-highlight-yellow)",
+    "var(--tt-color-highlight-yellow)"
   ]),
-  useColorValue = false,
+  useColorValue = false
 }: ColorHighlightPopoverContentProps) {
   const { handleRemoveHighlight } = useColorHighlight({ editor })
   const isMobile = useIsBreakpoint()
@@ -129,7 +129,7 @@ export function ColorHighlightPopoverContent({
       if (item.value === "none") handleRemoveHighlight()
       return true
     },
-    autoSelectFirstItem: false,
+    autoSelectFirstItem: false
   })
 
   return (
@@ -182,7 +182,7 @@ export function ColorHighlightPopover({
     "var(--tt-color-highlight-blue)",
     "var(--tt-color-highlight-red)",
     "var(--tt-color-highlight-purple)",
-    "var(--tt-color-highlight-yellow)",
+    "var(--tt-color-highlight-yellow)"
   ]),
   hideWhenUnavailable = false,
   useColorValue = false,
@@ -195,7 +195,7 @@ export function ColorHighlightPopover({
     useColorHighlight({
       editor,
       hideWhenUnavailable,
-      onApplied,
+      onApplied
     })
 
   if (!isVisible) return null

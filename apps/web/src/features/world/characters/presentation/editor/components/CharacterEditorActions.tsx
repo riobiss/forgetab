@@ -26,7 +26,7 @@ export default function CharacterEditorActions({
   onCancel,
   onDeleteRequest,
   onDeleteConfirm,
-  onDeleteCancel,
+  onDeleteCancel
 }: Props) {
   return (
     <>

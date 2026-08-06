@@ -4,7 +4,7 @@ import type { CharacterStatusCurrentDependencies } from "@/features/world/charac
 import StatusTracker from "./StatusTracker"
 
 function createDependencies(
-  update: CharacterStatusCurrentDependencies["gateway"]["update"],
+  update: CharacterStatusCurrentDependencies["gateway"]["update"]
 ): CharacterStatusCurrentDependencies {
   return { gateway: { update } }
 }
@@ -13,7 +13,7 @@ const defaultProps = {
   items: [{ key: "life", label: "Vida", max: 10, current: 8 }],
   rpgId: "rpg-1",
   characterId: "character-1",
-  canPersist: true,
+  canPersist: true
 }
 
 describe("StatusTracker", () => {
@@ -22,7 +22,7 @@ describe("StatusTracker", () => {
       message: "Status atual salvo.",
       key: "life",
       value: 7,
-      max: 10,
+      max: 10
     })
     const getItem = vi.spyOn(Storage.prototype, "getItem")
     const setItem = vi.spyOn(Storage.prototype, "setItem")
@@ -31,7 +31,7 @@ describe("StatusTracker", () => {
       <StatusTracker
         {...defaultProps}
         dependencies={createDependencies(update)}
-      />,
+      />
     )
 
     fireEvent.click(screen.getByRole("button", { name: "-" }))
@@ -40,7 +40,7 @@ describe("StatusTracker", () => {
       rpgId: "rpg-1",
       characterId: "character-1",
       key: "life",
-      value: 7,
+      value: 7
     })
     await waitFor(() => {
       expect(screen.getByText("Vida: 7/10")).toBeInTheDocument()
@@ -59,7 +59,7 @@ describe("StatusTracker", () => {
       <StatusTracker
         {...defaultProps}
         dependencies={createDependencies(update)}
-      />,
+      />
     )
 
     fireEvent.click(screen.getByRole("button", { name: "+" }))
@@ -78,7 +78,7 @@ describe("StatusTracker", () => {
         {...defaultProps}
         canPersist={false}
         dependencies={createDependencies(update)}
-      />,
+      />
     )
 
     expect(screen.getByRole("button", { name: "-" })).toBeDisabled()

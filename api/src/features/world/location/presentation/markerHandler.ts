@@ -4,7 +4,7 @@ import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { rpgMapRouteDeps } from "./dependencies"
 
@@ -17,7 +17,7 @@ type MarkerRouteParams = {
 
 export async function updateRpgMapMarkerHandler(
   request: FastifyRequest<{ Params: MarkerRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -28,8 +28,8 @@ export async function updateRpgMapMarkerHandler(
       {
         ...request.params,
         userId: auth.userId,
-        body: parseJsonBody(request.body),
-      },
+        body: parseJsonBody(request.body)
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {

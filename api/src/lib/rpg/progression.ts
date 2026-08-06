@@ -7,7 +7,7 @@ export type ProgressionTier = {
 
 const DEFAULT_XP_LEVEL_TIERS: ProgressionTier[] = [
   { label: "Level 1", required: 0 },
-  { label: "Level 2", required: 100 },
+  { label: "Level 2", required: 100 }
 ]
 
 const DEFAULT_RANK_TIERS: ProgressionTier[] = [
@@ -15,27 +15,40 @@ const DEFAULT_RANK_TIERS: ProgressionTier[] = [
   { label: "Novato 2", required: 100 },
   { label: "Novato 3", required: 250 },
   { label: "Veterano 1", required: 450 },
-  { label: "Veterano 2", required: 700 },
+  { label: "Veterano 2", required: 700 }
 ]
 
-const DEFAULT_CUSTOM_TIERS: ProgressionTier[] = [{ label: "Level 1", required: 0 }]
+const DEFAULT_CUSTOM_TIERS: ProgressionTier[] = [
+  { label: "Level 1", required: 0 }
+]
 
 export function isProgressionMode(value: unknown): value is ProgressionMode {
   return value === "xp_level" || value === "rank" || value === "custom"
 }
 
-export function getDefaultProgressionTiers(mode: ProgressionMode): ProgressionTier[] {
+export function getDefaultProgressionTiers(
+  mode: ProgressionMode
+): ProgressionTier[] {
   if (mode === "rank") return DEFAULT_RANK_TIERS.map((item) => ({ ...item }))
-  if (mode === "custom") return DEFAULT_CUSTOM_TIERS.map((item) => ({ ...item }))
+  if (mode === "custom")
+    return DEFAULT_CUSTOM_TIERS.map((item) => ({ ...item }))
   return DEFAULT_XP_LEVEL_TIERS.map((item) => ({ ...item }))
 }
 
-export function enforceXpLevelPattern(tiers: ProgressionTier[]): ProgressionTier[] {
-  const source = tiers.length > 0 ? tiers : getDefaultProgressionTiers("xp_level")
+export function enforceXpLevelPattern(
+  tiers: ProgressionTier[]
+): ProgressionTier[] {
+  const source =
+    tiers.length > 0 ? tiers : getDefaultProgressionTiers("xp_level")
   return source.map((item, index) => ({
     label: `Level ${index + 1}`,
     required:
-      index === 0 ? 0 : Math.max(0, Number.isFinite(item.required) ? Math.floor(item.required) : 0),
+      index === 0
+        ? 0
+        : Math.max(
+            0,
+            Number.isFinite(item.required) ? Math.floor(item.required) : 0
+          )
   }))
 }
 
@@ -45,7 +58,9 @@ function normalizeTier(value: unknown): ProgressionTier | null {
   const rawLabel = typeof record.label === "string" ? record.label.trim() : ""
   const rawRequired = record.required
   const required =
-    typeof rawRequired === "number" && Number.isFinite(rawRequired) && rawRequired >= 0
+    typeof rawRequired === "number" &&
+    Number.isFinite(rawRequired) &&
+    rawRequired >= 0
       ? Math.floor(rawRequired)
       : null
 
@@ -55,7 +70,7 @@ function normalizeTier(value: unknown): ProgressionTier | null {
 
 export function normalizeProgressionTiers(
   value: unknown,
-  mode: ProgressionMode,
+  mode: ProgressionMode
 ): ProgressionTier[] {
   if (!Array.isArray(value)) {
     return getDefaultProgressionTiers(mode)
@@ -85,10 +100,12 @@ export function getProgressionModeLabel(mode: ProgressionMode) {
 export function resolveProgressionTierByCurrent(
   mode: ProgressionMode,
   tiers: ProgressionTier[],
-  current: number,
+  current: number
 ): ProgressionTier {
   const source = tiers.length > 0 ? tiers : getDefaultProgressionTiers(mode)
-  const sorted = [...source].sort((left, right) => left.required - right.required)
+  const sorted = [...source].sort(
+    (left, right) => left.required - right.required
+  )
   const normalizedCurrent =
     Number.isFinite(current) && current >= 0 ? Math.floor(current) : 0
 

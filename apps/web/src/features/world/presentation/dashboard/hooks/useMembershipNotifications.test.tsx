@@ -7,8 +7,8 @@ const refreshMock = vi.fn()
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    refresh: refreshMock,
-  }),
+    refresh: refreshMock
+  })
 }))
 
 function createDeps(): RpgDashboardDependencies {
@@ -28,8 +28,8 @@ function createDeps(): RpgDashboardDependencies {
       fetchClasses: vi.fn(),
       fetchRpg: vi.fn(),
       grantPoints: vi.fn(),
-      grantXp: vi.fn(),
-    },
+      grantXp: vi.fn()
+    }
   }
 }
 
@@ -37,7 +37,7 @@ describe("useMembershipNotifications", () => {
   it("requestToJoin define mensagem e refresh", async () => {
     const deps = createDeps()
     const { result } = renderHook(() =>
-      useMembershipNotifications(deps, { rpgId: "rpg-1" }),
+      useMembershipNotifications(deps, { rpgId: "rpg-1" })
     )
 
     await act(async () => {
@@ -57,7 +57,7 @@ describe("useMembershipNotifications", () => {
     ).mockRejectedValue(new Error("Falha ao aprovar."))
 
     const { result } = renderHook(() =>
-      useMembershipNotifications(deps, { rpgId: "rpg-1" }),
+      useMembershipNotifications(deps, { rpgId: "rpg-1" })
     )
 
     await act(async () => {

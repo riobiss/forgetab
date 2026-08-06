@@ -74,7 +74,7 @@ export function SkillEditModal({
   newCustomFieldValue,
   setNewCustomFieldValue,
   onAddCustomField,
-  onCloseCustomFieldModal,
+  onCloseCustomFieldModal
 }: SkillEditModalProps) {
   if (!open) return null
 
@@ -86,11 +86,19 @@ export function SkillEditModal({
       aria-label="Editar habilidade"
       onClick={onClose}
     >
-      <section className={`${styles.card} ${styles.modalCard}`} onClick={(event) => event.stopPropagation()}>
+      <section
+        className={`${styles.card} ${styles.modalCard}`}
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className={styles.modalHeader}>
           <h2>Editar</h2>
           <div className={styles.modalHeaderActions}>
-            <button type="button" className={styles.ghostButton} onClick={onCreateSnapshotLevel} disabled={saving}>
+            <button
+              type="button"
+              className={styles.ghostButton}
+              onClick={onCreateSnapshotLevel}
+              disabled={saving}
+            >
               Level +1
             </button>
             <button
@@ -116,7 +124,10 @@ export function SkillEditModal({
         <div className={styles.levelHeader}>
           <div className={styles.levelHeaderActions}>
             {activeSkill.levels.length > 1 ? (
-              <NativeSelectField value={selectedLevelId} onChange={(event) => setSelectedLevelId(event.target.value)}>
+              <NativeSelectField
+                value={selectedLevelId}
+                onChange={(event) => setSelectedLevelId(event.target.value)}
+              >
                 {activeSkill.levels.map((level) => (
                   <option key={level.id} value={level.id}>
                     Level {level.levelNumber}
@@ -155,7 +166,12 @@ export function SkillEditModal({
         <div className={styles.actions}>
           <SkillStepNavigation step={editStep} setStep={setEditStep} />
           <SkillDeleteButton onDelete={onDeleteSkill} disabled={saving} />
-          <button type="button" className={styles.primaryButton} onClick={onSaveAll} disabled={saving}>
+          <button
+            type="button"
+            className={styles.primaryButton}
+            onClick={onSaveAll}
+            disabled={saving}
+          >
             {saving ? "Salvando..." : "Salvar"}
           </button>
         </div>

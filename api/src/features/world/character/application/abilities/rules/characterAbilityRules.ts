@@ -33,30 +33,30 @@ export function parseCostPoints(value: JsonValue): number | null {
 export function addAbility(
   abilities: CharacterAbility[],
   skillId: string,
-  level: number,
+  level: number
 ) {
   return [
     ...abilities.filter((item) => item.skillId !== skillId),
-    { skillId, level },
+    { skillId, level }
   ]
 }
 
 export function removeAbility(
   abilities: CharacterAbility[],
   skillId: string,
-  level: number,
+  level: number
 ) {
   return abilities.filter(
-    (item) => !(item.skillId === skillId && item.level === level),
+    (item) => !(item.skillId === skillId && item.level === level)
   )
 }
 
 export function ownsAbility(
   abilities: CharacterAbility[],
   skillId: string,
-  level: number,
+  level: number
 ) {
   return abilities.some(
-    (item) => item.skillId === skillId && item.level === level,
+    (item) => item.skillId === skillId && item.level === level
   )
 }

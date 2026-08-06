@@ -10,11 +10,11 @@ function normalizeCatalogItems(
     image: string | null
     visibility: string
     createdAt: Date
-  }>,
+  }>
 ): RpgCatalogItem[] {
   return items.map((item) => ({
     ...item,
-    visibility: item.visibility === "private" ? "private" : "public",
+    visibility: item.visibility === "private" ? "private" : "public"
   }))
 }
 
@@ -28,9 +28,9 @@ export const prismaRpgCatalogRepository: RpgCatalogRepository = {
         description: true,
         image: true,
         visibility: true,
-        createdAt: true,
+        createdAt: true
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: "desc" }
     })
     return normalizeCatalogItems(items)
   },
@@ -46,10 +46,10 @@ export const prismaRpgCatalogRepository: RpgCatalogRepository = {
         description: true,
         image: true,
         visibility: true,
-        createdAt: true,
+        createdAt: true
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: "desc" }
     })
     return normalizeCatalogItems(items)
-  },
+  }
 }

@@ -1,7 +1,7 @@
 import type { RpgMapAccessService } from "@/features/world/location/application/ports/RpgMapAccessService"
 import {
   getRpgMembershipStatusByPrisma,
-  getRpgPermissionByPrisma,
+  getRpgPermissionByPrisma
 } from "@/features/world/infrastructure/services/prismaRpgAccessResolver"
 
 export const rpgMapAccessService: RpgMapAccessService = {
@@ -11,7 +11,7 @@ export const rpgMapAccessService: RpgMapAccessService = {
         exists: false,
         userId: null,
         canManage: false,
-        isAcceptedMember: false,
+        isAcceptedMember: false
       }
     }
 
@@ -21,7 +21,7 @@ export const rpgMapAccessService: RpgMapAccessService = {
         exists: true,
         userId,
         canManage: true,
-        isAcceptedMember: true,
+        isAcceptedMember: true
       }
     }
 
@@ -30,7 +30,7 @@ export const rpgMapAccessService: RpgMapAccessService = {
       exists: permission.exists,
       userId,
       canManage: false,
-      isAcceptedMember: membershipStatus === "accepted",
+      isAcceptedMember: membershipStatus === "accepted"
     }
-  },
+  }
 }

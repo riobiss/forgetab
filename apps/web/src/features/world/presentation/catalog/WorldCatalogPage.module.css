@@ -53,13 +53,19 @@
 }
 
 .createdCard {
-  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    var(--color-bg-app)
+  );
   border: 1px solid var(--color-border-soft);
   border-radius: 12px;
   padding: 1rem;
   overflow: hidden;
   text-decoration: none;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .createdCard:hover {
@@ -106,7 +112,11 @@
 }
 
 .containerRpg {
-  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    var(--color-bg-app)
+  );
   border: 1px solid var(--color-border-soft);
   border-radius: 14px;
   padding: 1.2rem;
@@ -186,4 +196,3 @@
     text-align: center;
   }
 }
-

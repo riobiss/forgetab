@@ -5,7 +5,7 @@ const CORE_STATUS_COLUMN_BY_KEY = {
   life: "life",
   mana: "mana",
   sanity: "sanity",
-  exhaustion: "stamina",
+  exhaustion: "stamina"
 } as const
 
 function parseStatusKey(value: unknown): string | null {
@@ -16,7 +16,7 @@ function parseStatusKey(value: unknown): string | null {
 
 async function getAccessContext(
   repository: CharacterStatusCurrentRepository,
-  params: { rpgId: string; characterId: string; userId: string },
+  params: { rpgId: string; characterId: string; userId: string }
 ) {
   const rpg = await repository.getRpg(params.rpgId)
   if (!rpg) {
@@ -29,7 +29,7 @@ async function getAccessContext(
   if (!isOwner) {
     const membership = await repository.getMembership(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     if (membership?.status !== "accepted") {
       throw new AppError("RPG nao encontrado.", 404)
@@ -39,7 +39,7 @@ async function getAccessContext(
 
   const character = await repository.getCharacter(
     params.rpgId,
-    params.characterId,
+    params.characterId
   )
   if (!character) {
     throw new AppError("Personagem nao encontrado.", 404)
@@ -60,7 +60,7 @@ export async function updateCharacterStatusCurrentUseCase(
     characterId: string
     userId: string
     body: { key?: unknown; value?: unknown }
-  },
+  }
 ) {
   const access = await getAccessContext(repository, params)
 
@@ -121,10 +121,8 @@ export async function updateCharacterStatusCurrentUseCase(
       currentStatuses: nextCurrentStatuses,
       nextValue,
       coreColumn:
-        CORE_STATUS_COLUMN_BY_KEY[
-          key as keyof typeof CORE_STATUS_COLUMN_BY_KEY
-        ],
-    },
+        CORE_STATUS_COLUMN_BY_KEY[key as keyof typeof CORE_STATUS_COLUMN_BY_KEY]
+    }
   )
 
   if (!updated) {
@@ -135,6 +133,6 @@ export async function updateCharacterStatusCurrentUseCase(
     message: "Status atual salvo.",
     key,
     value: nextValue,
-    max: maxValue,
+    max: maxValue
   }
 }

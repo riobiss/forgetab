@@ -4,29 +4,35 @@ import type { ReactNode } from "react"
 
 const mocks = vi.hoisted(() => ({
   fetchCharactersDashboardViewModel: vi.fn(),
-  push: vi.fn(),
+  push: vi.fn()
 }))
 
-vi.mock("@/features/world/characters/infrastructure/dashboard/repositories/httpCharactersDashboardRepository", () => ({
-  fetchCharactersDashboardViewModel: mocks.fetchCharactersDashboardViewModel,
-  HttpCharactersDashboardError: class HttpCharactersDashboardError extends Error {
-    constructor(message: string, readonly status: number) {
-      super(message)
-      this.name = "HttpCharactersDashboardError"
+vi.mock(
+  "@/features/world/characters/infrastructure/dashboard/repositories/httpCharactersDashboardRepository",
+  () => ({
+    fetchCharactersDashboardViewModel: mocks.fetchCharactersDashboardViewModel,
+    HttpCharactersDashboardError: class HttpCharactersDashboardError extends Error {
+      constructor(
+        message: string,
+        readonly status: number
+      ) {
+        super(message)
+        this.name = "HttpCharactersDashboardError"
+      }
     }
-  },
-}))
+  })
+)
 
 vi.mock("next/link", () => ({
   default: ({ children, href }: { children: ReactNode; href: string }) => (
     <a href={href}>{children}</a>
-  ),
+  )
 }))
 
 vi.mock("next/image", () => ({
   default: ({ alt, src }: { alt?: string; src?: string }) => (
     <span aria-label={alt ?? ""} data-src={src ?? ""} role="img" />
-  ),
+  )
 }))
 
 vi.mock("next/navigation", () => ({
@@ -36,15 +42,15 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/rpg/rpg-1/characters",
   useRouter: () => ({
     push: mocks.push,
-    refresh: vi.fn(),
+    refresh: vi.fn()
   }),
   useSearchParams: () => {
     const params = new URLSearchParams()
     return {
       get: (key: string) => params.get(key),
-      toString: () => params.toString(),
+      toString: () => params.toString()
     }
-  },
+  }
 }))
 
 import CharactersPage from "./page"
@@ -68,11 +74,11 @@ describe("CharactersPage", () => {
           name: "Player 1",
           image: null,
           characterType: "player",
-          createdByUserId: "user-1",
-        },
+          createdByUserId: "user-1"
+        }
       ],
       selectedCharacterDetail: null,
-      editorBootstrap: null,
+      editorBootstrap: null
     })
   })
 
@@ -80,14 +86,16 @@ describe("CharactersPage", () => {
     render(
       await CharactersPage({
         params: Promise.resolve({ rpgId: "rpg-1" }),
-        searchParams: Promise.resolve({}),
-      }),
+        searchParams: Promise.resolve({})
+      })
     )
 
     expect(
-      screen.queryByRole("link", { name: "Criar outro personagem" }),
+      screen.queryByRole("link", { name: "Criar outro personagem" })
     ).not.toBeInTheDocument()
-    expect(screen.queryByRole("link", { name: "Criar personagem" })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("link", { name: "Criar personagem" })
+    ).not.toBeInTheDocument()
   })
 
   it("mostra criacao extra para membro com player existente quando multiplos estao habilitados", async () => {
@@ -107,22 +115,22 @@ describe("CharactersPage", () => {
           name: "Player 1",
           image: null,
           characterType: "player",
-          createdByUserId: "user-1",
-        },
+          createdByUserId: "user-1"
+        }
       ],
       selectedCharacterDetail: null,
-      editorBootstrap: null,
+      editorBootstrap: null
     })
 
     render(
       await CharactersPage({
         params: Promise.resolve({ rpgId: "rpg-1" }),
-        searchParams: Promise.resolve({}),
-      }),
+        searchParams: Promise.resolve({})
+      })
     )
 
     expect(
-      screen.getByRole("link", { name: "Criar outro personagem" }),
+      screen.getByRole("link", { name: "Criar outro personagem" })
     ).toBeInTheDocument()
   })
 })

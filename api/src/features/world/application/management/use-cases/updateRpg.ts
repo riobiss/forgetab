@@ -4,7 +4,7 @@ import {
   enforceXpLevelPattern,
   getDefaultProgressionTiers,
   isProgressionMode,
-  type ProgressionMode,
+  type ProgressionMode
 } from "@/lib/rpg/progression"
 import type { ImageGateway } from "@/features/world/application/management/ports/ImageGateway"
 import { mapRpgManagementRepositoryError } from "@/features/world/application/management/errors/mapRpgManagementRepositoryError"
@@ -29,7 +29,7 @@ function normalizeOptionalText(value: unknown) {
 
 export async function updateRpg(
   deps: UpdateRpgDependencies,
-  params: { rpgId: string; userId: string; body: unknown },
+  params: { rpgId: string; userId: string; body: unknown }
 ) {
   try {
     const safeBody =
@@ -46,26 +46,26 @@ export async function updateRpg(
     if (requestedCostsUpdate) {
       throw new AppError(
         "Configuracao de custos disponivel apenas na criacao do RPG.",
-        400,
+        400
       )
     }
 
     const hasImageInBody = Object.prototype.hasOwnProperty.call(
       safeBody,
-      "image",
+      "image"
     )
     const parsed = createRpgSchema.safeParse(params.body)
 
     if (!parsed.success) {
       throw new AppError(
         parsed.error.issues[0]?.message ?? "Dados invalidos.",
-        400,
+        400
       )
     }
 
     const permission = await deps.permissionService.getPermission(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     if (!permission.exists) {
       throw new AppError("RPG nao encontrado.", 404)
@@ -90,7 +90,7 @@ export async function updateRpg(
       abilityCategoriesEnabled,
       enabledAbilityCategories,
       progressionMode,
-      progressionTiers,
+      progressionTiers
     } = parsed.data
 
     const resolvedUseRaceBonuses =
@@ -102,17 +102,17 @@ export async function updateRpg(
         ? useClassBonuses
         : Boolean(useClassRaceBonuses)
     const resolvedAllowMultiplePlayerCharacters = Boolean(
-      allowMultiplePlayerCharacters ?? false,
+      allowMultiplePlayerCharacters ?? false
     )
     const resolvedUsersCanManageOwnXp = Boolean(usersCanManageOwnXp ?? true)
     const resolvedAllowSkillPointDistribution = Boolean(
-      allowSkillPointDistribution ?? true,
+      allowSkillPointDistribution ?? true
     )
     const resolvedAbilityCategoriesEnabled = Boolean(
-      abilityCategoriesEnabled ?? false,
+      abilityCategoriesEnabled ?? false
     )
     const resolvedEnabledAbilityCategories = normalizeEnabledAbilityCategories(
-      enabledAbilityCategories ?? [],
+      enabledAbilityCategories ?? []
     )
 
     if (
@@ -132,12 +132,12 @@ export async function updateRpg(
           ? enforceXpLevelPattern(
               progressionTiers.map((item) => ({
                 label: item.label.trim(),
-                required: Math.max(0, Math.floor(item.required)),
-              })),
+                required: Math.max(0, Math.floor(item.required))
+              }))
             )
           : progressionTiers.map((item) => ({
               label: item.label.trim(),
-              required: Math.max(0, Math.floor(item.required)),
+              required: Math.max(0, Math.floor(item.required))
             }))
         : getDefaultProgressionTiers(resolvedProgressionMode)
 
@@ -149,7 +149,7 @@ export async function updateRpg(
     ) {
       throw new AppError(
         "Modo de progressao nao pode ser alterado apos a criacao do RPG.",
-        400,
+        400
       )
     }
 
@@ -161,7 +161,7 @@ export async function updateRpg(
     const updated = await deps.repository.updateCore(params.rpgId, {
       title,
       description,
-      visibility,
+      visibility
     })
     if (!updated) {
       throw new AppError("RPG nao encontrado.", 404)
@@ -192,7 +192,7 @@ export async function updateRpg(
         abilityCategoriesEnabled: resolvedAbilityCategoriesEnabled,
         enabledAbilityCategories: resolvedEnabledAbilityCategories,
         progressionMode: resolvedProgressionMode,
-        progressionTiers: resolvedProgressionTiers,
+        progressionTiers: resolvedProgressionTiers
       })
     }
 
@@ -200,7 +200,7 @@ export async function updateRpg(
     if (hasImageInBody) {
       const imageUpdated = await deps.repository.updateImage(
         params.rpgId,
-        normalizedImage,
+        normalizedImage
       )
       if (!imageUpdated) {
         throw new AppError("RPG nao encontrado.", 404)
@@ -210,7 +210,7 @@ export async function updateRpg(
         try {
           await deps.imageGateway.deleteRpgImageByUrl({
             ownerId: permission.ownerId ?? params.userId,
-            imageUrl: previousImage,
+            imageUrl: previousImage
           })
         } catch {
           // Nao bloqueia a atualizacao do RPG caso a limpeza da imagem falhe.
@@ -226,7 +226,7 @@ export async function updateRpg(
 
     const mapped = mapRpgManagementRepositoryError(
       error,
-      "Erro interno ao atualizar RPG.",
+      "Erro interno ao atualizar RPG."
     )
     if (mapped) {
       throw mapped

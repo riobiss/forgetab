@@ -25,27 +25,27 @@ describe("MapSectionDetailsModal", () => {
           customFields: null,
           canEdit: true,
           createdAt: "2026-03-20T00:00:00.000Z",
-          updatedAt: "2026-03-20T00:00:00.000Z",
+          updatedAt: "2026-03-20T00:00:00.000Z"
         }}
         breadcrumbs={[
           { id: "parent-1", label: "Reino" },
-          { id: "section-1", label: "Capital" },
+          { id: "section-1", label: "Capital" }
         ]}
         sectionRenderState={{
           name: "Capital Vinculada",
           description: "Centro politico",
           type: "city",
           images: [],
-          customFields: [["Clima", { value: "Frio", type: "text" }]],
+          customFields: [["Clima", { value: "Frio", type: "text" }]]
         }}
         onOpenBreadcrumb={onOpenBreadcrumb}
         onEdit={onEdit}
         onClose={onClose}
-      />,
+      />
     )
 
     expect(
-      screen.getByRole("dialog", { name: "Detalhes da secao" }),
+      screen.getByRole("dialog", { name: "Detalhes da secao" })
     ).toBeInTheDocument()
     expect(screen.getByText("Capital Vinculada")).toBeInTheDocument()
     expect(screen.getByText("Centro politico")).toBeInTheDocument()
@@ -54,7 +54,7 @@ describe("MapSectionDetailsModal", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Reino" }))
     fireEvent.click(
-      screen.getByRole("button", { name: /Fechar detalhes da secao/i }),
+      screen.getByRole("button", { name: /Fechar detalhes da secao/i })
     )
     fireEvent.click(screen.getAllByRole("button")[0])
 
@@ -62,8 +62,8 @@ describe("MapSectionDetailsModal", () => {
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(onEdit).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: "section-1",
-      }),
+        id: "section-1"
+      })
     )
   })
 
@@ -84,19 +84,19 @@ describe("MapSectionDetailsModal", () => {
           customFields: null,
           canEdit: false,
           createdAt: "2026-03-20T00:00:00.000Z",
-          updatedAt: "2026-03-20T00:00:00.000Z",
+          updatedAt: "2026-03-20T00:00:00.000Z"
         }}
         breadcrumbs={[]}
         sectionRenderState={null}
         onOpenBreadcrumb={vi.fn()}
         onEdit={vi.fn()}
         onClose={vi.fn()}
-      />,
+      />
     )
 
     expect(screen.getByText("Capital")).toBeInTheDocument()
     expect(
-      screen.getByRole("button", { name: /Fechar detalhes da secao/i }),
+      screen.getByRole("button", { name: /Fechar detalhes da secao/i })
     ).toBeInTheDocument()
     expect(screen.queryAllByRole("button")).toHaveLength(1)
   })
@@ -118,7 +118,7 @@ describe("MapSectionDetailsModal", () => {
           customFields: null,
           canEdit: false,
           createdAt: "2026-03-20T00:00:00.000Z",
-          updatedAt: "2026-03-20T00:00:00.000Z",
+          updatedAt: "2026-03-20T00:00:00.000Z"
         }}
         breadcrumbs={[]}
         sectionRenderState={{
@@ -127,17 +127,17 @@ describe("MapSectionDetailsModal", () => {
           type: null,
           images: [],
           customFields: [
-            ["Wiki", { value: "https://wiki.local/capital", type: "link" }],
-          ],
+            ["Wiki", { value: "https://wiki.local/capital", type: "link" }]
+          ]
         }}
         onOpenBreadcrumb={vi.fn()}
         onEdit={vi.fn()}
         onClose={vi.fn()}
-      />,
+      />
     )
 
     expect(
-      screen.getByRole("link", { name: "https://wiki.local/capital" }),
+      screen.getByRole("link", { name: "https://wiki.local/capital" })
     ).toHaveAttribute("href", "https://wiki.local/capital")
   })
 })

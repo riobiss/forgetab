@@ -24,7 +24,7 @@ export default function NpcMonsterAbilitiesStep({
   removingAbilityKey,
   onOpenPicker,
   onRemoveAbility,
-  onClose,
+  onClose
 }: Props) {
   return (
     <div className={styles.modalBody}>

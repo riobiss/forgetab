@@ -3,7 +3,7 @@ import type { EntityCatalogDetailData } from "@/features/world/catalog/applicati
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import {
   HttpEntityCatalogError,
-  parseEntityCatalogResponse,
+  parseEntityCatalogResponse
 } from "@/features/world/catalog/infrastructure/http/entityCatalogHttp"
 
 export { HttpEntityCatalogError }
@@ -11,19 +11,19 @@ export { HttpEntityCatalogError }
 export async function fetchEntityCatalogDetailData(
   rpgId: string,
   entityType: CatalogEntityType,
-  entityId: string,
+  entityId: string
 ): Promise<EntityCatalogDetailData> {
   const segment = entityType === "class" ? "classes" : "races"
   const response = await apiFetch(
     `/api/rpg/${rpgId}/entity-catalog/${segment}/${entityId}`,
     {
       next: { revalidate: 0 },
-      cache: "no-store",
-    },
+      cache: "no-store"
+    }
   )
 
   return parseEntityCatalogResponse<EntityCatalogDetailData>(
     response,
-    "Erro ao carregar detalhe da entidade.",
+    "Erro ao carregar detalhe da entidade."
   )
 }

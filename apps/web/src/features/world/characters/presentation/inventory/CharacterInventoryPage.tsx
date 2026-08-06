@@ -11,11 +11,15 @@ type CharacterInventoryPageProps = {
 export default function CharacterInventoryPage({
   rpgId,
   characterId,
-  deps,
+  deps
 }: CharacterInventoryPageProps) {
   return (
     <div className={styles.page}>
-      <CharacterInventoryClient rpgId={rpgId} characterId={characterId} deps={deps} />
+      <CharacterInventoryClient
+        rpgId={rpgId}
+        characterId={characterId}
+        deps={deps}
+      />
     </div>
   )
 }

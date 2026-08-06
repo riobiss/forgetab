@@ -2,7 +2,7 @@ import { Prisma } from "../../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type {
   CharacterProgressionRepository,
-  CharacterProgressionSummary,
+  CharacterProgressionSummary
 } from "@/features/world/character/application/progression/ports/CharacterProgressionRepository.js"
 import { withCharacterPersistenceErrors } from "@/features/world/character/infrastructure/repositories/characterPersistenceErrors.js"
 
@@ -24,7 +24,7 @@ export const prismaCharacterProgressionRepository: CharacterProgressionRepositor
           INNER JOIN rpgs r ON r.id = c.rpg_id
           WHERE c.id = ${characterId}
           LIMIT 1
-        `),
+        `)
       )
 
       return rows[0] ?? null
@@ -39,11 +39,11 @@ export const prismaCharacterProgressionRepository: CharacterProgressionRepositor
             updated_at = CURRENT_TIMESTAMP
           WHERE id = ${characterId}
           RETURNING skill_points AS "skillPoints"
-        `),
+        `)
       )
 
       return {
-        skillPoints: rows[0]?.skillPoints ?? 0,
+        skillPoints: rows[0]?.skillPoints ?? 0
       }
     },
 
@@ -67,7 +67,7 @@ export const prismaCharacterProgressionRepository: CharacterProgressionRepositor
             progression_current AS "progressionCurrent",
             progression_label AS "progressionLabel",
             progression_required AS "progressionRequired"
-        `),
+        `)
       )
 
       return {
@@ -75,7 +75,7 @@ export const prismaCharacterProgressionRepository: CharacterProgressionRepositor
           rows[0]?.progressionCurrent ?? params.progressionCurrent,
         progressionLabel: rows[0]?.progressionLabel ?? params.progressionLabel,
         progressionRequired:
-          rows[0]?.progressionRequired ?? params.progressionRequired,
+          rows[0]?.progressionRequired ?? params.progressionRequired
       }
-    },
+    }
   }

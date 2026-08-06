@@ -3,22 +3,22 @@ import type { DicesRepository } from "@/features/dices/application/ports/DicesRe
 import { createFallbackDicesRepository } from "@/features/dices/infrastructure/fallbackDicesRepository"
 import {
   DicesTechnicalError,
-  DicesValidationError,
+  DicesValidationError
 } from "@/features/dices/infrastructure/httpDicesRepository"
 
 const payload = { entries: [{ diceCount: 1, diceSides: 20 }] }
 const localResponse = {
   provider: "local" as const,
-  groups: [{ diceCount: 1, diceSides: 20, results: [12], total: 12 }],
+  groups: [{ diceCount: 1, diceSides: 20, results: [12], total: 12 }]
 }
 const randomOrgResponse = {
   provider: "random-org" as const,
-  groups: [{ diceCount: 1, diceSides: 20, results: [20], total: 20 }],
+  groups: [{ diceCount: 1, diceSides: 20, results: [20], total: 20 }]
 }
 
 function makeRepository(response: unknown): DicesRepository {
   return {
-    roll: vi.fn().mockResolvedValue(response),
+    roll: vi.fn().mockResolvedValue(response)
   }
 }
 
@@ -30,8 +30,8 @@ describe("fallbackDicesRepository", () => {
       primaryRepository,
       fallbackRepository,
       {
-        isOffline: () => true,
-      },
+        isOffline: () => true
+      }
     )
 
     await expect(repository.roll(payload)).resolves.toEqual(localResponse)
@@ -44,16 +44,16 @@ describe("fallbackDicesRepository", () => {
       roll: vi
         .fn()
         .mockRejectedValue(
-          new DicesTechnicalError("Nao foi possivel girar os dados agora."),
-        ),
+          new DicesTechnicalError("Nao foi possivel girar os dados agora.")
+        )
     }
     const fallbackRepository = makeRepository(localResponse)
     const repository = createFallbackDicesRepository(
       primaryRepository,
       fallbackRepository,
       {
-        isOffline: () => false,
-      },
+        isOffline: () => false
+      }
     )
 
     await expect(repository.roll(payload)).resolves.toEqual(localResponse)
@@ -65,17 +65,17 @@ describe("fallbackDicesRepository", () => {
       roll: vi
         .fn()
         .mockRejectedValue(
-          new DicesValidationError("Escolha entre 1 e 100 dados por linha."),
-        ),
+          new DicesValidationError("Escolha entre 1 e 100 dados por linha.")
+        )
     }
     const fallbackRepository = makeRepository(localResponse)
     const repository = createFallbackDicesRepository(
       primaryRepository,
-      fallbackRepository,
+      fallbackRepository
     )
 
     await expect(repository.roll(payload)).rejects.toThrow(
-      "Escolha entre 1 e 100 dados por linha.",
+      "Escolha entre 1 e 100 dados por linha."
     )
     expect(fallbackRepository.roll).not.toHaveBeenCalled()
   })

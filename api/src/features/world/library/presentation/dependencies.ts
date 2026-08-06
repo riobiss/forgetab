@@ -3,5 +3,5 @@ import { libraryAccessService } from "@/features/world/library/infrastructure/se
 
 export const libraryRouteDeps = {
   repository: prismaLibraryRepository,
-  accessService: libraryAccessService,
+  accessService: libraryAccessService
 } as const

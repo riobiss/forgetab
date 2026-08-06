@@ -20,7 +20,7 @@ export default function NpcMonsterInventoryStep({
   itemsLoading,
   canManage,
   onOpenPicker,
-  onRemoveItem,
+  onRemoveItem
 }: Props) {
   return (
     <div className={styles.modalBody}>
@@ -35,8 +35,12 @@ export default function NpcMonsterInventoryStep({
           {itemsLoading ? "Carregando..." : "Adicionar item"}
         </button>
       </div>
-      {inventoryLoading ? <p className={styles.modalInfo}>Carregando items...</p> : null}
-      {inventoryError ? <p className={styles.modalError}>{inventoryError}</p> : null}
+      {inventoryLoading ? (
+        <p className={styles.modalInfo}>Carregando items...</p>
+      ) : null}
+      {inventoryError ? (
+        <p className={styles.modalError}>{inventoryError}</p>
+      ) : null}
       {!inventoryLoading ? (
         inventory.length > 0 ? (
           <div className={styles.modalList}>
@@ -45,7 +49,9 @@ export default function NpcMonsterInventoryStep({
                 <div>
                   <strong>{item.itemName}</strong>
                   <p className={styles.modalHint}>
-                    {item.quantity > 1 ? `Quantidade: ${item.quantity}` : item.itemType}
+                    {item.quantity > 1
+                      ? `Quantidade: ${item.quantity}`
+                      : item.itemType}
                   </p>
                 </div>
                 <button

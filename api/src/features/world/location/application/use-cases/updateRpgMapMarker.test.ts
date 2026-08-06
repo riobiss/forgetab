@@ -9,8 +9,8 @@ function accessService(canManage = true): RpgMapAccessService {
       exists: true,
       userId: "user-1",
       canManage,
-      isAcceptedMember: true,
-    }),
+      isAcceptedMember: true
+    })
   }
 }
 
@@ -34,12 +34,12 @@ describe("updateRpgMapMarker", () => {
           location: " Norte ",
           shortDescription: null,
           image: "",
-          color: " #fff ",
-        },
-      }),
+          color: " #fff "
+        }
+      })
     ).resolves.toEqual({
       markerId: "marker-1",
-      groupId: "group-1",
+      groupId: "group-1"
     })
 
     expect(markerRepository.updateMarker).toHaveBeenCalledWith({
@@ -51,7 +51,7 @@ describe("updateRpgMapMarker", () => {
       location: "Norte",
       shortDescription: null,
       image: null,
-      color: "#fff",
+      color: "#fff"
     })
   })
 
@@ -65,8 +65,8 @@ describe("updateRpgMapMarker", () => {
         groupId: "group-1",
         markerId: "marker-1",
         userId: "user-1",
-        body: { name: "Cidade" },
-      }),
+        body: { name: "Cidade" }
+      })
     ).rejects.toThrow("Voce nao pode editar os mapas deste RPG.")
     expect(markerRepository.updateMarker).not.toHaveBeenCalled()
   })

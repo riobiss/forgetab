@@ -1,7 +1,7 @@
 import type { CharacterRepository } from "@/features/world/character/application/ports/CharacterRepository"
 import type {
   ListCharactersResult,
-  RpgAccess,
+  RpgAccess
 } from "@/features/world/character/application/types"
 import { rethrowCharacterRepositoryError } from "@/features/world/character/application/errors/rethrowCharacterRepositoryError"
 
@@ -13,13 +13,13 @@ type ListCharactersInput = {
 }
 
 export async function listCharacters(
-  input: ListCharactersInput,
+  input: ListCharactersInput
 ): Promise<ListCharactersResult> {
   try {
     const characters = await input.characterRepository.listByRpg({
       rpgId: input.rpgId,
       userId: input.userId,
-      isOwner: input.access.isOwner,
+      isOwner: input.access.isOwner
     })
 
     return {
@@ -30,7 +30,7 @@ export async function listCharacters(
       useInventoryWeightLimit: input.access.useInventoryWeightLimit,
       allowMultiplePlayerCharacters: input.access.allowMultiplePlayerCharacters,
       progressionMode: input.access.progressionMode,
-      progressionTiers: input.access.progressionTiers,
+      progressionTiers: input.access.progressionTiers
     }
   } catch (error) {
     rethrowCharacterRepositoryError(error)

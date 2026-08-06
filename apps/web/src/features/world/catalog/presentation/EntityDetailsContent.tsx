@@ -7,7 +7,7 @@ import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor
 import type {
   EntityCatalogAbilityPurchaseState,
   EntityCatalogAbilityView,
-  EntityCatalogPlayerItem,
+  EntityCatalogPlayerItem
 } from "@/features/world/catalog/application/types"
 import EntityAbilitiesPanel from "@/features/world/catalog/presentation/EntityAbilitiesPanel"
 import styles from "./EntityDetailsPage.module.css"
@@ -59,7 +59,7 @@ export default function EntityDetailsContent({
   players,
   abilityPurchase,
   attributeBonuses,
-  skillBonuses,
+  skillBonuses
 }: Props) {
   const [activeTab, setActiveTab] = useState<ContentTab>("content")
   const hasBonuses = attributeBonuses.length > 0 || skillBonuses.length > 0
@@ -158,10 +158,7 @@ export default function EntityDetailsContent({
         </section>
       ) : (
         <section className={styles.abilitiesShell}>
-          <EntityAbilitiesPanel
-            skills={abilities}
-            purchase={abilityPurchase}
-          />
+          <EntityAbilitiesPanel skills={abilities} purchase={abilityPurchase} />
         </section>
       )}
     </section>

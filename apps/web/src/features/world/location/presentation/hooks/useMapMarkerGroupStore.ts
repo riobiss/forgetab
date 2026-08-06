@@ -7,13 +7,13 @@ import { deleteRpgMapMarkerGroupUseCase } from "@/features/world/location/applic
 import { savePublicMarkerGroupUseCase } from "@/features/world/location/application/use-cases/savePublicMarkerGroup"
 import {
   createPrivateMarkerGroup,
-  removeMarkerGroup,
+  removeMarkerGroup
 } from "@/features/world/location/application/services/markerGroupMutations"
 import { fromPublicMarkerGroupDto } from "@/features/world/location/application/services/markerGroupSerialization"
 import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import type {
   MarkerGroup,
-  PendingMarker,
+  PendingMarker
 } from "@/features/world/location/presentation/types/mapMarkers"
 
 type Params = {
@@ -25,10 +25,10 @@ type Params = {
 
 export function useMapMarkerGroupStore(params: Params) {
   const [privateMarkerGroups, setPrivateMarkerGroups] = useState<MarkerGroup[]>(
-    [],
+    []
   )
   const [publicMarkerGroups, setPublicMarkerGroups] = useState<MarkerGroup[]>(
-    [],
+    []
   )
   const [hasLoadedPrivateMarkerGroups, setHasLoadedPrivateMarkerGroups] =
     useState(false)
@@ -38,7 +38,7 @@ export function useMapMarkerGroupStore(params: Params) {
 
   const allMarkerGroups = useMemo(
     () => [...publicMarkerGroups, ...privateMarkerGroups],
-    [privateMarkerGroups, publicMarkerGroups],
+    [privateMarkerGroups, publicMarkerGroups]
   )
 
   useEffect(() => {
@@ -48,8 +48,8 @@ export function useMapMarkerGroupStore(params: Params) {
       setPrivateMarkerGroups(
         rpgMapPresentationDeps.privateMarkerGroupStorage.load(
           params.mapId,
-          params.markerColors,
-        ),
+          params.markerColors
+        )
       )
     } catch {
       setPrivateMarkerGroups([])
@@ -65,7 +65,7 @@ export function useMapMarkerGroupStore(params: Params) {
 
     rpgMapPresentationDeps.privateMarkerGroupStorage.save(
       params.mapId,
-      privateMarkerGroups,
+      privateMarkerGroups
     )
   }, [hasLoadedPrivateMarkerGroups, params.mapId, privateMarkerGroups])
 
@@ -77,25 +77,25 @@ export function useMapMarkerGroupStore(params: Params) {
           const loadedGroups =
             rpgMapPresentationDeps.privateMarkerGroupStorage.load(
               params.mapId,
-              params.markerColors,
+              params.markerColors
             )
           setPrivateMarkerGroups((current) =>
             JSON.stringify(current) === JSON.stringify(loadedGroups)
               ? current
-              : loadedGroups,
+              : loadedGroups
           )
         } catch {
           setPrivateMarkerGroups([])
         } finally {
           setHasLoadedPrivateMarkerGroups(true)
         }
-      },
+      }
     )
   }, [params.mapId, params.markerColors])
 
   useEffect(() => {
     setPublicMarkerGroups(
-      params.initialPublicMarkerGroups.map(fromPublicMarkerGroupDto),
+      params.initialPublicMarkerGroups.map(fromPublicMarkerGroupDto)
     )
   }, [params.initialPublicMarkerGroups])
 
@@ -109,34 +109,32 @@ export function useMapMarkerGroupStore(params: Params) {
         {
           rpgId: params.rpgId,
           mapId: params.mapId,
-          group,
-        },
+          group
+        }
       )
 
       setPublicMarkerGroups((current) => {
         const withoutCurrent = current.filter(
-          (item) => item.id !== normalizedGroup.id,
+          (item) => item.id !== normalizedGroup.id
         )
         return [...withoutCurrent, normalizedGroup]
       })
 
       if (group.visibility === "private") {
         setPrivateMarkerGroups((current) =>
-          removeMarkerGroup(current, group.id),
+          removeMarkerGroup(current, group.id)
         )
       }
 
       toast.success(
         group.visibility === "private"
           ? "Grupo publicado com sucesso."
-          : "Grupo atualizado com sucesso.",
+          : "Grupo atualizado com sucesso."
       )
       return normalizedGroup
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Erro ao salvar grupo publico.",
+        error instanceof Error ? error.message : "Erro ao salvar grupo publico."
       )
       return null
     } finally {
@@ -155,8 +153,8 @@ export function useMapMarkerGroupStore(params: Params) {
         {
           rpgId: params.rpgId,
           mapId: params.mapId,
-          groupId,
-        },
+          groupId
+        }
       )
       setPublicMarkerGroups((current) => removeMarkerGroup(current, groupId))
       toast.success("Grupo de marcadores removido com sucesso.")
@@ -165,7 +163,7 @@ export function useMapMarkerGroupStore(params: Params) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Erro ao remover grupo publico.",
+          : "Erro ao remover grupo publico."
       )
       return false
     } finally {
@@ -183,7 +181,7 @@ export function useMapMarkerGroupStore(params: Params) {
       id: crypto.randomUUID(),
       name: input.markerGroupName,
       color: input.markerGroupColor,
-      pendingMarkers: input.pendingMarkers,
+      pendingMarkers: input.pendingMarkers
     })
     if (!nextGroup) return null
 
@@ -192,7 +190,7 @@ export function useMapMarkerGroupStore(params: Params) {
   }
 
   function updatePrivateGroups(
-    updater: (groups: MarkerGroup[]) => MarkerGroup[],
+    updater: (groups: MarkerGroup[]) => MarkerGroup[]
   ) {
     setPrivateMarkerGroups((current) => updater(current))
   }
@@ -207,6 +205,6 @@ export function useMapMarkerGroupStore(params: Params) {
     createPrivateGroup,
     updatePrivateGroups,
     persistPublicMarkerGroup,
-    deletePublicMarkerGroup,
+    deletePublicMarkerGroup
   }
 }

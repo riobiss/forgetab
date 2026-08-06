@@ -19,7 +19,7 @@ export default function SkillsDashboardClient({
   initialRpgId,
   hideRpgSelector = false,
   title = "Construtor de Habilidades",
-  deps,
+  deps
 }: SkillsDashboardClientProps) {
   void hideRpgSelector
   void title
@@ -90,7 +90,7 @@ export default function SkillsDashboardClient({
     createSnapshotLevel,
     saveAll,
     deleteSelectedLevel,
-    deleteActiveSkill,
+    deleteActiveSkill
   } = useSkillsDashboardState({ ownedRpgs, initialRpgId, deps })
   return (
     <main className={styles.page}>

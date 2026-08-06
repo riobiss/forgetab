@@ -41,7 +41,7 @@ export function drawMarkerPin(params: {
     y: params.y,
     listening: Boolean(params.onClick),
     opacity: params.opacity ?? 1,
-    perfectDrawEnabled: false,
+    perfectDrawEnabled: false
   })
 
   if (renderMode === "dot") {
@@ -54,7 +54,7 @@ export function drawMarkerPin(params: {
       strokeWidth: 2,
       dash: params.dashed ? [4, 3] : undefined,
       perfectDrawEnabled: false,
-      shadowForStrokeEnabled: false,
+      shadowForStrokeEnabled: false
     })
 
     group.add(dot)
@@ -77,7 +77,7 @@ export function drawMarkerPin(params: {
       strokeWidth: 2,
       dash: params.dashed ? [4, 3] : undefined,
       perfectDrawEnabled: false,
-      shadowForStrokeEnabled: false,
+      shadowForStrokeEnabled: false
     })
     const text = new Konva.Text({
       x: -(bubbleWidth / 2),
@@ -89,7 +89,7 @@ export function drawMarkerPin(params: {
       fontStyle: "bold",
       fill: "#ffffff",
       listening: false,
-      perfectDrawEnabled: false,
+      perfectDrawEnabled: false
     })
 
     group.add(bubble)
@@ -108,7 +108,7 @@ export function drawMarkerPin(params: {
     strokeWidth: 2,
     dash: params.dashed ? [4, 3] : undefined,
     perfectDrawEnabled: false,
-    shadowForStrokeEnabled: false,
+    shadowForStrokeEnabled: false
   })
 
   const pointer = new Konva.Line({
@@ -119,7 +119,7 @@ export function drawMarkerPin(params: {
     strokeWidth: 2,
     dash: params.dashed ? [4, 3] : undefined,
     perfectDrawEnabled: false,
-    shadowForStrokeEnabled: false,
+    shadowForStrokeEnabled: false
   })
 
   const text = new Konva.Text({
@@ -132,7 +132,7 @@ export function drawMarkerPin(params: {
     fontStyle: "bold",
     fill: "#ffffff",
     listening: false,
-    perfectDrawEnabled: false,
+    perfectDrawEnabled: false
   })
 
   const nameBubble = isNamedMarker
@@ -146,7 +146,7 @@ export function drawMarkerPin(params: {
         stroke: params.color,
         strokeWidth: 1.5,
         perfectDrawEnabled: false,
-        shadowForStrokeEnabled: false,
+        shadowForStrokeEnabled: false
       })
     : null
 

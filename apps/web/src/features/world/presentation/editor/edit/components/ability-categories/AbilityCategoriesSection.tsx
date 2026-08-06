@@ -3,7 +3,10 @@
 import { ChevronDown, ChevronUp } from "lucide-react"
 import styles from "./AbilityCategoriesSection.module.css"
 import RadixSwitchField from "../shared/RadixSwitchField"
-import { abilityCategoryDefinitions, type AbilityCategoryKey } from "@/lib/rpg/abilityCategories"
+import {
+  abilityCategoryDefinitions,
+  type AbilityCategoryKey
+} from "@/lib/rpg/abilityCategories"
 
 type Props = {
   showList: boolean
@@ -20,7 +23,7 @@ export default function AbilityCategoriesSection({
   abilityCategoriesEnabled,
   enabledAbilityCategories,
   onAbilityCategoriesEnabledChange,
-  onToggleCategory,
+  onToggleCategory
 }: Props) {
   return (
     <section className={styles.section}>

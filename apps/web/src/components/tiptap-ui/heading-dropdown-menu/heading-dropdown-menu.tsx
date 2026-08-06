@@ -20,7 +20,7 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuItem
 } from "@/components/tiptap-ui-primitive/dropdown-menu"
 import { Card, CardBody } from "@/components/tiptap-ui-primitive/card"
 
@@ -63,7 +63,7 @@ export const HeadingDropdownMenu = forwardRef<
     const { isVisible, isActive, canToggle, Icon } = useHeadingDropdownMenu({
       editor,
       levels,
-      hideWhenUnavailable,
+      hideWhenUnavailable
     })
 
     const handleOpenChange = useCallback(

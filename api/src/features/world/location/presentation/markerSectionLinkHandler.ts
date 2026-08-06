@@ -4,7 +4,7 @@ import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { rpgMapRouteDeps } from "./dependencies"
 
@@ -16,7 +16,7 @@ type MarkerSectionLinkRouteParams = {
 
 export async function setMarkerSectionLinkHandler(
   request: FastifyRequest<{ Params: MarkerSectionLinkRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -37,10 +37,10 @@ export async function setMarkerSectionLinkHandler(
           ...(body as Record<string, unknown>),
           marker: {
             ...(marker as Record<string, unknown>),
-            id: request.params.markerId,
-          },
-        },
-      },
+            id: request.params.markerId
+          }
+        }
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {

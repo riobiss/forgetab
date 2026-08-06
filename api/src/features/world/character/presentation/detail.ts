@@ -1,6 +1,6 @@
 export {
   deleteCharacterHandler,
   getCharacterByIdHandler,
-  updateCharacterHandler,
+  updateCharacterHandler
 } from "./handlers"
 export type { CharacterInventoryRouteParams } from "./routeTypes"

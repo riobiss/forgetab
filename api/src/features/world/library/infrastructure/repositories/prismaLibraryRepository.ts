@@ -2,15 +2,15 @@ import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { prisma } from "@/lib/prisma"
 import type {
   LibraryRepository,
-  ViewerCharacter,
+  ViewerCharacter
 } from "@/features/world/library/application/ports/LibraryRepository.js"
 import {
   mapBook,
-  mapSection,
+  mapSection
 } from "@/features/world/library/infrastructure/repositories/libraryRepositoryMappers.js"
 import type {
   LibraryBookRow,
-  LibrarySectionRow,
+  LibrarySectionRow
 } from "@/features/world/library/infrastructure/repositories/libraryRepositoryRows.js"
 import { withLibraryRepositoryErrors } from "@/features/world/library/infrastructure/repositories/libraryPersistenceErrors.js"
 
@@ -309,9 +309,9 @@ const rawPrismaLibraryRepository: LibraryRepository = {
     } catch {
       return []
     }
-  },
+  }
 }
 
 export const prismaLibraryRepository = withLibraryRepositoryErrors(
-  rawPrismaLibraryRepository,
+  rawPrismaLibraryRepository
 )

@@ -4,14 +4,22 @@
   place-items: center;
   padding: 24px;
   background:
-    radial-gradient(circle at top, color-mix(in srgb, var(--color-brand-primary) 22%, transparent), transparent 40%),
+    radial-gradient(
+      circle at top,
+      color-mix(in srgb, var(--color-brand-primary) 22%, transparent),
+      transparent 40%
+    ),
     linear-gradient(180deg, var(--color-bg-app), var(--color-bg-app));
 }
 
 .card {
   width: 100%;
   max-width: 460px;
-  background: linear-gradient(180deg, var(--color-bg-card), var(--color-bg-surface));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-card),
+    var(--color-bg-surface)
+  );
   border: 1px solid var(--color-border-strong);
   border-radius: 14px;
   box-shadow: var(--shadow-elevation-md);

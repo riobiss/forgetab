@@ -8,7 +8,10 @@ type SkillDeleteButtonProps = {
   disabled?: boolean
 }
 
-export function SkillDeleteButton({ onDelete, disabled = false }: SkillDeleteButtonProps) {
+export function SkillDeleteButton({
+  onDelete,
+  disabled = false
+}: SkillDeleteButtonProps) {
   return (
     <button
       type="button"

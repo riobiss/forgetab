@@ -3,18 +3,18 @@ export {
   deleteRpgMapHandler,
   getRpgMapDetailHandler,
   listRpgMapsHandler,
-  updateRpgMapHandler,
+  updateRpgMapHandler
 } from "./mapHandlers"
 export {
   createRpgMapSectionHandler,
   deleteRpgMapSectionHandler,
   reorderRpgMapSectionHandler,
-  updateRpgMapSectionHandler,
+  updateRpgMapSectionHandler
 } from "./sectionHandlers"
 export {
   createRpgMapMarkerGroupHandler,
   deleteRpgMapMarkerGroupHandler,
-  updateRpgMapMarkerGroupHandler,
+  updateRpgMapMarkerGroupHandler
 } from "./markerGroupHandlers"
 export { setMarkerSectionLinkHandler } from "./markerSectionLinkHandler"
 export { updateRpgMapMarkerHandler } from "./markerHandler"

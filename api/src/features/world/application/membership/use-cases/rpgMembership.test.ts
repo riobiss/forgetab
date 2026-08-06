@@ -7,7 +7,7 @@ import {
   processCharacterRequestUseCase,
   processMemberActionUseCase,
   requestCharacterCreationUseCase,
-  requestJoinRpgUseCase,
+  requestJoinRpgUseCase
 } from "@/features/world/application/membership/use-cases/rpgMembership"
 
 function createAccessMock(): RpgMembershipAccessService {
@@ -15,8 +15,8 @@ function createAccessMock(): RpgMembershipAccessService {
     getPermission: vi.fn().mockResolvedValue({
       exists: true,
       canManage: true,
-      ownerId: "owner-1",
-    }),
+      ownerId: "owner-1"
+    })
   }
 }
 
@@ -25,7 +25,7 @@ function createRepositoryMock(): RpgMembershipRepository {
     getRpgSummary: vi.fn().mockResolvedValue({
       id: "rpg-1",
       ownerId: "owner-1",
-      visibility: "private",
+      visibility: "private"
     }),
     getMembership: vi.fn().mockResolvedValue(null),
     listAllowedUsers: vi.fn().mockResolvedValue([]),
@@ -43,9 +43,9 @@ function createRepositoryMock(): RpgMembershipRepository {
       id: "offer-1",
       characterId: "char-1",
       allowMultiplePlayerCharacters: false,
-      existingPlayers: 0,
+      existingPlayers: 0
     }),
-    processCharacterOffer: vi.fn().mockResolvedValue(true),
+    processCharacterOffer: vi.fn().mockResolvedValue(true)
   }
 }
 
@@ -55,11 +55,11 @@ describe("rpgMembership use-cases", () => {
     ;(repository.getRpgSummary as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: "rpg-1",
       ownerId: "owner-1",
-      visibility: "private",
+      visibility: "private"
     })
     ;(repository.getMembership as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: "m-1",
-      status: "accepted",
+      status: "accepted"
     })
     ;(
       repository.listAllowedUsers as ReturnType<typeof vi.fn>
@@ -67,11 +67,11 @@ describe("rpgMembership use-cases", () => {
 
     const result = await listRpgMembersUseCase(repository, {
       rpgId: "rpg-1",
-      userId: "user-1",
+      userId: "user-1"
     })
 
     expect(result).toEqual({
-      users: [{ id: "u1", username: "user", name: "User" }],
+      users: [{ id: "u1", username: "user", name: "User" }]
     })
   })
 
@@ -80,16 +80,16 @@ describe("rpgMembership use-cases", () => {
 
     const result = await requestJoinRpgUseCase(repository, {
       rpgId: "rpg-1",
-      userId: "user-1",
+      userId: "user-1"
     })
 
     expect(repository.createPendingMembership).toHaveBeenCalledWith(
       "rpg-1",
-      "user-1",
+      "user-1"
     )
     expect(result).toEqual({
       message: "Solicitacao enviada para o mestre.",
-      status: 201,
+      status: 201
     })
   })
 
@@ -97,17 +97,17 @@ describe("rpgMembership use-cases", () => {
     const repository = createRepositoryMock()
     ;(repository.getMembership as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: "m-1",
-      status: "pending",
+      status: "pending"
     })
 
     await expect(
       requestJoinRpgUseCase(repository, {
         rpgId: "rpg-1",
-        userId: "user-1",
-      }),
+        userId: "user-1"
+      })
     ).rejects.toMatchObject({
       message: "Voce ja possui uma solicitacao pendente.",
-      status: 409,
+      status: 409
     })
   })
 
@@ -119,17 +119,17 @@ describe("rpgMembership use-cases", () => {
       rpgId: "rpg-1",
       userId: "owner-1",
       memberId: "m-1",
-      action: "toggleModerator",
+      action: "toggleModerator"
     })
 
     expect(repository.toggleModerator).toHaveBeenCalledWith(
       "rpg-1",
       "m-1",
-      "owner-1",
+      "owner-1"
     )
     expect(result).toEqual({
       message: "Membro promovido para moderador.",
-      role: "moderator",
+      role: "moderator"
     })
   })
 
@@ -144,13 +144,13 @@ describe("rpgMembership use-cases", () => {
         userId: "user-1",
         userUsername: "user",
         userName: "User",
-        requestedAt: new Date("2026-03-10T10:00:00.000Z"),
-      },
+        requestedAt: new Date("2026-03-10T10:00:00.000Z")
+      }
     ])
 
     const result = await getCharacterRequestsUseCase(access, repository, {
       rpgId: "rpg-1",
-      userId: "owner-1",
+      userId: "owner-1"
     })
 
     expect(result).toEqual({
@@ -161,11 +161,11 @@ describe("rpgMembership use-cases", () => {
           userId: "user-1",
           userUsername: "user",
           userName: "User",
-          requestedAt: new Date("2026-03-10T10:00:00.000Z"),
-        },
+          requestedAt: new Date("2026-03-10T10:00:00.000Z")
+        }
       ],
       canRequest: false,
-      canCreate: true,
+      canCreate: true
     })
   })
 
@@ -175,25 +175,25 @@ describe("rpgMembership use-cases", () => {
     ;(access.getPermission as ReturnType<typeof vi.fn>).mockResolvedValue({
       exists: true,
       canManage: false,
-      ownerId: "owner-1",
+      ownerId: "owner-1"
     })
     ;(repository.getMembership as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: "m-1",
-      status: "accepted",
+      status: "accepted"
     })
 
     const result = await requestCharacterCreationUseCase(access, repository, {
       rpgId: "rpg-1",
-      userId: "user-1",
+      userId: "user-1"
     })
 
     expect(repository.createPendingCharacterRequest).toHaveBeenCalledWith(
       "rpg-1",
-      "user-1",
+      "user-1"
     )
     expect(result).toEqual({
       message: "Solicitacao enviada para o mestre.",
-      status: 201,
+      status: 201
     })
   })
 
@@ -205,16 +205,16 @@ describe("rpgMembership use-cases", () => {
       rpgId: "rpg-1",
       userId: "owner-1",
       requestId: "req-1",
-      action: "accept",
+      action: "accept"
     })
 
     expect(repository.processCharacterRequest).toHaveBeenCalledWith(
       "rpg-1",
       "req-1",
-      "accepted",
+      "accepted"
     )
     expect(result).toEqual({
-      message: "Solicitacao aprovada.",
+      message: "Solicitacao aprovada."
     })
   })
 
@@ -224,33 +224,33 @@ describe("rpgMembership use-cases", () => {
     ;(access.getPermission as ReturnType<typeof vi.fn>).mockResolvedValue({
       exists: true,
       canManage: false,
-      ownerId: "owner-1",
+      ownerId: "owner-1"
     })
     ;(repository.getMembership as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: "member-1",
-      status: "accepted",
+      status: "accepted"
     })
 
     const result = await processCharacterRequestUseCase(access, repository, {
       rpgId: "rpg-1",
       userId: "player-1",
       requestId: "offer-1",
-      action: "accept",
+      action: "accept"
     })
 
     expect(repository.getPendingCharacterOffer).toHaveBeenCalledWith(
       "rpg-1",
       "offer-1",
-      "player-1",
+      "player-1"
     )
     expect(repository.processCharacterOffer).toHaveBeenCalledWith(
       "rpg-1",
       "offer-1",
       "player-1",
-      "accepted",
+      "accepted"
     )
     expect(result).toEqual({
-      message: "Personagem aceito.",
+      message: "Personagem aceito."
     })
   })
 
@@ -260,11 +260,11 @@ describe("rpgMembership use-cases", () => {
     ;(access.getPermission as ReturnType<typeof vi.fn>).mockResolvedValue({
       exists: true,
       canManage: false,
-      ownerId: "owner-1",
+      ownerId: "owner-1"
     })
     ;(repository.getMembership as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: "member-1",
-      status: "accepted",
+      status: "accepted"
     })
     ;(
       repository.getPendingCharacterOffer as ReturnType<typeof vi.fn>
@@ -272,7 +272,7 @@ describe("rpgMembership use-cases", () => {
       id: "offer-1",
       characterId: "char-1",
       allowMultiplePlayerCharacters: false,
-      existingPlayers: 1,
+      existingPlayers: 1
     })
 
     await expect(
@@ -280,11 +280,11 @@ describe("rpgMembership use-cases", () => {
         rpgId: "rpg-1",
         userId: "player-1",
         requestId: "offer-1",
-        action: "accept",
-      }),
+        action: "accept"
+      })
     ).rejects.toMatchObject({
       status: 409,
-      message: "Voce ja possui um personagem player neste RPG.",
+      message: "Voce ja possui um personagem player neste RPG."
     })
     expect(repository.processCharacterOffer).not.toHaveBeenCalled()
   })

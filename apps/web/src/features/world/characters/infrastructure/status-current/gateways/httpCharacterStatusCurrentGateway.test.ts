@@ -3,7 +3,7 @@ import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { httpCharacterStatusCurrentGateway } from "./httpCharacterStatusCurrentGateway"
 
 vi.mock("@/features/http/infrastructure/apiFetch", () => ({
-  apiFetch: vi.fn(),
+  apiFetch: vi.fn()
 }))
 
 const apiFetchMock = vi.mocked(apiFetch)
@@ -20,10 +20,10 @@ describe("httpCharacterStatusCurrentGateway", () => {
           message: "Status atual salvo.",
           key: "life",
           value: 7,
-          max: 10,
+          max: 10
         }),
-        { status: 200 },
-      ),
+        { status: 200 }
+      )
     )
 
     await expect(
@@ -31,13 +31,13 @@ describe("httpCharacterStatusCurrentGateway", () => {
         rpgId: "rpg-1",
         characterId: "character-1",
         key: "life",
-        value: 7,
-      }),
+        value: 7
+      })
     ).resolves.toEqual({
       message: "Status atual salvo.",
       key: "life",
       value: 7,
-      max: 10,
+      max: 10
     })
 
     expect(apiFetchMock).toHaveBeenCalledWith(
@@ -45,16 +45,16 @@ describe("httpCharacterStatusCurrentGateway", () => {
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: "life", value: 7 }),
-      },
+        body: JSON.stringify({ key: "life", value: 7 })
+      }
     )
   })
 
   it("propaga a mensagem de erro retornada pela API", async () => {
     apiFetchMock.mockResolvedValue(
       new Response(JSON.stringify({ message: "Sem permissao." }), {
-        status: 403,
-      }),
+        status: 403
+      })
     )
 
     await expect(
@@ -62,8 +62,8 @@ describe("httpCharacterStatusCurrentGateway", () => {
         rpgId: "rpg-1",
         characterId: "character-1",
         key: "life",
-        value: 7,
-      }),
+        value: 7
+      })
     ).rejects.toThrow("Sem permissao.")
   })
 })

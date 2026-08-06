@@ -44,7 +44,7 @@ export function useWindowSize(): WindowSizeState {
     height: 0,
     offsetTop: 0,
     offsetLeft: 0,
-    scale: 0,
+    scale: 0
   })
 
   const handleViewportChange = useThrottledCallback(() => {
@@ -58,7 +58,7 @@ export function useWindowSize(): WindowSizeState {
       height = 0,
       offsetTop = 0,
       offsetLeft = 0,
-      scale = 0,
+      scale = 0
     } = vp
 
     setWindowSize((prevState) => {

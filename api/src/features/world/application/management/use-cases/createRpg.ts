@@ -3,7 +3,7 @@ import {
   enforceXpLevelPattern,
   getDefaultProgressionTiers,
   isProgressionMode,
-  type ProgressionMode,
+  type ProgressionMode
 } from "@/lib/rpg/progression"
 import { createRpgSchema } from "@/lib/validators/rpg"
 import { mapRpgManagementRepositoryError } from "@/features/world/application/management/errors/mapRpgManagementRepositoryError"
@@ -16,14 +16,14 @@ type CreateRpgDependencies = {
 
 export async function createRpg(
   deps: CreateRpgDependencies,
-  params: { userId: string; body: unknown },
+  params: { userId: string; body: unknown }
 ) {
   try {
     const parsed = createRpgSchema.safeParse(params.body)
     if (!parsed.success) {
       throw new AppError(
         parsed.error.issues[0]?.message ?? "Dados invalidos.",
-        400,
+        400
       )
     }
 
@@ -45,7 +45,7 @@ export async function createRpg(
       abilityCategoriesEnabled,
       enabledAbilityCategories,
       progressionMode,
-      progressionTiers,
+      progressionTiers
     } = parsed.data
 
     const resolvedImage = image?.trim() || null
@@ -62,17 +62,17 @@ export async function createRpg(
         ? useClassBonuses
         : Boolean(useClassRaceBonuses)
     const resolvedAllowMultiplePlayerCharacters = Boolean(
-      allowMultiplePlayerCharacters ?? false,
+      allowMultiplePlayerCharacters ?? false
     )
     const resolvedUsersCanManageOwnXp = Boolean(usersCanManageOwnXp ?? true)
     const resolvedAllowSkillPointDistribution = Boolean(
-      allowSkillPointDistribution ?? true,
+      allowSkillPointDistribution ?? true
     )
     const resolvedAbilityCategoriesEnabled = Boolean(
-      abilityCategoriesEnabled ?? false,
+      abilityCategoriesEnabled ?? false
     )
     const resolvedEnabledAbilityCategories = normalizeEnabledAbilityCategories(
-      enabledAbilityCategories ?? [],
+      enabledAbilityCategories ?? []
     )
 
     if (
@@ -91,12 +91,12 @@ export async function createRpg(
           ? enforceXpLevelPattern(
               progressionTiers.map((item) => ({
                 label: item.label.trim(),
-                required: Math.max(0, Math.floor(item.required)),
-              })),
+                required: Math.max(0, Math.floor(item.required))
+              }))
             )
           : progressionTiers.map((item) => ({
               label: item.label.trim(),
-              required: Math.max(0, Math.floor(item.required)),
+              required: Math.max(0, Math.floor(item.required))
             }))
         : getDefaultProgressionTiers(resolvedProgressionMode)
 
@@ -104,7 +104,7 @@ export async function createRpg(
       ownerId: params.userId,
       title,
       description,
-      visibility,
+      visibility
     })
 
     await deps.repository.applyCreateSettings(created.id, {
@@ -120,7 +120,7 @@ export async function createRpg(
       abilityCategoriesEnabled: resolvedAbilityCategoriesEnabled,
       enabledAbilityCategories: resolvedEnabledAbilityCategories,
       progressionMode: resolvedProgressionMode,
-      progressionTiers: resolvedProgressionTiers,
+      progressionTiers: resolvedProgressionTiers
     })
 
     if (resolvedImage) {
@@ -149,8 +149,8 @@ export async function createRpg(
         enabledAbilityCategories: resolvedEnabledAbilityCategories,
         progressionMode: resolvedProgressionMode,
         progressionTiers: resolvedProgressionTiers,
-        createdAt: created.createdAt,
-      },
+        createdAt: created.createdAt
+      }
     }
   } catch (error) {
     if (error instanceof AppError) {
@@ -159,7 +159,7 @@ export async function createRpg(
 
     const mapped = mapRpgManagementRepositoryError(
       error,
-      "Erro interno ao criar RPG.",
+      "Erro interno ao criar RPG."
     )
     if (mapped) {
       throw mapped

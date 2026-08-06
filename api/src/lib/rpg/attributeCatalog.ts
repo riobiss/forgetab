@@ -9,7 +9,7 @@ export const ATTRIBUTE_CATALOG = [
   { key: "agility", label: "Agilidade" },
   { key: "instinct", label: "Instinto" },
   { key: "luck", label: "Sorte" },
-  { key: "willpower", label: "Forca de Vontade" },
+  { key: "willpower", label: "Forca de Vontade" }
 ] as const
 
 export type AttributeCatalogItem = (typeof ATTRIBUTE_CATALOG)[number]

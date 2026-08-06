@@ -1,8 +1,20 @@
 .page {
-  --library-panel-bg: color-mix(in srgb, var(--color-bg-surface-alt) 94%, var(--color-bg-surface));
-  --library-panel-border: color-mix(in srgb, var(--color-border-strong) 72%, var(--color-border-soft));
+  --library-panel-bg: color-mix(
+    in srgb,
+    var(--color-bg-surface-alt) 94%,
+    var(--color-bg-surface)
+  );
+  --library-panel-border: color-mix(
+    in srgb,
+    var(--color-border-strong) 72%,
+    var(--color-border-soft)
+  );
   --library-card-bg: color-mix(in srgb, var(--color-bg-card) 94%, transparent);
-  --library-card-hover: color-mix(in srgb, var(--color-bg-elevated) 96%, transparent);
+  --library-card-hover: color-mix(
+    in srgb,
+    var(--color-bg-elevated) 96%,
+    transparent
+  );
   background:
     radial-gradient(
       circle at top left,
@@ -48,7 +60,8 @@
 .title {
   margin: 0;
   color: var(--color-text-primary);
-  text-shadow: 0 0 12px color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
+  text-shadow: 0 0 12px
+    color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
   font-size: 2.05rem;
   line-height: 1.05;
 }
@@ -76,7 +89,11 @@
   font-weight: 700;
   cursor: pointer;
   border: 1px solid color-mix(in srgb, var(--color-brand-primary) 80%, white);
-  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-strong));
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-primary),
+    var(--color-brand-strong)
+  );
   color: var(--color-text-on-brand);
 }
 
@@ -104,7 +121,8 @@
   padding: 0.58rem 0.8rem;
   font-weight: 700;
   cursor: pointer;
-  border: 1px solid color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
+  border: 1px solid
+    color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
   background: var(--color-status-danger-soft);
   color: var(--color-status-danger-contrast);
 }
@@ -201,7 +219,8 @@
 }
 
 .bookCard {
-  border: 1px solid color-mix(in srgb, var(--color-border-default) 85%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-border-default) 85%, transparent);
   border-radius: 16px;
   background: var(--library-card-bg);
   padding: 1rem;
@@ -249,7 +268,8 @@
   min-width: 2.2rem;
   padding: 0.28rem 0.55rem;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 32%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-primary) 32%, transparent);
   background: var(--color-brand-soft);
   color: var(--color-brand-primary);
   font-size: 0.78rem;

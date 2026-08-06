@@ -8,7 +8,7 @@ export type CharacterPermissionContext = {
 export async function cleanupCharacterImage(
   permission: CharacterPermissionContext,
   previousImage: string | null,
-  nextImage: string | null,
+  nextImage: string | null
 ) {
   if (!previousImage || previousImage === nextImage) {
     return
@@ -16,6 +16,6 @@ export async function cleanupCharacterImage(
 
   await cleanupCharacterImageByOwners({
     ...permission,
-    previousImage,
+    previousImage
   })
 }

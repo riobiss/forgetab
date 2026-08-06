@@ -4,7 +4,7 @@ import type { RefObject } from "react"
 import { Pencil, Plus, Trash2, X } from "lucide-react"
 import type {
   MarkerGroup,
-  MapMarkerItem,
+  MapMarkerItem
 } from "@/features/world/location/presentation/types/mapMarkers"
 import styles from "../WorldMap.module.css"
 
@@ -47,7 +47,7 @@ export function MarkerGroupModal({
   onSaveGroup,
   onPublish,
   onDeleteGroup,
-  onClose,
+  onClose
 }: Props) {
   if (!isOpen || !group) {
     return null

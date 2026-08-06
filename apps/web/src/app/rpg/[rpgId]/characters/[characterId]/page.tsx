@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import {
   fetchCharacterDetailViewModel,
-  HttpCharacterDetailError,
+  HttpCharacterDetailError
 } from "@/features/world/characters/infrastructure/detail/repositories/httpCharacterDetailRepository"
 import CharacterDetailPage from "@/features/world/characters/presentation/detail/CharacterDetailPage"
 

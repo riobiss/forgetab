@@ -1,13 +1,13 @@
 import type { PurchasedAbilityViewDto } from "@/features/world/characters/application/abilities/types"
 import type {
   CharacterInventoryDataDto,
-  CharacterInventoryItemDto,
+  CharacterInventoryItemDto
 } from "@forgetab/world-contracts/character-inventory"
 import type { NpcMonsterLoadoutGateway } from "@/features/world/characters/application/loadout/contracts/NpcMonsterLoadoutGateway"
 import type {
   NpcMonsterAbilitiesDataDto,
   NpcMonsterLoadoutItemOptionDto,
-  NpcMonsterLoadoutSkillOptionDto,
+  NpcMonsterLoadoutSkillOptionDto
 } from "@/features/world/characters/application/loadout/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
@@ -23,7 +23,7 @@ type SkillListResponse = {
 export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
   async fetchInventory(rpgId, characterId): Promise<CharacterInventoryDataDto> {
     const response = await apiFetch(
-      `/api/rpg/${rpgId}/characters/${characterId}/inventory`,
+      `/api/rpg/${rpgId}/characters/${characterId}/inventory`
     )
     const payload = await parseJson<{
       characterName?: string
@@ -36,7 +36,7 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
       characterName: payload.characterName ?? "Personagem",
       inventory: payload.inventory ?? [],
       useInventoryWeightLimit: Boolean(payload.useInventoryWeightLimit),
-      maxCarryWeight: payload.maxCarryWeight ?? null,
+      maxCarryWeight: payload.maxCarryWeight ?? null
     }
   },
 
@@ -55,7 +55,7 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
     return (payload.items ?? [])
       .filter(
         (
-          item,
+          item
         ): item is {
           id: string
           name: string
@@ -66,14 +66,14 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
           typeof item.id === "string" &&
           item.id.trim().length > 0 &&
           typeof item.name === "string" &&
-          item.name.trim().length > 0,
+          item.name.trim().length > 0
       )
       .map((item) => ({
         id: item.id,
         name: item.name,
         image: item.image ?? null,
         type: item.type ?? "",
-        rarity: item.rarity ?? "",
+        rarity: item.rarity ?? ""
       }))
   },
 
@@ -84,8 +84,8 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
       body: JSON.stringify({
         baseItemId: params.baseItemId,
         quantity: params.quantity ?? 1,
-        characterIds: [characterId],
-      }),
+        characterIds: [characterId]
+      })
     })
     await parseJson<{ message?: string }>(response)
     return { success: true }
@@ -97,8 +97,8 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
       {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params),
-      },
+        body: JSON.stringify(params)
+      }
     )
     const payload = await parseJson<{
       inventoryItemId?: string
@@ -107,16 +107,16 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
 
     return {
       inventoryItemId: payload.inventoryItemId ?? params.inventoryItemId,
-      remainingQuantity: payload.remainingQuantity ?? 0,
+      remainingQuantity: payload.remainingQuantity ?? 0
     }
   },
 
   async fetchAbilities(
     rpgId,
-    characterId,
+    characterId
   ): Promise<NpcMonsterAbilitiesDataDto> {
     const response = await apiFetch(
-      `/api/rpg/${rpgId}/characters/${characterId}/abilities`,
+      `/api/rpg/${rpgId}/characters/${characterId}/abilities`
     )
     const payload = await parseJson<{
       characterName?: string
@@ -125,13 +125,13 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
 
     return {
       characterName: payload.characterName ?? "Personagem",
-      abilities: payload.abilities ?? [],
+      abilities: payload.abilities ?? []
     }
   },
 
   async listAvailableSkills(rpgId): Promise<NpcMonsterLoadoutSkillOptionDto[]> {
     const response = await apiFetch(
-      `/api/skills?rpgId=${encodeURIComponent(rpgId)}`,
+      `/api/skills?rpgId=${encodeURIComponent(rpgId)}`
     )
     const payload = await parseJson<SkillListResponse>(response)
 
@@ -141,14 +141,14 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
           typeof skill.id === "string" &&
           skill.id.trim().length > 0 &&
           typeof skill.slug === "string" &&
-          skill.slug.trim().length > 0,
+          skill.slug.trim().length > 0
       )
       .map((skill) => ({
         id: skill.id,
         slug: skill.slug,
         tags: Array.isArray(skill.tags)
           ? skill.tags.filter((tag): tag is string => typeof tag === "string")
-          : [],
+          : []
       }))
   },
 
@@ -158,8 +158,8 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params),
-      },
+        body: JSON.stringify(params)
+      }
     )
     const payload = await parseJson<{
       success?: boolean
@@ -167,7 +167,7 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
     }>(response)
     return {
       success: Boolean(payload.success),
-      ability: payload.ability,
+      ability: payload.ability
     }
   },
 
@@ -177,10 +177,10 @@ export const httpNpcMonsterLoadoutGateway: NpcMonsterLoadoutGateway = {
       {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params),
-      },
+        body: JSON.stringify(params)
+      }
     )
     const payload = await parseJson<{ success?: boolean }>(response)
     return { success: Boolean(payload.success) }
-  },
+  }
 }

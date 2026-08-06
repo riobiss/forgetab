@@ -6,20 +6,20 @@ import {
   updateIdentityTemplates,
   updateRaceTemplates,
   updateSkillTemplates,
-  updateStatusTemplates,
+  updateStatusTemplates
 } from "@/features/world/application/config/use-cases/rpgConfig"
 import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { rpgConfigRouteDeps } from "./dependencies"
 import type { RpgRouteParams } from "./routeTypes"
 
 export async function updateAttributeTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -31,8 +31,8 @@ export async function updateAttributeTemplatesHandler(
       {
         rpgId: request.params.rpgId,
         userId: auth.userId,
-        attributes: body.attributes,
-      },
+        attributes: body.attributes
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -42,7 +42,7 @@ export async function updateAttributeTemplatesHandler(
 
 export async function updateStatusTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -54,8 +54,8 @@ export async function updateStatusTemplatesHandler(
       {
         rpgId: request.params.rpgId,
         userId: auth.userId,
-        statuses: body.statuses,
-      },
+        statuses: body.statuses
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -65,7 +65,7 @@ export async function updateStatusTemplatesHandler(
 
 export async function updateSkillTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -74,7 +74,7 @@ export async function updateSkillTemplatesHandler(
     const payload = await updateSkillTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId, skills: body.skills },
+      { rpgId: request.params.rpgId, userId: auth.userId, skills: body.skills }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -84,7 +84,7 @@ export async function updateSkillTemplatesHandler(
 
 export async function updateRaceTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -93,7 +93,7 @@ export async function updateRaceTemplatesHandler(
     const payload = await updateRaceTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId, races: body.races },
+      { rpgId: request.params.rpgId, userId: auth.userId, races: body.races }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -103,7 +103,7 @@ export async function updateRaceTemplatesHandler(
 
 export async function updateClassTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -115,8 +115,8 @@ export async function updateClassTemplatesHandler(
       {
         rpgId: request.params.rpgId,
         userId: auth.userId,
-        classes: body.classes,
-      },
+        classes: body.classes
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -126,7 +126,7 @@ export async function updateClassTemplatesHandler(
 
 export async function updateIdentityTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -135,21 +135,21 @@ export async function updateIdentityTemplatesHandler(
     const payload = await updateIdentityTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId, fields: body.fields },
+      { rpgId: request.params.rpgId, userId: auth.userId, fields: body.fields }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(
       reply,
       error,
-      "Erro interno ao salvar campos de identidade.",
+      "Erro interno ao salvar campos de identidade."
     )
   }
 }
 
 export async function updateCharacteristicTemplatesHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -158,14 +158,14 @@ export async function updateCharacteristicTemplatesHandler(
     const payload = await updateCharacteristicTemplates(
       rpgConfigRouteDeps.accessService,
       rpgConfigRouteDeps.repository,
-      { rpgId: request.params.rpgId, userId: auth.userId, fields: body.fields },
+      { rpgId: request.params.rpgId, userId: auth.userId, fields: body.fields }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
     return writeError(
       reply,
       error,
-      "Erro interno ao salvar campos de caracteristicas.",
+      "Erro interno ao salvar campos de caracteristicas."
     )
   }
 }

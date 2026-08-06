@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import {
   fetchCharactersDashboardViewModel,
-  HttpCharactersDashboardError,
+  HttpCharactersDashboardError
 } from "@/features/world/characters/infrastructure/dashboard/repositories/httpCharactersDashboardRepository"
 import CharactersDashboardPage from "@/features/world/characters/presentation/dashboard/CharactersDashboardPage"
 import type { CharactersDashboardFilterType } from "@/features/world/characters/application/dashboard/types"
@@ -19,7 +19,9 @@ type Params = {
 }
 
 function normalizeFilterType(value?: string): CharactersDashboardFilterType {
-  return value === "player" || value === "npc" || value === "monster" ? value : "all"
+  return value === "player" || value === "npc" || value === "monster"
+    ? value
+    : "all"
 }
 
 export default async function CharactersPage({ params, searchParams }: Params) {
@@ -32,7 +34,7 @@ export default async function CharactersPage({ params, searchParams }: Params) {
       type: normalizeFilterType(resolvedSearchParams?.type),
       modal: resolvedSearchParams?.modal,
       viewer: resolvedSearchParams?.viewer,
-      characterId: resolvedSearchParams?.characterId,
+      characterId: resolvedSearchParams?.characterId
     })
   } catch (error) {
     if (error instanceof HttpCharactersDashboardError && error.status === 404) {

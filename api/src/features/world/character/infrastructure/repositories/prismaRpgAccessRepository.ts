@@ -30,13 +30,13 @@ export const prismaRpgAccessRepository: RpgAccessRepository = {
         (error.message.includes('column "use_race_bonuses" does not exist') ||
           error.message.includes('column "use_class_bonuses" does not exist') ||
           error.message.includes(
-            'column "use_class_race_bonuses" does not exist',
+            'column "use_class_race_bonuses" does not exist'
           ) ||
           error.message.includes(
-            'column "use_inventory_weight_limit" does not exist',
+            'column "use_inventory_weight_limit" does not exist'
           ) ||
           error.message.includes(
-            'column "allow_multiple_player_characters" does not exist',
+            'column "allow_multiple_player_characters" does not exist'
           ) ||
           error.message.includes('column "progression_mode" does not exist') ||
           error.message.includes('column "progression_tiers" does not exist'))
@@ -98,5 +98,5 @@ export const prismaRpgAccessRepository: RpgAccessRepository = {
     `)
 
     return rows[0] ?? null
-  },
+  }
 }

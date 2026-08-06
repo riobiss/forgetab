@@ -1,6 +1,6 @@
 import type {
   baseItemRarityValues,
-  baseItemTypeValues,
+  baseItemTypeValues
 } from "@/lib/validators/baseItem"
 
 export type ItemTypeDto = (typeof baseItemTypeValues)[number]

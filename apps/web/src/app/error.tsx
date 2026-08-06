@@ -22,10 +22,15 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           Não foi possível carregar esta página
         </h1>
         <p className={styles.description}>
-          Tente novamente. Se o problema continuar, volte para uma área estável da aplicação.
+          Tente novamente. Se o problema continuar, volte para uma área estável
+          da aplicação.
         </p>
         <div className={styles.actions}>
-          <button className={styles.primaryAction} type="button" onClick={reset}>
+          <button
+            className={styles.primaryAction}
+            type="button"
+            onClick={reset}
+          >
             Tentar novamente
           </button>
           <Link className={styles.secondaryAction} href="/rpg">

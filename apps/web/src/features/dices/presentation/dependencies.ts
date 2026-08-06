@@ -11,5 +11,5 @@ function createHistoryId() {
 export const dicesPageDependencies = {
   dicesRepository,
   createHistoryId,
-  now: () => new Date(),
+  now: () => new Date()
 } as const

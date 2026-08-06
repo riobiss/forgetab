@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import {
   loadCharacterInventoryUseCase,
-  removeCharacterInventoryItemUseCase,
+  removeCharacterInventoryItemUseCase
 } from "@/features/world/characters/application/inventory/use-cases/characterInventory"
 import type { CharacterInventoryGateway } from "@/features/world/characters/application/inventory/contracts/CharacterInventoryGateway"
 
@@ -12,14 +12,14 @@ describe("characterInventory use-cases", () => {
         characterName: "Arthas",
         inventory: [],
         useInventoryWeightLimit: false,
-        maxCarryWeight: null,
+        maxCarryWeight: null
       }),
-      removeInventoryItem: vi.fn(),
+      removeInventoryItem: vi.fn()
     }
 
     const result = await loadCharacterInventoryUseCase(
       { gateway },
-      { rpgId: "rpg-1", characterId: "char-1" },
+      { rpgId: "rpg-1", characterId: "char-1" }
     )
 
     expect(gateway.fetchInventory).toHaveBeenCalledWith("rpg-1", "char-1")
@@ -27,7 +27,7 @@ describe("characterInventory use-cases", () => {
       characterName: "Arthas",
       inventory: [],
       useInventoryWeightLimit: false,
-      maxCarryWeight: null,
+      maxCarryWeight: null
     })
   })
 
@@ -36,8 +36,8 @@ describe("characterInventory use-cases", () => {
       fetchInventory: vi.fn(),
       removeInventoryItem: vi.fn().mockResolvedValue({
         inventoryItemId: "inv-1",
-        remainingQuantity: 2,
-      }),
+        remainingQuantity: 2
+      })
     }
 
     const result = await removeCharacterInventoryItemUseCase(
@@ -46,17 +46,21 @@ describe("characterInventory use-cases", () => {
         rpgId: "rpg-1",
         characterId: "char-1",
         inventoryItemId: "inv-1",
-        quantity: 1,
-      },
+        quantity: 1
+      }
     )
 
-    expect(gateway.removeInventoryItem).toHaveBeenCalledWith("rpg-1", "char-1", {
-      inventoryItemId: "inv-1",
-      quantity: 1,
-    })
+    expect(gateway.removeInventoryItem).toHaveBeenCalledWith(
+      "rpg-1",
+      "char-1",
+      {
+        inventoryItemId: "inv-1",
+        quantity: 1
+      }
+    )
     expect(result).toEqual({
       inventoryItemId: "inv-1",
-      remainingQuantity: 2,
+      remainingQuantity: 2
     })
   })
 })

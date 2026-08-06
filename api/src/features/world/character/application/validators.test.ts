@@ -4,7 +4,7 @@ import {
   validateCharacteristicsPayload,
   validateIdentityPayload,
   validateSkillsPayload,
-  validateStatusesPayload,
+  validateStatusesPayload
 } from "./validators"
 
 describe("character validators", () => {
@@ -13,13 +13,13 @@ describe("character validators", () => {
       validateStatusesPayload(
         {
           life: 10,
-          focus: 3,
+          focus: 3
         },
-        [{ key: "life", label: "Vida", position: 0 }],
-      ),
+        [{ key: "life", label: "Vida", position: 0 }]
+      )
     ).toEqual({
       ok: false,
-      message: "Status fora do padrao: focus.",
+      message: "Status fora do padrao: focus."
     })
   })
 
@@ -27,15 +27,15 @@ describe("character validators", () => {
     expect(
       validateStatusesPayload(
         {
-          stamina: 7,
+          stamina: 7
         },
-        [{ key: "exhaustion", label: "Exaustao", position: 0 }],
-      ),
+        [{ key: "exhaustion", label: "Exaustao", position: 0 }]
+      )
     ).toEqual({
       ok: true,
       value: {
-        exhaustion: 7,
-      },
+        exhaustion: 7
+      }
     })
   })
 
@@ -43,15 +43,15 @@ describe("character validators", () => {
     expect(
       validateSkillsPayload(
         {
-          pontaria: 4.9,
+          pontaria: 4.9
         },
-        [{ key: "pontaria", label: "Pontaria", position: 0 }],
-      ),
+        [{ key: "pontaria", label: "Pontaria", position: 0 }]
+      )
     ).toEqual({
       ok: true,
       value: {
-        pontaria: 4,
-      },
+        pontaria: 4
+      }
     })
   })
 
@@ -62,38 +62,40 @@ describe("character validators", () => {
   })
 
   it("compartilha a normalizacao de campos textuais templateados", () => {
-    const template = [{ key: "nome", label: "Nome", required: true, position: 0 }]
+    const template = [
+      { key: "nome", label: "Nome", required: true, position: 0 }
+    ]
 
     expect(
       validateIdentityPayload(
         {
           nome: "  Aria  ",
-          apelido: "  A Guarda  ",
+          apelido: "  A Guarda  "
         },
-        template,
-      ),
+        template
+      )
     ).toEqual({
       ok: true,
       value: {
         nome: "Aria",
-        apelido: "A Guarda",
-      },
+        apelido: "A Guarda"
+      }
     })
 
     expect(
       validateCharacteristicsPayload(
         {
           nome: "  Feroz  ",
-          origem: "  Floresta  ",
+          origem: "  Floresta  "
         },
-        template,
-      ),
+        template
+      )
     ).toEqual({
       ok: true,
       value: {
         nome: "Feroz",
-        origem: "Floresta",
-      },
+        origem: "Floresta"
+      }
     })
   })
 })

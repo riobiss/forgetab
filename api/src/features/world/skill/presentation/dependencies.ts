@@ -5,5 +5,5 @@ import { prismaSkillsSearchIndexRepository } from "@/features/world/skill/infras
 export const skillRouteDeps = {
   repository: prismaSkillRepository,
   permissionService: rpgPermissionService,
-  searchIndexRepository: prismaSkillsSearchIndexRepository,
+  searchIndexRepository: prismaSkillsSearchIndexRepository
 } as const

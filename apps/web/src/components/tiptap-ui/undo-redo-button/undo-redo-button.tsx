@@ -11,11 +11,11 @@ import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 // --- Tiptap UI ---
 import type {
   UndoRedoAction,
-  UseUndoRedoConfig,
+  UseUndoRedoConfig
 } from "@/components/tiptap-ui/undo-redo-button"
 import {
   UNDO_REDO_SHORTCUT_KEYS,
-  useUndoRedo,
+  useUndoRedo
 } from "@/components/tiptap-ui/undo-redo-button"
 
 // --- UI Primitives ---
@@ -38,7 +38,7 @@ export interface UndoRedoButtonProps
 
 export function HistoryShortcutBadge({
   action,
-  shortcutKeys = UNDO_REDO_SHORTCUT_KEYS[action],
+  shortcutKeys = UNDO_REDO_SHORTCUT_KEYS[action]
 }: {
   action: UndoRedoAction
   shortcutKeys?: string
@@ -75,7 +75,7 @@ export const UndoRedoButton = forwardRef<
         editor,
         action,
         hideWhenUnavailable,
-        onExecuted,
+        onExecuted
       })
 
     const handleClick = useCallback(

@@ -5,13 +5,13 @@ import { toast } from "react-hot-toast"
 import {
   applyLinkedMarkerToPayload,
   findLinkedMarkerConflicts,
-  type SectionSavePayload,
+  type SectionSavePayload
 } from "@/features/world/location/application/services/sectionMarkerReconciliation"
 import type { RpgMapSectionDto } from "@forgetab/world-contracts/location"
 import {
   createRpgMapSectionUseCase,
   deleteRpgMapSectionUseCase,
-  updateRpgMapSectionUseCase,
+  updateRpgMapSectionUseCase
 } from "@/features/world/location/application/use-cases/rpgMapSections.client"
 import { setMarkerSectionLinkUseCase } from "@/features/world/location/application/use-cases/setMarkerSectionLink"
 import { syncLinkedMarkerWithSectionUseCase } from "@/features/world/location/application/use-cases/syncLinkedMarkerWithSection"
@@ -19,7 +19,7 @@ import { rpgMapPresentationDeps } from "@/features/world/location/presentation/d
 import {
   applySectionImagesToCustomFields,
   customFieldsToObject,
-  type MarkerLinkOption,
+  type MarkerLinkOption
 } from "@/features/world/location/presentation/utils/sectionMarkerLinking"
 import type { useRpgMapSectionModalState } from "./useRpgMapSectionModalState"
 
@@ -33,7 +33,7 @@ export function useRpgMapSectionCommands(params: {
   modalState: SectionModalState
   loadDetail: (
     mapId: string,
-    preferredSectionId?: string | null,
+    preferredSectionId?: string | null
   ) => Promise<void>
   loadMaps: () => Promise<void>
 }) {
@@ -41,7 +41,7 @@ export function useRpgMapSectionCommands(params: {
 
   async function persistSection(
     payload: SectionSavePayload,
-    linkedMarker?: MarkerLinkOption | null,
+    linkedMarker?: MarkerLinkOption | null
   ) {
     if (!params.selectedMapId) return false
 
@@ -55,16 +55,16 @@ export function useRpgMapSectionCommands(params: {
               rpgId: params.rpgId,
               mapId: params.selectedMapId,
               sectionId: params.modalState.editingSection.id,
-              payload,
-            },
+              payload
+            }
           )
         : await createRpgMapSectionUseCase(
             rpgMapPresentationDeps.rpgMapGateway,
             {
               rpgId: params.rpgId,
               mapId: params.selectedMapId,
-              payload,
-            },
+              payload
+            }
           )
 
       if (linkedMarker) {
@@ -74,8 +74,8 @@ export function useRpgMapSectionCommands(params: {
             rpgId: params.rpgId,
             mapId: params.selectedMapId,
             linkedMarker,
-            section: payload,
-          },
+            section: payload
+          }
         )
       }
 
@@ -86,7 +86,7 @@ export function useRpgMapSectionCommands(params: {
       toast.success(
         params.modalState.editingSection
           ? "Secao atualizada com sucesso."
-          : "Secao criada com sucesso.",
+          : "Secao criada com sucesso."
       )
       return true
     } catch (cause) {
@@ -110,16 +110,16 @@ export function useRpgMapSectionCommands(params: {
       parentSectionId: form.parentSectionId || null,
       customFields: applySectionImagesToCustomFields(
         customFieldsToObject(form.customFields),
-        form.images,
-      ),
+        form.images
+      )
     }
     const linkedMarker =
       params.markerOptions.find(
-        (marker) => marker.id === form.linkedMarkerId,
+        (marker) => marker.id === form.linkedMarkerId
       ) ?? null
     if (!trimmedName && !linkedMarker) {
       params.modalState.setSectionFormError(
-        "Nome e obrigatorio, a menos que a secao esteja vinculada a um marcador.",
+        "Nome e obrigatorio, a menos que a secao esteja vinculada a um marcador."
       )
       return false
     }
@@ -130,13 +130,13 @@ export function useRpgMapSectionCommands(params: {
       params.modalState.setPendingSectionConflict({
         payload,
         linkedMarker,
-        fields: conflicts,
+        fields: conflicts
       })
       return false
     }
     return persistSection(
       applyLinkedMarkerToPayload(payload, linkedMarker, "section"),
-      linkedMarker,
+      linkedMarker
     )
   }
 
@@ -147,15 +147,15 @@ export function useRpgMapSectionCommands(params: {
       applyLinkedMarkerToPayload(
         conflict.payload,
         conflict.linkedMarker,
-        preference,
+        preference
       ),
-      conflict.linkedMarker,
+      conflict.linkedMarker
     )
   }
 
   async function saveMarkerSectionLink(
     markerId: string,
-    sectionId: string | null,
+    sectionId: string | null
   ) {
     if (!params.selectedMapId || !params.hasDetail) return
     const linkedMarker =
@@ -169,15 +169,15 @@ export function useRpgMapSectionCommands(params: {
           rpgId: params.rpgId,
           mapId: params.selectedMapId,
           sectionId,
-          marker: linkedMarker,
-        },
+          marker: linkedMarker
+        }
       )
       await params.loadDetail(params.selectedMapId, sectionId)
     } catch (cause) {
       toast.error(
         cause instanceof Error
           ? cause.message
-          : "Erro ao vincular marcador e secao.",
+          : "Erro ao vincular marcador e secao."
       )
     }
   }
@@ -186,21 +186,18 @@ export function useRpgMapSectionCommands(params: {
     if (!params.selectedMapId) return false
     if (
       !window.confirm(
-        `Tem certeza que deseja apagar a secao "${section.name}" e suas subsecoes?`,
+        `Tem certeza que deseja apagar a secao "${section.name}" e suas subsecoes?`
       )
     ) {
       return false
     }
 
     try {
-      await deleteRpgMapSectionUseCase(
-        rpgMapPresentationDeps.rpgMapGateway,
-        {
-          rpgId: params.rpgId,
-          mapId: params.selectedMapId,
-          sectionId: section.id,
-        },
-      )
+      await deleteRpgMapSectionUseCase(rpgMapPresentationDeps.rpgMapGateway, {
+        rpgId: params.rpgId,
+        mapId: params.selectedMapId,
+        sectionId: section.id
+      })
       await params.loadDetail(params.selectedMapId)
       await params.loadMaps()
       params.modalState.closeSectionModal()
@@ -208,7 +205,7 @@ export function useRpgMapSectionCommands(params: {
       return true
     } catch (cause) {
       toast.error(
-        cause instanceof Error ? cause.message : "Erro ao remover secao.",
+        cause instanceof Error ? cause.message : "Erro ao remover secao."
       )
       return false
     }
@@ -219,6 +216,6 @@ export function useRpgMapSectionCommands(params: {
     resolveSectionConflict,
     saveMarkerSectionLink,
     saveSection,
-    saving,
+    saving
   }
 }

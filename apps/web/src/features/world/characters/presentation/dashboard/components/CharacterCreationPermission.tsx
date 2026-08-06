@@ -14,14 +14,15 @@ export default function CharacterCreationPermission({
   isOwner,
   isAcceptedMember,
   ownPlayerCount,
-  allowMultiplePlayerCharacters,
+  allowMultiplePlayerCharacters
 }: Props) {
   if (isOwner) {
     return null
   }
 
   const hasOwnPlayer = ownPlayerCount > 0
-  const canCreateAnotherPlayer = isAcceptedMember && (!hasOwnPlayer || allowMultiplePlayerCharacters)
+  const canCreateAnotherPlayer =
+    isAcceptedMember && (!hasOwnPlayer || allowMultiplePlayerCharacters)
 
   if (!canCreateAnotherPlayer && isAcceptedMember) {
     return null

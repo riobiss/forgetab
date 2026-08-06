@@ -8,7 +8,7 @@ export function toRpgMembershipRepositoryError(error: unknown) {
   const code = message.includes('relation "rpg_members" does not exist')
     ? "members_schema_missing"
     : message.includes(
-          'relation "rpg_character_creation_requests" does not exist',
+          'relation "rpg_character_creation_requests" does not exist'
         )
       ? "character_requests_schema_missing"
       : "unknown"
@@ -17,7 +17,7 @@ export function toRpgMembershipRepositoryError(error: unknown) {
 }
 
 async function withRpgMembershipPersistenceErrors<T>(
-  operation: () => Promise<T>,
+  operation: () => Promise<T>
 ): Promise<T> {
   try {
     return await operation()
@@ -27,7 +27,7 @@ async function withRpgMembershipPersistenceErrors<T>(
 }
 
 export function withRpgMembershipRepositoryErrors(
-  repository: RpgMembershipRepository,
+  repository: RpgMembershipRepository
 ): RpgMembershipRepository {
   return new Proxy(repository, {
     get(target, property, receiver) {
@@ -35,9 +35,9 @@ export function withRpgMembershipRepositoryErrors(
       if (typeof value !== "function") return value
 
       return (...args: unknown[]) =>
-        withRpgMembershipPersistenceErrors(() =>
-          Reflect.apply(value, target, args) as Promise<unknown>,
+        withRpgMembershipPersistenceErrors(
+          () => Reflect.apply(value, target, args) as Promise<unknown>
         )
-    },
+    }
   })
 }

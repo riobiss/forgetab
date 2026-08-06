@@ -8,10 +8,9 @@ import type { EntityCatalogTemplateRecord } from "@/features/world/catalog/appli
 import {
   createEntityCatalogEntryUseCase,
   loadEntityCatalogCollectionUseCase,
-  saveEntityCatalogCollectionUseCase,
+  saveEntityCatalogCollectionUseCase
 } from "@/features/world/catalog/application/use-cases/entityCatalogClient"
 import { entityCatalogDependencies } from "@/features/world/catalog/presentation/dependencies"
-
 
 type Params = {
   rpgId: string
@@ -22,7 +21,7 @@ type Params = {
 export function useEntityCatalogActions({
   rpgId,
   entityType,
-  canManage,
+  canManage
 }: Params) {
   const router = useRouter()
 
@@ -41,19 +40,22 @@ export function useEntityCatalogActions({
       catalogMeta: {
         shortDescription: input.description.trim() || null,
         richText: {
-          description: createRichTextDocumentFromText(input.description),
-        },
-      },
+          description: createRichTextDocumentFromText(input.description)
+        }
+      }
     }
 
-    const result = await createEntityCatalogEntryUseCase(entityCatalogDependencies, {
-      rpgId,
-      entityType,
-      entry: nextEntry,
-    })
+    const result = await createEntityCatalogEntryUseCase(
+      entityCatalogDependencies,
+      {
+        rpgId,
+        entityType,
+        entry: nextEntry
+      }
+    )
 
     toast.success(
-      `${entityType === "class" ? "Classe" : "Raca"} criada com sucesso.`,
+      `${entityType === "class" ? "Classe" : "Raca"} criada com sucesso.`
     )
     router.push(result.href)
     router.refresh()
@@ -62,7 +64,7 @@ export function useEntityCatalogActions({
   async function fetchCollection() {
     return loadEntityCatalogCollectionUseCase(entityCatalogDependencies, {
       rpgId,
-      entityType,
+      entityType
     })
   }
 
@@ -70,7 +72,7 @@ export function useEntityCatalogActions({
     await saveEntityCatalogCollectionUseCase(entityCatalogDependencies, {
       rpgId,
       entityType,
-      collection,
+      collection
     })
     router.refresh()
   }
@@ -78,6 +80,6 @@ export function useEntityCatalogActions({
   return {
     createEntry,
     fetchCollection,
-    saveCollection,
+    saveCollection
   }
 }

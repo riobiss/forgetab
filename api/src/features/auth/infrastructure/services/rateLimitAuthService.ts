@@ -3,5 +3,5 @@ import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit"
 
 export const rateLimitAuthService: AuthRateLimitService = {
   check: checkRateLimit,
-  getClientIp,
+  getClientIp
 }

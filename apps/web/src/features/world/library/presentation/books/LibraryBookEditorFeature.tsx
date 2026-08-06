@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import LibraryBookEditorClient from "./LibraryBookEditorClient"
 import {
   createLibraryDependencies,
-  type LibraryGatewayFactory,
+  type LibraryGatewayFactory
 } from "../dependencies"
 
 type Props = {
@@ -24,11 +24,11 @@ export default function LibraryBookEditorFeature({
   mode,
   bookId,
   forceReadOnly = false,
-  gatewayFactory = "http",
+  gatewayFactory = "http"
 }: Props) {
   const deps = useMemo(
     () => createLibraryDependencies(gatewayFactory),
-    [gatewayFactory],
+    [gatewayFactory]
   )
   return (
     <LibraryBookEditorClient

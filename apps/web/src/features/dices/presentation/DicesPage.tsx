@@ -6,17 +6,17 @@ import {
   flattenDiceResults,
   formatCurrentRollFormula,
   isHighDiceResult,
-  isLowDiceResult,
+  isLowDiceResult
 } from "@/features/dices/application/diceRollPresentation"
 import {
   DICES_STORAGE_KEY,
-  parseDicesStorageState,
+  parseDicesStorageState
 } from "@/features/dices/application/diceRollStorage"
 import {
   DICE_ROLL_MAX_COUNT,
   DICE_ROLL_MAX_SIDES,
   type DicesStorageState,
-  type RollHistoryItem,
+  type RollHistoryItem
 } from "@/features/dices/application/types"
 import { rollDicesUseCase } from "@/features/dices/application/use-cases/rollDices"
 import { dicesPageDependencies } from "@/features/dices/presentation/dependencies"
@@ -30,7 +30,7 @@ function formatTime(date: Date) {
   return date.toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit",
+    second: "2-digit"
   })
 }
 
@@ -57,7 +57,7 @@ export function DicesPage() {
   const [isRollStatsModalOpen, setIsRollStatsModalOpen] = useState(false)
   const [activeView, setActiveView] = useState<"dices" | "history">("dices")
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(
-    null,
+    null
   )
   const holdTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const holdIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -66,13 +66,13 @@ export function DicesPage() {
   const currentFormula = formatCurrentRollFormula(
     diceCount,
     diceSides,
-    modifier,
+    modifier
   )
   const latestResults = flattenDiceResults(latestRoll)
   const latestStats = calculateDiceRollStats(
     latestResults,
     isHighDiceResult,
-    isLowDiceResult,
+    isLowDiceResult
   )
   const canShowLatestStats = latestResults.length > 1 && latestStats !== null
   const recentSingleRollResults = history
@@ -83,14 +83,14 @@ export function DicesPage() {
 
   useEffect(() => {
     const storedState = parseDicesStorageState(
-      localStorage.getItem(DICES_STORAGE_KEY),
+      localStorage.getItem(DICES_STORAGE_KEY)
     )
     if (storedState) {
       setDiceCount(storedState.diceCount)
       setDiceSides(storedState.diceSides)
       setModifier(storedState.modifier)
       setCustomSides(
-        [...new Set(storedState.customSides)].sort((a, b) => a - b),
+        [...new Set(storedState.customSides)].sort((a, b) => a - b)
       )
       setHistory(
         storedState.history.map((item) => ({
@@ -98,8 +98,8 @@ export function DicesPage() {
           diceTotal:
             typeof item.diceTotal === "number" ? item.diceTotal : item.total,
           modifier: typeof item.modifier === "number" ? item.modifier : 0,
-          rolledAt: new Date(item.rolledAt),
-        })),
+          rolledAt: new Date(item.rolledAt)
+        }))
       )
     }
     setIsHydrated(true)
@@ -115,8 +115,8 @@ export function DicesPage() {
       customSides,
       history: history.map((item) => ({
         ...item,
-        rolledAt: item.rolledAt.toISOString(),
-      })),
+        rolledAt: item.rolledAt.toISOString()
+      }))
     }
     localStorage.setItem(DICES_STORAGE_KEY, JSON.stringify(storageState))
   }, [customSides, diceCount, diceSides, history, isHydrated, modifier])
@@ -206,13 +206,13 @@ export function DicesPage() {
       nextDiceSides > DICE_ROLL_MAX_SIDES
     ) {
       setError(
-        `Escolha um dado customizado entre 2 e ${DICE_ROLL_MAX_SIDES} lados.`,
+        `Escolha um dado customizado entre 2 e ${DICE_ROLL_MAX_SIDES} lados.`
       )
       return
     }
 
     setCustomSides((currentSides) =>
-      [...new Set([...currentSides, nextDiceSides])].sort((a, b) => a - b),
+      [...new Set([...currentSides, nextDiceSides])].sort((a, b) => a - b)
     )
     setDiceSides(String(nextDiceSides))
     setCustomDiceSidesDraft("")
@@ -227,9 +227,9 @@ export function DicesPage() {
     try {
       const roll = await rollDicesUseCase(
         {
-          ...dicesPageDependencies,
+          ...dicesPageDependencies
         },
-        { diceCount, diceSides, modifier },
+        { diceCount, diceSides, modifier }
       )
 
       setHistory((currentHistory) => [roll, ...currentHistory.slice(0, 19)])
@@ -238,7 +238,7 @@ export function DicesPage() {
       setError(
         rollError instanceof Error
           ? rollError.message
-          : "Nao foi possivel girar os dados.",
+          : "Nao foi possivel girar os dados."
       )
     } finally {
       setIsRolling(false)

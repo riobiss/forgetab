@@ -30,42 +30,51 @@ export type PendingCharacterOfferSummary = {
 
 export interface RpgMembershipRepository {
   getRpgSummary(rpgId: string): Promise<RpgSummary | null>
-  getMembership(rpgId: string, userId: string): Promise<{ id: string; status: MembershipStatus } | null>
+  getMembership(
+    rpgId: string,
+    userId: string
+  ): Promise<{ id: string; status: MembershipStatus } | null>
   listAllowedUsers(rpgId: string): Promise<MemberUserSummary[]>
   createPendingMembership(rpgId: string, userId: string): Promise<void>
   resendMembershipRequest(membershipId: string): Promise<void>
   toggleModerator(
     rpgId: string,
     memberId: string,
-    ownerId: string,
+    ownerId: string
   ): Promise<{ role: string } | null>
   processMembershipRequest(
     rpgId: string,
     memberId: string,
-    nextStatus: "accepted" | "rejected",
+    nextStatus: "accepted" | "rejected"
   ): Promise<boolean>
-  expelMember(rpgId: string, memberId: string, ownerId: string): Promise<boolean>
-  listPendingCharacterRequests(rpgId: string): Promise<PendingCharacterRequestSummary[]>
+  expelMember(
+    rpgId: string,
+    memberId: string,
+    ownerId: string
+  ): Promise<boolean>
+  listPendingCharacterRequests(
+    rpgId: string
+  ): Promise<PendingCharacterRequestSummary[]>
   getCharacterRequest(
     rpgId: string,
-    userId: string,
+    userId: string
   ): Promise<{ id: string; status: CharacterRequestStatus } | null>
   createPendingCharacterRequest(rpgId: string, userId: string): Promise<void>
   resendCharacterRequest(requestId: string): Promise<void>
   processCharacterRequest(
     rpgId: string,
     requestId: string,
-    nextStatus: "accepted" | "rejected",
+    nextStatus: "accepted" | "rejected"
   ): Promise<boolean>
   getPendingCharacterOffer(
     rpgId: string,
     offerId: string,
-    userId: string,
+    userId: string
   ): Promise<PendingCharacterOfferSummary | null>
   processCharacterOffer(
     rpgId: string,
     offerId: string,
     userId: string,
-    nextStatus: "accepted" | "rejected",
+    nextStatus: "accepted" | "rejected"
   ): Promise<boolean>
 }

@@ -4,7 +4,7 @@ import type { CharacterDetailViewModel } from "@/features/world/character/applic
 import type { CharactersDashboardRepository } from "@/features/world/character/application/dashboard/ports/CharactersDashboardRepository"
 import type {
   CharactersDashboardFilterType,
-  LoadCharactersDashboardResult,
+  LoadCharactersDashboardResult
 } from "@/features/world/character/application/dashboard/types"
 
 type Dependencies = {
@@ -20,7 +20,7 @@ export async function loadCharactersDashboardUseCase(
     filterType: CharactersDashboardFilterType
     editorBootstrap?: CharacterEditorBootstrapDto | null
     selectedCharacterDetail?: CharacterDetailViewModel | null
-  },
+  }
 ): Promise<LoadCharactersDashboardResult> {
   const rpg = await deps.dashboardRepository.getRpg(params.rpgId)
 
@@ -35,7 +35,7 @@ export async function loadCharactersDashboardUseCase(
   if (params.userId && !isOwner) {
     const membership = await deps.rpgAccessRepository.getMembership(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     isAcceptedMember = membership?.status === "accepted"
     isModerator = isAcceptedMember && membership?.role === "moderator"
@@ -50,14 +50,14 @@ export async function loadCharactersDashboardUseCase(
       rpgId: params.rpgId,
       filterType: params.filterType,
       viewerUserId: params.userId,
-      isOwner,
+      isOwner
     }),
     params.userId
       ? deps.dashboardRepository.countOwnPlayerCharacters(
           params.rpgId,
-          params.userId,
+          params.userId
         )
-      : Promise.resolve(0),
+      : Promise.resolve(0)
   ])
 
   return {
@@ -70,13 +70,13 @@ export async function loadCharactersDashboardUseCase(
       editorBootstrap: params.editorBootstrap ?? null,
       selectedCharacterDetail: params.selectedCharacterDetail ?? null,
       canCreateCharacter: Boolean(
-        params.userId && (isOwner || isAcceptedMember),
+        params.userId && (isOwner || isAcceptedMember)
       ),
       isOwner,
       canManageNpcMonster: isOwner || isModerator,
       isAcceptedMember,
       ownPlayerCount,
-      allowMultiplePlayerCharacters: Boolean(rpg.allowMultiplePlayerCharacters),
-    },
+      allowMultiplePlayerCharacters: Boolean(rpg.allowMultiplePlayerCharacters)
+    }
   }
 }

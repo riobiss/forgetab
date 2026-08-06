@@ -43,17 +43,17 @@ export interface CharacterRepository {
   countPlayersByCreator(rpgId: string, userId: string): Promise<number>
   listAssignablePlayers(
     rpgId: string,
-    allowMultiplePlayerCharacters: boolean,
+    allowMultiplePlayerCharacters: boolean
   ): Promise<AssignablePlayerRow[]>
   isAcceptedMember(rpgId: string, userId: string): Promise<boolean>
   createCharacterOffer(
     rpgId: string,
     characterId: string,
-    userId: string,
+    userId: string
   ): Promise<void>
   create(input: CreateCharacterRowInput): Promise<CharacterRow>
   createWithOffer(
     input: CreateCharacterRowInput,
-    offerUserId: string,
+    offerUserId: string
   ): Promise<CharacterRow>
 }

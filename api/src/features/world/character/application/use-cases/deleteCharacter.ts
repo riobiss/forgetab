@@ -2,7 +2,7 @@ import type { CharacterManagementService } from "@/features/world/character/appl
 
 export async function deleteCharacter(
   deps: { managementService: CharacterManagementService },
-  params: { rpgId: string; characterId: string; userId: string },
+  params: { rpgId: string; characterId: string; userId: string }
 ) {
   await deps.managementService.deleteCharacter(params)
 }

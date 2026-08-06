@@ -5,14 +5,14 @@ import { updateSkill } from "@/features/world/skill/application/use-cases/update
 import {
   parseJsonBody,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { skillRouteDeps } from "./dependencies"
 import { requireUserId, type SkillRouteParams } from "./shared"
 
 export async function getSkillByIdHandler(
   request: FastifyRequest<{ Params: SkillRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -20,7 +20,7 @@ export async function getSkillByIdHandler(
   try {
     const payload = await getSkillById(
       { repository: skillRouteDeps.repository },
-      { skillId: request.params.id, userId: auth.userId },
+      { skillId: request.params.id, userId: auth.userId }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -30,7 +30,7 @@ export async function getSkillByIdHandler(
 
 export async function updateSkillHandler(
   request: FastifyRequest<{ Params: SkillRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -41,8 +41,8 @@ export async function updateSkillHandler(
       {
         skillId: request.params.id,
         userId: auth.userId,
-        body: parseJsonBody(request.body),
-      },
+        body: parseJsonBody(request.body)
+      }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -52,7 +52,7 @@ export async function updateSkillHandler(
 
 export async function deleteSkillHandler(
   request: FastifyRequest<{ Params: SkillRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -60,7 +60,7 @@ export async function deleteSkillHandler(
   try {
     const payload = await deleteSkill(
       { repository: skillRouteDeps.repository },
-      { skillId: request.params.id, userId: auth.userId },
+      { skillId: request.params.id, userId: auth.userId }
     )
     return writeJson(reply, 200, payload)
   } catch (error) {

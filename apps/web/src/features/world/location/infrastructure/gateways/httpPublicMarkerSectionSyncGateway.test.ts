@@ -3,7 +3,7 @@ import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { httpPublicMarkerSectionSyncGateway } from "./httpPublicMarkerSectionSyncGateway"
 
 vi.mock("@/features/http/infrastructure/apiFetch", () => ({
-  apiFetch: vi.fn(),
+  apiFetch: vi.fn()
 }))
 
 const apiFetchMock = vi.mocked(apiFetch)
@@ -15,14 +15,14 @@ describe("httpPublicMarkerSectionSyncGateway", () => {
 
   it("atualiza somente o marcador publico indicado", async () => {
     apiFetchMock.mockResolvedValue(
-      new Response(JSON.stringify({ markerId: "marker/1" }), { status: 200 }),
+      new Response(JSON.stringify({ markerId: "marker/1" }), { status: 200 })
     )
     const update = {
       name: "Cidade",
       location: "Norte",
       shortDescription: null,
       image: null,
-      color: "#fff",
+      color: "#fff"
     }
 
     await httpPublicMarkerSectionSyncGateway.update({
@@ -30,7 +30,7 @@ describe("httpPublicMarkerSectionSyncGateway", () => {
       mapId: "map-1",
       groupId: "group/1",
       markerId: "marker/1",
-      update,
+      update
     })
 
     expect(apiFetchMock).toHaveBeenCalledWith(
@@ -38,8 +38,8 @@ describe("httpPublicMarkerSectionSyncGateway", () => {
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(update),
-      },
+        body: JSON.stringify(update)
+      }
     )
   })
 })

@@ -1,4 +1,4 @@
 export {
   parseCustomFieldList,
-  parseNamedDescriptionList,
+  parseNamedDescriptionList
 } from "@/shared/items/itemFieldParsers"

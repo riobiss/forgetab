@@ -3,21 +3,21 @@ import type { UpsertRpgMapPayloadDto } from "@forgetab/world-contracts/location"
 
 export function loadRpgMapsUseCase(
   gateway: RpgMapsGateway,
-  params: { rpgId: string },
+  params: { rpgId: string }
 ) {
   return gateway.fetchMaps(params.rpgId)
 }
 
 export function loadRpgMapDetailUseCase(
   gateway: RpgMapsGateway,
-  params: { rpgId: string; mapId: string },
+  params: { rpgId: string; mapId: string }
 ) {
   return gateway.fetchMap(params.rpgId, params.mapId)
 }
 
 export function createRpgMapUseCase(
   gateway: RpgMapsGateway,
-  params: { rpgId: string; payload: UpsertRpgMapPayloadDto },
+  params: { rpgId: string; payload: UpsertRpgMapPayloadDto }
 ) {
   return gateway.createMap(params.rpgId, params.payload)
 }
@@ -28,14 +28,14 @@ export function updateRpgMapUseCase(
     rpgId: string
     mapId: string
     payload: UpsertRpgMapPayloadDto
-  },
+  }
 ) {
   return gateway.updateMap(params.rpgId, params.mapId, params.payload)
 }
 
 export function deleteRpgMapUseCase(
   gateway: RpgMapsGateway,
-  params: { rpgId: string; mapId: string },
+  params: { rpgId: string; mapId: string }
 ) {
   return gateway.deleteMap(params.rpgId, params.mapId)
 }

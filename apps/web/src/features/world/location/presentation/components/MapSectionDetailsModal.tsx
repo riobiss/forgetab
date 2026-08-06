@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Pencil, X } from "lucide-react"
 import type { RefObject } from "react"
 import type {
   RpgMapBreadcrumbDto,
-  RpgMapSectionDto,
+  RpgMapSectionDto
 } from "@forgetab/world-contracts/location"
 import styles from "../RpgMapPage.module.css"
 
@@ -54,13 +54,13 @@ export function MapSectionDetailsModal({
   onOpenBreadcrumb,
   onGoToMap,
   onEdit,
-  onClose,
+  onClose
 }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false)
   const [lightboxHost, setLightboxHost] = useState<HTMLElement | null>(null)
   const [lightboxElement, setLightboxElement] = useState<HTMLElement | null>(
-    null,
+    null
   )
 
   useEffect(() => {
@@ -96,7 +96,7 @@ export function MapSectionDetailsModal({
 
         if (typeof target.webkitRequestFullscreen === "function") {
           void Promise.resolve(target.webkitRequestFullscreen()).catch(
-            () => undefined,
+            () => undefined
           )
         }
       } catch {
@@ -123,14 +123,14 @@ export function MapSectionDetailsModal({
     document.addEventListener("fullscreenchange", handleFullscreenChange)
     document.addEventListener(
       "webkitfullscreenchange",
-      handleFullscreenChange as EventListener,
+      handleFullscreenChange as EventListener
     )
 
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange)
       document.removeEventListener(
         "webkitfullscreenchange",
-        handleFullscreenChange as EventListener,
+        handleFullscreenChange as EventListener
       )
     }
   }, [isImageViewerOpen])
@@ -145,7 +145,7 @@ export function MapSectionDetailsModal({
   function showPreviousImage() {
     if (images.length === 0) return
     setCurrentImageIndex(
-      (current) => (current - 1 + images.length) % images.length,
+      (current) => (current - 1 + images.length) % images.length
     )
   }
 
@@ -241,7 +241,7 @@ export function MapSectionDetailsModal({
               </button>
             ) : null}
           </div>,
-          lightboxHost,
+          lightboxHost
         )
       : null
 

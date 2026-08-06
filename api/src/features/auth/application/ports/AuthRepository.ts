@@ -1,6 +1,6 @@
 import type {
   AuthUser,
-  AuthUserSummary,
+  AuthUserSummary
 } from "@/features/auth/application/types"
 
 export type CreateAuthUserInput = {

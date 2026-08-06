@@ -22,7 +22,7 @@ const FOCUSABLE_SELECTORS = [
   "textarea:not([disabled])",
   "select:not([disabled])",
   "[role='combobox']:not([aria-disabled='true'])",
-  "[tabindex]:not([tabindex='-1'])",
+  "[tabindex]:not([tabindex='-1'])"
 ].join(", ")
 
 function resolveModalElement(source: ModalElementSource) {
@@ -36,8 +36,8 @@ function isAllowedPortalTarget(target: EventTarget | null) {
     target instanceof HTMLElement &&
     Boolean(
       target.closest("[data-modal-portal-allow='true']") ||
-        target.closest("[data-radix-popper-content-wrapper]") ||
-        target.closest('[role="listbox"]'),
+      target.closest("[data-radix-popper-content-wrapper]") ||
+      target.closest('[role="listbox"]')
     )
   )
 }
@@ -47,7 +47,7 @@ export function useModalFocusTrap({
   activeElement,
   backgroundElement,
   onEscape,
-  restoreFocus = true,
+  restoreFocus = true
 }: Params) {
   const onEscapeRef = useRef(onEscape)
 
@@ -85,11 +85,11 @@ export function useModalFocusTrap({
 
     const getFocusableElements = () =>
       Array.from(
-        modalElement.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS),
+        modalElement.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS)
       ).filter(
         (element) =>
           !element.hasAttribute("disabled") &&
-          element.getAttribute("aria-hidden") !== "true",
+          element.getAttribute("aria-hidden") !== "true"
       )
 
     queueMicrotask(() => {
@@ -165,11 +165,11 @@ export function useModalFocusTrap({
     document.addEventListener("pointerdown", blockBackgroundInteraction, true)
     document.addEventListener("touchmove", blockBackgroundInteraction, {
       capture: true,
-      passive: false,
+      passive: false
     })
     document.addEventListener("wheel", blockBackgroundInteraction, {
       capture: true,
-      passive: false,
+      passive: false
     })
 
     return () => {
@@ -192,17 +192,16 @@ export function useModalFocusTrap({
       document.removeEventListener(
         "pointerdown",
         blockBackgroundInteraction,
-        true,
+        true
       )
-      document.removeEventListener("touchmove", blockBackgroundInteraction, true)
+      document.removeEventListener(
+        "touchmove",
+        blockBackgroundInteraction,
+        true
+      )
       document.removeEventListener("wheel", blockBackgroundInteraction, true)
 
       if (restoreFocus) previouslyFocusedElement?.focus()
     }
-  }, [
-    activeElement,
-    backgroundElement,
-    isActive,
-    restoreFocus,
-  ])
+  }, [activeElement, backgroundElement, isActive, restoreFocus])
 }

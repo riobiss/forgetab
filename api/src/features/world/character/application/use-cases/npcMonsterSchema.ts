@@ -1,7 +1,7 @@
 import type {
   CharacterEditorSummaryDto,
   UpdateCharacterPayloadDto,
-  UpsertCharacterPayloadDto,
+  UpsertCharacterPayloadDto
 } from "@forgetab/world-contracts/character-editor"
 
 const NPC_MONSTER_NAME_KEYS = new Set(["nome", "name"])
@@ -12,13 +12,13 @@ const NPC_MONSTER_LEGACY_TITLE_KEY = "titulo-apelido"
 export const NPC_MONSTER_IDENTITY_KEYS = {
   titleNickname: "alcunha",
   raceLabel: "raca-livre",
-  classLabel: "classe-livre",
+  classLabel: "classe-livre"
 } as const
 
 export const NPC_MONSTER_CHARACTERISTIC_KEYS = {
   description: "descricao",
   narrativeStatus: "status-narrativo",
-  secretFields: "campos-secretos",
+  secretFields: "campos-secretos"
 } as const
 
 export const NPC_MONSTER_RESERVED_CHARACTERISTIC_KEYS = new Set([
@@ -26,14 +26,11 @@ export const NPC_MONSTER_RESERVED_CHARACTERISTIC_KEYS = new Set([
   "descricao-curta",
   "description",
   NPC_MONSTER_CHARACTERISTIC_KEYS.narrativeStatus,
-  NPC_MONSTER_CHARACTERISTIC_KEYS.secretFields,
+  NPC_MONSTER_CHARACTERISTIC_KEYS.secretFields
 ])
 
 export type NpcMonsterNarrativeStatus =
-  | "vivo"
-  | "morto"
-  | "desaparecido"
-  | "secreto"
+  "vivo" | "morto" | "desaparecido" | "secreto"
 export type NpcMonsterSecretFieldKey =
   | "name"
   | "titleNickname"
@@ -75,14 +72,14 @@ export type NpcMonsterBonusDraftDto = {
 function isTitleLikeField(key: string) {
   const normalized = key.trim().toLowerCase()
   return NPC_MONSTER_TITLE_MATCHERS.some((matcher) =>
-    normalized.includes(matcher),
+    normalized.includes(matcher)
   )
 }
 
 function isDescriptionLikeField(key: string) {
   const normalized = key.trim().toLowerCase()
   return NPC_MONSTER_DESCRIPTION_MATCHERS.some((matcher) =>
-    normalized.includes(matcher),
+    normalized.includes(matcher)
   )
 }
 
@@ -98,7 +95,7 @@ function normalizeStringRecord(source: Record<string, unknown> | undefined) {
       }
       return acc
     },
-    {},
+    {}
   )
 }
 
@@ -115,15 +112,15 @@ function normalizeExtraFields(extraFields: NpcMonsterExtraFieldDto[]) {
 }
 
 function normalizeSecretFieldKeys(
-  values: NpcMonsterSecretFieldKey[],
+  values: NpcMonsterSecretFieldKey[]
 ): NpcMonsterSecretFieldKey[] {
   return Array.from(
-    new Set(values.map((value) => value.trim()).filter(Boolean)),
+    new Set(values.map((value) => value.trim()).filter(Boolean))
   ) as NpcMonsterSecretFieldKey[]
 }
 
 export function getNpcMonsterSecretFieldKeys(
-  characteristics: Record<string, string> | undefined,
+  characteristics: Record<string, string> | undefined
 ): NpcMonsterSecretFieldKey[] {
   const rawValue =
     normalizeStringRecord(characteristics)[
@@ -141,8 +138,8 @@ export function getNpcMonsterSecretFieldKeys(
 
     return normalizeSecretFieldKeys(
       parsed.filter(
-        (item): item is string => typeof item === "string",
-      ) as NpcMonsterSecretFieldKey[],
+        (item): item is string => typeof item === "string"
+      ) as NpcMonsterSecretFieldKey[]
     )
   } catch {
     return []
@@ -160,7 +157,7 @@ function resolveNpcMonsterName(character: CharacterEditorSummaryDto | null) {
 }
 
 export function getNpcMonsterTitleNickname(
-  identity: Record<string, string> | undefined,
+  identity: Record<string, string> | undefined
 ) {
   const normalizedIdentity = normalizeStringRecord(identity)
   return (
@@ -173,7 +170,7 @@ export function getNpcMonsterTitleNickname(
 }
 
 export function getNpcMonsterDescription(
-  characteristics: Record<string, string> | undefined,
+  characteristics: Record<string, string> | undefined
 ) {
   const normalizedCharacteristics = normalizeStringRecord(characteristics)
   return (
@@ -187,7 +184,7 @@ export function getNpcMonsterDescription(
 }
 
 export function getNpcMonsterNarrativeStatus(
-  characteristics: Record<string, string> | undefined,
+  characteristics: Record<string, string> | undefined
 ): NpcMonsterNarrativeStatus {
   const normalizedCharacteristics = normalizeStringRecord(characteristics)
   const value = normalizedCharacteristics[
@@ -203,7 +200,7 @@ export function getNpcMonsterNarrativeStatus(
 
 export function getNpcMonsterRaceLabel(
   identity: Record<string, string> | undefined,
-  fallback?: string | null,
+  fallback?: string | null
 ) {
   const normalizedIdentity = normalizeStringRecord(identity)
   return (
@@ -215,7 +212,7 @@ export function getNpcMonsterRaceLabel(
 
 export function getNpcMonsterClassLabel(
   identity: Record<string, string> | undefined,
-  fallback?: string | null,
+  fallback?: string | null
 ) {
   const normalizedIdentity = normalizeStringRecord(identity)
   return (
@@ -226,18 +223,18 @@ export function getNpcMonsterClassLabel(
 }
 
 export function listNpcMonsterExtraFields(
-  characteristics: Record<string, string> | undefined,
+  characteristics: Record<string, string> | undefined
 ): NpcMonsterExtraFieldDto[] {
   return Object.entries(normalizeStringRecord(characteristics))
     .filter(([key]) => !NPC_MONSTER_RESERVED_CHARACTERISTIC_KEYS.has(key))
     .map(([key, value]) => ({
       key,
-      value,
+      value
     }))
 }
 
 export function readNpcMonsterBasicDraft(
-  character: CharacterEditorSummaryDto | null,
+  character: CharacterEditorSummaryDto | null
 ): NpcMonsterBasicDraftDto {
   return {
     name: resolveNpcMonsterName(character),
@@ -249,16 +246,16 @@ export function readNpcMonsterBasicDraft(
     raceLabel: getNpcMonsterRaceLabel(character?.identity, character?.raceKey),
     classLabel: getNpcMonsterClassLabel(
       character?.identity,
-      character?.classKey,
+      character?.classKey
     ),
     image: character?.image ?? "",
-    extraFields: listNpcMonsterExtraFields(character?.characteristics),
+    extraFields: listNpcMonsterExtraFields(character?.characteristics)
   }
 }
 
 export function normalizeNpcMonsterNumericValues(
   values: Record<string, NpcMonsterNumericInputValue>,
-  min = 0,
+  min = 0
 ) {
   return Object.entries(values).reduce<Record<string, number>>(
     (acc, [key, value]) => {
@@ -270,13 +267,13 @@ export function normalizeNpcMonsterNumericValues(
       acc[key] = Math.max(min, Math.floor(value))
       return acc
     },
-    {},
+    {}
   )
 }
 
 function resolveNpcMonsterSections(
   currentCharacter: CharacterEditorSummaryDto | null,
-  basic: NpcMonsterBasicDraftDto,
+  basic: NpcMonsterBasicDraftDto
 ) {
   const resolvedName = basic.name.trim()
   const resolvedTitle = basic.titleNickname.trim()
@@ -287,7 +284,7 @@ function resolveNpcMonsterSections(
     nome: resolvedName,
     [NPC_MONSTER_IDENTITY_KEYS.titleNickname]: resolvedTitle,
     [NPC_MONSTER_IDENTITY_KEYS.raceLabel]: basic.raceLabel.trim(),
-    [NPC_MONSTER_IDENTITY_KEYS.classLabel]: basic.classLabel.trim(),
+    [NPC_MONSTER_IDENTITY_KEYS.classLabel]: basic.classLabel.trim()
   } as Record<string, string>
 
   Object.keys(identity).forEach((key) => {
@@ -321,9 +318,9 @@ function resolveNpcMonsterSections(
     [NPC_MONSTER_CHARACTERISTIC_KEYS.description]: resolvedDescription,
     [NPC_MONSTER_CHARACTERISTIC_KEYS.narrativeStatus]: basic.narrativeStatus,
     [NPC_MONSTER_CHARACTERISTIC_KEYS.secretFields]: JSON.stringify(
-      normalizedSecretFieldKeys,
+      normalizedSecretFieldKeys
     ),
-    ...customCharacteristics,
+    ...customCharacteristics
   } as Record<string, string>
 
   Object.keys(characteristics).forEach((key) => {
@@ -354,7 +351,7 @@ function resolveNpcMonsterSections(
   return {
     resolvedName,
     identity,
-    characteristics,
+    characteristics
   }
 }
 
@@ -366,7 +363,7 @@ export function buildNpcMonsterCreatePayload(params: {
 }): UpsertCharacterPayloadDto {
   const sections = resolveNpcMonsterSections(
     params.currentCharacter,
-    params.basic,
+    params.basic
   )
 
   return {
@@ -380,7 +377,7 @@ export function buildNpcMonsterCreatePayload(params: {
     attributes: normalizeNpcMonsterNumericValues(params.bonus.attributeValues),
     skills: normalizeNpcMonsterNumericValues(params.bonus.skillValues),
     identity: sections.identity,
-    characteristics: sections.characteristics,
+    characteristics: sections.characteristics
   }
 }
 
@@ -390,7 +387,7 @@ export function buildNpcMonsterBasicUpdatePayload(params: {
 }): UpdateCharacterPayloadDto {
   const sections = resolveNpcMonsterSections(
     params.currentCharacter,
-    params.basic,
+    params.basic
   )
 
   return {
@@ -398,16 +395,16 @@ export function buildNpcMonsterBasicUpdatePayload(params: {
     image: params.basic.image.trim() ? params.basic.image.trim() : null,
     visibility: params.basic.visibility,
     identity: sections.identity,
-    characteristics: sections.characteristics,
+    characteristics: sections.characteristics
   }
 }
 
 export function buildNpcMonsterBonusUpdatePayload(
-  bonus: NpcMonsterBonusDraftDto,
+  bonus: NpcMonsterBonusDraftDto
 ): UpdateCharacterPayloadDto {
   return {
     statuses: normalizeNpcMonsterNumericValues(bonus.statusValues),
     attributes: normalizeNpcMonsterNumericValues(bonus.attributeValues),
-    skills: normalizeNpcMonsterNumericValues(bonus.skillValues),
+    skills: normalizeNpcMonsterNumericValues(bonus.skillValues)
   }
 }

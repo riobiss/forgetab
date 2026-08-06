@@ -8,7 +8,7 @@ import {
   useContext,
   useMemo,
   useState,
-  version,
+  version
 } from "react"
 import {
   useFloating,
@@ -26,7 +26,7 @@ import {
   type Placement,
   type UseFloatingReturn,
   type ReferenceType,
-  FloatingDelayGroup,
+  FloatingDelayGroup
 } from "@floating-ui/react"
 import "@/components/tiptap-ui-primitive/tooltip/tooltip.scss"
 
@@ -42,14 +42,18 @@ interface TooltipProviderProps {
   useDelayGroup?: boolean
 }
 
-interface TooltipTriggerProps
-  extends Omit<React.HTMLProps<HTMLElement>, "ref"> {
+interface TooltipTriggerProps extends Omit<
+  React.HTMLProps<HTMLElement>,
+  "ref"
+> {
   asChild?: boolean
   children: React.ReactNode
 }
 
-interface TooltipContentProps
-  extends Omit<React.HTMLProps<HTMLDivElement>, "ref"> {
+interface TooltipContentProps extends Omit<
+  React.HTMLProps<HTMLDivElement>,
+  "ref"
+> {
   children?: React.ReactNode
   portal?: boolean
   portalProps?: Omit<React.ComponentProps<typeof FloatingPortal>, "children">
@@ -72,7 +76,7 @@ function useTooltip({
   open: controlledOpen,
   onOpenChange: setControlledOpen,
   delay = 600,
-  closeDelay = 0,
+  closeDelay = 0
 }: Omit<TooltipProviderProps, "children"> = {}) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState<boolean>(initialOpen)
 
@@ -89,10 +93,10 @@ function useTooltip({
       flip({
         crossAxis: placement.includes("-"),
         fallbackAxisSideDirection: "start",
-        padding: 4,
+        padding: 4
       }),
-      shift({ padding: 4 }),
-    ],
+      shift({ padding: 4 })
+    ]
   })
 
   const context = data.context
@@ -103,11 +107,11 @@ function useTooltip({
     restMs: delay,
     enabled: controlledOpen == null,
     delay: {
-      close: closeDelay,
-    },
+      close: closeDelay
+    }
   })
   const focus = useFocus(context, {
-    enabled: controlledOpen == null,
+    enabled: controlledOpen == null
   })
   const dismiss = useDismiss(context)
   const role = useRole(context, { role: "tooltip" })
@@ -119,7 +123,7 @@ function useTooltip({
       open,
       setOpen,
       ...interactions,
-      ...data,
+      ...data
     }),
     [open, setOpen, interactions, data]
   )
@@ -174,7 +178,7 @@ export const TooltipTrigger = forwardRef<HTMLElement, TooltipTriggerProps>(
 
     if (asChild && isValidElement(children)) {
       const dataAttributes = {
-        "data-tooltip-state": context.open ? "open" : "closed",
+        "data-tooltip-state": context.open ? "open" : "closed"
       }
 
       return cloneElement(
@@ -183,7 +187,7 @@ export const TooltipTrigger = forwardRef<HTMLElement, TooltipTriggerProps>(
           ref,
           ...props,
           ...(typeof children.props === "object" ? children.props : {}),
-          ...dataAttributes,
+          ...dataAttributes
         })
       )
     }
@@ -215,7 +219,7 @@ export const TooltipContent = forwardRef<HTMLDivElement, TooltipContentProps>(
         ref={ref}
         style={{
           ...context.floatingStyles,
-          ...style,
+          ...style
         }}
         {...context.getFloatingProps(props)}
         className="tiptap-tooltip"

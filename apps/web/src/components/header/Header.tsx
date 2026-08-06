@@ -31,7 +31,7 @@ export default function Header() {
     ...(routeRpgId
       ? [{ href: `/rpg/${routeRpgId}/skills`, label: "Habilidades" }]
       : []),
-    { href: "/docs", label: "Guias" },
+    { href: "/docs", label: "Guias" }
   ]
 
   useEffect(() => {

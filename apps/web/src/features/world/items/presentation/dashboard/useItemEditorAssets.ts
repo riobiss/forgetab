@@ -51,7 +51,7 @@ export function useItemEditorAssets() {
       setUploadError("")
       options?.clearErrors?.()
     },
-    [],
+    []
   )
 
   const handleRemoveImage = useCallback(
@@ -67,14 +67,11 @@ export function useItemEditorAssets() {
       setUploadError("")
       options?.clearErrors?.()
     },
-    [],
+    []
   )
 
   const addCustomField = useCallback(
-    (options: {
-      onMissingName: () => void
-      onAdded?: () => void
-    }) => {
+    (options: { onMissingName: () => void; onAdded?: () => void }) => {
       const trimmedName = newCustomFieldName.trim()
       if (!trimmedName) {
         options.onMissingName()
@@ -86,15 +83,15 @@ export function useItemEditorAssets() {
         {
           id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
           name: trimmedName,
-          value: newCustomFieldValue,
-        },
+          value: newCustomFieldValue
+        }
       ])
       setNewCustomFieldName("")
       setNewCustomFieldValue("")
       setCustomFieldModalOpen(false)
       options.onAdded?.()
     },
-    [newCustomFieldName, newCustomFieldValue],
+    [newCustomFieldName, newCustomFieldValue]
   )
 
   return {
@@ -119,6 +116,6 @@ export function useItemEditorAssets() {
     resetItemEditorAssets,
     handleImageUpload,
     handleRemoveImage,
-    addCustomField,
+    addCustomField
   }
 }

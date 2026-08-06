@@ -4,7 +4,7 @@ export type {
   NpcMonsterExtraFieldDto,
   NpcMonsterNarrativeStatus,
   NpcMonsterNumericInputValue,
-  NpcMonsterSecretFieldKey,
+  NpcMonsterSecretFieldKey
 } from "@/features/world/character/application/use-cases/npcMonsterSchema"
 export {
   NPC_MONSTER_CHARACTERISTIC_KEYS,
@@ -21,5 +21,5 @@ export {
   getNpcMonsterTitleNickname,
   listNpcMonsterExtraFields,
   normalizeNpcMonsterNumericValues,
-  readNpcMonsterBasicDraft,
+  readNpcMonsterBasicDraft
 } from "@/features/world/character/application/use-cases/npcMonsterSchema"

@@ -4,21 +4,21 @@ import {
   deleteLibrarySection,
   getLibrarySection,
   listLibrarySections,
-  updateLibrarySection,
+  updateLibrarySection
 } from "@/features/world/library/application/use-cases/librarySections"
 import { listLibrarySectionBooks } from "@/features/world/library/application/use-cases/libraryBooks"
 import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { libraryRouteDeps } from "./dependencies"
 import type { RpgRouteParams, SectionRouteParams } from "./routeTypes"
 
 export async function listLibrarySectionsHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -26,7 +26,7 @@ export async function listLibrarySectionsHandler(
   try {
     const payload = await listLibrarySections(libraryRouteDeps, {
       rpgId: request.params.rpgId,
-      userId: auth.userId,
+      userId: auth.userId
     })
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -36,7 +36,7 @@ export async function listLibrarySectionsHandler(
 
 export async function createLibrarySectionHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -46,7 +46,7 @@ export async function createLibrarySectionHandler(
     const payload = await createLibrarySection(libraryRouteDeps, {
       rpgId: request.params.rpgId,
       userId: auth.userId,
-      body,
+      body
     })
     return writeJson(reply, 201, payload)
   } catch (error) {
@@ -56,7 +56,7 @@ export async function createLibrarySectionHandler(
 
 export async function getLibrarySectionHandler(
   request: FastifyRequest<{ Params: SectionRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -65,7 +65,7 @@ export async function getLibrarySectionHandler(
     const payload = await getLibrarySection(libraryRouteDeps, {
       rpgId: request.params.rpgId,
       sectionId: request.params.sectionId,
-      userId: auth.userId,
+      userId: auth.userId
     })
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -75,7 +75,7 @@ export async function getLibrarySectionHandler(
 
 export async function updateLibrarySectionHandler(
   request: FastifyRequest<{ Params: SectionRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -86,7 +86,7 @@ export async function updateLibrarySectionHandler(
       rpgId: request.params.rpgId,
       sectionId: request.params.sectionId,
       userId: auth.userId,
-      body,
+      body
     })
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -96,7 +96,7 @@ export async function updateLibrarySectionHandler(
 
 export async function deleteLibrarySectionHandler(
   request: FastifyRequest<{ Params: SectionRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -105,7 +105,7 @@ export async function deleteLibrarySectionHandler(
     const payload = await deleteLibrarySection(libraryRouteDeps, {
       rpgId: request.params.rpgId,
       sectionId: request.params.sectionId,
-      userId: auth.userId,
+      userId: auth.userId
     })
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -115,7 +115,7 @@ export async function deleteLibrarySectionHandler(
 
 export async function listLibrarySectionBooksHandler(
   request: FastifyRequest<{ Params: SectionRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -124,7 +124,7 @@ export async function listLibrarySectionBooksHandler(
     const payload = await listLibrarySectionBooks(libraryRouteDeps, {
       rpgId: request.params.rpgId,
       sectionId: request.params.sectionId,
-      userId: auth.userId,
+      userId: auth.userId
     })
     return writeJson(reply, 200, payload)
   } catch (error) {

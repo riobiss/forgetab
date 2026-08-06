@@ -22,20 +22,20 @@ function createRepositoryMock(): RepositoryMock {
     listClassPlayers: vi.fn().mockResolvedValue([]),
     listRacePlayers: vi.fn().mockResolvedValue([]),
     getClassPurchaseState: vi.fn(),
-    getRacePurchaseState: vi.fn(),
+    getRacePurchaseState: vi.fn()
   }
 }
 
 function createDependencies(
   repository: RepositoryMock,
-  accessService: EntityCatalogDetailAccessService,
+  accessService: EntityCatalogDetailAccessService
 ) {
   return {
     repository,
     abilityRepository: repository,
     playerRepository: repository,
     purchaseRepository: repository,
-    accessService,
+    accessService
   }
 }
 
@@ -43,8 +43,8 @@ function createAccessServiceMock(): EntityCatalogDetailAccessService {
   return {
     getAccess: vi.fn().mockResolvedValue({
       canManage: false,
-      isAcceptedMember: false,
-    }),
+      isAcceptedMember: false
+    })
   }
 }
 
@@ -61,8 +61,8 @@ describe("loadEntityCatalogDetailUseCase", () => {
         rpgId: "rpg-1",
         classId: "class-1",
         userId: "user-1",
-        entityType: "class",
-      },
+        entityType: "class"
+      }
     )
 
     expect(result).toBeNull()
@@ -89,14 +89,14 @@ describe("loadEntityCatalogDetailUseCase", () => {
         skillBonuses: {},
         catalogMeta: {
           shortDescription: null,
-          richText: { description: { type: "doc", content: [] } },
-        },
-      },
+          richText: { description: { type: "doc", content: [] } }
+        }
+      }
     })
 
     const result = await loadEntityCatalogDetailUseCase(
       createDependencies(repository, accessService),
-      { rpgId: "rpg-1", raceKey: "elf", userId: "user-2", entityType: "race" },
+      { rpgId: "rpg-1", raceKey: "elf", userId: "user-2", entityType: "race" }
     )
 
     expect(result).toBeNull()
@@ -123,19 +123,19 @@ describe("loadEntityCatalogDetailUseCase", () => {
         skillBonuses: { magia: 3 },
         catalogMeta: {
           shortDescription: "Mestra do mana",
-          richText: { description: { type: "doc", content: [] } },
-        },
-      },
+          richText: { description: { type: "doc", content: [] } }
+        }
+      }
     })
     vi.mocked(accessService.getAccess).mockResolvedValue({
       canManage: true,
-      isAcceptedMember: true,
+      isAcceptedMember: true
     })
     vi.mocked(repository.listAttributeTemplates).mockResolvedValue([
-      { key: "int", label: "Intelecto" },
+      { key: "int", label: "Intelecto" }
     ])
     vi.mocked(repository.listSkillTemplates).mockResolvedValue([
-      { key: "magia", label: "Magia" },
+      { key: "magia", label: "Magia" }
     ])
     vi.mocked(repository.listClassAbilities).mockResolvedValue([
       {
@@ -146,8 +146,8 @@ describe("loadEntityCatalogDetailUseCase", () => {
         skillType: null,
         skillActionType: null,
         skillTags: [],
-        levels: [],
-      },
+        levels: []
+      }
     ])
     vi.mocked(repository.listClassPlayers).mockResolvedValue([
       {
@@ -155,15 +155,15 @@ describe("loadEntityCatalogDetailUseCase", () => {
         name: "Ayla",
         image: null,
         classKey: "mage",
-        raceKey: "human",
-      },
+        raceKey: "human"
+      }
     ])
     vi.mocked(repository.getClassPurchaseState).mockResolvedValue({
       characterId: "char-1",
       costsEnabled: true,
       costResourceName: "Pontos",
       initialPoints: 7,
-      initialOwnedBySkill: { "skill-1": [1] },
+      initialOwnedBySkill: { "skill-1": [1] }
     })
 
     const result = await loadEntityCatalogDetailUseCase(
@@ -172,15 +172,15 @@ describe("loadEntityCatalogDetailUseCase", () => {
         rpgId: "rpg-1",
         classId: "class-1",
         userId: "owner-1",
-        entityType: "class",
-      },
+        entityType: "class"
+      }
     )
 
     expect(result).not.toBeNull()
     expect(result?.canManage).toBe(true)
     expect(result?.current.label).toBe("Maga")
     expect(result?.attributeTemplates).toEqual([
-      { key: "int", label: "Intelecto" },
+      { key: "int", label: "Intelecto" }
     ])
     expect(result?.abilityPurchase.characterId).toBe("char-1")
     expect(repository.listClassPlayers).toHaveBeenCalledWith({
@@ -188,7 +188,7 @@ describe("loadEntityCatalogDetailUseCase", () => {
       classKey: "mage",
       classId: "class-1",
       userId: "owner-1",
-      isOwner: true,
+      isOwner: true
     })
   })
 
@@ -213,17 +213,17 @@ describe("loadEntityCatalogDetailUseCase", () => {
         skillBonuses: {},
         catalogMeta: {
           shortDescription: "Antigos",
-          richText: { description: { type: "doc", content: [] } },
+          richText: { description: { type: "doc", content: [] } }
         },
-        lore: { summary: "Lore" },
-      },
+        lore: { summary: "Lore" }
+      }
     })
     vi.mocked(repository.listRaceAbilities).mockResolvedValue([])
     vi.mocked(repository.listRacePlayers).mockResolvedValue([])
 
     const result = await loadEntityCatalogDetailUseCase(
       createDependencies(repository, accessService),
-      { rpgId: "rpg-1", raceKey: "elf", userId: null, entityType: "race" },
+      { rpgId: "rpg-1", raceKey: "elf", userId: null, entityType: "race" }
     )
 
     expect(result).not.toBeNull()
@@ -234,7 +234,7 @@ describe("loadEntityCatalogDetailUseCase", () => {
       costsEnabled: false,
       costResourceName: "Skill Points",
       initialPoints: 0,
-      initialOwnedBySkill: {},
+      initialOwnedBySkill: {}
     })
     expect(repository.getRacePurchaseState).not.toHaveBeenCalled()
   })

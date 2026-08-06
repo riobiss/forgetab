@@ -6,7 +6,7 @@ describe("parseDicesStorageState", () => {
     expect(parseDicesStorageState(null)).toBeNull()
     expect(parseDicesStorageState("{invalid")).toBeNull()
     expect(
-      parseDicesStorageState(JSON.stringify({ diceCount: "1" })),
+      parseDicesStorageState(JSON.stringify({ diceCount: "1" }))
     ).toBeNull()
   })
 
@@ -16,8 +16,8 @@ describe("parseDicesStorageState", () => {
         diceCount: "2",
         diceSides: "20",
         customSides: [1, 4, 1001, 12, "20"],
-        history: [{ id: "roll-1" }],
-      }),
+        history: [{ id: "roll-1" }]
+      })
     )
 
     expect(result).toEqual({
@@ -25,7 +25,7 @@ describe("parseDicesStorageState", () => {
       diceSides: "20",
       modifier: "0",
       customSides: [4, 12],
-      history: [{ id: "roll-1" }],
+      history: [{ id: "roll-1" }]
     })
   })
 })

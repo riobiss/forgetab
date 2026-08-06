@@ -9,8 +9,8 @@ describe("toRpgMembershipRepositoryError", () => {
     ['relation "rpg_members" does not exist', "members_schema_missing"],
     [
       'relation "rpg_character_creation_requests" does not exist',
-      "character_requests_schema_missing",
-    ],
+      "character_requests_schema_missing"
+    ]
   ] as const)("traduz %s para %s", (message, code) => {
     const source = new Error(message)
     const result = toRpgMembershipRepositoryError(source)
@@ -28,7 +28,7 @@ describe("toRpgMembershipRepositoryError", () => {
 
   it("classifica falhas inesperadas como unknown", () => {
     expect(
-      toRpgMembershipRepositoryError(new Error("connection refused")).code,
+      toRpgMembershipRepositoryError(new Error("connection refused")).code
     ).toBe("unknown")
   })
 })

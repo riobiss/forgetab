@@ -1,4 +1,4 @@
 export {
   parseCharacterAbilities,
-  parseCostPoints,
+  parseCostPoints
 } from "@/features/world/character/application/abilities/rules/characterAbilityRules"

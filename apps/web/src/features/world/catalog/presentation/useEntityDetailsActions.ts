@@ -5,7 +5,6 @@ import type { EntityCatalogTemplateRecord } from "@/features/world/catalog/appli
 import { updateEntityCatalogTemplateUseCase } from "@/features/world/catalog/application/use-cases/entityCatalogClient"
 import { entityCatalogDependencies } from "@/features/world/catalog/presentation/dependencies"
 
-
 type Params = {
   rpgId: string
   entityType: CatalogEntityType
@@ -15,18 +14,18 @@ type Params = {
 export function useEntityDetailsActions({
   rpgId,
   entityType,
-  templateKey,
+  templateKey
 }: Params) {
   async function saveTemplate(nextTemplate: EntityCatalogTemplateRecord) {
     await updateEntityCatalogTemplateUseCase(entityCatalogDependencies, {
       rpgId,
       entityType,
       templateKey,
-      nextTemplate,
+      nextTemplate
     })
   }
 
   return {
-    saveTemplate,
+    saveTemplate
   }
 }

@@ -8,14 +8,14 @@ import type { RpgEditorDependencies } from "@/features/world/application/editor/
 import {
   createRpgUseCase,
   deleteRpgImageByUrlUseCase,
-  uploadRpgImageUseCase,
+  uploadRpgImageUseCase
 } from "@/features/world/application/editor/use-cases/rpgEditor"
 import styles from "./NewRpgForm.module.css"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
 import {
   getDefaultProgressionTiers,
   getProgressionModeLabel,
-  type ProgressionMode,
+  type ProgressionMode
 } from "@/lib/rpg/progression"
 import { dismissToast } from "@/lib/toast"
 
@@ -30,7 +30,7 @@ export default function NewRpgForm({
   deps,
   presentation = "standalone",
   onCancel,
-  onCompleted,
+  onCompleted
 }: Props) {
   const router = useRouter()
   const [title, setTitle] = useState("")
@@ -81,7 +81,7 @@ export default function NewRpgForm({
         setUploadingImage(true)
         try {
           const upload = await uploadRpgImageUseCase(deps, {
-            file: selectedImageFile,
+            file: selectedImageFile
           })
           uploadedImageUrl = upload.url
           hasFreshUpload = true
@@ -111,8 +111,8 @@ export default function NewRpgForm({
           useRaceBonuses,
           useClassBonuses,
           progressionMode,
-          progressionTiers: getDefaultProgressionTiers(progressionMode),
-        },
+          progressionTiers: getDefaultProgressionTiers(progressionMode)
+        }
       })
 
       setSelectedImageFile(null)
@@ -330,7 +330,7 @@ export default function NewRpgForm({
                     >
                       {getProgressionModeLabel(mode)}
                     </button>
-                  ),
+                  )
                 )}
               </div>
               <button

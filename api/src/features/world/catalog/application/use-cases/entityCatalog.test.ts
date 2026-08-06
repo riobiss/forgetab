@@ -5,14 +5,14 @@ import { loadEntityCatalogPageData } from "@/features/world/catalog/application/
 
 function createDependencies() {
   const repository: EntityCatalogRepository = {
-    listItems: vi.fn().mockResolvedValue([]),
+    listItems: vi.fn().mockResolvedValue([])
   }
   const accessService: EntityCatalogPageAccessService = {
     getAccess: vi.fn().mockResolvedValue({
       exists: true,
       canRead: true,
-      canManage: false,
-    }),
+      canManage: false
+    })
   }
   return { repository, accessService }
 }
@@ -23,13 +23,13 @@ describe("loadEntityCatalogPageData", () => {
     vi.mocked(deps.accessService.getAccess).mockResolvedValue({
       exists: true,
       canRead: false,
-      canManage: false,
+      canManage: false
     })
 
     const result = await loadEntityCatalogPageData(deps, {
       rpgId: "rpg-1",
       userId: null,
-      entityType: "race",
+      entityType: "race"
     })
 
     expect(result).toBeNull()
@@ -44,23 +44,23 @@ describe("loadEntityCatalogPageData", () => {
         slug: "guerreiro",
         name: "Guerreiro",
         category: "marcial",
-        meta: { shortDescription: null, richText: {} },
-      },
+        meta: { shortDescription: null, richText: {} }
+      }
     ])
 
     const result = await loadEntityCatalogPageData(deps, {
       rpgId: "rpg-1",
       userId: "user-1",
-      entityType: "class",
+      entityType: "class"
     })
 
     expect(result?.items[0]).toMatchObject({
       href: "/rpg/rpg-1/classes/class-1",
-      entityType: "class",
+      entityType: "class"
     })
     expect(deps.repository.listItems).toHaveBeenCalledWith({
       rpgId: "rpg-1",
-      entityType: "class",
+      entityType: "class"
     })
   })
 })

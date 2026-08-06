@@ -15,7 +15,7 @@ import {
   updateIdentityTemplatesHandler,
   updateRaceTemplatesHandler,
   updateSkillTemplatesHandler,
-  updateStatusTemplatesHandler,
+  updateStatusTemplatesHandler
 } from "@/features/world/presentation/config/handlers"
 
 export function configRoutes(app: FastifyInstance) {
@@ -26,8 +26,8 @@ export function configRoutes(app: FastifyInstance) {
     (request, reply) =>
       getAttributeTemplatesHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -36,8 +36,8 @@ export function configRoutes(app: FastifyInstance) {
     (request, reply) =>
       updateAttributeTemplatesHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -46,8 +46,8 @@ export function configRoutes(app: FastifyInstance) {
     (request, reply) =>
       getStatusTemplatesHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -56,32 +56,32 @@ export function configRoutes(app: FastifyInstance) {
     (request, reply) =>
       updateStatusTemplatesHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId/skills", (request, reply) =>
     getSkillTemplatesHandler(
       request as FastifyRequest<{ Params: { rpgId: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(app, "put", "/api/rpg/:rpgId/skills", (request, reply) =>
     updateSkillTemplatesHandler(
       request as FastifyRequest<{ Params: { rpgId: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(app, "get", "/api/rpg/:rpgId/races", (request, reply) =>
     getRaceTemplatesHandler(
       request as FastifyRequest<{ Params: { rpgId: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(app, "put", "/api/rpg/:rpgId/races", (request, reply) =>
     updateRaceTemplatesHandler(
       request as FastifyRequest<{ Params: { rpgId: string } }>,
-      reply,
-    ),
+      reply
+    )
   )
   registerFastifyRoute(
     app,
@@ -90,8 +90,8 @@ export function configRoutes(app: FastifyInstance) {
     (request, reply) =>
       getClassTemplatesHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -100,8 +100,8 @@ export function configRoutes(app: FastifyInstance) {
     (request, reply) =>
       updateClassTemplatesHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -110,8 +110,8 @@ export function configRoutes(app: FastifyInstance) {
     (request, reply) =>
       getIdentityTemplatesHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -120,8 +120,8 @@ export function configRoutes(app: FastifyInstance) {
     (request, reply) =>
       updateIdentityTemplatesHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -130,8 +130,8 @@ export function configRoutes(app: FastifyInstance) {
     (request, reply) =>
       getCharacteristicTemplatesHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -140,7 +140,7 @@ export function configRoutes(app: FastifyInstance) {
     (request, reply) =>
       updateCharacteristicTemplatesHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
 }

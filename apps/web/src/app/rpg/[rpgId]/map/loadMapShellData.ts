@@ -22,7 +22,7 @@ export async function loadMapShellData(rpgId: string, mapId?: string) {
   } catch {
     return {
       rpgTitle: "RPG",
-      mapTitle: null,
+      mapTitle: null
     }
   }
 
@@ -32,8 +32,8 @@ export async function loadMapShellData(rpgId: string, mapId?: string) {
       const payload = await parseJsonResponse<{ map?: { title: string } }>(
         await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
           next: { revalidate: 0 },
-          cache: "no-store",
-        }),
+          cache: "no-store"
+        })
       )
       map = payload.map ?? null
     } catch {
@@ -43,6 +43,6 @@ export async function loadMapShellData(rpgId: string, mapId?: string) {
 
   return {
     rpgTitle: dashboard.rpg.title,
-    mapTitle: map?.title ?? null,
+    mapTitle: map?.title ?? null
   }
 }

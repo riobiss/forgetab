@@ -17,7 +17,7 @@ import {
   isNodeInSchema,
   isNodeTypeSelected,
   isValidPosition,
-  selectionWithinConvertibleTypes,
+  selectionWithinConvertibleTypes
 } from "@/lib/tiptap-utils"
 
 export const BLOCKQUOTE_SHORTCUT_KEY = "mod+shift+b"
@@ -68,7 +68,7 @@ export function canToggleBlockquote(
       "orderedList",
       "taskList",
       "blockquote",
-      "codeBlock",
+      "codeBlock"
     ])
   )
     return false
@@ -103,7 +103,7 @@ export function toggleBlockquote(editor: Editor | null): boolean {
         "orderedList",
         "taskList",
         "blockquote",
-        "codeBlock",
+        "codeBlock"
       ]) && blocks.length === 1
 
     // No selection, find the the cursor position
@@ -113,7 +113,7 @@ export function toggleBlockquote(editor: Editor | null): boolean {
     ) {
       const pos = findNodePosition({
         editor,
-        node: state.selection.$anchor.node(1),
+        node: state.selection.$anchor.node(1)
       })?.pos
       if (!isValidPosition(pos)) return false
 
@@ -225,7 +225,7 @@ export function useBlockquote(config?: UseBlockquoteConfig) {
   const {
     editor: providedEditor,
     hideWhenUnavailable = false,
-    onToggled,
+    onToggled
   } = config || {}
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -266,6 +266,6 @@ export function useBlockquote(config?: UseBlockquoteConfig) {
     canToggle,
     label: "Blockquote",
     shortcutKeys: BLOCKQUOTE_SHORTCUT_KEY,
-    Icon: BlockquoteIcon,
+    Icon: BlockquoteIcon
   }
 }

@@ -142,7 +142,8 @@
 
 .editableInput:focus {
   border-color: var(--color-border-brand);
-  outline: 2px solid color-mix(in srgb, var(--color-brand-primary) 22%, transparent);
+  outline: 2px solid
+    color-mix(in srgb, var(--color-brand-primary) 22%, transparent);
 }
 
 .editableError {
@@ -403,4 +404,3 @@
     grid-template-columns: 1fr;
   }
 }
-

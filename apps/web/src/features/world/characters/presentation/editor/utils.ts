@@ -1,6 +1,6 @@
 import type {
   CharacterEditorBootstrapDto,
-  CharacterIdentityFieldDto,
+  CharacterIdentityFieldDto
 } from "@/features/world/characters/application/editor"
 
 export type NumericInputValue = number | ""
@@ -13,11 +13,16 @@ export function parseNumericInputValue(value: string): NumericInputValue {
   return Number(value)
 }
 
-export function normalizeNumericValues(values: Record<string, NumericInputValue>) {
-  return Object.entries(values).reduce<Record<string, number>>((acc, [key, value]) => {
-    acc[key] = value === "" ? 0 : value
-    return acc
-  }, {})
+export function normalizeNumericValues(
+  values: Record<string, NumericInputValue>
+) {
+  return Object.entries(values).reduce<Record<string, number>>(
+    (acc, [key, value]) => {
+      acc[key] = value === "" ? 0 : value
+      return acc
+    },
+    {}
+  )
 }
 
 export function isIdentityNameField(field: CharacterIdentityFieldDto) {
@@ -30,10 +35,16 @@ export function isIdentityNameField(field: CharacterIdentityFieldDto) {
   )
 }
 
-export function resolveEditTarget(bootstrap: CharacterEditorBootstrapDto, characterId?: string) {
+export function resolveEditTarget(
+  bootstrap: CharacterEditorBootstrapDto,
+  characterId?: string
+) {
   if (!characterId) {
     return null
   }
 
-  return bootstrap.characters.find((character) => character.id === characterId) ?? null
+  return (
+    bootstrap.characters.find((character) => character.id === characterId) ??
+    null
+  )
 }

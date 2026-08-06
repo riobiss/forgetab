@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify"
 import {
   getCharacterInventoryUseCase,
-  removeCharacterInventoryItemApiUseCase,
+  removeCharacterInventoryItemApiUseCase
 } from "@/features/world/character/application/inventory/use-cases/manageCharacterInventory"
 import { updateCharacterStatusCurrentUseCase } from "@/features/world/character/application/statusCurrent/use-cases/characterStatusCurrent"
 import { characterRouteDeps } from "./dependencies"
@@ -10,13 +10,13 @@ import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "./http"
 import type { CharacterInventoryRouteParams } from "./routeTypes"
 
 export async function getCharacterInventoryHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -29,8 +29,8 @@ export async function getCharacterInventoryHandler(
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
 
     return writeJson(reply, 200, payload)
@@ -38,7 +38,7 @@ export async function getCharacterInventoryHandler(
     return mapCharacterInventoryError(
       reply,
       error,
-      "Erro interno ao consultar inventario.",
+      "Erro interno ao consultar inventario."
     )
   }
 }
@@ -46,13 +46,13 @@ export async function getCharacterInventoryHandler(
 export async function createCharacterInventoryHandler(reply: FastifyReply) {
   return writeJson(reply, 405, {
     message:
-      "Dar item por esta rota foi desativado. Use a pagina de itens do RPG.",
+      "Dar item por esta rota foi desativado. Use a pagina de itens do RPG."
   })
 }
 
 export async function removeCharacterInventoryHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -74,8 +74,8 @@ export async function removeCharacterInventoryHandler(
         inventoryItemId: body.inventoryItemId?.trim() ?? "",
         quantity: Number.isFinite(body.quantity)
           ? Math.floor(body.quantity as number)
-          : 1,
-      },
+          : 1
+      }
     )
 
     return writeJson(reply, 200, payload)
@@ -83,14 +83,14 @@ export async function removeCharacterInventoryHandler(
     return mapCharacterInventoryError(
       reply,
       error,
-      "Erro interno ao remover item do inventario.",
+      "Erro interno ao remover item do inventario."
     )
   }
 }
 
 export async function updateCharacterStatusCurrentHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -109,8 +109,8 @@ export async function updateCharacterStatusCurrentHandler(
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
         userId: auth.userId,
-        body,
-      },
+        body
+      }
     )
 
     return writeJson(reply, 200, payload)
@@ -120,7 +120,7 @@ export async function updateCharacterStatusCurrentHandler(
       error.message.includes('relation "rpg_characters" does not exist')
     ) {
       return writeJson(reply, 500, {
-        message: "Tabela de personagens nao existe no banco. Rode a migration.",
+        message: "Tabela de personagens nao existe no banco. Rode a migration."
       })
     }
     if (
@@ -129,7 +129,7 @@ export async function updateCharacterStatusCurrentHandler(
     ) {
       return writeJson(reply, 500, {
         message:
-          "Estrutura de personagens desatualizada. Rode a migration mais recente.",
+          "Estrutura de personagens desatualizada. Rode a migration mais recente."
       })
     }
 

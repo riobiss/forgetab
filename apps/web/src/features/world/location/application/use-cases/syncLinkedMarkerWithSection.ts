@@ -27,7 +27,7 @@ export async function syncLinkedMarkerWithSectionUseCase(
       description: string | null
       customFields: JsonMapValue | null
     }
-  },
+  }
 ) {
   const gateway =
     params.linkedMarker.visibility === "private"
@@ -41,7 +41,7 @@ export async function syncLinkedMarkerWithSectionUseCase(
     markerId: params.linkedMarker.id,
     update: buildMarkerUpdateFromSection({
       section: params.section,
-      marker: params.linkedMarker,
-    }),
+      marker: params.linkedMarker
+    })
   })
 }

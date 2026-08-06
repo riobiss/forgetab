@@ -40,17 +40,17 @@ export interface UseUndoRedoConfig {
 
 export const UNDO_REDO_SHORTCUT_KEYS: Record<UndoRedoAction, string> = {
   undo: "mod+z",
-  redo: "mod+shift+z",
+  redo: "mod+shift+z"
 }
 
 export const historyActionLabels: Record<UndoRedoAction, string> = {
   undo: "Undo",
-  redo: "Redo",
+  redo: "Redo"
 }
 
 export const historyIcons = {
   undo: Undo2Icon,
-  redo: Redo2Icon,
+  redo: Redo2Icon
 }
 
 /**
@@ -140,7 +140,7 @@ export function useUndoRedo(config: UseUndoRedoConfig) {
     editor: providedEditor,
     action,
     hideWhenUnavailable = false,
-    onExecuted,
+    onExecuted
   } = config
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -179,6 +179,6 @@ export function useUndoRedo(config: UseUndoRedoConfig) {
     canExecute,
     label: historyActionLabels[action],
     shortcutKeys: UNDO_REDO_SHORTCUT_KEYS[action],
-    Icon: historyIcons[action],
+    Icon: historyIcons[action]
   }
 }

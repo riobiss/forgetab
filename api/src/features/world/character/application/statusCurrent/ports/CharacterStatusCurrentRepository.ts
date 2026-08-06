@@ -25,11 +25,17 @@ export type CharacterStatusCurrentUpdateInput = {
 
 export type CharacterStatusCurrentRepository = {
   getRpg(rpgId: string): Promise<CharacterStatusCurrentRpgRow | null>
-  getMembership(rpgId: string, userId: string): Promise<CharacterStatusCurrentMembershipRow | null>
-  getCharacter(rpgId: string, characterId: string): Promise<CharacterStatusCurrentCharacterRow | null>
+  getMembership(
+    rpgId: string,
+    userId: string
+  ): Promise<CharacterStatusCurrentMembershipRow | null>
+  getCharacter(
+    rpgId: string,
+    characterId: string
+  ): Promise<CharacterStatusCurrentCharacterRow | null>
   updateCharacterStatus(
     rpgId: string,
     characterId: string,
-    input: CharacterStatusCurrentUpdateInput,
+    input: CharacterStatusCurrentUpdateInput
   ): Promise<boolean>
 }

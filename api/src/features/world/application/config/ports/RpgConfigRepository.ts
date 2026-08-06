@@ -5,7 +5,7 @@ import type {
   IdentityTemplate,
   RaceTemplate,
   SkillTemplate,
-  StatusTemplate,
+  StatusTemplate
 } from "@/features/world/application/config/types"
 import type { EntityCatalogMeta } from "@/features/world/catalog/domain/types"
 
@@ -13,19 +13,19 @@ export interface RpgConfigRepository {
   listAttributeTemplates(rpgId: string): Promise<AttributeTemplate[]>
   replaceAttributeTemplates(
     rpgId: string,
-    items: Array<{ key: string; label: string }>,
+    items: Array<{ key: string; label: string }>
   ): Promise<void>
 
   listStatusTemplates(rpgId: string): Promise<StatusTemplate[]>
   replaceStatusTemplates(
     rpgId: string,
-    items: Array<{ key: string; label: string }>,
+    items: Array<{ key: string; label: string }>
   ): Promise<void>
 
   listSkillTemplates(rpgId: string): Promise<SkillTemplate[]>
   replaceSkillTemplates(
     rpgId: string,
-    items: Array<{ key: string; label: string }>,
+    items: Array<{ key: string; label: string }>
   ): Promise<void>
 
   listRaceTemplates(rpgId: string): Promise<RaceTemplate[]>
@@ -40,7 +40,7 @@ export interface RpgConfigRepository {
       skillBonuses: Record<string, number>
       lore: unknown
       catalogMeta: EntityCatalogMeta
-    }>,
+    }>
   ): Promise<void>
 
   listClassTemplates(rpgId: string): Promise<ClassTemplate[]>
@@ -54,19 +54,19 @@ export interface RpgConfigRepository {
       attributeBonuses: Record<string, number>
       skillBonuses: Record<string, number>
       catalogMeta: EntityCatalogMeta
-    }>,
+    }>
   ): Promise<void>
 
   listIdentityTemplates(rpgId: string): Promise<IdentityTemplate[]>
   replaceIdentityTemplates(
     rpgId: string,
-    items: Array<{ key: string; label: string; required: boolean }>,
+    items: Array<{ key: string; label: string; required: boolean }>
   ): Promise<void>
 
   listCharacteristicTemplates(rpgId: string): Promise<CharacteristicTemplate[]>
   replaceCharacteristicTemplates(
     rpgId: string,
-    items: Array<{ key: string; label: string; required: boolean }>,
+    items: Array<{ key: string; label: string; required: boolean }>
   ): Promise<void>
 
   listAttributeKeys(rpgId: string): Promise<string[]>

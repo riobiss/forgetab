@@ -3,7 +3,7 @@ import { AppError } from "@/features/shared/application/errors/AppError"
 
 export async function getEditableCharacter(
   deps: { editorService: CharacterEditorService },
-  params: { rpgId: string; characterId: string; userId: string },
+  params: { rpgId: string; characterId: string; userId: string }
 ) {
   const result = await deps.editorService.loadEditableCharacter(params)
 

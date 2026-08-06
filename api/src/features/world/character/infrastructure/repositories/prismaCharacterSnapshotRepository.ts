@@ -4,7 +4,7 @@ import type { CharacterRow } from "@/features/world/character/application/types.
 
 export async function getCharacterSnapshotById(
   rpgId: string,
-  characterId: string,
+  characterId: string
 ): Promise<CharacterRow | null> {
   const rows = await prisma.$queryRaw<CharacterRow[]>(Prisma.sql`
     SELECT

@@ -9,14 +9,14 @@ export type CharacterDetailModalDependencies = {
 }
 
 export const npcMonsterLoadoutDependencies: NpcMonsterLoadoutDependencies = {
-  gateway: httpNpcMonsterLoadoutGateway,
+  gateway: httpNpcMonsterLoadoutGateway
 }
 
 export function createCharacterDetailModalDependencies(): CharacterDetailModalDependencies {
   return {
     loadout: npcMonsterLoadoutDependencies,
     createAbilities: (rpgId) => ({
-      gateway: createHttpNpcMonsterCharacterAbilitiesGateway(rpgId),
-    }),
+      gateway: createHttpNpcMonsterCharacterAbilitiesGateway(rpgId)
+    })
   }
 }

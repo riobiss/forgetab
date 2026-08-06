@@ -12,7 +12,7 @@ export type MapFormState = {
 const EMPTY_MAP_FORM: MapFormState = {
   title: "",
   description: "",
-  type: "",
+  type: ""
 }
 
 export function useRpgMapFormModalState() {
@@ -33,7 +33,7 @@ export function useRpgMapFormModalState() {
     setMapForm({
       title: map.title,
       description: map.description ?? "",
-      type: map.type ?? "",
+      type: map.type ?? ""
     })
     setMapFormError("")
     setIsMapModalOpen(true)
@@ -52,6 +52,6 @@ export function useRpgMapFormModalState() {
     openCreateMapModal,
     openEditMapModal,
     setMapForm,
-    setMapFormError,
+    setMapFormError
   }
 }

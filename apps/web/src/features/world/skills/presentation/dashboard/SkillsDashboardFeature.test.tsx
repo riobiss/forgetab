@@ -3,15 +3,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { httpSkillsDashboardGateway } from "@/features/world/skills/infrastructure/dashboard/gateways/httpSkillsDashboardGateway"
 
 const mocks = vi.hoisted(() => ({
-  clientSpy: vi.fn(),
+  clientSpy: vi.fn()
 }))
 
-vi.mock("@/features/world/skills/presentation/dashboard/SkillsDashboardClient", () => ({
-  default: (props: unknown) => {
-    mocks.clientSpy(props)
-    return <div data-testid="skills-dashboard-client" />
-  },
-}))
+vi.mock(
+  "@/features/world/skills/presentation/dashboard/SkillsDashboardClient",
+  () => ({
+    default: (props: unknown) => {
+      mocks.clientSpy(props)
+      return <div data-testid="skills-dashboard-client" />
+    }
+  })
+)
 
 import SkillsDashboardFeature from "@/features/world/skills/presentation/dashboard/SkillsDashboardFeature"
 
@@ -25,7 +28,7 @@ describe("SkillsDashboardFeature", () => {
       <SkillsDashboardFeature
         ownedRpgs={[{ id: "rpg-1", title: "RPG 1" }]}
         initialRpgId="rpg-1"
-      />,
+      />
     )
 
     expect(screen.getByTestId("skills-dashboard-client")).toBeInTheDocument()
@@ -48,7 +51,7 @@ describe("SkillsDashboardFeature", () => {
         ownedRpgs={[{ id: "rpg-1", title: "RPG 1" }]}
         initialRpgId="rpg-1"
         gatewayFactory="http"
-      />,
+      />
     )
 
     expect(mocks.clientSpy).toHaveBeenCalledTimes(1)

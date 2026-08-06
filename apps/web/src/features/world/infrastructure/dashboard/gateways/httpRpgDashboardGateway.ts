@@ -3,13 +3,13 @@ import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { createApiResponseParser } from "@/features/http/infrastructure/parseApiResponse"
 
 const parseJsonResponse = createApiResponseParser({
-  fallbackMessage: "Request failed.",
+  fallbackMessage: "Request failed."
 })
 
 export const httpRpgDashboardGateway: RpgDashboardGateway = {
   async requestToJoinRpg(rpgId) {
     const response = await apiFetch(`/api/rpg/${rpgId}/members`, {
-      method: "POST",
+      method: "POST"
     })
     return parseJsonResponse(response)
   },
@@ -19,7 +19,7 @@ export const httpRpgDashboardGateway: RpgDashboardGateway = {
     const response = await apiFetch(`/api/rpg/${rpgId}/members/${memberId}`, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action }),
+      body: JSON.stringify({ action })
     })
     return parseJsonResponse(response)
   },
@@ -30,15 +30,15 @@ export const httpRpgDashboardGateway: RpgDashboardGateway = {
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      },
+        body: JSON.stringify({ action })
+      }
     )
     return parseJsonResponse(response)
   },
 
   async expelMember(rpgId, memberId) {
     const response = await apiFetch(`/api/rpg/${rpgId}/members/${memberId}`, {
-      method: "DELETE",
+      method: "DELETE"
     })
     return parseJsonResponse(response)
   },
@@ -64,8 +64,8 @@ export const httpRpgDashboardGateway: RpgDashboardGateway = {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount }),
-      },
+        body: JSON.stringify({ amount })
+      }
     )
     return parseJsonResponse(response)
   },
@@ -74,8 +74,8 @@ export const httpRpgDashboardGateway: RpgDashboardGateway = {
     const response = await apiFetch(`/api/characters/${characterId}/grant-xp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify({ amount })
     })
     return parseJsonResponse(response)
-  },
+  }
 }

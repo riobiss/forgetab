@@ -313,9 +313,15 @@
   border: 1px solid var(--color-border-soft);
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--color-brand-soft) 22%, var(--color-bg-surface-alt)) 0%,
+    color-mix(in srgb, var(--color-brand-soft) 22%, var(--color-bg-surface-alt))
+      0%,
     var(--color-bg-surface-alt) 42%,
-    color-mix(in srgb, var(--color-bg-elevated) 68%, var(--color-bg-surface-alt)) 100%
+    color-mix(
+        in srgb,
+        var(--color-bg-elevated) 68%,
+        var(--color-bg-surface-alt)
+      )
+      100%
   );
   box-shadow: var(--shadow-elevation-md);
   padding: 1rem;
@@ -445,7 +451,11 @@
 
 .primaryButton {
   border: 1px solid color-mix(in srgb, var(--color-brand-primary) 80%, white);
-  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-strong));
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-primary),
+    var(--color-brand-strong)
+  );
   color: var(--color-text-on-brand);
 }
 
@@ -458,7 +468,11 @@
 
 .secondaryDangerButton {
   color: var(--color-status-danger);
-  border-color: color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
+  border-color: color-mix(
+    in srgb,
+    var(--color-status-danger) 45%,
+    var(--color-border-soft)
+  );
   background: var(--color-status-danger-soft);
 }
 
@@ -474,7 +488,11 @@
 
 .iconButtonDanger {
   color: var(--color-status-danger);
-  border-color: color-mix(in srgb, var(--color-status-danger) 45%, var(--color-border-soft));
+  border-color: color-mix(
+    in srgb,
+    var(--color-status-danger) 45%,
+    var(--color-border-soft)
+  );
   background: var(--color-status-danger-soft);
 }
 
@@ -533,7 +551,11 @@
 
 .markerListItemActive {
   border-color: var(--color-border-brand);
-  background: color-mix(in srgb, var(--color-brand-soft) 36%, rgba(255, 255, 255, 0.03));
+  background: color-mix(
+    in srgb,
+    var(--color-brand-soft) 36%,
+    rgba(255, 255, 255, 0.03)
+  );
 }
 
 .markerImagePreviewWrap {
@@ -712,7 +734,11 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, #000 52%, transparent) 100%);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, #000 52%, transparent) 100%
+  );
   pointer-events: none;
 }
 
@@ -722,13 +748,18 @@
   overflow-y: auto;
   border-radius: 20px 20px 0 0;
   border: 1px solid var(--color-border-soft);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-brand-soft) 18%, var(--color-bg-surface-alt)) 0%,
-      var(--color-bg-surface-alt) 35%,
-      color-mix(in srgb, var(--color-bg-elevated) 68%, var(--color-bg-surface-alt)) 100%
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-brand-soft) 18%, var(--color-bg-surface-alt))
+      0%,
+    var(--color-bg-surface-alt) 35%,
+    color-mix(
+        in srgb,
+        var(--color-bg-elevated) 68%,
+        var(--color-bg-surface-alt)
+      )
+      100%
+  );
   box-shadow: var(--shadow-elevation-md);
   padding: 0.8rem 1rem 1.1rem;
   pointer-events: auto;
@@ -866,7 +897,8 @@
 .markerImageLightboxNav {
   position: absolute;
   z-index: 2;
-  border: 1px solid color-mix(in srgb, var(--color-border-strong) 72%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-border-strong) 72%, transparent);
   background: color-mix(in srgb, var(--color-bg-surface) 82%, #000);
   color: var(--color-text-primary);
   cursor: pointer;
@@ -905,7 +937,6 @@
   right: max(1rem, calc(50vw - min(47vw, 44rem) - 1.5rem));
 }
 
-
 @media (max-width: 720px) {
   .ownerActionRow,
   .selectionBanner,
@@ -935,6 +966,3 @@
     right: 0.6rem;
   }
 }
-
-
-

@@ -8,7 +8,7 @@ import {
   deleteEntityCatalogCategory,
   getEntityCatalogCategoryDrafts,
   updateEntityCatalogCategory,
-  type EntityCatalogCategoryItemDraft,
+  type EntityCatalogCategoryItemDraft
 } from "@/features/world/catalog/application/use-cases/manageEntityCatalogCategory"
 import { dismissToast } from "@/lib/toast"
 import { useEntityCatalogActions } from "@/features/world/catalog/presentation/useEntityCatalogActions"
@@ -58,7 +58,7 @@ export function useEntityCatalogManagement(params: Params) {
     setCreating(true)
     setCreateError("")
     const loadingToastId = toast.loading(
-      `Criando ${params.entityType === "class" ? "classe" : "raca"}...`,
+      `Criando ${params.entityType === "class" ? "classe" : "raca"}...`
     )
 
     try {
@@ -70,7 +70,7 @@ export function useEntityCatalogManagement(params: Params) {
       await actions.createEntry({
         name: createName,
         category: normalizedCategory,
-        description: createDescription,
+        description: createDescription
       })
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Erro ao criar."
@@ -94,12 +94,12 @@ export function useEntityCatalogManagement(params: Params) {
       setManageCategoryName(categoryName)
       setManageCategoryDraft(categoryName)
       setManageCategoryItems(
-        getEntityCatalogCategoryDrafts(collection, categoryName),
+        getEntityCatalogCategoryDrafts(collection, categoryName)
       )
       setManageCategoryOpen(true)
     } catch (cause) {
       setManageCategoryError(
-        cause instanceof Error ? cause.message : "Erro ao carregar categoria.",
+        cause instanceof Error ? cause.message : "Erro ao carregar categoria."
       )
       setManageCategoryOpen(true)
     }
@@ -118,8 +118,8 @@ export function useEntityCatalogManagement(params: Params) {
         {
           currentCategory: manageCategoryName,
           nextCategory: manageCategoryDraft,
-          items: manageCategoryItems,
-        },
+          items: manageCategoryItems
+        }
       )
 
       await actions.saveCollection(nextCollection)
@@ -147,8 +147,8 @@ export function useEntityCatalogManagement(params: Params) {
       await actions.saveCollection(
         deleteEntityCatalogCategory(
           manageCategoryCollection,
-          manageCategoryName,
-        ),
+          manageCategoryName
+        )
       )
       setManageCategoryOpen(false)
       toast.success("Categoria deletada com sucesso.")
@@ -180,7 +180,7 @@ export function useEntityCatalogManagement(params: Params) {
       submitting: creating,
       error: createError,
       openModal: openCreateModal,
-      submit: createEntry,
+      submit: createEntry
     },
     category: {
       open: manageCategoryOpen,
@@ -194,8 +194,8 @@ export function useEntityCatalogManagement(params: Params) {
       error: manageCategoryError,
       openModal: openCategory,
       save: saveCategory,
-      delete: deleteCategory,
-    },
+      delete: deleteCategory
+    }
   }
 }
 

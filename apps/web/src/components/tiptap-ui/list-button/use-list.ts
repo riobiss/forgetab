@@ -19,7 +19,7 @@ import {
   isNodeInSchema,
   isNodeTypeSelected,
   isValidPosition,
-  selectionWithinConvertibleTypes,
+  selectionWithinConvertibleTypes
 } from "@/lib/tiptap-utils"
 
 export type ListType = "bulletList" | "orderedList" | "taskList"
@@ -50,19 +50,19 @@ export interface UseListConfig {
 export const listIcons = {
   bulletList: ListIcon,
   orderedList: ListOrderedIcon,
-  taskList: ListTodoIcon,
+  taskList: ListTodoIcon
 }
 
 export const listLabels: Record<ListType, string> = {
   bulletList: "Bullet List",
   orderedList: "Ordered List",
-  taskList: "Task List",
+  taskList: "Task List"
 }
 
 export const LIST_SHORTCUT_KEYS: Record<ListType, string> = {
   bulletList: "mod+shift+8",
   orderedList: "mod+shift+7",
-  taskList: "mod+shift+9",
+  taskList: "mod+shift+9"
 }
 
 /**
@@ -99,7 +99,7 @@ export function canToggleList(
       "orderedList",
       "taskList",
       "blockquote",
-      "codeBlock",
+      "codeBlock"
     ])
   )
     return false
@@ -164,7 +164,7 @@ export function toggleList(editor: Editor | null, type: ListType): boolean {
         "orderedList",
         "taskList",
         "blockquote",
-        "codeBlock",
+        "codeBlock"
       ]) && blocks.length === 1
 
     // No selection, find the the cursor position
@@ -174,7 +174,7 @@ export function toggleList(editor: Editor | null, type: ListType): boolean {
     ) {
       const pos = findNodePosition({
         editor,
-        node: state.selection.$anchor.node(1),
+        node: state.selection.$anchor.node(1)
       })?.pos
       if (!isValidPosition(pos)) return false
 
@@ -221,7 +221,7 @@ export function toggleList(editor: Editor | null, type: ListType): boolean {
       const toggleMap: Record<ListType, () => typeof chain> = {
         bulletList: () => chain.toggleBulletList(),
         orderedList: () => chain.toggleOrderedList(),
-        taskList: () => chain.toggleList("taskList", "taskItem"),
+        taskList: () => chain.toggleList("taskList", "taskItem")
       }
 
       const toggle = toggleMap[type]
@@ -305,7 +305,7 @@ export function useList(config: UseListConfig) {
     editor: providedEditor,
     type,
     hideWhenUnavailable = false,
-    onToggled,
+    onToggled
   } = config
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -346,6 +346,6 @@ export function useList(config: UseListConfig) {
     canToggle,
     label: listLabels[type],
     shortcutKeys: LIST_SHORTCUT_KEYS[type],
-    Icon: listIcons[type],
+    Icon: listIcons[type]
   }
 }

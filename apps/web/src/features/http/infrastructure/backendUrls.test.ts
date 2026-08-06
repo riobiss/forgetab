@@ -22,13 +22,15 @@ describe("resolveApiUrl", () => {
       headers: async () =>
         new Headers({
           "x-forwarded-proto": "https",
-          "x-forwarded-host": "example.com",
-        }),
+          "x-forwarded-host": "example.com"
+        })
     }))
 
     const { resolveApiUrl } = await import("./backendUrls")
 
-    await expect(resolveApiUrl("/api/rpg")).resolves.toBe("https://example.com/api/rpg")
+    await expect(resolveApiUrl("/api/rpg")).resolves.toBe(
+      "https://example.com/api/rpg"
+    )
     vi.unstubAllGlobals()
   })
 
@@ -40,19 +42,24 @@ describe("resolveApiUrl", () => {
 
     const { resolveApiUrl } = await import("./backendUrls")
 
-    await expect(resolveApiUrl("/api/rpg")).resolves.toBe("http://api-internal:4000/api/rpg")
+    await expect(resolveApiUrl("/api/rpg")).resolves.toBe(
+      "http://api-internal:4000/api/rpg"
+    )
     vi.unstubAllGlobals()
   })
 
   it("normaliza base URL publica sem protocolo usando HTTPS", async () => {
     vi.stubEnv("NODE_ENV", "production")
-    process.env.NEXT_PUBLIC_API_BASE_URL = "forgetab-api-production.up.railway.app/"
+    process.env.NEXT_PUBLIC_API_BASE_URL =
+      "forgetab-api-production.up.railway.app/"
     delete process.env.API_INTERNAL_BASE_URL
     vi.stubGlobal("window", undefined)
 
     const { resolveApiUrl } = await import("./backendUrls")
 
-    await expect(resolveApiUrl("/api/rpg")).resolves.toBe("https://forgetab-api-production.up.railway.app/api/rpg")
+    await expect(resolveApiUrl("/api/rpg")).resolves.toBe(
+      "https://forgetab-api-production.up.railway.app/api/rpg"
+    )
     vi.unstubAllGlobals()
   })
 
@@ -64,7 +71,9 @@ describe("resolveApiUrl", () => {
 
     const { resolveApiUrl } = await import("./backendUrls")
 
-    await expect(resolveApiUrl("/api/rpg")).resolves.toBe("http://localhost:4000/api/rpg")
+    await expect(resolveApiUrl("/api/rpg")).resolves.toBe(
+      "http://localhost:4000/api/rpg"
+    )
     vi.unstubAllGlobals()
   })
 
@@ -74,7 +83,7 @@ describe("resolveApiUrl", () => {
     delete process.env.API_INTERNAL_BASE_URL
 
     vi.stubGlobal("window", {
-      location: { origin: "http://localhost:3000" },
+      location: { origin: "http://localhost:3000" }
     })
 
     const { resolveApiUrl } = await import("./backendUrls")

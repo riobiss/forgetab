@@ -6,7 +6,7 @@ describe("createBaseItemSchema", () => {
     const result = createBaseItemSchema.safeParse({
       name: "Espada Longa",
       type: "equipment",
-      rarity: "common",
+      rarity: "common"
     })
 
     expect(result.success).toBe(true)
@@ -16,7 +16,7 @@ describe("createBaseItemSchema", () => {
     const result = createBaseItemSchema.safeParse({
       name: "Item X",
       type: "invalid",
-      rarity: "common",
+      rarity: "common"
     })
 
     expect(result.success).toBe(false)
@@ -27,7 +27,7 @@ describe("createBaseItemSchema", () => {
       name: "Armadura",
       type: "equipment",
       rarity: "rare",
-      weight: -1,
+      weight: -1
     })
 
     expect(result.success).toBe(false)

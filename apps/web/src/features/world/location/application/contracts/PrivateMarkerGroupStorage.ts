@@ -5,7 +5,7 @@ export interface PrivateMarkerGroupStorage {
   save(
     mapId: string,
     groups: MarkerGroup[],
-    options?: { notify?: boolean },
+    options?: { notify?: boolean }
   ): void
   subscribe(mapId: string, onChange: () => void): () => void
 }

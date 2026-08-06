@@ -5,7 +5,7 @@ import { Plus } from "lucide-react"
 import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap"
 import type {
   LibraryBookCreateModalModel,
-  LibraryBookVisibility,
+  LibraryBookVisibility
 } from "./useLibrarySectionBooksController"
 import styles from "./LibrarySectionBooksPage.module.css"
 
@@ -20,13 +20,13 @@ export function LibraryBookCreateModal({
   setDescription,
   setVisibility,
   onCreate,
-  onClose,
+  onClose
 }: LibraryBookCreateModalModel) {
   const modalRef = useRef<HTMLElement | null>(null)
   useModalFocusTrap({
     isActive: isOpen,
     activeElement: modalRef,
-    onEscape: () => onClose(),
+    onEscape: () => onClose()
   })
 
   if (!isOpen) return null

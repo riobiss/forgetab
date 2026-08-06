@@ -1,7 +1,7 @@
 import { Prisma } from "../../../../../generated/prisma/client.js"
 import type {
   AuthRepository,
-  CreateAuthUserInput,
+  CreateAuthUserInput
 } from "@/features/auth/application/ports/AuthRepository.js"
 import { prisma } from "@/lib/prisma"
 import { AppError } from "@/features/shared/application/errors/AppError.js"
@@ -36,8 +36,8 @@ export const prismaAuthRepository: AuthRepository = {
   findUserByUsername(username) {
     return prisma.user.findUnique({
       where: { username },
-      select: { id: true },
+      select: { id: true }
     })
   },
-  createUser,
+  createUser
 }

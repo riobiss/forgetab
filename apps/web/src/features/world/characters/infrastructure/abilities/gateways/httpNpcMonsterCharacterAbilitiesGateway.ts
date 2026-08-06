@@ -3,23 +3,23 @@ import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 export function createHttpNpcMonsterCharacterAbilitiesGateway(
-  rpgId: string,
+  rpgId: string
 ): CharacterAbilitiesGateway {
   return {
     async removeAbility(
       characterId: string,
-      params: { skillId: string; level: number },
+      params: { skillId: string; level: number }
     ) {
       const response = await apiFetch(
         `/api/rpg/${rpgId}/characters/${characterId}/abilities`,
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(params),
-        },
+          body: JSON.stringify(params)
+        }
       )
       const payload = await parseJson<{ success?: boolean }>(response)
       return { success: Boolean(payload.success) }
-    },
+    }
   }
 }

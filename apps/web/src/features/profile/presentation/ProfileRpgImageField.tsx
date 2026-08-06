@@ -7,7 +7,7 @@ import { useRef, useState } from "react"
 import Cropper, { type Area } from "react-easy-crop"
 import {
   updateRpgProfileClientUseCase,
-  uploadRpgProfileImageClientUseCase,
+  uploadRpgProfileImageClientUseCase
 } from "@/features/profile/application/use-cases/updateProfileClient"
 import { profileDependencies } from "@/features/profile/presentation/dependencies"
 import styles from "./ProfilePage.module.css"
@@ -31,7 +31,7 @@ const fallbackBackgrounds = [
   "#6b5b95",
   "#a05f2c",
   "#3f6f3f",
-  "#7a5c9e",
+  "#7a5c9e"
 ]
 
 function getFallbackInitial(name: string) {
@@ -52,7 +52,7 @@ function getFallbackBackground(seed: string) {
 export default function ProfileRpgImageField({
   rpgId,
   imageUrl,
-  fallbackName,
+  fallbackName
 }: Props) {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -104,21 +104,24 @@ export default function ProfileRpgImageField({
     try {
       const file = await profileDependencies.createRoundCroppedFile(
         sourceImage,
-        croppedAreaPixels,
+        croppedAreaPixels
       )
-      const upload = await uploadRpgProfileImageClientUseCase(profileDependencies, {
-        file,
-        oldUrl: imageUrl,
-      })
+      const upload = await uploadRpgProfileImageClientUseCase(
+        profileDependencies,
+        {
+          file,
+          oldUrl: imageUrl
+        }
+      )
       await updateRpgProfileClientUseCase(profileDependencies, {
         rpgId,
-        payload: { profileImageUrl: upload.url },
+        payload: { profileImageUrl: upload.url }
       })
       closeEditor()
       router.refresh()
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "Erro ao salvar imagem.",
+        error instanceof Error ? error.message : "Erro ao salvar imagem."
       )
     } finally {
       setIsSaving(false)
@@ -134,8 +137,8 @@ export default function ProfileRpgImageField({
             ? undefined
             : {
                 backgroundColor: getFallbackBackground(
-                  `${rpgId}:${fallbackName}`,
-                ),
+                  `${rpgId}:${fallbackName}`
+                )
               }
         }
       >

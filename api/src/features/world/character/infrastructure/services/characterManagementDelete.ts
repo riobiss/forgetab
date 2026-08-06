@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import {
   fail,
-  rethrowCharacterDeleteInfrastructureError,
+  rethrowCharacterDeleteInfrastructureError
 } from "@/features/world/character/infrastructure/services/characterManagementErrors.js"
 import { resolveCharacterManagementPermission } from "@/features/world/character/infrastructure/services/characterManagementPermission.js"
 import { cleanupCharacterImage } from "@/features/world/character/infrastructure/services/characterManagementSupport.js"
@@ -18,7 +18,7 @@ export async function deleteCharacterWithManagement(params: {
     const permission = await resolveCharacterManagementPermission({
       rpgId,
       characterId,
-      userId,
+      userId
     })
 
     const isOwner = permission.isOwner
@@ -36,12 +36,10 @@ export async function deleteCharacterWithManagement(params: {
       `)
       imageUrl = currentCharacter[0]?.image ?? null
     } catch (error) {
-      if (
-        !(
-          error instanceof Error &&
-          error.message.includes('column "image" does not exist')
-        )
-      ) {
+      if (!(
+        error instanceof Error &&
+        error.message.includes('column "image" does not exist')
+      )) {
         throw error
       }
     }

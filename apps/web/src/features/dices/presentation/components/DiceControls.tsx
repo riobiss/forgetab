@@ -3,7 +3,7 @@ import { Dice5, Plus, RotateCcw } from "lucide-react"
 import {
   DICE_ROLL_MAX_COUNT,
   DICE_ROLL_MAX_SIDES,
-  PRESET_DICE_SIDES,
+  PRESET_DICE_SIDES
 } from "@/features/dices/application/types"
 import styles from "../DicesPage.module.css"
 
@@ -54,7 +54,7 @@ export function DiceControls({
   onToggleCustomDice,
   onUpdateCustomDiceSidesDraft,
   onAddCustomDiceSides,
-  onRoll,
+  onRoll
 }: DiceControlsProps) {
   return (
     <>

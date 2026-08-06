@@ -360,7 +360,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--color-status-danger) 55%, var(--color-border-soft));
+  border: 1px solid
+    color-mix(in srgb, var(--color-status-danger) 55%, var(--color-border-soft));
   background: color-mix(in srgb, var(--color-status-danger) 12%, transparent);
   color: var(--color-status-danger);
   cursor: pointer;
@@ -448,7 +449,11 @@
 }
 
 .descriptionTextarea::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-brand-primary) 72%, var(--color-border-soft));
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 72%,
+    var(--color-border-soft)
+  );
   border-radius: 999px;
 }
 
@@ -591,7 +596,6 @@
   margin: 0;
   color: var(--color-status-danger);
 }
-
 
 @media (max-width: 760px) {
   .header {

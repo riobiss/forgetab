@@ -1,4 +1,7 @@
-import { baseItemRarityValues, baseItemTypeValues } from "@/lib/validators/baseItem"
+import {
+  baseItemRarityValues,
+  baseItemTypeValues
+} from "@/lib/validators/baseItem"
 
 export type SharedItemType = (typeof baseItemTypeValues)[number]
 export type SharedItemRarity = (typeof baseItemRarityValues)[number]
@@ -9,7 +12,7 @@ export const itemTypeLabel: Record<SharedItemType, string> = {
   material: "Material",
   tool: "Ferramenta",
   quest: "Missao",
-  special: "Especial",
+  special: "Especial"
 }
 
 export const itemRarityLabel: Record<SharedItemRarity, string> = {
@@ -17,5 +20,5 @@ export const itemRarityLabel: Record<SharedItemRarity, string> = {
   uncommon: "Incomum",
   rare: "Raro",
   epic: "Epico",
-  legendary: "Lendario",
+  legendary: "Lendario"
 }

@@ -4,11 +4,11 @@ import {
   getNpcMonsterRaceLabel,
   getNpcMonsterSecretFieldKeys,
   NPC_MONSTER_CHARACTERISTIC_KEYS,
-  NPC_MONSTER_IDENTITY_KEYS,
+  NPC_MONSTER_IDENTITY_KEYS
 } from "@/features/world/character/application/npcMonster"
 import type {
   CharacterDetailIdentityItemDto,
-  CharacterDetailLabeledValueDto,
+  CharacterDetailLabeledValueDto
 } from "@/features/world/character/application/detail/types"
 
 const EGYPTIAN_ALPHABET = [
@@ -23,12 +23,12 @@ const EGYPTIAN_ALPHABET = [
   "𓀈",
   "𓀉",
   "𓀊",
-  "𓀋",
+  "𓀋"
 ]
 
 export function getIdentityDisplayName(
   identity: Record<string, string>,
-  fallbackName?: string,
+  fallbackName?: string
 ) {
   const firstName =
     identity.nome?.trim() ||
@@ -58,7 +58,7 @@ function createEgyptianMask(length: number) {
   return Array.from(
     { length: size },
     () =>
-      EGYPTIAN_ALPHABET[Math.floor(Math.random() * EGYPTIAN_ALPHABET.length)],
+      EGYPTIAN_ALPHABET[Math.floor(Math.random() * EGYPTIAN_ALPHABET.length)]
   ).join("")
 }
 
@@ -128,26 +128,26 @@ export function getProgressionLevelDisplay(label: string) {
 
 export function toLabeledEntries(
   values: Record<string, number>,
-  labelByKey: Map<string, string>,
+  labelByKey: Map<string, string>
 ): CharacterDetailLabeledValueDto[] {
   return Object.entries(values)
     .filter(([key, value]) => labelByKey.has(key) && Number(value) > 0)
     .map(([key, value]) => ({
       key,
       label: labelByKey.get(key) ?? key,
-      value: Number(value),
+      value: Number(value)
     }))
 }
 
 export function toIdentityItems(
   values: Record<string, string>,
-  templateFields: Array<{ key: string; label: string }>,
+  templateFields: Array<{ key: string; label: string }>
 ): CharacterDetailIdentityItemDto[] {
   if (templateFields.length > 0) {
     const templateItems = templateFields.map((field) => ({
       key: field.key,
       label: field.label,
-      value: values[field.key] ?? "",
+      value: values[field.key] ?? ""
     }))
 
     const templateKeys = new Set(templateFields.map((field) => field.key))
@@ -156,12 +156,12 @@ export function toIdentityItems(
         ([key]) =>
           !templateKeys.has(key) &&
           key !== NPC_MONSTER_IDENTITY_KEYS.raceLabel &&
-          key !== NPC_MONSTER_IDENTITY_KEYS.classLabel,
+          key !== NPC_MONSTER_IDENTITY_KEYS.classLabel
       )
       .map(([key, value]) => ({
         key,
         label: key,
-        value,
+        value
       }))
 
     return [...templateItems, ...extraItems]
@@ -170,7 +170,7 @@ export function toIdentityItems(
   return Object.entries(values).map(([key, value]) => ({
     key,
     label: key,
-    value,
+    value
   }))
 }
 
@@ -191,10 +191,10 @@ type BuildNpcMonsterTextSectionsParams = {
 }
 
 export function buildNpcMonsterTextSections(
-  params: BuildNpcMonsterTextSectionsParams,
+  params: BuildNpcMonsterTextSectionsParams
 ) {
   const secretFieldKeys = new Set<string>(
-    getNpcMonsterSecretFieldKeys(params.characteristics),
+    getNpcMonsterSecretFieldKeys(params.characteristics)
   )
   const shouldMaskSecretFields =
     params.characterType !== "player" &&
@@ -203,7 +203,7 @@ export function buildNpcMonsterTextSections(
 
   const identityItems = toIdentityItems(
     params.identity,
-    params.identityTemplateFields,
+    params.identityTemplateFields
   )
   const freeRaceLabel = getNpcMonsterRaceLabel(params.identity)
   const freeClassLabel = getNpcMonsterClassLabel(params.identity)
@@ -217,8 +217,8 @@ export function buildNpcMonsterTextSections(
             value:
               params.raceTemplateLabelByKey.get(params.raceKey) ??
               params.raceKey,
-            href: `/rpg/${params.rpgId}/races/${params.raceKey}`,
-          },
+            href: `/rpg/${params.rpgId}/races/${params.raceKey}`
+          }
         ]
       : freeRaceLabel
         ? [{ key: "race-free", label: "Raca", value: freeRaceLabel }]
@@ -233,24 +233,24 @@ export function buildNpcMonsterTextSections(
               params.classKey,
             href: params.classTemplateIdByKey.get(params.classKey)
               ? `/rpg/${params.rpgId}/classes/${params.classTemplateIdByKey.get(params.classKey)}`
-              : undefined,
-          },
+              : undefined
+          }
         ]
       : freeClassLabel
         ? [{ key: "class-free", label: "Classe", value: freeClassLabel }]
-        : []),
+        : [])
   ].map((item) => ({
     ...item,
     value: maskIfSecret(
       item.value,
       shouldMaskSecretFields &&
-        secretFieldKeys.has(mapIdentityItemToSecretKey(item.key) ?? ""),
-    ),
+        secretFieldKeys.has(mapIdentityItemToSecretKey(item.key) ?? "")
+    )
   }))
 
   const characteristicItems = toIdentityItems(
     params.characteristics,
-    params.characteristicTemplateFields,
+    params.characteristicTemplateFields
   )
     .filter((item) => item.key !== NPC_MONSTER_CHARACTERISTIC_KEYS.secretFields)
     .map((item) => ({
@@ -259,8 +259,8 @@ export function buildNpcMonsterTextSections(
       value: maskIfSecret(
         item.value,
         shouldMaskSecretFields &&
-          secretFieldKeys.has(mapCharacteristicItemToSecretKey(item.key) ?? ""),
-      ),
+          secretFieldKeys.has(mapCharacteristicItemToSecretKey(item.key) ?? "")
+      )
     }))
 
   const aboutItem = characteristicItems.find((item) => item.label === "Sobre")
@@ -268,15 +268,15 @@ export function buildNpcMonsterTextSections(
   return {
     displayName: maskIfSecret(
       getIdentityDisplayName(params.identity, params.rowName),
-      shouldMaskSecretFields && secretFieldKeys.has("name"),
+      shouldMaskSecretFields && secretFieldKeys.has("name")
     ),
     aboutText: aboutItem?.value.trim() ?? "",
     identityItems: identityItemsWithRaceClass,
     characteristicsItems: characteristicItems.filter(
-      (item) => item.label !== "Sobre",
+      (item) => item.label !== "Sobre"
     ),
     maskStatuses: shouldMaskSecretFields && secretFieldKeys.has("statuses"),
     maskAttributes: shouldMaskSecretFields && secretFieldKeys.has("attributes"),
-    maskSkills: shouldMaskSecretFields && secretFieldKeys.has("skills"),
+    maskSkills: shouldMaskSecretFields && secretFieldKeys.has("skills")
   }
 }

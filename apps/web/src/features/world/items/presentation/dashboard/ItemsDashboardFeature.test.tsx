@@ -3,15 +3,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { httpItemsDashboardGateway } from "@/features/world/items/infrastructure/dashboard/gateways/httpItemsDashboardGateway"
 
 const mocks = vi.hoisted(() => ({
-  clientSpy: vi.fn(),
+  clientSpy: vi.fn()
 }))
 
-vi.mock("@/features/world/items/presentation/dashboard/ItemsDashboardClient", () => ({
-  default: (props: unknown) => {
-    mocks.clientSpy(props)
-    return <div data-testid="items-dashboard-client" />
-  },
-}))
+vi.mock(
+  "@/features/world/items/presentation/dashboard/ItemsDashboardClient",
+  () => ({
+    default: (props: unknown) => {
+      mocks.clientSpy(props)
+      return <div data-testid="items-dashboard-client" />
+    }
+  })
+)
 
 import ItemsDashboardFeature from "@/features/world/items/presentation/dashboard/ItemsDashboardFeature"
 

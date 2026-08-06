@@ -3,18 +3,18 @@ import type { CharacterDetailPermissionService } from "@/features/world/characte
 import type { CharacterDetailRepository } from "@/features/world/character/application/detail/ports/CharacterDetailRepository"
 import type {
   CharacterDetailViewModel,
-  LoadCharacterDetailResult,
+  LoadCharacterDetailResult
 } from "@/features/world/character/application/detail/types"
 import {
   buildNpcMonsterTextSections,
   getProgressionLevelDisplay,
-  toLabeledEntries,
+  toLabeledEntries
 } from "@/features/world/character/application/detail/mappers/characterDetailViewModel"
 import { normalizeLegacyStatusKeys } from "@/features/world/application/status/normalizeStatusKeys"
 import {
   getDefaultProgressionTiers,
   isProgressionMode,
-  normalizeProgressionTiers,
+  normalizeProgressionTiers
 } from "@/lib/rpg/progression"
 import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
 
@@ -54,16 +54,16 @@ const skillLabels: Record<string, string> = {
   religion: "Religiao",
   nature: "Natureza",
   medicine: "Medicina",
-  gambling: "Jogos de Aposta",
+  gambling: "Jogos de Aposta"
 }
 
 const statusLabelByKey: Record<string, string> = Object.fromEntries(
-  STATUS_CATALOG.map((item) => [item.key, item.label]),
+  STATUS_CATALOG.map((item) => [item.key, item.label])
 )
 
 export async function loadCharacterDetailUseCase(
   deps: Dependencies,
-  params: { rpgId: string; characterId: string; userId: string | null },
+  params: { rpgId: string; characterId: string; userId: string | null }
 ): Promise<LoadCharacterDetailResult> {
   const rpg = await deps.repository.getRpg(params.rpgId)
 
@@ -77,7 +77,7 @@ export async function loadCharacterDetailUseCase(
   if (params.userId) {
     const permission = await deps.permissionService.getRpgPermission(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     isOwner = permission.isOwner
     canManageRpg = permission.canManage
@@ -87,7 +87,7 @@ export async function loadCharacterDetailUseCase(
   if (params.userId && !isOwner) {
     const membership = await deps.rpgAccessRepository.getMembership(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     isAcceptedMember = membership?.status === "accepted"
   }
@@ -104,7 +104,7 @@ export async function loadCharacterDetailUseCase(
     characteristicTemplateFields,
     attributeTemplateLabels,
     raceLabels,
-    classLabels,
+    classLabels
   ] = await Promise.all([
     deps.repository.getCharacter(params.rpgId, params.characterId),
     deps.repository.listSkillLabels(params.rpgId),
@@ -113,7 +113,7 @@ export async function loadCharacterDetailUseCase(
     deps.repository.listCharacteristicFields(params.rpgId),
     deps.repository.listAttributeLabels(params.rpgId),
     deps.repository.listRaceLabels(params.rpgId),
-    deps.repository.listClassLabels(params.rpgId),
+    deps.repository.listClassLabels(params.rpgId)
   ])
 
   if (!row) {
@@ -129,37 +129,37 @@ export async function loadCharacterDetailUseCase(
   }
 
   const canEditCharacter = Boolean(
-    params.userId && (canManageRpg || row.createdByUserId === params.userId),
+    params.userId && (canManageRpg || row.createdByUserId === params.userId)
   )
 
   const attributes = row.attributes as Record<string, number>
   const statuses = normalizeLegacyStatusKeys(
-    row.statuses as Record<string, number>,
+    row.statuses as Record<string, number>
   )
   const currentStatuses = normalizeLegacyStatusKeys(
-    row.currentStatuses as Record<string, number>,
+    row.currentStatuses as Record<string, number>
   )
   const skills = row.skills as Record<string, number>
   const identity = row.identity as Record<string, string>
   const characteristics = row.characteristics as Record<string, string>
 
   const skillLabelByKey = new Map(
-    skillTemplateLabels.map((item) => [item.key, item.label]),
+    skillTemplateLabels.map((item) => [item.key, item.label])
   )
   const statusTemplateLabelByKey = new Map(
-    statusTemplateLabels.map((item) => [item.key, item.label]),
+    statusTemplateLabels.map((item) => [item.key, item.label])
   )
   const raceTemplateLabelByKey = new Map(
-    raceLabels.map((item) => [item.key, item.label]),
+    raceLabels.map((item) => [item.key, item.label])
   )
   const classTemplateLabelByKey = new Map(
-    classLabels.map((item) => [item.key, item.label]),
+    classLabels.map((item) => [item.key, item.label])
   )
   const classTemplateIdByKey = new Map(
-    classLabels.map((item) => [item.key, item.id]),
+    classLabels.map((item) => [item.key, item.id])
   )
   const attributeLabelByKey = new Map(
-    attributeTemplateLabels.map((item) => [item.key, item.label]),
+    attributeTemplateLabels.map((item) => [item.key, item.label])
   )
 
   const progressionMode = isProgressionMode(row.progressionMode)
@@ -167,7 +167,7 @@ export async function loadCharacterDetailUseCase(
     : rpg.progressionMode
   const progressionTiers = normalizeProgressionTiers(
     rpg.progressionTiers ?? getDefaultProgressionTiers("xp_level"),
-    progressionMode,
+    progressionMode
   )
   const nextProgressionTier =
     [...progressionTiers]
@@ -178,32 +178,32 @@ export async function loadCharacterDetailUseCase(
     {
       key: "life",
       label:
-        statusTemplateLabelByKey.get("life") ?? statusLabelByKey.life ?? "Vida",
+        statusTemplateLabelByKey.get("life") ?? statusLabelByKey.life ?? "Vida"
     },
     {
       key: "mana",
       label:
-        statusTemplateLabelByKey.get("mana") ?? statusLabelByKey.mana ?? "Mana",
+        statusTemplateLabelByKey.get("mana") ?? statusLabelByKey.mana ?? "Mana"
     },
     {
       key: "sanity",
       label:
         statusTemplateLabelByKey.get("sanity") ??
         statusLabelByKey.sanity ??
-        "Sanidade",
+        "Sanidade"
     },
     {
       key: "exhaustion",
       label:
         statusTemplateLabelByKey.get("exhaustion") ??
         statusTemplateLabelByKey.get("stamina") ??
-        "Exaustão",
-    },
+        "Exaustão"
+    }
   ]
 
   const extraStatusEntries = Object.entries(statuses).filter(
     ([key, value]) =>
-      !coreStatusConfig.some((item) => item.key === key) && Number(value) > 0,
+      !coreStatusConfig.some((item) => item.key === key) && Number(value) > 0
   )
 
   const statusEntries = [
@@ -218,7 +218,7 @@ export async function loadCharacterDetailUseCase(
             ? Number(row.mana ?? 0)
             : item.key === "sanity"
               ? Number(row.sanity ?? 0)
-              : Number(row.exhaustion ?? 0),
+              : Number(row.exhaustion ?? 0)
     })),
     ...extraStatusEntries.map(([key, value]) => ({
       key,
@@ -226,12 +226,9 @@ export async function loadCharacterDetailUseCase(
       max: Number(value ?? 0),
       current: Math.max(
         0,
-        Math.min(
-          Number(value ?? 0),
-          Number(currentStatuses[key] ?? value ?? 0),
-        ),
-      ),
-    })),
+        Math.min(Number(value ?? 0), Number(currentStatuses[key] ?? value ?? 0))
+      )
+    }))
   ].filter((item) => item.max > 0)
 
   const skillEntries = Object.entries(skills)
@@ -239,7 +236,7 @@ export async function loadCharacterDetailUseCase(
     .map(([key, value]) => ({
       key,
       label: skillLabelByKey.get(key) ?? skillLabels[key] ?? key,
-      value: Number(value),
+      value: Number(value)
     }))
 
   const textSections = buildNpcMonsterTextSections({
@@ -255,7 +252,7 @@ export async function loadCharacterDetailUseCase(
     characteristicTemplateFields,
     raceTemplateLabelByKey,
     classTemplateLabelByKey,
-    classTemplateIdByKey,
+    classTemplateIdByKey
   })
 
   const data: CharacterDetailViewModel = {
@@ -281,7 +278,7 @@ export async function loadCharacterDetailUseCase(
     characteristicsItems: textSections.characteristicsItems,
     maskStatuses: textSections.maskStatuses,
     maskAttributes: textSections.maskAttributes,
-    maskSkills: textSections.maskSkills,
+    maskSkills: textSections.maskSkills
   }
 
   return { status: "ok", data }

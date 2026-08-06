@@ -4,14 +4,14 @@ import { giveItem } from "@/features/world/item/application/use-cases/giveItem"
 import {
   parseJsonBody,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { itemRouteDeps } from "./dependencies"
 import { type RpgRouteParams, requireUserId } from "./shared"
 
 export async function getItemsDashboardHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -22,9 +22,9 @@ export async function getItemsDashboardHandler(
     const payload = await getItemsDashboardData(
       {
         repository: itemRouteDeps.repository,
-        permissionService: itemRouteDeps.permissionService,
+        permissionService: itemRouteDeps.permissionService
       },
-      { rpgId: request.params.rpgId, userId: auth.userId },
+      { rpgId: request.params.rpgId, userId: auth.userId }
     )
 
     return writeJson(reply, 200, payload)
@@ -32,14 +32,14 @@ export async function getItemsDashboardHandler(
     return writeError(
       reply,
       error,
-      "Erro interno ao carregar dashboard de itens.",
+      "Erro interno ao carregar dashboard de itens."
     )
   }
 }
 
 export async function giveItemHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -51,9 +51,9 @@ export async function giveItemHandler(
     const payload = await giveItem(
       {
         repository: itemRouteDeps.repository,
-        permissionService: itemRouteDeps.permissionService,
+        permissionService: itemRouteDeps.permissionService
       },
-      { rpgId: request.params.rpgId, userId: auth.userId, body },
+      { rpgId: request.params.rpgId, userId: auth.userId, body }
     )
 
     return writeJson(reply, 201, payload)

@@ -3,29 +3,35 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { ReactNode } from "react"
 
 const mocks = vi.hoisted(() => ({
-  fetchCharacterAbilitiesViewModel: vi.fn(),
+  fetchCharacterAbilitiesViewModel: vi.fn()
 }))
 
-vi.mock("@/features/world/characters/infrastructure/abilities/repositories/httpCharacterAbilitiesPageRepository", () => ({
-  fetchCharacterAbilitiesViewModel: mocks.fetchCharacterAbilitiesViewModel,
-  HttpCharacterAbilitiesError: class HttpCharacterAbilitiesError extends Error {
-    constructor(message: string, readonly status: number) {
-      super(message)
-      this.name = "HttpCharacterAbilitiesError"
+vi.mock(
+  "@/features/world/characters/infrastructure/abilities/repositories/httpCharacterAbilitiesPageRepository",
+  () => ({
+    fetchCharacterAbilitiesViewModel: mocks.fetchCharacterAbilitiesViewModel,
+    HttpCharacterAbilitiesError: class HttpCharacterAbilitiesError extends Error {
+      constructor(
+        message: string,
+        readonly status: number
+      ) {
+        super(message)
+        this.name = "HttpCharacterAbilitiesError"
+      }
     }
-  },
-}))
+  })
+)
 
 vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("NOT_FOUND")
-  },
+  }
 }))
 
 vi.mock("next/link", () => ({
   default: ({ children, href }: { children: ReactNode; href: string }) => (
     <a href={href}>{children}</a>
-  ),
+  )
 }))
 
 import AbilitiesPage from "./page"
@@ -64,7 +70,7 @@ describe("AbilitiesPage", () => {
           allowedClasses: ["Guerreiro"],
           allowedRaces: ["Humano"],
           pointsCost: null,
-          costCustom: null,
+          costCustom: null
         },
         {
           skillId: "s2",
@@ -91,17 +97,17 @@ describe("AbilitiesPage", () => {
           allowedClasses: ["Mago"],
           allowedRaces: ["Elfo"],
           pointsCost: null,
-          costCustom: null,
-        },
-      ],
+          costCustom: null
+        }
+      ]
     })
   })
 
   it("renderiza habilidades sem titulo estatico", async () => {
     render(
       await AbilitiesPage({
-        params: Promise.resolve({ rpgId: "rpg-1", characterId: "char-1" }),
-      }),
+        params: Promise.resolve({ rpgId: "rpg-1", characterId: "char-1" })
+      })
     )
 
     expect(screen.getByRole("heading", { name: "Arthas" })).toBeInTheDocument()

@@ -2,25 +2,28 @@ import { RpgConfigRepositoryError } from "@/features/world/application/config/er
 import type { RpgConfigRepository } from "@/features/world/application/config/ports/RpgConfigRepository"
 
 const schemaErrors = [
-  ["attribute_schema_missing", ['relation "rpg_attribute_templates" does not exist']],
+  [
+    "attribute_schema_missing",
+    ['relation "rpg_attribute_templates" does not exist']
+  ],
   ["status_schema_missing", ['relation "rpg_status_templates" does not exist']],
   ["skill_schema_missing", ['relation "rpg_skill_templates" does not exist']],
   [
     "race_schema_missing",
     [
       'relation "rpg_race_templates" does not exist',
-      'column "lore" of relation "rpg_race_templates" does not exist',
-    ],
+      'column "lore" of relation "rpg_race_templates" does not exist'
+    ]
   ],
   ["class_schema_missing", ['relation "rpg_class_templates" does not exist']],
   [
     "identity_schema_missing",
-    ['relation "rpg_character_identity_templates" does not exist'],
+    ['relation "rpg_character_identity_templates" does not exist']
   ],
   [
     "characteristic_schema_missing",
-    ['relation "rpg_character_characteristic_templates" does not exist'],
-  ],
+    ['relation "rpg_character_characteristic_templates" does not exist']
+  ]
 ] as const
 
 export function toRpgConfigRepositoryError(error: unknown) {
@@ -28,16 +31,16 @@ export function toRpgConfigRepositoryError(error: unknown) {
 
   const message = error instanceof Error ? error.message : ""
   const match = schemaErrors.find(([, patterns]) =>
-    patterns.some((pattern) => message.includes(pattern)),
+    patterns.some((pattern) => message.includes(pattern))
   )
 
   return new RpgConfigRepositoryError(match?.[0] ?? "unknown", {
-    cause: error,
+    cause: error
   })
 }
 
 async function withRpgConfigPersistenceErrors<T>(
-  operation: () => Promise<T>,
+  operation: () => Promise<T>
 ): Promise<T> {
   try {
     return await operation()
@@ -47,7 +50,7 @@ async function withRpgConfigPersistenceErrors<T>(
 }
 
 export function withRpgConfigRepositoryErrors(
-  repository: RpgConfigRepository,
+  repository: RpgConfigRepository
 ): RpgConfigRepository {
   return new Proxy(repository, {
     get(target, property, receiver) {
@@ -55,9 +58,9 @@ export function withRpgConfigRepositoryErrors(
       if (typeof value !== "function") return value
 
       return (...args: unknown[]) =>
-        withRpgConfigPersistenceErrors(() =>
-          Reflect.apply(value, target, args) as Promise<unknown>,
+        withRpgConfigPersistenceErrors(
+          () => Reflect.apply(value, target, args) as Promise<unknown>
         )
-    },
+    }
   })
 }

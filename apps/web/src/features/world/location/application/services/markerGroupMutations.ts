@@ -2,12 +2,12 @@ import type {
   MarkerGroup,
   MarkerItem,
   MarkerPinStyle,
-  PendingMarker,
+  PendingMarker
 } from "@/features/world/location/application/models/markerGroups"
 
 function fromPendingMarker(
   marker: PendingMarker,
-  color: string | null,
+  color: string | null
 ): MarkerItem {
   return {
     id: marker.id,
@@ -21,7 +21,7 @@ function fromPendingMarker(
     size: marker.size,
     pinStyle: marker.pinStyle,
     canEdit: true,
-    canDelete: true,
+    canDelete: true
   }
 }
 
@@ -42,28 +42,28 @@ export function createPrivateMarkerGroup(input: {
     canEdit: true,
     canDelete: true,
     markers: input.pendingMarkers.map((marker) =>
-      fromPendingMarker(marker, null),
-    ),
+      fromPendingMarker(marker, null)
+    )
   }
 }
 
 export function appendPendingMarkers(
   group: MarkerGroup,
-  pendingMarkers: PendingMarker[],
+  pendingMarkers: PendingMarker[]
 ): MarkerGroup | null {
   if (!group.canEdit || pendingMarkers.length === 0) return null
   return {
     ...group,
     markers: [
       ...group.markers,
-      ...pendingMarkers.map((marker) => fromPendingMarker(marker, group.color)),
-    ],
+      ...pendingMarkers.map((marker) => fromPendingMarker(marker, group.color))
+    ]
   }
 }
 
 export function updateMarkerGroupDetails(
   group: MarkerGroup,
-  input: { name: string; color: string },
+  input: { name: string; color: string }
 ): MarkerGroup | null {
   const name = input.name.trim()
   if (!group.canEdit || !name) return null
@@ -83,7 +83,7 @@ export function updateMarkerInGroup(
     y: number
     size: number
     pinStyle: MarkerPinStyle
-  },
+  }
 ): MarkerGroup | null {
   const marker = group.markers.find((item) => item.id === input.markerId)
   if (!group.canEdit || !marker || marker.canEdit === false) return null
@@ -103,9 +103,9 @@ export function updateMarkerInGroup(
             x: input.x,
             y: input.y,
             size: input.size,
-            pinStyle: input.pinStyle,
-          },
-    ),
+            pinStyle: input.pinStyle
+          }
+    )
   }
 }
 
@@ -116,7 +116,7 @@ export type RemoveMarkerResult =
 
 export function removeMarkerFromGroup(
   group: MarkerGroup,
-  markerId: string,
+  markerId: string
 ): RemoveMarkerResult {
   const marker = group.markers.find((item) => item.id === markerId)
   if (!group.canEdit || !marker || marker.canDelete === false) {
@@ -131,10 +131,10 @@ export function removeMarkerFromGroup(
 
 export function replaceMarkerGroup(
   groups: MarkerGroup[],
-  updatedGroup: MarkerGroup,
+  updatedGroup: MarkerGroup
 ) {
   return groups.map((group) =>
-    group.id === updatedGroup.id ? updatedGroup : group,
+    group.id === updatedGroup.id ? updatedGroup : group
   )
 }
 

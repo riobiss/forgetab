@@ -8,11 +8,11 @@ import { parseShortcutKeys } from "@/lib/tiptap-utils"
 // --- Tiptap UI ---
 import type {
   Level,
-  UseHeadingConfig,
+  UseHeadingConfig
 } from "@/components/tiptap-ui/heading-button"
 import {
   HEADING_SHORTCUT_KEYS,
-  useHeading,
+  useHeading
 } from "@/components/tiptap-ui/heading-button"
 
 // --- UI Primitives ---
@@ -36,7 +36,7 @@ export interface HeadingButtonProps
 
 export function HeadingShortcutBadge({
   level,
-  shortcutKeys = HEADING_SHORTCUT_KEYS[level],
+  shortcutKeys = HEADING_SHORTCUT_KEYS[level]
 }: {
   level: Level
   shortcutKeys?: string
@@ -72,12 +72,12 @@ export const HeadingButton = forwardRef<HTMLButtonElement, HeadingButtonProps>(
       handleToggle,
       label,
       Icon,
-      shortcutKeys,
+      shortcutKeys
     } = useHeading({
       editor,
       level,
       hideWhenUnavailable,
-      onToggled,
+      onToggled
     })
 
     const handleClick = useCallback(

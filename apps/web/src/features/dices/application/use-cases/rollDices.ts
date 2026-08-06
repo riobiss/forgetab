@@ -2,7 +2,7 @@ import type { DicesRepository } from "@/features/dices/application/ports/DicesRe
 import {
   DICE_ROLL_MAX_COUNT,
   DICE_ROLL_MAX_SIDES,
-  type RollHistoryItem,
+  type RollHistoryItem
 } from "@/features/dices/application/types"
 
 export type RollDicesInput = {
@@ -24,7 +24,7 @@ export type ValidatedDiceRollInput = {
 }
 
 export function validateDiceRollInput(
-  input: RollDicesInput,
+  input: RollDicesInput
 ): ValidatedDiceRollInput {
   const diceCount = Number(input.diceCount)
   const diceSides = Number(input.diceSides)
@@ -53,17 +53,17 @@ export function validateDiceRollInput(
   return {
     diceCount,
     diceSides,
-    modifier,
+    modifier
   }
 }
 
 export async function rollDicesUseCase(
   dependencies: RollDicesDependencies,
-  input: RollDicesInput,
+  input: RollDicesInput
 ): Promise<RollHistoryItem> {
   const entry = validateDiceRollInput(input)
   const payload = await dependencies.dicesRepository.roll({
-    entries: [{ diceCount: entry.diceCount, diceSides: entry.diceSides }],
+    entries: [{ diceCount: entry.diceCount, diceSides: entry.diceSides }]
   })
   const diceTotal = payload.groups.reduce((sum, group) => sum + group.total, 0)
 
@@ -74,6 +74,6 @@ export async function rollDicesUseCase(
     diceTotal,
     modifier: entry.modifier,
     total: diceTotal + entry.modifier,
-    rolledAt: dependencies.now(),
+    rolledAt: dependencies.now()
   }
 }

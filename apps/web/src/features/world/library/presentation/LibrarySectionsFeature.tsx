@@ -2,7 +2,10 @@
 
 import { useMemo } from "react"
 import LibrarySectionsPage from "./LibrarySectionsPage"
-import { createLibraryDependencies, type LibraryGatewayFactory } from "./dependencies"
+import {
+  createLibraryDependencies,
+  type LibraryGatewayFactory
+} from "./dependencies"
 
 type Props = {
   rpgId: string
@@ -13,8 +16,11 @@ type Props = {
 export default function LibrarySectionsFeature({
   rpgId,
   rpgTitle,
-  gatewayFactory = "http",
+  gatewayFactory = "http"
 }: Props) {
-  const deps = useMemo(() => createLibraryDependencies(gatewayFactory), [gatewayFactory])
+  const deps = useMemo(
+    () => createLibraryDependencies(gatewayFactory),
+    [gatewayFactory]
+  )
   return <LibrarySectionsPage rpgId={rpgId} rpgTitle={rpgTitle} deps={deps} />
 }

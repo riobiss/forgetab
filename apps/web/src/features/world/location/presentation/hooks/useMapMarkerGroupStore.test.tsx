@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
   save: vi.fn(),
   subscribe: vi.fn(() => vi.fn()),
   toastSuccess: vi.fn(),
-  toastError: vi.fn(),
+  toastError: vi.fn()
 }))
 
 vi.mock("@/features/world/location/presentation/dependencies", () => ({
@@ -19,21 +19,21 @@ vi.mock("@/features/world/location/presentation/dependencies", () => ({
     rpgMapGateway: {
       createMarkerGroup: mocks.createMarkerGroup,
       updateMarkerGroup: mocks.updateMarkerGroup,
-      deleteMarkerGroup: mocks.deleteMarkerGroup,
+      deleteMarkerGroup: mocks.deleteMarkerGroup
     },
     privateMarkerGroupStorage: {
       load: mocks.load,
       save: mocks.save,
-      subscribe: mocks.subscribe,
-    },
-  },
+      subscribe: mocks.subscribe
+    }
+  }
 }))
 
 vi.mock("react-hot-toast", () => ({
   toast: {
     success: mocks.toastSuccess,
-    error: mocks.toastError,
-  },
+    error: mocks.toastError
+  }
 }))
 
 const privateGroup: MarkerGroup = {
@@ -54,9 +54,9 @@ const privateGroup: MarkerGroup = {
       x: 1,
       y: 2,
       size: 1,
-      pinStyle: "default",
-    },
-  ],
+      pinStyle: "default"
+    }
+  ]
 }
 const markerColors = ["#fff"]
 const initialPublicMarkerGroups: [] = []
@@ -80,9 +80,9 @@ const savedGroup = {
       rpgId: "rpg-1",
       order: 0,
       createdAt: "2026-01-01T00:00:00.000Z",
-      updatedAt: "2026-01-01T00:00:00.000Z",
-    },
-  ],
+      updatedAt: "2026-01-01T00:00:00.000Z"
+    }
+  ]
 }
 
 describe("useMapMarkerGroupStore", () => {
@@ -97,7 +97,7 @@ describe("useMapMarkerGroupStore", () => {
     mocks.createMarkerGroup.mockReturnValue(
       new Promise<typeof savedGroup>((resolve) => {
         resolveRequest = resolve
-      }),
+      })
     )
 
     const { result } = renderHook(() =>
@@ -105,8 +105,8 @@ describe("useMapMarkerGroupStore", () => {
         rpgId: "rpg-1",
         mapId: "map-1",
         markerColors,
-        initialPublicMarkerGroups,
-      }),
+        initialPublicMarkerGroups
+      })
     )
 
     let firstOperation!: ReturnType<
@@ -123,15 +123,15 @@ describe("useMapMarkerGroupStore", () => {
     await expect(secondOperation).resolves.toBeNull()
     expect(mocks.createMarkerGroup).toHaveBeenCalledOnce()
     await waitFor(() =>
-      expect(result.current.isMarkerGroupOperationPending).toBe(true),
+      expect(result.current.isMarkerGroupOperationPending).toBe(true)
     )
 
     resolveRequest(savedGroup)
     await expect(firstOperation).resolves.toEqual(
-      expect.objectContaining({ id: "public-group" }),
+      expect.objectContaining({ id: "public-group" })
     )
     await waitFor(() =>
-      expect(result.current.isMarkerGroupOperationPending).toBe(false),
+      expect(result.current.isMarkerGroupOperationPending).toBe(false)
     )
   })
 })

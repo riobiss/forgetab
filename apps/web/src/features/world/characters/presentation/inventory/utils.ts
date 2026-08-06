@@ -1,21 +1,21 @@
 import type {
   CharacterInventoryItemDto,
-  CharacterInventoryRarityDto,
+  CharacterInventoryRarityDto
 } from "@forgetab/world-contracts/character-inventory"
 import type { InventoryCardItem } from "./types"
 import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
 export {
   parseCustomFieldList,
-  parseNamedDescriptionList,
+  parseNamedDescriptionList
 } from "@/shared/items/itemFieldParsers"
 import {
   parseCustomFieldList,
-  parseNamedDescriptionList,
+  parseNamedDescriptionList
 } from "@/shared/items/itemFieldParsers"
 
 export function matchesInventorySearch(
   item: CharacterInventoryItemDto,
-  normalizedSearch: string,
+  normalizedSearch: string
 ): boolean {
   if (!normalizedSearch) {
     return true
@@ -39,19 +39,19 @@ export function matchesInventorySearch(
     abilities.some(
       (ability) =>
         ability.name.toLowerCase().includes(normalizedSearch) ||
-        ability.description.toLowerCase().includes(normalizedSearch),
+        ability.description.toLowerCase().includes(normalizedSearch)
     ) ||
     effects.some(
       (effect) =>
         effect.name.toLowerCase().includes(normalizedSearch) ||
-        effect.description.toLowerCase().includes(normalizedSearch),
+        effect.description.toLowerCase().includes(normalizedSearch)
     )
   )
 }
 
 export function toInventoryCardItem(
   item: CharacterInventoryItemDto,
-  rarityLabels: Record<CharacterInventoryRarityDto, string> = itemRarityLabel,
+  rarityLabels: Record<CharacterInventoryRarityDto, string> = itemRarityLabel
 ): InventoryCardItem {
   const abilities = parseNamedDescriptionList(item.itemAbilities)
   const effects = parseNamedDescriptionList(item.itemEffects)
@@ -83,7 +83,7 @@ export function toInventoryCardItem(
   } else if (item.itemAbility || item.itemAbilityName) {
     abilityEntries.push({
       name: item.itemAbilityName ?? "sem nome",
-      description: item.itemAbility ?? "-",
+      description: item.itemAbility ?? "-"
     })
   }
   if (effects.length > 0) {
@@ -91,12 +91,12 @@ export function toInventoryCardItem(
   } else if (item.itemEffect || item.itemEffectName) {
     effectEntries.push({
       name: item.itemEffectName ?? "sem nome",
-      description: item.itemEffect ?? "-",
+      description: item.itemEffect ?? "-"
     })
   }
   if (customFields.length > 0) {
     customFields.forEach((field) =>
-      coreStats.push({ label: field.name, value: field.value || "-" }),
+      coreStats.push({ label: field.name, value: field.value || "-" })
     )
   }
 
@@ -108,9 +108,11 @@ export function toInventoryCardItem(
     rarityClass: item.itemRarity,
     quantity: item.quantity,
     description: item.itemDescription ?? undefined,
-    secondaryLine: itemTypeLabel[item.itemType as keyof typeof itemTypeLabel] ?? item.itemType,
+    secondaryLine:
+      itemTypeLabel[item.itemType as keyof typeof itemTypeLabel] ??
+      item.itemType,
     coreStats,
     abilityEntries,
-    effectEntries,
+    effectEntries
   }
 }

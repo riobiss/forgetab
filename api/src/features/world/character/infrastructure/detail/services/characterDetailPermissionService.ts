@@ -5,5 +5,5 @@ export const characterDetailPermissionService: CharacterDetailPermissionService 
   {
     async getRpgPermission(rpgId: string, userId: string) {
       return getRpgPermissionByPrisma(rpgId, userId)
-    },
+    }
   }

@@ -6,15 +6,20 @@ describe("parseApiResponse", () => {
   it("retorna o JSON de uma resposta valida", async () => {
     const response = new Response(JSON.stringify({ value: 1 }), { status: 200 })
 
-    await expect(parseApiResponse<{ value: number }>(response)).resolves.toEqual({
-      value: 1,
+    await expect(
+      parseApiResponse<{ value: number }>(response)
+    ).resolves.toEqual({
+      value: 1
     })
   })
 
   it("usa a mensagem da API em respostas de erro", async () => {
-    const response = new Response(JSON.stringify({ message: "Nao encontrado." }), {
-      status: 404,
-    })
+    const response = new Response(
+      JSON.stringify({ message: "Nao encontrado." }),
+      {
+        status: 404
+      }
+    )
 
     await expect(parseApiResponse(response)).rejects.toThrow("Nao encontrado.")
   })
@@ -23,7 +28,7 @@ describe("parseApiResponse", () => {
     const response = new Response("not-json", { status: 200 })
 
     await expect(parseApiResponse(response)).rejects.toThrow(
-      "Resposta invalida da API.",
+      "Resposta invalida da API."
     )
   })
 
@@ -31,7 +36,7 @@ describe("parseApiResponse", () => {
     class TestHttpError extends Error {
       constructor(
         message: string,
-        readonly status: number,
+        readonly status: number
       ) {
         super(message)
       }
@@ -42,8 +47,8 @@ describe("parseApiResponse", () => {
     await expect(
       parseApiResponse(response, {
         fallbackMessage: "Indisponivel.",
-        errorFactory: (message, status) => new TestHttpError(message, status),
-      }),
+        errorFactory: (message, status) => new TestHttpError(message, status)
+      })
     ).rejects.toMatchObject({ message: "Indisponivel.", status: 503 })
   })
 })

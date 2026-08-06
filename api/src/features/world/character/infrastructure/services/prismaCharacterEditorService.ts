@@ -7,11 +7,11 @@ export const prismaCharacterEditorService: CharacterEditorService = {
       const permission = await resolveCharacterManagementPermission({
         rpgId,
         characterId,
-        userId,
+        userId
       })
       return {
         status: "ok" as const,
-        character: permission.character,
+        character: permission.character
       }
     } catch (error) {
       if (error && typeof error === "object" && "status" in error) {
@@ -23,11 +23,11 @@ export const prismaCharacterEditorService: CharacterEditorService = {
           return {
             status: "forbidden" as const,
             message:
-              appError.message ?? "Sem permissao para editar este personagem.",
+              appError.message ?? "Sem permissao para editar este personagem."
           }
         }
       }
       throw error
     }
-  },
+  }
 }

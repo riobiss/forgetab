@@ -7,7 +7,7 @@ import type { RpgTemplatesRepository } from "@/features/world/character/applicat
 import {
   clampCharacterCurrentStatuses,
   resolveCharacterTextRecord,
-  validateCharacterCoreStatuses,
+  validateCharacterCoreStatuses
 } from "@/features/world/character/application/use-cases/characterUpdateRules"
 import { getRpgAccess } from "@/features/world/character/application/use-cases/getRpgAccess"
 import {
@@ -20,7 +20,7 @@ import {
   validateMaxCarryWeight,
   validateProgressionCurrent,
   validateSkillsPayload,
-  validateStatusesPayload,
+  validateStatusesPayload
 } from "@/features/world/character/application/validators"
 import { resolveProgressionTierByCurrent } from "@/lib/rpg/progression"
 
@@ -50,11 +50,16 @@ function fail(status: number, message: string): never {
   throw new AppError(message, status)
 }
 
-function hasOwn(payload: UpdateCharacterPayload, key: keyof UpdateCharacterPayload) {
+function hasOwn(
+  payload: UpdateCharacterPayload,
+  key: keyof UpdateCharacterPayload
+) {
   return Object.prototype.hasOwnProperty.call(payload, key)
 }
 
-function unwrap<T>(result: { ok: true; value: T } | { ok: false; message: string }) {
+function unwrap<T>(
+  result: { ok: true; value: T } | { ok: false; message: string }
+) {
   if (!result.ok) {
     fail(400, result.message)
   }
@@ -68,13 +73,13 @@ export async function updateCharacter(
     characterId: string
     userId: string
     payload: UpdateCharacterPayload
-  },
+  }
 ) {
   try {
     const access = await getRpgAccess({
       rpgId: params.rpgId,
       userId: params.userId,
-      repository: deps.rpgAccessRepository,
+      repository: deps.rpgAccessRepository
     })
     if (!access.exists || !access.canAccess) {
       fail(404, "RPG nao encontrado.")
@@ -82,7 +87,7 @@ export async function updateCharacter(
 
     const [character, rpgRow] = await Promise.all([
       deps.repository.findById(params.rpgId, params.characterId),
-      deps.rpgAccessRepository.getRpgAccessRow(params.rpgId),
+      deps.rpgAccessRepository.getRpgAccessRow(params.rpgId)
     ])
     if (!character) {
       fail(404, "Personagem nao encontrado.")
@@ -107,7 +112,7 @@ export async function updateCharacter(
         400,
         character.characterType === "player"
           ? "Nome deve ter pelo menos 2 caracteres."
-          : "Nome obrigatorio.",
+          : "Nome obrigatorio."
       )
     }
 
@@ -115,33 +120,37 @@ export async function updateCharacter(
       fail(400, "Visibilidade invalida. Use private ou public.")
     }
 
-    const hasRaceKey = character.characterType === "player" && hasOwn(body, "raceKey")
-    const hasClassKey = character.characterType === "player" && hasOwn(body, "classKey")
+    const hasRaceKey =
+      character.characterType === "player" && hasOwn(body, "raceKey")
+    const hasClassKey =
+      character.characterType === "player" && hasOwn(body, "classKey")
     if ((hasRaceKey || hasClassKey) && !access.isOwner) {
       fail(
         403,
-        "Somente mestre ou moderador podem editar raca e classe de personagens.",
+        "Somente mestre ou moderador podem editar raca e classe de personagens."
       )
     }
 
     const raceKey = hasRaceKey ? normalizeOptionalText(body.raceKey) : null
     const classKey = hasClassKey ? normalizeOptionalText(body.classKey) : null
     if (raceKey) {
-      const races = await deps.templatesRepository.getRaceTemplates(params.rpgId)
+      const races = await deps.templatesRepository.getRaceTemplates(
+        params.rpgId
+      )
       if (!races.some((race) => race.key === raceKey)) {
         fail(400, "Raca invalida para este RPG.")
       }
     }
     if (classKey) {
-      const classes = await deps.templatesRepository.getClassTemplates(params.rpgId)
+      const classes = await deps.templatesRepository.getClassTemplates(
+        params.rpgId
+      )
       if (!classes.some((item) => item.key === classKey)) {
         fail(400, "Classe invalida para este RPG.")
       }
     }
 
-    const maxCarryWeight = unwrap(
-      validateMaxCarryWeight(body.maxCarryWeight),
-    )
+    const maxCarryWeight = unwrap(validateMaxCarryWeight(body.maxCarryWeight))
     const resolvedMaxCarryWeight =
       access.useInventoryWeightLimit && character.characterType === "player"
         ? maxCarryWeight
@@ -153,15 +162,15 @@ export async function updateCharacter(
     const progression = resolveProgressionTierByCurrent(
       access.progressionMode,
       access.progressionTiers,
-      progressionCurrent,
+      progressionCurrent
     )
 
     const attributes = hasOwn(body, "attributes")
       ? unwrap(
           validateAttributesPayload(
             body.attributes,
-            await deps.templatesRepository.getAttributeTemplates(params.rpgId),
-          ),
+            await deps.templatesRepository.getAttributeTemplates(params.rpgId)
+          )
         )
       : null
 
@@ -175,13 +184,13 @@ export async function updateCharacter(
           body.statuses,
           configuredStatuses.length > 0
             ? configuredStatuses
-            : getDefaultStatusTemplate(),
-        ),
+            : getDefaultStatusTemplate()
+        )
       )
       validateCharacterCoreStatuses(statuses)
       currentStatuses = clampCharacterCurrentStatuses(
         character.currentStatuses,
-        statuses,
+        statuses
       )
     }
 
@@ -189,15 +198,15 @@ export async function updateCharacter(
     if (hasSkills && !access.isOwner && character.characterType === "player") {
       fail(
         403,
-        "Somente mestre ou moderador podem editar pericias de personagens.",
+        "Somente mestre ou moderador podem editar pericias de personagens."
       )
     }
     const skills = hasSkills
       ? unwrap(
           validateSkillsPayload(
             body.skills,
-            await deps.templatesRepository.getSkillTemplates(params.rpgId),
-          ),
+            await deps.templatesRepository.getSkillTemplates(params.rpgId)
+          )
         )
       : null
 
@@ -207,22 +216,23 @@ export async function updateCharacter(
         : []
     const identity = unwrap(
       validateIdentityPayload(
-        body.identity ??
-          resolveCharacterTextRecord(character.identity),
-        identityTemplate,
-      ),
+        body.identity ?? resolveCharacterTextRecord(character.identity),
+        identityTemplate
+      )
     )
 
     const characteristicsTemplate =
       character.characterType === "player"
-        ? await deps.templatesRepository.getCharacteristicTemplates(params.rpgId)
+        ? await deps.templatesRepository.getCharacteristicTemplates(
+            params.rpgId
+          )
         : []
     const characteristics = unwrap(
       validateCharacteristicsPayload(
         body.characteristics ??
           resolveCharacterTextRecord(character.characteristics),
-        characteristicsTemplate,
-      ),
+        characteristicsTemplate
+      )
     )
 
     const hasImage = hasOwn(body, "image")
@@ -249,7 +259,7 @@ export async function updateCharacter(
       hasImage,
       hasRaceKey,
       hasClassKey,
-      hasMaxCarryWeight: hasOwn(body, "maxCarryWeight"),
+      hasMaxCarryWeight: hasOwn(body, "maxCarryWeight")
     })
     if (!updated) {
       fail(404, "Personagem nao encontrado.")
@@ -260,7 +270,7 @@ export async function updateCharacter(
         rpgOwnerId: rpgRow.ownerId,
         characterCreatedByUserId: character.createdByUserId,
         previousImage: character.image,
-        nextImage: image,
+        nextImage: image
       })
     }
   } catch (error) {

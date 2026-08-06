@@ -12,7 +12,7 @@ type RpgPageAccessResponse = {
 export class HttpPageAccessError extends Error {
   constructor(
     message: string,
-    readonly status: number,
+    readonly status: number
   ) {
     super(message)
     this.name = "HttpPageAccessError"
@@ -22,13 +22,12 @@ export class HttpPageAccessError extends Error {
 export async function fetchRpgPageAccess(rpgId: string) {
   const response = await apiFetch(`/api/rpg/${rpgId}`, {
     next: { revalidate: 0 },
-    cache: "no-store",
+    cache: "no-store"
   })
 
   const payload = await parseApiResponse<RpgPageAccessResponse>(response, {
     fallbackMessage: "Erro ao carregar RPG.",
-    errorFactory: (message, status) =>
-      new HttpPageAccessError(message, status),
+    errorFactory: (message, status) => new HttpPageAccessError(message, status)
   })
 
   if (!payload.rpg) {

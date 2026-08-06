@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
-  queryRaw: vi.fn(),
+  queryRaw: vi.fn()
 }))
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    $queryRaw: mocks.queryRaw,
-  },
+    $queryRaw: mocks.queryRaw
+  }
 }))
 
 import { characterManagementService } from "./characterManagementService"
@@ -24,8 +24,8 @@ describe("characterManagementService.deleteCharacter", () => {
         ownerId: "user-1",
         useInventoryWeightLimit: false,
         progressionMode: "xp_level",
-        progressionTiers: [{ label: "Level 1", required: 0 }],
-      },
+        progressionTiers: [{ label: "Level 1", required: 0 }]
+      }
     ])
     mocks.queryRaw.mockResolvedValueOnce([
       {
@@ -55,8 +55,8 @@ describe("characterManagementService.deleteCharacter", () => {
         characteristics: {},
         progressionCurrent: 0,
         createdAt: new Date("2026-01-01T00:00:00.000Z"),
-        updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-      },
+        updatedAt: new Date("2026-01-01T00:00:00.000Z")
+      }
     ])
     mocks.queryRaw.mockResolvedValueOnce([
       {
@@ -66,18 +66,20 @@ describe("characterManagementService.deleteCharacter", () => {
         useInventoryWeightLimit: false,
         allowMultiplePlayerCharacters: false,
         progressionMode: "xp_level",
-        progressionTiers: [{ label: "Level 1", required: 0 }],
-      },
+        progressionTiers: [{ label: "Level 1", required: 0 }]
+      }
     ])
-    mocks.queryRaw.mockResolvedValueOnce([{ image: "https://cdn.example.com/goblin.png" }])
+    mocks.queryRaw.mockResolvedValueOnce([
+      { image: "https://cdn.example.com/goblin.png" }
+    ])
     mocks.queryRaw.mockResolvedValueOnce([{ id: "char-1" }])
 
     await expect(
       characterManagementService.deleteCharacter({
         rpgId: "rpg-1",
         characterId: "char-1",
-        userId: "user-1",
-      }),
+        userId: "user-1"
+      })
     ).resolves.toBeUndefined()
 
     expect(mocks.queryRaw).toHaveBeenCalledTimes(5)
@@ -90,8 +92,8 @@ describe("characterManagementService.deleteCharacter", () => {
         ownerId: "user-1",
         useInventoryWeightLimit: false,
         progressionMode: "xp_level",
-        progressionTiers: [{ label: "Level 1", required: 0 }],
-      },
+        progressionTiers: [{ label: "Level 1", required: 0 }]
+      }
     ])
     mocks.queryRaw.mockResolvedValueOnce([
       {
@@ -121,8 +123,8 @@ describe("characterManagementService.deleteCharacter", () => {
         characteristics: {},
         progressionCurrent: 0,
         createdAt: new Date("2026-01-01T00:00:00.000Z"),
-        updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-      },
+        updatedAt: new Date("2026-01-01T00:00:00.000Z")
+      }
     ])
     mocks.queryRaw.mockResolvedValueOnce([
       {
@@ -132,8 +134,8 @@ describe("characterManagementService.deleteCharacter", () => {
         useInventoryWeightLimit: false,
         allowMultiplePlayerCharacters: false,
         progressionMode: "xp_level",
-        progressionTiers: [{ label: "Level 1", required: 0 }],
-      },
+        progressionTiers: [{ label: "Level 1", required: 0 }]
+      }
     ])
     mocks.queryRaw.mockResolvedValueOnce([{ image: null }])
     mocks.queryRaw.mockResolvedValueOnce([])
@@ -142,11 +144,11 @@ describe("characterManagementService.deleteCharacter", () => {
       characterManagementService.deleteCharacter({
         rpgId: "rpg-1",
         characterId: "char-1",
-        userId: "user-1",
-      }),
+        userId: "user-1"
+      })
     ).rejects.toMatchObject({
       status: 404,
-      message: "Personagem nao encontrado.",
+      message: "Personagem nao encontrado."
     })
   })
 })

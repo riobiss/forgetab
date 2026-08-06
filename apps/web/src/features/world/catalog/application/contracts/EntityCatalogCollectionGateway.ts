@@ -4,11 +4,11 @@ import type { EntityCatalogTemplateRecord } from "@/features/world/catalog/appli
 export interface EntityCatalogCollectionGateway {
   fetchCollection(
     rpgId: string,
-    entityType: CatalogEntityType,
+    entityType: CatalogEntityType
   ): Promise<EntityCatalogTemplateRecord[]>
   saveCollection(
     rpgId: string,
     entityType: CatalogEntityType,
-    collection: EntityCatalogTemplateRecord[],
+    collection: EntityCatalogTemplateRecord[]
   ): Promise<void>
 }

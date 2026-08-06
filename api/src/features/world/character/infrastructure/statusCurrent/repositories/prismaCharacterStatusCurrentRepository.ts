@@ -7,7 +7,7 @@ export const prismaCharacterStatusCurrentRepository: CharacterStatusCurrentRepos
     async getRpg(rpgId) {
       const rpg = await prisma.rpg.findUnique({
         where: { id: rpgId },
-        select: { id: true, ownerId: true },
+        select: { id: true, ownerId: true }
       })
 
       return rpg ?? null
@@ -60,7 +60,7 @@ export const prismaCharacterStatusCurrentRepository: CharacterStatusCurrentRepos
         stamina?: number
       } = {
         currentStatuses: input.currentStatuses,
-        updatedAt: new Date(),
+        updatedAt: new Date()
       }
 
       if (input.coreColumn === "life") data.life = input.nextValue
@@ -70,9 +70,9 @@ export const prismaCharacterStatusCurrentRepository: CharacterStatusCurrentRepos
 
       const updated = await prisma.rpgCharacter.updateMany({
         where: { id: characterId, rpgId },
-        data,
+        data
       })
 
       return updated.count > 0
-    },
+    }
   }

@@ -19,7 +19,7 @@ export default function EntityCatalogGroups({
   collapsedGroups,
   canManage,
   onToggleGroup,
-  onManageCategory,
+  onManageCategory
 }: Props) {
   if (groups.length === 0) {
     return (

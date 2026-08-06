@@ -33,7 +33,7 @@ const initialRect: RectState = {
   top: 0,
   right: 0,
   bottom: 0,
-  left: 0,
+  left: 0
 }
 
 const isSSR = typeof window === "undefined"
@@ -54,7 +54,7 @@ export function useElementRect({
   element,
   enabled = true,
   throttleMs = 100,
-  useResizeObserver = true,
+  useResizeObserver = true
 }: ElementRectOptions = {}): RectState {
   const [rect, setRect] = useState<RectState>(initialRect)
 
@@ -95,7 +95,7 @@ export function useElementRect({
         top: newRect.top,
         right: newRect.right,
         bottom: newRect.bottom,
-        left: newRect.left,
+        left: newRect.left
       })
     },
     throttleMs,
@@ -151,7 +151,7 @@ export function useBodyRect(
 ): RectState {
   return useElementRect({
     ...options,
-    element: isClientSide() ? document.body : null,
+    element: isClientSide() ? document.body : null
   })
 }
 

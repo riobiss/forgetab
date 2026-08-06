@@ -12,7 +12,7 @@ export const libraryAccessService: LibraryAccessService = {
     return {
       exists: true,
       canView: permission.isOwner || permission.isAcceptedMember,
-      canManage: permission.canManage,
+      canManage: permission.canManage
     }
-  },
+  }
 }

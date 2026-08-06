@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import NewRpgForm from "@/features/world/presentation/editor/NewRpgForm"
 import {
   createRpgEditorDependencies,
-  type RpgEditorGatewayFactory,
+  type RpgEditorGatewayFactory
 } from "@/features/world/presentation/editor/dependencies"
 import EditRpgFeature from "@/features/world/presentation/editor/edit/EditRpgFeature"
 
@@ -28,7 +28,7 @@ type RpgEditorFeatureProps =
 export default function RpgEditorFeature(props: RpgEditorFeatureProps) {
   const deps = useMemo(
     () => createRpgEditorDependencies(props.gatewayFactory ?? "http"),
-    [props.gatewayFactory],
+    [props.gatewayFactory]
   )
 
   if (props.mode === "create") {

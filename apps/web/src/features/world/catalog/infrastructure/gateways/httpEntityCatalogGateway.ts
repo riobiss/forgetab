@@ -3,7 +3,7 @@ import type { EntityCatalogCollectionGateway } from "@/features/world/catalog/ap
 import type { EntityCatalogPurchaseGateway } from "@/features/world/catalog/application/contracts/EntityCatalogPurchaseGateway"
 import type {
   EntityCatalogAbilityPurchaseResult,
-  EntityCatalogTemplateRecord,
+  EntityCatalogTemplateRecord
 } from "@/features/world/catalog/application/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { parseEntityCatalogResponse } from "@/features/world/catalog/infrastructure/http/entityCatalogHttp"
@@ -12,55 +12,55 @@ function getEntityEndpoint(entityType: CatalogEntityType) {
   return entityType === "class" ? "classes" : "races"
 }
 
-export const httpEntityCatalogCollectionGateway: EntityCatalogCollectionGateway = {
-  async fetchCollection(
-    rpgId,
-    entityType,
-  ): Promise<EntityCatalogTemplateRecord[]> {
-    const endpoint = getEntityEndpoint(entityType)
-    const response = await apiFetch(`/api/rpg/${rpgId}/${endpoint}`, {
-      cache: "no-store",
-    })
-    const payload = await parseEntityCatalogResponse<{
-      classes?: EntityCatalogTemplateRecord[]
-      races?: EntityCatalogTemplateRecord[]
-    }>(response, "Erro ao carregar entidades.")
-    return entityType === "class"
-      ? (payload.classes ?? [])
-      : (payload.races ?? [])
-  },
+export const httpEntityCatalogCollectionGateway: EntityCatalogCollectionGateway =
+  {
+    async fetchCollection(
+      rpgId,
+      entityType
+    ): Promise<EntityCatalogTemplateRecord[]> {
+      const endpoint = getEntityEndpoint(entityType)
+      const response = await apiFetch(`/api/rpg/${rpgId}/${endpoint}`, {
+        cache: "no-store"
+      })
+      const payload = await parseEntityCatalogResponse<{
+        classes?: EntityCatalogTemplateRecord[]
+        races?: EntityCatalogTemplateRecord[]
+      }>(response, "Erro ao carregar entidades.")
+      return entityType === "class"
+        ? (payload.classes ?? [])
+        : (payload.races ?? [])
+    },
 
-  async saveCollection(rpgId, entityType, collection): Promise<void> {
-    const endpoint = getEntityEndpoint(entityType)
-    const response = await apiFetch(`/api/rpg/${rpgId}/${endpoint}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(
-        entityType === "class"
-          ? { classes: collection }
-          : { races: collection },
-      ),
-    })
-    await parseEntityCatalogResponse<{ message?: string }>(
-      response,
-      "Erro ao salvar entidades.",
-    )
-  },
-
-}
+    async saveCollection(rpgId, entityType, collection): Promise<void> {
+      const endpoint = getEntityEndpoint(entityType)
+      const response = await apiFetch(`/api/rpg/${rpgId}/${endpoint}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          entityType === "class"
+            ? { classes: collection }
+            : { races: collection }
+        )
+      })
+      await parseEntityCatalogResponse<{ message?: string }>(
+        response,
+        "Erro ao salvar entidades."
+      )
+    }
+  }
 
 export const httpEntityCatalogPurchaseGateway: EntityCatalogPurchaseGateway = {
   async buySkill(
     characterId,
-    payload,
+    payload
   ): Promise<EntityCatalogAbilityPurchaseResult> {
     const response = await apiFetch(
       `/api/characters/${characterId}/buy-skill`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      },
+        body: JSON.stringify(payload)
+      }
     )
     const result = await parseEntityCatalogResponse<{
       success?: boolean
@@ -73,7 +73,7 @@ export const httpEntityCatalogPurchaseGateway: EntityCatalogPurchaseGateway = {
       remainingPoints:
         typeof result.remainingPoints === "number"
           ? result.remainingPoints
-          : null,
+          : null
     }
-  },
+  }
 }

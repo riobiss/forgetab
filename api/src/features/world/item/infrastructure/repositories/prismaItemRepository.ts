@@ -4,7 +4,7 @@ import type {
   GiveItemInput,
   ItemCharacterSummary,
   ItemRecord,
-  ItemRepository,
+  ItemRepository
 } from "@/features/world/item/application/ports/ItemRepository.js"
 import { withItemPersistenceErrors } from "./itemPersistenceErrors"
 
@@ -38,7 +38,7 @@ export const prismaItemRepository: ItemRepository = {
         FROM baseitems
         WHERE rpg_id = ${rpgId}
         ORDER BY created_at DESC
-      `),
+      `)
     )
   },
 
@@ -52,7 +52,7 @@ export const prismaItemRepository: ItemRepository = {
         FROM rpg_characters
         WHERE rpg_id = ${rpgId}
         ORDER BY created_at DESC
-      `),
+      `)
     )
   },
 
@@ -296,9 +296,9 @@ export const prismaItemRepository: ItemRepository = {
             DO UPDATE SET
               quantity = rpg_character_inventory_items.quantity + EXCLUDED.quantity,
               updated_at = CURRENT_TIMESTAMP
-          `),
-        ),
-      ),
+          `)
+        )
+      )
     )
-  },
+  }
 }

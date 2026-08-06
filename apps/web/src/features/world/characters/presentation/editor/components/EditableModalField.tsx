@@ -27,7 +27,7 @@ export default function EditableModalField({
   step,
   placeholder,
   disabled = false,
-  displayValue,
+  displayValue
 }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const [draft, setDraft] = useState(String(value ?? ""))
@@ -51,13 +51,16 @@ export default function EditableModalField({
   }
 
   const resolvedDisplayValue =
-    displayValue ?? (String(value ?? "").trim().length > 0 ? String(value) : "Nao informado")
+    displayValue ??
+    (String(value ?? "").trim().length > 0 ? String(value) : "Nao informado")
 
   return (
     <div className={styles.editableField}>
       <span className={styles.editableFieldLabel}>{label}</span>
       <div className={styles.editableFieldRow}>
-        <span className={styles.editableFieldValue}>{resolvedDisplayValue}</span>
+        <span className={styles.editableFieldValue}>
+          {resolvedDisplayValue}
+        </span>
         <button
           type="button"
           className={styles.editableFieldButton}
@@ -71,13 +74,22 @@ export default function EditableModalField({
       </div>
 
       {isOpen ? (
-        <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label={`Editar ${label}`}>
+        <div
+          className={styles.modalOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Editar ${label}`}
+        >
           <section className={styles.modalCard}>
             <span className={styles.modalTitle}>{label}</span>
             <label className={styles.field}>
               <input
                 type={type}
-                onWheel={type === "number" ? (event) => event.currentTarget.blur() : undefined}
+                onWheel={
+                  type === "number"
+                    ? (event) => event.currentTarget.blur()
+                    : undefined
+                }
                 min={min}
                 step={step}
                 value={draft}

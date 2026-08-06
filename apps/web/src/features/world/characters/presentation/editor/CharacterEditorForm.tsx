@@ -3,18 +3,18 @@
 import ReactSelect from "react-select"
 import type {
   CharacterEditorBootstrapDto,
-  CharactersEditorDependencies,
+  CharactersEditorDependencies
 } from "@/features/world/characters/application/editor"
 import styles from "./CharacterEditorForm.module.css"
 import {
   CharacterEditorActions,
   CharacterEditorIdentitySection,
   CharacterEditorNumericSection,
-  CharacterEditorTextSection,
+  CharacterEditorTextSection
 } from "./components"
 import {
   useCharacterEditorController,
-  type PlayerSelectOption,
+  type PlayerSelectOption
 } from "./useCharacterEditorController"
 
 type CharacterEditorFormProps = {
@@ -36,7 +36,7 @@ export default function CharacterEditorForm({
   presentation = "page",
   onCompleted,
   onDeleted,
-  onCancel,
+  onCancel
 }: CharacterEditorFormProps) {
   const editor = useCharacterEditorController({
     rpgId,
@@ -44,7 +44,7 @@ export default function CharacterEditorForm({
     deps,
     initialBootstrap,
     onCompleted,
-    onDeleted,
+    onDeleted
   })
 
   const content = (
@@ -133,13 +133,13 @@ export default function CharacterEditorForm({
                   boxShadow: state.isFocused
                     ? "var(--shadow-brand-glow)"
                     : "none",
-                  ":hover": { borderColor: "var(--color-brand-primary)" },
+                  ":hover": { borderColor: "var(--color-brand-primary)" }
                 }),
                 menu: (base) => ({
                   ...base,
                   backgroundColor: "var(--color-bg-surface)",
                   border: "1px solid var(--color-border-soft)",
-                  zIndex: 50,
+                  zIndex: 50
                 }),
                 option: (base, state) => ({
                   ...base,
@@ -147,20 +147,20 @@ export default function CharacterEditorForm({
                     ? "var(--color-bg-hover)"
                     : "var(--color-bg-surface)",
                   color: "var(--color-text-secondary)",
-                  cursor: "pointer",
+                  cursor: "pointer"
                 }),
                 input: (base) => ({
                   ...base,
-                  color: "var(--color-text-secondary)",
+                  color: "var(--color-text-secondary)"
                 }),
                 placeholder: (base) => ({
                   ...base,
-                  color: "var(--color-text-muted)",
+                  color: "var(--color-text-muted)"
                 }),
                 singleValue: (base) => ({
                   ...base,
-                  color: "var(--color-text-secondary)",
-                }),
+                  color: "var(--color-text-secondary)"
+                })
               }}
             />
           </label>
@@ -175,9 +175,7 @@ export default function CharacterEditorForm({
         keyPrefix="character-status"
         min={0}
         editInModal={Boolean(editor.editingCharacterId)}
-        onToggle={() =>
-          editor.setShowStatusSection((current) => !current)
-        }
+        onToggle={() => editor.setShowStatusSection((current) => !current)}
         onChange={editor.updateStatus}
       />
 
@@ -188,9 +186,7 @@ export default function CharacterEditorForm({
         visible={editor.showAttributeSection}
         keyPrefix="character-attribute"
         editInModal={Boolean(editor.editingCharacterId)}
-        onToggle={() =>
-          editor.setShowAttributeSection((current) => !current)
-        }
+        onToggle={() => editor.setShowAttributeSection((current) => !current)}
         onChange={editor.updateAttribute}
       />
 
@@ -204,9 +200,7 @@ export default function CharacterEditorForm({
           keyPrefix="character-skill"
           min={0}
           editInModal={Boolean(editor.editingCharacterId)}
-          onToggle={() =>
-            editor.setShowSkillSection((current) => !current)
-          }
+          onToggle={() => editor.setShowSkillSection((current) => !current)}
           onChange={editor.updateSkill}
         />
       ) : null}

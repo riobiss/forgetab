@@ -65,7 +65,7 @@ export function insertImage(editor: Editor | null): boolean {
       .chain()
       .focus()
       .insertContent({
-        type: "imageUpload",
+        type: "imageUpload"
       })
       .run()
   } catch {
@@ -137,7 +137,7 @@ export function useImageUpload(config?: UseImageUploadConfig) {
   const {
     editor: providedEditor,
     hideWhenUnavailable = false,
-    onInserted,
+    onInserted
   } = config || {}
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -181,7 +181,7 @@ export function useImageUpload(config?: UseImageUploadConfig) {
     {
       enabled: isVisible && canInsert,
       enableOnContentEditable: !isMobile,
-      enableOnFormTags: true,
+      enableOnFormTags: true
     }
   )
 
@@ -192,6 +192,6 @@ export function useImageUpload(config?: UseImageUploadConfig) {
     canInsert,
     label: "Add image",
     shortcutKeys: IMAGE_UPLOAD_SHORTCUT_KEY,
-    Icon: ImagePlusIcon,
+    Icon: ImagePlusIcon
   }
 }

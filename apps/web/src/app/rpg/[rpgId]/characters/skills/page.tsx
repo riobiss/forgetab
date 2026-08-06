@@ -6,7 +6,9 @@ type PageProps = {
   }>
 }
 
-export default async function CharacterSkillsBuilderPage({ params }: PageProps) {
+export default async function CharacterSkillsBuilderPage({
+  params
+}: PageProps) {
   const { rpgId } = await params
   redirect(`/rpg/${rpgId}/skills`)
 }

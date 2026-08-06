@@ -5,11 +5,11 @@ import {
   findSkillById,
   getRpgAbilityCategoryConfig,
   listSkillsByOwner,
-  validateSkillLinkIds,
+  validateSkillLinkIds
 } from "./skillRepositoryQueries.js"
 import type {
   CreateSkillRecordInput,
-  SkillRepository,
+  SkillRepository
 } from "@/features/world/skill/application/ports/SkillRepository"
 import { withSkillRepositoryErrors } from "@/features/world/skill/infrastructure/repositories/skillPersistenceErrors"
 
@@ -117,7 +117,7 @@ const rawPrismaSkillRepository: SkillRepository = {
 
       if (params.classIds.length > 0) {
         const classValues = params.classIds.map(
-          (classId) => Prisma.sql`(${createdSkillId}, ${classId})`,
+          (classId) => Prisma.sql`(${createdSkillId}, ${classId})`
         )
         await tx.$executeRaw(Prisma.sql`
           INSERT INTO skill_class_links (skill_id, class_template_id)
@@ -127,7 +127,7 @@ const rawPrismaSkillRepository: SkillRepository = {
 
       if (params.raceIds.length > 0) {
         const raceValues = params.raceIds.map(
-          (raceId) => Prisma.sql`(${createdSkillId}, ${raceId})`,
+          (raceId) => Prisma.sql`(${createdSkillId}, ${raceId})`
         )
         await tx.$executeRaw(Prisma.sql`
           INSERT INTO skill_race_links (skill_id, race_template_id)
@@ -181,7 +181,7 @@ const rawPrismaSkillRepository: SkillRepository = {
 
         if (params.classIds.length > 0) {
           const values = params.classIds.map(
-            (classId) => Prisma.sql`(${params.skillId}, ${classId})`,
+            (classId) => Prisma.sql`(${params.skillId}, ${classId})`
           )
           await tx.$executeRaw(Prisma.sql`
             INSERT INTO skill_class_links (skill_id, class_template_id)
@@ -198,7 +198,7 @@ const rawPrismaSkillRepository: SkillRepository = {
 
         if (params.raceIds.length > 0) {
           const values = params.raceIds.map(
-            (raceId) => Prisma.sql`(${params.skillId}, ${raceId})`,
+            (raceId) => Prisma.sql`(${params.skillId}, ${raceId})`
           )
           await tx.$executeRaw(Prisma.sql`
             INSERT INTO skill_race_links (skill_id, race_template_id)
@@ -301,9 +301,9 @@ const rawPrismaSkillRepository: SkillRepository = {
       WHERE id = ${levelId}
         AND skill_id = ${skillId}
     `)
-  },
+  }
 }
 
 export const prismaSkillRepository = withSkillRepositoryErrors(
-  rawPrismaSkillRepository,
+  rawPrismaSkillRepository
 )

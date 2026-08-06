@@ -1,10 +1,10 @@
 export {
   listRpgCatalogHandler,
-  getRpgDashboardHandler,
+  getRpgDashboardHandler
 } from "@/features/world/presentation/catalogDashboardHandlers"
 export {
   createRpgHandler,
   deleteRpgHandler,
   getRpgByIdHandler,
-  updateRpgHandler,
+  updateRpgHandler
 } from "./managementHandlers"

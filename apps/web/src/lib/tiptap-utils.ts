@@ -4,13 +4,13 @@ import {
   AllSelection,
   NodeSelection,
   Selection,
-  TextSelection,
+  TextSelection
 } from "@tiptap/pm/state"
 import { cellAround, CellSelection } from "@tiptap/pm/tables"
 import {
   findParentNodeClosestToPos,
   type Editor,
-  type NodeWithPos,
+  type NodeWithPos
 } from "@tiptap/react"
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
@@ -28,7 +28,7 @@ export const MAC_SYMBOLS: Record<string, string> = {
   delete: "⌦",
   enter: "⏎",
   escape: "⎋",
-  capslock: "⇪",
+  capslock: "⇪"
 } as const
 
 export const SR_ONLY = {
@@ -40,7 +40,7 @@ export const SR_ONLY = {
   overflow: "hidden",
   clip: "rect(0, 0, 0, 0)",
   whiteSpace: "nowrap",
-  borderWidth: 0,
+  borderWidth: 0
 } as const
 
 export function cn(
@@ -423,7 +423,7 @@ export function isAllowedUri(
     "callto",
     "sms",
     "cid",
-    "xmpp",
+    "xmpp"
   ]
 
   if (protocols) {
@@ -439,12 +439,14 @@ export function isAllowedUri(
 
   return (
     !uri ||
-    uri.replace(ATTR_WHITESPACE, "").match(
-      new RegExp(
-        `^(?:(?:${allowedProtocols.join("|")}):|[^a-z]|[a-z0-9+.\-]+(?:[^a-z+.\-:]|$))`,
-        "i"
+    uri
+      .replace(ATTR_WHITESPACE, "")
+      .match(
+        new RegExp(
+          `^(?:(?:${allowedProtocols.join("|")}):|[^a-z]|[a-z0-9+.\-]+(?:[^a-z+.\-:]|$))`,
+          "i"
+        )
       )
-    )
   )
 }
 

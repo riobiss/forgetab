@@ -28,7 +28,8 @@ const EGYPTIAN_ALPHABET = ["𓀀", "𓀁", "𓀂", "𓀃", "𓀄", "𓀅", "𓀆
 function renderMaskedText(length = 6) {
   return Array.from(
     { length },
-    () => EGYPTIAN_ALPHABET[Math.floor(Math.random() * EGYPTIAN_ALPHABET.length)],
+    () =>
+      EGYPTIAN_ALPHABET[Math.floor(Math.random() * EGYPTIAN_ALPHABET.length)]
   ).join("")
 }
 
@@ -49,14 +50,16 @@ export default function CharacterDetailPage({
   activeTab = "about",
   onTabChange,
   tabContent = null,
-  aboutTabKey = "about",
+  aboutTabKey = "about"
 }: CharacterDetailPageProps) {
   const isModal = presentation === "modal"
   const showAboutTab = !tabs?.length || activeTab === aboutTabKey
 
   return (
     <div className={isModal ? styles.modalPage : styles.page}>
-      <section className={isModal ? `${styles.card} ${styles.modalCard}` : styles.card}>
+      <section
+        className={isModal ? `${styles.card} ${styles.modalCard}` : styles.card}
+      >
         <div className={styles.titleBar}>
           <div className={styles.titleInfo}>
             <h3>{data.displayName}</h3>
@@ -68,7 +71,10 @@ export default function CharacterDetailPage({
           </div>
           <div className={styles.titleActions}>
             {!isModal ? (
-              <Link className={styles.editInlineButton} href={`/rpg/${data.rpgId}/characters`}>
+              <Link
+                className={styles.editInlineButton}
+                href={`/rpg/${data.rpgId}/characters`}
+              >
                 Voltar
               </Link>
             ) : null}
@@ -81,7 +87,11 @@ export default function CharacterDetailPage({
                   Editar
                 </Link>
               ) : onEdit ? (
-                <button type="button" className={styles.editInlineButton} onClick={onEdit}>
+                <button
+                  type="button"
+                  className={styles.editInlineButton}
+                  onClick={onEdit}
+                >
                   Editar
                 </button>
               ) : null
@@ -104,7 +114,11 @@ export default function CharacterDetailPage({
               <button
                 key={tab.key}
                 type="button"
-                className={activeTab === tab.key ? `${styles.tabButton} ${styles.tabButtonActive}` : styles.tabButton}
+                className={
+                  activeTab === tab.key
+                    ? `${styles.tabButton} ${styles.tabButtonActive}`
+                    : styles.tabButton
+                }
                 onClick={() => onTabChange?.(tab.key)}
               >
                 {tab.label}
@@ -160,7 +174,9 @@ export default function CharacterDetailPage({
                 <div>
                   <h4>Status</h4>
                   {data.maskStatuses ? (
-                    <ul className={styles.list}>{renderMaskedRows(data.statusEntries.length || 4)}</ul>
+                    <ul className={styles.list}>
+                      {renderMaskedRows(data.statusEntries.length || 4)}
+                    </ul>
                   ) : (
                     <StatusTracker
                       items={data.statusEntries}
@@ -173,7 +189,8 @@ export default function CharacterDetailPage({
               </div>
             ) : null}
 
-            {data.attributeEntries.length > 0 || data.skillEntries.length > 0 ? (
+            {data.attributeEntries.length > 0 ||
+            data.skillEntries.length > 0 ? (
               <div className={styles.containerSkillAttributes}>
                 {data.attributeEntries.length > 0 ? (
                   <div>
@@ -212,7 +229,9 @@ export default function CharacterDetailPage({
                 <h4>Progressao</h4>
                 <p>Level: {data.progressionLevelDisplay}</p>
                 <p>XP: {data.progressionCurrent}</p>
-                {data.usersCanManageOwnXp ? <p>Proximo level: {data.nextProgressionTierText}</p> : null}
+                {data.usersCanManageOwnXp ? (
+                  <p>Proximo level: {data.nextProgressionTierText}</p>
+                ) : null}
               </div>
 
               {data.aboutText ? (
@@ -258,7 +277,10 @@ export default function CharacterDetailPage({
 
         {!isModal ? (
           <div className={styles.actionLinks}>
-            <Link className={styles.actionLink} href={`/rpg/${data.rpgId}/characters`}>
+            <Link
+              className={styles.actionLink}
+              href={`/rpg/${data.rpgId}/characters`}
+            >
               Voltar para personagens
             </Link>
           </div>

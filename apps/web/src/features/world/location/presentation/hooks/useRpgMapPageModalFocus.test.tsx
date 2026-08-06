@@ -3,11 +3,11 @@ import { describe, expect, it, vi } from "vitest"
 import { useRpgMapPageModalFocus } from "@/features/world/location/presentation/hooks/useRpgMapPageModalFocus"
 
 const mocks = vi.hoisted(() => ({
-  useModalFocusTrap: vi.fn(),
+  useModalFocusTrap: vi.fn()
 }))
 
 vi.mock("@/shared/presentation/hooks/useModalFocusTrap", () => ({
-  useModalFocusTrap: mocks.useModalFocusTrap,
+  useModalFocusTrap: mocks.useModalFocusTrap
 }))
 
 describe("useRpgMapPageModalFocus", () => {
@@ -33,15 +33,15 @@ describe("useRpgMapPageModalFocus", () => {
         customFieldModalElement,
         hasPendingSectionConflict: true,
         sectionConflictModalElement,
-        onEscape,
-      }),
+        onEscape
+      })
     )
 
     expect(mocks.useModalFocusTrap).toHaveBeenCalledWith({
       activeElement: sectionConflictModalElement,
       backgroundElement,
       isActive: true,
-      onEscape,
+      onEscape
     })
   })
 
@@ -63,15 +63,15 @@ describe("useRpgMapPageModalFocus", () => {
         customFieldModalElement: null,
         hasPendingSectionConflict: false,
         sectionConflictModalElement: null,
-        onEscape,
-      }),
+        onEscape
+      })
     )
 
     expect(mocks.useModalFocusTrap).toHaveBeenCalledWith({
       activeElement: sectionDetailsModalElement,
       backgroundElement,
       isActive: true,
-      onEscape,
+      onEscape
     })
   })
 })

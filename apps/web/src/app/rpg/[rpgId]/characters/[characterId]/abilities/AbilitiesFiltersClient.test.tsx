@@ -6,9 +6,9 @@ vi.mock(
   "@/features/world/characters/infrastructure/abilities/gateways/httpCharacterAbilitiesGateway",
   () => ({
     httpCharacterAbilitiesGateway: {
-      removeAbility: vi.fn().mockResolvedValue({ success: true }),
-    },
-  }),
+      removeAbility: vi.fn().mockResolvedValue({ success: true })
+    }
+  })
 )
 
 import AbilitiesFiltersClient from "@/features/world/characters/presentation/abilities/AbilitiesFiltersClient"
@@ -39,7 +39,7 @@ const abilities = [
     levelRequired: 1,
     pointsCost: 1,
     costCustom: null,
-    customFields: [],
+    customFields: []
   },
   {
     skillId: "s2",
@@ -66,15 +66,15 @@ const abilities = [
     levelRequired: 2,
     pointsCost: 3,
     costCustom: null,
-    customFields: [],
-  },
+    customFields: []
+  }
 ]
 
 describe("AbilitiesFiltersClient", () => {
   const deps = {
     gateway: {
-      removeAbility: vi.fn().mockResolvedValue({ success: true }),
-    },
+      removeAbility: vi.fn().mockResolvedValue({ success: true })
+    }
   }
 
   it("renderiza as habilidades iniciais", () => {
@@ -83,7 +83,7 @@ describe("AbilitiesFiltersClient", () => {
         characterId="char-1"
         abilities={abilities}
         deps={deps}
-      />,
+      />
     )
 
     expect(screen.getByText("Golpe Preciso")).toBeInTheDocument()
@@ -97,13 +97,13 @@ describe("AbilitiesFiltersClient", () => {
         characterId="char-1"
         abilities={abilities}
         deps={deps}
-      />,
+      />
     )
 
     await user.click(screen.getByRole("button", { name: "Abrir filtros" }))
     const filtersDialog = screen.getByRole("dialog")
     await user.click(
-      within(filtersDialog).getByRole("button", { name: "Técnicas" }),
+      within(filtersDialog).getByRole("button", { name: "Técnicas" })
     )
 
     expect(screen.getByText("Golpe Preciso")).toBeInTheDocument()
@@ -117,13 +117,13 @@ describe("AbilitiesFiltersClient", () => {
         characterId="char-1"
         abilities={abilities}
         deps={deps}
-      />,
+      />
     )
 
     await user.type(screen.getByPlaceholderText("Buscar..."), "inexistente")
 
     expect(
-      screen.getByText("Nenhuma habilidade encontrada com os filtros atuais."),
+      screen.getByText("Nenhuma habilidade encontrada com os filtros atuais.")
     ).toBeInTheDocument()
   })
 })

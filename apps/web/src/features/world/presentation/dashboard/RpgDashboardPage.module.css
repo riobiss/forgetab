@@ -49,7 +49,11 @@
   width: 100%;
   border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    var(--color-bg-app)
+  );
   color: var(--color-text-secondary);
   padding: 0.8rem 1rem;
   display: flex;
@@ -58,7 +62,9 @@
   gap: 0.8rem;
   cursor: pointer;
   font-weight: 700;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .notificationTrigger:hover,
@@ -136,7 +142,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid color-mix(in srgb, var(--color-brand-contrast) 15%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-contrast) 15%, transparent);
   box-shadow: 0 4px 10px var(--color-bg-overlay-soft);
 }
 
@@ -158,7 +165,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid color-mix(in srgb, var(--color-brand-contrast) 15%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-contrast) 15%, transparent);
   box-shadow: 0 4px 10px var(--color-bg-overlay-soft);
 }
 
@@ -181,7 +189,11 @@
 .membersPanel {
   border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    var(--color-bg-app)
+  );
   padding: 1rem;
   margin-top: 0.7rem;
 }
@@ -524,7 +536,11 @@
   margin: 2rem auto 0;
   border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    var(--color-bg-app)
+  );
   padding: 1rem;
   display: grid;
   gap: 0.75rem;
@@ -563,7 +579,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
 }
 
 .titleRow .title {
@@ -581,7 +596,9 @@
   color: var(--color-text-secondary);
   text-decoration: none;
   background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .infoButton:hover,
@@ -604,7 +621,11 @@
   width: min(560px, 100%);
   border: 1px solid var(--color-border-soft);
   border-radius: 14px;
-  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    var(--color-bg-app)
+  );
   padding: 1rem;
   box-shadow: var(--shadow-elevation-md);
   display: grid;
@@ -660,7 +681,9 @@
   color: var(--color-text-secondary);
   background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
   cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .quickCreateTrigger:hover {
@@ -685,7 +708,11 @@
   border: 1px solid var(--color-border-soft);
   border-radius: 12px;
   padding: 0.4rem;
-  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    var(--color-bg-app)
+  );
   box-shadow: var(--shadow-elevation-md);
   display: grid;
   gap: 0.2rem;
@@ -863,7 +890,11 @@
   border: 1px solid var(--color-border-soft);
   border-radius: 12px;
   padding: 0.9rem;
-  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    var(--color-bg-app)
+  );
   display: grid;
   gap: 0.75rem;
 }
@@ -1030,9 +1061,7 @@
 .card:hover {
   transform: translateY(-5px);
   border-color: var(--color-brand-primary);
-  box-shadow:
-    var(--shadow-elevation-md),
-    var(--shadow-brand-glow);
+  box-shadow: var(--shadow-elevation-md), var(--shadow-brand-glow);
 }
 
 .card span {
@@ -1070,6 +1099,3 @@
     align-items: stretch;
   }
 }
-
-
-

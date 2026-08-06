@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import type { ReactNode } from "react"
 import {
   fetchRpgPageAccess,
-  HttpPageAccessError,
+  HttpPageAccessError
 } from "@/features/world/infrastructure/management/repositories/httpRpgPageAccessRepository"
 
 type Props = {

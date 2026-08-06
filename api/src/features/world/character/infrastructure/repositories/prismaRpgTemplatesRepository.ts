@@ -7,7 +7,7 @@ import type {
   CharacterIdentityTemplateRow,
   IdentityTemplateRow,
   SkillTemplateRow,
-  StatusTemplateRow,
+  StatusTemplateRow
 } from "@/features/world/character/application/types.js"
 import { withCharacterPersistenceErrors } from "@/features/world/character/infrastructure/repositories/characterPersistenceErrors.js"
 
@@ -24,7 +24,7 @@ export const prismaRpgTemplatesRepository: RpgTemplatesRepository = {
       if (
         error instanceof Error &&
         error.message.includes(
-          'relation "rpg_attribute_templates" does not exist',
+          'relation "rpg_attribute_templates" does not exist'
         )
       ) {
         return []
@@ -83,7 +83,7 @@ export const prismaRpgTemplatesRepository: RpgTemplatesRepository = {
       if (
         error instanceof Error &&
         error.message.includes(
-          'relation "rpg_character_identity_templates" does not exist',
+          'relation "rpg_character_identity_templates" does not exist'
         )
       ) {
         return []
@@ -106,7 +106,7 @@ export const prismaRpgTemplatesRepository: RpgTemplatesRepository = {
       if (
         error instanceof Error &&
         error.message.includes(
-          'relation "rpg_character_characteristic_templates" does not exist',
+          'relation "rpg_character_characteristic_templates" does not exist'
         )
       ) {
         return []
@@ -121,7 +121,7 @@ export const prismaRpgTemplatesRepository: RpgTemplatesRepository = {
         SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
         FROM rpg_race_templates
         WHERE rpg_id = ${rpgId}
-      `),
+      `)
     )
   },
 
@@ -131,7 +131,7 @@ export const prismaRpgTemplatesRepository: RpgTemplatesRepository = {
         SELECT key, attribute_bonuses AS "attributeBonuses", skill_bonuses AS "skillBonuses"
         FROM rpg_class_templates
         WHERE rpg_id = ${rpgId}
-      `),
+      `)
     )
-  },
+  }
 }

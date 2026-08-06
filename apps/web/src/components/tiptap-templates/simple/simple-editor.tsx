@@ -1,7 +1,12 @@
 "use client"
 
 import { useEffect, useRef, useState, type CSSProperties } from "react"
-import { EditorContent, EditorContext, type JSONContent, useEditor } from "@tiptap/react"
+import {
+  EditorContent,
+  EditorContext,
+  type JSONContent,
+  useEditor
+} from "@tiptap/react"
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit"
@@ -20,7 +25,7 @@ import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
 import {
   Toolbar,
   ToolbarGroup,
-  ToolbarSeparator,
+  ToolbarSeparator
 } from "@/components/tiptap-ui-primitive/toolbar"
 
 // --- Tiptap Node ---
@@ -43,12 +48,12 @@ import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button"
 import {
   ColorHighlightPopover,
   ColorHighlightPopoverContent,
-  ColorHighlightPopoverButton,
+  ColorHighlightPopoverButton
 } from "@/components/tiptap-ui/color-highlight-popover"
 import {
   LinkPopover,
   LinkContent,
-  LinkButton,
+  LinkButton
 } from "@/components/tiptap-ui/link-popover"
 import { MarkButton } from "@/components/tiptap-ui/mark-button"
 import { TextAlignButton } from "@/components/tiptap-ui/text-align-button"
@@ -79,7 +84,7 @@ const MainToolbarContent = ({
   isMobile,
   onSave,
   canSave,
-  isSaving,
+  isSaving
 }: {
   onHighlighterClick: () => void
   onLinkClick: () => void
@@ -170,7 +175,7 @@ const MainToolbarContent = ({
 
 const MobileToolbarContent = ({
   type,
-  onBack,
+  onBack
 }: {
   type: "highlighter" | "link"
   onBack: () => void
@@ -214,7 +219,7 @@ export function SimpleEditor({
   onSave,
   canSave = false,
   isSaving = false,
-  className = "",
+  className = ""
 }: SimpleEditorProps) {
   const isMobile = useIsBreakpoint()
   const { height, offsetTop } = useWindowSize()
@@ -233,16 +238,16 @@ export function SimpleEditor({
         autocorrect: "off",
         autocapitalize: "off",
         "aria-label": "Main content area, start typing to enter text.",
-        class: "simple-editor",
-      },
+        class: "simple-editor"
+      }
     },
     extensions: [
       StarterKit.configure({
         horizontalRule: false,
         link: {
           openOnClick: false,
-          enableClickSelection: true,
-        },
+          enableClickSelection: true
+        }
       }),
       HorizontalRule,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
@@ -259,13 +264,13 @@ export function SimpleEditor({
         maxSize: MAX_FILE_SIZE,
         limit: 3,
         upload: handleImageUpload,
-        onError: (error) => console.error("Upload failed:", error),
-      }),
+        onError: (error) => console.error("Upload failed:", error)
+      })
     ],
     content: initialContent ?? content,
     onUpdate({ editor: currentEditor }) {
       onJsonChange?.(currentEditor.getJSON())
-    },
+    }
   })
 
   const keyboardOffset =
@@ -275,7 +280,7 @@ export function SimpleEditor({
 
   useCursorVisibility({
     editor,
-    overlayHeight: toolbarHeight + keyboardOffset,
+    overlayHeight: toolbarHeight + keyboardOffset
   })
 
   useEffect(() => {
@@ -310,7 +315,7 @@ export function SimpleEditor({
 
   const wrapperStyle = {
     "--simple-editor-toolbar-height": `${disabled ? 0 : toolbarHeight}px`,
-    "--simple-editor-toolbar-offset": `${disabled ? 0 : keyboardOffset}px`,
+    "--simple-editor-toolbar-offset": `${disabled ? 0 : keyboardOffset}px`
   } as CSSProperties
 
   return (

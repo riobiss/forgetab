@@ -14,7 +14,7 @@ import {
   isNodeInSchema,
   isNodeTypeSelected,
   isValidPosition,
-  selectionWithinConvertibleTypes,
+  selectionWithinConvertibleTypes
 } from "@/lib/tiptap-utils"
 
 // --- Icons ---
@@ -56,7 +56,7 @@ export const headingIcons = {
   3: HeadingThreeIcon,
   4: HeadingFourIcon,
   5: HeadingFiveIcon,
-  6: HeadingSixIcon,
+  6: HeadingSixIcon
 }
 
 export const HEADING_SHORTCUT_KEYS: Record<Level, string> = {
@@ -65,7 +65,7 @@ export const HEADING_SHORTCUT_KEYS: Record<Level, string> = {
   3: "ctrl+alt+3",
   4: "ctrl+alt+4",
   5: "ctrl+alt+5",
-  6: "ctrl+alt+6",
+  6: "ctrl+alt+6"
 }
 
 /**
@@ -98,7 +98,7 @@ export function canToggle(
       "orderedList",
       "taskList",
       "blockquote",
-      "codeBlock",
+      "codeBlock"
     ])
   )
     return false
@@ -160,7 +160,7 @@ export function toggleHeading(
         "orderedList",
         "taskList",
         "blockquote",
-        "codeBlock",
+        "codeBlock"
       ]) && blocks.length === 1
 
     // No selection, find the the cursor position
@@ -170,7 +170,7 @@ export function toggleHeading(
     ) {
       const pos = findNodePosition({
         editor,
-        node: state.selection.$anchor.node(1),
+        node: state.selection.$anchor.node(1)
       })?.pos
       if (!isValidPosition(pos)) return false
 
@@ -300,7 +300,7 @@ export function useHeading(config: UseHeadingConfig) {
     editor: providedEditor,
     level,
     hideWhenUnavailable = false,
-    onToggled,
+    onToggled
   } = config
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -341,6 +341,6 @@ export function useHeading(config: UseHeadingConfig) {
     canToggle: canToggleState,
     label: `Heading ${level}`,
     shortcutKeys: HEADING_SHORTCUT_KEYS[level],
-    Icon: headingIcons[level],
+    Icon: headingIcons[level]
   }
 }

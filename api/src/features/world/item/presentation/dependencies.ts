@@ -5,5 +5,5 @@ import { rpgPermissionService } from "@/features/world/item/infrastructure/servi
 export const itemRouteDeps = {
   repository: prismaItemRepository,
   permissionService: rpgPermissionService,
-  imageStorageService: imageKitItemImageStorageService,
+  imageStorageService: imageKitItemImageStorageService
 } as const

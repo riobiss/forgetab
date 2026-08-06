@@ -1,7 +1,7 @@
 import type {
   BaseItemDto,
   CharacterSummaryDto,
-  ItemTypeDto,
+  ItemTypeDto
 } from "@/features/world/items/application/dashboard/types"
 
 export type BaseItem = BaseItemDto

@@ -61,5 +61,5 @@ export const prismaCharacterUpdateRepository: CharacterUpdateRepository = {
 
       return updated.length > 0
     })
-  },
+  }
 }

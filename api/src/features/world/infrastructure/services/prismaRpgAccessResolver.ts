@@ -20,7 +20,7 @@ export type RpgPermission = {
 
 export async function getRpgPermissionByPrisma(
   rpgId: string,
-  userId: string,
+  userId: string
 ): Promise<RpgPermission> {
   const rows = await prisma.$queryRaw<PermissionRow[]>(Prisma.sql`
     SELECT
@@ -43,7 +43,7 @@ export async function getRpgPermissionByPrisma(
       isOwner: false,
       isAcceptedMember: false,
       isModerator: false,
-      canManage: false,
+      canManage: false
     }
   }
 
@@ -57,13 +57,13 @@ export async function getRpgPermissionByPrisma(
     isOwner,
     isAcceptedMember,
     isModerator,
-    canManage: isOwner || isModerator,
+    canManage: isOwner || isModerator
   }
 }
 
 export async function getRpgMembershipStatusByPrisma(
   rpgId: string,
-  userId: string,
+  userId: string
 ): Promise<MemberStatus | null> {
   const rows = await prisma.$queryRaw<
     Array<{ status: MemberStatus }>

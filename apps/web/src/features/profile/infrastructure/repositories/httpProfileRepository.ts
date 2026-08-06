@@ -27,7 +27,7 @@ type ApiProfilePayload = {
 export class HttpProfileError extends Error {
   constructor(
     message: string,
-    readonly status: number,
+    readonly status: number
   ) {
     super(message)
     this.name = "HttpProfileError"
@@ -39,7 +39,7 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     throw new HttpProfileError(
       payload.message ?? "Erro ao carregar perfil.",
-      response.status,
+      response.status
     )
   }
 
@@ -50,7 +50,7 @@ export const httpProfileReader: ProfileReader = {
   async getProfile(): Promise<ProfileViewData> {
     const response = await apiFetch("/api/profile", {
       next: { revalidate: 0 },
-      cache: "no-store",
+      cache: "no-store"
     })
     const payload = await parseJsonResponse<ApiProfilePayload>(response)
 
@@ -65,8 +65,8 @@ export const httpProfileReader: ProfileReader = {
         nickname: rpg.nickname,
         profileImageUrl: rpg.profileImageUrl,
         joinedAt: rpg.joinedAt ? new Date(rpg.joinedAt) : null,
-        characters: rpg.characters,
-      })),
+        characters: rpg.characters
+      }))
     }
-  },
+  }
 }

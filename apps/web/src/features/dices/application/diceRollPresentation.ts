@@ -2,15 +2,11 @@ import type {
   DiceRollGroup,
   DiceRollResultItem,
   DiceRollStats,
-  RollHistoryItem,
+  RollHistoryItem
 } from "@/features/dices/application/types"
 
 export type DiceResultLevel =
-  | "extremeLow"
-  | "low"
-  | "neutral"
-  | "high"
-  | "extremeHigh"
+  "extremeLow" | "low" | "neutral" | "high" | "extremeHigh"
 
 export function formatRollFormula(groups: DiceRollGroup[], modifier = 0) {
   return `${groups.map((group) => `${group.diceCount}d${group.diceSides}`).join(" + ")}${
@@ -21,7 +17,7 @@ export function formatRollFormula(groups: DiceRollGroup[], modifier = 0) {
 export function formatCurrentRollFormula(
   diceCount: string,
   diceSides: string,
-  modifier: string,
+  modifier: string
 ) {
   const parsedModifier = Number(modifier)
   return `${Number(diceCount) || 0}d${Number(diceSides) || 0}${
@@ -30,11 +26,11 @@ export function formatCurrentRollFormula(
 }
 
 export function flattenDiceResults(
-  roll: RollHistoryItem | null,
+  roll: RollHistoryItem | null
 ): DiceRollResultItem[] {
   return (
     roll?.groups.flatMap((group) =>
-      group.results.map((value) => ({ value, diceSides: group.diceSides })),
+      group.results.map((value) => ({ value, diceSides: group.diceSides }))
     ) ?? []
   )
 }
@@ -42,7 +38,7 @@ export function flattenDiceResults(
 export function calculateDiceRollStats(
   results: DiceRollResultItem[],
   isHighResult: (result: DiceRollResultItem) => boolean,
-  isLowResult: (result: DiceRollResultItem) => boolean,
+  isLowResult: (result: DiceRollResultItem) => boolean
 ): DiceRollStats | null {
   if (results.length === 0) return null
 
@@ -52,13 +48,13 @@ export function calculateDiceRollStats(
     highCount: results.filter(isHighResult).length,
     lowCount: results.filter(isLowResult).length,
     average:
-      results.reduce((sum, result) => sum + result.value, 0) / results.length,
+      results.reduce((sum, result) => sum + result.value, 0) / results.length
   }
 }
 
 export function getDiceResultLevel(
   value: number,
-  diceSides: number,
+  diceSides: number
 ): DiceResultLevel {
   const range = Math.max(diceSides - 1, 1)
   const lowDistance = (value - 1) / range

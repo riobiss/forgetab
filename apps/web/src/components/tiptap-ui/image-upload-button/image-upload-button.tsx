@@ -12,7 +12,7 @@ import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 import type { UseImageUploadConfig } from "@/components/tiptap-ui/image-upload-button"
 import {
   IMAGE_UPLOAD_SHORTCUT_KEY,
-  useImageUpload,
+  useImageUpload
 } from "@/components/tiptap-ui/image-upload-button"
 
 // --- UI Primitives ---
@@ -41,7 +41,7 @@ export interface ImageUploadButtonProps
 }
 
 export function ImageShortcutBadge({
-  shortcutKeys = IMAGE_UPLOAD_SHORTCUT_KEY,
+  shortcutKeys = IMAGE_UPLOAD_SHORTCUT_KEY
 }: {
   shortcutKeys?: string
 }) {
@@ -79,11 +79,11 @@ export const ImageUploadButton = forwardRef<
       label,
       isActive,
       shortcutKeys,
-      Icon,
+      Icon
     } = useImageUpload({
       editor,
       hideWhenUnavailable,
-      onInserted,
+      onInserted
     })
 
     const handleClick = useCallback(

@@ -1,7 +1,7 @@
 import type { MarkerSectionSyncGateway } from "@/features/world/location/application/contracts/MarkerSectionSyncGateway"
 import {
   MARKER_STORAGE_PREFIX,
-  MARKER_STORAGE_UPDATED_EVENT,
+  MARKER_STORAGE_UPDATED_EVENT
 } from "@/features/world/location/infrastructure/storage/privateMarkerStorageKeys"
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -30,17 +30,17 @@ export const localPrivateMarkerSectionSyncGateway: MarkerSectionSyncGateway = {
           }
           return {
             ...marker,
-            ...params.update,
+            ...params.update
           }
-        }),
+        })
       }
     })
 
     window.localStorage.setItem(storageKey, JSON.stringify(nextGroups))
     window.dispatchEvent(
       new CustomEvent(MARKER_STORAGE_UPDATED_EVENT, {
-        detail: { mapId: params.mapId },
-      }),
+        detail: { mapId: params.mapId }
+      })
     )
-  },
+  }
 }

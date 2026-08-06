@@ -13,13 +13,13 @@ const RESULT_LEVEL_CLASS = {
   low: styles.diceResultLow,
   neutral: "",
   high: styles.diceResultHigh,
-  extremeHigh: styles.diceResultExtremeHigh,
+  extremeHigh: styles.diceResultExtremeHigh
 }
 
 export function DiceResultGrid({
   rollId,
   groups,
-  keyPrefix,
+  keyPrefix
 }: DiceResultGridProps) {
   return (
     <div className={styles.diceResultGrid}>
@@ -31,7 +31,7 @@ export function DiceResultGrid({
           >
             <strong>{result}</strong>
           </span>
-        )),
+        ))
       )}
     </div>
   )

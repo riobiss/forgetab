@@ -9,5 +9,5 @@ function isBrowserOffline() {
 export const dicesRepository = createFallbackDicesRepository(
   httpDicesRepository,
   localDicesRepository,
-  { isOffline: isBrowserOffline },
+  { isOffline: isBrowserOffline }
 )

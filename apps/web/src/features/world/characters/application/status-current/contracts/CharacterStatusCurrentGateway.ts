@@ -14,7 +14,7 @@ export type UpdateCharacterStatusCurrentResult = {
 
 export interface CharacterStatusCurrentGateway {
   update(
-    input: UpdateCharacterStatusCurrentInput,
+    input: UpdateCharacterStatusCurrentInput
   ): Promise<UpdateCharacterStatusCurrentResult>
 }
 

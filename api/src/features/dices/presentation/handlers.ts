@@ -3,13 +3,13 @@ import { rollDicesUseCase } from "@/features/dices/application/use-cases/rollDic
 import {
   parseJsonBody,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { randomOrgRandomNumberProvider } from "@/features/dices/random/infrastructure/randomOrgRandomNumberProvider"
 
 export async function rollDicesHandler(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const body = (parseJsonBody(request.body) ?? {}) as {
@@ -18,7 +18,7 @@ export async function rollDicesHandler(
 
     const payload = await rollDicesUseCase(
       randomOrgRandomNumberProvider,
-      body.entries ?? [],
+      body.entries ?? []
     )
     return writeJson(reply, 200, payload)
   } catch (error) {

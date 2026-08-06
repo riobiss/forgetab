@@ -1,12 +1,19 @@
-
 .page {
   --home-hero-image: url("/bg-home.jpg");
   --home-hero-position: center 28%;
 
   min-height: calc(100vh - 72px);
   background:
-    radial-gradient(circle at 15% 15%, rgba(255, 126, 40, 0.24), transparent 45%),
-    radial-gradient(circle at 80% 15%, rgba(255, 106, 0, 0.16), transparent 36%),
+    radial-gradient(
+      circle at 15% 15%,
+      rgba(255, 126, 40, 0.24),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 80% 15%,
+      rgba(255, 106, 0, 0.16),
+      transparent 36%
+    ),
     linear-gradient(180deg, rgba(8, 8, 10, 0.2), rgba(8, 8, 10, 0.9)),
     var(--home-hero-image) var(--home-hero-position) / cover no-repeat;
 }
@@ -31,7 +38,8 @@
   display: inline-block;
   margin-bottom: 0.75rem;
   padding: 0.3rem 0.7rem;
-  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 45%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-primary) 45%, transparent);
   border-radius: 999px;
   font-size: 0.8rem;
   letter-spacing: 0.08em;
@@ -45,7 +53,8 @@
   font-size: clamp(2rem, 6vw, 4rem);
   line-height: 1.05;
   color: var(--color-text-primary);
-  text-shadow: 0 0 24px color-mix(in srgb, var(--color-brand-primary) 42%, transparent);
+  text-shadow: 0 0 24px
+    color-mix(in srgb, var(--color-brand-primary) 42%, transparent);
 }
 
 .subtitle {
@@ -80,8 +89,13 @@
 
 .primaryAction {
   color: var(--color-text-on-brand);
-  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 70%, transparent);
-  background: linear-gradient(120deg, var(--color-brand-primary), var(--color-brand-strong));
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-primary) 70%, transparent);
+  background: linear-gradient(
+    120deg,
+    var(--color-brand-primary),
+    var(--color-brand-strong)
+  );
   box-shadow: var(--shadow-brand-glow);
 }
 
@@ -103,7 +117,12 @@
 }
 
 .card {
-  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 24%, var(--color-border-default));
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--color-brand-primary) 24%,
+      var(--color-border-default)
+    );
   border-radius: 1rem;
   padding: 1.1rem 1rem;
   background: linear-gradient(

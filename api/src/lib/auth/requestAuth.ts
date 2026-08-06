@@ -19,7 +19,7 @@ function parseCookieHeader(cookieHeader: string | null) {
         const name = part.slice(0, separatorIndex).trim()
         const value = part.slice(separatorIndex + 1).trim()
         return [name, decodeURIComponent(value)]
-      }),
+      })
   )
 }
 

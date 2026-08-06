@@ -13,5 +13,5 @@ export const entityCatalogRouteDeps = {
   abilityRepository: prismaEntityCatalogAbilityRepository,
   playerRepository: prismaEntityCatalogPlayerRepository,
   purchaseRepository: prismaEntityCatalogPurchaseRepository,
-  detailAccessService: entityCatalogDetailAccessService,
+  detailAccessService: entityCatalogDetailAccessService
 } as const

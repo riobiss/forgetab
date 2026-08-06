@@ -8,7 +8,7 @@ import {
   processCharacterRequestHandler,
   processMemberActionHandler,
   requestCharacterCreationHandler,
-  requestJoinRpgHandler,
+  requestJoinRpgHandler
 } from "@/features/world/presentation/membership/handlers"
 
 export function memberShipRoutes(app: FastifyInstance) {
@@ -19,8 +19,8 @@ export function memberShipRoutes(app: FastifyInstance) {
     (request, reply) =>
       listRpgMembersHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -29,8 +29,8 @@ export function memberShipRoutes(app: FastifyInstance) {
     (request, reply) =>
       requestJoinRpgHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -41,8 +41,8 @@ export function memberShipRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; memberId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -53,8 +53,8 @@ export function memberShipRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; memberId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -63,8 +63,8 @@ export function memberShipRoutes(app: FastifyInstance) {
     (request, reply) =>
       getCharacterRequestsHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -73,8 +73,8 @@ export function memberShipRoutes(app: FastifyInstance) {
     (request, reply) =>
       requestCharacterCreationHandler(
         request as FastifyRequest<{ Params: { rpgId: string } }>,
-        reply,
-      ),
+        reply
+      )
   )
   registerFastifyRoute(
     app,
@@ -85,7 +85,7 @@ export function memberShipRoutes(app: FastifyInstance) {
         request as FastifyRequest<{
           Params: { rpgId: string; requestId: string }
         }>,
-        reply,
-      ),
+        reply
+      )
   )
 }

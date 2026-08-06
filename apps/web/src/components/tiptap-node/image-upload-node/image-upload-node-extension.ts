@@ -83,21 +83,21 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
       upload: undefined,
       onError: undefined,
       onSuccess: undefined,
-      HTMLAttributes: {},
+      HTMLAttributes: {}
     }
   },
 
   addAttributes() {
     return {
       accept: {
-        default: this.options.accept,
+        default: this.options.accept
       },
       limit: {
-        default: this.options.limit,
+        default: this.options.limit
       },
       maxSize: {
-        default: this.options.maxSize,
-      },
+        default: this.options.maxSize
+      }
     }
   },
 
@@ -108,7 +108,7 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
   renderHTML({ HTMLAttributes }) {
     return [
       "div",
-      mergeAttributes({ "data-type": "image-upload" }, HTMLAttributes),
+      mergeAttributes({ "data-type": "image-upload" }, HTMLAttributes)
     ]
   },
 
@@ -123,9 +123,9 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
         ({ commands }) => {
           return commands.insertContent({
             type: this.name,
-            attrs: options,
+            attrs: options
           })
-        },
+        }
     }
   },
 
@@ -154,9 +154,9 @@ export const ImageUploadNode = Node.create<ImageUploadNodeOptions>({
           }
         }
         return false
-      },
+      }
     }
-  },
+  }
 })
 
 export default ImageUploadNode

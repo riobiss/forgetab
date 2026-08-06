@@ -9,7 +9,7 @@ export type CustomFieldEntry = {
 }
 
 export function parseNamedDescriptionList(
-  value: unknown,
+  value: unknown
 ): NamedDescriptionEntry[] {
   if (!Array.isArray(value)) return []
 
@@ -45,7 +45,7 @@ export function parseCustomFieldList(value: unknown): CustomFieldEntry[] {
 
       return {
         name: maybeName.trim(),
-        value: typeof maybeValue === "string" ? maybeValue.trim() : "",
+        value: typeof maybeValue === "string" ? maybeValue.trim() : ""
       }
     })
     .filter((entry): entry is CustomFieldEntry => entry !== null)

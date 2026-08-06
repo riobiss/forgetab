@@ -13,7 +13,7 @@ type Props = {
   fieldClassName: string
   keyPrefix: string
   min?: number
-  disabled?: boolean  
+  disabled?: boolean
   required?: boolean
 }
 
@@ -26,7 +26,7 @@ export default function NumericTemplateGrid({
   keyPrefix,
   min,
   disabled = false,
-  required = false,
+  required = false
 }: Props) {
   return (
     <div className={gridClassName}>

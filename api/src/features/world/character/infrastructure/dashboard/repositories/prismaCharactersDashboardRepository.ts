@@ -1,7 +1,7 @@
 import type { CharactersDashboardRepository } from "@/features/world/character/application/dashboard/ports/CharactersDashboardRepository.js"
 import type {
   CharacterDashboardCardDto,
-  CharactersDashboardRpgDto,
+  CharactersDashboardRpgDto
 } from "@/features/world/character/application/dashboard/types.js"
 import { prisma } from "@/lib/prisma"
 import { normalizeRpgVisibility } from "@/features/world/infrastructure/shared/normalizeRpgVisibility.js"
@@ -31,7 +31,7 @@ export const prismaCharactersDashboardRepository: CharactersDashboardRepository 
         if (
           error instanceof Error &&
           error.message.includes(
-            'column "allow_multiple_player_characters" does not exist',
+            'column "allow_multiple_player_characters" does not exist'
           )
         ) {
           rpgRows = await prisma.$queryRaw<DbRpgRow[]>(Prisma.sql`
@@ -59,7 +59,7 @@ export const prismaCharactersDashboardRepository: CharactersDashboardRepository 
       rpgId,
       filterType,
       viewerUserId,
-      isOwner,
+      isOwner
     }): Promise<CharacterDashboardCardDto[]> {
       return prisma.$queryRaw<DbCharacterRow[]>(Prisma.sql`
       SELECT
@@ -88,7 +88,7 @@ export const prismaCharactersDashboardRepository: CharactersDashboardRepository 
 
     async countOwnPlayerCharacters(
       rpgId: string,
-      userId: string,
+      userId: string
     ): Promise<number> {
       const rows = await prisma.$queryRaw<
         Array<{ count: bigint | number }>
@@ -102,5 +102,5 @@ export const prismaCharactersDashboardRepository: CharactersDashboardRepository 
 
       const rawCount = rows[0]?.count ?? 0
       return typeof rawCount === "bigint" ? Number(rawCount) : rawCount
-    },
+    }
   }

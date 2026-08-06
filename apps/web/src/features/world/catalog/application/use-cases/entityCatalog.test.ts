@@ -3,7 +3,7 @@ import type { EntityCatalogItem } from "@/features/world/catalog/application/typ
 import {
   buildEntityCatalogGroups,
   getEntityCatalogCategoryOptions,
-  searchCatalogItems,
+  searchCatalogItems
 } from "@/features/world/catalog/application/use-cases/entityCatalog"
 
 const items: EntityCatalogItem[] = [
@@ -14,7 +14,7 @@ const items: EntityCatalogItem[] = [
     category: "arcana",
     meta: { shortDescription: "Domina magia", richText: {} },
     href: "/mago",
-    entityType: "class",
+    entityType: "class"
   },
   {
     id: "1",
@@ -29,15 +29,15 @@ const items: EntityCatalogItem[] = [
           content: [
             {
               type: "paragraph",
-              content: [{ type: "text", text: "Proteção pesada" }],
-            },
-          ],
-        },
-      },
+              content: [{ type: "text", text: "Proteção pesada" }]
+            }
+          ]
+        }
+      }
     },
     href: "/guerreiro",
-    entityType: "class",
-  },
+    entityType: "class"
+  }
 ]
 
 describe("entityCatalog filters", () => {
@@ -49,7 +49,7 @@ describe("entityCatalog filters", () => {
     const result = buildEntityCatalogGroups(items, {
       search: "",
       category: "all",
-      sort: "name-asc",
+      sort: "name-asc"
     })
 
     expect(result.map((group) => group.key)).toEqual(["arcana", "marcial"])
@@ -59,7 +59,7 @@ describe("entityCatalog filters", () => {
   it("retorna categorias únicas em ordem alfabética", () => {
     expect(getEntityCatalogCategoryOptions([...items, items[0]])).toEqual([
       "arcana",
-      "marcial",
+      "marcial"
     ])
   })
 })

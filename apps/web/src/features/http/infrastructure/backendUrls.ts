@@ -1,5 +1,11 @@
-const configuredApiBaseUrl = normalizeConfiguredBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL, "https")
-const configuredInternalApiBaseUrl = normalizeConfiguredBaseUrl(process.env.API_INTERNAL_BASE_URL, "http")
+const configuredApiBaseUrl = normalizeConfiguredBaseUrl(
+  process.env.NEXT_PUBLIC_API_BASE_URL,
+  "https"
+)
+const configuredInternalApiBaseUrl = normalizeConfiguredBaseUrl(
+  process.env.API_INTERNAL_BASE_URL,
+  "http"
+)
 
 function isAbsoluteUrl(value: string) {
   return /^https?:\/\//i.test(value)
@@ -7,10 +13,15 @@ function isAbsoluteUrl(value: string) {
 
 function getImplicitProtocol(value: string, defaultProtocol: "http" | "https") {
   const host = value.split(/[/?#]/)[0]?.split(":")[0]?.toLowerCase()
-  return host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0" ? "http" : defaultProtocol
+  return host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0"
+    ? "http"
+    : defaultProtocol
 }
 
-function normalizeConfiguredBaseUrl(value: string | undefined, defaultProtocol: "http" | "https") {
+function normalizeConfiguredBaseUrl(
+  value: string | undefined,
+  defaultProtocol: "http" | "https"
+) {
   const trimmedValue = value?.trim().replace(/\/+$/, "")
   if (!trimmedValue) {
     return undefined
@@ -45,7 +56,7 @@ export function getConfiguredApiBaseUrl() {
   }
 
   throw new Error(
-    'API base URL nao configurada. Defina `NEXT_PUBLIC_API_BASE_URL` e, no server-side, opcionalmente `API_INTERNAL_BASE_URL`.',
+    "API base URL nao configurada. Defina `NEXT_PUBLIC_API_BASE_URL` e, no server-side, opcionalmente `API_INTERNAL_BASE_URL`."
   )
 }
 
@@ -68,7 +79,8 @@ async function getCurrentRequestOrigin() {
   try {
     const { headers } = await import("next/headers")
     const requestHeaders = await headers()
-    const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host")
+    const host =
+      requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host")
     if (!host) {
       return null
     }
@@ -109,6 +121,6 @@ export async function resolveApiUrl(path: string) {
   }
 
   throw new Error(
-    'API base URL nao configurada. Defina `NEXT_PUBLIC_API_BASE_URL` e, no server-side, opcionalmente `API_INTERNAL_BASE_URL`.',
+    "API base URL nao configurada. Defina `NEXT_PUBLIC_API_BASE_URL` e, no server-side, opcionalmente `API_INTERNAL_BASE_URL`."
   )
 }

@@ -9,16 +9,16 @@ describe("mapSkillError", () => {
     [
       "skills_schema_missing",
       500,
-      "Tabela skills nao existe no banco. Rode a migration.",
+      "Tabela skills nao existe no banco. Rode a migration."
     ],
     [
       "skill_levels_schema_missing",
       500,
-      "Tabela skill_levels nao existe no banco. Rode a migration.",
-    ],
+      "Tabela skill_levels nao existe no banco. Rode a migration."
+    ]
   ] as const)("traduz %s", (code, status, message) => {
     expect(() =>
-      mapSkillError(new SkillRepositoryError(code), "fallback"),
+      mapSkillError(new SkillRepositoryError(code), "fallback")
     ).toThrow(expect.objectContaining({ status, message }))
   })
 
@@ -29,7 +29,7 @@ describe("mapSkillError", () => {
 
   it("oculta erros desconhecidos com uma mensagem estavel", () => {
     expect(() => mapSkillError(new Error("driver secret"), "fallback")).toThrow(
-      expect.objectContaining({ status: 500, message: "fallback" }),
+      expect.objectContaining({ status: 500, message: "fallback" })
     )
   })
 })

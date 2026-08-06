@@ -1,7 +1,7 @@
 import type { RpgMapAccessService } from "@/features/world/location/application/ports/RpgMapAccessService"
 import type {
   MarkerSectionLinkMarker,
-  MarkerSectionLinkRepository,
+  MarkerSectionLinkRepository
 } from "@/features/world/location/application/ports/MarkerSectionLinkRepository"
 import { AppError } from "@/features/shared/application/errors/AppError"
 
@@ -55,8 +55,8 @@ function parseBody(body: unknown): {
       location: optionalText(markerInput.location),
       shortDescription: optionalText(markerInput.shortDescription),
       image: optionalText(markerInput.image),
-      color: optionalText(markerInput.color),
-    },
+      color: optionalText(markerInput.color)
+    }
   }
 }
 
@@ -68,7 +68,7 @@ export async function setMarkerSectionLink(
     mapId: string
     userId: string
     body: unknown
-  },
+  }
 ) {
   const access = await accessService.getAccess(params.rpgId, params.userId)
   if (!access.exists || (!access.canManage && !access.isAcceptedMember)) {
@@ -79,7 +79,7 @@ export async function setMarkerSectionLink(
   const result = await repository.setLink({
     rpgId: params.rpgId,
     mapId: params.mapId,
-    ...input,
+    ...input
   })
 
   if (result.status === "marker_not_found") {
@@ -91,6 +91,6 @@ export async function setMarkerSectionLink(
 
   return {
     markerId: input.marker.id,
-    sectionId: result.sectionId,
+    sectionId: result.sectionId
   }
 }

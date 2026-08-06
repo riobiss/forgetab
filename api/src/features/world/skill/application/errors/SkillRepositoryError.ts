@@ -7,7 +7,7 @@ export type SkillRepositoryErrorCode =
 export class SkillRepositoryError extends Error {
   constructor(
     readonly code: SkillRepositoryErrorCode,
-    options?: ErrorOptions,
+    options?: ErrorOptions
   ) {
     super("Falha ao acessar a persistencia de habilidades.", options)
     this.name = "SkillRepositoryError"

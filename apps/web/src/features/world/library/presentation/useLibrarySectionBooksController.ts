@@ -5,7 +5,7 @@ import {
   useDeferredValue,
   useEffect,
   useMemo,
-  useState,
+  useState
 } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
@@ -15,11 +15,11 @@ import {
   createLibraryBookUseCase,
   deleteLibraryBookUseCase,
   loadLibrarySectionBooksUseCase,
-  updateLibraryBookUseCase,
+  updateLibraryBookUseCase
 } from "@/features/world/library/application/use-cases/library"
 import type {
   LibraryBookDto,
-  LibrarySectionDto,
+  LibrarySectionDto
 } from "@/features/world/library/application/types"
 import { dismissToast } from "@/lib/toast"
 
@@ -34,7 +34,7 @@ type Params = {
 export function useLibrarySectionBooksController({
   rpgId,
   sectionId,
-  deps,
+  deps
 }: Params) {
   const router = useRouter()
   const [section, setSection] = useState<LibrarySectionDto | null>(null)
@@ -72,20 +72,23 @@ export function useLibrarySectionBooksController({
     return books.filter(
       (book) =>
         book.title.toLowerCase().includes(normalized) ||
-        (book.description ?? "").toLowerCase().includes(normalized),
+        (book.description ?? "").toLowerCase().includes(normalized)
     )
   }, [books, deferredSearch])
   const selectedPlayerOptions = useMemo(
-    () => playerOptions.filter((item) => editAllowedUserIds.includes(item.value)),
-    [editAllowedUserIds, playerOptions],
+    () =>
+      playerOptions.filter((item) => editAllowedUserIds.includes(item.value)),
+    [editAllowedUserIds, playerOptions]
   )
   const selectedRaceOptions = useMemo(
-    () => raceOptions.filter((item) => editAllowedRaceKeys.includes(item.value)),
-    [editAllowedRaceKeys, raceOptions],
+    () =>
+      raceOptions.filter((item) => editAllowedRaceKeys.includes(item.value)),
+    [editAllowedRaceKeys, raceOptions]
   )
   const selectedClassOptions = useMemo(
-    () => classOptions.filter((item) => editAllowedClassKeys.includes(item.value)),
-    [classOptions, editAllowedClassKeys],
+    () =>
+      classOptions.filter((item) => editAllowedClassKeys.includes(item.value)),
+    [classOptions, editAllowedClassKeys]
   )
 
   const loadData = useCallback(async () => {
@@ -94,7 +97,7 @@ export function useLibrarySectionBooksController({
       setLoadingError("")
       const payload = await loadLibrarySectionBooksUseCase(deps, {
         rpgId,
-        sectionId,
+        sectionId
       })
       setSection(payload.section)
       setBooks(payload.books)
@@ -104,20 +107,20 @@ export function useLibrarySectionBooksController({
           value: item.id,
           label: item.name
             ? `@${item.username} - ${item.name}`
-            : `@${item.username}`,
-        })),
+            : `@${item.username}`
+        }))
       )
       setRaceOptions(
-        payload.races.map((item) => ({ value: item.key, label: item.label })),
+        payload.races.map((item) => ({ value: item.key, label: item.label }))
       )
       setClassOptions(
-        payload.classes.map((item) => ({ value: item.key, label: item.label })),
+        payload.classes.map((item) => ({ value: item.key, label: item.label }))
       )
     } catch (cause) {
       setLoadingError(
         cause instanceof Error
           ? cause.message
-          : "Erro de conexao ao carregar biblioteca.",
+          : "Erro de conexao ao carregar biblioteca."
       )
     } finally {
       setLoading(false)
@@ -193,8 +196,8 @@ export function useLibrarySectionBooksController({
           visibility: createVisibility,
           allowedCharacterIds: [],
           allowedClassKeys: [],
-          allowedRaceKeys: [],
-        },
+          allowedRaceKeys: []
+        }
       })
       setBooks((current) => [book, ...current])
       closeCreateModal(true)
@@ -255,11 +258,11 @@ export function useLibrarySectionBooksController({
           allowedClassKeys:
             editVisibility === "private" ? editAllowedClassKeys : [],
           allowedRaceKeys:
-            editVisibility === "private" ? editAllowedRaceKeys : [],
-        },
+            editVisibility === "private" ? editAllowedRaceKeys : []
+        }
       })
       setBooks((current) =>
-        current.map((item) => (item.id === book.id ? book : item)),
+        current.map((item) => (item.id === book.id ? book : item))
       )
       closeEditModal(true)
       toast.success("Livro atualizado com sucesso.")
@@ -300,7 +303,7 @@ export function useLibrarySectionBooksController({
       setDescription: setCreateDescription,
       setVisibility: setCreateVisibility,
       onCreate: createBook,
-      onClose: closeCreateModal,
+      onClose: closeCreateModal
     },
     editModal: {
       isOpen: editingBook !== null,
@@ -322,8 +325,8 @@ export function useLibrarySectionBooksController({
       setAllowedRaceKeys: setEditAllowedRaceKeys,
       setAllowedClassKeys: setEditAllowedClassKeys,
       onSave: saveBook,
-      onClose: closeEditModal,
-    },
+      onClose: closeEditModal
+    }
   }
 }
 

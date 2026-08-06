@@ -3,7 +3,7 @@ import type { AuthClientDependencies } from "@/features/auth/application/contrac
 import {
   loginClientUseCase,
   logoutClientUseCase,
-  registerClientUseCase,
+  registerClientUseCase
 } from "@/features/auth/application/use-cases/authClient"
 
 function makeDependencies(): AuthClientDependencies {
@@ -13,12 +13,12 @@ function makeDependencies(): AuthClientDependencies {
       register: vi
         .fn()
         .mockResolvedValue({ token: "register-token", maxAge: 120 }),
-      logout: vi.fn().mockResolvedValue(undefined),
+      logout: vi.fn().mockResolvedValue(undefined)
     },
     session: {
       persist: vi.fn(),
-      clear: vi.fn(),
-    },
+      clear: vi.fn()
+    }
   }
 }
 
@@ -28,7 +28,7 @@ describe("auth client use cases", () => {
 
     await loginClientUseCase(deps, {
       email: "user@email.com",
-      password: "12345678",
+      password: "12345678"
     })
 
     expect(deps.session.persist).toHaveBeenCalledWith("login-token", 60)
@@ -41,7 +41,7 @@ describe("auth client use cases", () => {
       name: "User",
       username: "user_1",
       email: "user@email.com",
-      password: "12345678",
+      password: "12345678"
     })
 
     expect(deps.session.persist).toHaveBeenCalledWith("register-token", 120)

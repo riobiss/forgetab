@@ -6,6 +6,6 @@ export interface AuthRateLimitService {
   check(
     key: string,
     limit: number,
-    windowMs: number,
+    windowMs: number
   ): Promise<AuthRateLimitResult>
 }

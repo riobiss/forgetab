@@ -13,14 +13,12 @@ describe("localPrivateMarkerGroupStorage", () => {
       JSON.stringify([
         {
           id: "group-1",
-          markers: [{ id: "marker-1", x: 4, y: 8 }],
-        },
-      ]),
+          markers: [{ id: "marker-1", x: 4, y: 8 }]
+        }
+      ])
     )
 
-    expect(
-      localPrivateMarkerGroupStorage.load("map-1", ["#abc"]),
-    ).toEqual([
+    expect(localPrivateMarkerGroupStorage.load("map-1", ["#abc"])).toEqual([
       {
         id: "group-1",
         name: "Marcadores",
@@ -41,10 +39,10 @@ describe("localPrivateMarkerGroupStorage", () => {
             size: 1,
             pinStyle: "default",
             canEdit: true,
-            canDelete: true,
-          },
-        ],
-      },
+            canDelete: true
+          }
+        ]
+      }
     ])
   })
 
@@ -52,7 +50,7 @@ describe("localPrivateMarkerGroupStorage", () => {
     const listener = vi.fn()
     const unsubscribe = localPrivateMarkerGroupStorage.subscribe(
       "map-1",
-      listener,
+      listener
     )
 
     localPrivateMarkerGroupStorage.save("map-2", [])

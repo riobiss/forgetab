@@ -14,7 +14,7 @@ const marker = {
   location: "Sul",
   shortDescription: "Descricao anterior",
   image: "old.png",
-  color: "#000",
+  color: "#000"
 }
 
 describe("syncLinkedMarkerWithSectionUseCase", () => {
@@ -34,10 +34,10 @@ describe("syncLinkedMarkerWithSectionUseCase", () => {
           customFields: {
             Localizacao: " Norte ",
             Imagem: "new.png",
-            Cor: "#fff",
-          },
-        },
-      },
+            Cor: "#fff"
+          }
+        }
+      }
     )
 
     expect(privateMarkers.update).toHaveBeenCalledWith({
@@ -50,8 +50,8 @@ describe("syncLinkedMarkerWithSectionUseCase", () => {
         location: "Norte",
         shortDescription: "Capital",
         image: "new.png",
-        color: "#fff",
-      },
+        color: "#fff"
+      }
     })
     expect(publicMarkers.update).not.toHaveBeenCalled()
   })
@@ -69,9 +69,9 @@ describe("syncLinkedMarkerWithSectionUseCase", () => {
         section: {
           name: "",
           description: null,
-          customFields: null,
-        },
-      },
+          customFields: null
+        }
+      }
     )
 
     expect(publicMarkers.update).toHaveBeenCalledWith(
@@ -81,9 +81,9 @@ describe("syncLinkedMarkerWithSectionUseCase", () => {
           location: "Sul",
           shortDescription: "Descricao anterior",
           image: "old.png",
-          color: "#000",
-        },
-      }),
+          color: "#000"
+        }
+      })
     )
     expect(privateMarkers.update).not.toHaveBeenCalled()
   })

@@ -45,7 +45,7 @@ const useToolbarNavigation = (
     items,
     orientation: "horizontal",
     onSelect: (el) => el.click(),
-    autoSelectFirstItem: false,
+    autoSelectFirstItem: false
   })
 
   useEffect(() => {

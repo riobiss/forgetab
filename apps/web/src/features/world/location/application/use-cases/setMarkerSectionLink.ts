@@ -1,6 +1,6 @@
 import type {
   MarkerSectionLinkGateway,
-  MarkerSectionLinkMarker,
+  MarkerSectionLinkMarker
 } from "@/features/world/location/application/contracts/MarkerSectionLinkGateway"
 
 export function setMarkerSectionLinkUseCase(
@@ -10,7 +10,7 @@ export function setMarkerSectionLinkUseCase(
     mapId: string
     sectionId: string | null
     marker: MarkerSectionLinkMarker
-  },
+  }
 ) {
   return gateway.setLink(params)
 }

@@ -28,7 +28,7 @@ export default function StatusTracker({
   rpgId,
   characterId,
   canPersist,
-  dependencies = defaultDependencies,
+  dependencies = defaultDependencies
 }: Props) {
   const defaults = useMemo(
     () =>
@@ -36,10 +36,13 @@ export default function StatusTracker({
         acc[item.key] = item.current
         return acc
       }, {}),
-    [items],
+    [items]
   )
-  const [currentByKey, setCurrentByKey] = useState<Record<string, number>>(defaults)
-  const [discountInputByKey, setDiscountInputByKey] = useState<Record<string, string>>({})
+  const [currentByKey, setCurrentByKey] =
+    useState<Record<string, number>>(defaults)
+  const [discountInputByKey, setDiscountInputByKey] = useState<
+    Record<string, string>
+  >({})
   const [savingStatusKey, setSavingStatusKey] = useState<string | null>(null)
   const [error, setError] = useState("")
 
@@ -51,9 +54,9 @@ export default function StatusTracker({
     () =>
       items.map((item) => ({
         ...item,
-        current: currentByKey[item.key] ?? item.current,
+        current: currentByKey[item.key] ?? item.current
       })),
-    [currentByKey, items],
+    [currentByKey, items]
   )
 
   async function updateStatus(key: string, delta: number) {
@@ -71,16 +74,21 @@ export default function StatusTracker({
     setCurrentByKey((prev) => ({ ...prev, [key]: next }))
 
     try {
-      const result = await updateCharacterStatusCurrentClientUseCase(dependencies, {
-        rpgId,
-        characterId,
-        key,
-        value: next,
-      })
+      const result = await updateCharacterStatusCurrentClientUseCase(
+        dependencies,
+        {
+          rpgId,
+          characterId,
+          key,
+          value: next
+        }
+      )
       setCurrentByKey((prev) => ({ ...prev, [key]: result.value }))
     } catch (cause) {
       setCurrentByKey((prev) => ({ ...prev, [key]: current }))
-      setError(cause instanceof Error ? cause.message : "Erro ao salvar status atual.")
+      setError(
+        cause instanceof Error ? cause.message : "Erro ao salvar status atual."
+      )
     } finally {
       setSavingStatusKey(null)
     }
@@ -106,16 +114,26 @@ export default function StatusTracker({
               <button
                 type="button"
                 className={styles.statusButton}
-                onClick={() => void updateStatus(item.key, -getDiscountAmount(item.key))}
-                disabled={!canPersist || savingStatusKey !== null || item.current <= 0}
+                onClick={() =>
+                  void updateStatus(item.key, -getDiscountAmount(item.key))
+                }
+                disabled={
+                  !canPersist || savingStatusKey !== null || item.current <= 0
+                }
               >
                 -
               </button>
               <button
                 type="button"
                 className={styles.statusButton}
-                onClick={() => void updateStatus(item.key, getDiscountAmount(item.key))}
-                disabled={!canPersist || savingStatusKey !== null || item.current >= item.max}
+                onClick={() =>
+                  void updateStatus(item.key, getDiscountAmount(item.key))
+                }
+                disabled={
+                  !canPersist ||
+                  savingStatusKey !== null ||
+                  item.current >= item.max
+                }
               >
                 +
               </button>
@@ -130,7 +148,7 @@ export default function StatusTracker({
                 onChange={(event) =>
                   setDiscountInputByKey((prev) => ({
                     ...prev,
-                    [item.key]: event.target.value,
+                    [item.key]: event.target.value
                   }))
                 }
                 placeholder="1"

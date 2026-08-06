@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import {
   loadLibraryPage,
-  loadLibrarySectionPage,
+  loadLibrarySectionPage
 } from "@/features/world/library/application/page/use-cases/loadLibraryPage"
 import { httpLibraryPageGateway } from "@/features/world/library/infrastructure/page/gateways/httpLibraryPageGateway"
 
@@ -15,12 +15,12 @@ export async function loadLibraryPageData(rpgId: string) {
 
 export async function loadLibrarySectionPageData(
   rpgId: string,
-  sectionId: string,
+  sectionId: string
 ) {
   try {
     const data = await loadLibrarySectionPage(httpLibraryPageGateway, {
       rpgId,
-      sectionId,
+      sectionId
     })
     if (!data) notFound()
     return data

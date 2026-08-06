@@ -27,14 +27,14 @@ export default function ProfileRpgNicknameField({ rpgId, nickname }: Props) {
       await updateRpgProfileClientUseCase(profileDependencies, {
         rpgId,
         payload: {
-          displayName: draft,
-        },
+          displayName: draft
+        }
       })
       setIsEditing(false)
       router.refresh()
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "Erro ao atualizar apelido.",
+        error instanceof Error ? error.message : "Erro ao atualizar apelido."
       )
     } finally {
       setIsSaving(false)

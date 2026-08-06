@@ -25,7 +25,7 @@ export function DiceHistoryPanel({
   expandedHistoryId,
   formatTime,
   onClearHistory,
-  onToggleHistoryCard,
+  onToggleHistoryCard
 }: DiceHistoryPanelProps) {
   return (
     <section className={styles.historyPanel} aria-label="Historico de rolagens">

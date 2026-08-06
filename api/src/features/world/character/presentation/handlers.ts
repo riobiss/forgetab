@@ -1,7 +1,7 @@
 export {
   createCharacterHandler,
   getCharactersDashboardHandler,
-  listCharactersHandler,
+  listCharactersHandler
 } from "./dashboardCollectionHandlers"
 export {
   buyCharacterSkillHandler,
@@ -12,16 +12,15 @@ export {
   deleteCharacterHandler,
   getNpcMonsterCharacterAbilitiesHandler,
   addNpcMonsterCharacterAbilityHandler,
-  removeNpcMonsterCharacterAbilityHandler,
+  removeNpcMonsterCharacterAbilityHandler
 } from "./detailAbilityHandlers"
 export {
   createCharacterInventoryHandler,
   getCharacterInventoryHandler,
   removeCharacterInventoryHandler,
-  updateCharacterStatusCurrentHandler,
+  updateCharacterStatusCurrentHandler
 } from "./inventoryStatusHandlers"
 export {
   grantCharacterPointsHandler,
-  grantCharacterXpHandler,
+  grantCharacterXpHandler
 } from "./progressionHandlers"
-

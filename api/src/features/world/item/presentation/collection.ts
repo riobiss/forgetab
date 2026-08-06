@@ -4,7 +4,7 @@ import { getItems } from "@/features/world/item/application/use-cases/getItems"
 import {
   parseJsonBody,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { itemRouteDeps } from "./dependencies"
 import { type RpgRouteParams, requireUserId } from "./shared"
@@ -13,15 +13,15 @@ export function getItemsPayload(rpgId: string, userId: string) {
   return getItems(
     {
       repository: itemRouteDeps.repository,
-      permissionService: itemRouteDeps.permissionService,
+      permissionService: itemRouteDeps.permissionService
     },
-    { rpgId, userId },
+    { rpgId, userId }
   )
 }
 
 export async function listItemsHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -38,7 +38,7 @@ export async function listItemsHandler(
 
 export async function createItemHandler(
   request: FastifyRequest<{ Params: RpgRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -50,9 +50,9 @@ export async function createItemHandler(
     const payload = await createItem(
       {
         repository: itemRouteDeps.repository,
-        permissionService: itemRouteDeps.permissionService,
+        permissionService: itemRouteDeps.permissionService
       },
-      { rpgId: request.params.rpgId, userId: auth.userId, body },
+      { rpgId: request.params.rpgId, userId: auth.userId, body }
     )
 
     return writeJson(reply, 201, payload)

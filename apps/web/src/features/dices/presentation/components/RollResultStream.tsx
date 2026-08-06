@@ -1,7 +1,7 @@
 import { Dice5 } from "lucide-react"
 import type {
   DiceRollStats,
-  RollHistoryItem,
+  RollHistoryItem
 } from "@/features/dices/application/types"
 import { DiceResultGrid } from "@/features/dices/presentation/components/DiceResultGrid"
 import { RollStatsModal } from "@/features/dices/presentation/components/RollStatsModal"
@@ -27,12 +27,12 @@ export function RollResultStream({
   stats,
   formatTime,
   onOpenStats,
-  onCloseStats,
+  onCloseStats
 }: RollResultStreamProps) {
   const shouldShowResultGrid = latestRoll
     ? latestRoll.modifier !== 0 ||
       latestRoll.groups.some(
-        (group) => group.results.length > 1 || group.diceCount > 1,
+        (group) => group.results.length > 1 || group.diceCount > 1
       )
     : false
 

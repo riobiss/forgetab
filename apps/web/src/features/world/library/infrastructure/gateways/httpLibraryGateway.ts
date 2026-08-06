@@ -4,7 +4,7 @@ import type {
   LibraryBookDto,
   LibrarySectionDto,
   RaceOptionDto,
-  RpgUserOptionDto,
+  RpgUserOptionDto
 } from "@/features/world/library/application/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
@@ -17,7 +17,7 @@ export const httpLibraryGateway: LibraryGateway = {
     }>(await apiFetch(`/api/rpg/${rpgId}/library/sections`))
     return {
       sections: payload.sections ?? [],
-      canManage: Boolean(payload.canManage),
+      canManage: Boolean(payload.canManage)
     }
   },
 
@@ -26,8 +26,8 @@ export const httpLibraryGateway: LibraryGateway = {
       await apiFetch(`/api/rpg/${rpgId}/library/sections`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }),
+        body: JSON.stringify(payload)
+      })
     )
     if (!result.section) throw new Error("Nao foi possivel salvar a secao.")
     return result.section
@@ -38,8 +38,8 @@ export const httpLibraryGateway: LibraryGateway = {
       await apiFetch(`/api/rpg/${rpgId}/library/sections/${sectionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }),
+        body: JSON.stringify(payload)
+      })
     )
     if (!result.section) throw new Error("Nao foi possivel salvar a secao.")
     return result.section
@@ -48,8 +48,8 @@ export const httpLibraryGateway: LibraryGateway = {
   async deleteSection(rpgId, sectionId) {
     await parseJson<{ message?: string }>(
       await apiFetch(`/api/rpg/${rpgId}/library/sections/${sectionId}`, {
-        method: "DELETE",
-      }),
+        method: "DELETE"
+      })
     )
   },
 
@@ -71,27 +71,27 @@ export const httpLibraryGateway: LibraryGateway = {
     return {
       books: payload.books ?? [],
       canManage: Boolean(payload.canManage),
-      canCreate: payload.canCreate !== false,
+      canCreate: payload.canCreate !== false
     }
   },
 
   async fetchVisibilityOptions(rpgId) {
     const [membersPayload, racesPayload, classesPayload] = await Promise.all([
       parseJson<{ users?: RpgUserOptionDto[] }>(
-        await apiFetch(`/api/rpg/${rpgId}/members`),
+        await apiFetch(`/api/rpg/${rpgId}/members`)
       ),
       parseJson<{ races?: RaceOptionDto[] }>(
-        await apiFetch(`/api/rpg/${rpgId}/races`),
+        await apiFetch(`/api/rpg/${rpgId}/races`)
       ),
       parseJson<{ classes?: ClassOptionDto[] }>(
-        await apiFetch(`/api/rpg/${rpgId}/classes`),
-      ),
+        await apiFetch(`/api/rpg/${rpgId}/classes`)
+      )
     ])
 
     return {
       players: membersPayload.users ?? [],
       races: racesPayload.races ?? [],
-      classes: classesPayload.classes ?? [],
+      classes: classesPayload.classes ?? []
     }
   },
 
@@ -105,7 +105,7 @@ export const httpLibraryGateway: LibraryGateway = {
     return {
       book: payload.book,
       canEdit: Boolean(payload.canEdit),
-      canManage: Boolean(payload.canManage),
+      canManage: Boolean(payload.canManage)
     }
   },
 
@@ -114,8 +114,8 @@ export const httpLibraryGateway: LibraryGateway = {
       await apiFetch(`/api/rpg/${rpgId}/library/sections/${sectionId}/books`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }),
+        body: JSON.stringify(payload)
+      })
     )
     if (!result.book) throw new Error("Nao foi possivel salvar livro.")
     return result.book
@@ -126,8 +126,8 @@ export const httpLibraryGateway: LibraryGateway = {
       await apiFetch(`/api/rpg/${rpgId}/library/books/${bookId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }),
+        body: JSON.stringify(payload)
+      })
     )
     if (!result.book) throw new Error("Nao foi possivel salvar livro.")
     return result.book
@@ -136,8 +136,8 @@ export const httpLibraryGateway: LibraryGateway = {
   async deleteBook(rpgId, bookId) {
     await parseJson<{ message?: string }>(
       await apiFetch(`/api/rpg/${rpgId}/library/books/${bookId}`, {
-        method: "DELETE",
-      }),
+        method: "DELETE"
+      })
     )
   },
 
@@ -147,10 +147,10 @@ export const httpLibraryGateway: LibraryGateway = {
     const result = await parseJson<{ url?: string }>(
       await apiFetch("/api/uploads/library-image", {
         method: "POST",
-        body: formData,
-      }),
+        body: formData
+      })
     )
     if (!result.url) throw new Error("Nao foi possivel enviar a imagem.")
     return { url: result.url.trim() }
-  },
+  }
 }

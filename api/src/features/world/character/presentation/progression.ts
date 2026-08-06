@@ -2,6 +2,6 @@ export {
   buyCharacterSkillHandler,
   grantCharacterPointsHandler,
   grantCharacterXpHandler,
-  removeCharacterSkillHandler,
+  removeCharacterSkillHandler
 } from "./handlers"
 export type { CharacterRouteParams } from "./routeTypes"

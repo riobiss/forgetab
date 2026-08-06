@@ -1,4 +1,5 @@
-export type InventoryRarity = "common" | "uncommon" | "rare" | "epic" | "legendary"
+export type InventoryRarity =
+  "common" | "uncommon" | "rare" | "epic" | "legendary"
 
 export type InventoryCardItem = {
   id: string

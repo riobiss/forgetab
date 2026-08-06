@@ -11,7 +11,7 @@ const characterSchemaColumns = [
   "current_statuses",
   "identity",
   "characteristics",
-  "skill_points",
+  "skill_points"
 ]
 
 const progressionSchemaColumns = [
@@ -19,7 +19,7 @@ const progressionSchemaColumns = [
   "progression_tiers",
   "progression_current",
   "progression_label",
-  "progression_required",
+  "progression_required"
 ]
 
 function includesMissingColumn(message: string, columns: string[]) {
@@ -41,7 +41,7 @@ export function toCharacterRepositoryError(error: unknown) {
     message.includes('relation "rpg_class_templates" does not exist')
   ) {
     return new CharacterRepositoryError("template_schema_missing", {
-      cause: error,
+      cause: error
     })
   }
 
@@ -51,25 +51,25 @@ export function toCharacterRepositoryError(error: unknown) {
     message.includes('relation "skill_class_links" does not exist')
   ) {
     return new CharacterRepositoryError("ability_schema_outdated", {
-      cause: error,
+      cause: error
     })
   }
 
   if (includesMissingColumn(message, progressionSchemaColumns)) {
     return new CharacterRepositoryError("progression_schema_outdated", {
-      cause: error,
+      cause: error
     })
   }
 
   if (includesMissingColumn(message, characterSchemaColumns)) {
     return new CharacterRepositoryError("character_schema_outdated", {
-      cause: error,
+      cause: error
     })
   }
 
   if (message.includes('relation "rpg_characters" does not exist')) {
     return new CharacterRepositoryError("character_schema_missing", {
-      cause: error,
+      cause: error
     })
   }
 
@@ -77,7 +77,7 @@ export function toCharacterRepositoryError(error: unknown) {
 }
 
 export async function withCharacterPersistenceErrors<T>(
-  operation: () => Promise<T>,
+  operation: () => Promise<T>
 ): Promise<T> {
   try {
     return await operation()

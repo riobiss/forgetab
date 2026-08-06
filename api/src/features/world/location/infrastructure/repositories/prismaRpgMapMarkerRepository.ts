@@ -20,5 +20,5 @@ export const prismaRpgMapMarkerRepository: RpgMapMarkerRepository = {
       RETURNING id
     `)
     return Boolean(rows[0])
-  },
+  }
 }

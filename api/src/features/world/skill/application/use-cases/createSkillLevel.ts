@@ -13,7 +13,7 @@ function deepCopyJson<T>(value: T): T {
 
 export async function createSkillLevel(
   deps: CreateSkillLevelDeps,
-  params: { skillId: string; userId: string; body: unknown },
+  params: { skillId: string; userId: string; body: unknown }
 ) {
   try {
     const skill = await deps.repository.findById(params.skillId, params.userId)
@@ -25,7 +25,7 @@ export async function createSkillLevel(
     if (!parsed.success) {
       throw new AppError(
         parsed.error.issues[0]?.message ?? "Dados invalidos.",
-        400,
+        400
       )
     }
 
@@ -72,7 +72,7 @@ export async function createSkillLevel(
             : {}),
           upgradeFromSkillId: params.skillId,
           upgradeFromLevelId: lastLevel.id,
-          upgradeFromLevelNumber: lastLevel.levelNumber,
+          upgradeFromLevelNumber: lastLevel.levelNumber
         }
       : nextRequirement
 
@@ -86,12 +86,12 @@ export async function createSkillLevel(
       target: nextTarget,
       area: nextArea,
       scaling: nextScaling,
-      requirement: nextRequirementWithUpgrade,
+      requirement: nextRequirementWithUpgrade
     })
 
     const updatedSkill = await deps.repository.findById(
       params.skillId,
-      params.userId,
+      params.userId
     )
     return { skill: updatedSkill }
   } catch (error) {

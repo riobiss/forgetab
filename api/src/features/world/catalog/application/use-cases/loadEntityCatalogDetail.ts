@@ -29,17 +29,17 @@ type Params =
 
 export async function loadEntityCatalogDetailUseCase(
   deps: Deps,
-  params: Params,
+  params: Params
 ): Promise<EntityCatalogDetailData | null> {
   const snapshot =
     params.entityType === "class"
       ? await deps.repository.getClassDetail({
           rpgId: params.rpgId,
-          classId: params.classId,
+          classId: params.classId
         })
       : await deps.repository.getRaceDetail({
           rpgId: params.rpgId,
-          raceKey: params.raceKey,
+          raceKey: params.raceKey
         })
 
   if (!snapshot) {
@@ -53,7 +53,7 @@ export async function loadEntityCatalogDetailUseCase(
   if (params.userId) {
     const access = await deps.accessService.getAccess(
       params.rpgId,
-      params.userId,
+      params.userId
     )
     canManage = access.canManage
     isAcceptedMember = !isOwner && access.isAcceptedMember
@@ -68,7 +68,7 @@ export async function loadEntityCatalogDetailUseCase(
     skillTemplates,
     abilities,
     players,
-    abilityPurchase,
+    abilityPurchase
   ] = await Promise.all([
     deps.repository.listAttributeTemplates(params.rpgId),
     deps.repository.listSkillTemplates(params.rpgId),
@@ -81,13 +81,13 @@ export async function loadEntityCatalogDetailUseCase(
           classKey: snapshot.key,
           classId: snapshot.id,
           userId: params.userId,
-          isOwner,
+          isOwner
         })
       : deps.playerRepository.listRacePlayers({
           rpgId: params.rpgId,
           raceKey: snapshot.key,
           userId: params.userId,
-          isOwner,
+          isOwner
         }),
     params.userId
       ? snapshot.entityType === "class"
@@ -96,12 +96,12 @@ export async function loadEntityCatalogDetailUseCase(
             userId: params.userId,
             classKey: snapshot.key,
             costsEnabled: snapshot.costsEnabled,
-            costResourceName: snapshot.costResourceName,
+            costResourceName: snapshot.costResourceName
           })
         : deps.purchaseRepository.getRacePurchaseState({
             rpgId: params.rpgId,
             userId: params.userId,
-            raceKey: snapshot.key,
+            raceKey: snapshot.key
           })
       : Promise.resolve({
           characterId: null,
@@ -112,8 +112,8 @@ export async function loadEntityCatalogDetailUseCase(
               ? snapshot.costResourceName
               : "Skill Points",
           initialPoints: 0,
-          initialOwnedBySkill: {},
-        }),
+          initialOwnedBySkill: {}
+        })
   ])
 
   return {
@@ -123,6 +123,6 @@ export async function loadEntityCatalogDetailUseCase(
     skillTemplates,
     abilities,
     players,
-    abilityPurchase,
+    abilityPurchase
   }
 }

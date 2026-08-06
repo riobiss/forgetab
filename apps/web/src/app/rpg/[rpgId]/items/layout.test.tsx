@@ -2,13 +2,13 @@ import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
-  fetchRpgPageAccess: vi.fn(),
+  fetchRpgPageAccess: vi.fn()
 }))
 
 vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("NOT_FOUND")
-  },
+  }
 }))
 
 vi.mock(
@@ -17,7 +17,7 @@ vi.mock(
     class HttpPageAccessError extends Error {
       constructor(
         message: string,
-        readonly status: number,
+        readonly status: number
       ) {
         super(message)
         this.name = "HttpPageAccessError"
@@ -26,9 +26,9 @@ vi.mock(
 
     return {
       fetchRpgPageAccess: mocks.fetchRpgPageAccess,
-      HttpPageAccessError,
+      HttpPageAccessError
     }
-  },
+  }
 )
 
 import ItemsLayout from "./layout"
@@ -40,7 +40,7 @@ describe("ItemsLayout", () => {
     mocks.fetchRpgPageAccess.mockResolvedValue({
       id: "rpg-1",
       title: "Campanha",
-      canManage: true,
+      canManage: true
     })
   })
 
@@ -48,8 +48,8 @@ describe("ItemsLayout", () => {
     render(
       await ItemsLayout({
         children: <div data-testid="items-page" />,
-        params: Promise.resolve({ rpgId: "rpg-1" }),
-      }),
+        params: Promise.resolve({ rpgId: "rpg-1" })
+      })
     )
 
     expect(screen.getByTestId("items-page")).toBeInTheDocument()
@@ -60,27 +60,27 @@ describe("ItemsLayout", () => {
     mocks.fetchRpgPageAccess.mockResolvedValueOnce({
       id: "rpg-1",
       title: "Campanha",
-      canManage: false,
+      canManage: false
     })
 
     await expect(
       ItemsLayout({
         children: <div />,
-        params: Promise.resolve({ rpgId: "rpg-1" }),
-      }),
+        params: Promise.resolve({ rpgId: "rpg-1" })
+      })
     ).rejects.toThrow("NOT_FOUND")
   })
 
   it("retorna notFound para erro de acesso da API", async () => {
     mocks.fetchRpgPageAccess.mockRejectedValueOnce(
-      new HttpPageAccessError("Nao autorizado.", 401),
+      new HttpPageAccessError("Nao autorizado.", 401)
     )
 
     await expect(
       ItemsLayout({
         children: <div />,
-        params: Promise.resolve({ rpgId: "rpg-1" }),
-      }),
+        params: Promise.resolve({ rpgId: "rpg-1" })
+      })
     ).rejects.toThrow("NOT_FOUND")
   })
 })

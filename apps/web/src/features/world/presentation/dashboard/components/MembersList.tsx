@@ -8,7 +8,7 @@ import {
   Minus,
   Plus,
   Sparkles,
-  Users,
+  Users
 } from "lucide-react"
 import styles from "../RpgDashboardPage.module.css"
 import { createRpgDashboardDependencies } from "@/features/world/presentation/dashboard/dependencies"
@@ -37,7 +37,7 @@ export default function MembersList({
   members,
   compact = false,
   usersCanManageOwnXp = true,
-  allowSkillPointDistribution = true,
+  allowSkillPointDistribution = true
 }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const {
@@ -60,7 +60,7 @@ export default function MembersList({
     toggleModerator,
     loadActionData,
     handleGrantPoints,
-    handleGrantXp,
+    handleGrantXp
   } = useMembersList(dashboardDeps, { rpgId })
   const membersCount = members.length
 
@@ -175,7 +175,7 @@ export default function MembersList({
                       className={styles.expelMemberButton}
                       onClick={async () => {
                         const confirmed = window.confirm(
-                          "Deseja realmente expulsar este membro?",
+                          "Deseja realmente expulsar este membro?"
                         )
                         if (!confirmed) return
                         const success = await expelMember(member.id)

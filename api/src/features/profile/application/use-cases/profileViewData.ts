@@ -1,11 +1,20 @@
-import type { ProfileRpgSummary, ProfileUserRecord, ProfileViewData } from "@/features/profile/application/types"
+import type {
+  ProfileRpgSummary,
+  ProfileUserRecord,
+  ProfileViewData
+} from "@/features/profile/application/types"
 
-export function buildProfileRpgProfiles(user: ProfileUserRecord | null): ProfileRpgSummary[] {
+export function buildProfileRpgProfiles(
+  user: ProfileUserRecord | null
+): ProfileRpgSummary[] {
   if (!user) {
     return []
   }
 
-  const charactersByRpgId = new Map<string, Array<{ id: string; name: string }>>()
+  const charactersByRpgId = new Map<
+    string,
+    Array<{ id: string; name: string }>
+  >()
   for (const character of user.characters) {
     const characters = charactersByRpgId.get(character.rpgId) ?? []
     characters.push({ id: character.id, name: character.name })
@@ -13,10 +22,16 @@ export function buildProfileRpgProfiles(user: ProfileUserRecord | null): Profile
   }
 
   const displayNameByRpgId = new Map(
-    user.rpgDisplayNames.map((profile) => [profile.rpgId, profile.displayName?.trim() || null]),
+    user.rpgDisplayNames.map((profile) => [
+      profile.rpgId,
+      profile.displayName?.trim() || null
+    ])
   )
   const profileImageByRpgId = new Map(
-    user.rpgDisplayNames.map((profile) => [profile.rpgId, profile.profileImageUrl?.trim() || null]),
+    user.rpgDisplayNames.map((profile) => [
+      profile.rpgId,
+      profile.profileImageUrl?.trim() || null
+    ])
   )
 
   const rpgProfilesById = new Map<string, ProfileRpgSummary>()
@@ -28,7 +43,7 @@ export function buildProfileRpgProfiles(user: ProfileUserRecord | null): Profile
       nickname: displayNameByRpgId.get(rpg.id) ?? null,
       profileImageUrl: profileImageByRpgId.get(rpg.id) ?? null,
       joinedAt: rpg.createdAt,
-      characters: charactersByRpgId.get(rpg.id) ?? [],
+      characters: charactersByRpgId.get(rpg.id) ?? []
     })
   }
 
@@ -42,13 +57,16 @@ export function buildProfileRpgProfiles(user: ProfileUserRecord | null): Profile
       title: membership.rpgTitle,
       nickname: displayNameByRpgId.get(membership.rpgId) ?? null,
       profileImageUrl: profileImageByRpgId.get(membership.rpgId) ?? null,
-      joinedAt: membership.respondedAt ?? membership.requestedAt ?? membership.createdAt,
-      characters: charactersByRpgId.get(membership.rpgId) ?? [],
+      joinedAt:
+        membership.respondedAt ??
+        membership.requestedAt ??
+        membership.createdAt,
+      characters: charactersByRpgId.get(membership.rpgId) ?? []
     })
   }
 
   return Array.from(rpgProfilesById.values()).sort((a, b) =>
-    a.title.localeCompare(b.title, "pt-BR"),
+    a.title.localeCompare(b.title, "pt-BR")
   )
 }
 
@@ -61,6 +79,6 @@ export function buildProfileViewData(params: {
     username: params.user?.username ?? null,
     email: params.user?.email ?? params.fallbackEmail,
     createdAt: params.user?.createdAt ?? null,
-    rpgProfiles: buildProfileRpgProfiles(params.user),
+    rpgProfiles: buildProfileRpgProfiles(params.user)
   }
 }

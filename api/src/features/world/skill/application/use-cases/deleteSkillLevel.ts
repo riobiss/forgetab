@@ -12,7 +12,7 @@ export async function deleteSkillLevel(
     skillId: string
     levelId: string
     userId: string
-  },
+  }
 ) {
   try {
     const skill = await deps.repository.findById(params.skillId, params.userId)
@@ -28,14 +28,14 @@ export async function deleteSkillLevel(
     if (skill.levels.length <= 1) {
       throw new AppError(
         "Nao e possivel remover o ultimo level da habilidade.",
-        400,
+        400
       )
     }
 
     await deps.repository.deleteLevel(params.skillId, params.levelId)
     const updatedSkill = await deps.repository.findById(
       params.skillId,
-      params.userId,
+      params.userId
     )
     return { skill: updatedSkill }
   } catch (error) {

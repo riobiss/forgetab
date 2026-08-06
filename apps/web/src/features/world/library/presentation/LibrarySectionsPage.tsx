@@ -7,7 +7,7 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
@@ -17,7 +17,7 @@ import {
   createLibrarySectionUseCase,
   deleteLibrarySectionUseCase,
   loadLibrarySectionsUseCase,
-  updateLibrarySectionUseCase,
+  updateLibrarySectionUseCase
 } from "@/features/world/library/application/use-cases/library"
 import type { LibrarySectionDto } from "@/features/world/library/application/types"
 import { dismissToast } from "@/lib/toast"
@@ -61,7 +61,7 @@ export default function LibrarySectionsPage({ rpgId, rpgTitle, deps }: Props) {
     return source.filter(
       (section) =>
         section.title.toLowerCase().includes(normalized) ||
-        (section.description ?? "").toLowerCase().includes(normalized),
+        (section.description ?? "").toLowerCase().includes(normalized)
     )
   }, [deferredSearch, favoriteIds, favoritesOnly, sections])
 
@@ -77,7 +77,7 @@ export default function LibrarySectionsPage({ rpgId, rpgTitle, deps }: Props) {
       setLoadingError(
         cause instanceof Error
           ? cause.message
-          : "Erro de conexao ao carregar secoes da biblioteca.",
+          : "Erro de conexao ao carregar secoes da biblioteca."
       )
       setSections([])
     } finally {
@@ -103,7 +103,7 @@ export default function LibrarySectionsPage({ rpgId, rpgTitle, deps }: Props) {
     try {
       const parsedFavorites = JSON.parse(rawFavorites)
       setFavoriteIds(
-        Array.isArray(parsedFavorites) ? parsedFavorites.filter(Boolean) : [],
+        Array.isArray(parsedFavorites) ? parsedFavorites.filter(Boolean) : []
       )
     } catch {
       setFavoriteIds([])
@@ -148,26 +148,26 @@ export default function LibrarySectionsPage({ rpgId, rpgTitle, deps }: Props) {
     setSaving(true)
     setSubmitError("")
     const loadingToastId = toast.loading(
-      editingId ? "Salvando secao..." : "Criando secao...",
+      editingId ? "Salvando secao..." : "Criando secao..."
     )
 
     try {
       const payload = {
         title,
         description: description.trim() ? description.trim() : null,
-        visibility,
+        visibility
       }
       const section = editingId
         ? await updateLibrarySectionUseCase(deps, {
             rpgId,
             sectionId: editingId,
-            payload,
+            payload
           })
         : await createLibrarySectionUseCase(deps, { rpgId, payload })
 
       if (editingId) {
         setSections((prev) =>
-          prev.map((item) => (item.id === section.id ? section : item)),
+          prev.map((item) => (item.id === section.id ? section : item))
         )
       } else {
         setSections((prev) => [section, ...prev])
@@ -175,7 +175,7 @@ export default function LibrarySectionsPage({ rpgId, rpgTitle, deps }: Props) {
       toast.success(
         editingId
           ? "Secao atualizada com sucesso."
-          : "Secao criada com sucesso.",
+          : "Secao criada com sucesso."
       )
       closeModal()
     } catch (cause) {
@@ -194,7 +194,7 @@ export default function LibrarySectionsPage({ rpgId, rpgTitle, deps }: Props) {
 
   async function handleDelete(sectionId: string) {
     const confirmed = window.confirm(
-      "Tem certeza que deseja apagar esta sessao e seus livros?",
+      "Tem certeza que deseja apagar esta sessao e seus livros?"
     )
     if (!confirmed) return
 
@@ -222,7 +222,7 @@ export default function LibrarySectionsPage({ rpgId, rpgTitle, deps }: Props) {
     setFavoriteIds((current) =>
       current.includes(sectionId)
         ? current.filter((id) => id !== sectionId)
-        : [...current, sectionId],
+        : [...current, sectionId]
     )
   }
 

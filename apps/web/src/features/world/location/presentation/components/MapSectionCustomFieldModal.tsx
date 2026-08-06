@@ -12,7 +12,7 @@ type Props = {
   draft: CustomFieldDraftState
   error: string
   onChangeDraft: (
-    updater: (current: CustomFieldDraftState) => CustomFieldDraftState,
+    updater: (current: CustomFieldDraftState) => CustomFieldDraftState
   ) => void
   onSave: () => void
   onClose: () => void
@@ -26,7 +26,7 @@ export function MapSectionCustomFieldModal({
   error,
   onChangeDraft,
   onSave,
-  onClose,
+  onClose
 }: Props) {
   if (!isOpen) {
     return null

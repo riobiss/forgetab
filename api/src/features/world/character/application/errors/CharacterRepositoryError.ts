@@ -9,7 +9,7 @@ export type CharacterRepositoryErrorCode =
 export class CharacterRepositoryError extends Error {
   constructor(
     readonly code: CharacterRepositoryErrorCode,
-    options?: ErrorOptions,
+    options?: ErrorOptions
   ) {
     super("Falha ao acessar a persistencia de personagens.", options)
     this.name = "CharacterRepositoryError"

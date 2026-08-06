@@ -9,36 +9,42 @@ const mocks = vi.hoisted(() => ({
   createToken: vi.fn(),
   getCookieConfig: vi.fn(),
   check: vi.fn(),
-  getClientIp: vi.fn(),
+  getClientIp: vi.fn()
 }))
 
-vi.mock("@/features/auth/infrastructure/repositories/prismaAuthRepository", () => ({
-  prismaAuthRepository: {
-    findUserByEmail: mocks.findUserByEmail,
-    findUserByUsername: mocks.findUserByUsername,
-    createUser: mocks.createUser,
-  },
-}))
+vi.mock(
+  "@/features/auth/infrastructure/repositories/prismaAuthRepository",
+  () => ({
+    prismaAuthRepository: {
+      findUserByEmail: mocks.findUserByEmail,
+      findUserByUsername: mocks.findUserByUsername,
+      createUser: mocks.createUser
+    }
+  })
+)
 
-vi.mock("@/features/auth/infrastructure/services/bcryptAuthPasswordService", () => ({
-  bcryptAuthPasswordService: {
-    compare: mocks.compare,
-    hash: mocks.hash,
-  },
-}))
+vi.mock(
+  "@/features/auth/infrastructure/services/bcryptAuthPasswordService",
+  () => ({
+    bcryptAuthPasswordService: {
+      compare: mocks.compare,
+      hash: mocks.hash
+    }
+  })
+)
 
 vi.mock("@/features/auth/infrastructure/services/jwtAuthTokenService", () => ({
   jwtAuthTokenService: {
     createToken: mocks.createToken,
-    getCookieConfig: mocks.getCookieConfig,
-  },
+    getCookieConfig: mocks.getCookieConfig
+  }
 }))
 
 vi.mock("@/features/auth/infrastructure/services/rateLimitAuthService", () => ({
   rateLimitAuthService: {
     check: mocks.check,
-    getClientIp: mocks.getClientIp,
-  },
+    getClientIp: mocks.getClientIp
+  }
 }))
 
 import { buildApiServer } from "@api/app"
@@ -51,12 +57,12 @@ describe("auth routes", () => {
     mocks.getClientIp.mockReturnValue("127.0.0.1")
     mocks.getCookieConfig.mockReturnValue({
       name: "auth_token",
-      maxAge: 604800,
+      maxAge: 604800
     })
     mocks.check.mockResolvedValue({
       allowed: true,
       remaining: 10,
-      retryAfterSeconds: 60,
+      retryAfterSeconds: 60
     })
   })
 
@@ -75,7 +81,7 @@ describe("auth routes", () => {
     const response = await server.inject({
       method: "POST",
       url: "/api/auth/login",
-      payload: { email: "invalido", password: "" },
+      payload: { email: "invalido", password: "" }
     })
 
     expect(response.statusCode).toBe(400)
@@ -89,7 +95,7 @@ describe("auth routes", () => {
     const response = await server.inject({
       method: "POST",
       url: "/api/auth/login",
-      payload: { email: "USER@email.com", password: "12345678" },
+      payload: { email: "USER@email.com", password: "12345678" }
     })
 
     expect(mocks.findUserByEmail).toHaveBeenCalledWith("user@email.com")
@@ -105,7 +111,7 @@ describe("auth routes", () => {
       username: "user",
       email: "user@email.com",
       passwordHash: "hash",
-      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      createdAt: new Date("2026-01-01T00:00:00.000Z")
     })
     mocks.compare.mockResolvedValue(true)
     mocks.createToken.mockResolvedValue("jwt-token")
@@ -113,19 +119,19 @@ describe("auth routes", () => {
     const response = await server.inject({
       method: "POST",
       url: "/api/auth/login",
-      payload: { email: "USER@email.com", password: "12345678" },
+      payload: { email: "USER@email.com", password: "12345678" }
     })
 
     expect(response.statusCode).toBe(200)
     expect(mocks.compare).toHaveBeenCalledWith("12345678", "hash")
     expect(mocks.createToken).toHaveBeenCalledWith({
       userId: "u1",
-      email: "user@email.com",
+      email: "user@email.com"
     })
     expect(response.headers["set-cookie"]).toContain("auth_token=jwt-token")
     expect(response.json()).toMatchObject({
       token: "jwt-token",
-      maxAge: 604800,
+      maxAge: 604800
     })
   })
 
@@ -134,7 +140,7 @@ describe("auth routes", () => {
     mocks.check.mockResolvedValueOnce({
       allowed: false,
       remaining: 0,
-      retryAfterSeconds: 42,
+      retryAfterSeconds: 42
     })
 
     const response = await server.inject({
@@ -144,8 +150,8 @@ describe("auth routes", () => {
         name: "User",
         username: "user_1",
         email: "user@email.com",
-        password: "12345678",
-      },
+        password: "12345678"
+      }
     })
 
     expect(response.statusCode).toBe(429)
@@ -163,13 +169,13 @@ describe("auth routes", () => {
         name: "User",
         username: "user_1",
         email: "user@email.com",
-        password: "12345678",
-      },
+        password: "12345678"
+      }
     })
 
     expect(response.statusCode).toBe(409)
     expect(response.json()).toEqual({
-      message: "Nao foi possivel concluir o cadastro com os dados informados.",
+      message: "Nao foi possivel concluir o cadastro com os dados informados."
     })
   })
 
@@ -183,7 +189,7 @@ describe("auth routes", () => {
       name: "User",
       username: "user_1",
       email: "user@email.com",
-      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      createdAt: new Date("2026-01-01T00:00:00.000Z")
     })
     mocks.createToken.mockResolvedValue("jwt-token")
 
@@ -194,8 +200,8 @@ describe("auth routes", () => {
         name: "User",
         username: "user_1",
         email: "USER@email.com",
-        password: "12345678",
-      },
+        password: "12345678"
+      }
     })
 
     expect(response.statusCode).toBe(201)
@@ -203,12 +209,12 @@ describe("auth routes", () => {
       name: "User",
       username: "user_1",
       email: "user@email.com",
-      passwordHash: "hashed-password",
+      passwordHash: "hashed-password"
     })
     expect(response.headers["set-cookie"]).toContain("auth_token=jwt-token")
     expect(response.json()).toMatchObject({
       token: "jwt-token",
-      maxAge: 604800,
+      maxAge: 604800
     })
   })
 
@@ -217,7 +223,7 @@ describe("auth routes", () => {
 
     const response = await server.inject({
       method: "POST",
-      url: "/api/auth/logout",
+      url: "/api/auth/logout"
     })
 
     expect(response.statusCode).toBe(200)

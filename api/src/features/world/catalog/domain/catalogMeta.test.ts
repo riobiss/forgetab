@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   normalizeEntityCatalogMeta,
-  serializeEntityCatalogMeta,
+  serializeEntityCatalogMeta
 } from "@/features/world/catalog/domain/catalogMeta"
 
 describe("catalogMeta", () => {
@@ -13,12 +13,12 @@ describe("catalogMeta", () => {
           description: { type: "doc", content: [] },
           lore: { type: "paragraph", content: [] },
           notes: { type: "doc", content: "invalido" },
-          unknown: { type: "doc", content: [] },
-        },
-      }),
+          unknown: { type: "doc", content: [] }
+        }
+      })
     ).toEqual({
       shortDescription: "Resumo",
-      richText: { description: { type: "doc", content: [] } },
+      richText: { description: { type: "doc", content: [] } }
     })
   })
 
@@ -28,12 +28,12 @@ describe("catalogMeta", () => {
         shortDescription: "  Texto  ",
         richText: {
           description: { type: "doc", content: [] },
-          notes: null,
-        },
-      }),
+          notes: null
+        }
+      })
     ).toEqual({
       shortDescription: "Texto",
-      richText: { description: { type: "doc", content: [] } },
+      richText: { description: { type: "doc", content: [] } }
     })
   })
 })

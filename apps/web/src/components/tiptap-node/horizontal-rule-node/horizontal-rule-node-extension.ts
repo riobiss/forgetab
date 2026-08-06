@@ -6,9 +6,9 @@ export const HorizontalRule = TiptapHorizontalRule.extend({
     return [
       "div",
       mergeAttributes(this.options.HTMLAttributes, { "data-type": this.name }),
-      ["hr"],
+      ["hr"]
     ]
-  },
+  }
 })
 
 export default HorizontalRule

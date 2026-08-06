@@ -1,11 +1,11 @@
 import type { Prisma } from "../../../../../../generated/prisma/client.js"
 import type {
   LibraryBookDto,
-  LibrarySectionDto,
+  LibrarySectionDto
 } from "@/features/world/library/application/types.js"
 import type {
   LibraryBookRow,
-  LibrarySectionRow,
+  LibrarySectionRow
 } from "@/features/world/library/infrastructure/repositories/libraryRepositoryRows.js"
 
 function toIsoString(value: Date | string | null | undefined) {
@@ -29,7 +29,7 @@ export function mapSection(row: LibrarySectionRow): LibrarySectionDto {
     visibility: row.visibility,
     booksCount: row.booksCount,
     createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
+    updatedAt: toIsoString(row.updatedAt)
   }
 }
 
@@ -43,13 +43,13 @@ export function mapBook(row: LibraryBookRow): LibraryBookDto {
     description: row.description,
     content: (row.content ?? {
       type: "doc",
-      content: [],
+      content: []
     }) as LibraryBookDto["content"],
     visibility: row.visibility,
     allowedCharacterIds: parseStringList(row.allowedCharacterIds),
     allowedClassKeys: parseStringList(row.allowedClassKeys),
     allowedRaceKeys: parseStringList(row.allowedRaceKeys),
     createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
+    updatedAt: toIsoString(row.updatedAt)
   }
 }

@@ -7,7 +7,7 @@ import {
   loadNpcMonsterAbilitiesUseCase,
   loadNpcMonsterInventoryUseCase,
   type CharacterInventoryItemDto,
-  type PurchasedAbilityViewDto,
+  type PurchasedAbilityViewDto
 } from "@/features/world/characters/application/loadout"
 import InventoryCards from "@/features/world/characters/presentation/inventory/components/InventoryCards"
 import { toInventoryCardItem } from "@/features/world/characters/presentation/inventory/utils"
@@ -15,7 +15,7 @@ import AbilitiesFiltersClient from "@/features/world/characters/presentation/abi
 import CharacterDetailPage from "@/features/world/characters/presentation/detail/CharacterDetailPage"
 import {
   createCharacterDetailModalDependencies,
-  type CharacterDetailModalDependencies,
+  type CharacterDetailModalDependencies
 } from "@/features/world/characters/presentation/dashboard/dependencies"
 import styles from "../CharactersDashboardPage.module.css"
 
@@ -28,13 +28,13 @@ const defaultDependencies = createCharacterDetailModalDependencies()
 
 export default function CharacterDetailModal({
   data,
-  dependencies = defaultDependencies,
+  dependencies = defaultDependencies
 }: Props) {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<"about" | "abilities" | "items">(
-    "about",
+    "about"
   )
   const [inventory, setInventory] = useState<CharacterInventoryItemDto[]>([])
   const [inventoryLoading, setInventoryLoading] = useState(false)
@@ -46,7 +46,7 @@ export default function CharacterDetailModal({
     data.characterType !== "player" && data.canEditCharacter
   const abilityDeps = useMemo(
     () => dependencies.createAbilities(data.rpgId),
-    [data.rpgId, dependencies],
+    [data.rpgId, dependencies]
   )
 
   useEffect(() => {
@@ -83,12 +83,12 @@ export default function CharacterDetailModal({
         const [inventoryResult, abilitiesResult] = await Promise.allSettled([
           loadNpcMonsterInventoryUseCase(dependencies.loadout, {
             rpgId: data.rpgId,
-            characterId: data.characterId,
+            characterId: data.characterId
           }),
           loadNpcMonsterAbilitiesUseCase(dependencies.loadout, {
             rpgId: data.rpgId,
-            characterId: data.characterId,
-          }),
+            characterId: data.characterId
+          })
         ])
 
         if (cancelled) {
@@ -101,7 +101,7 @@ export default function CharacterDetailModal({
           setInventoryError(
             inventoryResult.reason instanceof Error
               ? inventoryResult.reason.message
-              : "Nao foi possivel carregar os items.",
+              : "Nao foi possivel carregar os items."
           )
         }
 
@@ -111,7 +111,7 @@ export default function CharacterDetailModal({
           setAbilitiesError(
             abilitiesResult.reason instanceof Error
               ? abilitiesResult.reason.message
-              : "Nao foi possivel carregar as habilidades.",
+              : "Nao foi possivel carregar as habilidades."
           )
         }
       } finally {
@@ -142,7 +142,7 @@ export default function CharacterDetailModal({
     ? [
         { key: "about", label: "Sobre" },
         { key: "abilities", label: "Habilidades" },
-        { key: "items", label: "Items" },
+        { key: "items", label: "Items" }
       ]
     : undefined
 

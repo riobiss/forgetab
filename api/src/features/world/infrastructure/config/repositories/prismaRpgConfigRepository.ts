@@ -24,7 +24,7 @@ const rawPrismaRpgConfigRepository: RpgConfigRepository = {
 
     const rows = items.map(
       (item, index) =>
-        Prisma.sql`(${crypto.randomUUID()}, ${rpgId}, ${item.key}, ${item.label}, ${index})`,
+        Prisma.sql`(${crypto.randomUUID()}, ${rpgId}, ${item.key}, ${item.label}, ${index})`
     )
 
     await prisma.$executeRaw(Prisma.sql`
@@ -52,7 +52,7 @@ const rawPrismaRpgConfigRepository: RpgConfigRepository = {
 
     const rows = items.map(
       (item, index) =>
-        Prisma.sql`(${crypto.randomUUID()}, ${rpgId}, ${item.key}, ${item.label}, ${index})`,
+        Prisma.sql`(${crypto.randomUUID()}, ${rpgId}, ${item.key}, ${item.label}, ${index})`
     )
 
     await prisma.$executeRaw(Prisma.sql`
@@ -80,7 +80,7 @@ const rawPrismaRpgConfigRepository: RpgConfigRepository = {
 
     const rows = items.map(
       (item, index) =>
-        Prisma.sql`(${crypto.randomUUID()}, ${rpgId}, ${item.key}, ${item.label}, ${index})`,
+        Prisma.sql`(${crypto.randomUUID()}, ${rpgId}, ${item.key}, ${item.label}, ${index})`
     )
 
     await prisma.$executeRaw(Prisma.sql`
@@ -153,7 +153,7 @@ const rawPrismaRpgConfigRepository: RpgConfigRepository = {
           ${JSON.stringify(item.lore)}::jsonb,
           ${JSON.stringify(serializeEntityCatalogMeta(item.catalogMeta))}::jsonb,
           ${index}
-        )`,
+        )`
       )
 
       await tx.$executeRaw(Prisma.sql`
@@ -163,7 +163,7 @@ const rawPrismaRpgConfigRepository: RpgConfigRepository = {
 
       if (preservedLinks.length > 0) {
         const linkRows = preservedLinks.map(
-          (link) => Prisma.sql`(${link.skillId}, ${link.raceTemplateId})`,
+          (link) => Prisma.sql`(${link.skillId}, ${link.raceTemplateId})`
         )
 
         await tx.$executeRaw(Prisma.sql`
@@ -236,7 +236,7 @@ const rawPrismaRpgConfigRepository: RpgConfigRepository = {
           ${JSON.stringify(item.skillBonuses)}::jsonb,
           ${JSON.stringify(serializeEntityCatalogMeta(item.catalogMeta))}::jsonb,
           ${index}
-        )`,
+        )`
       )
 
       await tx.$executeRaw(Prisma.sql`
@@ -246,7 +246,7 @@ const rawPrismaRpgConfigRepository: RpgConfigRepository = {
 
       if (preservedLinks.length > 0) {
         const linkRows = preservedLinks.map(
-          (link) => Prisma.sql`(${link.skillId}, ${link.classTemplateId})`,
+          (link) => Prisma.sql`(${link.skillId}, ${link.classTemplateId})`
         )
 
         await tx.$executeRaw(Prisma.sql`
@@ -277,7 +277,7 @@ const rawPrismaRpgConfigRepository: RpgConfigRepository = {
 
     const rows = items.map(
       (item, index) =>
-        Prisma.sql`(${crypto.randomUUID()}, ${rpgId}, ${item.key}, ${item.label}, ${item.required}, ${index})`,
+        Prisma.sql`(${crypto.randomUUID()}, ${rpgId}, ${item.key}, ${item.label}, ${item.required}, ${index})`
     )
 
     await prisma.$executeRaw(Prisma.sql`
@@ -305,7 +305,7 @@ const rawPrismaRpgConfigRepository: RpgConfigRepository = {
 
     const rows = items.map(
       (item, index) =>
-        Prisma.sql`(${crypto.randomUUID()}, ${rpgId}, ${item.key}, ${item.label}, ${item.required}, ${index})`,
+        Prisma.sql`(${crypto.randomUUID()}, ${rpgId}, ${item.key}, ${item.label}, ${item.required}, ${index})`
     )
 
     await prisma.$executeRaw(Prisma.sql`
@@ -327,7 +327,7 @@ const rawPrismaRpgConfigRepository: RpgConfigRepository = {
       if (
         error instanceof Error &&
         error.message.includes(
-          'relation "rpg_attribute_templates" does not exist',
+          'relation "rpg_attribute_templates" does not exist'
         )
       ) {
         return []
@@ -354,9 +354,9 @@ const rawPrismaRpgConfigRepository: RpgConfigRepository = {
       }
       throw error
     }
-  },
+  }
 }
 
 export const prismaRpgConfigRepository = withRpgConfigRepositoryErrors(
-  rawPrismaRpgConfigRepository,
+  rawPrismaRpgConfigRepository
 )

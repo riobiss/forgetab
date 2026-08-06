@@ -15,14 +15,14 @@ function truncateText(text: string, limit: number) {
 }
 
 export function RpgDashboardPage({
-  viewModel,
+  viewModel
 }: {
   viewModel: RpgDashboardViewModel
 }) {
   const limitedDescription = truncateText(viewModel.rpg.description, 400)
   const createdAtLabel = new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "long",
-    timeZone: "America/Sao_Paulo",
+    timeZone: "America/Sao_Paulo"
   }).format(viewModel.rpg.createdAt)
 
   if (!viewModel.canViewFullContent) {
@@ -68,19 +68,19 @@ export function RpgDashboardPage({
             membershipStatus={viewModel.membershipStatus}
             pendingRequests={viewModel.pendingRequests.map((item) => ({
               ...item,
-              requestedAt: item.requestedAt.toISOString(),
+              requestedAt: item.requestedAt.toISOString()
             }))}
             pendingCharacterRequests={viewModel.pendingCharacterRequests.map(
               (item) => ({
                 ...item,
-                requestedAt: item.requestedAt.toISOString(),
-              }),
+                requestedAt: item.requestedAt.toISOString()
+              })
             )}
             pendingCharacterOffers={viewModel.pendingCharacterOffers.map(
               (item) => ({
                 ...item,
-                requestedAt: item.requestedAt.toISOString(),
-              }),
+                requestedAt: item.requestedAt.toISOString()
+              })
             )}
             compact
           />

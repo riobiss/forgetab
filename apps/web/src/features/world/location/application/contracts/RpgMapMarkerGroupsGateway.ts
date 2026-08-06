@@ -1,23 +1,23 @@
 import type {
   RpgMapMarkerGroupDto,
-  UpsertRpgMapMarkerGroupPayloadDto,
+  UpsertRpgMapMarkerGroupPayloadDto
 } from "@forgetab/world-contracts/location"
 
 export interface RpgMapMarkerGroupsGateway {
   createMarkerGroup(
     rpgId: string,
     mapId: string,
-    payload: UpsertRpgMapMarkerGroupPayloadDto,
+    payload: UpsertRpgMapMarkerGroupPayloadDto
   ): Promise<RpgMapMarkerGroupDto>
   updateMarkerGroup(
     rpgId: string,
     mapId: string,
     groupId: string,
-    payload: UpsertRpgMapMarkerGroupPayloadDto,
+    payload: UpsertRpgMapMarkerGroupPayloadDto
   ): Promise<RpgMapMarkerGroupDto>
   deleteMarkerGroup(
     rpgId: string,
     mapId: string,
-    groupId: string,
+    groupId: string
   ): Promise<void>
 }

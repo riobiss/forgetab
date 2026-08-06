@@ -1,6 +1,9 @@
 import type { Dispatch, SetStateAction } from "react"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
-import { ReactSelectField, type ReactSelectOption } from "@/components/select/ReactSelectField"
+import {
+  ReactSelectField,
+  type ReactSelectOption
+} from "@/components/select/ReactSelectField"
 import {
   actionTypeValues,
   skillTagValues,
@@ -8,7 +11,7 @@ import {
   type ActionType,
   type SkillCategory,
   type SkillTag,
-  type SkillType,
+  type SkillType
 } from "@/types/skillBuilder"
 import { actionTypeLabel, skillTypeLabel } from "./constants"
 import styles from "./SkillsDashboardClient.module.css"
@@ -33,7 +36,7 @@ export function SkillBasicStepFields({
   abilityCategoriesEnabled,
   enabledAbilityCategories,
   categoryOptions,
-  tagOptions,
+  tagOptions
 }: SkillBasicStepFieldsProps) {
   return (
     <div className={styles.grid}>
@@ -41,7 +44,9 @@ export function SkillBasicStepFields({
         <span>Nome</span>
         <input
           value={metaForm.name}
-          onChange={(event) => setMetaForm((prev) => ({ ...prev, name: event.target.value }))}
+          onChange={(event) =>
+            setMetaForm((prev) => ({ ...prev, name: event.target.value }))
+          }
         />
       </label>
       <label className={`${styles.field} ${styles.spanTwo}`}>
@@ -50,7 +55,12 @@ export function SkillBasicStepFields({
           className={styles.descriptionTextarea}
           rows={5}
           value={metaForm.description}
-          onChange={(event) => setMetaForm((prev) => ({ ...prev, description: event.target.value }))}
+          onChange={(event) =>
+            setMetaForm((prev) => ({
+              ...prev,
+              description: event.target.value
+            }))
+          }
         />
       </label>
       {abilityCategoriesEnabled ? (
@@ -61,7 +71,7 @@ export function SkillBasicStepFields({
             onChange={(event) =>
               setMetaForm((prev) => ({
                 ...prev,
-                category: event.target.value as SkillCategory | "",
+                category: event.target.value as SkillCategory | ""
               }))
             }
           >
@@ -81,7 +91,7 @@ export function SkillBasicStepFields({
           onChange={(event) =>
             setMetaForm((prev) => ({
               ...prev,
-              type: event.target.value as SkillType | "",
+              type: event.target.value as SkillType | ""
             }))
           }
         >
@@ -100,7 +110,7 @@ export function SkillBasicStepFields({
           onChange={(event) =>
             setMetaForm((prev) => ({
               ...prev,
-              actionType: event.target.value as ActionType | "",
+              actionType: event.target.value as ActionType | ""
             }))
           }
         >
@@ -117,11 +127,17 @@ export function SkillBasicStepFields({
         <ReactSelectField
           classNames={{ container: () => styles.field }}
           options={tagOptions}
-          value={tagOptions.find((option) => option.value === metaForm.tags[0]) ?? null}
+          value={
+            tagOptions.find((option) => option.value === metaForm.tags[0]) ??
+            null
+          }
           onChange={(option) =>
             setMetaForm((prev) => ({
               ...prev,
-              tags: option && skillTagValues.includes(option.value as SkillTag) ? [option.value as SkillTag] : [],
+              tags:
+                option && skillTagValues.includes(option.value as SkillTag)
+                  ? [option.value as SkillTag]
+                  : []
             }))
           }
           placeholder="Selecione as tags..."
@@ -132,42 +148,57 @@ export function SkillBasicStepFields({
         <span>Dano</span>
         <input
           value={levelForm.damage}
-          onChange={(event) => setLevelForm((prev) => ({ ...prev, damage: event.target.value }))}
+          onChange={(event) =>
+            setLevelForm((prev) => ({ ...prev, damage: event.target.value }))
+          }
         />
       </label>
       <label className={styles.field}>
         <span>Alcance</span>
         <input
           value={levelForm.range}
-          onChange={(event) => setLevelForm((prev) => ({ ...prev, range: event.target.value }))}
+          onChange={(event) =>
+            setLevelForm((prev) => ({ ...prev, range: event.target.value }))
+          }
         />
       </label>
       <label className={styles.field}>
         <span>Duracao</span>
         <input
           value={levelForm.duration}
-          onChange={(event) => setLevelForm((prev) => ({ ...prev, duration: event.target.value }))}
+          onChange={(event) =>
+            setLevelForm((prev) => ({ ...prev, duration: event.target.value }))
+          }
         />
       </label>
       <label className={styles.field}>
         <span>Recarga</span>
         <input
           value={levelForm.cooldown}
-          onChange={(event) => setLevelForm((prev) => ({ ...prev, cooldown: event.target.value }))}
+          onChange={(event) =>
+            setLevelForm((prev) => ({ ...prev, cooldown: event.target.value }))
+          }
         />
       </label>
       <label className={styles.field}>
         <span>Tempo de conjuracao</span>
         <input
           value={levelForm.castTime}
-          onChange={(event) => setLevelForm((prev) => ({ ...prev, castTime: event.target.value }))}
+          onChange={(event) =>
+            setLevelForm((prev) => ({ ...prev, castTime: event.target.value }))
+          }
         />
       </label>
       <label className={styles.field}>
         <span>Custo</span>
         <input
           value={levelForm.costCustom}
-          onChange={(event) => setLevelForm((prev) => ({ ...prev, costCustom: event.target.value }))}
+          onChange={(event) =>
+            setLevelForm((prev) => ({
+              ...prev,
+              costCustom: event.target.value
+            }))
+          }
         />
       </label>
       {abilityCategoriesEnabled && enabledAbilityCategories.length === 0 ? (
@@ -183,8 +214,10 @@ export function SkillBasicStepFields({
                 setLevelForm((prev) => ({
                   ...prev,
                   customFields: prev.customFields.map((item) =>
-                    item.id === field.id ? { ...item, value: event.target.value } : item,
-                  ),
+                    item.id === field.id
+                      ? { ...item, value: event.target.value }
+                      : item
+                  )
                 }))
               }
             />
@@ -194,7 +227,9 @@ export function SkillBasicStepFields({
               onClick={() =>
                 setLevelForm((prev) => ({
                   ...prev,
-                  customFields: prev.customFields.filter((item) => item.id !== field.id),
+                  customFields: prev.customFields.filter(
+                    (item) => item.id !== field.id
+                  )
                 }))
               }
             >

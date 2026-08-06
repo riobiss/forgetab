@@ -59,9 +59,9 @@ export const NodeBackground = Extension.create<NodeBackgroundOptions>({
         "bulletList",
         "orderedList",
         "tableCell",
-        "tableHeader",
+        "tableHeader"
       ],
-      useStyle: true,
+      useStyle: true
     }
   },
 
@@ -87,17 +87,17 @@ export const NodeBackground = Extension.create<NodeBackgroundOptions>({
 
               if (this.options.useStyle) {
                 return {
-                  style: `background-color: ${color}`,
+                  style: `background-color: ${color}`
                 }
               } else {
                 return {
-                  "data-background-color": color,
+                  "data-background-color": color
                 }
               }
-            },
-          },
-        },
-      },
+            }
+          }
+        }
+      }
     ]
   },
 
@@ -144,7 +144,7 @@ export const NodeBackground = Extension.create<NodeBackgroundOptions>({
        */
       toggleNodeBackgroundColor: executeBackgroundCommand(
         (targets, inputColor) => getToggleColor(targets, inputColor || "")
-      ),
+      )
     }
-  },
+  }
 })

@@ -9,25 +9,25 @@ const mocks = vi.hoisted(() => ({
   toastLoading: vi.fn(),
   toastSuccess: vi.fn(),
   toastError: vi.fn(),
-  dismissToast: vi.fn(),
+  dismissToast: vi.fn()
 }))
 
 vi.mock("@/features/world/library/application/use-cases/library", () => ({
   loadLibraryBookUseCase: mocks.loadLibraryBookUseCase,
   createLibraryBookUseCase: mocks.createLibraryBookUseCase,
-  updateLibraryBookUseCase: mocks.updateLibraryBookUseCase,
+  updateLibraryBookUseCase: mocks.updateLibraryBookUseCase
 }))
 
 vi.mock("react-hot-toast", () => ({
   toast: {
     loading: mocks.toastLoading,
     success: mocks.toastSuccess,
-    error: mocks.toastError,
-  },
+    error: mocks.toastError
+  }
 }))
 
 vi.mock("@/lib/toast", () => ({
-  dismissToast: mocks.dismissToast,
+  dismissToast: mocks.dismissToast
 }))
 
 describe("useLibraryBookEditorState", () => {
@@ -51,12 +51,17 @@ describe("useLibraryBookEditorState", () => {
         allowedCharacterIds: [],
         allowedClassKeys: [],
         allowedRaceKeys: [],
-        content: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Servidor" }] }] },
+        content: {
+          type: "doc",
+          content: [
+            { type: "paragraph", content: [{ type: "text", text: "Servidor" }] }
+          ]
+        },
         createdAt: "2026-03-19T00:00:00.000Z",
-        updatedAt: "2026-03-19T00:00:00.000Z",
+        updatedAt: "2026-03-19T00:00:00.000Z"
       },
       canEdit: true,
-      canManage: true,
+      canManage: true
     })
 
     window.localStorage.setItem(
@@ -68,8 +73,13 @@ describe("useLibraryBookEditorState", () => {
         allowedCharacterIds: ["char-1"],
         allowedClassKeys: ["mage"],
         allowedRaceKeys: ["elf"],
-        content: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Local" }] }] },
-      }),
+        content: {
+          type: "doc",
+          content: [
+            { type: "paragraph", content: [{ type: "text", text: "Local" }] }
+          ]
+        }
+      })
     )
 
     const { result } = renderHook(() =>
@@ -78,8 +88,8 @@ describe("useLibraryBookEditorState", () => {
         sectionId: "section-1",
         mode: "edit",
         bookId: "book-1",
-        deps,
-      }),
+        deps
+      })
     )
 
     await waitFor(() => {
@@ -93,7 +103,9 @@ describe("useLibraryBookEditorState", () => {
     expect(result.current.pageTitle).toBe("Titulo novo")
     expect(result.current.draft.content).toEqual({
       type: "doc",
-      content: [{ type: "paragraph", content: [{ type: "text", text: "Local" }] }],
+      content: [
+        { type: "paragraph", content: [{ type: "text", text: "Local" }] }
+      ]
     })
   })
 })

@@ -16,11 +16,11 @@ const mocks = vi.hoisted(() => ({
   getIdentityTemplates: vi.fn(),
   updateIdentityTemplates: vi.fn(),
   getCharacteristicTemplates: vi.fn(),
-  updateCharacteristicTemplates: vi.fn(),
+  updateCharacteristicTemplates: vi.fn()
 }))
 
 vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
-  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
+  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest
 }))
 
 vi.mock("@/features/world/application/config/use-cases/rpgConfig", () => ({
@@ -37,7 +37,7 @@ vi.mock("@/features/world/application/config/use-cases/rpgConfig", () => ({
   getIdentityTemplates: mocks.getIdentityTemplates,
   updateIdentityTemplates: mocks.updateIdentityTemplates,
   getCharacteristicTemplates: mocks.getCharacteristicTemplates,
-  updateCharacteristicTemplates: mocks.updateCharacteristicTemplates,
+  updateCharacteristicTemplates: mocks.updateCharacteristicTemplates
 }))
 
 import { buildApiServer } from "@api/app"
@@ -65,7 +65,7 @@ describe("rpg config routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/attributes",
+      url: "/api/rpg/rpg-1/attributes"
     })
 
     expect(response.statusCode).toBe(401)
@@ -76,36 +76,36 @@ describe("rpg config routes", () => {
     server = buildApiServer()
     mocks.getAttributeTemplates.mockResolvedValue({
       attributes: [{ label: "Forca" }],
-      isDefault: false,
+      isDefault: false
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/attributes",
+      url: "/api/rpg/rpg-1/attributes"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       attributes: [{ label: "Forca" }],
-      isDefault: false,
+      isDefault: false
     })
   })
 
   it("retorna 200 ao atualizar atributos", async () => {
     server = buildApiServer()
     mocks.updateAttributeTemplates.mockResolvedValue({
-      message: "Padrao de atributos atualizado.",
+      message: "Padrao de atributos atualizado."
     })
 
     const response = await server.inject({
       method: "PUT",
       url: "/api/rpg/rpg-1/attributes",
-      payload: { attributes: [{ label: "Forca" }] },
+      payload: { attributes: [{ label: "Forca" }] }
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      message: "Padrao de atributos atualizado.",
+      message: "Padrao de atributos atualizado."
     })
   })
 
@@ -113,31 +113,31 @@ describe("rpg config routes", () => {
     server = buildApiServer()
     mocks.getStatusTemplates.mockResolvedValue({
       statuses: [],
-      isDefault: true,
+      isDefault: true
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/statuses",
+      url: "/api/rpg/rpg-1/statuses"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       statuses: [],
-      isDefault: true,
+      isDefault: true
     })
   })
 
   it("retorna 400 para payload invalido ao atualizar status", async () => {
     server = buildApiServer()
     mocks.updateStatusTemplates.mockRejectedValue(
-      new AppError("Payload invalido.", 400),
+      new AppError("Payload invalido.", 400)
     )
 
     const response = await server.inject({
       method: "PUT",
       url: "/api/rpg/rpg-1/statuses",
-      payload: { statuses: [] },
+      payload: { statuses: [] }
     })
 
     expect(response.statusCode).toBe(400)
@@ -148,40 +148,40 @@ describe("rpg config routes", () => {
     server = buildApiServer()
     mocks.getSkillTemplates.mockResolvedValue({
       skills: [
-        { id: "s1", key: "furtividade", label: "Furtividade", position: 0 },
+        { id: "s1", key: "furtividade", label: "Furtividade", position: 0 }
       ],
-      isDefault: false,
+      isDefault: false
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/skills",
+      url: "/api/rpg/rpg-1/skills"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       skills: [
-        { id: "s1", key: "furtividade", label: "Furtividade", position: 0 },
+        { id: "s1", key: "furtividade", label: "Furtividade", position: 0 }
       ],
-      isDefault: false,
+      isDefault: false
     })
   })
 
   it("retorna 200 ao atualizar pericias", async () => {
     server = buildApiServer()
     mocks.updateSkillTemplates.mockResolvedValue({
-      message: "Padrao de pericias atualizado.",
+      message: "Padrao de pericias atualizado."
     })
 
     const response = await server.inject({
       method: "PUT",
       url: "/api/rpg/rpg-1/skills",
-      payload: { skills: ["Furtividade"] },
+      payload: { skills: ["Furtividade"] }
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      message: "Padrao de pericias atualizado.",
+      message: "Padrao de pericias atualizado."
     })
   })
 
@@ -189,31 +189,31 @@ describe("rpg config routes", () => {
     server = buildApiServer()
     mocks.getRaceTemplates.mockResolvedValue({
       races: [{ id: "r1", key: "humano", label: "Humano", position: 0 }],
-      isDefault: false,
+      isDefault: false
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/races",
+      url: "/api/rpg/rpg-1/races"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       races: [{ id: "r1", key: "humano", label: "Humano", position: 0 }],
-      isDefault: false,
+      isDefault: false
     })
   })
 
   it("retorna 404 ao atualizar racas sem permissao", async () => {
     server = buildApiServer()
     mocks.updateRaceTemplates.mockRejectedValue(
-      new AppError("RPG nao encontrado.", 404),
+      new AppError("RPG nao encontrado.", 404)
     )
 
     const response = await server.inject({
       method: "PUT",
       url: "/api/rpg/rpg-1/races",
-      payload: { races: [] },
+      payload: { races: [] }
     })
 
     expect(response.statusCode).toBe(404)
@@ -224,40 +224,40 @@ describe("rpg config routes", () => {
     server = buildApiServer()
     mocks.getClassTemplates.mockResolvedValue({
       classes: [
-        { id: "c1", key: "guerreiro", label: "Guerreiro", position: 0 },
+        { id: "c1", key: "guerreiro", label: "Guerreiro", position: 0 }
       ],
-      isDefault: false,
+      isDefault: false
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/classes",
+      url: "/api/rpg/rpg-1/classes"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       classes: [
-        { id: "c1", key: "guerreiro", label: "Guerreiro", position: 0 },
+        { id: "c1", key: "guerreiro", label: "Guerreiro", position: 0 }
       ],
-      isDefault: false,
+      isDefault: false
     })
   })
 
   it("retorna 200 ao atualizar classes", async () => {
     server = buildApiServer()
     mocks.updateClassTemplates.mockResolvedValue({
-      message: "Padrao de classes atualizado.",
+      message: "Padrao de classes atualizado."
     })
 
     const response = await server.inject({
       method: "PUT",
       url: "/api/rpg/rpg-1/classes",
-      payload: { classes: [] },
+      payload: { classes: [] }
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      message: "Padrao de classes atualizado.",
+      message: "Padrao de classes atualizado."
     })
   })
 
@@ -265,40 +265,40 @@ describe("rpg config routes", () => {
     server = buildApiServer()
     mocks.getIdentityTemplates.mockResolvedValue({
       fields: [
-        { id: "f1", key: "nome", label: "Nome", required: true, position: 0 },
+        { id: "f1", key: "nome", label: "Nome", required: true, position: 0 }
       ],
-      isDefault: false,
+      isDefault: false
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/character-identity",
+      url: "/api/rpg/rpg-1/character-identity"
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
       fields: [
-        { id: "f1", key: "nome", label: "Nome", required: true, position: 0 },
+        { id: "f1", key: "nome", label: "Nome", required: true, position: 0 }
       ],
-      isDefault: false,
+      isDefault: false
     })
   })
 
   it("retorna 200 ao atualizar campos de identidade", async () => {
     server = buildApiServer()
     mocks.updateIdentityTemplates.mockResolvedValue({
-      message: "Campos de identidade atualizados.",
+      message: "Campos de identidade atualizados."
     })
 
     const response = await server.inject({
       method: "PUT",
       url: "/api/rpg/rpg-1/character-identity",
-      payload: { fields: [{ label: "Nome", required: true }] },
+      payload: { fields: [{ label: "Nome", required: true }] }
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      message: "Campos de identidade atualizados.",
+      message: "Campos de identidade atualizados."
     })
   })
 
@@ -311,15 +311,15 @@ describe("rpg config routes", () => {
           key: "idade",
           label: "Idade",
           required: false,
-          position: 0,
-        },
+          position: 0
+        }
       ],
-      isDefault: false,
+      isDefault: false
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/character-characteristics",
+      url: "/api/rpg/rpg-1/character-characteristics"
     })
 
     expect(response.statusCode).toBe(200)
@@ -330,28 +330,28 @@ describe("rpg config routes", () => {
           key: "idade",
           label: "Idade",
           required: false,
-          position: 0,
-        },
+          position: 0
+        }
       ],
-      isDefault: false,
+      isDefault: false
     })
   })
 
   it("retorna 200 ao atualizar campos de caracteristicas", async () => {
     server = buildApiServer()
     mocks.updateCharacteristicTemplates.mockResolvedValue({
-      message: "Campos de caracteristicas atualizados.",
+      message: "Campos de caracteristicas atualizados."
     })
 
     const response = await server.inject({
       method: "PUT",
       url: "/api/rpg/rpg-1/character-characteristics",
-      payload: { fields: [{ label: "Idade", required: false }] },
+      payload: { fields: [{ label: "Idade", required: false }] }
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({
-      message: "Campos de caracteristicas atualizados.",
+      message: "Campos de caracteristicas atualizados."
     })
   })
 })

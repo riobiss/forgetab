@@ -1,6 +1,6 @@
 import type {
   DiceRollEntry,
-  DiceRollResponse,
+  DiceRollResponse
 } from "@/features/dices/application/types"
 
 export interface DicesRepository {

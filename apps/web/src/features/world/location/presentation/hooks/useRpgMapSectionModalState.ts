@@ -3,7 +3,7 @@
 import { useState } from "react"
 import {
   normalizeCustomFieldType,
-  type CustomFieldType,
+  type CustomFieldType
 } from "@/features/world/location/presentation/types/typedCustomField"
 import type { RpgMapSectionDto } from "@forgetab/world-contracts/location"
 import type { SectionSavePayload } from "@/features/world/location/application/services/sectionMarkerReconciliation"
@@ -12,7 +12,7 @@ import {
   RESERVED_SECTION_FIELD_NAMES,
   customFieldsToDraft,
   getLinkedMarkerId,
-  type MarkerLinkOption,
+  type MarkerLinkOption
 } from "@/features/world/location/presentation/utils/sectionMarkerLinking"
 
 export type SectionFormState = {
@@ -49,13 +49,13 @@ const EMPTY_SECTION_FORM: SectionFormState = {
   parentSectionId: "",
   linkedMarkerId: "",
   images: [],
-  customFields: [],
+  customFields: []
 }
 
 const EMPTY_CUSTOM_FIELD_DRAFT: CustomFieldDraftState = {
   key: "",
   value: "",
-  type: "text",
+  type: "text"
 }
 
 export function useRpgMapSectionModalState() {
@@ -63,7 +63,7 @@ export function useRpgMapSectionModalState() {
   const [isSectionDetailsModalOpen, setIsSectionDetailsModalOpen] =
     useState(false)
   const [editingSection, setEditingSection] = useState<RpgMapSectionDto | null>(
-    null,
+    null
   )
   const [sectionForm, setSectionForm] =
     useState<SectionFormState>(EMPTY_SECTION_FORM)
@@ -84,7 +84,7 @@ export function useRpgMapSectionModalState() {
     setCustomFieldError("")
     setSectionForm({
       ...EMPTY_SECTION_FORM,
-      parentSectionId: parent?.id ?? "",
+      parentSectionId: parent?.id ?? ""
     })
     setSectionFormError("")
     setIsSectionModalOpen(true)
@@ -104,7 +104,7 @@ export function useRpgMapSectionModalState() {
       parentSectionId: section.parentSectionId ?? "",
       linkedMarkerId: getLinkedMarkerId(section.customFields),
       images: getSectionImages(section.customFields),
-      customFields: customFieldsToDraft(section.customFields),
+      customFields: customFieldsToDraft(section.customFields)
     })
     setSectionFormError("")
     setIsSectionModalOpen(true)
@@ -112,7 +112,7 @@ export function useRpgMapSectionModalState() {
 
   function openSectionDetails(
     sectionId: string,
-    setSelectedSectionId: (sectionId: string) => void,
+    setSelectedSectionId: (sectionId: string) => void
   ) {
     setSelectedSectionId(sectionId)
     setIsSectionDetailsModalOpen(true)
@@ -153,7 +153,7 @@ export function useRpgMapSectionModalState() {
     if (
       sectionForm.customFields.some(
         (field) =>
-          field.key.trim().toLowerCase() === normalizedKey.toLowerCase(),
+          field.key.trim().toLowerCase() === normalizedKey.toLowerCase()
       )
     ) {
       setCustomFieldError("Ja existe um campo com essa chave.")
@@ -168,9 +168,9 @@ export function useRpgMapSectionModalState() {
           id: crypto.randomUUID(),
           key: normalizedKey,
           value: customFieldDraft.value,
-          type: normalizeCustomFieldType(customFieldDraft.type),
-        },
-      ],
+          type: normalizeCustomFieldType(customFieldDraft.type)
+        }
+      ]
     }))
     closeCustomFieldModal()
     return true
@@ -224,6 +224,6 @@ export function useRpgMapSectionModalState() {
     closeConflictModal,
     closeCustomFieldModal,
     closeSectionDetailsModal,
-    closeSectionModal,
+    closeSectionModal
   }
 }

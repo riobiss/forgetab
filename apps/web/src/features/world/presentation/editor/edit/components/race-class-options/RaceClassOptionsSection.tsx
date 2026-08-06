@@ -7,7 +7,7 @@ import { ChevronDown, ChevronUp, Plus, Settings2, Trash2 } from "lucide-react"
 import type { RpgEditorDependencies } from "@/features/world/application/editor/contracts/RpgEditorDependencies"
 import {
   saveRpgClassesUseCase,
-  saveRpgRacesUseCase,
+  saveRpgRacesUseCase
 } from "@/features/world/application/editor/use-cases/rpgEditor"
 import styles from "./RaceClassOptionsSection.module.css"
 import type { IdentityTemplate } from "../shared/types"
@@ -39,7 +39,7 @@ export default function RaceClassOptionsSection({
   onToggleClassList,
   onCreateClass,
   classDrafts,
-  onClassDraftsChange,
+  onClassDraftsChange
 }: Props) {
   const [deletingRaceKey, setDeletingRaceKey] = useState("")
   const [deletingClassKey, setDeletingClassKey] = useState("")
@@ -67,8 +67,8 @@ export default function RaceClassOptionsSection({
           skillBonuses: item.skillBonuses,
           lore: item.lore,
           catalogMeta: item.catalogMeta,
-          position: item.position,
-        })),
+          position: item.position
+        }))
       })
       onRaceDraftsChange(nextRaces)
       setFeedback("Raca excluida com sucesso.")
@@ -106,8 +106,8 @@ export default function RaceClassOptionsSection({
           attributeBonuses: item.attributeBonuses,
           skillBonuses: item.skillBonuses,
           catalogMeta: item.catalogMeta,
-          position: item.position,
-        })),
+          position: item.position
+        }))
       })
       onClassDraftsChange(nextClasses)
       setFeedback("Classe excluida com sucesso.")

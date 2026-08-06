@@ -9,17 +9,17 @@ import {
   grantXpUseCase,
   loadDashboardDistributionUseCase,
   mapPlayersWithClasses,
-  toggleModeratorUseCase,
+  toggleModeratorUseCase
 } from "@/features/world/application/dashboard/use-cases/rpgDashboardActions"
 
 export function useMembersList(
   deps: RpgDashboardDependencies,
-  params: { rpgId: string },
+  params: { rpgId: string }
 ) {
   const router = useRouter()
   const [expellingId, setExpellingId] = useState<string | null>(null)
   const [togglingModeratorId, setTogglingModeratorId] = useState<string | null>(
-    null,
+    null
   )
   const [actionsOpen, setActionsOpen] = useState(false)
   const [actionMode, setActionMode] = useState<"none" | "points" | "xp">("none")
@@ -59,7 +59,7 @@ export function useMembersList(
     try {
       await toggleModeratorUseCase(deps.gateway, {
         rpgId: params.rpgId,
-        memberId,
+        memberId
       })
       router.refresh()
       return true
@@ -77,12 +77,12 @@ export function useMembersList(
     try {
       const { charactersPayload, classesPayload, rpgPayload } =
         await loadDashboardDistributionUseCase(deps.gateway, {
-          rpgId: params.rpgId,
+          rpgId: params.rpgId
         })
 
       const players = mapPlayersWithClasses({
         characters: charactersPayload.characters ?? [],
-        classes: classesPayload.classes ?? [],
+        classes: classesPayload.classes ?? []
       })
 
       setPlayerByUserId(
@@ -92,20 +92,20 @@ export function useMembersList(
           if (!item.userId) return acc
           acc[item.userId] = {
             characterId: item.id,
-            classLabel: item.classLabel,
+            classLabel: item.classLabel
           }
           return acc
-        }, {}),
+        }, {})
       )
       setCostResourceName(
-        rpgPayload.rpg?.costResourceName?.trim() || "Skill Points",
+        rpgPayload.rpg?.costResourceName?.trim() || "Skill Points"
       )
       setAmountInput("1")
     } catch (error) {
       setActionError(
         error instanceof Error
           ? error.message
-          : "Erro de conexao ao carregar dados de distribuicao.",
+          : "Erro de conexao ao carregar dados de distribuicao."
       )
     } finally {
       setActionLoading(false)
@@ -114,7 +114,7 @@ export function useMembersList(
 
   async function handleGrantPoints(
     member: { id: string; userId: string; userName: string },
-    direction: 1 | -1,
+    direction: 1 | -1
   ) {
     if (!selectedAmount) {
       setActionError("Informe uma quantidade valida (inteiro maior que zero).")
@@ -124,7 +124,7 @@ export function useMembersList(
     const player = playerByUserId[member.userId]
     if (!player) {
       setActionError(
-        `${member.userName} nao possui personagem player vinculado.`,
+        `${member.userName} nao possui personagem player vinculado.`
       )
       return
     }
@@ -136,7 +136,7 @@ export function useMembersList(
     try {
       const payload = await grantPointsUseCase(deps.gateway, {
         characterId: player.characterId,
-        amount: selectedAmount * direction,
+        amount: selectedAmount * direction
       })
       const remaining =
         typeof payload.remainingPoints === "number"
@@ -145,13 +145,13 @@ export function useMembersList(
       setActionMessage(
         direction > 0
           ? `${member.userName} recebeu ${selectedAmount} ${costResourceName}.${remaining}`
-          : `${member.userName} perdeu ${selectedAmount} ${costResourceName}.${remaining}`,
+          : `${member.userName} perdeu ${selectedAmount} ${costResourceName}.${remaining}`
       )
     } catch (error) {
       setActionError(
         error instanceof Error
           ? error.message
-          : "Erro de conexao ao atualizar pontos.",
+          : "Erro de conexao ao atualizar pontos."
       )
     } finally {
       setLoadingActionKey("")
@@ -171,7 +171,7 @@ export function useMembersList(
     const player = playerByUserId[member.userId]
     if (!player) {
       setActionError(
-        `${member.userName} nao possui personagem player vinculado.`,
+        `${member.userName} nao possui personagem player vinculado.`
       )
       return
     }
@@ -183,20 +183,20 @@ export function useMembersList(
     try {
       const payload = await grantXpUseCase(deps.gateway, {
         characterId: player.characterId,
-        amount: selectedAmount,
+        amount: selectedAmount
       })
       const progressionLabel = payload.progressionLabel ?? "Etapa"
       const progressionCurrent = payload.progressionCurrent ?? 0
       const progressionRequired = payload.progressionRequired ?? 0
       setActionMessage(
-        `${member.userName} recebeu ${selectedAmount} XP. Agora esta em ${progressionLabel} (${progressionCurrent}/${progressionRequired}).`,
+        `${member.userName} recebeu ${selectedAmount} XP. Agora esta em ${progressionLabel} (${progressionCurrent}/${progressionRequired}).`
       )
       router.refresh()
     } catch (error) {
       setActionError(
         error instanceof Error
           ? error.message
-          : "Erro de conexao ao conceder XP.",
+          : "Erro de conexao ao conceder XP."
       )
     } finally {
       setLoadingActionKey("")
@@ -223,6 +223,6 @@ export function useMembersList(
     toggleModerator,
     loadActionData,
     handleGrantPoints,
-    handleGrantXp,
+    handleGrantXp
   }
 }

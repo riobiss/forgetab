@@ -7,15 +7,15 @@ import type {
   RpgCoreUpdateInput,
   RpgCreateBaseInput,
   RpgCreateSettingsInput,
-  RpgRow,
+  RpgRow
 } from "@/features/world/application/management/types.js"
 import {
   isMissingColumn,
-  mapRpgRepositoryError,
+  mapRpgRepositoryError
 } from "@/features/world/infrastructure/management/repositories/rpgRepositoryErrors.js"
 import {
   mapRpgCreateBaseResult,
-  mapRpgRow,
+  mapRpgRow
 } from "@/features/world/infrastructure/management/repositories/rpgRepositoryMappers.js"
 
 export const prismaRpgRepository: RpgRepository = {
@@ -60,19 +60,19 @@ export const prismaRpgRepository: RpgRepository = {
         (error.message.includes('column "use_race_bonuses" does not exist') ||
           error.message.includes('column "use_class_bonuses" does not exist') ||
           error.message.includes(
-            'column "allow_multiple_player_characters" does not exist',
+            'column "allow_multiple_player_characters" does not exist'
           ) ||
           error.message.includes(
-            'column "users_can_manage_own_xp" does not exist',
+            'column "users_can_manage_own_xp" does not exist'
           ) ||
           error.message.includes(
-            'column "allow_skill_point_distribution" does not exist',
+            'column "allow_skill_point_distribution" does not exist'
           ) ||
           error.message.includes(
-            'column "ability_categories_enabled" does not exist',
+            'column "ability_categories_enabled" does not exist'
           ) ||
           error.message.includes(
-            'column "enabled_ability_categories" does not exist',
+            'column "enabled_ability_categories" does not exist'
           ) ||
           error.message.includes('column "progression_mode" does not exist') ||
           error.message.includes('column "progression_tiers" does not exist'))
@@ -137,31 +137,31 @@ export const prismaRpgRepository: RpgRepository = {
         error instanceof Error &&
         (error.message.includes('column "costs_enabled" does not exist') ||
           error.message.includes(
-            'column "cost_resource_name" does not exist',
+            'column "cost_resource_name" does not exist'
           ) ||
           error.message.includes('column "image" does not exist') ||
           error.message.includes('column "use_race_bonuses" does not exist') ||
           error.message.includes('column "use_class_bonuses" does not exist') ||
           error.message.includes(
-            'column "use_class_race_bonuses" does not exist',
+            'column "use_class_race_bonuses" does not exist'
           ) ||
           error.message.includes(
-            'column "use_inventory_weight_limit" does not exist',
+            'column "use_inventory_weight_limit" does not exist'
           ) ||
           error.message.includes(
-            'column "allow_multiple_player_characters" does not exist',
+            'column "allow_multiple_player_characters" does not exist'
           ) ||
           error.message.includes(
-            'column "users_can_manage_own_xp" does not exist',
+            'column "users_can_manage_own_xp" does not exist'
           ) ||
           error.message.includes(
-            'column "allow_skill_point_distribution" does not exist',
+            'column "allow_skill_point_distribution" does not exist'
           ) ||
           error.message.includes(
-            'column "ability_categories_enabled" does not exist',
+            'column "ability_categories_enabled" does not exist'
           ) ||
           error.message.includes(
-            'column "enabled_ability_categories" does not exist',
+            'column "enabled_ability_categories" does not exist'
           ) ||
           error.message.includes('column "use_mundi_map" does not exist') ||
           error.message.includes('column "progression_mode" does not exist') ||
@@ -290,7 +290,7 @@ export const prismaRpgRepository: RpgRepository = {
     try {
       const updated = await prisma.rpg.updateMany({
         where: { id: rpgId },
-        data,
+        data
       })
 
       return updated.count > 0
@@ -324,19 +324,19 @@ export const prismaRpgRepository: RpgRepository = {
           error.message.includes('column "use_race_bonuses" does not exist') ||
           error.message.includes('column "use_class_bonuses" does not exist') ||
           error.message.includes(
-            'column "allow_multiple_player_characters" does not exist',
+            'column "allow_multiple_player_characters" does not exist'
           ) ||
           error.message.includes(
-            'column "users_can_manage_own_xp" does not exist',
+            'column "users_can_manage_own_xp" does not exist'
           ) ||
           error.message.includes(
-            'column "allow_skill_point_distribution" does not exist',
+            'column "allow_skill_point_distribution" does not exist'
           ) ||
           error.message.includes(
-            'column "ability_categories_enabled" does not exist',
+            'column "ability_categories_enabled" does not exist'
           ) ||
           error.message.includes(
-            'column "enabled_ability_categories" does not exist',
+            'column "enabled_ability_categories" does not exist'
           ) ||
           error.message.includes('column "progression_mode" does not exist') ||
           error.message.includes('column "progression_tiers" does not exist')
@@ -359,34 +359,34 @@ export const prismaRpgRepository: RpgRepository = {
             if (
               !(innerError instanceof Error) ||
               (!innerError.message.includes(
-                'column "use_class_race_bonuses" does not exist',
+                'column "use_class_race_bonuses" does not exist'
               ) &&
                 !innerError.message.includes(
-                  'column "use_inventory_weight_limit" does not exist',
+                  'column "use_inventory_weight_limit" does not exist'
                 ) &&
                 !innerError.message.includes(
-                  'column "allow_multiple_player_characters" does not exist',
+                  'column "allow_multiple_player_characters" does not exist'
                 ) &&
                 !innerError.message.includes(
-                  'column "users_can_manage_own_xp" does not exist',
+                  'column "users_can_manage_own_xp" does not exist'
                 ) &&
                 !innerError.message.includes(
-                  'column "allow_skill_point_distribution" does not exist',
+                  'column "allow_skill_point_distribution" does not exist'
                 ) &&
                 !innerError.message.includes(
-                  'column "ability_categories_enabled" does not exist',
+                  'column "ability_categories_enabled" does not exist'
                 ) &&
                 !innerError.message.includes(
-                  'column "enabled_ability_categories" does not exist',
+                  'column "enabled_ability_categories" does not exist'
                 ) &&
                 !innerError.message.includes(
-                  'column "use_mundi_map" does not exist',
+                  'column "use_mundi_map" does not exist'
                 ) &&
                 !innerError.message.includes(
-                  'column "progression_mode" does not exist',
+                  'column "progression_mode" does not exist'
                 ) &&
                 !innerError.message.includes(
-                  'column "progression_tiers" does not exist',
+                  'column "progression_tiers" does not exist'
                 ))
             ) {
               throw innerError
@@ -394,25 +394,25 @@ export const prismaRpgRepository: RpgRepository = {
           }
         } else if (
           !error.message.includes(
-            'column "use_class_race_bonuses" does not exist',
+            'column "use_class_race_bonuses" does not exist'
           ) &&
           !error.message.includes(
-            'column "use_inventory_weight_limit" does not exist',
+            'column "use_inventory_weight_limit" does not exist'
           ) &&
           !error.message.includes(
-            'column "allow_multiple_player_characters" does not exist',
+            'column "allow_multiple_player_characters" does not exist'
           ) &&
           !error.message.includes(
-            'column "users_can_manage_own_xp" does not exist',
+            'column "users_can_manage_own_xp" does not exist'
           ) &&
           !error.message.includes(
-            'column "allow_skill_point_distribution" does not exist',
+            'column "allow_skill_point_distribution" does not exist'
           ) &&
           !error.message.includes(
-            'column "ability_categories_enabled" does not exist',
+            'column "ability_categories_enabled" does not exist'
           ) &&
           !error.message.includes(
-            'column "enabled_ability_categories" does not exist',
+            'column "enabled_ability_categories" does not exist'
           ) &&
           !error.message.includes('column "use_mundi_map" does not exist') &&
           !error.message.includes('column "progression_mode" does not exist') &&
@@ -444,11 +444,11 @@ export const prismaRpgRepository: RpgRepository = {
   async deleteOwned(rpgId, ownerId) {
     try {
       const deleted = await prisma.rpg.deleteMany({
-        where: { id: rpgId, ownerId },
+        where: { id: rpgId, ownerId }
       })
       return deleted.count > 0
     } catch (error) {
       mapRpgRepositoryError(error)
     }
-  },
+  }
 }

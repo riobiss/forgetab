@@ -31,7 +31,7 @@ type Props = {
   onPickImage: (target: { mode: "editing"; markerId: string }) => void
   onDeleteImage: (
     target: { mode: "editing"; markerId: string },
-    imageUrl: string | null,
+    imageUrl: string | null
   ) => void
   onChangePosition: () => void
   onSave: () => void
@@ -64,7 +64,7 @@ export function MarkerEditModal({
   onDeleteImage,
   onChangePosition,
   onSave,
-  onClose,
+  onClose
 }: Props) {
   return (
     <div

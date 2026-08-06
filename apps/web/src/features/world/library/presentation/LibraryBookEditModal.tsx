@@ -5,7 +5,7 @@ import { ReactMultiSelectField } from "@/components/select/ReactMultiSelectField
 import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap"
 import type {
   LibraryBookEditModalModel,
-  LibraryBookVisibility,
+  LibraryBookVisibility
 } from "./useLibrarySectionBooksController"
 import styles from "./LibrarySectionBooksPage.module.css"
 
@@ -29,13 +29,13 @@ export function LibraryBookEditModal({
   setAllowedRaceKeys,
   setAllowedClassKeys,
   onSave,
-  onClose,
+  onClose
 }: LibraryBookEditModalModel) {
   const modalRef = useRef<HTMLElement | null>(null)
   useModalFocusTrap({
     isActive: isOpen,
     activeElement: modalRef,
-    onEscape: () => onClose(),
+    onEscape: () => onClose()
   })
 
   if (!isOpen) return null

@@ -13,13 +13,13 @@ function LoginContent() {
   const { error, loading, nextPath, submit } = useAuthSubmission({
     loadingMessage: "Entrando...",
     successMessage: "Login realizado com sucesso.",
-    fallbackError: "Nao foi possivel autenticar.",
+    fallbackError: "Nao foi possivel autenticar."
   })
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     void submit(() =>
-      loginClientUseCase(authClientDependencies, { email, password }),
+      loginClientUseCase(authClientDependencies, { email, password })
     )
   }
 

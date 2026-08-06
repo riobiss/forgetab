@@ -4,16 +4,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { EntityCatalogAbilityView } from "@/features/world/catalog/application/types"
 
 const mocks = vi.hoisted(() => ({
-  buySkill: vi.fn(),
+  buySkill: vi.fn()
 }))
 
-vi.mock("@/features/world/catalog/presentation/useEntityAbilityPurchase", () => ({
-  useEntityAbilityPurchase: () => ({
-    points: 5,
-    loadingKey: "",
-    buySkill: mocks.buySkill,
-  }),
-}))
+vi.mock(
+  "@/features/world/catalog/presentation/useEntityAbilityPurchase",
+  () => ({
+    useEntityAbilityPurchase: () => ({
+      points: 5,
+      loadingKey: "",
+      buySkill: mocks.buySkill
+    })
+  })
+)
 
 import EntityAbilitiesPanel from "@/features/world/catalog/presentation/EntityAbilitiesPanel"
 
@@ -45,9 +48,9 @@ const skill: EntityCatalogAbilityView = {
       castTime: null,
       resourceCost: null,
       pointsCost: 2,
-      costCustom: null,
-    },
-  ],
+      costCustom: null
+    }
+  ]
 }
 
 describe("EntityAbilitiesPanel", () => {
@@ -70,13 +73,15 @@ describe("EntityAbilitiesPanel", () => {
           costsEnabled: true,
           costResourceName: "Pontos",
           initialPoints: 5,
-          initialOwnedBySkill: {},
+          initialOwnedBySkill: {}
         }}
-      />,
+      />
     )
 
     expect(
-      screen.getByText("Nenhum personagem elegivel para comprar esta habilidade."),
+      screen.getByText(
+        "Nenhum personagem elegivel para comprar esta habilidade."
+      )
     ).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Comprar" })).toBeDisabled()
   })
@@ -91,9 +96,9 @@ describe("EntityAbilitiesPanel", () => {
           costsEnabled: true,
           costResourceName: "Pontos",
           initialPoints: 5,
-          initialOwnedBySkill: {},
+          initialOwnedBySkill: {}
         }}
-      />,
+      />
     )
 
     await user.click(screen.getByRole("button", { name: "Comprar" }))

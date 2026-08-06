@@ -3,20 +3,20 @@ import {
   createLibraryBook,
   deleteLibraryBook,
   getLibraryBook,
-  updateLibraryBook,
+  updateLibraryBook
 } from "@/features/world/library/application/use-cases/libraryBooks"
 import {
   parseJsonBody,
   requireUserId,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { libraryRouteDeps } from "./dependencies"
 import type { BookRouteParams, SectionRouteParams } from "./routeTypes"
 
 export async function createLibraryBookHandler(
   request: FastifyRequest<{ Params: SectionRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -27,7 +27,7 @@ export async function createLibraryBookHandler(
       rpgId: request.params.rpgId,
       sectionId: request.params.sectionId,
       userId: auth.userId,
-      body,
+      body
     })
     return writeJson(reply, 201, payload)
   } catch (error) {
@@ -37,7 +37,7 @@ export async function createLibraryBookHandler(
 
 export async function getLibraryBookHandler(
   request: FastifyRequest<{ Params: BookRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -46,7 +46,7 @@ export async function getLibraryBookHandler(
     const payload = await getLibraryBook(libraryRouteDeps, {
       rpgId: request.params.rpgId,
       bookId: request.params.bookId,
-      userId: auth.userId,
+      userId: auth.userId
     })
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -56,7 +56,7 @@ export async function getLibraryBookHandler(
 
 export async function updateLibraryBookHandler(
   request: FastifyRequest<{ Params: BookRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -67,7 +67,7 @@ export async function updateLibraryBookHandler(
       rpgId: request.params.rpgId,
       bookId: request.params.bookId,
       userId: auth.userId,
-      body,
+      body
     })
     return writeJson(reply, 200, payload)
   } catch (error) {
@@ -77,7 +77,7 @@ export async function updateLibraryBookHandler(
 
 export async function deleteLibraryBookHandler(
   request: FastifyRequest<{ Params: BookRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) return auth.response
@@ -86,7 +86,7 @@ export async function deleteLibraryBookHandler(
     const payload = await deleteLibraryBook(libraryRouteDeps, {
       rpgId: request.params.rpgId,
       bookId: request.params.bookId,
-      userId: auth.userId,
+      userId: auth.userId
     })
     return writeJson(reply, 200, payload)
   } catch (error) {

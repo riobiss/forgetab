@@ -4,7 +4,7 @@ import { httpSkillsDashboardGateway } from "@/features/world/skills/infrastructu
 export type SkillsDashboardGatewayFactory = "http"
 
 export function createSkillsDashboardDependencies(
-  factory: SkillsDashboardGatewayFactory = "http",
+  factory: SkillsDashboardGatewayFactory = "http"
 ): SkillsDashboardDependencies {
   switch (factory) {
     case "http":

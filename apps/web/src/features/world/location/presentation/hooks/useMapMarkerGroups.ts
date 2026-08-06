@@ -9,13 +9,13 @@ import {
   removeMarkerGroup,
   replaceMarkerGroup,
   updateMarkerGroupDetails,
-  updateMarkerInGroup,
+  updateMarkerInGroup
 } from "@/features/world/location/application/services/markerGroupMutations"
 import { useMapMarkerGroupStore } from "@/features/world/location/presentation/hooks/useMapMarkerGroupStore"
 import type {
   MapMarkerItem,
   MarkerPinStyle,
-  PendingMarker,
+  PendingMarker
 } from "@/features/world/location/presentation/types/mapMarkers"
 
 const DEFAULT_MARKER_SIZE = 1
@@ -37,7 +37,7 @@ export function useMapMarkerGroups(params: Params) {
     createPrivateGroup,
     updatePrivateGroups,
     persistPublicMarkerGroup,
-    deletePublicMarkerGroup,
+    deletePublicMarkerGroup
   } = useMapMarkerGroupStore(params)
 
   const [selectedMarkerGroupId, setSelectedMarkerGroupId] = useState<string>("")
@@ -45,13 +45,13 @@ export function useMapMarkerGroups(params: Params) {
     "private" | "public" | "active"
   >("private")
   const [visibleMarkerGroupIds, setVisibleMarkerGroupIds] = useState<string[]>(
-    [],
+    []
   )
   const [isMarkerSelectionMode, setIsMarkerSelectionMode] = useState(false)
   const [pendingMarkers, setPendingMarkers] = useState<PendingMarker[]>([])
   const [markerGroupName, setMarkerGroupName] = useState("")
   const [markerGroupColor, setMarkerGroupColor] = useState(
-    params.markerColors[0] ?? "#f97316",
+    params.markerColors[0] ?? "#f97316"
   )
   const [markerSelectionTargetGroupId, setMarkerSelectionTargetGroupId] =
     useState<string | null>(null)
@@ -62,7 +62,7 @@ export function useMapMarkerGroups(params: Params) {
     useState("")
   const [editingMarkerImage, setEditingMarkerImage] = useState("")
   const [editingMarkerColor, setEditingMarkerColor] = useState(
-    params.markerColors[0] ?? "#f97316",
+    params.markerColors[0] ?? "#f97316"
   )
   const [editingMarkerSize, setEditingMarkerSize] =
     useState(DEFAULT_MARKER_SIZE)
@@ -70,7 +70,7 @@ export function useMapMarkerGroups(params: Params) {
     useState<MarkerPinStyle>(DEFAULT_MARKER_PIN_STYLE)
   const [editingGroupName, setEditingGroupName] = useState("")
   const [editingGroupColor, setEditingGroupColor] = useState(
-    params.markerColors[0] ?? "#f97316",
+    params.markerColors[0] ?? "#f97316"
   )
   const [areMarkersVisible, setAreMarkersVisible] = useState(true)
 
@@ -81,15 +81,15 @@ export function useMapMarkerGroups(params: Params) {
         : selectedVisibility === "private"
           ? privateMarkerGroups
           : [...publicMarkerGroups, ...privateMarkerGroups],
-    [privateMarkerGroups, publicMarkerGroups, selectedVisibility],
+    [privateMarkerGroups, publicMarkerGroups, selectedVisibility]
   )
 
   const selectedMarkerGroup = useMemo(
     () =>
       selectedMarkerGroups.find(
-        (group) => group.id === selectedMarkerGroupId,
+        (group) => group.id === selectedMarkerGroupId
       ) ?? null,
-    [selectedMarkerGroupId, selectedMarkerGroups],
+    [selectedMarkerGroupId, selectedMarkerGroups]
   )
 
   useEffect(() => {
@@ -110,12 +110,12 @@ export function useMapMarkerGroups(params: Params) {
     privateMarkerGroups,
     publicMarkerGroups,
     selectedMarkerGroupId,
-    selectedVisibility,
+    selectedVisibility
   ])
 
   useEffect(() => {
     const allIds = [...publicMarkerGroups, ...privateMarkerGroups].map(
-      (group) => group.id,
+      (group) => group.id
     )
     setVisibleMarkerGroupIds((current) => {
       const currentSet = new Set(current)
@@ -137,14 +137,14 @@ export function useMapMarkerGroups(params: Params) {
     setPendingMarkers([])
     setMarkerSelectionTargetGroupId(targetGroup?.id ?? null)
     setMarkerGroupName(
-      targetGroup?.name ?? `Grupo ${privateMarkerGroups.length + 1}`,
+      targetGroup?.name ?? `Grupo ${privateMarkerGroups.length + 1}`
     )
     setMarkerGroupColor(
       targetGroup?.color ??
         params.markerColors[
           privateMarkerGroups.length % params.markerColors.length
         ] ??
-        "#f97316",
+        "#f97316"
     )
     setIsMarkerSelectionMode(true)
     setAreMarkersVisible(true)
@@ -165,7 +165,7 @@ export function useMapMarkerGroups(params: Params) {
     if (markerSelectionTargetGroupId) {
       const targetGroup =
         allMarkerGroups.find(
-          (group) => group.id === markerSelectionTargetGroupId,
+          (group) => group.id === markerSelectionTargetGroupId
         ) ?? null
       if (!targetGroup?.canEdit) {
         return false
@@ -179,7 +179,7 @@ export function useMapMarkerGroups(params: Params) {
         if (!savedGroup) return false
       } else {
         updatePrivateGroups((current) =>
-          replaceMarkerGroup(current, updatedGroup),
+          replaceMarkerGroup(current, updatedGroup)
         )
       }
 
@@ -200,7 +200,7 @@ export function useMapMarkerGroups(params: Params) {
     const nextGroup = createPrivateGroup({
       markerGroupName,
       markerGroupColor,
-      pendingMarkers,
+      pendingMarkers
     })
     if (!nextGroup) {
       return null
@@ -234,7 +234,7 @@ export function useMapMarkerGroups(params: Params) {
 
     const updatedGroup = updateMarkerGroupDetails(selectedMarkerGroup, {
       name: editingGroupName,
-      color: editingGroupColor,
+      color: editingGroupColor
     })
     if (!updatedGroup) return false
 
@@ -242,9 +242,7 @@ export function useMapMarkerGroups(params: Params) {
       return Boolean(await persistPublicMarkerGroup(updatedGroup))
     }
 
-    updatePrivateGroups((current) =>
-      replaceMarkerGroup(current, updatedGroup),
-    )
+    updatePrivateGroups((current) => replaceMarkerGroup(current, updatedGroup))
     return true
   }
 
@@ -259,7 +257,7 @@ export function useMapMarkerGroups(params: Params) {
 
     const updatedGroup = updateMarkerGroupDetails(selectedMarkerGroup, {
       name: editingGroupName.trim() || selectedMarkerGroup.name,
-      color: editingGroupColor,
+      color: editingGroupColor
     })
     if (!updatedGroup) return false
 
@@ -284,9 +282,7 @@ export function useMapMarkerGroups(params: Params) {
       return deleted
     }
 
-    updatePrivateGroups((current) =>
-      removeMarkerGroup(current, targetGroup.id),
-    )
+    updatePrivateGroups((current) => removeMarkerGroup(current, targetGroup.id))
     setSelectedMarkerGroupId("")
     return true
   }
@@ -305,11 +301,11 @@ export function useMapMarkerGroups(params: Params) {
       marker.color ||
         selectedMarkerGroup?.color ||
         params.markerColors[0] ||
-        "#f97316",
+        "#f97316"
     )
     setEditingMarkerSize(marker.size ?? DEFAULT_MARKER_SIZE)
     setEditingMarkerPinStyle(
-      marker.pinStyle === "label" ? "label" : DEFAULT_MARKER_PIN_STYLE,
+      marker.pinStyle === "label" ? "label" : DEFAULT_MARKER_PIN_STYLE
     )
   }
 
@@ -319,9 +315,9 @@ export function useMapMarkerGroups(params: Params) {
         ? {
             ...current,
             x: position.x,
-            y: position.y,
+            y: position.y
           }
-        : null,
+        : null
     )
   }
 
@@ -331,9 +327,9 @@ export function useMapMarkerGroups(params: Params) {
       current
         ? {
             ...current,
-            size: value,
+            size: value
           }
-        : null,
+        : null
     )
   }
 
@@ -343,9 +339,9 @@ export function useMapMarkerGroups(params: Params) {
       current
         ? {
             ...current,
-            pinStyle: value,
+            pinStyle: value
           }
-        : null,
+        : null
     )
   }
 
@@ -368,7 +364,7 @@ export function useMapMarkerGroups(params: Params) {
       x: editingMarker.x,
       y: editingMarker.y,
       size: editingMarkerSize,
-      pinStyle: editingMarkerPinStyle,
+      pinStyle: editingMarkerPinStyle
     })
     if (!updatedGroup) return false
 
@@ -377,7 +373,7 @@ export function useMapMarkerGroups(params: Params) {
       if (!savedGroup) return false
     } else {
       updatePrivateGroups((current) =>
-        replaceMarkerGroup(current, updatedGroup),
+        replaceMarkerGroup(current, updatedGroup)
       )
     }
     setEditingMarker(null)
@@ -402,7 +398,7 @@ export function useMapMarkerGroups(params: Params) {
     updatePrivateGroups((current) =>
       result.action === "delete_group"
         ? removeMarkerGroup(current, selectedMarkerGroup.id)
-        : replaceMarkerGroup(current, result.group),
+        : replaceMarkerGroup(current, result.group)
     )
     return true
   }
@@ -418,7 +414,7 @@ export function useMapMarkerGroups(params: Params) {
     setVisibleMarkerGroupIds((current) =>
       current.includes(groupId)
         ? current.filter((id) => id !== groupId)
-        : [...current, groupId],
+        : [...current, groupId]
     )
   }
 
@@ -478,6 +474,6 @@ export function useMapMarkerGroups(params: Params) {
     toggleMarkerGroupVisibility,
     openMarkerEdit,
     saveMarkerEdit,
-    deleteMarkerItem,
+    deleteMarkerItem
   }
 }

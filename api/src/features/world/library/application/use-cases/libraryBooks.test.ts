@@ -14,20 +14,20 @@ describe("library book access", () => {
         description: null,
         visibility: "private",
         createdAt: "2026-01-01T00:00:00.000Z",
-        updatedAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-01T00:00:00.000Z"
       }),
       createBook: vi.fn().mockResolvedValue({
         id: "book-1",
-        sectionId: "section-1",
+        sectionId: "section-1"
       }),
-      touchSection: vi.fn().mockResolvedValue(undefined),
+      touchSection: vi.fn().mockResolvedValue(undefined)
     } as unknown as LibraryBookRepository
     const accessService = {
       getRpgAccess: vi.fn().mockResolvedValue({
         exists: true,
         canView: true,
-        canManage: false,
-      }),
+        canManage: false
+      })
     } satisfies LibraryAccessService
 
     await expect(
@@ -44,10 +44,10 @@ describe("library book access", () => {
             visibility: "private",
             allowedCharacterIds: [],
             allowedClassKeys: [],
-            allowedRaceKeys: [],
-          },
-        },
-      ),
+            allowedRaceKeys: []
+          }
+        }
+      )
     ).resolves.toEqual({ book: { id: "book-1", sectionId: "section-1" } })
     expect(repository.createBook).toHaveBeenCalledOnce()
     expect(repository.touchSection).toHaveBeenCalledWith("section-1")

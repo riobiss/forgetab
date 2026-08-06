@@ -33,13 +33,13 @@ const character: CharacterRow = {
   identity: {},
   characteristics: {},
   createdAt: new Date("2026-01-01T00:00:00Z"),
-  updatedAt: new Date("2026-01-01T00:00:00Z"),
+  updatedAt: new Date("2026-01-01T00:00:00Z")
 }
 
 function createDependencies() {
   const repository: CharacterUpdateRepository = {
     findById: vi.fn().mockResolvedValue(character),
-    update: vi.fn().mockResolvedValue(true),
+    update: vi.fn().mockResolvedValue(true)
   }
   const rpgAccessRepository: RpgAccessRepository = {
     getRpgAccessRow: vi.fn().mockResolvedValue({
@@ -49,9 +49,9 @@ function createDependencies() {
       useInventoryWeightLimit: false,
       allowMultiplePlayerCharacters: false,
       progressionMode: "xp_level",
-      progressionTiers: [{ label: "Level 1", required: 0 }],
+      progressionTiers: [{ label: "Level 1", required: 0 }]
     }),
-    getMembership: vi.fn().mockResolvedValue(null),
+    getMembership: vi.fn().mockResolvedValue(null)
   }
   const templatesRepository: RpgTemplatesRepository = {
     getAttributeTemplates: vi.fn().mockResolvedValue([]),
@@ -60,17 +60,17 @@ function createDependencies() {
     getIdentityTemplates: vi.fn().mockResolvedValue([]),
     getCharacteristicTemplates: vi.fn().mockResolvedValue([]),
     getRaceTemplates: vi.fn().mockResolvedValue([]),
-    getClassTemplates: vi.fn().mockResolvedValue([]),
+    getClassTemplates: vi.fn().mockResolvedValue([])
   }
   const imageCleanupService: CharacterImageCleanupService = {
-    cleanup: vi.fn().mockResolvedValue(undefined),
+    cleanup: vi.fn().mockResolvedValue(undefined)
   }
 
   return {
     repository,
     rpgAccessRepository,
     templatesRepository,
-    imageCleanupService,
+    imageCleanupService
   }
 }
 
@@ -89,8 +89,8 @@ describe("updateCharacter", () => {
       payload: {
         name: "Goblin Rei",
         visibility: "private",
-        characteristics: { title: "Chefe" },
-      },
+        characteristics: { title: "Chefe" }
+      }
     })
 
     expect(deps.repository.update).toHaveBeenCalledWith(
@@ -102,8 +102,8 @@ describe("updateCharacter", () => {
         characteristics: { title: "Chefe" },
         hasImage: false,
         hasRaceKey: false,
-        hasClassKey: false,
-      }),
+        hasClassKey: false
+      })
     )
   })
 
@@ -114,7 +114,7 @@ describe("updateCharacter", () => {
       rpgId: "rpg-1",
       characterId: "char-1",
       userId: "user-1",
-      payload: { raceKey: "orc", classKey: "warrior" },
+      payload: { raceKey: "orc", classKey: "warrior" }
     })
 
     expect(deps.templatesRepository.getRaceTemplates).not.toHaveBeenCalled()
@@ -122,8 +122,8 @@ describe("updateCharacter", () => {
     expect(deps.repository.update).toHaveBeenCalledWith(
       expect.objectContaining({
         hasRaceKey: false,
-        hasClassKey: false,
-      }),
+        hasClassKey: false
+      })
     )
   })
 
@@ -131,7 +131,7 @@ describe("updateCharacter", () => {
     const deps = createDependencies()
     vi.mocked(deps.repository.findById).mockResolvedValue({
       ...character,
-      characterType: "player",
+      characterType: "player"
     })
     vi.mocked(deps.rpgAccessRepository.getRpgAccessRow).mockResolvedValue({
       ownerId: "master-1",
@@ -140,11 +140,11 @@ describe("updateCharacter", () => {
       useInventoryWeightLimit: false,
       allowMultiplePlayerCharacters: false,
       progressionMode: "xp_level",
-      progressionTiers: [{ label: "Level 1", required: 0 }],
+      progressionTiers: [{ label: "Level 1", required: 0 }]
     })
     vi.mocked(deps.rpgAccessRepository.getMembership).mockResolvedValue({
       status: "accepted",
-      role: "player",
+      role: "player"
     })
 
     await expect(
@@ -152,12 +152,12 @@ describe("updateCharacter", () => {
         rpgId: "rpg-1",
         characterId: "char-1",
         userId: "user-1",
-        payload: { raceKey: "human" },
-      }),
+        payload: { raceKey: "human" }
+      })
     ).rejects.toMatchObject({
       status: 403,
       message:
-        "Somente mestre ou moderador podem editar raca e classe de personagens.",
+        "Somente mestre ou moderador podem editar raca e classe de personagens."
     })
   })
 
@@ -168,14 +168,14 @@ describe("updateCharacter", () => {
       rpgId: "rpg-1",
       characterId: "char-1",
       userId: "user-1",
-      payload: { image: "https://cdn.example.com/new.png" },
+      payload: { image: "https://cdn.example.com/new.png" }
     })
 
     expect(deps.imageCleanupService.cleanup).toHaveBeenCalledWith({
       rpgOwnerId: "user-1",
       characterCreatedByUserId: "user-1",
       previousImage: "https://cdn.example.com/goblin.png",
-      nextImage: "https://cdn.example.com/new.png",
+      nextImage: "https://cdn.example.com/new.png"
     })
   })
 })

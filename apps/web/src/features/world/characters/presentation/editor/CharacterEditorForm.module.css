@@ -13,7 +13,11 @@
 
 .card {
   width: min(920px, 100%);
-  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-app));
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    var(--color-bg-app)
+  );
   border: 1px solid var(--color-border-soft);
   border-radius: 16px;
   padding: 1.15rem;
@@ -214,7 +218,11 @@
   border: 1px dashed var(--color-border-soft);
   border-radius: 10px;
   padding: 0.62rem 0.72rem;
-  background: color-mix(in srgb, var(--color-bg-app) 90%, var(--color-bg-surface));
+  background: color-mix(
+    in srgb,
+    var(--color-bg-app) 90%,
+    var(--color-bg-surface)
+  );
   color: var(--color-text-secondary);
   display: inline-flex;
   align-items: center;
@@ -224,7 +232,11 @@
 }
 
 .fileUploadTrigger:hover {
-  border-color: color-mix(in srgb, var(--color-border-brand) 70%, var(--color-border-soft));
+  border-color: color-mix(
+    in srgb,
+    var(--color-border-brand) 70%,
+    var(--color-border-soft)
+  );
 }
 
 .fileUploadActions {
@@ -235,7 +247,8 @@
 }
 
 .fileRemoveButton {
-  border: 1px solid color-mix(in srgb, var(--color-status-danger) 65%, var(--color-border-soft));
+  border: 1px solid
+    color-mix(in srgb, var(--color-status-danger) 65%, var(--color-border-soft));
   border-radius: 10px;
   width: 40px;
   height: 40px;
@@ -309,8 +322,13 @@
 }
 
 .dangerButton {
-  border: 1px solid color-mix(in srgb, var(--color-status-danger) 55%, var(--color-border-soft)) !important;
-  background: color-mix(in srgb, var(--color-status-danger) 35%, var(--color-bg-app)) !important;
+  border: 1px solid
+    color-mix(in srgb, var(--color-status-danger) 55%, var(--color-border-soft)) !important;
+  background: color-mix(
+    in srgb,
+    var(--color-status-danger) 35%,
+    var(--color-bg-app)
+  ) !important;
   color: var(--color-status-danger-contrast) !important;
 }
 
@@ -332,10 +350,15 @@
 }
 
 .deleteNotice {
-  border: 1px solid color-mix(in srgb, var(--color-status-danger) 55%, var(--color-border-soft));
+  border: 1px solid
+    color-mix(in srgb, var(--color-status-danger) 55%, var(--color-border-soft));
   border-radius: 12px;
   padding: 0.75rem;
-  background: color-mix(in srgb, var(--color-status-danger) 12%, var(--color-bg-app));
+  background: color-mix(
+    in srgb,
+    var(--color-status-danger) 12%,
+    var(--color-bg-app)
+  );
   display: grid;
   gap: 0.55rem;
 }
@@ -450,6 +473,3 @@
     grid-template-columns: 1fr;
   }
 }
-
-
-

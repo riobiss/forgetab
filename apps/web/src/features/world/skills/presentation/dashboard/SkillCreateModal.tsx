@@ -60,7 +60,7 @@ export function SkillCreateModal({
   newCustomFieldValue,
   setNewCustomFieldValue,
   onAddCustomField,
-  onCloseCustomFieldModal,
+  onCloseCustomFieldModal
 }: SkillCreateModalProps) {
   if (!open) return null
 
@@ -72,7 +72,10 @@ export function SkillCreateModal({
       aria-label="Criar habilidade"
       onClick={onClose}
     >
-      <section className={`${styles.card} ${styles.modalCard}`} onClick={(event) => event.stopPropagation()}>
+      <section
+        className={`${styles.card} ${styles.modalCard}`}
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className={styles.modalHeader}>
           <h2>Criar</h2>
           <div className={styles.modalHeaderActions}>
@@ -115,7 +118,12 @@ export function SkillCreateModal({
 
         <div className={styles.actions}>
           <SkillStepNavigation step={createStep} setStep={setCreateStep} />
-          <button type="button" className={styles.primaryButton} onClick={onCreate} disabled={saving}>
+          <button
+            type="button"
+            className={styles.primaryButton}
+            onClick={onCreate}
+            disabled={saving}
+          >
             {saving ? "Criando..." : "Criar"}
           </button>
         </div>

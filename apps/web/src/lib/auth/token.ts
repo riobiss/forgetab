@@ -2,11 +2,13 @@ import { SignJWT, jwtVerify } from "jose"
 import { TOKEN_EXPIRES_IN_SECONDS } from "@/lib/auth/constants"
 
 const configuredSecret =
-  process.env.JWT_SECRET ?? process.env.NEXTAUTH_SECRET ?? process.env.APP_SECRET_KEY
+  process.env.JWT_SECRET ??
+  process.env.NEXTAUTH_SECRET ??
+  process.env.APP_SECRET_KEY
 
 if (!configuredSecret) {
   throw new Error(
-    "JWT secret nao configurado. Defina JWT_SECRET (ou NEXTAUTH_SECRET/APP_SECRET_KEY).",
+    "JWT secret nao configurado. Defina JWT_SECRET (ou NEXTAUTH_SECRET/APP_SECRET_KEY)."
   )
 }
 

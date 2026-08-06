@@ -2,7 +2,7 @@ import type { MarkerGroup } from "@/features/world/location/application/models/m
 import type { RpgMapMarkerGroupsGateway } from "@/features/world/location/application/contracts/RpgMapMarkerGroupsGateway"
 import {
   fromPublicMarkerGroupDto,
-  toMarkerGroupPayload,
+  toMarkerGroupPayload
 } from "@/features/world/location/application/services/markerGroupSerialization"
 
 export async function savePublicMarkerGroupUseCase(
@@ -11,7 +11,7 @@ export async function savePublicMarkerGroupUseCase(
     rpgId: string
     mapId: string
     group: MarkerGroup
-  },
+  }
 ) {
   const payload = toMarkerGroupPayload(params.group)
   const saved =
@@ -20,7 +20,7 @@ export async function savePublicMarkerGroupUseCase(
           params.rpgId,
           params.mapId,
           params.group.id,
-          payload,
+          payload
         )
       : await gateway.createMarkerGroup(params.rpgId, params.mapId, payload)
 

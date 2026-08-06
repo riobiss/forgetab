@@ -2,18 +2,18 @@ import { describe, expect, it, vi } from "vitest"
 import type { EntityCatalogDependencies } from "@/features/world/catalog/application/contracts/EntityCatalogDependencies"
 import {
   createEntityCatalogEntryUseCase,
-  updateEntityCatalogTemplateUseCase,
+  updateEntityCatalogTemplateUseCase
 } from "@/features/world/catalog/application/use-cases/entityCatalogClient"
 
 function createDependencies(): EntityCatalogDependencies {
   return {
     collectionGateway: {
       fetchCollection: vi.fn().mockResolvedValue([]),
-      saveCollection: vi.fn().mockResolvedValue(undefined),
+      saveCollection: vi.fn().mockResolvedValue(undefined)
     },
     purchaseGateway: {
-      buySkill: vi.fn(),
-    },
+      buySkill: vi.fn()
+    }
   }
 }
 
@@ -25,8 +25,8 @@ describe("entityCatalogClient", () => {
       createEntityCatalogEntryUseCase(deps, {
         rpgId: "rpg-1",
         entityType: "class",
-        entry: { label: "   " },
-      }),
+        entry: { label: "   " }
+      })
     ).rejects.toThrow("Informe o nome da classe.")
     expect(deps.collectionGateway.fetchCollection).not.toHaveBeenCalled()
   })
@@ -34,7 +34,7 @@ describe("entityCatalogClient", () => {
   it("não salva atualização quando o template não existe", async () => {
     const deps = createDependencies()
     vi.mocked(deps.collectionGateway.fetchCollection).mockResolvedValue([
-      { key: "mago", label: "Mago" },
+      { key: "mago", label: "Mago" }
     ])
 
     await expect(
@@ -42,8 +42,8 @@ describe("entityCatalogClient", () => {
         rpgId: "rpg-1",
         entityType: "class",
         templateKey: "guerreiro",
-        nextTemplate: { key: "guerreiro", label: "Guerreiro" },
-      }),
+        nextTemplate: { key: "guerreiro", label: "Guerreiro" }
+      })
     ).rejects.toThrow("Classe nao encontrada.")
     expect(deps.collectionGateway.saveCollection).not.toHaveBeenCalled()
   })

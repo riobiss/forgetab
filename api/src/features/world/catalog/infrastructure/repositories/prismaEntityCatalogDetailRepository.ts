@@ -1,17 +1,17 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import type {
   EntityCatalogDetailRepository,
-  EntityCatalogDetailSnapshot,
+  EntityCatalogDetailSnapshot
 } from "@/features/world/catalog/application/ports/EntityCatalogDetailRepository.js"
 import { prisma } from "@/lib/prisma"
 import {
   mapClassDetailRow,
   mapRaceDetailRow,
-  toTemplateOptions,
+  toTemplateOptions
 } from "@/features/world/catalog/infrastructure/repositories/entityCatalogDetailMappers"
 import type {
   DbClassRow,
-  DbRaceRow,
+  DbRaceRow
 } from "@/features/world/catalog/infrastructure/repositories/entityCatalogDetailRows"
 
 async function queryAttributeTemplates(rpgId: string) {
@@ -36,7 +36,7 @@ export const prismaEntityCatalogDetailRepository: EntityCatalogDetailRepository 
   {
     async getClassDetail({
       rpgId,
-      classId,
+      classId
     }): Promise<EntityCatalogDetailSnapshot | null> {
       const rows = await prisma.$queryRaw<DbClassRow[]>(Prisma.sql`
         SELECT
@@ -63,7 +63,7 @@ export const prismaEntityCatalogDetailRepository: EntityCatalogDetailRepository 
 
     async getRaceDetail({
       rpgId,
-      raceKey,
+      raceKey
     }): Promise<EntityCatalogDetailSnapshot | null> {
       const rows = await prisma.$queryRaw<DbRaceRow[]>(Prisma.sql`
         SELECT
@@ -95,5 +95,5 @@ export const prismaEntityCatalogDetailRepository: EntityCatalogDetailRepository 
 
     async listSkillTemplates(rpgId) {
       return toTemplateOptions(await querySkillTemplates(rpgId))
-    },
+    }
   }

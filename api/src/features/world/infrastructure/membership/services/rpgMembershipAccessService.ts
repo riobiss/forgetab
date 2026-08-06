@@ -7,7 +7,7 @@ export const rpgMembershipAccessService: RpgMembershipAccessService = {
     return {
       exists: permission.exists,
       canManage: permission.canManage,
-      ownerId: permission.ownerId ?? null,
+      ownerId: permission.ownerId ?? null
     }
-  },
+  }
 }

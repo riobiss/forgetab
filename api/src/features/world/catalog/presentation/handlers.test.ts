@@ -3,20 +3,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 const mocks = vi.hoisted(() => ({
   getAuthPayloadFromFastifyRequest: vi.fn(),
   loadEntityCatalogPageData: vi.fn(),
-  loadEntityCatalogDetailUseCase: vi.fn(),
+  loadEntityCatalogDetailUseCase: vi.fn()
 }))
 
 vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
-  getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest,
+  getAuthPayloadFromFastifyRequest: mocks.getAuthPayloadFromFastifyRequest
 }))
 
 vi.mock("@/features/world/catalog/application/use-cases/entityCatalog", () => ({
-  loadEntityCatalogPageData: mocks.loadEntityCatalogPageData,
+  loadEntityCatalogPageData: mocks.loadEntityCatalogPageData
 }))
 
-vi.mock("@/features/world/catalog/application/use-cases/loadEntityCatalogDetail", () => ({
-  loadEntityCatalogDetailUseCase: mocks.loadEntityCatalogDetailUseCase,
-}))
+vi.mock(
+  "@/features/world/catalog/application/use-cases/loadEntityCatalogDetail",
+  () => ({
+    loadEntityCatalogDetailUseCase: mocks.loadEntityCatalogDetailUseCase
+  })
+)
 
 import { buildApiServer } from "@api/app"
 
@@ -25,7 +28,9 @@ describe("entity catalog routes", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.getAuthPayloadFromFastifyRequest.mockResolvedValue({ userId: "user-1" })
+    mocks.getAuthPayloadFromFastifyRequest.mockResolvedValue({
+      userId: "user-1"
+    })
   })
 
   afterEach(async () => {
@@ -49,22 +54,25 @@ describe("entity catalog routes", () => {
           category: "base",
           meta: { shortDescription: "Linha de frente", richText: {} },
           href: "/rpg/rpg-1/classes/c1",
-          entityType: "class",
-        },
-      ],
+          entityType: "class"
+        }
+      ]
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/entity-catalog/classes",
+      url: "/api/rpg/rpg-1/entity-catalog/classes"
     })
 
     expect(response.statusCode).toBe(200)
-    expect(mocks.loadEntityCatalogPageData).toHaveBeenCalledWith(expect.anything(), {
-      rpgId: "rpg-1",
-      userId: "user-1",
-      entityType: "class",
-    })
+    expect(mocks.loadEntityCatalogPageData).toHaveBeenCalledWith(
+      expect.anything(),
+      {
+        rpgId: "rpg-1",
+        userId: "user-1",
+        entityType: "class"
+      }
+    )
   })
 
   it("retorna 404 para catalogo sem acesso", async () => {
@@ -73,7 +81,7 @@ describe("entity catalog routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/entity-catalog/races",
+      url: "/api/rpg/rpg-1/entity-catalog/races"
     })
 
     expect(response.statusCode).toBe(404)
@@ -91,7 +99,7 @@ describe("entity catalog routes", () => {
         category: "base",
         attributeBonuses: {},
         skillBonuses: {},
-        catalogMeta: { shortDescription: "Linha de frente", richText: {} },
+        catalogMeta: { shortDescription: "Linha de frente", richText: {} }
       },
       attributeTemplates: [],
       skillTemplates: [],
@@ -102,13 +110,13 @@ describe("entity catalog routes", () => {
         costsEnabled: false,
         costResourceName: "Skill Points",
         initialPoints: 0,
-        initialOwnedBySkill: {},
-      },
+        initialOwnedBySkill: {}
+      }
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/entity-catalog/classes/c1",
+      url: "/api/rpg/rpg-1/entity-catalog/classes/c1"
     })
 
     expect(response.statusCode).toBe(200)
@@ -118,8 +126,8 @@ describe("entity catalog routes", () => {
         rpgId: "rpg-1",
         classId: "c1",
         userId: "user-1",
-        entityType: "class",
-      }),
+        entityType: "class"
+      })
     )
   })
 
@@ -129,7 +137,7 @@ describe("entity catalog routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/entity-catalog/races/humano",
+      url: "/api/rpg/rpg-1/entity-catalog/races/humano"
     })
 
     expect(response.statusCode).toBe(404)

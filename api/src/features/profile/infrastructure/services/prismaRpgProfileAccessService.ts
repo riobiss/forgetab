@@ -12,15 +12,15 @@ export const prismaRpgProfileAccessService: RpgProfileAccessService = {
             members: {
               some: {
                 userId,
-                status: "accepted",
-              },
-            },
-          },
-        ],
+                status: "accepted"
+              }
+            }
+          }
+        ]
       },
-      select: { id: true },
+      select: { id: true }
     })
 
     return Boolean(rpg)
-  },
+  }
 }

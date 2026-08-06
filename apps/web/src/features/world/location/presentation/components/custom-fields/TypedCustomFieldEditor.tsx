@@ -4,12 +4,18 @@ import type { RefObject } from "react"
 import {
   CUSTOM_FIELD_TYPE_OPTIONS,
   normalizeCustomFieldType,
-  type EditableTypedCustomField,
+  type EditableTypedCustomField
 } from "@/features/world/location/presentation/types/typedCustomField"
 import styles from "./TypedCustomFieldEditor.module.css"
 
-export type { CustomFieldType, EditableTypedCustomField } from "@/features/world/location/presentation/types/typedCustomField"
-export { CUSTOM_FIELD_TYPE_OPTIONS, normalizeCustomFieldType } from "@/features/world/location/presentation/types/typedCustomField"
+export type {
+  CustomFieldType,
+  EditableTypedCustomField
+} from "@/features/world/location/presentation/types/typedCustomField"
+export {
+  CUSTOM_FIELD_TYPE_OPTIONS,
+  normalizeCustomFieldType
+} from "@/features/world/location/presentation/types/typedCustomField"
 
 type Props = {
   field: EditableTypedCustomField
@@ -17,7 +23,9 @@ type Props = {
   hideLabels?: boolean
   layout?: "inline" | "stacked"
   keyEditable?: boolean
-  onChange: (updater: (current: EditableTypedCustomField) => EditableTypedCustomField) => void
+  onChange: (
+    updater: (current: EditableTypedCustomField) => EditableTypedCustomField
+  ) => void
 }
 
 export function TypedCustomFieldEditor({
@@ -26,7 +34,7 @@ export function TypedCustomFieldEditor({
   hideLabels = false,
   layout = "stacked",
   keyEditable = true,
-  onChange,
+  onChange
 }: Props) {
   const labelClassName = hideLabels ? styles.labelHidden : styles.label
 
@@ -41,10 +49,14 @@ export function TypedCustomFieldEditor({
             type="button"
             className={[
               styles.booleanOption,
-              currentValue === "sim" ? styles.booleanOptionActive : "",
-            ].filter(Boolean).join(" ")}
+              currentValue === "sim" ? styles.booleanOptionActive : ""
+            ]
+              .filter(Boolean)
+              .join(" ")}
             aria-pressed={currentValue === "sim"}
-            onClick={() => onChange((current) => ({ ...current, value: "Sim" }))}
+            onClick={() =>
+              onChange((current) => ({ ...current, value: "Sim" }))
+            }
           >
             Sim
           </button>
@@ -52,10 +64,14 @@ export function TypedCustomFieldEditor({
             type="button"
             className={[
               styles.booleanOption,
-              currentValue === "nao" ? styles.booleanOptionActive : "",
-            ].filter(Boolean).join(" ")}
+              currentValue === "nao" ? styles.booleanOptionActive : ""
+            ]
+              .filter(Boolean)
+              .join(" ")}
             aria-pressed={currentValue === "nao"}
-            onClick={() => onChange((current) => ({ ...current, value: "Nao" }))}
+            onClick={() =>
+              onChange((current) => ({ ...current, value: "Nao" }))
+            }
           >
             Nao
           </button>
@@ -68,7 +84,9 @@ export function TypedCustomFieldEditor({
         className={styles.input}
         aria-label="Valor"
         value={field.value}
-        onChange={(event) => onChange((current) => ({ ...current, value: event.target.value }))}
+        onChange={(event) =>
+          onChange((current) => ({ ...current, value: event.target.value }))
+        }
         placeholder="Valor"
       />
     )
@@ -81,7 +99,9 @@ export function TypedCustomFieldEditor({
         className={styles.input}
         aria-label="Chave"
         value={field.key}
-        onChange={(event) => onChange((current) => ({ ...current, key: event.target.value }))}
+        onChange={(event) =>
+          onChange((current) => ({ ...current, key: event.target.value }))
+        }
         placeholder="Chave"
       />
     )
@@ -90,12 +110,19 @@ export function TypedCustomFieldEditor({
   function renderTypeField(hideTypeLabel = false) {
     return (
       <div className={styles.field}>
-        <span className={hideTypeLabel ? styles.labelHidden : labelClassName}>Tipo</span>
+        <span className={hideTypeLabel ? styles.labelHidden : labelClassName}>
+          Tipo
+        </span>
         <select
           className={styles.select}
           aria-label="Tipo"
           value={field.type}
-          onChange={(event) => onChange((current) => ({ ...current, type: normalizeCustomFieldType(event.target.value) }))}
+          onChange={(event) =>
+            onChange((current) => ({
+              ...current,
+              type: normalizeCustomFieldType(event.target.value)
+            }))
+          }
         >
           {CUSTOM_FIELD_TYPE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -112,7 +139,9 @@ export function TypedCustomFieldEditor({
       <div className={styles.inlineReadonlyEditor}>
         <div className={styles.inlineReadonlyHeader}>
           <span className={styles.inlineReadonlyKey}>{field.key}</span>
-          <div className={styles.inlineReadonlyType}>{renderTypeField(true)}</div>
+          <div className={styles.inlineReadonlyType}>
+            {renderTypeField(true)}
+          </div>
         </div>
         <div className={styles.inlineReadonlyValue}>{renderValueField()}</div>
       </div>
@@ -123,8 +152,10 @@ export function TypedCustomFieldEditor({
     <div
       className={[
         styles.grid,
-        layout === "stacked" ? styles.stacked : styles.inline,
-      ].filter(Boolean).join(" ")}
+        layout === "stacked" ? styles.stacked : styles.inline
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       {keyEditable ? (
         <label className={styles.field}>

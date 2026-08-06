@@ -278,43 +278,43 @@ const prismaCharacterRepositoryAdapter: CharacterRepository = {
 
       return created[0]
     })
-  },
+  }
 }
 
 export const prismaCharacterRepository: CharacterRepository = {
   listByRpg: (input) =>
     withCharacterPersistenceErrors(() =>
-      prismaCharacterRepositoryAdapter.listByRpg(input),
+      prismaCharacterRepositoryAdapter.listByRpg(input)
     ),
   countPlayersByCreator: (rpgId, userId) =>
     withCharacterPersistenceErrors(() =>
-      prismaCharacterRepositoryAdapter.countPlayersByCreator(rpgId, userId),
+      prismaCharacterRepositoryAdapter.countPlayersByCreator(rpgId, userId)
     ),
   listAssignablePlayers: (rpgId, allowMultiplePlayerCharacters) =>
     withCharacterPersistenceErrors(() =>
       prismaCharacterRepositoryAdapter.listAssignablePlayers(
         rpgId,
-        allowMultiplePlayerCharacters,
-      ),
+        allowMultiplePlayerCharacters
+      )
     ),
   isAcceptedMember: (rpgId, userId) =>
     withCharacterPersistenceErrors(() =>
-      prismaCharacterRepositoryAdapter.isAcceptedMember(rpgId, userId),
+      prismaCharacterRepositoryAdapter.isAcceptedMember(rpgId, userId)
     ),
   createCharacterOffer: (rpgId, characterId, userId) =>
     withCharacterPersistenceErrors(() =>
       prismaCharacterRepositoryAdapter.createCharacterOffer(
         rpgId,
         characterId,
-        userId,
-      ),
+        userId
+      )
     ),
   create: (input) =>
     withCharacterPersistenceErrors(() =>
-      prismaCharacterRepositoryAdapter.create(input),
+      prismaCharacterRepositoryAdapter.create(input)
     ),
   createWithOffer: (input, offerUserId) =>
     withCharacterPersistenceErrors(() =>
-      prismaCharacterRepositoryAdapter.createWithOffer(input, offerUserId),
-    ),
+      prismaCharacterRepositoryAdapter.createWithOffer(input, offerUserId)
+    )
 }

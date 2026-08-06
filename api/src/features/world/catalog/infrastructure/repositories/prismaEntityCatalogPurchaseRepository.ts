@@ -3,7 +3,7 @@ import type { EntityCatalogPurchaseRepository } from "@/features/world/catalog/a
 import { prisma } from "@/lib/prisma"
 import {
   emptyPurchaseState,
-  toOwnedBySkill,
+  toOwnedBySkill
 } from "@/features/world/catalog/infrastructure/repositories/entityCatalogDetailMappers"
 
 export const prismaEntityCatalogPurchaseRepository: EntityCatalogPurchaseRepository =
@@ -36,7 +36,7 @@ export const prismaEntityCatalogPurchaseRepository: EntityCatalogPurchaseReposit
         costsEnabled: params.costsEnabled,
         costResourceName: params.costResourceName,
         initialPoints: player.skillPoints,
-        initialOwnedBySkill: toOwnedBySkill(player.abilities),
+        initialOwnedBySkill: toOwnedBySkill(player.abilities)
       }
     },
 
@@ -69,7 +69,7 @@ export const prismaEntityCatalogPurchaseRepository: EntityCatalogPurchaseReposit
       if (!player) {
         return emptyPurchaseState({
           costsEnabled: false,
-          costResourceName: "Skill Points",
+          costResourceName: "Skill Points"
         })
       }
 
@@ -78,7 +78,7 @@ export const prismaEntityCatalogPurchaseRepository: EntityCatalogPurchaseReposit
         costsEnabled: player.costsEnabled,
         costResourceName: player.costResourceName,
         initialPoints: player.skillPoints,
-        initialOwnedBySkill: toOwnedBySkill(player.abilities),
+        initialOwnedBySkill: toOwnedBySkill(player.abilities)
       }
-    },
+    }
   }

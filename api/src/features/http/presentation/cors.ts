@@ -7,21 +7,24 @@ function normalizeOrigin(value: string) {
 }
 
 export function resolveAllowedOrigin(headers: IncomingHttpHeaders | Headers) {
-  const origin = headers instanceof Headers
-    ? headers.get("origin")?.trim()
-    : (() => {
-        const headerOrigin = headers.origin as string | string[] | undefined
-        if (typeof headerOrigin === "string") {
-          return headerOrigin.trim()
-        }
+  const origin =
+    headers instanceof Headers
+      ? headers.get("origin")?.trim()
+      : (() => {
+          const headerOrigin = headers.origin as string | string[] | undefined
+          if (typeof headerOrigin === "string") {
+            return headerOrigin.trim()
+          }
 
-        if (Array.isArray(headerOrigin)) {
-          const firstOrigin = headerOrigin[0]
-          return typeof firstOrigin === "string" ? firstOrigin.trim() : undefined
-        }
+          if (Array.isArray(headerOrigin)) {
+            const firstOrigin = headerOrigin[0]
+            return typeof firstOrigin === "string"
+              ? firstOrigin.trim()
+              : undefined
+          }
 
-        return undefined
-      })()
+          return undefined
+        })()
 
   if (!origin) {
     return null
@@ -31,5 +34,7 @@ export function resolveAllowedOrigin(headers: IncomingHttpHeaders | Headers) {
     return origin
   }
 
-  return normalizeOrigin(origin) === normalizeOrigin(configuredFrontendUrl) ? origin : null
+  return normalizeOrigin(origin) === normalizeOrigin(configuredFrontendUrl)
+    ? origin
+    : null
 }

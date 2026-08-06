@@ -61,5 +61,5 @@ export async function listRaceCatalogPlayers(params: {
 export const prismaEntityCatalogPlayerRepository: EntityCatalogPlayerRepository =
   {
     listClassPlayers: listClassCatalogPlayers,
-    listRacePlayers: listRaceCatalogPlayers,
+    listRacePlayers: listRaceCatalogPlayers
   }

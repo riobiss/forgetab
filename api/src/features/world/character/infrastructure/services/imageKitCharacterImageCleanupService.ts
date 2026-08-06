@@ -8,13 +8,13 @@ type CharacterImageCleanupParams = {
 }
 
 export async function cleanupCharacterImageByOwners(
-  params: CharacterImageCleanupParams,
+  params: CharacterImageCleanupParams
 ) {
   const ownerIds = new Set([
     params.rpgOwnerId,
     ...(params.characterCreatedByUserId
       ? [params.characterCreatedByUserId]
-      : []),
+      : [])
   ])
 
   for (const userId of ownerIds) {
@@ -22,7 +22,7 @@ export async function cleanupCharacterImageByOwners(
       await imageKitScopedImageService.deleteByUrl({
         userId,
         folder: "characters",
-        url: params.previousImage,
+        url: params.previousImage
       })
     } catch {
       // A limpeza da imagem anterior nao deve invalidar a operacao principal.
@@ -34,5 +34,5 @@ export const imageKitCharacterImageCleanupService: CharacterImageCleanupService 
   {
     async cleanup(params) {
       await cleanupCharacterImageByOwners(params)
-    },
+    }
   }

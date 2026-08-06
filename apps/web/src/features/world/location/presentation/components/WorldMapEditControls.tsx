@@ -38,7 +38,7 @@ export function WorldMapEditControls({
   onClearLastDrawing,
   onResetView,
   onChangeBrushSize,
-  onChangeBrushColor,
+  onChangeBrushColor
 }: Props) {
   if (!canEditContent && !canManageImage) return null
 
@@ -79,9 +79,7 @@ export function WorldMapEditControls({
                     isBrushMode ? styles.brushToggleActive : ""
                   }`}
                   aria-label={
-                    isBrushMode
-                      ? "Desativar modo pincel"
-                      : "Ativar modo pincel"
+                    isBrushMode ? "Desativar modo pincel" : "Ativar modo pincel"
                   }
                   disabled={!isInteractive}
                 >

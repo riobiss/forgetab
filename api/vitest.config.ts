@@ -2,12 +2,12 @@ import { defineConfig } from "vitest/config"
 
 export default defineConfig({
   resolve: {
-    tsconfigPaths: true,
+    tsconfigPaths: true
   },
   test: {
     environment: "node",
     include: ["src/**/*.test.ts", "src/**/*.spec.ts"],
     setupFiles: ["src/test/setup-env.ts"],
-    testTimeout: 10000,
-  },
+    testTimeout: 10000
+  }
 })

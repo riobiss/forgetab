@@ -8,7 +8,7 @@ export const STATUS_CATALOG = [
   { key: "energy", label: "Energia" },
   { key: "focus", label: "Foco" },
   { key: "faith", label: "Fe" },
-  { key: "rage", label: "Furia" },
+  { key: "rage", label: "Furia" }
 ] as const
 
 export type StatusCatalogItem = (typeof STATUS_CATALOG)[number]
@@ -19,5 +19,5 @@ export const DEFAULT_STATUS_KEYS: StatusKey[] = [
   "defense",
   "mana",
   "exhaustion",
-  "sanity",
+  "sanity"
 ]

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto"
 import type {
   RandomIntegerRequest,
   RandomIntegerResult,
-  RandomNumberProvider,
+  RandomNumberProvider
 } from "@/features/dices/random/application/ports/RandomNumberProvider"
 
 type RandomOrgGenerateIntegersResponse = {
@@ -21,7 +21,7 @@ const RANDOM_ORG_ENDPOINT =
   "https://api.random.org/json-rpc/2/invoke"
 
 function generateLocalIntegers(
-  request: RandomIntegerRequest,
+  request: RandomIntegerRequest
 ): RandomIntegerResult {
   return {
     provider: "local",
@@ -29,8 +29,8 @@ function generateLocalIntegers(
       { length: request.count },
       () =>
         Math.floor(Math.random() * (request.max - request.min + 1)) +
-        request.min,
-    ),
+        request.min
+    )
   }
 }
 
@@ -54,10 +54,10 @@ export const randomOrgRandomNumberProvider: RandomNumberProvider = {
             min: request.min,
             max: request.max,
             replacement: true,
-            base: 10,
+            base: 10
           },
-          id: randomUUID(),
-        }),
+          id: randomUUID()
+        })
       })
 
       if (!response.ok) {
@@ -77,10 +77,10 @@ export const randomOrgRandomNumberProvider: RandomNumberProvider = {
 
       return {
         provider: "random-org",
-        numbers,
+        numbers
       }
     } catch {
       return generateLocalIntegers(request)
     }
-  },
+  }
 }

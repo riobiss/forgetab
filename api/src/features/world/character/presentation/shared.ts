@@ -1,5 +1,5 @@
 export type {
   CharacterInventoryRouteParams,
   CharacterRouteParams,
-  CharactersCollectionRouteParams,
+  CharactersCollectionRouteParams
 } from "./routeTypes"

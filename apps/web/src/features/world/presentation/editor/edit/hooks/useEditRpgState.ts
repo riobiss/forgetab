@@ -5,18 +5,18 @@ import type {
   AttributeTemplate,
   CharacterIdentityTemplate,
   IdentityTemplate,
-  SkillTemplate,
+  SkillTemplate
 } from "../components/shared/types"
 import {
   enforceXpLevelPattern,
   getDefaultProgressionTiers,
   type ProgressionMode,
-  type ProgressionTier,
+  type ProgressionTier
 } from "@/lib/rpg/progression"
 import {
   abilityCategoryKeys,
   normalizeEnabledAbilityCategories,
-  type AbilityCategoryKey,
+  type AbilityCategoryKey
 } from "@/lib/rpg/abilityCategories"
 
 export type Visibility = "private" | "public"
@@ -39,23 +39,31 @@ export function useEditRpgState() {
   const [useRaceBonuses, setUseRaceBonuses] = useState(false)
   const [useClassBonuses, setUseClassBonuses] = useState(false)
   const [useInventoryWeightLimit, setUseInventoryWeightLimit] = useState(false)
-  const [allowMultiplePlayerCharacters, setAllowMultiplePlayerCharacters] = useState(false)
+  const [allowMultiplePlayerCharacters, setAllowMultiplePlayerCharacters] =
+    useState(false)
   const [usersCanManageOwnXp, setUsersCanManageOwnXp] = useState(true)
-  const [allowSkillPointDistribution, setAllowSkillPointDistribution] = useState(true)
-  const [abilityCategoriesEnabled, setAbilityCategoriesEnabled] = useState(false)
-  const [enabledAbilityCategories, setEnabledAbilityCategories] = useState<AbilityCategoryKey[]>(
-    [],
-  )
+  const [allowSkillPointDistribution, setAllowSkillPointDistribution] =
+    useState(true)
+  const [abilityCategoriesEnabled, setAbilityCategoriesEnabled] =
+    useState(false)
+  const [enabledAbilityCategories, setEnabledAbilityCategories] = useState<
+    AbilityCategoryKey[]
+  >([])
   const [costsEnabled, setCostsEnabled] = useState(false)
   const [costResourceName, setCostResourceName] = useState("Skill Points")
-  const [progressionMode, setProgressionMode] = useState<ProgressionMode>("xp_level")
+  const [progressionMode, setProgressionMode] =
+    useState<ProgressionMode>("xp_level")
   const [progressionTiers, setProgressionTiers] = useState<ProgressionTier[]>(
-    getDefaultProgressionTiers("xp_level"),
+    getDefaultProgressionTiers("xp_level")
   )
 
-  const [attributeTemplates, setAttributeTemplates] = useState<AttributeTemplate[]>([])
+  const [attributeTemplates, setAttributeTemplates] = useState<
+    AttributeTemplate[]
+  >([])
   const [selectedStatusKeys, setSelectedStatusKeys] = useState<string[]>([])
-  const [statusLabelByKey, setStatusLabelByKey] = useState<Record<string, string>>({})
+  const [statusLabelByKey, setStatusLabelByKey] = useState<
+    Record<string, string>
+  >({})
   const [newCustomStatusLabel, setNewCustomStatusLabel] = useState("")
   const [skillTemplates, setSkillTemplates] = useState<SkillTemplate[]>([])
   const [newSkillLabel, setNewSkillLabel] = useState("")
@@ -67,26 +75,34 @@ export function useEditRpgState() {
   const [showAttributeList, setShowAttributeList] = useState(false)
   const [showStatusList, setShowStatusList] = useState(false)
   const [showSkillList, setShowSkillList] = useState(false)
-  const [showAbilityCategoriesList, setShowAbilityCategoriesList] = useState(false)
+  const [showAbilityCategoriesList, setShowAbilityCategoriesList] =
+    useState(false)
   const [showRaceList, setShowRaceList] = useState(false)
   const [showClassList, setShowClassList] = useState(false)
-  const [showCharacterIdentityList, setShowCharacterIdentityList] = useState(false)
+  const [showCharacterIdentityList, setShowCharacterIdentityList] =
+    useState(false)
   const [characterIdentityTemplates, setCharacterIdentityTemplates] = useState<
     CharacterIdentityTemplate[]
   >([])
   const [newIdentityLabel, setNewIdentityLabel] = useState("")
-  const [showCharacterCharacteristicsList, setShowCharacterCharacteristicsList] = useState(false)
-  const [characterCharacteristicTemplates, setCharacterCharacteristicTemplates] = useState<
-    CharacterIdentityTemplate[]
-  >([])
+  const [
+    showCharacterCharacteristicsList,
+    setShowCharacterCharacteristicsList
+  ] = useState(false)
+  const [
+    characterCharacteristicTemplates,
+    setCharacterCharacteristicTemplates
+  ] = useState<CharacterIdentityTemplate[]>([])
   const [newCharacteristicLabel, setNewCharacteristicLabel] = useState("")
 
   function toggleKeyInList(
     key: string,
-    setter: Dispatch<SetStateAction<string[]>>,
+    setter: Dispatch<SetStateAction<string[]>>
   ) {
     setter((prev) =>
-      prev.includes(key) ? prev.filter((value) => value !== key) : [...prev, key],
+      prev.includes(key)
+        ? prev.filter((value) => value !== key)
+        : [...prev, key]
     )
   }
 
@@ -100,7 +116,9 @@ export function useEditRpgState() {
     const key = slugifyLabel(label)
     if (key.length < 2) return
 
-    setSelectedStatusKeys((prev) => (prev.includes(key) ? prev : [...prev, key]))
+    setSelectedStatusKeys((prev) =>
+      prev.includes(key) ? prev : [...prev, key]
+    )
     setStatusLabelByKey((prev) => ({ ...prev, [key]: label }))
     setNewCustomStatusLabel("")
   }
@@ -125,7 +143,9 @@ export function useEditRpgState() {
     if (!key) return
 
     setSkillTemplates((prev) =>
-      prev.some((item) => item.key === key || item.label === label) ? prev : [...prev, { key, label }],
+      prev.some((item) => item.key === key || item.label === label)
+        ? prev
+        : [...prev, { key, label }]
     )
     setNewSkillLabel("")
   }
@@ -141,7 +161,9 @@ export function useEditRpgState() {
     if (!baseKey) return
 
     setAttributeTemplates((prev) => {
-      if (prev.some((item) => item.label.toLowerCase() === label.toLowerCase())) {
+      if (
+        prev.some((item) => item.label.toLowerCase() === label.toLowerCase())
+      ) {
         return prev
       }
 
@@ -174,8 +196,8 @@ export function useEditRpgState() {
         key: `draft-${crypto.randomUUID()}`,
         label,
         required: true,
-        position: prev.length,
-      },
+        position: prev.length
+      }
     ])
     setNewIdentityLabel("")
   }
@@ -183,22 +205,22 @@ export function useEditRpgState() {
   function updateIdentityFieldLabel(index: number, value: string) {
     setCharacterIdentityTemplates((prev) =>
       prev.map((item, currentIndex) =>
-        currentIndex === index ? { ...item, label: value } : item,
-      ),
+        currentIndex === index ? { ...item, label: value } : item
+      )
     )
   }
 
   function updateIdentityFieldRequired(index: number, value: boolean) {
     setCharacterIdentityTemplates((prev) =>
       prev.map((item, currentIndex) =>
-        currentIndex === index ? { ...item, required: value } : item,
-      ),
+        currentIndex === index ? { ...item, required: value } : item
+      )
     )
   }
 
   function removeIdentityField(index: number) {
     setCharacterIdentityTemplates((prev) =>
-      prev.filter((_, currentIndex) => currentIndex !== index),
+      prev.filter((_, currentIndex) => currentIndex !== index)
     )
   }
 
@@ -212,8 +234,8 @@ export function useEditRpgState() {
         key: `draft-${crypto.randomUUID()}`,
         label,
         required: true,
-        position: prev.length,
-      },
+        position: prev.length
+      }
     ])
     setNewCharacteristicLabel("")
   }
@@ -221,32 +243,33 @@ export function useEditRpgState() {
   function updateCharacteristicFieldLabel(index: number, value: string) {
     setCharacterCharacteristicTemplates((prev) =>
       prev.map((item, currentIndex) =>
-        currentIndex === index ? { ...item, label: value } : item,
-      ),
+        currentIndex === index ? { ...item, label: value } : item
+      )
     )
   }
 
   function updateCharacteristicFieldRequired(index: number, value: boolean) {
     setCharacterCharacteristicTemplates((prev) =>
       prev.map((item, currentIndex) =>
-        currentIndex === index ? { ...item, required: value } : item,
-      ),
+        currentIndex === index ? { ...item, required: value } : item
+      )
     )
   }
 
   function removeCharacteristicField(index: number) {
     setCharacterCharacteristicTemplates((prev) =>
-      prev.filter((_, currentIndex) => currentIndex !== index),
+      prev.filter((_, currentIndex) => currentIndex !== index)
     )
   }
 
   function addProgressionTier() {
     setProgressionTiers((prev) => {
       if (progressionMode === "xp_level") {
-        const previousRequired = prev.length > 0 ? prev[prev.length - 1].required : 0
+        const previousRequired =
+          prev.length > 0 ? prev[prev.length - 1].required : 0
         return enforceXpLevelPattern([
           ...prev,
-          { label: "Level", required: Math.max(0, previousRequired + 100) },
+          { label: "Level", required: Math.max(0, previousRequired + 100) }
         ])
       }
 
@@ -261,8 +284,8 @@ export function useEditRpgState() {
 
     setProgressionTiers((prev) =>
       prev.map((item, currentIndex) =>
-        currentIndex === index ? { ...item, label } : item,
-      ),
+        currentIndex === index ? { ...item, label } : item
+      )
     )
   }
 
@@ -270,9 +293,14 @@ export function useEditRpgState() {
     setProgressionTiers((prev) =>
       prev.map((item, currentIndex) =>
         currentIndex === index
-          ? { ...item, required: Number.isFinite(required) ? Math.max(0, Math.floor(required)) : 0 }
-          : item,
-      ),
+          ? {
+              ...item,
+              required: Number.isFinite(required)
+                ? Math.max(0, Math.floor(required))
+                : 0
+            }
+          : item
+      )
     )
   }
 
@@ -287,7 +315,7 @@ export function useEditRpgState() {
     setEnabledAbilityCategories((prev) =>
       prev.includes(category)
         ? prev.filter((item) => item !== category)
-        : normalizeEnabledAbilityCategories([...prev, category]),
+        : normalizeEnabledAbilityCategories([...prev, category])
     )
   }
 
@@ -395,6 +423,6 @@ export function useEditRpgState() {
     updateProgressionTierRequired,
     removeProgressionTier,
     toggleAbilityCategory,
-    resetAbilityCategoriesToAll,
+    resetAbilityCategoriesToAll
   }
 }

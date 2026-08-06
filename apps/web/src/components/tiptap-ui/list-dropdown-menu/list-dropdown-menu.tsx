@@ -21,7 +21,7 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuItem
 } from "@/components/tiptap-ui-primitive/dropdown-menu"
 import { Card, CardBody } from "@/components/tiptap-ui-primitive/card"
 
@@ -65,7 +65,7 @@ export function ListDropdownMenu({
     useListDropdownMenu({
       editor,
       types,
-      hideWhenUnavailable,
+      hideWhenUnavailable
     })
 
   const handleOnOpenChange = useCallback(

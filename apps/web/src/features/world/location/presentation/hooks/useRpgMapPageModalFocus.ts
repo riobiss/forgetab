@@ -51,13 +51,13 @@ export function useRpgMapPageModalFocus(params: Params) {
     params.mapModalElement,
     params.sectionConflictModalElement,
     params.sectionDetailsModalElement,
-    params.sectionModalElement,
+    params.sectionModalElement
   ])
 
   useModalFocusTrap({
     isActive: activeElement !== null,
     activeElement,
     backgroundElement: params.backgroundElement,
-    onEscape: params.onEscape,
+    onEscape: params.onEscape
   })
 }

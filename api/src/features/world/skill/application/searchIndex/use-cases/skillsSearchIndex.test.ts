@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
   buildSkillSearchIndex,
   loadSkillsSearchIndexUseCase,
-  normalizeSkillSearchIndexParams,
+  normalizeSkillSearchIndexParams
 } from "@/features/world/skill/application/searchIndex/use-cases/skillsSearchIndex"
 
 describe("skillsSearchIndex", () => {
@@ -10,11 +10,11 @@ describe("skillsSearchIndex", () => {
     expect(
       normalizeSkillSearchIndexParams({
         skillIds: [" s1 ", "", "s1", 1],
-        rpgId: " r1 ",
-      }),
+        rpgId: " r1 "
+      })
     ).toEqual({
       skillIds: ["s1"],
-      rpgId: "r1",
+      rpgId: "r1"
     })
   })
 
@@ -30,9 +30,9 @@ describe("skillsSearchIndex", () => {
           description: "Explode",
           category: "arcana",
           type: "attack",
-          actionType: "action",
-        },
-      },
+          actionType: "action"
+        }
+      }
     ])
 
     expect(index.s1.displayName).toBe("Bola de Fogo")
@@ -40,24 +40,24 @@ describe("skillsSearchIndex", () => {
       categories: ["arcana"],
       types: ["attack"],
       actionTypes: ["action"],
-      tags: ["arcane"],
+      tags: ["arcane"]
     })
   })
 
   it("delegates repository loading", async () => {
     const repository = {
-      listSkillRows: vi.fn().mockResolvedValue([]),
+      listSkillRows: vi.fn().mockResolvedValue([])
     }
 
     await loadSkillsSearchIndexUseCase(
       { repository },
-      { userId: "u1", skillIds: ["s1"], rpgId: "r1" },
+      { userId: "u1", skillIds: ["s1"], rpgId: "r1" }
     )
 
     expect(repository.listSkillRows).toHaveBeenCalledWith({
       userId: "u1",
       skillIds: ["s1"],
-      rpgId: "r1",
+      rpgId: "r1"
     })
   })
 })

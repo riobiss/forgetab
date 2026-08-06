@@ -8,12 +8,12 @@ type AbilityIdGroups = {
 
 export function getAllAbilities(
   abilityIds: AbilityIdGroups,
-  allAbilities: Ability[],
+  allAbilities: Ability[]
 ): Ability[] {
   const ids = [
     ...(abilityIds.classMainIds ?? []),
     ...(abilityIds.classReinforcementIds ?? []),
-    ...(abilityIds.originId ? [abilityIds.originId] : []),
+    ...(abilityIds.originId ? [abilityIds.originId] : [])
   ]
 
   return allAbilities.filter((a) => ids.includes(a.id))

@@ -43,7 +43,7 @@ export function useAuthSubmission(options: Options) {
       reportError(
         submissionError instanceof Error
           ? submissionError.message
-          : options.fallbackError,
+          : options.fallbackError
       )
     } finally {
       dismissToast(loadingToastId)

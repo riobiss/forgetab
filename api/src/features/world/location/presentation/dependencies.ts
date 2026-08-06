@@ -7,5 +7,5 @@ export const rpgMapRouteDeps = {
   repository: prismaRpgMapRepository,
   markerSectionLinkRepository: prismaMarkerSectionLinkRepository,
   markerRepository: prismaRpgMapMarkerRepository,
-  accessService: rpgMapAccessService,
+  accessService: rpgMapAccessService
 } as const

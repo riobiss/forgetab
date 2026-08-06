@@ -1,7 +1,7 @@
 import type { EntityCatalogDetailAccessService } from "@/features/world/catalog/application/ports/EntityCatalogDetailAccessService"
 import {
   getRpgMembershipStatusByPrisma,
-  getRpgPermissionByPrisma,
+  getRpgPermissionByPrisma
 } from "@/features/world/infrastructure/services/prismaRpgAccessResolver"
 
 export const entityCatalogDetailAccessService: EntityCatalogDetailAccessService =
@@ -14,7 +14,7 @@ export const entityCatalogDetailAccessService: EntityCatalogDetailAccessService 
 
       return {
         canManage: permission.canManage,
-        isAcceptedMember,
+        isAcceptedMember
       }
-    },
+    }
   }

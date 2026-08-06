@@ -8,7 +8,10 @@ import { InventoryCardItem } from "../types"
 type Props = {
   items: InventoryCardItem[]
   emptyMessage: string
-  onRemoveItem?: (inventoryItemId: string, quantity: number) => Promise<void> | void
+  onRemoveItem?: (
+    inventoryItemId: string,
+    quantity: number
+  ) => Promise<void> | void
   removingItemId?: string | null
 }
 
@@ -16,7 +19,7 @@ export default function InventoryCards({
   items,
   emptyMessage,
   onRemoveItem,
-  removingItemId,
+  removingItemId
 }: Props) {
   const [confirmingItemId, setConfirmingItemId] = useState<string | null>(null)
   const rarityClassNameByValue = {
@@ -24,7 +27,7 @@ export default function InventoryCards({
     uncommon: styles.rarityUncommon,
     rare: styles.rarityRare,
     epic: styles.rarityEpic,
-    legendary: styles.rarityLegendary,
+    legendary: styles.rarityLegendary
   } as const
 
   if (items.length === 0) {
@@ -79,8 +82,13 @@ export default function InventoryCards({
             {item.coreStats && item.coreStats.length > 0 ? (
               <div className={styles.cardDetailsGrid}>
                 {item.coreStats.map((stat, index) => (
-                  <div key={`${item.id}-stat-${index}`} className={styles.detailItem}>
-                    <span className={styles.detailLabelOrange}>{stat.label}</span>
+                  <div
+                    key={`${item.id}-stat-${index}`}
+                    className={styles.detailItem}
+                  >
+                    <span className={styles.detailLabelOrange}>
+                      {stat.label}
+                    </span>
                     <span className={styles.detailValue}>{stat.value}</span>
                   </div>
                 ))}
@@ -91,9 +99,14 @@ export default function InventoryCards({
                 <p className={styles.highlightTitle}>HABILIDADES</p>
                 <div className={styles.highlightList}>
                   {item.abilityEntries.map((entry, index) => (
-                    <div key={`${item.id}-ability-${index}`} className={styles.highlightItem}>
+                    <div
+                      key={`${item.id}-ability-${index}`}
+                      className={styles.highlightItem}
+                    >
                       <p className={styles.highlightName}>{entry.name}</p>
-                      <p className={styles.highlightText}>{entry.description}</p>
+                      <p className={styles.highlightText}>
+                        {entry.description}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -104,9 +117,14 @@ export default function InventoryCards({
                 <p className={styles.highlightTitle}>EFEITOS</p>
                 <div className={styles.highlightList}>
                   {item.effectEntries.map((entry, index) => (
-                    <div key={`${item.id}-effect-${index}`} className={styles.highlightItem}>
+                    <div
+                      key={`${item.id}-effect-${index}`}
+                      className={styles.highlightItem}
+                    >
                       <p className={styles.highlightName}>{entry.name}</p>
-                      <p className={styles.highlightText}>{entry.description}</p>
+                      <p className={styles.highlightText}>
+                        {entry.description}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -128,7 +146,9 @@ export default function InventoryCards({
                         setConfirmingItemId(null)
                       }}
                     >
-                      {removingItemId === item.id ? "Retirando..." : "Confirmar"}
+                      {removingItemId === item.id
+                        ? "Retirando..."
+                        : "Confirmar"}
                     </button>
                     <button
                       type="button"

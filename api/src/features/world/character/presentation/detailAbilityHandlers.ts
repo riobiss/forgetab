@@ -2,29 +2,29 @@ import type { FastifyReply, FastifyRequest } from "fastify"
 import { loadCharacterAbilitiesUseCase } from "@/features/world/character/application/abilities/use-cases/characterAbilities"
 import {
   addNpcMonsterCharacterAbilityUseCase,
-  removeNpcMonsterCharacterAbilityUseCase,
+  removeNpcMonsterCharacterAbilityUseCase
 } from "@/features/world/character/application/abilities/use-cases/npcMonsterCharacterAbilities"
 import {
   buyCharacterSkillUseCase,
-  removeCharacterSkillUseCase,
+  removeCharacterSkillUseCase
 } from "@/features/world/character/application/abilities/use-cases/characterSkillPurchase"
 import { deleteCharacter } from "@/features/world/character/application/use-cases/deleteCharacter"
 import { getEditableCharacter } from "@/features/world/character/application/use-cases/getEditableCharacter"
 import {
   updateCharacter,
-  type UpdateCharacterPayload,
+  type UpdateCharacterPayload
 } from "@/features/world/character/application/use-cases/updateCharacter"
 import { loadCharacterDetailUseCase } from "@/features/world/character/application/detail/use-cases/loadCharacterDetail"
 import { characterRouteDeps } from "./dependencies"
 import { parseJsonBody, requireUserId, writeError, writeJson } from "./http"
 import type {
   CharacterInventoryRouteParams,
-  CharacterRouteParams,
+  CharacterRouteParams
 } from "./routeTypes"
 
 export async function buyCharacterSkillHandler(
   request: FastifyRequest<{ Params: CharacterRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -37,8 +37,8 @@ export async function buyCharacterSkillHandler(
       {
         characterId: request.params.id,
         userId: auth.userId,
-        payload: parseJsonBody(request.body),
-      },
+        payload: parseJsonBody(request.body)
+      }
     )
 
     return writeJson(reply, payload.status, payload)
@@ -49,7 +49,7 @@ export async function buyCharacterSkillHandler(
 
 export async function removeCharacterSkillHandler(
   request: FastifyRequest<{ Params: CharacterRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -62,8 +62,8 @@ export async function removeCharacterSkillHandler(
       {
         characterId: request.params.id,
         userId: auth.userId,
-        payload: parseJsonBody(request.body),
-      },
+        payload: parseJsonBody(request.body)
+      }
     )
 
     return writeJson(reply, payload.status, payload)
@@ -74,7 +74,7 @@ export async function removeCharacterSkillHandler(
 
 export async function getCharacterByIdHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -87,8 +87,8 @@ export async function getCharacterByIdHandler(
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
 
     return writeJson(reply, 200, { character })
@@ -99,7 +99,7 @@ export async function getCharacterByIdHandler(
 
 export async function getCharacterDetailHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -111,13 +111,13 @@ export async function getCharacterDetailHandler(
       {
         repository: characterRouteDeps.characterDetailRepository,
         rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
-        permissionService: characterRouteDeps.characterDetailPermissionService,
+        permissionService: characterRouteDeps.characterDetailPermissionService
       },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
 
     if (result.status === "not_found" || result.status === "private_blocked") {
@@ -129,14 +129,14 @@ export async function getCharacterDetailHandler(
     return writeError(
       reply,
       error,
-      "Erro interno ao carregar detalhe do personagem.",
+      "Erro interno ao carregar detalhe do personagem."
     )
   }
 }
 
 export async function updateCharacterHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -150,14 +150,14 @@ export async function updateCharacterHandler(
         repository: characterRouteDeps.characterUpdateRepository,
         rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
         templatesRepository: characterRouteDeps.rpgTemplatesRepository,
-        imageCleanupService: characterRouteDeps.characterImageCleanupService,
+        imageCleanupService: characterRouteDeps.characterImageCleanupService
       },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
         userId: auth.userId,
-        payload,
-      },
+        payload
+      }
     )
 
     const updatedCharacter = await getEditableCharacter(
@@ -165,8 +165,8 @@ export async function updateCharacterHandler(
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
 
     return writeJson(
@@ -175,9 +175,9 @@ export async function updateCharacterHandler(
       updatedCharacter
         ? {
             message: "Personagem atualizado com sucesso.",
-            character: updatedCharacter,
+            character: updatedCharacter
           }
-        : { message: "Personagem atualizado com sucesso." },
+        : { message: "Personagem atualizado com sucesso." }
     )
   } catch (error) {
     return writeError(reply, error, "Erro interno ao atualizar personagem.")
@@ -186,7 +186,7 @@ export async function updateCharacterHandler(
 
 export async function deleteCharacterHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -199,12 +199,12 @@ export async function deleteCharacterHandler(
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
 
     return writeJson(reply, 200, {
-      message: "Personagem deletado com sucesso.",
+      message: "Personagem deletado com sucesso."
     })
   } catch (error) {
     return writeError(reply, error, "Erro interno ao deletar personagem.")
@@ -213,7 +213,7 @@ export async function deleteCharacterHandler(
 
 export async function getNpcMonsterCharacterAbilitiesHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -225,13 +225,13 @@ export async function getNpcMonsterCharacterAbilitiesHandler(
       {
         repository: characterRouteDeps.abilitiesRepository,
         rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
-        parserService: characterRouteDeps.abilitiesParserService,
+        parserService: characterRouteDeps.abilitiesParserService
       },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
 
     if (!payload) {
@@ -243,7 +243,7 @@ export async function getNpcMonsterCharacterAbilitiesHandler(
       characterId: payload.characterId,
       characterName: payload.characterName,
       classLabel: payload.classLabel,
-      abilities: payload.abilities,
+      abilities: payload.abilities
     })
   } catch (error) {
     return writeError(reply, error, "Erro interno ao carregar habilidades.")
@@ -252,7 +252,7 @@ export async function getNpcMonsterCharacterAbilitiesHandler(
 
 export async function addNpcMonsterCharacterAbilityHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -266,14 +266,14 @@ export async function addNpcMonsterCharacterAbilityHandler(
           characterRouteDeps.characterAbilityMutationRepository,
         abilitiesRepository: characterRouteDeps.abilitiesRepository,
         rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
-        parserService: characterRouteDeps.abilitiesParserService,
+        parserService: characterRouteDeps.abilitiesParserService
       },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
         userId: auth.userId,
-        payload: parseJsonBody(request.body),
-      },
+        payload: parseJsonBody(request.body)
+      }
     )
 
     return writeJson(reply, 200, payload)
@@ -284,7 +284,7 @@ export async function addNpcMonsterCharacterAbilityHandler(
 
 export async function removeNpcMonsterCharacterAbilityHandler(
   request: FastifyRequest<{ Params: CharacterInventoryRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   try {
     const auth = await requireUserId(request, reply)
@@ -298,14 +298,14 @@ export async function removeNpcMonsterCharacterAbilityHandler(
           characterRouteDeps.characterAbilityMutationRepository,
         abilitiesRepository: characterRouteDeps.abilitiesRepository,
         rpgAccessRepository: characterRouteDeps.rpgAccessRepository,
-        parserService: characterRouteDeps.abilitiesParserService,
+        parserService: characterRouteDeps.abilitiesParserService
       },
       {
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
         userId: auth.userId,
-        payload: parseJsonBody(request.body),
-      },
+        payload: parseJsonBody(request.body)
+      }
     )
 
     return writeJson(reply, 200, payload)

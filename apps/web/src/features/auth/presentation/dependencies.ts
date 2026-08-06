@@ -3,5 +3,5 @@ import { clientAuthSession } from "@/features/auth/infrastructure/session/client
 
 export const authClientDependencies = {
   gateway: httpAuthClientGateway,
-  session: clientAuthSession,
+  session: clientAuthSession
 } as const

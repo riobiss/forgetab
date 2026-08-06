@@ -14,7 +14,7 @@ import {
   wrapIdentityError,
   wrapRaceError,
   wrapSkillError,
-  wrapStatusError,
+  wrapStatusError
 } from "@/features/world/application/config/use-cases/shared"
 import { AppError } from "@/features/shared/application/errors/AppError"
 
@@ -31,7 +31,7 @@ function parseJsonRecord(value: unknown) {
       }
       return acc
     },
-    {},
+    {}
   )
 }
 
@@ -75,7 +75,7 @@ function createStableTemplateKey(
   source: unknown,
   label: string,
   used: Set<string>,
-  fallback: string,
+  fallback: string
 ) {
   const existingKey = readOptionalTemplateKey(source)
   const base = existingKey || slugify(label) || fallback
@@ -92,7 +92,7 @@ function createStableTemplateKey(
 }
 
 function normalizeAttributeTemplates(
-  input: unknown,
+  input: unknown
 ): Array<{ key: string; label: string }> {
   const entries = Array.isArray(input) ? input : []
   const templates: Array<{ key: string; label: string }> = []
@@ -105,7 +105,7 @@ function normalizeAttributeTemplates(
     if (label.length < 2) {
       throw new AppError(
         "Cada atributo precisa de um nome com pelo menos 2 caracteres.",
-        400,
+        400
       )
     }
 
@@ -117,7 +117,7 @@ function normalizeAttributeTemplates(
     if (!candidateKey) {
       throw new AppError(
         `Nao foi possivel gerar chave para o atributo ${label}.`,
-        400,
+        400
       )
     }
 
@@ -147,7 +147,7 @@ function normalizeStatusLabel(key: string, label: string) {
 function normalizeStatusTemplates(input: unknown) {
   const entries = Array.isArray(input) ? input : []
   const fromCatalog = new Map<string, string>(
-    STATUS_CATALOG.map((item) => [item.key, item.label]),
+    STATUS_CATALOG.map((item) => [item.key, item.label])
   )
   const seen = new Set<string>()
   const normalized: Array<{ key: string; label: string }> = []
@@ -162,7 +162,7 @@ function normalizeStatusTemplates(input: unknown) {
       seen.add(key)
       normalized.push({
         key,
-        label: normalizeStatusLabel(key, fromCatalog.get(key) ?? key),
+        label: normalizeStatusLabel(key, fromCatalog.get(key) ?? key)
       })
       continue
     }
@@ -198,7 +198,7 @@ function normalizeStatusTemplates(input: unknown) {
   const invalidCatalog = normalized.find(
     (item) =>
       allowed.has(item.key as (typeof STATUS_CATALOG)[number]["key"]) &&
-      !fromCatalog.has(item.key),
+      !fromCatalog.has(item.key)
   )
   if (invalidCatalog) {
     throw new AppError(`Status inválido: ${invalidCatalog.key}.`, 400)
@@ -225,13 +225,13 @@ function normalizeSkillTemplates(input: unknown) {
     .filter((label) => label.length > 0)
 
   const unique = Array.from(
-    new Set(labels.map((label) => label.toLocaleLowerCase("pt-BR"))),
+    new Set(labels.map((label) => label.toLocaleLowerCase("pt-BR")))
   )
     .map(
       (lowerLabel) =>
         labels.find(
-          (label) => label.toLocaleLowerCase("pt-BR") === lowerLabel,
-        ) ?? "",
+          (label) => label.toLocaleLowerCase("pt-BR") === lowerLabel
+        ) ?? ""
     )
     .filter((label) => label.length > 0)
 
@@ -243,7 +243,7 @@ function normalizeSkillTemplates(input: unknown) {
   const usedKeys = new Set<string>()
   return unique.map((label, index) => ({
     key: createUniqueKey(label, usedKeys, `pericia-${index + 1}`),
-    label,
+    label
   }))
 }
 
@@ -251,7 +251,7 @@ function normalizeTemplateFields(
   input: unknown,
   invalidMessage: string,
   shortMessage: string,
-  fallbackKey: string,
+  fallbackKey: string
 ) {
   const entries = Array.isArray(input) ? input : []
   const usedKeys = new Set<string>()
@@ -273,7 +273,7 @@ function normalizeTemplateFields(
     values.push({
       key,
       label,
-      required: candidate.required !== false,
+      required: candidate.required !== false
     })
   }
 
@@ -283,7 +283,7 @@ function normalizeTemplateFields(
 export async function getAttributeTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     assertCanReadRpg(await access.canReadRpg(params.rpgId, params.userId))
@@ -297,13 +297,13 @@ export async function getAttributeTemplates(
 export async function updateAttributeTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string; attributes: unknown },
+  params: { rpgId: string; userId: string; attributes: unknown }
 ) {
   try {
     assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
     await repository.replaceAttributeTemplates(
       params.rpgId,
-      normalizeAttributeTemplates(params.attributes),
+      normalizeAttributeTemplates(params.attributes)
     )
     return { message: "Padrao de atributos atualizado." }
   } catch (error) {
@@ -314,7 +314,7 @@ export async function updateAttributeTemplates(
 export async function getStatusTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     assertCanReadRpg(await access.canReadRpg(params.rpgId, params.userId))
@@ -323,14 +323,14 @@ export async function getStatusTemplates(
     if (rows.length === 0) {
       return {
         statuses: STATUS_CATALOG.filter((item) =>
-          DEFAULT_STATUS_KEYS.includes(item.key),
+          DEFAULT_STATUS_KEYS.includes(item.key)
         ).map((item, index) => ({
           id: `default-${item.key}`,
           key: item.key,
           label: item.label,
-          position: index,
+          position: index
         })),
-        isDefault: true,
+        isDefault: true
       }
     }
 
@@ -339,7 +339,7 @@ export async function getStatusTemplates(
         const key = normalizeStatusKey(item.key)
         return { ...item, key, label: normalizeStatusLabel(key, item.label) }
       }),
-      isDefault: false,
+      isDefault: false
     }
   } catch (error) {
     wrapStatusError(error, "Erro interno ao buscar status.")
@@ -349,13 +349,13 @@ export async function getStatusTemplates(
 export async function updateStatusTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string; statuses: unknown },
+  params: { rpgId: string; userId: string; statuses: unknown }
 ) {
   try {
     assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
     await repository.replaceStatusTemplates(
       params.rpgId,
-      normalizeStatusTemplates(params.statuses),
+      normalizeStatusTemplates(params.statuses)
     )
     return { message: "Padrao de status atualizado." }
   } catch (error) {
@@ -366,7 +366,7 @@ export async function updateStatusTemplates(
 export async function getSkillTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     assertCanReadRpg(await access.canReadRpg(params.rpgId, params.userId))
@@ -380,13 +380,13 @@ export async function getSkillTemplates(
 export async function updateSkillTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string; skills: unknown },
+  params: { rpgId: string; userId: string; skills: unknown }
 ) {
   try {
     assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
     await repository.replaceSkillTemplates(
       params.rpgId,
-      normalizeSkillTemplates(params.skills),
+      normalizeSkillTemplates(params.skills)
     )
     return { message: "Padrao de pericias atualizado." }
   } catch (error) {
@@ -397,7 +397,7 @@ export async function updateSkillTemplates(
 export async function getRaceTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     assertCanReadRpg(await access.canReadRpg(params.rpgId, params.userId))
@@ -412,8 +412,8 @@ export async function getRaceTemplates(
         attributeBonuses: parseJsonRecord(item.attributeBonuses),
         skillBonuses: parseJsonRecord(item.skillBonuses),
         lore: normalizeRaceLore(item.lore, item.label),
-        catalogMeta: normalizeEntityCatalogMeta(item.catalogMeta),
-      })),
+        catalogMeta: normalizeEntityCatalogMeta(item.catalogMeta)
+      }))
     }
   } catch (error) {
     wrapRaceError(error, "Erro interno ao buscar racas.")
@@ -423,19 +423,19 @@ export async function getRaceTemplates(
 export async function updateRaceTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string; races: unknown },
+  params: { rpgId: string; userId: string; races: unknown }
 ) {
   try {
     assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
     const allowedAttributeKeys = await repository.listAttributeKeys(
-      params.rpgId,
+      params.rpgId
     )
     const allowedSkillKeys = await repository.listSkillKeys(params.rpgId)
     const incomingRaces = Array.isArray(params.races) ? params.races : []
     const parsed = normalizeClassRaceTemplates(
       incomingRaces,
       allowedAttributeKeys,
-      allowedSkillKeys,
+      allowedSkillKeys
     )
     if (!parsed.ok) {
       throw new AppError(parsed.message, 400)
@@ -460,9 +460,9 @@ export async function updateRaceTemplates(
         catalogMeta:
           source && typeof source === "object" && !Array.isArray(source)
             ? normalizeEntityCatalogMeta(
-                (source as { catalogMeta?: unknown }).catalogMeta,
+                (source as { catalogMeta?: unknown }).catalogMeta
               )
-            : normalizeEntityCatalogMeta(undefined),
+            : normalizeEntityCatalogMeta(undefined)
       }
     })
 
@@ -476,7 +476,7 @@ export async function updateRaceTemplates(
 export async function getClassTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     assertCanReadRpg(await access.canReadRpg(params.rpgId, params.userId))
@@ -490,8 +490,8 @@ export async function getClassTemplates(
         position: item.position,
         attributeBonuses: parseJsonRecord(item.attributeBonuses),
         skillBonuses: parseJsonRecord(item.skillBonuses),
-        catalogMeta: normalizeEntityCatalogMeta(item.catalogMeta),
-      })),
+        catalogMeta: normalizeEntityCatalogMeta(item.catalogMeta)
+      }))
     }
   } catch (error) {
     wrapClassError(error, "Erro interno ao buscar classes.")
@@ -501,18 +501,18 @@ export async function getClassTemplates(
 export async function updateClassTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string; classes: unknown },
+  params: { rpgId: string; userId: string; classes: unknown }
 ) {
   try {
     assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
     const allowedAttributeKeys = await repository.listAttributeKeys(
-      params.rpgId,
+      params.rpgId
     )
     const allowedSkillKeys = await repository.listSkillKeys(params.rpgId)
     const parsed = normalizeClassRaceTemplates(
       params.classes ?? [],
       allowedAttributeKeys,
-      allowedSkillKeys,
+      allowedSkillKeys
     )
     if (!parsed.ok) {
       throw new AppError(parsed.message, 400)
@@ -532,7 +532,7 @@ export async function updateClassTemplates(
                 params.classes[index],
                 item.label,
                 used,
-                "classe",
+                "classe"
               )
             : createUniqueKey(item.label, used, "classe"),
         label: item.label,
@@ -546,11 +546,10 @@ export async function updateClassTemplates(
           typeof params.classes[index] === "object" &&
           !Array.isArray(params.classes[index])
             ? normalizeEntityCatalogMeta(
-                (params.classes[index] as { catalogMeta?: unknown })
-                  .catalogMeta,
+                (params.classes[index] as { catalogMeta?: unknown }).catalogMeta
               )
-            : normalizeEntityCatalogMeta(undefined),
-      })),
+            : normalizeEntityCatalogMeta(undefined)
+      }))
     )
 
     return { message: "Classes atualizadas com sucesso." }
@@ -562,7 +561,7 @@ export async function updateClassTemplates(
 export async function getIdentityTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     assertCanReadRpg(await access.canReadRpg(params.rpgId, params.userId))
@@ -575,7 +574,7 @@ export async function getIdentityTemplates(
 export async function updateIdentityTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string; fields: unknown },
+  params: { rpgId: string; userId: string; fields: unknown }
 ) {
   try {
     assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
@@ -583,7 +582,7 @@ export async function updateIdentityTemplates(
       params.fields,
       "Campo de identidade invalido.",
       "Cada campo de identidade precisa ter nome com pelo menos 2 caracteres.",
-      "campo-identidade",
+      "campo-identidade"
     )
     await repository.replaceIdentityTemplates(params.rpgId, values)
     return { message: "Campos de identidade atualizados." }
@@ -595,17 +594,17 @@ export async function updateIdentityTemplates(
 export async function getCharacteristicTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string },
+  params: { rpgId: string; userId: string }
 ) {
   try {
     assertCanReadRpg(await access.canReadRpg(params.rpgId, params.userId))
     return {
-      fields: await repository.listCharacteristicTemplates(params.rpgId),
+      fields: await repository.listCharacteristicTemplates(params.rpgId)
     }
   } catch (error) {
     wrapCharacteristicError(
       error,
-      "Erro interno ao buscar campos de caracteristicas.",
+      "Erro interno ao buscar campos de caracteristicas."
     )
   }
 }
@@ -613,7 +612,7 @@ export async function getCharacteristicTemplates(
 export async function updateCharacteristicTemplates(
   access: RpgConfigAccessService,
   repository: RpgConfigRepository,
-  params: { rpgId: string; userId: string; fields: unknown },
+  params: { rpgId: string; userId: string; fields: unknown }
 ) {
   try {
     assertCanManageRpg(await access.canManageRpg(params.rpgId, params.userId))
@@ -621,14 +620,14 @@ export async function updateCharacteristicTemplates(
       params.fields,
       "Campo de caracteristica invalido.",
       "Cada campo de caracteristica precisa ter nome com pelo menos 2 caracteres.",
-      "campo-caracteristica",
+      "campo-caracteristica"
     )
     await repository.replaceCharacteristicTemplates(params.rpgId, values)
     return { message: "Campos de caracteristicas atualizados." }
   } catch (error) {
     wrapCharacteristicError(
       error,
-      "Erro interno ao salvar campos de caracteristicas.",
+      "Erro interno ao salvar campos de caracteristicas."
     )
   }
 }

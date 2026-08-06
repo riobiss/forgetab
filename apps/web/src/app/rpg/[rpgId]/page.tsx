@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import {
   fetchRpgDashboardViewModel,
-  HttpApiError,
+  HttpApiError
 } from "@/features/world/infrastructure/dashboard/repositories/httpRpgDashboardViewModelRepository"
 import { RpgDashboardPage } from "@/features/world/presentation/dashboard/RpgDashboardPage"
 

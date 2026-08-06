@@ -6,21 +6,30 @@ type UseSkillsFiltersParams = {
   skillSearchIndex: Record<string, string>
   skillFilterMetaById: Record<
     string,
-    { categories: string[]; types: string[]; actionTypes: string[]; tags: string[] }
+    {
+      categories: string[]
+      types: string[]
+      actionTypes: string[]
+      tags: string[]
+    }
   >
 }
 
 export function useSkillsFilters({
   skills,
   skillSearchIndex,
-  skillFilterMetaById,
+  skillFilterMetaById
 }: UseSkillsFiltersParams) {
   const [skillSearchOpen, setSkillSearchOpen] = useState(false)
   const [skillSearch, setSkillSearch] = useState("")
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [selectedCategoryFilters, setSelectedCategoryFilters] = useState<string[]>([])
+  const [selectedCategoryFilters, setSelectedCategoryFilters] = useState<
+    string[]
+  >([])
   const [selectedTypeFilters, setSelectedTypeFilters] = useState<string[]>([])
-  const [selectedActionTypeFilters, setSelectedActionTypeFilters] = useState<string[]>([])
+  const [selectedActionTypeFilters, setSelectedActionTypeFilters] = useState<
+    string[]
+  >([])
   const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([])
 
   useEffect(() => {
@@ -38,7 +47,7 @@ export function useSkillsFilters({
         categories: [],
         types: [],
         actionTypes: [],
-        tags: [],
+        tags: []
       }
       if (
         selectedCategoryFilters.length > 0 &&
@@ -54,7 +63,9 @@ export function useSkillsFilters({
       }
       if (
         selectedActionTypeFilters.length > 0 &&
-        !selectedActionTypeFilters.some((item) => meta.actionTypes.includes(item))
+        !selectedActionTypeFilters.some((item) =>
+          meta.actionTypes.includes(item)
+        )
       ) {
         return false
       }
@@ -76,7 +87,7 @@ export function useSkillsFilters({
     skillSearch,
     skillSearchIndex,
     skills,
-    skillFilterMetaById,
+    skillFilterMetaById
   ])
 
   function toggleSkillSearch() {
@@ -106,25 +117,31 @@ export function useSkillsFilters({
 
   function toggleCategoryFilter(item: string) {
     setSelectedCategoryFilters((prev) =>
-      prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item],
+      prev.includes(item)
+        ? prev.filter((value) => value !== item)
+        : [...prev, item]
     )
   }
 
   function toggleTypeFilter(item: string) {
     setSelectedTypeFilters((prev) =>
-      prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item],
+      prev.includes(item)
+        ? prev.filter((value) => value !== item)
+        : [...prev, item]
     )
   }
 
   function toggleActionTypeFilter(item: string) {
     setSelectedActionTypeFilters((prev) =>
-      prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item],
+      prev.includes(item)
+        ? prev.filter((value) => value !== item)
+        : [...prev, item]
     )
   }
 
   function toggleTagFilter(tag: string) {
     setSelectedTagFilters((prev) =>
-      prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag],
+      prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag]
     )
   }
 
@@ -145,6 +162,6 @@ export function useSkillsFilters({
     toggleCategoryFilter,
     toggleTypeFilter,
     toggleActionTypeFilter,
-    toggleTagFilter,
+    toggleTagFilter
   }
 }

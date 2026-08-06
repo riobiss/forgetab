@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { AppError } from "@/features/shared/application/errors/AppError"
 
 const mocks = vi.hoisted(() => ({
@@ -9,22 +9,25 @@ const mocks = vi.hoisted(() => ({
   processCharacterRequestUseCase: vi.fn(),
   processMemberActionUseCase: vi.fn(),
   requestCharacterCreationUseCase: vi.fn(),
-  requestJoinRpgUseCase: vi.fn(),
+  requestJoinRpgUseCase: vi.fn()
 }))
 
 vi.mock("@/features/http/presentation/auth/requestAuth", () => ({
-  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest,
+  getUserIdFromFastifyRequest: mocks.getUserIdFromFastifyRequest
 }))
 
-vi.mock("@/features/world/application/membership/use-cases/rpgMembership", () => ({
-  expelMemberUseCase: mocks.expelMemberUseCase,
-  getCharacterRequestsUseCase: mocks.getCharacterRequestsUseCase,
-  listRpgMembersUseCase: mocks.listRpgMembersUseCase,
-  processCharacterRequestUseCase: mocks.processCharacterRequestUseCase,
-  processMemberActionUseCase: mocks.processMemberActionUseCase,
-  requestCharacterCreationUseCase: mocks.requestCharacterCreationUseCase,
-  requestJoinRpgUseCase: mocks.requestJoinRpgUseCase,
-}))
+vi.mock(
+  "@/features/world/application/membership/use-cases/rpgMembership",
+  () => ({
+    expelMemberUseCase: mocks.expelMemberUseCase,
+    getCharacterRequestsUseCase: mocks.getCharacterRequestsUseCase,
+    listRpgMembersUseCase: mocks.listRpgMembersUseCase,
+    processCharacterRequestUseCase: mocks.processCharacterRequestUseCase,
+    processMemberActionUseCase: mocks.processMemberActionUseCase,
+    requestCharacterCreationUseCase: mocks.requestCharacterCreationUseCase,
+    requestJoinRpgUseCase: mocks.requestJoinRpgUseCase
+  })
+)
 
 import { buildApiServer } from "@api/app"
 
@@ -51,7 +54,7 @@ describe("rpg membership routes", () => {
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/members",
+      url: "/api/rpg/rpg-1/members"
     })
 
     expect(response.statusCode).toBe(401)
@@ -61,12 +64,12 @@ describe("rpg membership routes", () => {
   it("retorna 404 quando nao encontra membros do RPG", async () => {
     server = buildApiServer()
     mocks.listRpgMembersUseCase.mockRejectedValueOnce(
-      new AppError("RPG nao encontrado.", 404),
+      new AppError("RPG nao encontrado.", 404)
     )
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/members",
+      url: "/api/rpg/rpg-1/members"
     })
 
     expect(response.statusCode).toBe(404)
@@ -83,16 +86,16 @@ describe("rpg membership routes", () => {
           name: "Ana",
           email: "ana@email.com",
           status: "accepted",
-          isModerator: false,
-        },
+          isModerator: false
+        }
       ],
       canManage: true,
-      isOwner: true,
+      isOwner: true
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/members",
+      url: "/api/rpg/rpg-1/members"
     })
 
     expect(response.statusCode).toBe(200)
@@ -104,11 +107,11 @@ describe("rpg membership routes", () => {
           name: "Ana",
           email: "ana@email.com",
           status: "accepted",
-          isModerator: false,
-        },
+          isModerator: false
+        }
       ],
       canManage: true,
-      isOwner: true,
+      isOwner: true
     })
   })
 
@@ -117,18 +120,18 @@ describe("rpg membership routes", () => {
     mocks.requestJoinRpgUseCase.mockRejectedValueOnce(
       new AppError(
         "Voce ja possui uma solicitacao pendente para este RPG.",
-        409,
-      ),
+        409
+      )
     )
 
     const response = await server.inject({
       method: "POST",
-      url: "/api/rpg/rpg-1/members",
+      url: "/api/rpg/rpg-1/members"
     })
 
     expect(response.statusCode).toBe(409)
     expect(response.json()).toEqual({
-      message: "Voce ja possui uma solicitacao pendente para este RPG.",
+      message: "Voce ja possui uma solicitacao pendente para este RPG."
     })
   })
 
@@ -136,12 +139,12 @@ describe("rpg membership routes", () => {
     server = buildApiServer()
     mocks.requestJoinRpgUseCase.mockResolvedValueOnce({
       status: 201,
-      message: "Solicitacao enviada com sucesso.",
+      message: "Solicitacao enviada com sucesso."
     })
 
     const response = await server.inject({
       method: "POST",
-      url: "/api/rpg/rpg-1/members",
+      url: "/api/rpg/rpg-1/members"
     })
 
     expect(response.statusCode).toBe(201)
@@ -149,11 +152,11 @@ describe("rpg membership routes", () => {
       expect.anything(),
       {
         rpgId: "rpg-1",
-        userId: "user-1",
-      },
+        userId: "user-1"
+      }
     )
     expect(response.json()).toEqual({
-      message: "Solicitacao enviada com sucesso.",
+      message: "Solicitacao enviada com sucesso."
     })
   })
 
@@ -163,7 +166,7 @@ describe("rpg membership routes", () => {
     const response = await server.inject({
       method: "PATCH",
       url: "/api/rpg/rpg-1/members/member-1",
-      payload: { action: "ban" },
+      payload: { action: "ban" }
     })
 
     expect(response.statusCode).toBe(400)
@@ -176,14 +179,14 @@ describe("rpg membership routes", () => {
       message: "Membro atualizado com sucesso.",
       member: {
         id: "member-1",
-        isModerator: true,
-      },
+        isModerator: true
+      }
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/rpg/rpg-1/members/member-1",
-      payload: { action: "toggleModerator" },
+      payload: { action: "toggleModerator" }
     })
 
     expect(response.statusCode).toBe(200)
@@ -194,27 +197,27 @@ describe("rpg membership routes", () => {
         rpgId: "rpg-1",
         userId: "user-1",
         memberId: "member-1",
-        action: "toggleModerator",
-      },
+        action: "toggleModerator"
+      }
     )
     expect(response.json()).toEqual({
       message: "Membro atualizado com sucesso.",
       member: {
         id: "member-1",
-        isModerator: true,
-      },
+        isModerator: true
+      }
     })
   })
 
   it("retorna 404 ao expulsar membro inexistente", async () => {
     server = buildApiServer()
     mocks.expelMemberUseCase.mockRejectedValueOnce(
-      new AppError("Membro nao encontrado.", 404),
+      new AppError("Membro nao encontrado.", 404)
     )
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/rpg/rpg-1/members/member-1",
+      url: "/api/rpg/rpg-1/members/member-1"
     })
 
     expect(response.statusCode).toBe(404)
@@ -224,12 +227,12 @@ describe("rpg membership routes", () => {
   it("retorna 200 ao expulsar membro", async () => {
     server = buildApiServer()
     mocks.expelMemberUseCase.mockResolvedValueOnce({
-      message: "Membro removido com sucesso.",
+      message: "Membro removido com sucesso."
     })
 
     const response = await server.inject({
       method: "DELETE",
-      url: "/api/rpg/rpg-1/members/member-1",
+      url: "/api/rpg/rpg-1/members/member-1"
     })
 
     expect(response.statusCode).toBe(200)
@@ -244,16 +247,16 @@ describe("rpg membership routes", () => {
           id: "request-1",
           userId: "user-2",
           userName: "Leo",
-          status: "pending",
-        },
+          status: "pending"
+        }
       ],
       requestStatus: null,
-      canManage: true,
+      canManage: true
     })
 
     const response = await server.inject({
       method: "GET",
-      url: "/api/rpg/rpg-1/character-requests",
+      url: "/api/rpg/rpg-1/character-requests"
     })
 
     expect(response.statusCode).toBe(200)
@@ -263,11 +266,11 @@ describe("rpg membership routes", () => {
           id: "request-1",
           userId: "user-2",
           userName: "Leo",
-          status: "pending",
-        },
+          status: "pending"
+        }
       ],
       requestStatus: null,
-      canManage: true,
+      canManage: true
     })
   })
 
@@ -276,18 +279,18 @@ describe("rpg membership routes", () => {
     mocks.requestCharacterCreationUseCase.mockRejectedValueOnce(
       new AppError(
         "Ja existe uma solicitacao pendente para criar personagem.",
-        409,
-      ),
+        409
+      )
     )
 
     const response = await server.inject({
       method: "POST",
-      url: "/api/rpg/rpg-1/character-requests",
+      url: "/api/rpg/rpg-1/character-requests"
     })
 
     expect(response.statusCode).toBe(409)
     expect(response.json()).toEqual({
-      message: "Ja existe uma solicitacao pendente para criar personagem.",
+      message: "Ja existe uma solicitacao pendente para criar personagem."
     })
   })
 
@@ -295,17 +298,17 @@ describe("rpg membership routes", () => {
     server = buildApiServer()
     mocks.requestCharacterCreationUseCase.mockResolvedValueOnce({
       status: 201,
-      message: "Solicitacao de personagem enviada com sucesso.",
+      message: "Solicitacao de personagem enviada com sucesso."
     })
 
     const response = await server.inject({
       method: "POST",
-      url: "/api/rpg/rpg-1/character-requests",
+      url: "/api/rpg/rpg-1/character-requests"
     })
 
     expect(response.statusCode).toBe(201)
     expect(response.json()).toEqual({
-      message: "Solicitacao de personagem enviada com sucesso.",
+      message: "Solicitacao de personagem enviada com sucesso."
     })
   })
 
@@ -315,7 +318,7 @@ describe("rpg membership routes", () => {
     const response = await server.inject({
       method: "PATCH",
       url: "/api/rpg/rpg-1/character-requests/request-1",
-      payload: { action: "archive" },
+      payload: { action: "archive" }
     })
 
     expect(response.statusCode).toBe(400)
@@ -328,14 +331,14 @@ describe("rpg membership routes", () => {
       message: "Solicitacao processada com sucesso.",
       request: {
         id: "request-1",
-        status: "accepted",
-      },
+        status: "accepted"
+      }
     })
 
     const response = await server.inject({
       method: "PATCH",
       url: "/api/rpg/rpg-1/character-requests/request-1",
-      payload: { action: "accept" },
+      payload: { action: "accept" }
     })
 
     expect(response.statusCode).toBe(200)
@@ -346,15 +349,15 @@ describe("rpg membership routes", () => {
         rpgId: "rpg-1",
         userId: "user-1",
         requestId: "request-1",
-        action: "accept",
-      },
+        action: "accept"
+      }
     )
     expect(response.json()).toEqual({
       message: "Solicitacao processada com sucesso.",
       request: {
         id: "request-1",
-        status: "accepted",
-      },
+        status: "accepted"
+      }
     })
   })
 })

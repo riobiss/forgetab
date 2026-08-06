@@ -6,7 +6,10 @@ export type UpdateProfileInput = {
   username?: string
 }
 
-export async function updateProfileUseCase(repository: ProfileWriter, input: UpdateProfileInput) {
+export async function updateProfileUseCase(
+  repository: ProfileWriter,
+  input: UpdateProfileInput
+) {
   const payload: { name?: string; username?: string } = {}
 
   if (typeof input.name === "string") {
@@ -18,13 +21,20 @@ export async function updateProfileUseCase(repository: ProfileWriter, input: Upd
   }
 
   if (payload.name !== undefined && payload.name.length < 2) {
-    return { status: "invalid" as const, message: "Nome deve ter pelo menos 2 caracteres." }
-  }
-
-  if (payload.username !== undefined && !/^[a-zA-Z0-9_]{3,30}$/.test(payload.username)) {
     return {
       status: "invalid" as const,
-      message: "Username deve ter 3 a 30 caracteres e usar apenas letras, numeros e underline.",
+      message: "Nome deve ter pelo menos 2 caracteres."
+    }
+  }
+
+  if (
+    payload.username !== undefined &&
+    !/^[a-zA-Z0-9_]{3,30}$/.test(payload.username)
+  ) {
+    return {
+      status: "invalid" as const,
+      message:
+        "Username deve ter 3 a 30 caracteres e usar apenas letras, numeros e underline."
     }
   }
 
@@ -32,6 +42,6 @@ export async function updateProfileUseCase(repository: ProfileWriter, input: Upd
 
   return {
     status: "ok" as const,
-    data: updatedUser,
+    data: updatedUser
   }
 }

@@ -3,7 +3,7 @@ import {
   buildSkillsSearchIndex,
   loadDashboardData,
   loadSkillDetail,
-  parseSearchIndex,
+  parseSearchIndex
 } from "@/features/world/skills/application/skillsDashboard/use-cases/skillsDashboard"
 import type { SkillsDashboardDependencies } from "@/features/world/skills/application/skillsDashboard/contracts/SkillsDashboardDependencies"
 import { normalizeEnabledAbilityCategories } from "@/lib/rpg/abilityCategories"
@@ -13,13 +13,13 @@ import type {
   MetaForm,
   SkillDetail,
   SkillListItem,
-  TemplateOption,
+  TemplateOption
 } from "./types"
 import {
   createInitialLevel,
   createInitialMeta,
   mapLevelToForm,
-  mapSkillToMetaForm,
+  mapSkillToMetaForm
 } from "./utils"
 
 type UseSkillsDataControllerParams = {
@@ -83,7 +83,7 @@ export function useSkillsDataController({
   setEnabledAbilityCategories,
   setEditOpen,
   setLoading,
-  setError,
+  setError
 }: UseSkillsDataControllerParams) {
   useEffect(() => {
     if (!selectedRpgId) return
@@ -98,23 +98,21 @@ export function useSkillsDataController({
         setSkills(payload.skills)
         setCostResourceName(
           (payload.rpgSettings.costResourceName ?? "Skill Points").trim() ||
-            "Skill Points",
+            "Skill Points"
         )
         setAbilityCategoriesEnabled(
-          Boolean(payload.rpgSettings.abilityCategoriesEnabled ?? false),
+          Boolean(payload.rpgSettings.abilityCategoriesEnabled ?? false)
         )
         setEnabledAbilityCategories(
           normalizeEnabledAbilityCategories(
-            payload.rpgSettings.enabledAbilityCategories,
-          ),
+            payload.rpgSettings.enabledAbilityCategories
+          )
         )
         setSelectedSkillId(payload.skills[0]?.id ?? "")
         setEditOpen(false)
       } catch (cause) {
         setError(
-          cause instanceof Error
-            ? cause.message
-            : "Erro ao carregar dashboard.",
+          cause instanceof Error ? cause.message : "Erro ao carregar dashboard."
         )
       } finally {
         setLoading(false)
@@ -134,7 +132,7 @@ export function useSkillsDataController({
     setLoading,
     setRaces,
     setSelectedSkillId,
-    setSkills,
+    setSkills
   ])
 
   useEffect(() => {
@@ -151,7 +149,7 @@ export function useSkillsDataController({
       try {
         const index = await buildSkillsSearchIndex(deps, {
           skills,
-          rpgId: selectedRpgId,
+          rpgId: selectedRpgId
         })
         if (cancelled) return
         const parsed = parseSearchIndex(index)
@@ -162,19 +160,19 @@ export function useSkillsDataController({
         if (cancelled) return
         setSkillSearchIndex(
           Object.fromEntries(
-            skills.map((skill) => [skill.id, skill.slug.toLowerCase()]),
-          ),
+            skills.map((skill) => [skill.id, skill.slug.toLowerCase()])
+          )
         )
         setSkillDisplayNameById(
-          Object.fromEntries(skills.map((skill) => [skill.id, skill.slug])),
+          Object.fromEntries(skills.map((skill) => [skill.id, skill.slug]))
         )
         setSkillFilterMetaById(
           Object.fromEntries(
             skills.map((skill) => [
               skill.id,
-              { categories: [], types: [], actionTypes: [], tags: [] },
-            ]),
-          ),
+              { categories: [], types: [], actionTypes: [], tags: [] }
+            ])
+          )
         )
       }
     }
@@ -189,7 +187,7 @@ export function useSkillsDataController({
     setSkillDisplayNameById,
     setSkillFilterMetaById,
     setSkillSearchIndex,
-    skills,
+    skills
   ])
 
   useEffect(() => {
@@ -217,12 +215,12 @@ export function useSkillsDataController({
         const firstLevel = skill.levels[0]
         setSelectedLevelId(firstLevel?.id ?? "")
         setLevelForm(
-          firstLevel ? mapLevelToForm(firstLevel) : createInitialLevel(),
+          firstLevel ? mapLevelToForm(firstLevel) : createInitialLevel()
         )
       } catch (cause) {
         if (cancelled) return
         setError(
-          cause instanceof Error ? cause.message : "Erro ao carregar skill.",
+          cause instanceof Error ? cause.message : "Erro ao carregar skill."
         )
       } finally {
         if (cancelled) return
@@ -244,6 +242,6 @@ export function useSkillsDataController({
     setLevelForm,
     setLoading,
     setMetaForm,
-    setSelectedLevelId,
+    setSelectedLevelId
   ])
 }

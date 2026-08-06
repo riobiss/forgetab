@@ -5,14 +5,14 @@ import { updateItem } from "@/features/world/item/application/use-cases/updateIt
 import {
   parseJsonBody,
   writeError,
-  writeJson,
+  writeJson
 } from "@/features/http/presentation/fastifyJson"
 import { itemRouteDeps } from "./dependencies"
 import { type ItemRouteParams, requireUserId } from "./shared"
 
 export async function getItemByIdHandler(
   request: FastifyRequest<{ Params: ItemRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -23,13 +23,13 @@ export async function getItemByIdHandler(
     const payload = await getItemById(
       {
         repository: itemRouteDeps.repository,
-        permissionService: itemRouteDeps.permissionService,
+        permissionService: itemRouteDeps.permissionService
       },
       {
         rpgId: request.params.rpgId,
         itemId: request.params.itemId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
 
     return writeJson(reply, 200, payload)
@@ -40,7 +40,7 @@ export async function getItemByIdHandler(
 
 export async function updateItemHandler(
   request: FastifyRequest<{ Params: ItemRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -53,14 +53,14 @@ export async function updateItemHandler(
       {
         repository: itemRouteDeps.repository,
         permissionService: itemRouteDeps.permissionService,
-        imageStorageService: itemRouteDeps.imageStorageService,
+        imageStorageService: itemRouteDeps.imageStorageService
       },
       {
         rpgId: request.params.rpgId,
         itemId: request.params.itemId,
         userId: auth.userId,
-        body,
-      },
+        body
+      }
     )
 
     return writeJson(reply, 200, payload)
@@ -71,7 +71,7 @@ export async function updateItemHandler(
 
 export async function deleteItemHandler(
   request: FastifyRequest<{ Params: ItemRouteParams }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const auth = await requireUserId(request, reply)
   if (!auth.ok) {
@@ -83,13 +83,13 @@ export async function deleteItemHandler(
       {
         repository: itemRouteDeps.repository,
         permissionService: itemRouteDeps.permissionService,
-        imageStorageService: itemRouteDeps.imageStorageService,
+        imageStorageService: itemRouteDeps.imageStorageService
       },
       {
         rpgId: request.params.rpgId,
         itemId: request.params.itemId,
-        userId: auth.userId,
-      },
+        userId: auth.userId
+      }
     )
 
     return writeJson(reply, 200, payload)
