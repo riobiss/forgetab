@@ -1,4 +1,4 @@
-import type { CustomFieldType } from "@/components/custom-fields/typedCustomField"
+import type { CustomFieldType } from "@/features/world/location/presentation/types/typedCustomField"
 import type {
   MarkerGroup as ApplicationMarkerGroup,
   MarkerItem,

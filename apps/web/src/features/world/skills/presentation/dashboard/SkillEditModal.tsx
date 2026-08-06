@@ -3,9 +3,9 @@ import { Plus, X } from "lucide-react"
 import type { Dispatch, SetStateAction } from "react"
 import type { SkillCategory } from "@/types/skillBuilder"
 import type { ReactSelectOption } from "@/components/select/ReactSelectField"
-import { SkillBasicStepFields } from "./SkillBasicStepFields"
+import { SkillCustomFieldModal } from "./SkillCustomFieldModal"
 import { SkillDeleteButton } from "./SkillDeleteButton"
-import { SkillRequirementsStepFields } from "./SkillRequirementsStepFields"
+import { SkillFormSteps, SkillStepNavigation } from "./SkillFormSteps"
 import styles from "./SkillsDashboardClient.module.css"
 import type { LevelForm, MetaForm, SkillDetail, TemplateOption } from "./types"
 
@@ -135,97 +135,40 @@ export function SkillEditModal({
           </div>
         </div>
 
-        <div className={styles.stepper}>
-          {[1, 2].map((step) => (
-            <button
-              type="button"
-              key={step}
-              className={editStep === step ? styles.stepActive : styles.step}
-              onClick={() => setEditStep(step)}
-            >
-              {step === 1 ? "Basico" : "Requerimentos"}
-            </button>
-          ))}
-        </div>
-
-        {editStep === 1 ? (
-          <SkillBasicStepFields
-            metaForm={metaForm}
-            setMetaForm={setMetaForm}
-            levelForm={levelForm}
-            setLevelForm={setLevelForm}
-            abilityCategoriesEnabled={abilityCategoriesEnabled}
-            enabledAbilityCategories={enabledAbilityCategories}
-            categoryOptions={editCategoryOptions}
-            tagOptions={tagOptions}
-          />
-        ) : null}
-
-        {editStep >= 2 ? (
-          <div className={styles.levelHeader}>
-            <h3>Editor de Levels</h3>
-            <div className={styles.levelHeaderActions} />
-          </div>
-        ) : null}
-
-        {editStep === 2 ? (
-          <SkillRequirementsStepFields
-            classes={classes}
-            races={races}
-            metaForm={metaForm}
-            setMetaForm={setMetaForm}
-            levelForm={levelForm}
-            setLevelForm={setLevelForm}
-            costResourceName={costResourceName}
-          />
-        ) : null}
+        <SkillFormSteps
+          step={editStep}
+          setStep={setEditStep}
+          classes={classes}
+          races={races}
+          metaForm={metaForm}
+          setMetaForm={setMetaForm}
+          levelForm={levelForm}
+          setLevelForm={setLevelForm}
+          abilityCategoriesEnabled={abilityCategoriesEnabled}
+          enabledAbilityCategories={enabledAbilityCategories}
+          categoryOptions={editCategoryOptions}
+          tagOptions={tagOptions}
+          costResourceName={costResourceName}
+          showLevelEditorHeader
+        />
 
         <div className={styles.actions}>
-          {editStep > 1 ? (
-            <button type="button" className={styles.ghostButton} onClick={() => setEditStep((prev) => prev - 1)}>
-              Voltar
-            </button>
-          ) : null}
-          {editStep < 2 ? (
-            <button type="button" className={styles.primaryButton} onClick={() => setEditStep((prev) => prev + 1)}>
-              Proxima
-            </button>
-          ) : null}
+          <SkillStepNavigation step={editStep} setStep={setEditStep} />
           <SkillDeleteButton onDelete={onDeleteSkill} disabled={saving} />
           <button type="button" className={styles.primaryButton} onClick={onSaveAll} disabled={saving}>
             {saving ? "Salvando..." : "Salvar"}
           </button>
         </div>
 
-        {customFieldModalOpen ? (
-          <div
-            className={styles.nestedModalOverlay}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Novo campo"
-            onClick={onCloseCustomFieldModal}
-          >
-            <section className={`${styles.card} ${styles.nestedModalCard}`} onClick={(event) => event.stopPropagation()}>
-              <h3>Novo campo</h3>
-              <label className={styles.field}>
-                <span>Nome</span>
-                <input value={newCustomFieldName} onChange={(event) => setNewCustomFieldName(event.target.value)} />
-              </label>
-              <label className={styles.field}>
-                <span>Valor</span>
-                <input value={newCustomFieldValue} onChange={(event) => setNewCustomFieldValue(event.target.value)} />
-              </label>
-              <div className={styles.actions}>
-                <button type="button" className={styles.ghostButton} onClick={onCloseCustomFieldModal}>
-                  Cancelar
-                </button>
-                <button type="button" className={styles.primaryButton} onClick={onAddCustomField}>
-                  Criar campo
-                </button>
-              </div>
-            </section>
-          </div>
-        ) : null}
+        <SkillCustomFieldModal
+          open={customFieldModalOpen}
+          name={newCustomFieldName}
+          setName={setNewCustomFieldName}
+          value={newCustomFieldValue}
+          setValue={setNewCustomFieldValue}
+          onAdd={onAddCustomField}
+          onClose={onCloseCustomFieldModal}
+        />
       </section>
     </div>
   )

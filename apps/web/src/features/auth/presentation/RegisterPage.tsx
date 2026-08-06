@@ -1,69 +1,40 @@
 "use client"
 
 import Link from "next/link"
-import { FormEvent, Suspense, useRef, useState } from "react"
-import { useSearchParams } from "next/navigation"
-import { toast } from "react-hot-toast"
+import { FormEvent, Suspense, useState } from "react"
 import { registerClientUseCase } from "@/features/auth/application/use-cases/authClient"
-import { httpAuthClientGateway } from "@/features/auth/infrastructure/gateways/httpAuthClientGateway"
-import { persistClientAuthSession } from "@/features/auth/infrastructure/session/clientAuthSession"
-import { dismissToast } from "@/lib/toast"
+import { authClientDependencies } from "@/features/auth/presentation/dependencies"
+import { useAuthSubmission } from "@/features/auth/presentation/useAuthSubmission"
 import styles from "@/features/auth/presentation/AuthPage.module.css"
 
 function RegisterContent() {
-  const searchParams = useSearchParams()
   const [name, setName] = useState("")
   const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const submittingRef = useRef(false)
+  const { error, loading, nextPath, reportError, submit } = useAuthSubmission({
+    loadingMessage: "Criando conta...",
+    successMessage: "Conta criada com sucesso.",
+    fallbackError: "Nao foi possivel cadastrar.",
+  })
 
-  const rawNextPath = searchParams.get("next") || "/"
-  const nextPath =
-    rawNextPath.startsWith("/") && !rawNextPath.startsWith("//")
-      ? rawNextPath
-      : "/"
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (submittingRef.current) return
-
-    submittingRef.current = true
-    setError("")
 
     if (password !== confirmPassword) {
-      setError("As senhas nao coincidem.")
-      toast.error("As senhas nao coincidem.")
-      submittingRef.current = false
+      reportError("As senhas nao coincidem.")
       return
     }
 
-    setLoading(true)
-    const loadingToastId = toast.loading("Criando conta...")
-
-    try {
-      const result = await registerClientUseCase(
-        { gateway: httpAuthClientGateway },
-        { name, username, email, password },
-      )
-      persistClientAuthSession(result.token, result.maxAge)
-      toast.success("Conta criada com sucesso.")
-      window.location.replace(nextPath)
-    } catch (submissionError) {
-      const message =
-        submissionError instanceof Error
-          ? submissionError.message
-          : "Nao foi possivel cadastrar."
-      setError(message)
-      toast.error(message)
-    } finally {
-      dismissToast(loadingToastId)
-      setLoading(false)
-      submittingRef.current = false
-    }
+    void submit(() =>
+      registerClientUseCase(authClientDependencies, {
+        name,
+        username,
+        email,
+        password,
+      }),
+    )
   }
 
   return (

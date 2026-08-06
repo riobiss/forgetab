@@ -1,4 +1,5 @@
 import { TOKEN_COOKIE_NAME } from "@/lib/auth/constants"
+import type { AuthClientSession } from "@/features/auth/application/contracts/AuthClientGateway"
 
 function buildCookieValue(name: string) {
   if (typeof document === "undefined") {
@@ -38,4 +39,9 @@ export function clearClientAuthSession() {
 
   const secure = window.location.protocol === "https:" ? "; Secure" : ""
   document.cookie = `${TOKEN_COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax${secure}`
+}
+
+export const clientAuthSession: AuthClientSession = {
+  persist: persistClientAuthSession,
+  clear: clearClientAuthSession,
 }

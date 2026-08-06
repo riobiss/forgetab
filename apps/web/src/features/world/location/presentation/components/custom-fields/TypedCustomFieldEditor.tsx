@@ -5,11 +5,11 @@ import {
   CUSTOM_FIELD_TYPE_OPTIONS,
   normalizeCustomFieldType,
   type EditableTypedCustomField,
-} from "@/components/custom-fields/typedCustomField"
+} from "@/features/world/location/presentation/types/typedCustomField"
 import styles from "./TypedCustomFieldEditor.module.css"
 
-export type { CustomFieldType, EditableTypedCustomField } from "@/components/custom-fields/typedCustomField"
-export { CUSTOM_FIELD_TYPE_OPTIONS, normalizeCustomFieldType } from "@/components/custom-fields/typedCustomField"
+export type { CustomFieldType, EditableTypedCustomField } from "@/features/world/location/presentation/types/typedCustomField"
+export { CUSTOM_FIELD_TYPE_OPTIONS, normalizeCustomFieldType } from "@/features/world/location/presentation/types/typedCustomField"
 
 type Props = {
   field: EditableTypedCustomField

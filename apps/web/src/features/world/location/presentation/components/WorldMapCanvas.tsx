@@ -7,7 +7,6 @@ import {
   useEffect,
   useImperativeHandle,
   useRef,
-  type MutableRefObject,
 } from "react"
 import Konva from "konva"
 import type {
@@ -15,29 +14,29 @@ import type {
   MarkerGroup,
   PendingMarker,
 } from "@/features/world/location/presentation/types/mapMarkers"
+import type { WorldMapCanvasHandle } from "@/features/world/location/presentation/types/worldMapCanvas"
 import {
   drawMarkerPin,
   getMarkerDisplayLabel,
-  type MarkerRenderMode,
 } from "@/features/world/location/presentation/utils/markerPins"
 import {
-  calculatePinchViewport,
-  getLocalPinchCenter,
-  preserveViewportOnResize,
-} from "@/features/world/location/presentation/utils/mapZoom"
+  applyStagePinchZoom,
+  applyStageZoom,
+  fitImageToStage,
+  focusStageOnMarker,
+  getContentPointerPosition,
+  getMarkerRenderMode,
+  getPreferredPixelRatio,
+  isMarkerVisibleInViewport,
+  preserveStageViewOnResize,
+  syncMapInteraction,
+  type MapCanvasPoint,
+} from "@/features/world/location/presentation/utils/mapCanvasStage"
 import styles from "../WorldMap.module.css"
 
-type Point = { x: number; y: number }
+type Point = MapCanvasPoint
 const TOUCH_TAP_MAX_MOVEMENT = 10
 const SYNTHETIC_MOUSE_GUARD_MS = 500
-const MARKER_VIEWPORT_PADDING = 132
-
-export type WorldMapCanvasHandle = {
-  syncToContainer: () => void
-  resetView: () => void
-  clearLastDrawing: () => void
-  focusMarker: (marker: Pick<MapMarkerItem, "x" | "y">) => void
-}
 
 type Props = {
   mapSrc: string
@@ -197,7 +196,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
 
     useEffect(() => {
       isInteractiveRef.current = isInteractive
-      syncInteraction(
+      syncMapInteraction(
         stageRef.current,
         isInteractive,
         isBrushMode,
@@ -345,7 +344,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         }
 
         event.evt.preventDefault()
-        applyZoom(stage, event.evt.deltaY, mapImageRef.current)
+        applyStageZoom(stage, event.evt.deltaY, mapImageRef.current)
         scheduleMarkerLayerRedraw()
         scheduleOverlayLayerRedraw()
       }
@@ -432,7 +431,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         const touches = event.evt.touches
         if (touches.length >= 2) {
           isPinchingRef.current = true
-          syncInteraction(
+          syncMapInteraction(
             stage,
             isInteractiveRef.current,
             isBrushModeRef.current,
@@ -474,7 +473,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
 
           if (!isPinchingRef.current) {
             isPinchingRef.current = true
-            syncInteraction(
+            syncMapInteraction(
               stage,
               isInteractiveRef.current,
               isBrushModeRef.current,
@@ -488,7 +487,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           }
 
           event.evt.preventDefault()
-          applyPinchZoom(
+          applyStagePinchZoom(
             stage,
             touches,
             pinchLastCenterRef,
@@ -504,7 +503,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           isPinchingRef.current = false
           pinchLastCenterRef.current = null
           pinchLastDistanceRef.current = null
-          syncInteraction(
+          syncMapInteraction(
             stage,
             isInteractiveRef.current,
             isBrushModeRef.current,
@@ -562,7 +561,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         touchSelectionStartRef.current = null
         touchSelectionMovedRef.current = false
         lastTouchInteractionAtRef.current = Date.now()
-        syncInteraction(
+        syncMapInteraction(
           stage,
           isInteractiveRef.current,
           isBrushModeRef.current,
@@ -610,7 +609,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
           if (
             canInteractMap(isInteractiveRef.current, isFullscreenRef.current)
           ) {
-            keepViewOnResize(
+            preserveStageViewOnResize(
               currentStage,
               currentImage,
               previousWidth,
@@ -862,338 +861,6 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
   },
 )
 
-function syncInteraction(
-  stage: Konva.Stage | null,
-  isInteractive: boolean,
-  isBrushMode: boolean,
-  isFullscreen: boolean,
-  isMarkerSelectionMode: boolean,
-  isPinching: boolean,
-) {
-  if (!stage) {
-    return
-  }
-
-  stage.draggable(
-    canInteractMap(isInteractive, isFullscreen) &&
-      !isBrushMode &&
-      !isMarkerSelectionMode &&
-      !isPinching,
-  )
-}
-
 function canInteractMap(isInteractive: boolean, isFullscreen: boolean) {
   return isInteractive && isFullscreen
-}
-
-function applyZoom(
-  stage: Konva.Stage,
-  deltaY: number,
-  mapImage: Konva.Image | null,
-) {
-  const oldScale = stage.scaleX()
-  const minScale = getStageMinScale(stage, mapImage)
-  if (minScale === null) {
-    return
-  }
-
-  const scaleBy = 1.08
-  const nextScale = deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy
-  const newScale = clamp(nextScale, minScale, Math.max(minScale, 4))
-
-  const pointer = stage.getPointerPosition()
-  if (!pointer) {
-    return
-  }
-
-  const mousePointTo = {
-    x: (pointer.x - stage.x()) / oldScale,
-    y: (pointer.y - stage.y()) / oldScale,
-  }
-
-  stage.scale({ x: newScale, y: newScale })
-  stage.position({
-    x: pointer.x - mousePointTo.x * newScale,
-    y: pointer.y - mousePointTo.y * newScale,
-  })
-  constrainStagePosition(stage, mapImage)
-  stage.batchDraw()
-}
-
-function applyPinchZoom(
-  stage: Konva.Stage,
-  touches: TouchList,
-  pinchLastCenterRef: MutableRefObject<Point | null>,
-  pinchLastDistanceRef: MutableRefObject<number | null>,
-  mapImage: Konva.Image | null,
-) {
-  if (touches.length < 2) {
-    return
-  }
-
-  const touch1 = touches[0]
-  const touch2 = touches[1]
-  if (!touch1 || !touch2) {
-    return
-  }
-
-  const center = getLocalPinchCenter(
-    touches,
-    stage.container().getBoundingClientRect(),
-  )
-  if (!center) return
-  const distance = Math.hypot(
-    touch2.clientX - touch1.clientX,
-    touch2.clientY - touch1.clientY,
-  )
-
-  const previousCenter = pinchLastCenterRef.current
-  const previousDistance = pinchLastDistanceRef.current
-  if (!previousCenter || !previousDistance) {
-    pinchLastCenterRef.current = center
-    pinchLastDistanceRef.current = distance
-    return
-  }
-
-  const oldScale = stage.scaleX()
-  const minScale = getStageMinScale(stage, mapImage)
-  if (minScale === null) {
-    return
-  }
-
-  const viewport = calculatePinchViewport({
-    currentScale: oldScale,
-    minScale,
-    maxScale: Math.max(minScale, 4),
-    position: stage.position(),
-    previousCenter,
-    center,
-    previousDistance,
-    distance,
-  })
-  stage.scale({ x: viewport.scale, y: viewport.scale })
-  stage.position(viewport.position)
-  constrainStagePosition(stage, mapImage)
-  stage.batchDraw()
-
-  pinchLastCenterRef.current = center
-  pinchLastDistanceRef.current = distance
-}
-
-function keepViewOnResize(
-  stage: Konva.Stage,
-  mapImage: Konva.Image,
-  previousWidth: number,
-  previousHeight: number,
-) {
-  const minScale = getStageMinScale(stage, mapImage)
-  if (minScale === null) return
-
-  const viewport = preserveViewportOnResize({
-    previousWidth,
-    previousHeight,
-    nextWidth: stage.width(),
-    nextHeight: stage.height(),
-    currentScale: stage.scaleX(),
-    minScale,
-    position: { x: stage.x(), y: stage.y() },
-  })
-  stage.scale({ x: viewport.scale, y: viewport.scale })
-  stage.position(viewport.position)
-  constrainStagePosition(stage, mapImage)
-}
-
-function getStageMinScale(stage: Konva.Stage, mapImage: Konva.Image | null) {
-  if (!mapImage) {
-    return null
-  }
-
-  const imageSource = mapImage.image()
-  if (!imageSource) {
-    return null
-  }
-
-  const imageSize = getImageSize(imageSource)
-  if (!imageSize) {
-    return null
-  }
-
-  const widthScale = stage.width() / imageSize.width
-  const heightScale = stage.height() / imageSize.height
-  return Math.min(widthScale, heightScale)
-}
-
-function constrainStagePosition(
-  stage: Konva.Stage,
-  mapImage: Konva.Image | null,
-) {
-  if (!mapImage) {
-    return
-  }
-
-  const imageSource = mapImage.image()
-  if (!imageSource) {
-    return
-  }
-
-  const imageSize = getImageSize(imageSource)
-  if (!imageSize) {
-    return
-  }
-
-  const scaledWidth = imageSize.width * stage.scaleX()
-  const scaledHeight = imageSize.height * stage.scaleY()
-  const stageWidth = stage.width()
-  const stageHeight = stage.height()
-
-  const x =
-    scaledWidth <= stageWidth
-      ? (stageWidth - scaledWidth) / 2
-      : clamp(stage.x(), stageWidth - scaledWidth, 0)
-  const y =
-    scaledHeight <= stageHeight
-      ? (stageHeight - scaledHeight) / 2
-      : clamp(stage.y(), stageHeight - scaledHeight, 0)
-
-  stage.position({ x, y })
-}
-
-function clamp(value: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, value))
-}
-
-function getContentPointerPosition(stage: Konva.Stage) {
-  const pointer = stage.getPointerPosition()
-  if (!pointer) {
-    return null
-  }
-
-  const transform = stage.getAbsoluteTransform().copy()
-  transform.invert()
-  return transform.point(pointer)
-}
-
-function fitImageToStage(stage: Konva.Stage, mapImage: Konva.Image) {
-  const imageSource = mapImage.image()
-  if (!imageSource) {
-    return
-  }
-
-  const imageSize = getImageSize(imageSource)
-  if (!imageSize) {
-    return
-  }
-
-  const stageWidth = stage.width()
-  const stageHeight = stage.height()
-  const widthScale = stageWidth / imageSize.width
-  const heightScale = stageHeight / imageSize.height
-  const scale = Math.min(widthScale, heightScale)
-
-  mapImage.position({ x: 0, y: 0 })
-  mapImage.size({ width: imageSize.width, height: imageSize.height })
-
-  stage.scale({ x: scale, y: scale })
-  stage.position({
-    x: (stageWidth - imageSize.width * scale) / 2,
-    y: (stageHeight - imageSize.height * scale) / 2,
-  })
-}
-
-function focusStageOnMarker(
-  stage: Konva.Stage,
-  mapImage: Konva.Image,
-  marker: Pick<MapMarkerItem, "x" | "y">,
-) {
-  const minScale = getStageMinScale(stage, mapImage)
-  if (minScale === null) {
-    return
-  }
-
-  const targetScale = clamp(
-    Math.max(minScale * 1.85, minScale + 0.35),
-    minScale,
-    Math.max(minScale, 4),
-  )
-  stage.scale({ x: targetScale, y: targetScale })
-  stage.position({
-    x: stage.width() / 2 - marker.x * targetScale,
-    y: stage.height() / 2 - marker.y * targetScale,
-  })
-  constrainStagePosition(stage, mapImage)
-}
-
-function isMarkerVisibleInViewport(
-  stage: Konva.Stage,
-  marker: Pick<MapMarkerItem, "x" | "y" | "size" | "pinStyle">,
-  label: string,
-) {
-  const scale = stage.scaleX()
-  const screenX = stage.x() + marker.x * scale
-  const screenY = stage.y() + marker.y * scale
-  const size = Math.max(0.5, Math.min(2, marker.size ?? 1))
-  const basePadding =
-    marker.pinStyle === "label"
-      ? Math.max(MARKER_VIEWPORT_PADDING, label.length * 10)
-      : MARKER_VIEWPORT_PADDING
-  const padding = basePadding * size
-
-  return (
-    screenX >= -padding &&
-    screenX <= stage.width() + padding &&
-    screenY >= -padding &&
-    screenY <= stage.height() + padding
-  )
-}
-
-function getMarkerRenderMode(
-  stage: Konva.Stage,
-  mapImage: Konva.Image | null,
-): MarkerRenderMode {
-  const minScale = getStageMinScale(stage, mapImage)
-  if (minScale === null || minScale <= 0) {
-    return "full"
-  }
-
-  const zoomRatio = stage.scaleX() / minScale
-  if (zoomRatio < 1.35) {
-    return "dot"
-  }
-  if (zoomRatio < 2.05) {
-    return "compact"
-  }
-  return "full"
-}
-
-function getPreferredPixelRatio() {
-  if (typeof window === "undefined") {
-    return 1
-  }
-
-  const devicePixelRatio = window.devicePixelRatio || 1
-  const coarsePointer =
-    window.matchMedia?.("(pointer: coarse)").matches ?? false
-  return coarsePointer ? 1 : Math.min(devicePixelRatio, 1.5)
-}
-
-function getImageSize(
-  source: CanvasImageSource,
-): { width: number; height: number } | null {
-  if ("width" in source && "height" in source) {
-    const width = Number(source.width)
-    const height = Number(source.height)
-    if (width > 0 && height > 0) {
-      return { width, height }
-    }
-  }
-
-  if ("videoWidth" in source && "videoHeight" in source) {
-    const width = Number(source.videoWidth)
-    const height = Number(source.videoHeight)
-    if (width > 0 && height > 0) {
-      return { width, height }
-    }
-  }
-
-  return null
 }

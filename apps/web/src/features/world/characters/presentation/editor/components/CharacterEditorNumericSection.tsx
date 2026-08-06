@@ -1,6 +1,6 @@
 "use client"
 
-import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
+import NumericTemplateGrid from "@/features/world/presentation/components/NumericTemplateGrid"
 import styles from "../CharacterEditorForm.module.css"
 import type { CharacterEditorTemplateFieldDto } from "@/features/world/characters/application/editor"
 import EditableModalField from "./EditableModalField"

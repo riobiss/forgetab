@@ -1,13 +1,21 @@
 "use client"
 
 import Image from "next/image"
-import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react"
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react"
 import { LoaderCircle, Plus, X } from "lucide-react"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
 import type {
   ItemRarityDto,
   ItemTypeDto,
 } from "@/features/world/items/application/dashboard/types"
+import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap"
 import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
 import styles from "./ItemsDashboardClient.module.css"
 
@@ -152,121 +160,16 @@ export function ItemUpsertModal({
   const title = mode === "edit" ? "Editar" : "Criar"
   const modalRef = useRef<HTMLElement | null>(null)
   const nestedModalRef = useRef<HTMLElement | null>(null)
-  const previousFocusedElementRef = useRef<HTMLElement | null>(null)
   const [showImagePreview, setShowImagePreview] = useState(true)
+  const getActiveModalElement = useCallback(
+    () => (customFieldModalOpen ? nestedModalRef.current : modalRef.current),
+    [customFieldModalOpen],
+  )
 
-  useEffect(() => {
-    if (!open) {
-      return
-    }
-
-    previousFocusedElementRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null
-  }, [open])
-
-  useEffect(() => {
-    if (!open) {
-      previousFocusedElementRef.current?.focus()
-      return
-    }
-
-    const activeModal = customFieldModalOpen ? nestedModalRef.current : modalRef.current
-    if (!activeModal) {
-      return
-    }
-
-    function isAllowedFocusTarget(target: EventTarget | null, currentModal: HTMLElement) {
-      if (!(target instanceof HTMLElement)) {
-        return false
-      }
-
-      if (currentModal.contains(target)) {
-        return true
-      }
-
-      return Boolean(
-        target.closest("[data-radix-popper-content-wrapper]") ||
-        target.closest('[role="listbox"]'),
-      )
-    }
-
-    const focusableSelectors = [
-      "button:not([disabled])",
-      "input:not([disabled])",
-      "textarea:not([disabled])",
-      "[role='combobox']:not([aria-disabled='true'])",
-      "[tabindex]:not([tabindex='-1'])",
-    ].join(", ")
-
-    const getFocusableElements = () =>
-      Array.from(activeModal.querySelectorAll<HTMLElement>(focusableSelectors)).filter(
-        (element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true",
-      )
-
-    const initialFocusTarget = getFocusableElements()[0] ?? activeModal
-    queueMicrotask(() => {
-      initialFocusTarget.focus()
-    })
-
-    function handleFocusIn(event: FocusEvent) {
-      const currentModal = customFieldModalOpen ? nestedModalRef.current : modalRef.current
-      if (!currentModal) {
-        return
-      }
-
-      if (isAllowedFocusTarget(event.target, currentModal)) {
-        return
-      }
-
-      const firstFocusableElement = Array.from(
-        currentModal.querySelectorAll<HTMLElement>(focusableSelectors),
-      ).find((element) => !element.hasAttribute("disabled"))
-
-      firstFocusableElement?.focus()
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key !== "Tab") {
-        return
-      }
-
-      const currentModal = customFieldModalOpen ? nestedModalRef.current : modalRef.current
-      if (!currentModal) {
-        return
-      }
-
-      const focusableElements = Array.from(
-        currentModal.querySelectorAll<HTMLElement>(focusableSelectors),
-      ).filter((element) => !element.hasAttribute("disabled"))
-
-      if (focusableElements.length === 0) {
-        event.preventDefault()
-        currentModal.focus()
-        return
-      }
-
-      const firstElement = focusableElements[0]
-      const lastElement = focusableElements[focusableElements.length - 1]
-      const activeElement = document.activeElement
-
-      if (event.shiftKey && activeElement === firstElement) {
-        event.preventDefault()
-        lastElement.focus()
-      } else if (!event.shiftKey && activeElement === lastElement) {
-        event.preventDefault()
-        firstElement.focus()
-      }
-    }
-
-    document.addEventListener("focusin", handleFocusIn)
-    document.addEventListener("keydown", handleKeyDown)
-
-    return () => {
-      document.removeEventListener("focusin", handleFocusIn)
-      document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [customFieldModalOpen, open])
+  useModalFocusTrap({
+    isActive: open,
+    activeElement: getActiveModalElement,
+  })
 
   useEffect(() => {
     if (!open) {

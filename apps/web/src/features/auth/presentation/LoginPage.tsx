@@ -1,58 +1,26 @@
 "use client"
 
 import Link from "next/link"
-import { FormEvent, Suspense, useRef, useState } from "react"
-import { useSearchParams } from "next/navigation"
-import { toast } from "react-hot-toast"
+import { FormEvent, Suspense, useState } from "react"
 import { loginClientUseCase } from "@/features/auth/application/use-cases/authClient"
-import { httpAuthClientGateway } from "@/features/auth/infrastructure/gateways/httpAuthClientGateway"
-import { persistClientAuthSession } from "@/features/auth/infrastructure/session/clientAuthSession"
-import { dismissToast } from "@/lib/toast"
+import { authClientDependencies } from "@/features/auth/presentation/dependencies"
+import { useAuthSubmission } from "@/features/auth/presentation/useAuthSubmission"
 import styles from "@/features/auth/presentation/AuthPage.module.css"
 
 function LoginContent() {
-  const searchParams = useSearchParams()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const submittingRef = useRef(false)
+  const { error, loading, nextPath, submit } = useAuthSubmission({
+    loadingMessage: "Entrando...",
+    successMessage: "Login realizado com sucesso.",
+    fallbackError: "Nao foi possivel autenticar.",
+  })
 
-  const rawNextPath = searchParams.get("next") || "/"
-  const nextPath =
-    rawNextPath.startsWith("/") && !rawNextPath.startsWith("//")
-      ? rawNextPath
-      : "/"
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (submittingRef.current) return
-
-    submittingRef.current = true
-    setLoading(true)
-    setError("")
-    const loadingToastId = toast.loading("Entrando...")
-
-    try {
-      const result = await loginClientUseCase(
-        { gateway: httpAuthClientGateway },
-        { email, password },
-      )
-      persistClientAuthSession(result.token, result.maxAge)
-      toast.success("Login realizado com sucesso.")
-      window.location.replace(nextPath)
-    } catch (submissionError) {
-      const message =
-        submissionError instanceof Error
-          ? submissionError.message
-          : "Nao foi possivel autenticar."
-      setError(message)
-      toast.error(message)
-    } finally {
-      dismissToast(loadingToastId)
-      setLoading(false)
-      submittingRef.current = false
-    }
+    void submit(() =>
+      loginClientUseCase(authClientDependencies, { email, password }),
+    )
   }
 
   return (

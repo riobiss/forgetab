@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import type { JSONContent } from "@tiptap/react"
 import { Keyboard, Save, SlidersHorizontal } from "lucide-react"
@@ -23,7 +23,7 @@ import EntityDetailsConfigModal, {
 } from "@/features/world/catalog/presentation/EntityDetailsConfigModal"
 import EntityDetailsContent from "@/features/world/catalog/presentation/EntityDetailsContent"
 import { useEntityDetailsActions } from "@/features/world/catalog/presentation/useEntityDetailsActions"
-import { useModalFocusTrap } from "@/features/world/catalog/presentation/useModalFocusTrap"
+import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap"
 import { dismissToast } from "@/lib/toast"
 import styles from "./EntityDetailsPage.module.css"
 
@@ -109,7 +109,12 @@ export default function EntityDetailsPage({
   const [saving, setSaving] = useState(false)
   const [configStage, setConfigStage] =
     useState<EntityDetailsConfigStage>("basic")
-  const configModalRef = useModalFocusTrap(configModalOpen, setConfigModalOpen)
+  const configModalRef = useRef<HTMLElement | null>(null)
+  useModalFocusTrap({
+    isActive: configModalOpen,
+    activeElement: configModalRef,
+    onEscape: () => setConfigModalOpen(false),
+  })
 
   const categoryOptions = useMemo(
     () =>

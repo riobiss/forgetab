@@ -1,7 +1,7 @@
 "use client"
 
 import { ImagePlus, Trash2 } from "lucide-react"
-import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
+import NumericTemplateGrid from "@/features/world/presentation/components/NumericTemplateGrid"
 import { ReactMultiSelectField } from "@/components/select/ReactMultiSelectField"
 import { ReactSelectField } from "@/components/select/ReactSelectField"
 import type { ReactSelectOption } from "@/components/select/ReactSelectField"

@@ -1,6 +1,6 @@
 "use client"
 
-import { useDeferredValue, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, X } from "lucide-react"
 import { toast } from "react-hot-toast"
@@ -22,24 +22,7 @@ import {
   buildNpcMonsterBonusUpdatePayload,
   buildNpcMonsterCreatePayload,
 } from "@/features/world/characters/application/npc-monster"
-import type {
-  CharacterInventoryItemDto,
-  NpcMonsterLoadoutItemOptionDto,
-  NpcMonsterLoadoutSkillOptionDto,
-  PurchasedAbilityViewDto,
-} from "@/features/world/characters/application/loadout"
-import {
-  addNpcMonsterAbilityUseCase,
-  addNpcMonsterInventoryItemUseCase,
-  listNpcMonsterItemOptionsUseCase,
-  listNpcMonsterSkillOptionsUseCase,
-  loadNpcMonsterAbilitiesUseCase,
-  loadNpcMonsterInventoryUseCase,
-  removeNpcMonsterAbilityUseCase,
-  removeNpcMonsterInventoryItemUseCase,
-} from "@/features/world/characters/application/loadout"
 import { createCharactersEditorDependencies } from "@/features/world/characters/presentation/editor/dependencies"
-import { npcMonsterLoadoutDependencies } from "@/features/world/characters/presentation/dashboard/dependencies"
 import styles from "../CharactersDashboardPage.module.css"
 import { npcMonsterSteps } from "./npc-monster-modal/constants"
 import {
@@ -54,7 +37,6 @@ import {
   ExtraField,
   NarrativeStatus,
   NumericInputValue,
-  PickerMode,
   SecretFieldKey,
   StepKey,
 } from "./npc-monster-modal/types"
@@ -68,6 +50,11 @@ import {
   buildNpcMonsterSecretFieldOptions,
   getNpcMonsterImageStatusText,
 } from "./npc-monster-modal/presentation"
+import { useNpcMonsterLoadout } from "./npc-monster-modal/hooks/useNpcMonsterLoadout"
+import {
+  mergeCharacterSnapshot,
+  upsertCharacterSnapshot,
+} from "./npc-monster-modal/characterSnapshot"
 
 type Props = {
   rpgId: string
@@ -80,7 +67,6 @@ type Props = {
 }
 
 const deps = createCharactersEditorDependencies("http")
-const loadoutDeps = npcMonsterLoadoutDependencies
 
 export default function NpcMonsterCharacterModal({
   rpgId,
@@ -130,27 +116,33 @@ export default function NpcMonsterCharacterModal({
   const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false)
   const [newFieldKey, setNewFieldKey] = useState("")
   const [newFieldValue, setNewFieldValue] = useState("")
-  const [inventory, setInventory] = useState<CharacterInventoryItemDto[]>([])
-  const [inventoryLoading, setInventoryLoading] = useState(false)
-  const [inventoryError, setInventoryError] = useState("")
-  const [availableItems, setAvailableItems] = useState<
-    NpcMonsterLoadoutItemOptionDto[]
-  >([])
-  const [itemsLoading, setItemsLoading] = useState(false)
-  const [abilities, setAbilities] = useState<PurchasedAbilityViewDto[]>([])
-  const [abilitiesLoading, setAbilitiesLoading] = useState(false)
-  const [abilitiesError, setAbilitiesError] = useState("")
-  const [availableSkills, setAvailableSkills] = useState<
-    NpcMonsterLoadoutSkillOptionDto[]
-  >([])
-  const [skillsLoading, setSkillsLoading] = useState(false)
-  const [pickerMode, setPickerMode] = useState<PickerMode>(null)
-  const [pickerSearch, setPickerSearch] = useState("")
-  const deferredPickerSearch = useDeferredValue(pickerSearch)
-  const [pickerSaving, setPickerSaving] = useState(false)
-  const [removingAbilityKey, setRemovingAbilityKey] = useState<string | null>(
-    null,
-  )
+  const {
+    inventory,
+    inventoryLoading,
+    inventoryError,
+    itemsLoading,
+    abilities,
+    abilitiesLoading,
+    abilitiesError,
+    skillsLoading,
+    pickerMode,
+    setPickerMode,
+    pickerSearch,
+    setPickerSearch,
+    pickerSaving,
+    removingAbilityKey,
+    filteredAvailableItems,
+    filteredAvailableSkills,
+    openPicker,
+    addInventoryItem,
+    removeInventoryItem,
+    addAbility,
+    removeAbility,
+  } = useNpcMonsterLoadout({
+    isOpen,
+    rpgId,
+    characterId: createdCharacterId,
+  })
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
@@ -165,10 +157,6 @@ export default function NpcMonsterCharacterModal({
         setLoading(true)
         setError("")
         setStep("basic")
-        setItemsLoading(true)
-        setSkillsLoading(true)
-        setInventoryLoading(mode === "edit" && Boolean(characterId))
-        setAbilitiesLoading(mode === "edit" && Boolean(characterId))
         const [payload, targetCharacter] =
           mode === "edit" && characterId
             ? await Promise.all([
@@ -220,63 +208,6 @@ export default function NpcMonsterCharacterModal({
         setCustomFieldModalOpen(false)
         setNewFieldKey("")
         setNewFieldValue("")
-        setInventory([])
-        setInventoryError("")
-        setAvailableItems([])
-        setAbilities([])
-        setAbilitiesError("")
-        setAvailableSkills([])
-        setPickerMode(null)
-        setPickerSearch("")
-
-        const requests = await Promise.allSettled([
-          listNpcMonsterItemOptionsUseCase(loadoutDeps, { rpgId }),
-          listNpcMonsterSkillOptionsUseCase(loadoutDeps, { rpgId }),
-          target?.id
-            ? loadNpcMonsterInventoryUseCase(loadoutDeps, {
-                rpgId,
-                characterId: target.id,
-              })
-            : Promise.resolve(null),
-          target?.id
-            ? loadNpcMonsterAbilitiesUseCase(loadoutDeps, {
-                rpgId,
-                characterId: target.id,
-              })
-            : Promise.resolve(null),
-        ])
-
-        if (cancelled) {
-          return
-        }
-
-        const [itemsResult, skillsResult, inventoryResult, abilitiesResult] =
-          requests
-
-        if (itemsResult.status === "fulfilled") {
-          setAvailableItems(itemsResult.value)
-        }
-        if (skillsResult.status === "fulfilled") {
-          setAvailableSkills(skillsResult.value)
-        }
-        if (inventoryResult.status === "fulfilled") {
-          setInventory(inventoryResult.value?.inventory ?? [])
-        } else if (target?.id) {
-          setInventoryError(
-            inventoryResult.reason instanceof Error
-              ? inventoryResult.reason.message
-              : "Nao foi possivel carregar o inventory.",
-          )
-        }
-        if (abilitiesResult.status === "fulfilled") {
-          setAbilities(abilitiesResult.value?.abilities ?? [])
-        } else if (target?.id) {
-          setAbilitiesError(
-            abilitiesResult.reason instanceof Error
-              ? abilitiesResult.reason.message
-              : "Nao foi possivel carregar as habilidades.",
-          )
-        }
       } catch (cause) {
         if (!cancelled) {
           setError(
@@ -288,10 +219,6 @@ export default function NpcMonsterCharacterModal({
       } finally {
         if (!cancelled) {
           setLoading(false)
-          setItemsLoading(false)
-          setSkillsLoading(false)
-          setInventoryLoading(false)
-          setAbilitiesLoading(false)
         }
       }
     }
@@ -328,15 +255,6 @@ export default function NpcMonsterCharacterModal({
       setAttributeValues({})
       setSkillValues({})
       setSecretFieldKeys([])
-      setInventory([])
-      setInventoryError("")
-      setAvailableItems([])
-      setAbilities([])
-      setAbilitiesError("")
-      setAvailableSkills([])
-      setPickerMode(null)
-      setPickerSearch("")
-      setRemovingAbilityKey(null)
     }
   }, [characterId, isOpen])
 
@@ -347,15 +265,6 @@ export default function NpcMonsterCharacterModal({
   const currentCharacter = editingCharacter
   const imageStatusText = getNpcMonsterImageStatusText(image, selectedImageName)
   const canAdvance = createdCharacterId !== null
-  const normalizedPickerSearch = deferredPickerSearch.trim().toLowerCase()
-  const filteredAvailableItems = !normalizedPickerSearch
-    ? availableItems
-    : availableItems.filter((item) =>
-        [item.name, item.type, item.rarity]
-          .join(" ")
-          .toLowerCase()
-          .includes(normalizedPickerSearch),
-      )
   const secretFieldOptions = buildNpcMonsterSecretFieldOptions(extraFields)
   const formState = buildNpcMonsterFormState({
     name,
@@ -372,109 +281,6 @@ export default function NpcMonsterCharacterModal({
     skillValues,
     extraFields,
   })
-  const ownedSkillIds = new Set(abilities.map((item) => item.skillId))
-  const filteredAvailableSkills = (
-    !normalizedPickerSearch
-      ? availableSkills
-      : availableSkills.filter((item) =>
-          [item.slug, item.tags.join(" ")]
-            .join(" ")
-            .toLowerCase()
-            .includes(normalizedPickerSearch),
-        )
-  ).filter((item) => !ownedSkillIds.has(item.id))
-
-  function buildNextCharacterSnapshot(
-    payload: UpsertCharacterPayloadDto | UpdateCharacterPayloadDto,
-    serverCharacter: CharacterEditorSummaryDto,
-  ): CharacterEditorSummaryDto {
-    const baseCharacter = editingCharacter
-      ? {
-          ...editingCharacter,
-          ...serverCharacter,
-          statuses: {
-            ...(editingCharacter.statuses ?? {}),
-            ...(serverCharacter.statuses ?? {}),
-          },
-          attributes: {
-            ...(editingCharacter.attributes ?? {}),
-            ...(serverCharacter.attributes ?? {}),
-          },
-          skills: {
-            ...(editingCharacter.skills ?? {}),
-            ...(serverCharacter.skills ?? {}),
-          },
-          identity: {
-            ...(editingCharacter.identity ?? {}),
-            ...(serverCharacter.identity ?? {}),
-          },
-          characteristics: {
-            ...(editingCharacter.characteristics ?? {}),
-            ...(serverCharacter.characteristics ?? {}),
-          },
-        }
-      : serverCharacter
-
-    return {
-      ...baseCharacter,
-      ...(Object.prototype.hasOwnProperty.call(payload, "name") &&
-      payload.name !== undefined
-        ? { name: payload.name }
-        : {}),
-      ...(Object.prototype.hasOwnProperty.call(payload, "image")
-        ? { image: payload.image ?? null }
-        : {}),
-      ...(Object.prototype.hasOwnProperty.call(payload, "visibility") &&
-      payload.visibility !== undefined
-        ? { visibility: payload.visibility }
-        : {}),
-      ...(Object.prototype.hasOwnProperty.call(payload, "progressionCurrent") &&
-      payload.progressionCurrent !== undefined
-        ? { progressionCurrent: payload.progressionCurrent }
-        : {}),
-      ...(payload.statuses
-        ? {
-            statuses: {
-              ...(baseCharacter.statuses ?? {}),
-              ...payload.statuses,
-            },
-          }
-        : {}),
-      ...(payload.attributes
-        ? {
-            attributes: {
-              ...(baseCharacter.attributes ?? {}),
-              ...payload.attributes,
-            },
-          }
-        : {}),
-      ...(payload.skills
-        ? {
-            skills: {
-              ...(baseCharacter.skills ?? {}),
-              ...payload.skills,
-            },
-          }
-        : {}),
-      ...(payload.identity
-        ? {
-            identity: {
-              ...(baseCharacter.identity ?? {}),
-              ...payload.identity,
-            },
-          }
-        : {}),
-      ...(payload.characteristics
-        ? {
-            characteristics: {
-              ...(baseCharacter.characteristics ?? {}),
-              ...payload.characteristics,
-            },
-          }
-        : {}),
-    }
-  }
-
   function applyLocalCharacterSnapshot(
     nextCharacter: CharacterEditorSummaryDto,
   ) {
@@ -482,17 +288,7 @@ export default function NpcMonsterCharacterModal({
       return
     }
 
-    const hasCharacter = bootstrap.characters.some(
-      (character) => character.id === nextCharacter.id,
-    )
-    const nextBootstrap = {
-      ...bootstrap,
-      characters: hasCharacter
-        ? bootstrap.characters.map((character) =>
-            character.id === nextCharacter.id ? nextCharacter : character,
-          )
-        : [nextCharacter, ...bootstrap.characters],
-    }
+    const nextBootstrap = upsertCharacterSnapshot(bootstrap, nextCharacter)
 
     applyCharacterSnapshot(nextBootstrap, nextCharacter, {
       setBootstrap,
@@ -530,7 +326,7 @@ export default function NpcMonsterCharacterModal({
       })
       setCreatedCharacterId(targetCharacterId)
       applyLocalCharacterSnapshot(
-        buildNextCharacterSnapshot(payload, updatedCharacter),
+        mergeCharacterSnapshot(editingCharacter, payload, updatedCharacter),
       )
     } else {
       const created = await createCharacterUseCase(deps, {
@@ -538,7 +334,9 @@ export default function NpcMonsterCharacterModal({
         payload: payload as UpsertCharacterPayloadDto,
       })
       setCreatedCharacterId(created.id)
-      applyLocalCharacterSnapshot(buildNextCharacterSnapshot(payload, created))
+      applyLocalCharacterSnapshot(
+        mergeCharacterSnapshot(editingCharacter, payload, created),
+      )
     }
 
     toast.success(successMessage)
@@ -698,157 +496,6 @@ export default function NpcMonsterCharacterModal({
     }
   }
 
-  async function handleAddInventoryItem(baseItemId: string) {
-    if (!createdCharacterId || pickerSaving) {
-      return
-    }
-
-    try {
-      setPickerSaving(true)
-      setInventoryError("")
-      await addNpcMonsterInventoryItemUseCase(loadoutDeps, {
-        rpgId,
-        characterId: createdCharacterId,
-        baseItemId,
-        quantity: 1,
-      })
-      const payload = await loadNpcMonsterInventoryUseCase(loadoutDeps, {
-        rpgId,
-        characterId: createdCharacterId,
-      })
-      setInventory(payload.inventory)
-      setPickerMode(null)
-      setPickerSearch("")
-      toast.success("Item adicionado com sucesso.")
-    } catch (cause) {
-      const message =
-        cause instanceof Error
-          ? cause.message
-          : "Nao foi possivel adicionar o item."
-      setInventoryError(message)
-      toast.error(message)
-    } finally {
-      setPickerSaving(false)
-    }
-  }
-
-  async function handleRemoveInventoryItem(
-    inventoryItemId: string,
-    quantity = 1,
-  ) {
-    if (!createdCharacterId) {
-      return
-    }
-
-    try {
-      setInventoryError("")
-      const payload = await removeNpcMonsterInventoryItemUseCase(loadoutDeps, {
-        rpgId,
-        characterId: createdCharacterId,
-        inventoryItemId,
-        quantity,
-      })
-      setInventory((current) => {
-        if (payload.remainingQuantity <= 0) {
-          return current.filter((item) => item.id !== inventoryItemId)
-        }
-
-        return current.map((item) =>
-          item.id === inventoryItemId
-            ? { ...item, quantity: payload.remainingQuantity }
-            : item,
-        )
-      })
-      toast.success("Item removido com sucesso.")
-    } catch (cause) {
-      const message =
-        cause instanceof Error
-          ? cause.message
-          : "Nao foi possivel remover o item."
-      setInventoryError(message)
-      toast.error(message)
-    }
-  }
-
-  async function handleAddAbility(skillId: string) {
-    if (!createdCharacterId || pickerSaving) {
-      return
-    }
-
-    try {
-      setPickerSaving(true)
-      setAbilitiesError("")
-      const payload = await addNpcMonsterAbilityUseCase(loadoutDeps, {
-        rpgId,
-        characterId: createdCharacterId,
-        skillId,
-        level: 1,
-      })
-      if (payload.ability) {
-        setAbilities((current) => [
-          ...current.filter((item) => item.skillId !== skillId),
-          payload.ability!,
-        ])
-      } else {
-        const refreshed = await loadNpcMonsterAbilitiesUseCase(loadoutDeps, {
-          rpgId,
-          characterId: createdCharacterId,
-        })
-        setAbilities(refreshed.abilities)
-      }
-      setPickerMode(null)
-      setPickerSearch("")
-      toast.success("Habilidade adicionada com sucesso.")
-    } catch (cause) {
-      const message =
-        cause instanceof Error
-          ? cause.message
-          : "Nao foi possivel adicionar a habilidade."
-      setAbilitiesError(message)
-      toast.error(message)
-    } finally {
-      setPickerSaving(false)
-    }
-  }
-
-  async function handleRemoveAbility(skillId: string, level: number) {
-    if (!createdCharacterId) {
-      return
-    }
-
-    const abilityKey = `${skillId}:${level}`
-
-    try {
-      setRemovingAbilityKey(abilityKey)
-      setAbilitiesError("")
-      const payload = await removeNpcMonsterAbilityUseCase(loadoutDeps, {
-        rpgId,
-        characterId: createdCharacterId,
-        skillId,
-        level,
-      })
-      if (!payload.success) {
-        throw new Error("Nao foi possivel remover a habilidade.")
-      }
-
-      setAbilities((current) =>
-        current.filter(
-          (item) => !(item.skillId === skillId && item.levelNumber === level),
-        ),
-      )
-      toast.success("Habilidade removida com sucesso.")
-    } catch (cause) {
-      const message =
-        cause instanceof Error
-          ? cause.message
-          : "Nao foi possivel remover a habilidade."
-      setAbilitiesError(message)
-      toast.error(message)
-    } finally {
-      setRemovingAbilityKey(null)
-    }
-  }
-
   async function handleDeleteCharacter() {
     if (!createdCharacterId || deleting || saving) {
       return
@@ -1002,12 +649,9 @@ export default function NpcMonsterCharacterModal({
             inventoryError={inventoryError}
             itemsLoading={itemsLoading}
             canManage={Boolean(createdCharacterId)}
-            onOpenPicker={() => {
-              setPickerSearch("")
-              setPickerMode("inventory")
-            }}
+            onOpenPicker={() => openPicker("inventory")}
             onRemoveItem={(inventoryItemId, quantity) =>
-              void handleRemoveInventoryItem(inventoryItemId, quantity)
+              void removeInventoryItem(inventoryItemId, quantity)
             }
           />
         ) : null}
@@ -1032,15 +676,12 @@ export default function NpcMonsterCharacterModal({
             abilitiesError={abilitiesError}
             skillsLoading={skillsLoading}
             removingAbilityKey={removingAbilityKey}
-            onOpenPicker={() => {
-              setPickerSearch("")
-              setPickerMode("abilities")
-            }}
+            onOpenPicker={() => openPicker("abilities")}
             onRemoveAbility={(skillId, level) => {
               if (removingAbilityKey === `${skillId}:${level}`) {
                 return
               }
-              void handleRemoveAbility(skillId, level)
+              void removeAbility(skillId, level)
             }}
             onClose={handleClose}
           />
@@ -1091,8 +732,8 @@ export default function NpcMonsterCharacterModal({
         availableSkills={filteredAvailableSkills}
         onClose={() => setPickerMode(null)}
         onSearchChange={setPickerSearch}
-        onAddItem={(itemId) => void handleAddInventoryItem(itemId)}
-        onAddSkill={(skillId) => void handleAddAbility(skillId)}
+        onAddItem={(itemId) => void addInventoryItem(itemId)}
+        onAddSkill={(skillId) => void addAbility(skillId)}
       />
 
       <NpcMonsterExtraFieldModal

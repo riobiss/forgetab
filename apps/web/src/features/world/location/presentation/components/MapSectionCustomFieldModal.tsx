@@ -1,7 +1,7 @@
 "use client"
 
 import type { RefObject } from "react"
-import { TypedCustomFieldEditor } from "@/components/custom-fields/TypedCustomFieldEditor"
+import { TypedCustomFieldEditor } from "@/features/world/location/presentation/components/custom-fields/TypedCustomFieldEditor"
 import type { CustomFieldDraftState } from "@/features/world/location/presentation/hooks/useRpgMapSectionModalState"
 import styles from "../RpgMapPage.module.css"
 

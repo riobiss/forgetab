@@ -1,19 +1,31 @@
 import type {
-  AuthClientGateway,
+  AuthClientDependencies,
   LoginPayload,
   RegisterPayload,
 } from "@/features/auth/application/contracts/AuthClientGateway"
 
 export async function loginClientUseCase(
-  deps: { gateway: AuthClientGateway },
+  deps: AuthClientDependencies,
   payload: LoginPayload,
 ) {
-  return deps.gateway.login(payload)
+  const result = await deps.gateway.login(payload)
+  deps.session.persist(result.token, result.maxAge)
+  return result
 }
 
 export async function registerClientUseCase(
-  deps: { gateway: AuthClientGateway },
+  deps: AuthClientDependencies,
   payload: RegisterPayload,
 ) {
-  return deps.gateway.register(payload)
+  const result = await deps.gateway.register(payload)
+  deps.session.persist(result.token, result.maxAge)
+  return result
+}
+
+export async function logoutClientUseCase(deps: AuthClientDependencies) {
+  try {
+    await deps.gateway.logout()
+  } finally {
+    deps.session.clear()
+  }
 }

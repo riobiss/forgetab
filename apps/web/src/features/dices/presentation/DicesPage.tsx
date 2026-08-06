@@ -19,20 +19,12 @@ import {
   type RollHistoryItem,
 } from "@/features/dices/application/types"
 import { rollDicesUseCase } from "@/features/dices/application/use-cases/rollDices"
-import { dicesRepository } from "@/features/dices/infrastructure/dicesRepository"
+import { dicesPageDependencies } from "@/features/dices/presentation/dependencies"
 import { DiceControls } from "@/features/dices/presentation/components/DiceControls"
 import { DiceHistoryPanel } from "@/features/dices/presentation/components/DiceHistoryPanel"
 import { DicesPageHeader } from "@/features/dices/presentation/components/DicesPageHeader"
 import { RollResultStream } from "@/features/dices/presentation/components/RollResultStream"
 import styles from "./DicesPage.module.css"
-
-function createHistoryId() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID()
-  }
-
-  return `roll-${Date.now()}`
-}
 
 function formatTime(date: Date) {
   return date.toLocaleTimeString("pt-BR", {
@@ -235,9 +227,7 @@ export function DicesPage() {
     try {
       const roll = await rollDicesUseCase(
         {
-          dicesRepository,
-          createHistoryId,
-          now: () => new Date(),
+          ...dicesPageDependencies,
         },
         { diceCount, diceSides, modifier },
       )

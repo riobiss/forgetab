@@ -1,6 +1,6 @@
 "use client"
 
-import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
+import NumericTemplateGrid from "@/features/world/presentation/components/NumericTemplateGrid"
 import styles from "../../CharactersDashboardPage.module.css"
 import type { CharacterEditorBootstrapDto } from "@forgetab/world-contracts/character-editor"
 import type { NumericInputValue } from "./types"

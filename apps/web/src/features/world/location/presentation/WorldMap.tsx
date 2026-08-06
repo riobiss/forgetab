@@ -11,15 +11,14 @@ import { MarkerFinalizeModal } from "@/features/world/location/presentation/comp
 import { MarkerGroupModal } from "@/features/world/location/presentation/components/MarkerGroupModal"
 import { MarkerEditModal } from "@/features/world/location/presentation/components/MarkerEditModal"
 import { OverlappingMarkersModal } from "@/features/world/location/presentation/components/OverlappingMarkersModal"
-import {
-  WorldMapCanvas,
-  type WorldMapCanvasHandle,
-} from "@/features/world/location/presentation/components/WorldMapCanvas"
+import { WorldMapEditControls } from "@/features/world/location/presentation/components/WorldMapEditControls"
+import { WorldMapCanvas } from "@/features/world/location/presentation/components/WorldMapCanvas"
+import type { WorldMapCanvasHandle } from "@/features/world/location/presentation/types/worldMapCanvas"
 import { useMarkerImageActions } from "@/features/world/location/presentation/hooks/useMarkerImageActions"
 import { useRpgMapImageActions } from "@/features/world/location/presentation/hooks/useRpgMapImageActions"
 import { useMapMarkerGroups } from "@/features/world/location/presentation/hooks/useMapMarkerGroups"
 import { useWorldMapMarkerModalFlow } from "@/features/world/location/presentation/hooks/useWorldMapMarkerModalFlow"
-import { useModalFocusTrap } from "@/features/world/location/presentation/hooks/useModalFocusTrap"
+import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap"
 import { useWorldMapMarkerSelection } from "@/features/world/location/presentation/hooks/useWorldMapMarkerSelection"
 import {
   DEFAULT_BRUSH_COLORS,
@@ -337,6 +336,7 @@ export function MundiMap({
                 : null
 
   useModalFocusTrap({
+    isActive: activeModalElement !== null,
     activeElement: activeModalElement,
     onEscape: () => {
       handleEscape({
@@ -435,82 +435,25 @@ export function MundiMap({
           </div>
         ) : null}
 
-        {canEditContent || canManageImage ? (
-          <div className={styles.ownerActions}>
-            {isFullscreen && canEditContent ? (
-              <button
-                type="button"
-                onClick={() => setIsEditOpen((prev) => !prev)}
-                className={styles.editButton}
-                aria-expanded={isEditOpen}
-                aria-label="Editar mapa"
-              >
-                Editar
-              </button>
-            ) : canManageImage ? (
-              <button
-                type="button"
-                onClick={() => setIsImageModalOpen(true)}
-                className={styles.editButton}
-                aria-haspopup="dialog"
-                aria-expanded={isImageModalOpen}
-                aria-label="Editar imagem do mapa"
-              >
-                Editar imagem
-              </button>
-            ) : null}
-            {isFullscreen && isEditOpen ? (
-              <div className={styles.editPanel}>
-                {canEditContent ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={toggleBrushMode}
-                      className={`${styles.actionButton} ${styles.brushToggle} ${
-                        isBrushMode ? styles.brushToggleActive : ""
-                      }`}
-                      aria-label={
-                        isBrushMode
-                          ? "Desativar modo pincel"
-                          : "Ativar modo pincel"
-                      }
-                      disabled={!isInteractive}
-                    >
-                      <Image
-                        src="/icons/drawIcon.svg"
-                        alt="Pincel"
-                        width={16}
-                        height={16}
-                      />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={clearLastDrawing}
-                      className={`${styles.actionButton} ${styles.iconActionButton}`}
-                      aria-label="Limpar desenho anterior"
-                      title="Limpar desenho anterior"
-                    >
-                      <Image
-                        src="/icons/drawBack.svg"
-                        alt="Limpar desenho anterior"
-                        width={16}
-                        height={16}
-                        className={styles.whiteIcon}
-                      />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={resetView}
-                      className={styles.actionButton}
-                    >
-                      Centralizar
-                    </button>
-                  </>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
+        <WorldMapEditControls
+          canEditContent={canEditContent}
+          canManageImage={canManageImage}
+          isFullscreen={isFullscreen}
+          isEditOpen={isEditOpen}
+          isImageModalOpen={isImageModalOpen}
+          isBrushMode={isBrushMode}
+          isInteractive={isInteractive}
+          brushColor={brushColor}
+          brushSize={brushSize}
+          brushColors={DEFAULT_BRUSH_COLORS}
+          onToggleEdit={() => setIsEditOpen((current) => !current)}
+          onOpenImageModal={() => setIsImageModalOpen(true)}
+          onToggleBrushMode={toggleBrushMode}
+          onClearLastDrawing={clearLastDrawing}
+          onResetView={resetView}
+          onChangeBrushSize={setBrushSize}
+          onChangeBrushColor={setBrushColor}
+        />
 
         {isMarkerSelectionMode ? (
           <MapInteractionBanner
@@ -556,43 +499,6 @@ export function MundiMap({
               },
             ]}
           />
-        ) : null}
-
-        {isFullscreen && isEditOpen && isBrushMode ? (
-          <div className={styles.topControls}>
-            <label className={styles.brushSizeControl}>
-              Linha
-              <input
-                type="range"
-                min={1}
-                max={20}
-                value={brushSize}
-                onChange={(event) =>
-                  setBrushSize(Number(event.currentTarget.value))
-                }
-              />
-              <span>{brushSize}px</span>
-            </label>
-            <div
-              className={styles.colorPicker}
-              role="group"
-              aria-label="Cores do pincel"
-            >
-              {DEFAULT_BRUSH_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setBrushColor(color)}
-                  className={`${styles.colorOption} ${
-                    brushColor === color ? styles.colorOptionActive : ""
-                  }`}
-                  style={{ backgroundColor: color }}
-                  aria-label={`Cor ${color}`}
-                  title={`Cor ${color}`}
-                />
-              ))}
-            </div>
-          </div>
         ) : null}
 
         <WorldMapCanvas

@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
   useModalFocusTrap: vi.fn(),
 }))
 
-vi.mock("@/features/world/location/presentation/hooks/useModalFocusTrap", () => ({
+vi.mock("@/shared/presentation/hooks/useModalFocusTrap", () => ({
   useModalFocusTrap: mocks.useModalFocusTrap,
 }))
 
@@ -40,6 +40,7 @@ describe("useRpgMapPageModalFocus", () => {
     expect(mocks.useModalFocusTrap).toHaveBeenCalledWith({
       activeElement: sectionConflictModalElement,
       backgroundElement,
+      isActive: true,
       onEscape,
     })
   })
@@ -69,6 +70,7 @@ describe("useRpgMapPageModalFocus", () => {
     expect(mocks.useModalFocusTrap).toHaveBeenCalledWith({
       activeElement: sectionDetailsModalElement,
       backgroundElement,
+      isActive: true,
       onEscape,
     })
   })

@@ -1,21 +1,15 @@
 import styles from "./AdvancedIdentityEditor.module.css"
-import type { CatalogRichTextField, EntityCatalogMeta } from "@/features/world/catalog/domain/types"
+import type {
+  CatalogRichTextField,
+  EntityCatalogMeta,
+} from "@/features/world/catalog/domain/types"
 import { createDefaultRaceLore, type RaceLore } from "@/lib/rpg/raceLore"
+import type { IdentityTemplateDraft } from "@/features/world/presentation/editor/edit/advanced/types"
 import type { AttributeTemplate } from "./shared/types"
-import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
+import NumericTemplateGrid from "@/features/world/presentation/components/NumericTemplateGrid"
 import RichTextField from "./shared/RichTextField"
 
 type IdentityType = "race" | "class"
-
-export type IdentityTemplateDraft = {
-  key: string
-  label: string
-  category?: string
-  attributeBonuses: Record<string, number>
-  skillBonuses: Record<string, number>
-  lore?: RaceLore
-  catalogMeta: EntityCatalogMeta
-}
 
 type SkillTemplate = {
   key: string

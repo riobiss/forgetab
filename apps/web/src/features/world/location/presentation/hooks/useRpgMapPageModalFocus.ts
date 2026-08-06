@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
-import { useModalFocusTrap } from "@/features/world/location/presentation/hooks/useModalFocusTrap"
+import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap"
 
 type Params = {
   backgroundElement: HTMLElement | null
@@ -55,6 +55,7 @@ export function useRpgMapPageModalFocus(params: Params) {
   ])
 
   useModalFocusTrap({
+    isActive: activeElement !== null,
     activeElement,
     backgroundElement: params.backgroundElement,
     onEscape: params.onEscape,

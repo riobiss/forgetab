@@ -8,7 +8,7 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from "react"
-import type { WorldMapCanvasHandle } from "@/features/world/location/presentation/components/WorldMapCanvas"
+import type { WorldMapCanvasHandle } from "@/features/world/location/presentation/types/worldMapCanvas"
 import type {
   MapMarkerItem,
   MarkerGroup,

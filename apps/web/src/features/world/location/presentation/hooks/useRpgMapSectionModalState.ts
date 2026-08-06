@@ -4,7 +4,7 @@ import { useState } from "react"
 import {
   normalizeCustomFieldType,
   type CustomFieldType,
-} from "@/components/custom-fields/typedCustomField"
+} from "@/features/world/location/presentation/types/typedCustomField"
 import type { RpgMapSectionDto } from "@forgetab/world-contracts/location"
 import type { SectionSavePayload } from "@/features/world/location/application/services/sectionMarkerReconciliation"
 import {

@@ -9,7 +9,6 @@ import {
   updateRpgProfileClientUseCase,
   uploadRpgProfileImageClientUseCase,
 } from "@/features/profile/application/use-cases/updateProfileClient"
-import { createRoundCroppedFile } from "@/features/profile/infrastructure/images/createRoundCroppedFile"
 import { profileDependencies } from "@/features/profile/presentation/dependencies"
 import styles from "./ProfilePage.module.css"
 
@@ -103,7 +102,10 @@ export default function ProfileRpgImageField({
     setError("")
 
     try {
-      const file = await createRoundCroppedFile(sourceImage, croppedAreaPixels)
+      const file = await profileDependencies.createRoundCroppedFile(
+        sourceImage,
+        croppedAreaPixels,
+      )
       const upload = await uploadRpgProfileImageClientUseCase(profileDependencies, {
         file,
         oldUrl: imageUrl,

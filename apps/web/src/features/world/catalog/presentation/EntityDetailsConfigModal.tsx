@@ -5,7 +5,7 @@ import type {
   RefObject,
   SetStateAction,
 } from "react"
-import NumericTemplateGrid from "@/components/rpg/NumericTemplateGrid"
+import NumericTemplateGrid from "@/features/world/presentation/components/NumericTemplateGrid"
 import type { EntityCatalogTemplateOption } from "@/features/world/catalog/application/types"
 import styles from "./EntityDetailsPage.module.css"
 

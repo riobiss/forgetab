@@ -43,4 +43,14 @@ export const httpAuthClientGateway: AuthClientGateway = {
 
     return parseResponse(response)
   },
+  async logout() {
+    const response = await apiFetch("/api/auth/logout", {
+      method: "POST",
+      cache: "no-store",
+    })
+
+    if (!response.ok) {
+      throw new Error("Nao foi possivel encerrar a sessao.")
+    }
+  },
 }

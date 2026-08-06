@@ -3,7 +3,7 @@
 import {
   normalizeCustomFieldType,
   type CustomFieldType,
-} from "@/components/custom-fields/typedCustomField"
+} from "@/features/world/location/presentation/types/typedCustomField"
 import type {
   JsonMapValue,
   RpgMapDetailViewDto,

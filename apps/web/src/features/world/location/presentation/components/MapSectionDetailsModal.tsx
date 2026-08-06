@@ -3,7 +3,7 @@
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
-import type { CustomFieldType } from "@/components/custom-fields/typedCustomField"
+import type { CustomFieldType } from "@/features/world/location/presentation/types/typedCustomField"
 import { ChevronLeft, ChevronRight, Pencil, X } from "lucide-react"
 import type { RefObject } from "react"
 import type {

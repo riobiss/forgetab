@@ -4,11 +4,11 @@ import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
 import { Menu, User, X } from "lucide-react"
-import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-import { clearClientAuthSession } from "@/features/auth/infrastructure/session/clientAuthSession"
+import { logoutClientUseCase } from "@/features/auth/application/use-cases/authClient"
+import { authClientDependencies } from "@/features/auth/presentation/dependencies"
 import styles from "./Header.module.css"
 
-const HIDDEN_ROUTES = new Set(["/login", "/register", "/register"])
+const HIDDEN_ROUTES = new Set(["/login", "/register"])
 
 export default function Header() {
   const pathname = usePathname()
@@ -53,18 +53,8 @@ export default function Header() {
     if (loggingOut) return
     setLoggingOut(true)
     try {
-      await Promise.allSettled([
-        apiFetch("/api/auth/logout", {
-          method: "POST",
-          cache: "no-store",
-        }),
-        fetch("/api/auth/logout", {
-          method: "POST",
-          cache: "no-store",
-        }),
-      ])
+      await logoutClientUseCase(authClientDependencies)
     } finally {
-      clearClientAuthSession()
       setOpenUserMenu(false)
       window.location.replace("/login")
       setLoggingOut(false)

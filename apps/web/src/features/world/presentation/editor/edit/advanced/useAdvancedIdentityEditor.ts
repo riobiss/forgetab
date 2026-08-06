@@ -15,9 +15,8 @@ import {
   saveRpgRacesUseCase,
 } from "@/features/world/application/editor/use-cases/rpgEditor"
 import type { AttributeTemplate } from "@/features/world/presentation/editor/edit/components/shared/types"
-import type { IdentityTemplateDraft } from "@/features/world/presentation/editor/edit/components/AdvancedIdentityEditor"
 import { createRpgEditorDependencies } from "@/features/world/presentation/editor/dependencies"
-import type { AdvancedIdentityType } from "./types"
+import type { AdvancedIdentityType, IdentityTemplateDraft } from "./types"
 
 type IdentityTemplate = {
   key: string

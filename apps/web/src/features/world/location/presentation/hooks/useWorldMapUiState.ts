@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, type MutableRefObject } from "react"
-import type { WorldMapCanvasHandle } from "@/features/world/location/presentation/components/WorldMapCanvas"
+import type { WorldMapCanvasHandle } from "@/features/world/location/presentation/types/worldMapCanvas"
 
 type Params = {
   frameRef: MutableRefObject<HTMLDivElement | null>
