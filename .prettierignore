@@ -1,0 +1,11 @@
+.next/
+**/.next/
+coverage/
+out/
+build/
+generated/
+api/generated/
+node_modules/
+**/node_modules/
+package-lock.json
+*.tsbuildinfo
