@@ -2,13 +2,10 @@
 
 import { useId, useMemo } from "react"
 import * as Select from "@radix-ui/react-select"
+import type { ReactSelectOption } from "./types"
 import styles from "./ReactSelectField.module.css"
 
-export type ReactSelectOption = {
-  value: string
-  label: string
-  isDisabled?: boolean
-}
+export type { ReactSelectOption } from "./types"
 
 type ReactSelectFieldProps = {
   label?: string
@@ -20,8 +17,6 @@ type ReactSelectFieldProps = {
   placeholder?: string
   required?: boolean
   isDisabled?: boolean
-  isSearchable?: boolean
-  isClearable?: boolean
   classNames?: {
     container?: () => string
     wrapper?: () => string

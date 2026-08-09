@@ -3,10 +3,15 @@ import styles from "./index.module.css"
 
 export function Button({
   children,
+  className,
   ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement>) {
+  const rootClassName = [styles.confirmButton, className]
+    .filter(Boolean)
+    .join(" ")
+
   return (
-    <button className={styles.confirmButton} {...rest}>
+    <button className={rootClassName} {...rest}>
       {children}
     </button>
   )

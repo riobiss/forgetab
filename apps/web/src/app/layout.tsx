@@ -2,10 +2,10 @@ import type { Metadata } from "next"
 import "./globals.css"
 import "@/styles/_variables.scss"
 import "@/styles/_keyframe-animations.scss"
-import Header from "@/components/header/Header"
-import PerformanceMeasureGuard from "@/components/dev/PerformanceMeasureGuard"
-import ScrollToTop from "@/components/ScrollToTop"
-import ToastProvider from "@/components/providers/ToastProvider"
+import AuthHeader from "@/features/auth/presentation/AuthHeader"
+import PerformanceMeasureGuard from "@/shared/infrastructure/performance/PerformanceMeasureGuard"
+import ScrollToTop from "@/shared/presentation/navigation/ScrollToTop"
+import ToastProvider from "@/shared/presentation/providers/ToastProvider"
 
 export const metadata: Metadata = {
   title: "ForgeTab",
@@ -38,7 +38,7 @@ export default function RootLayout({
         <PerformanceMeasureGuard />
         <ScrollToTop />
         <ToastProvider />
-        <Header />
+        <AuthHeader />
         {children}
       </body>
     </html>

@@ -51,6 +51,28 @@ const eslintConfig = defineConfig([
       "react-hooks/immutability": "off"
     }
   },
+  {
+    files: ["apps/web/src/components/**/*.{js,jsx,ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "@/app/**",
+                "@/features/**",
+                "@forgetab/world-contracts",
+                "@forgetab/world-contracts/**"
+              ],
+              message:
+                "Componentes compartilhados devem receber dependencias e regras de dominio por props; a composicao pertence ao app ou a feature."
+            }
+          ]
+        }
+      ]
+    }
+  },
   globalIgnores([
     ".next/**",
     "**/.next/**",

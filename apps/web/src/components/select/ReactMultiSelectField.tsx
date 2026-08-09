@@ -1,7 +1,7 @@
 "use client"
 
 import Select from "react-select"
-import type { ReactSelectOption } from "./ReactSelectField"
+import type { ReactSelectOption } from "./types"
 
 type ReactMultiSelectFieldProps = {
   options: ReactSelectOption[]
@@ -27,7 +27,7 @@ export function ReactMultiSelectField({
       placeholder={placeholder}
       closeMenuOnSelect={false}
       hideSelectedOptions={false}
-      onChange={(next) => onChange(next as ReactSelectOption[])}
+      onChange={(next) => onChange([...next])}
       styles={{
         control: (base, state) => ({
           ...base,

@@ -2,14 +2,14 @@
 
 import {
   Children,
-  type ChangeEvent,
   type ReactElement,
   type ReactNode,
   isValidElement,
   useMemo,
   useState
 } from "react"
-import { ReactSelectField, type ReactSelectOption } from "./ReactSelectField"
+import { ReactSelectField } from "./ReactSelectField"
+import type { ReactSelectOption } from "./types"
 
 type NativeSelectFieldProps = {
   id?: string
@@ -19,7 +19,7 @@ type NativeSelectFieldProps = {
   defaultValue?: string
   required?: boolean
   disabled?: boolean
-  onChange?: (event: ChangeEvent<HTMLSelectElement>) => void
+  onValueChange?: (value: string) => void
   children: ReactNode
 }
 
@@ -59,7 +59,7 @@ export function NativeSelectField({
   defaultValue,
   required,
   disabled,
-  onChange,
+  onValueChange,
   children
 }: NativeSelectFieldProps) {
   const options = useMemo(() => parseOptions(children), [children])
@@ -82,15 +82,9 @@ export function NativeSelectField({
             setInternalValue(nextValue)
           }
 
-          if (onChange) {
-            onChange({
-              target: { value: nextValue }
-            } as ChangeEvent<HTMLSelectElement>)
-          }
+          onValueChange?.(nextValue)
         }}
         isDisabled={disabled}
-        isSearchable={false}
-        isClearable={false}
         required={required}
       />
       {name ? <input type="hidden" name={name} value={selectedValue} /> : null}

@@ -2,37 +2,33 @@
 
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
-import { usePathname } from "next/navigation"
 import { Menu, User, X } from "lucide-react"
-import { logoutClientUseCase } from "@/features/auth/application/use-cases/authClient"
-import { authClientDependencies } from "@/features/auth/presentation/dependencies"
 import styles from "./Header.module.css"
 
-const HIDDEN_ROUTES = new Set(["/login", "/register"])
+export type HeaderLink = {
+  href: string
+  label: string
+}
 
-export default function Header() {
-  const pathname = usePathname()
-  const pathSegments = pathname.split("/").filter(Boolean)
-  const rpgSegmentIndex = pathSegments.indexOf("rpg")
-  const routeRpgId =
-    rpgSegmentIndex >= 0 &&
-    pathSegments[rpgSegmentIndex + 1] &&
-    pathSegments[rpgSegmentIndex + 1] !== "novo"
-      ? pathSegments[rpgSegmentIndex + 1]
-      : null
+type HeaderProps = {
+  navLinks: HeaderLink[]
+  campaignLink?: HeaderLink
+  profileHref: string
+  loginHref: string
+  onLogout: () => Promise<void>
+}
+
+export default function Header({
+  navLinks,
+  campaignLink,
+  profileHref,
+  loginHref,
+  onLogout
+}: HeaderProps) {
   const [openUserMenu, setOpenUserMenu] = useState(false)
   const [openNav, setOpenNav] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
   const menuRef = useRef<HTMLLIElement | null>(null)
-  const navLinks = [
-    { href: "/", label: "Início" },
-    { href: "/rpg", label: "Campanhas" },
-    { href: "/dices", label: "Dados" },
-    ...(routeRpgId
-      ? [{ href: `/rpg/${routeRpgId}/skills`, label: "Habilidades" }]
-      : []),
-    { href: "/docs", label: "Guias" }
-  ]
 
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
@@ -53,10 +49,9 @@ export default function Header() {
     if (loggingOut) return
     setLoggingOut(true)
     try {
-      await logoutClientUseCase(authClientDependencies)
+      await onLogout()
     } finally {
       setOpenUserMenu(false)
-      window.location.replace("/login")
       setLoggingOut(false)
     }
   }
@@ -64,10 +59,6 @@ export default function Header() {
   function closeMenus() {
     setOpenUserMenu(false)
     setOpenNav(false)
-  }
-
-  if (HIDDEN_ROUTES.has(pathname)) {
-    return null
   }
 
   return (
@@ -99,10 +90,10 @@ export default function Header() {
 
             {openUserMenu ? (
               <div className={styles.dropdown}>
-                <Link href="/profile" onClick={closeMenus}>
+                <Link href={profileHref} onClick={closeMenus}>
                   Perfil
                 </Link>
-                <Link href="/login" onClick={closeMenus}>
+                <Link href={loginHref} onClick={closeMenus}>
                   Login
                 </Link>
                 <button
@@ -118,13 +109,13 @@ export default function Header() {
         </ul>
       </nav>
       <div className={styles.quickActions}>
-        {routeRpgId ? (
+        {campaignLink ? (
           <Link
-            href={`/rpg/${routeRpgId}`}
+            href={campaignLink.href}
             className={styles.campaignButton}
             onClick={closeMenus}
           >
-            Campanha
+            {campaignLink.label}
           </Link>
         ) : null}
         <button
