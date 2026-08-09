@@ -9,9 +9,9 @@ import {
 } from "@/features/world/location/application/use-cases/rpgMapImages.client"
 import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import { dismissToast } from "@/lib/toast"
+import { MAX_IMAGE_FILE_SIZE_BYTES } from "@forgetab/world-contracts/media"
 
 const DEFAULT_MAP_SRC = "/map/world-map.png"
-const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024
 
 export function useRpgMapImageActions(params: {
   rpgId: string
@@ -35,7 +35,7 @@ export function useRpgMapImageActions(params: {
       return
     }
 
-    if (file.size > MAX_FILE_SIZE_BYTES) {
+    if (file.size > MAX_IMAGE_FILE_SIZE_BYTES) {
       setUploadMessage("Imagem muito grande. Limite de 8MB.")
       return
     }

@@ -5,7 +5,7 @@ import { SkillCustomFieldModal } from "./SkillCustomFieldModal"
 import { SkillFormSteps, SkillStepNavigation } from "./SkillFormSteps"
 import type { LevelForm, MetaForm, TemplateOption } from "./types"
 import type { SkillCategory } from "@/types/skillBuilder"
-import type { ReactSelectOption } from "@/components/select/ReactSelectField"
+import type { ReactSelectOption } from "@/components/select/types"
 
 type SkillCreateModalProps = {
   open: boolean

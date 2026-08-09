@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from "react"
 import type { SkillCategory } from "@/types/skillBuilder"
-import type { ReactSelectOption } from "@/components/select/ReactSelectField"
+import type { ReactSelectOption } from "@/components/select/types"
 import { SkillBasicStepFields } from "./SkillBasicStepFields"
 import { SkillRequirementsStepFields } from "./SkillRequirementsStepFields"
 import styles from "./SkillsDashboardClient.module.css"

@@ -342,9 +342,7 @@ export function ItemUpsertModal({
                   <span>Tipo</span>
                   <NativeSelectField
                     value={type}
-                    onChange={(event) =>
-                      setType(event.target.value as ItemTypeDto)
-                    }
+                    onValueChange={(value) => setType(value as ItemTypeDto)}
                   >
                     {baseItemTypeValues.map((option) => (
                       <option key={option} value={option}>
@@ -358,9 +356,7 @@ export function ItemUpsertModal({
                   <span>Raridade</span>
                   <NativeSelectField
                     value={rarity}
-                    onChange={(event) =>
-                      setRarity(event.target.value as ItemRarityDto)
-                    }
+                    onValueChange={(value) => setRarity(value as ItemRarityDto)}
                   >
                     {baseItemRarityValues.map((option) => (
                       <option key={option} value={option}>

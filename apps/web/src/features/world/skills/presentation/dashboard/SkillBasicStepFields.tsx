@@ -68,10 +68,10 @@ export function SkillBasicStepFields({
           <span>Categoria</span>
           <NativeSelectField
             value={metaForm.category}
-            onChange={(event) =>
+            onValueChange={(value) =>
               setMetaForm((prev) => ({
                 ...prev,
-                category: event.target.value as SkillCategory | ""
+                category: value as SkillCategory | ""
               }))
             }
           >
@@ -88,10 +88,10 @@ export function SkillBasicStepFields({
         <span>Tipo</span>
         <NativeSelectField
           value={metaForm.type}
-          onChange={(event) =>
+          onValueChange={(value) =>
             setMetaForm((prev) => ({
               ...prev,
-              type: event.target.value as SkillType | ""
+              type: value as SkillType | ""
             }))
           }
         >
@@ -107,10 +107,10 @@ export function SkillBasicStepFields({
         <span>Ação</span>
         <NativeSelectField
           value={metaForm.actionType}
-          onChange={(event) =>
+          onValueChange={(value) =>
             setMetaForm((prev) => ({
               ...prev,
-              actionType: event.target.value as ActionType | ""
+              actionType: value as ActionType | ""
             }))
           }
         >

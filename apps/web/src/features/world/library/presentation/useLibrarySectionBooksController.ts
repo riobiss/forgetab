@@ -9,7 +9,7 @@ import {
 } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
-import type { ReactSelectOption } from "@/components/select/ReactSelectField"
+import type { ReactSelectOption } from "@/components/select/types"
 import type { LibraryDependencies } from "@/features/world/library/application/contracts/LibraryDependencies"
 import {
   createLibraryBookUseCase,

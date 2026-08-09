@@ -1,6 +1,7 @@
 "use client"
 
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor"
+import { MAX_IMAGE_FILE_SIZE_BYTES } from "@forgetab/world-contracts/media"
 import styles from "./LibraryBookEditorClient.module.css"
 import type { LibraryBookDraft } from "./libraryBookEditor.types"
 
@@ -13,6 +14,7 @@ type Props = {
   embedded?: boolean
   onContentChange: (content: LibraryBookDraft["content"]) => void
   onSave: () => void
+  onImageUpload: (file: File) => Promise<string>
 }
 
 export default function LibraryBookEditorCanvas({
@@ -23,7 +25,8 @@ export default function LibraryBookEditorCanvas({
   saving,
   embedded = false,
   onContentChange,
-  onSave
+  onSave,
+  onImageUpload
 }: Props) {
   return (
     <section
@@ -38,6 +41,11 @@ export default function LibraryBookEditorCanvas({
         onSave={onSave}
         canSave={canEdit && contentEditing}
         isSaving={saving}
+        imageUpload={{
+          upload: (file) => onImageUpload(file),
+          maxFileSizeBytes: MAX_IMAGE_FILE_SIZE_BYTES,
+          maxFiles: 3
+        }}
       />
     </section>
   )

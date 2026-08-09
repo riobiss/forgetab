@@ -29,7 +29,10 @@ import {
 } from "@/components/tiptap-ui-primitive/toolbar"
 
 // --- Tiptap Node ---
-import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node/image-upload-node-extension"
+import {
+  ImageUploadNode,
+  type UploadFunction
+} from "@/components/tiptap-node/image-upload-node/image-upload-node-extension"
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension"
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss"
 import "@/components/tiptap-node/code-block-node/code-block-node.scss"
@@ -70,13 +73,8 @@ import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
 import { useWindowSize } from "@/hooks/use-window-size"
 import { useCursorVisibility } from "@/hooks/use-cursor-visibility"
 
-// --- Lib ---
-import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils"
-
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss"
-
-import content from "@/components/tiptap-templates/simple/data/content.json"
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -84,7 +82,8 @@ const MainToolbarContent = ({
   isMobile,
   onSave,
   canSave,
-  isSaving
+  isSaving,
+  canUploadImage
 }: {
   onHighlighterClick: () => void
   onLinkClick: () => void
@@ -92,6 +91,7 @@ const MainToolbarContent = ({
   onSave?: () => void
   canSave?: boolean
   isSaving?: boolean
+  canUploadImage: boolean
 }) => {
   return (
     <>
@@ -164,9 +164,11 @@ const MainToolbarContent = ({
 
       <ToolbarSeparator />
 
-      <ToolbarGroup>
-        <ImageUploadButton text="Add" />
-      </ToolbarGroup>
+      {canUploadImage ? (
+        <ToolbarGroup>
+          <ImageUploadButton text="Add" />
+        </ToolbarGroup>
+      ) : null}
 
       <Spacer />
     </>
@@ -202,6 +204,14 @@ const MobileToolbarContent = ({
   </>
 )
 
+export type SimpleEditorImageUpload = {
+  upload: UploadFunction
+  maxFileSizeBytes: number
+  maxFiles?: number
+  onSuccess?: (url: string) => void
+  onError?: (error: Error) => void
+}
+
 type SimpleEditorProps = {
   initialContent?: JSONContent
   onJsonChange?: (json: JSONContent) => void
@@ -210,6 +220,7 @@ type SimpleEditorProps = {
   canSave?: boolean
   isSaving?: boolean
   className?: string
+  imageUpload?: SimpleEditorImageUpload
 }
 
 export function SimpleEditor({
@@ -219,7 +230,8 @@ export function SimpleEditor({
   onSave,
   canSave = false,
   isSaving = false,
-  className = ""
+  className = "",
+  imageUpload
 }: SimpleEditorProps) {
   const isMobile = useIsBreakpoint()
   const { height, offsetTop } = useWindowSize()
@@ -259,15 +271,20 @@ export function SimpleEditor({
       Superscript,
       Subscript,
       Selection,
-      ImageUploadNode.configure({
-        accept: "image/*",
-        maxSize: MAX_FILE_SIZE,
-        limit: 3,
-        upload: handleImageUpload,
-        onError: (error) => console.error("Upload failed:", error)
-      })
+      ...(imageUpload
+        ? [
+            ImageUploadNode.configure({
+              accept: "image/*",
+              maxSize: imageUpload.maxFileSizeBytes,
+              limit: imageUpload.maxFiles ?? 3,
+              upload: imageUpload.upload,
+              onSuccess: imageUpload.onSuccess,
+              onError: imageUpload.onError
+            })
+          ]
+        : [])
     ],
-    content: initialContent ?? content,
+    content: initialContent,
     onUpdate({ editor: currentEditor }) {
       onJsonChange?.(currentEditor.getJSON())
     }
@@ -334,6 +351,7 @@ export function SimpleEditor({
                 onSave={onSave}
                 canSave={canSave}
                 isSaving={isSaving}
+                canUploadImage={Boolean(imageUpload)}
               />
             ) : (
               <MobileToolbarContent

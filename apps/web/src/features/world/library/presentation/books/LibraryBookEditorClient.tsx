@@ -1,6 +1,7 @@
 "use client"
 
 import type { LibraryDependencies } from "@/features/world/library/application/contracts/LibraryDependencies"
+import { uploadLibraryImageUseCase } from "@/features/world/library/application/use-cases/library"
 import styles from "./LibraryBookEditorClient.module.css"
 import LibraryBookEditorCanvas from "./LibraryBookEditorCanvas"
 import LibraryBookEditorHeader from "./LibraryBookEditorHeader"
@@ -40,6 +41,8 @@ export default function LibraryBookEditorClient({
     deps,
     onPersist
   })
+  const uploadImage = async (file: File) =>
+    (await uploadLibraryImageUseCase(deps, { file })).url
 
   if (editor.loading) {
     if (embedded) {
@@ -83,6 +86,7 @@ export default function LibraryBookEditorClient({
           embedded
           onContentChange={editor.updateDraftContent}
           onSave={() => void editor.saveBook()}
+          onImageUpload={uploadImage}
         />
 
         {editor.error ? (
@@ -127,6 +131,7 @@ export default function LibraryBookEditorClient({
         saving={editor.saving}
         onContentChange={editor.updateDraftContent}
         onSave={() => void editor.saveBook()}
+        onImageUpload={uploadImage}
       />
 
       {editor.error ? (

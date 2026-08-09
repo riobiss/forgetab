@@ -177,8 +177,8 @@ export default function NewRpgForm({
             <span>Visibilidade</span>
             <NativeSelectField
               value={visibility}
-              onChange={(event) =>
-                setVisibility(event.target.value as "private" | "public")
+              onValueChange={(value) =>
+                setVisibility(value as "private" | "public")
               }
             >
               <option value="private">Privado</option>
@@ -222,9 +222,7 @@ export default function NewRpgForm({
             <span>Sistema de Custos</span>
             <NativeSelectField
               value={costsEnabled ? "enabled" : "disabled"}
-              onChange={(event) =>
-                setCostsEnabled(event.target.value === "enabled")
-              }
+              onValueChange={(value) => setCostsEnabled(value === "enabled")}
             >
               <option value="disabled">Desativado</option>
               <option value="enabled">Ativado</option>
@@ -235,9 +233,7 @@ export default function NewRpgForm({
             <span>Usar raca</span>
             <NativeSelectField
               value={useRaceBonuses ? "enabled" : "disabled"}
-              onChange={(event) =>
-                setUseRaceBonuses(event.target.value === "enabled")
-              }
+              onValueChange={(value) => setUseRaceBonuses(value === "enabled")}
             >
               <option value="disabled">Nao</option>
               <option value="enabled">Sim</option>
@@ -248,9 +244,7 @@ export default function NewRpgForm({
             <span>Usar classe</span>
             <NativeSelectField
               value={useClassBonuses ? "enabled" : "disabled"}
-              onChange={(event) =>
-                setUseClassBonuses(event.target.value === "enabled")
-              }
+              onValueChange={(value) => setUseClassBonuses(value === "enabled")}
             >
               <option value="disabled">Nao</option>
               <option value="enabled">Sim</option>

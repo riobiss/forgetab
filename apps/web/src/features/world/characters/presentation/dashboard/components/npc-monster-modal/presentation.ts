@@ -1,4 +1,4 @@
-import type { ReactSelectOption } from "@/components/select/ReactSelectField"
+import type { ReactSelectOption } from "@/components/select/types"
 import type {
   ExtraField,
   NarrativeStatus,

@@ -2,7 +2,7 @@ import { NativeSelectField } from "@/components/select/NativeSelectField"
 import { Plus, X } from "lucide-react"
 import type { Dispatch, SetStateAction } from "react"
 import type { SkillCategory } from "@/types/skillBuilder"
-import type { ReactSelectOption } from "@/components/select/ReactSelectField"
+import type { ReactSelectOption } from "@/components/select/types"
 import { SkillCustomFieldModal } from "./SkillCustomFieldModal"
 import { SkillDeleteButton } from "./SkillDeleteButton"
 import { SkillFormSteps, SkillStepNavigation } from "./SkillFormSteps"
@@ -126,7 +126,7 @@ export function SkillEditModal({
             {activeSkill.levels.length > 1 ? (
               <NativeSelectField
                 value={selectedLevelId}
-                onChange={(event) => setSelectedLevelId(event.target.value)}
+                onValueChange={setSelectedLevelId}
               >
                 {activeSkill.levels.map((level) => (
                   <option key={level.id} value={level.id}>

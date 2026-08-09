@@ -342,7 +342,7 @@ export default function ItemsDashboardClient({
               <span>Personagem</span>
               <NativeSelectField
                 value={selectedCharacterId}
-                onChange={(event) => setSelectedCharacterId(event.target.value)}
+                onValueChange={setSelectedCharacterId}
                 required
               >
                 {characters.length === 0 ? (

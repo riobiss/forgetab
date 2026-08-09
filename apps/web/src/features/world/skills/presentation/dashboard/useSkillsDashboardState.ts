@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import type { SkillsDashboardDependencies } from "@/features/world/skills/application/skillsDashboard/contracts/SkillsDashboardDependencies"
-import { type ReactSelectOption } from "@/components/select/ReactSelectField"
+import type { ReactSelectOption } from "@/components/select/types"
 import { abilityCategoryDefinitions } from "@/lib/rpg/abilityCategories"
 import {
   actionTypeValues,
