@@ -13,6 +13,7 @@
     "./character-editor": "./src/character-editor.ts",
     "./character-inventory": "./src/character-inventory.ts",
     "./dashboard": "./src/dashboard.ts",
-    "./location": "./src/location.ts"
+    "./location": "./src/location.ts",
+    "./media": "./src/media.ts"
   }
 }

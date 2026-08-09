@@ -1,7 +1,8 @@
 import type { ScopedImageService } from "@/features/media/application/ports/ScopedImageService"
 import { AppError } from "@/features/shared/application/errors/AppError"
+import { MAX_IMAGE_FILE_SIZE_BYTES } from "@forgetab/world-contracts/media"
 
-export const MAX_IMAGE_FILE_SIZE_BYTES = 8 * 1024 * 1024
+export { MAX_IMAGE_FILE_SIZE_BYTES } from "@forgetab/world-contracts/media"
 
 type Dependencies = {
   service: ScopedImageService

@@ -3,7 +3,7 @@ import {
   deleteScopedImage,
   uploadScopedImage
 } from "@/features/media/application/use-cases/scopedImages"
-import { imageKitScopedImageService } from "@/features/media/infrastructure/imageKitScopedImageService"
+import type { ScopedImageService } from "@/features/media/application/ports/ScopedImageService"
 import {
   parseJsonBody,
   requireUserId,
@@ -17,7 +17,11 @@ type Config = {
   allowDelete?: boolean
 }
 
-export function createScopedImageHandlers(config: Config) {
+type Dependencies = {
+  service: ScopedImageService
+}
+
+export function createScopedImageHandlers(config: Config, deps: Dependencies) {
   function buildFormDataRequest(request: FastifyRequest) {
     const rawBody = request.body
     const body =
@@ -60,16 +64,13 @@ export function createScopedImageHandlers(config: Config) {
           ? file.name.trim()
           : config.defaultFileName
 
-      const payload = await uploadScopedImage(
-        { service: imageKitScopedImageService },
-        {
-          userId: auth.userId,
-          folder: config.folder,
-          fileName,
-          file,
-          oldUrl
-        }
-      )
+      const payload = await uploadScopedImage(deps, {
+        userId: auth.userId,
+        folder: config.folder,
+        fileName,
+        file,
+        oldUrl
+      })
 
       return writeJson(reply, 201, {
         message: "Imagem enviada com sucesso.",
@@ -94,14 +95,11 @@ export function createScopedImageHandlers(config: Config) {
 
     try {
       const body = (parseJsonBody(request.body) ?? {}) as { url?: unknown }
-      await deleteScopedImage(
-        { service: imageKitScopedImageService },
-        {
-          userId: auth.userId,
-          folder: config.folder,
-          url: body.url
-        }
-      )
+      await deleteScopedImage(deps, {
+        userId: auth.userId,
+        folder: config.folder,
+        url: body.url
+      })
 
       return writeJson(reply, 200, { message: "Imagem removida com sucesso." })
     } catch (error) {
