@@ -1,6 +1,14 @@
-import type { AuthCookieConfig } from "@/features/auth/application/types"
+import type {
+  AuthCookieConfig,
+  AuthTokenPayload
+} from "@/features/auth/application/types"
 
 export interface AuthTokenService {
-  createToken(payload: { userId: string; email: string }): Promise<string>
+  createToken(payload: AuthTokenPayload): Promise<string>
   getCookieConfig(): AuthCookieConfig
+}
+
+export interface AuthTokenVerifier {
+  verifyToken(token: string): Promise<AuthTokenPayload>
+  getCookieName(): string
 }

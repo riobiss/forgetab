@@ -1,7 +1,16 @@
 import type { AuthPasswordService } from "@/features/auth/application/ports/AuthPasswordService"
-import { comparePassword, hashPassword } from "@/lib/auth/password"
+import bcrypt from "bcryptjs"
 
 export const bcryptAuthPasswordService: AuthPasswordService = {
-  compare: comparePassword,
-  hash: hashPassword
+  async verify(password, passwordHash) {
+    if (!passwordHash) {
+      await bcrypt.hash(password, 12)
+      return false
+    }
+
+    return bcrypt.compare(password, passwordHash)
+  },
+  hash(password) {
+    return bcrypt.hash(password, 12)
+  }
 }

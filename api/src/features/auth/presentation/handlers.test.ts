@@ -4,7 +4,7 @@ const mocks = vi.hoisted(() => ({
   findUserByEmail: vi.fn(),
   findUserByUsername: vi.fn(),
   createUser: vi.fn(),
-  compare: vi.fn(),
+  verify: vi.fn(),
   hash: vi.fn(),
   createToken: vi.fn(),
   getCookieConfig: vi.fn(),
@@ -27,7 +27,7 @@ vi.mock(
   "@/features/auth/infrastructure/services/bcryptAuthPasswordService",
   () => ({
     bcryptAuthPasswordService: {
-      compare: mocks.compare,
+      verify: mocks.verify,
       hash: mocks.hash
     }
   })
@@ -113,7 +113,7 @@ describe("auth routes", () => {
       passwordHash: "hash",
       createdAt: new Date("2026-01-01T00:00:00.000Z")
     })
-    mocks.compare.mockResolvedValue(true)
+    mocks.verify.mockResolvedValue(true)
     mocks.createToken.mockResolvedValue("jwt-token")
 
     const response = await server.inject({
@@ -123,7 +123,7 @@ describe("auth routes", () => {
     })
 
     expect(response.statusCode).toBe(200)
-    expect(mocks.compare).toHaveBeenCalledWith("12345678", "hash")
+    expect(mocks.verify).toHaveBeenCalledWith("12345678", "hash")
     expect(mocks.createToken).toHaveBeenCalledWith({
       userId: "u1",
       email: "user@email.com"

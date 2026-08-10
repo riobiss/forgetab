@@ -9,7 +9,7 @@ function makeDeps() {
       createUser: vi.fn()
     },
     authPasswordService: {
-      compare: vi.fn(),
+      verify: vi.fn(),
       hash: vi.fn()
     },
     authTokenService: {
@@ -17,7 +17,6 @@ function makeDeps() {
       getCookieConfig: vi.fn(() => ({ name: "auth_token", maxAge: 604800 }))
     },
     authRateLimitService: {
-      getClientIp: vi.fn(),
       check: vi.fn().mockResolvedValue({
         allowed: true,
         remaining: 1,
@@ -38,7 +37,7 @@ describe("loginUseCase", () => {
       passwordHash: "hash",
       createdAt: new Date("2026-01-01T00:00:00.000Z")
     })
-    deps.authPasswordService.compare.mockResolvedValue(true)
+    deps.authPasswordService.verify.mockResolvedValue(true)
     deps.authTokenService.createToken.mockResolvedValue("jwt-token")
 
     const result = await loginUseCase(
@@ -59,6 +58,7 @@ describe("loginUseCase", () => {
   it("retorna erro 401 para credenciais invalidas", async () => {
     const deps = makeDeps()
     deps.authRepository.findUserByEmail.mockResolvedValue(null)
+    deps.authPasswordService.verify.mockResolvedValue(false)
 
     await expect(
       loginUseCase(
@@ -69,5 +69,9 @@ describe("loginUseCase", () => {
         deps
       )
     ).rejects.toMatchObject({ message: "Credenciais invalidas.", status: 401 })
+    expect(deps.authPasswordService.verify).toHaveBeenCalledWith(
+      "12345678",
+      null
+    )
   })
 })

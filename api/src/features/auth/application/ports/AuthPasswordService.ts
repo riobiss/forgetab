@@ -1,4 +1,4 @@
 export interface AuthPasswordService {
-  compare(password: string, passwordHash: string): Promise<boolean>
+  verify(password: string, passwordHash: string | null): Promise<boolean>
   hash(password: string): Promise<string>
 }

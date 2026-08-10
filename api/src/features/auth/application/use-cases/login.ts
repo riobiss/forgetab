@@ -1,4 +1,4 @@
-import { loginSchema } from "@/lib/validators/auth"
+import { loginSchema } from "@/features/auth/application/validation/authSchemas"
 import { AuthRateLimitError } from "@/features/auth/application/errors/AuthRateLimitError"
 import { AppError } from "@/features/shared/application/errors/AppError"
 import type { AuthPasswordService } from "@/features/auth/application/ports/AuthPasswordService"
@@ -61,15 +61,11 @@ export async function loginUseCase(
   }
 
   const user = await deps.authRepository.findUserByEmail(normalizedEmail)
-  if (!user) {
-    throw new AppError("Credenciais invalidas.", 401)
-  }
-
-  const isValidPassword = await deps.authPasswordService.compare(
+  const isValidPassword = await deps.authPasswordService.verify(
     password,
-    user.passwordHash
+    user?.passwordHash ?? null
   )
-  if (!isValidPassword) {
+  if (!user || !isValidPassword) {
     throw new AppError("Credenciais invalidas.", 401)
   }
 

@@ -4,11 +4,7 @@ import type {
   CreateAuthUserInput
 } from "@/features/auth/application/ports/AuthRepository.js"
 import { prisma } from "@/lib/prisma"
-import { AppError } from "@/features/shared/application/errors/AppError.js"
-
-const GENERIC_REGISTER_CONFLICT_MESSAGE =
-  "Nao foi possivel concluir o cadastro com os dados informados."
-const USERNAME_CONFLICT_MESSAGE = "Username ja esta em uso. Tente outro."
+import { AuthRepositoryError } from "@/features/auth/application/errors/AuthRepositoryError.js"
 
 async function createUser(input: CreateAuthUserInput) {
   try {
@@ -18,11 +14,16 @@ async function createUser(input: CreateAuthUserInput) {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      const target = Array.isArray(error.meta?.target) ? error.meta.target : []
+      const rawTarget = error.meta?.target
+      const target = Array.isArray(rawTarget)
+        ? rawTarget
+        : typeof rawTarget === "string"
+          ? [rawTarget]
+          : []
       if (target.includes("username")) {
-        throw new AppError(USERNAME_CONFLICT_MESSAGE, 409)
+        throw new AuthRepositoryError("username_conflict")
       }
-      throw new AppError(GENERIC_REGISTER_CONFLICT_MESSAGE, 409)
+      throw new AuthRepositoryError("email_conflict")
     }
 
     throw error

@@ -19,3 +19,8 @@ export type AuthCookieConfig = {
   name: string
   maxAge: number
 }
+
+export type AuthTokenPayload = {
+  userId: string
+  email: string
+}

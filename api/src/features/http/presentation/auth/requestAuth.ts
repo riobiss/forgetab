@@ -1,5 +1,5 @@
 import type { FastifyRequest } from "fastify"
-import { TOKEN_COOKIE_NAME, verifyAuthToken } from "@/lib/auth/token"
+import { authRequestDependencies } from "@/features/http/presentation/auth/dependencies"
 
 function parseCookieHeader(cookieHeader: string | null) {
   if (!cookieHeader) {
@@ -19,7 +19,11 @@ function parseCookieHeader(cookieHeader: string | null) {
 
         const name = part.slice(0, separatorIndex).trim()
         const value = part.slice(separatorIndex + 1).trim()
-        return [name, decodeURIComponent(value)]
+        try {
+          return [name, decodeURIComponent(value)]
+        } catch {
+          return [name, ""]
+        }
       })
   )
 }
@@ -56,15 +60,16 @@ export function getCookieValueFromFastifyRequest(
 }
 
 export async function getAuthPayloadFromRequest(request: Request) {
+  const cookieName = authRequestDependencies.tokenService.getCookieName()
   const token =
     getBearerToken(request.headers.get("authorization")) ??
-    getCookieValueFromRequest(request, TOKEN_COOKIE_NAME)
+    getCookieValueFromRequest(request, cookieName)
   if (!token) {
     return null
   }
 
   try {
-    return await verifyAuthToken(token)
+    return await authRequestDependencies.tokenService.verifyToken(token)
   } catch {
     return null
   }
@@ -78,18 +83,19 @@ export async function getUserIdFromRequest(request: Request) {
 export async function getAuthPayloadFromFastifyRequest(
   request: FastifyRequest
 ) {
+  const cookieName = authRequestDependencies.tokenService.getCookieName()
   const authorizationHeader = Array.isArray(request.headers.authorization)
     ? request.headers.authorization[0]
     : request.headers.authorization
   const token =
     getBearerToken(authorizationHeader) ??
-    getCookieValueFromFastifyRequest(request, TOKEN_COOKIE_NAME)
+    getCookieValueFromFastifyRequest(request, cookieName)
   if (!token) {
     return null
   }
 
   try {
-    return await verifyAuthToken(token)
+    return await authRequestDependencies.tokenService.verifyToken(token)
   } catch {
     return null
   }

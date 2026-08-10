@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { registerUseCase } from "@/features/auth/application/use-cases/register"
+import { AuthRepositoryError } from "@/features/auth/application/errors/AuthRepositoryError"
 
 function makeDeps() {
   return {
@@ -9,7 +10,7 @@ function makeDeps() {
       createUser: vi.fn()
     },
     authPasswordService: {
-      compare: vi.fn(),
+      verify: vi.fn(),
       hash: vi.fn()
     },
     authTokenService: {
@@ -84,6 +85,34 @@ describe("registerUseCase", () => {
       )
     ).rejects.toMatchObject({
       message: "Username ja esta em uso. Tente outro.",
+      status: 409
+    })
+  })
+
+  it("mapeia conflito de persistencia sem vazar detalhes do repositorio", async () => {
+    const deps = makeDeps()
+    deps.authRepository.findUserByEmail.mockResolvedValue(null)
+    deps.authRepository.findUserByUsername.mockResolvedValue(null)
+    deps.authPasswordService.hash.mockResolvedValue("hashed-password")
+    deps.authRepository.createUser.mockRejectedValue(
+      new AuthRepositoryError("email_conflict")
+    )
+
+    await expect(
+      registerUseCase(
+        {
+          body: {
+            name: "User",
+            username: "user_1",
+            email: "user@email.com",
+            password: "12345678"
+          },
+          clientIp: "127.0.0.1"
+        },
+        deps
+      )
+    ).rejects.toMatchObject({
+      message: "Nao foi possivel concluir o cadastro com os dados informados.",
       status: 409
     })
   })

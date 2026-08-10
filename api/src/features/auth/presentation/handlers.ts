@@ -2,18 +2,13 @@ import type { FastifyReply, FastifyRequest } from "fastify"
 import { loginUseCase } from "@/features/auth/application/use-cases/login"
 import { logoutUseCase } from "@/features/auth/application/use-cases/logout"
 import { registerUseCase } from "@/features/auth/application/use-cases/register"
-import { prismaAuthRepository } from "@/features/auth/infrastructure/repositories/prismaAuthRepository"
-import { bcryptAuthPasswordService } from "@/features/auth/infrastructure/services/bcryptAuthPasswordService"
-import { jwtAuthTokenService } from "@/features/auth/infrastructure/services/jwtAuthTokenService"
-import { rateLimitAuthService } from "@/features/auth/infrastructure/services/rateLimitAuthService"
+import { authRouteDependencies } from "@/features/auth/presentation/dependencies"
 import {
   writeAuthErrorResponse,
   writeAuthSuccessResponse
 } from "@/features/http/presentation/auth/responses"
-import {
-  parseJsonBody,
-  writeJson
-} from "@/features/http/presentation/fastifyJson"
+import { parseJsonBody } from "@/features/http/presentation/fastifyJson"
+import { getClientIp } from "@/features/http/presentation/clientIp"
 
 export async function loginHandler(
   request: FastifyRequest,
@@ -23,14 +18,9 @@ export async function loginHandler(
     const result = await loginUseCase(
       {
         body: parseJsonBody(request.body),
-        clientIp: rateLimitAuthService.getClientIp(request.headers)
+        clientIp: getClientIp(request.headers)
       },
-      {
-        authRepository: prismaAuthRepository,
-        authPasswordService: bcryptAuthPasswordService,
-        authTokenService: jwtAuthTokenService,
-        authRateLimitService: rateLimitAuthService
-      }
+      authRouteDependencies
     )
 
     return writeAuthSuccessResponse(
@@ -55,14 +45,9 @@ export async function registerHandler(
     const result = await registerUseCase(
       {
         body: parseJsonBody(request.body),
-        clientIp: rateLimitAuthService.getClientIp(request.headers)
+        clientIp: getClientIp(request.headers)
       },
-      {
-        authRepository: prismaAuthRepository,
-        authPasswordService: bcryptAuthPasswordService,
-        authTokenService: jwtAuthTokenService,
-        authRateLimitService: rateLimitAuthService
-      }
+      authRouteDependencies
     )
 
     return writeAuthSuccessResponse(
@@ -81,7 +66,9 @@ export async function registerHandler(
 }
 
 export async function logoutHandler(reply: FastifyReply) {
-  const result = logoutUseCase(jwtAuthTokenService.getCookieConfig())
+  const result = logoutUseCase(
+    authRouteDependencies.authTokenService.getCookieConfig()
+  )
 
   return writeAuthSuccessResponse(
     reply,
@@ -92,8 +79,4 @@ export async function logoutHandler(reply: FastifyReply) {
       maxAge: result.cookie.maxAge
     }
   )
-}
-
-export async function healthHandler(reply: FastifyReply) {
-  return writeJson(reply, 200, { ok: true, service: "forgetab-api" })
 }

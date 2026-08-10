@@ -1,10 +1,12 @@
-import { registerSchema } from "@/lib/validators/auth"
+import { registerSchema } from "@/features/auth/application/validation/authSchemas"
 import { AuthRateLimitError } from "@/features/auth/application/errors/AuthRateLimitError"
+import { AuthRepositoryError } from "@/features/auth/application/errors/AuthRepositoryError"
 import { AppError } from "@/features/shared/application/errors/AppError"
 import type { AuthPasswordService } from "@/features/auth/application/ports/AuthPasswordService"
 import type { AuthRateLimitService } from "@/features/auth/application/ports/AuthRateLimitService"
 import type { AuthRepository } from "@/features/auth/application/ports/AuthRepository"
 import type { AuthTokenService } from "@/features/auth/application/ports/AuthTokenService"
+import type { AuthUserSummary } from "@/features/auth/application/types"
 
 const REGISTER_RATE_LIMIT = {
   ipLimit: 12,
@@ -79,12 +81,25 @@ export async function registerUseCase(
   }
 
   const passwordHash = await deps.authPasswordService.hash(password)
-  const user = await deps.authRepository.createUser({
-    name,
-    username: normalizedUsername,
-    email: normalizedEmail,
-    passwordHash
-  })
+  let user: AuthUserSummary
+  try {
+    user = await deps.authRepository.createUser({
+      name,
+      username: normalizedUsername,
+      email: normalizedEmail,
+      passwordHash
+    })
+  } catch (error) {
+    if (error instanceof AuthRepositoryError) {
+      throw new AppError(
+        error.code === "username_conflict"
+          ? USERNAME_CONFLICT_MESSAGE
+          : GENERIC_REGISTER_CONFLICT_MESSAGE,
+        409
+      )
+    }
+    throw error
+  }
   const token = await deps.authTokenService.createToken({
     userId: user.id,
     email: user.email
