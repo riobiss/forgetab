@@ -1,9 +1,25 @@
 import type { IncomingHttpHeaders } from "node:http"
 
-const configuredFrontendUrl = process.env.FRONTEND_URL?.trim()
-
 function normalizeOrigin(value: string) {
   return value.replace(/\/+$/, "")
+}
+
+function getConfiguredOrigins() {
+  return (process.env.FRONTEND_URL ?? "")
+    .split(",")
+    .map((value) => normalizeOrigin(value.trim()))
+    .filter(Boolean)
+}
+
+function isLocalDevelopmentOrigin(origin: string) {
+  if (process.env.NODE_ENV === "production") return false
+
+  try {
+    const { hostname } = new URL(origin)
+    return ["localhost", "127.0.0.1", "0.0.0.0", "[::1]"].includes(hostname)
+  } catch {
+    return false
+  }
 }
 
 export function resolveAllowedOrigin(headers: IncomingHttpHeaders | Headers) {
@@ -30,11 +46,10 @@ export function resolveAllowedOrigin(headers: IncomingHttpHeaders | Headers) {
     return null
   }
 
-  if (!configuredFrontendUrl) {
+  const normalizedOrigin = normalizeOrigin(origin)
+  if (getConfiguredOrigins().includes(normalizedOrigin)) {
     return origin
   }
 
-  return normalizeOrigin(origin) === normalizeOrigin(configuredFrontendUrl)
-    ? origin
-    : null
+  return isLocalDevelopmentOrigin(origin) ? origin : null
 }

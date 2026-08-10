@@ -8,12 +8,13 @@ import {
   loadCharactersDashboardContext
 } from "./dependencies"
 import {
-  mapCharacterCollectionError,
   parseJsonBody,
   requireUserId,
   writeError,
   writeJson
-} from "./http"
+} from "@/features/http/presentation/fastifyJson"
+import { mapCharacterCollectionError } from "./characterHttpErrors"
+import type { CreateCharacterPayload } from "@/features/world/character/application/types"
 import type {
   CharactersCollectionRouteParams,
   CharactersDashboardQuery
@@ -132,7 +133,7 @@ export async function createCharacterHandler(
       return writeJson(reply, 404, { message: "RPG nao encontrado." })
     }
 
-    const body = parseJsonBody(request.body)
+    const body = parseJsonBody<CreateCharacterPayload>(request.body)
     const character = await createCharacter({
       rpgId: request.params.rpgId,
       userId: auth.userId,

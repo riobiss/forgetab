@@ -16,11 +16,18 @@ import {
 } from "@/features/world/character/application/use-cases/updateCharacter"
 import { loadCharacterDetailUseCase } from "@/features/world/character/application/detail/use-cases/loadCharacterDetail"
 import { characterRouteDeps } from "./dependencies"
-import { parseJsonBody, requireUserId, writeError, writeJson } from "./http"
+import {
+  parseJsonBody,
+  requireUserId,
+  writeError,
+  writeJson
+} from "@/features/http/presentation/fastifyJson"
 import type {
   CharacterInventoryRouteParams,
   CharacterRouteParams
 } from "./routeTypes"
+
+type CharacterAbilityPayload = { skillId?: unknown; level?: unknown }
 
 export async function buyCharacterSkillHandler(
   request: FastifyRequest<{ Params: CharacterRouteParams }>,
@@ -37,7 +44,7 @@ export async function buyCharacterSkillHandler(
       {
         characterId: request.params.id,
         userId: auth.userId,
-        payload: parseJsonBody(request.body)
+        payload: parseJsonBody<CharacterAbilityPayload>(request.body)
       }
     )
 
@@ -62,7 +69,7 @@ export async function removeCharacterSkillHandler(
       {
         characterId: request.params.id,
         userId: auth.userId,
-        payload: parseJsonBody(request.body)
+        payload: parseJsonBody<CharacterAbilityPayload>(request.body)
       }
     )
 
@@ -144,7 +151,7 @@ export async function updateCharacterHandler(
   }
 
   try {
-    const payload = parseJsonBody(request.body) as UpdateCharacterPayload
+    const payload = parseJsonBody<UpdateCharacterPayload>(request.body)
     await updateCharacter(
       {
         repository: characterRouteDeps.characterUpdateRepository,
@@ -272,7 +279,7 @@ export async function addNpcMonsterCharacterAbilityHandler(
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
         userId: auth.userId,
-        payload: parseJsonBody(request.body)
+        payload: parseJsonBody<CharacterAbilityPayload>(request.body)
       }
     )
 
@@ -304,7 +311,7 @@ export async function removeNpcMonsterCharacterAbilityHandler(
         rpgId: request.params.rpgId,
         characterId: request.params.characterId,
         userId: auth.userId,
-        payload: parseJsonBody(request.body)
+        payload: parseJsonBody<CharacterAbilityPayload>(request.body)
       }
     )
 

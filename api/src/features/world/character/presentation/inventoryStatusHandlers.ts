@@ -6,12 +6,12 @@ import {
 import { updateCharacterStatusCurrentUseCase } from "@/features/world/character/application/statusCurrent/use-cases/characterStatusCurrent"
 import { characterRouteDeps } from "./dependencies"
 import {
-  mapCharacterInventoryError,
   parseJsonBody,
   requireUserId,
   writeError,
   writeJson
-} from "./http"
+} from "@/features/http/presentation/fastifyJson"
+import { mapCharacterInventoryError } from "./characterHttpErrors"
 import type { CharacterInventoryRouteParams } from "./routeTypes"
 
 export async function getCharacterInventoryHandler(

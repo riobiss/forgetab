@@ -4,7 +4,12 @@ import {
   grantCharacterXpUseCase
 } from "@/features/world/character/application/progression/use-cases/characterProgression"
 import { characterRouteDeps } from "./dependencies"
-import { parseJsonBody, requireUserId, writeError, writeJson } from "./http"
+import {
+  parseJsonBody,
+  requireUserId,
+  writeError,
+  writeJson
+} from "@/features/http/presentation/fastifyJson"
 import type { CharacterRouteParams } from "./routeTypes"
 
 const characterProgressionDeps = {

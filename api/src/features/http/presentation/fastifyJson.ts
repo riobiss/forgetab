@@ -2,22 +2,30 @@ import type { FastifyReply, FastifyRequest } from "fastify"
 import { AppError } from "@/features/shared/application/errors/AppError"
 import { getUserIdFromFastifyRequest } from "@/features/http/presentation/auth/requestAuth"
 
-export function parseJsonBody(body: unknown) {
+export function parseJsonBody<T = unknown>(body: unknown): T {
   if (body == null) {
-    return null
+    return null as T
   }
 
   if (Buffer.isBuffer(body)) {
     const raw = body.toString("utf8").trim()
-    return raw ? JSON.parse(raw) : null
+    return raw ? parseJson<T>(raw) : (null as T)
   }
 
   if (typeof body === "string") {
     const raw = body.trim()
-    return raw ? JSON.parse(raw) : null
+    return raw ? parseJson<T>(raw) : (null as T)
   }
 
-  return body
+  return body as T
+}
+
+function parseJson<T>(raw: string): T {
+  try {
+    return JSON.parse(raw) as T
+  } catch {
+    throw new AppError("JSON invalido.", 400)
+  }
 }
 
 export function writeJson(reply: FastifyReply, status: number, body: unknown) {
