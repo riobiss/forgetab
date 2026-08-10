@@ -10,6 +10,10 @@ import {
   uploadRpgProfileImageClientUseCase
 } from "@/features/profile/application/use-cases/updateProfileClient"
 import { profileDependencies } from "@/features/profile/presentation/dependencies"
+import {
+  isAllowedImageMimeType,
+  MAX_IMAGE_FILE_SIZE_BYTES
+} from "@forgetab/world-contracts/media"
 import styles from "./ProfilePage.module.css"
 
 type Props = {
@@ -80,8 +84,13 @@ export default function ProfileRpgImageField({
       return
     }
 
-    if (!file.type.startsWith("image/")) {
+    if (!isAllowedImageMimeType(file.type)) {
       setError("Arquivo de imagem invalido.")
+      return
+    }
+
+    if (file.size > MAX_IMAGE_FILE_SIZE_BYTES) {
+      setError("Imagem muito grande. Limite de 8MB.")
       return
     }
 

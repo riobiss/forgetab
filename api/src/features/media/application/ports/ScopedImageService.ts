@@ -1,15 +1,31 @@
+export type ScopedImageFolder =
+  | "characters"
+  | "items"
+  | "library"
+  | "maps"
+  | "markers"
+  | "profiles"
+  | "rpgs"
+  | "sections"
+
+export interface ScopedImageFile {
+  type: string
+  size: number
+  arrayBuffer(): Promise<ArrayBuffer>
+}
+
 export type ScopedImageUploadInput = {
   userId: string
-  folder: string
+  folder: ScopedImageFolder
   fileName: string
-  file: File
-  oldUrl?: unknown
+  file: ScopedImageFile
+  oldUrl: string | null
 }
 
 export type ScopedImageDeleteInput = {
   userId: string
-  folder: string
-  url?: unknown
+  folder: ScopedImageFolder
+  url: string | null
 }
 
 export interface ScopedImageService {

@@ -3,27 +3,22 @@ import type {
   ScopedImageService,
   ScopedImageUploadInput
 } from "@/features/media/application/ports/ScopedImageService"
-import { AppError } from "@/features/shared/application/errors/AppError"
 
 function getImageKitConfig(): { privateKey: string; urlEndpoint: string } {
   const privateKey = process.env.IMAGEKIT_PRIVATE_KEY
   const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT
 
-  const missing: string[] = []
-  if (!privateKey) missing.push("IMAGEKIT_PRIVATE_KEY")
-  if (!urlEndpoint) missing.push("IMAGEKIT_URL_ENDPOINT")
-
-  if (missing.length > 0) {
-    throw new AppError(
-      `ImageKit nao configurado no servidor. Variaveis ausentes: ${missing.join(", ")}.`,
-      500
+  if (!privateKey || !urlEndpoint) {
+    const missing = [
+      !privateKey ? "IMAGEKIT_PRIVATE_KEY" : null,
+      !urlEndpoint ? "IMAGEKIT_URL_ENDPOINT" : null
+    ].filter((name): name is string => Boolean(name))
+    throw new Error(
+      `ImageKit nao configurado no servidor. Variaveis ausentes: ${missing.join(", ")}.`
     )
   }
 
-  return {
-    privateKey: privateKey as string,
-    urlEndpoint: urlEndpoint as string
-  }
+  return { privateKey, urlEndpoint }
 }
 
 function buildUserFolder(userId: string, folder: string) {
@@ -59,10 +54,10 @@ function extractFileNameFromUrl(value: string) {
 async function deleteImageKitFileByUrl(
   privateKey: string,
   urlEndpoint: string,
-  rawUrl: unknown,
+  rawUrl: string | null,
   allowedFolderPath: string
 ) {
-  if (typeof rawUrl !== "string") return
+  if (!rawUrl) return
 
   const imageUrl = rawUrl.trim()
   if (!imageUrl) return
@@ -160,13 +155,6 @@ async function uploadScopedImageInternal(params: ScopedImageUploadInput) {
 
   const auth = Buffer.from(`${privateKey}:`, "utf8").toString("base64")
 
-  await deleteImageKitFileByUrl(
-    privateKey,
-    urlEndpoint,
-    params.oldUrl,
-    userFolder
-  )
-
   const response = await fetch(
     "https://upload.imagekit.io/api/v1/files/upload",
     {
@@ -186,10 +174,20 @@ async function uploadScopedImageInternal(params: ScopedImageUploadInput) {
   }
 
   if (!response.ok || !payload.url) {
-    throw new AppError(
-      payload.message ?? "Falha ao enviar imagem para o ImageKit.",
-      502
+    throw new Error(
+      payload.message ?? "Falha ao enviar imagem para o ImageKit."
     )
+  }
+
+  try {
+    await deleteImageKitFileByUrl(
+      privateKey,
+      urlEndpoint,
+      params.oldUrl,
+      userFolder
+    )
+  } catch {
+    // O novo upload e valido; uma falha de limpeza nao deve descartar sua URL.
   }
 
   return {

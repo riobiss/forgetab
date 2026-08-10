@@ -13,6 +13,10 @@ import {
   uploadRpgMapSectionImageUseCase
 } from "@/features/world/location/application/use-cases/rpgMapImages.client"
 import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
+import {
+  isAllowedImageMimeType,
+  MAX_IMAGE_FILE_SIZE_BYTES
+} from "@forgetab/world-contracts/media"
 import type { SectionFormState } from "./useRpgMapSectionModalState"
 
 export function useRpgMapSectionImages(params: {
@@ -33,8 +37,12 @@ export function useRpgMapSectionImages(params: {
     const file = event.currentTarget.files?.[0]
     event.currentTarget.value = ""
     if (!file) return
-    if (!file.type.startsWith("image/")) {
+    if (!isAllowedImageMimeType(file.type)) {
       toast.error("Envie uma imagem valida para a secao.")
+      return
+    }
+    if (file.size > MAX_IMAGE_FILE_SIZE_BYTES) {
+      toast.error("Imagem muito grande. Limite de 8MB.")
       return
     }
 

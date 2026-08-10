@@ -10,9 +10,9 @@ import {
   profileImageHandlers,
   rpgImageHandlers,
   sectionImageHandlers
-} from "@/features/uploads/presentation/handlers"
+} from "@/features/media/presentation/handlers"
 
-export function uploadsRoutes(app: FastifyInstance) {
+export function mediaRoutes(app: FastifyInstance) {
   registerFastifyRoute(
     app,
     "post",

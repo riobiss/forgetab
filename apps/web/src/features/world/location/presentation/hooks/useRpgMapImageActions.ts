@@ -9,7 +9,10 @@ import {
 } from "@/features/world/location/application/use-cases/rpgMapImages.client"
 import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import { dismissToast } from "@/lib/toast"
-import { MAX_IMAGE_FILE_SIZE_BYTES } from "@forgetab/world-contracts/media"
+import {
+  isAllowedImageMimeType,
+  MAX_IMAGE_FILE_SIZE_BYTES
+} from "@forgetab/world-contracts/media"
 
 const DEFAULT_MAP_SRC = "/map/world-map.png"
 
@@ -30,7 +33,7 @@ export function useRpgMapImageActions(params: {
       return
     }
 
-    if (!file.type.startsWith("image/")) {
+    if (!isAllowedImageMimeType(file.type)) {
       setUploadMessage("Envie um arquivo de imagem valido.")
       return
     }

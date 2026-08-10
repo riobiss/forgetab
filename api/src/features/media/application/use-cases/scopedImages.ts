@@ -1,6 +1,13 @@
-import type { ScopedImageService } from "@/features/media/application/ports/ScopedImageService"
+import type {
+  ScopedImageFile,
+  ScopedImageFolder,
+  ScopedImageService
+} from "@/features/media/application/ports/ScopedImageService"
 import { AppError } from "@/features/shared/application/errors/AppError"
-import { MAX_IMAGE_FILE_SIZE_BYTES } from "@forgetab/world-contracts/media"
+import {
+  isAllowedImageMimeType,
+  MAX_IMAGE_FILE_SIZE_BYTES
+} from "@forgetab/world-contracts/media"
 
 export { MAX_IMAGE_FILE_SIZE_BYTES } from "@forgetab/world-contracts/media"
 
@@ -8,22 +15,42 @@ type Dependencies = {
   service: ScopedImageService
 }
 
+function isScopedImageFile(value: unknown): value is ScopedImageFile {
+  return Boolean(
+    value &&
+    typeof value === "object" &&
+    typeof (value as ScopedImageFile).type === "string" &&
+    typeof (value as ScopedImageFile).size === "number" &&
+    typeof (value as ScopedImageFile).arrayBuffer === "function"
+  )
+}
+
+function normalizeOptionalUrl(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : null
+}
+
+function normalizeFileName(value: string) {
+  const leafName = value.trim().split(/[\\/]/).pop() ?? ""
+  const safeName = leafName.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 128)
+  return safeName && safeName !== "." && safeName !== ".." ? safeName : "image"
+}
+
 export async function uploadScopedImage(
   deps: Dependencies,
   params: {
     userId: string
-    folder: string
+    folder: ScopedImageFolder
     fileName: string
     file: unknown
     oldUrl?: unknown
   }
 ) {
   try {
-    if (!(params.file instanceof File)) {
+    if (!isScopedImageFile(params.file)) {
       throw new AppError("Arquivo de imagem e obrigatorio.", 400)
     }
 
-    if (!params.file.type.startsWith("image/")) {
+    if (!isAllowedImageMimeType(params.file.type)) {
       throw new AppError("Envie um arquivo de imagem valido.", 400)
     }
 
@@ -34,9 +61,9 @@ export async function uploadScopedImage(
     return await deps.service.upload({
       userId: params.userId,
       folder: params.folder,
-      fileName: params.fileName,
+      fileName: normalizeFileName(params.fileName),
       file: params.file,
-      oldUrl: params.oldUrl
+      oldUrl: normalizeOptionalUrl(params.oldUrl)
     })
   } catch (error) {
     if (error instanceof AppError) {
@@ -51,7 +78,7 @@ export async function deleteScopedImage(
   deps: Dependencies,
   params: {
     userId: string
-    folder: string
+    folder: ScopedImageFolder
     url?: unknown
   }
 ) {
@@ -59,7 +86,7 @@ export async function deleteScopedImage(
     await deps.service.deleteByUrl({
       userId: params.userId,
       folder: params.folder,
-      url: params.url
+      url: normalizeOptionalUrl(params.url)
     })
   } catch (error) {
     if (error instanceof AppError) {

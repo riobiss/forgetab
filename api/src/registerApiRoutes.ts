@@ -9,12 +9,14 @@ import { configRoutes } from "./features/world/presentation/routes/config.routes
 import { characterRoutes } from "./features/world/character/presentation/routes/routes"
 import { memberShipRoutes } from "./features/world/presentation/membership/routes/routes"
 import { catalogRoutes } from "./features/world/catalog/presentation/routes/routes"
-import { uploadsRoutes } from "./features/uploads/presentation/routes/routes"
+import { mediaRoutes } from "./features/media/presentation/routes/routes"
 import { authRoutes } from "./features/auth/presentation/routes/routes"
 import { dicesRoutes } from "./features/dices/presentation/routes/routes"
+import { httpRoutes } from "./features/http/presentation/routes/routes"
 
 export function registerApiRoutes(app: FastifyInstance) {
-  uploadsRoutes(app)
+  httpRoutes(app)
+  mediaRoutes(app)
   authRoutes(app)
   dicesRoutes(app)
   profileRoutes(app)

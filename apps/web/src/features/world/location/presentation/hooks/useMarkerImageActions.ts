@@ -6,8 +6,10 @@ import {
 } from "@/features/world/location/application/use-cases/rpgMapImages.client"
 import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import { dismissToast } from "@/lib/toast"
-
-const MAX_MARKER_IMAGE_SIZE_BYTES = 8 * 1024 * 1024
+import {
+  isAllowedImageMimeType,
+  MAX_IMAGE_FILE_SIZE_BYTES
+} from "@forgetab/world-contracts/media"
 
 type MarkerImageTarget = {
   mode: "pending" | "editing"
@@ -40,12 +42,12 @@ export function useMarkerImageActions(params: Params) {
       return
     }
 
-    if (!file.type.startsWith("image/")) {
+    if (!isAllowedImageMimeType(file.type)) {
       toast.error("Envie uma imagem valida para o marcador.")
       return
     }
 
-    if (file.size > MAX_MARKER_IMAGE_SIZE_BYTES) {
+    if (file.size > MAX_IMAGE_FILE_SIZE_BYTES) {
       toast.error("Imagem muito grande. Limite de 8MB.")
       return
     }

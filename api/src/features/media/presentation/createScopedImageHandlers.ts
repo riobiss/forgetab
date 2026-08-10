@@ -3,7 +3,10 @@ import {
   deleteScopedImage,
   uploadScopedImage
 } from "@/features/media/application/use-cases/scopedImages"
-import type { ScopedImageService } from "@/features/media/application/ports/ScopedImageService"
+import type {
+  ScopedImageFolder,
+  ScopedImageService
+} from "@/features/media/application/ports/ScopedImageService"
 import {
   parseJsonBody,
   requireUserId,
@@ -12,7 +15,7 @@ import {
 } from "@/features/http/presentation/fastifyJson"
 
 type Config = {
-  folder: string
+  folder: ScopedImageFolder
   defaultFileName: string
   allowDelete?: boolean
 }

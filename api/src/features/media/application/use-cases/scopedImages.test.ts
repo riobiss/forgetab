@@ -26,6 +26,23 @@ describe("scopedImages use-cases", () => {
     })
   })
 
+  it("rejeita SVG mesmo quando declarado como imagem", async () => {
+    const file = new File(["<svg></svg>"], "unsafe.svg", {
+      type: "image/svg+xml"
+    })
+
+    await expect(
+      uploadScopedImage(
+        { service },
+        { userId: "u1", folder: "items", fileName: "unsafe.svg", file }
+      )
+    ).rejects.toMatchObject({
+      status: 400,
+      message: "Envie um arquivo de imagem valido."
+    })
+    expect(service.upload).not.toHaveBeenCalled()
+  })
+
   it("delega upload com configuracao de escopo", async () => {
     const file = new File(["img"], "asset.png", { type: "image/png" })
     service.upload.mockResolvedValue({
@@ -57,6 +74,29 @@ describe("scopedImages use-cases", () => {
       file,
       oldUrl: "https://cdn/old.png"
     })
+  })
+
+  it("remove segmentos de caminho e caracteres inseguros do nome", async () => {
+    const file = new File(["img"], "asset.png", { type: "image/png" })
+    service.upload.mockResolvedValue({
+      url: "https://cdn/asset.png",
+      fileId: null,
+      thumbnailUrl: null
+    })
+
+    await uploadScopedImage(
+      { service },
+      {
+        userId: "u1",
+        folder: "items",
+        fileName: "../imagem com espaco.png",
+        file
+      }
+    )
+
+    expect(service.upload).toHaveBeenCalledWith(
+      expect.objectContaining({ fileName: "imagem-com-espaco.png" })
+    )
   })
 
   it("delega delete com configuracao de escopo", async () => {
