@@ -1,5 +1,5 @@
 import RpgMapFeature from "@/features/world/location/presentation/RpgMapFeature"
-import { loadMapShellData } from "./loadMapShellData"
+import { loadMapShellData } from "@/features/world/location/presentation/server/loadMapShellData"
 
 type Params = {
   params: Promise<{
