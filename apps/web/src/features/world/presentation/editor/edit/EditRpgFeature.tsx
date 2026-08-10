@@ -30,10 +30,10 @@ import {
   deleteRpgImageByUrlUseCase,
   uploadRpgImageUseCase
 } from "@/features/world/application/editor/use-cases/rpgEditor"
-import { getProgressionModeLabel } from "@/lib/rpg/progression"
+import { getProgressionModeLabel } from "@forgetab/world-contracts/rpg/progression"
 import { createRpgEditorDependencies } from "@/features/world/presentation/editor/dependencies"
 import { useEditRpgData } from "@/features/world/presentation/editor/useEditRpgData"
-import { dismissToast } from "@/lib/toast"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 
 const CORE_STATUS_OPTIONS: CatalogOption[] = [
   { key: "life", label: "Vida" },

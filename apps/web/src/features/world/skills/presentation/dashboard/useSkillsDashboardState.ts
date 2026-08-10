@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import type { SkillsDashboardDependencies } from "@/features/world/skills/application/skillsDashboard/contracts/SkillsDashboardDependencies"
 import type { ReactSelectOption } from "@/components/select/types"
-import { abilityCategoryDefinitions } from "@/lib/rpg/abilityCategories"
+import { abilityCategoryDefinitions } from "@forgetab/world-contracts/rpg/abilityCategories"
 import {
   actionTypeValues,
   skillCategoryValues,
@@ -10,7 +10,7 @@ import {
   type ActionType,
   type SkillCategory,
   type SkillType
-} from "@/types/skillBuilder"
+} from "@forgetab/world-contracts/skill-builder"
 import { skillTagLabel } from "./constants"
 import type {
   LevelForm,

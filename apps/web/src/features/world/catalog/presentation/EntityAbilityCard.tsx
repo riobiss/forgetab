@@ -1,7 +1,7 @@
 "use client"
 
 import type { CSSProperties } from "react"
-import { getSkillTagMeta } from "@/lib/rpg/skillTags"
+import { getSkillTagMeta } from "@forgetab/world-contracts/rpg/skillTags"
 import type {
   EntityCatalogAbilityPurchaseState,
   EntityCatalogAbilityView

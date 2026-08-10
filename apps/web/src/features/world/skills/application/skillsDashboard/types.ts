@@ -1,4 +1,4 @@
-import type { SkillTag } from "@/types/skillBuilder"
+import type { SkillTag } from "@forgetab/world-contracts/skill-builder"
 
 export type TemplateOptionDto = { id: string; label: string }
 

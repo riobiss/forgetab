@@ -1,5 +1,5 @@
 import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
-import slugify from "@/utils/slugify"
+import slugify from "@forgetab/world-contracts/shared/slugify"
 import type { EntityCatalogDependencies } from "@/features/world/catalog/application/contracts/EntityCatalogDependencies"
 import type {
   EntityCatalogAbilityPurchaseResult,

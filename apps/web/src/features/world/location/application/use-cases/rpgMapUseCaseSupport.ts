@@ -3,7 +3,7 @@ import type {
   RpgMapSectionDto,
   RpgMapSectionTreeNodeDto
 } from "@forgetab/world-contracts/location"
-import { AppError } from "@/shared/errors/AppError"
+import { AppError } from "@/shared/application/errors/AppError"
 
 export function normalizeOptionalUrl(value: unknown) {
   if (typeof value !== "string") return null

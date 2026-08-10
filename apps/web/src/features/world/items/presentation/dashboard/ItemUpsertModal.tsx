@@ -16,7 +16,10 @@ import type {
   ItemTypeDto
 } from "@/features/world/items/application/dashboard/types"
 import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap"
-import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
+import {
+  itemRarityLabel,
+  itemTypeLabel
+} from "@/shared/presentation/items/itemLabels"
 import styles from "./ItemsDashboardClient.module.css"
 
 type ItemEditorTab = "basic" | "requirements" | "abilities" | "effects"

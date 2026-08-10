@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { toast } from "react-hot-toast"
 import { buyEntityCatalogSkillUseCase } from "@/features/world/catalog/application/use-cases/entityCatalogClient"
-import { dismissToast } from "@/lib/toast"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 import { entityCatalogDependencies } from "@/features/world/catalog/presentation/dependencies"
 
 export function useEntityAbilityPurchase(params: {

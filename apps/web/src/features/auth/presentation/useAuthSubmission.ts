@@ -3,7 +3,7 @@
 import { useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { toast } from "react-hot-toast"
-import { dismissToast } from "@/lib/toast"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 
 type Options = {
   loadingMessage: string

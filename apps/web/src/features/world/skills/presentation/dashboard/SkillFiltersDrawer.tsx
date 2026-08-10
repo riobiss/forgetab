@@ -2,7 +2,7 @@ import {
   type ActionType,
   type SkillTag,
   type SkillType
-} from "@/types/skillBuilder"
+} from "@forgetab/world-contracts/skill-builder"
 import { actionTypeLabel, skillTagLabel, skillTypeLabel } from "./constants"
 import styles from "./SkillsDashboardClient.module.css"
 

@@ -3,7 +3,10 @@ import type {
   CatalogRichTextField,
   EntityCatalogMeta
 } from "@/features/world/catalog/domain/types"
-import { createDefaultRaceLore, type RaceLore } from "@/lib/rpg/raceLore"
+import {
+  createDefaultRaceLore,
+  type RaceLore
+} from "@forgetab/world-contracts/rpg/raceLore"
 import type { IdentityTemplateDraft } from "@/features/world/presentation/editor/edit/advanced/types"
 import type { AttributeTemplate } from "./shared/types"
 import NumericTemplateGrid from "@/features/world/presentation/components/NumericTemplateGrid"

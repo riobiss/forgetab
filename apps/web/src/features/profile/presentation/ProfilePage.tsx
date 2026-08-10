@@ -1,5 +1,5 @@
 import { ChevronRight } from "lucide-react"
-import { formatDateInBrasilia } from "@/lib/date"
+import { formatDateInBrasilia } from "@/shared/presentation/formatters/date"
 import type { ProfileViewData } from "@/features/profile/application/types"
 import ProfileEditableField from "./ProfileEditableField"
 import ProfileRpgImageField from "./ProfileRpgImageField"

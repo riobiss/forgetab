@@ -8,7 +8,7 @@ import {
   createDefaultRaceLore,
   normalizeRaceLore,
   type RaceLore
-} from "@/lib/rpg/raceLore"
+} from "@forgetab/world-contracts/rpg/raceLore"
 import {
   loadRpgEditorBootstrapUseCase,
   saveRpgClassesUseCase,

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import styles from "../RpgDashboardPage.module.css"
-import { formatDateInBrasilia } from "@/lib/date"
+import { formatDateInBrasilia } from "@/shared/presentation/formatters/date"
 import { Bell, ChevronDown } from "lucide-react"
 import { createRpgDashboardDependencies } from "@/features/world/presentation/dashboard/dependencies"
 import { useMembershipNotifications } from "@/features/world/presentation/dashboard/hooks/useMembershipNotifications"

@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { formatDateInBrasilia } from "@/lib/date"
+import { formatDateInBrasilia } from "@/shared/presentation/formatters/date"
 import type { RpgCatalogData } from "@forgetab/world-contracts/catalog"
 import styles from "./WorldCatalogPage.module.css"
 import WorldCatalogEditorLauncher from "@/features/world/presentation/catalog/WorldCatalogEditorLauncher"

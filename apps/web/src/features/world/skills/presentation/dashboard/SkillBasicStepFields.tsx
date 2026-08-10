@@ -12,7 +12,7 @@ import {
   type SkillCategory,
   type SkillTag,
   type SkillType
-} from "@/types/skillBuilder"
+} from "@forgetab/world-contracts/skill-builder"
 import { actionTypeLabel, skillTypeLabel } from "./constants"
 import styles from "./SkillsDashboardClient.module.css"
 import type { LevelForm, MetaForm } from "./types"

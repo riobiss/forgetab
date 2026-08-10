@@ -3,7 +3,7 @@ import "./globals.css"
 import "@/styles/_variables.scss"
 import "@/styles/_keyframe-animations.scss"
 import AuthHeader from "@/features/auth/presentation/AuthHeader"
-import PerformanceMeasureGuard from "@/shared/infrastructure/performance/PerformanceMeasureGuard"
+import PerformanceMeasureGuard from "@/shared/presentation/performance/PerformanceMeasureGuard"
 import ScrollToTop from "@/shared/presentation/navigation/ScrollToTop"
 import ToastProvider from "@/shared/presentation/providers/ToastProvider"
 

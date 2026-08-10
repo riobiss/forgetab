@@ -9,7 +9,7 @@ import {
   loadLibraryBookUseCase,
   updateLibraryBookUseCase
 } from "@/features/world/library/application/use-cases/library"
-import { dismissToast } from "@/lib/toast"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 import {
   buildLibraryBookDraftStorageKey,
   createDefaultLibraryBookDraft,

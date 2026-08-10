@@ -7,7 +7,7 @@ import {
   getProgressionModeLabel,
   type ProgressionMode,
   type ProgressionTier
-} from "@/lib/rpg/progression"
+} from "@forgetab/world-contracts/rpg/progression"
 import styles from "../CharacterEditorForm.module.css"
 import EditableModalField from "./EditableModalField"
 import type {

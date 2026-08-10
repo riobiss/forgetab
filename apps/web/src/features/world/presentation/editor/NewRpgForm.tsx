@@ -16,8 +16,8 @@ import {
   getDefaultProgressionTiers,
   getProgressionModeLabel,
   type ProgressionMode
-} from "@/lib/rpg/progression"
-import { dismissToast } from "@/lib/toast"
+} from "@forgetab/world-contracts/rpg/progression"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 
 type Props = {
   deps: RpgEditorDependencies

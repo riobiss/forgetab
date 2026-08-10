@@ -7,7 +7,7 @@ import type { CharacterAbilitiesDependencies } from "@/features/world/characters
 import type { PurchasedAbilityViewDto } from "@/features/world/characters/application/abilities/types"
 import { removeCharacterAbilityUseCase } from "@/features/world/characters/application/abilities/use-cases/characterAbilities"
 import styles from "./CharacterAbilitiesPage.module.css"
-import { getSkillTagMeta } from "@/lib/rpg/skillTags"
+import { getSkillTagMeta } from "@forgetab/world-contracts/rpg/skillTags"
 
 const SKILL_CATEGORY_LABEL: Record<string, string> = {
   tecnicas: "Técnicas",

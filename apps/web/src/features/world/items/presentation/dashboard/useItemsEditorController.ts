@@ -4,7 +4,7 @@ import {
   type Dispatch,
   type SetStateAction
 } from "react"
-import { baseItemRarityValues } from "@/lib/validators/baseItem"
+import { baseItemRarityValues } from "@forgetab/world-contracts/validation/baseItem"
 import {
   createEmptyNamedDescription,
   mapItemToEditorState,

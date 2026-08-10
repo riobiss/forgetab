@@ -1,5 +1,5 @@
 import type { EntityCatalogMeta } from "@/features/world/catalog/domain/types"
-import type { RaceLore } from "@/lib/rpg/raceLore"
+import type { RaceLore } from "@forgetab/world-contracts/rpg/raceLore"
 
 export type AdvancedIdentityType = "race" | "class"
 

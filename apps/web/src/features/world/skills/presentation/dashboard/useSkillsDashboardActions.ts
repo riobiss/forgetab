@@ -14,7 +14,7 @@ import {
   updateSkillLevelUseCase,
   updateSkillMetaUseCase
 } from "@/features/world/skills/application/skillsDashboard/use-cases/skillsDashboard"
-import type { SkillCategory } from "@/types/skillBuilder"
+import type { SkillCategory } from "@forgetab/world-contracts/skill-builder"
 import type {
   LevelForm,
   MetaForm,

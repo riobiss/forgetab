@@ -15,7 +15,7 @@ import {
   updateItemUseCase,
   uploadItemImageUseCase
 } from "@/features/world/items/application/dashboard/use-cases/itemsDashboard"
-import { dismissToast } from "@/lib/toast"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 import type { BaseItem, CharacterSummary } from "./types"
 
 type UseItemsDashboardActionsParams = {

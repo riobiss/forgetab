@@ -6,8 +6,8 @@ import {
   type ActionType,
   type SkillCategory,
   type SkillType
-} from "@/types/skillBuilder"
-import { abilityCategoryLabelByKey } from "@/lib/rpg/abilityCategories"
+} from "@forgetab/world-contracts/skill-builder"
+import { abilityCategoryLabelByKey } from "@forgetab/world-contracts/rpg/abilityCategories"
 import type { LevelForm, MetaForm, SkillDetail, SkillLevel } from "./types"
 
 export function toOptionalText(value: string) {

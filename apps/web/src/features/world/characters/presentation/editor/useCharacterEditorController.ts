@@ -35,8 +35,8 @@ import {
   resolveProgressionTierByCurrent,
   type ProgressionMode,
   type ProgressionTier
-} from "@/lib/rpg/progression"
-import { dismissToast } from "@/lib/toast"
+} from "@forgetab/world-contracts/rpg/progression"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 import { buildCharacterPayload } from "./builders/buildCharacterPayload"
 import {
   isIdentityNameField,

@@ -6,7 +6,7 @@ import RadixSwitchField from "../shared/RadixSwitchField"
 import {
   abilityCategoryDefinitions,
   type AbilityCategoryKey
-} from "@/lib/rpg/abilityCategories"
+} from "@forgetab/world-contracts/rpg/abilityCategories"
 
 type Props = {
   showList: boolean

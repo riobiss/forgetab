@@ -24,8 +24,11 @@ import { InventoryCardItem } from "./types"
 import {
   baseItemRarityValues,
   baseItemTypeValues
-} from "@/lib/validators/baseItem"
-import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
+} from "@forgetab/world-contracts/validation/baseItem"
+import {
+  itemRarityLabel,
+  itemTypeLabel
+} from "@/shared/presentation/items/itemLabels"
 import { matchesInventorySearch, toInventoryCardItem } from "./utils"
 
 type Props = {

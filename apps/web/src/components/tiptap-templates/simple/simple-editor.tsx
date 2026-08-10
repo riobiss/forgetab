@@ -69,9 +69,9 @@ import { LinkIcon } from "@/components/tiptap-icons/link-icon"
 import { SaveIcon } from "@/components/tiptap-icons/save-icon"
 
 // --- Hooks ---
-import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
-import { useWindowSize } from "@/hooks/use-window-size"
-import { useCursorVisibility } from "@/hooks/use-cursor-visibility"
+import { useIsBreakpoint } from "@/shared/presentation/editor/hooks/use-is-breakpoint"
+import { useWindowSize } from "@/shared/presentation/editor/hooks/use-window-size"
+import { useCursorVisibility } from "@/shared/presentation/editor/hooks/use-cursor-visibility"
 
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss"

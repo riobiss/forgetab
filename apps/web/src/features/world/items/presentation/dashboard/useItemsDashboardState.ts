@@ -4,7 +4,7 @@ import { loadItemsDashboardData } from "@/features/world/items/application/dashb
 import {
   baseItemRarityValues,
   baseItemTypeValues
-} from "@/lib/validators/baseItem"
+} from "@forgetab/world-contracts/validation/baseItem"
 import type { BaseItem, CharacterSummary } from "./types"
 import {
   buildItemPayload,

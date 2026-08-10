@@ -1,7 +1,7 @@
 import { NativeSelectField } from "@/components/select/NativeSelectField"
 import { Plus, X } from "lucide-react"
 import type { Dispatch, SetStateAction } from "react"
-import type { SkillCategory } from "@/types/skillBuilder"
+import type { SkillCategory } from "@forgetab/world-contracts/skill-builder"
 import type { ReactSelectOption } from "@/components/select/types"
 import { SkillCustomFieldModal } from "./SkillCustomFieldModal"
 import { SkillDeleteButton } from "./SkillDeleteButton"

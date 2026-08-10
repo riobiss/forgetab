@@ -15,7 +15,7 @@ import {
 import {
   normalizeEnabledAbilityCategories,
   type AbilityCategoryKey
-} from "@/lib/rpg/abilityCategories"
+} from "@forgetab/world-contracts/rpg/abilityCategories"
 import {
   enforceXpLevelPattern,
   getDefaultProgressionTiers,
@@ -23,7 +23,7 @@ import {
   normalizeProgressionTiers,
   type ProgressionMode,
   type ProgressionTier
-} from "@/lib/rpg/progression"
+} from "@forgetab/world-contracts/rpg/progression"
 import type {
   AttributeTemplate,
   CatalogOption,

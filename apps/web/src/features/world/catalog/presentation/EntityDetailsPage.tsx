@@ -24,7 +24,7 @@ import EntityDetailsConfigModal, {
 import EntityDetailsContent from "@/features/world/catalog/presentation/EntityDetailsContent"
 import { useEntityDetailsActions } from "@/features/world/catalog/presentation/useEntityDetailsActions"
 import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap"
-import { dismissToast } from "@/lib/toast"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 import styles from "./EntityDetailsPage.module.css"
 
 type BonusInputRecord = Record<string, string | number>

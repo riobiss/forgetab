@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react"
-import type { SkillCategory } from "@/types/skillBuilder"
+import type { SkillCategory } from "@forgetab/world-contracts/skill-builder"
 import type { ReactSelectOption } from "@/components/select/types"
 import { SkillBasicStepFields } from "./SkillBasicStepFields"
 import { SkillRequirementsStepFields } from "./SkillRequirementsStepFields"

@@ -4,7 +4,7 @@ import styles from "./SkillsDashboardClient.module.css"
 import { SkillCustomFieldModal } from "./SkillCustomFieldModal"
 import { SkillFormSteps, SkillStepNavigation } from "./SkillFormSteps"
 import type { LevelForm, MetaForm, TemplateOption } from "./types"
-import type { SkillCategory } from "@/types/skillBuilder"
+import type { SkillCategory } from "@forgetab/world-contracts/skill-builder"
 import type { ReactSelectOption } from "@/components/select/types"
 
 type SkillCreateModalProps = {

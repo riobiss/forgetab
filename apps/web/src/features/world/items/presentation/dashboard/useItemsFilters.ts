@@ -1,5 +1,5 @@
 import { useDeferredValue, useMemo, useState } from "react"
-import { baseItemRarityValues } from "@/lib/validators/baseItem"
+import { baseItemRarityValues } from "@forgetab/world-contracts/validation/baseItem"
 import type { BaseItem, ItemType } from "./types"
 import { parseCustomFieldList } from "./utils"
 

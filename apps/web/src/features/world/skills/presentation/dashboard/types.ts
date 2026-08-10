@@ -3,7 +3,7 @@ import type {
   SkillCategory,
   SkillTag,
   SkillType
-} from "@/types/skillBuilder"
+} from "@forgetab/world-contracts/skill-builder"
 import type {
   SkillDetailDto,
   SkillLevelDto,

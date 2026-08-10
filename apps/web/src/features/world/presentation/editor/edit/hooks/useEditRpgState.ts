@@ -12,12 +12,12 @@ import {
   getDefaultProgressionTiers,
   type ProgressionMode,
   type ProgressionTier
-} from "@/lib/rpg/progression"
+} from "@forgetab/world-contracts/rpg/progression"
 import {
   abilityCategoryKeys,
   normalizeEnabledAbilityCategories,
   type AbilityCategoryKey
-} from "@/lib/rpg/abilityCategories"
+} from "@forgetab/world-contracts/rpg/abilityCategories"
 
 export type Visibility = "private" | "public"
 

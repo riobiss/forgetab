@@ -1,5 +1,5 @@
 import type { UpsertItemPayloadDto } from "@/features/world/items/application/dashboard/types"
-import { baseItemRarityValues } from "@/lib/validators/baseItem"
+import { baseItemRarityValues } from "@forgetab/world-contracts/validation/baseItem"
 import type { BaseItem, ItemType } from "./types"
 import { parseCustomFieldList, parseNamedDescriptionList } from "./utils"
 

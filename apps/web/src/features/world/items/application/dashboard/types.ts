@@ -1,7 +1,7 @@
 import type {
   baseItemRarityValues,
   baseItemTypeValues
-} from "@/lib/validators/baseItem"
+} from "@forgetab/world-contracts/validation/baseItem"
 
 export type ItemTypeDto = (typeof baseItemTypeValues)[number]
 export type ItemRarityDto = (typeof baseItemRarityValues)[number]

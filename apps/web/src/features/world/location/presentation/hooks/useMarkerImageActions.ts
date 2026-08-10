@@ -5,7 +5,7 @@ import {
   uploadRpgMapMarkerImageUseCase
 } from "@/features/world/location/application/use-cases/rpgMapImages.client"
 import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
-import { dismissToast } from "@/lib/toast"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 import {
   isAllowedImageMimeType,
   MAX_IMAGE_FILE_SIZE_BYTES

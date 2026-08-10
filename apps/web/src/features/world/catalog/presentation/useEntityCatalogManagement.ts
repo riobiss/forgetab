@@ -10,7 +10,7 @@ import {
   updateEntityCatalogCategory,
   type EntityCatalogCategoryItemDraft
 } from "@/features/world/catalog/application/use-cases/manageEntityCatalogCategory"
-import { dismissToast } from "@/lib/toast"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 import { useEntityCatalogActions } from "@/features/world/catalog/presentation/useEntityCatalogActions"
 
 type Params = {

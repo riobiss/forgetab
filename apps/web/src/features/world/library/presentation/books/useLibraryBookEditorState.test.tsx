@@ -26,7 +26,7 @@ vi.mock("react-hot-toast", () => ({
   }
 }))
 
-vi.mock("@/lib/toast", () => ({
+vi.mock("@/shared/presentation/notifications/toast", () => ({
   dismissToast: mocks.dismissToast
 }))
 

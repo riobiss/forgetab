@@ -1,4 +1,8 @@
-import type { ActionType, SkillTag, SkillType } from "@/types/skillBuilder"
+import type {
+  ActionType,
+  SkillTag,
+  SkillType
+} from "@forgetab/world-contracts/skill-builder"
 
 export const actionTypeLabel: Record<ActionType, string> = {
   action: "Acao",

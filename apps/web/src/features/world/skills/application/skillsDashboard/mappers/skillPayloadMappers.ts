@@ -2,7 +2,11 @@ import type {
   CreateOrUpdateSkillPayloadDto,
   UpdateSkillLevelPayloadDto
 } from "@/features/world/skills/application/skillsDashboard/types"
-import type { SkillCategory, SkillTag, SkillType } from "@/types/skillBuilder"
+import type {
+  SkillCategory,
+  SkillTag,
+  SkillType
+} from "@forgetab/world-contracts/skill-builder"
 
 export type SkillMetaInput = {
   name: string

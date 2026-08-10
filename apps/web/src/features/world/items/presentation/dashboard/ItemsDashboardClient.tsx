@@ -14,7 +14,10 @@ import styles from "./ItemsDashboardClient.module.css"
 import type { ItemsDashboardDependencies } from "@/features/world/items/application/dashboard/contracts/ItemsDashboardDependencies"
 import { IconButton } from "@/components/button"
 import { NativeSelectField } from "@/components/select/NativeSelectField"
-import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
+import {
+  itemRarityLabel,
+  itemTypeLabel
+} from "@/shared/presentation/items/itemLabels"
 import { ItemUpsertModal } from "./ItemUpsertModal"
 import { useItemsDashboardState } from "./useItemsDashboardState"
 

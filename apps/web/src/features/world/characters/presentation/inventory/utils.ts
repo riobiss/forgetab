@@ -3,15 +3,18 @@ import type {
   CharacterInventoryRarityDto
 } from "@forgetab/world-contracts/character-inventory"
 import type { InventoryCardItem } from "./types"
-import { itemRarityLabel, itemTypeLabel } from "@/shared/items/itemLabels"
+import {
+  itemRarityLabel,
+  itemTypeLabel
+} from "@/shared/presentation/items/itemLabels"
 export {
   parseCustomFieldList,
   parseNamedDescriptionList
-} from "@/shared/items/itemFieldParsers"
+} from "@/shared/presentation/items/itemFieldParsers"
 import {
   parseCustomFieldList,
   parseNamedDescriptionList
-} from "@/shared/items/itemFieldParsers"
+} from "@/shared/presentation/items/itemFieldParsers"
 
 export function matchesInventorySearch(
   item: CharacterInventoryItemDto,

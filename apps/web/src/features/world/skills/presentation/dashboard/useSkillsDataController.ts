@@ -6,8 +6,8 @@ import {
   parseSearchIndex
 } from "@/features/world/skills/application/skillsDashboard/use-cases/skillsDashboard"
 import type { SkillsDashboardDependencies } from "@/features/world/skills/application/skillsDashboard/contracts/SkillsDashboardDependencies"
-import { normalizeEnabledAbilityCategories } from "@/lib/rpg/abilityCategories"
-import type { SkillCategory } from "@/types/skillBuilder"
+import { normalizeEnabledAbilityCategories } from "@forgetab/world-contracts/rpg/abilityCategories"
+import type { SkillCategory } from "@forgetab/world-contracts/skill-builder"
 import type {
   LevelForm,
   MetaForm,

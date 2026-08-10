@@ -1,5 +1,8 @@
-import type { ProgressionMode, ProgressionTier } from "@/lib/rpg/progression"
-import type { AbilityCategoryKey } from "@/lib/rpg/abilityCategories"
+import type {
+  ProgressionMode,
+  ProgressionTier
+} from "@forgetab/world-contracts/rpg/progression"
+import type { AbilityCategoryKey } from "@forgetab/world-contracts/rpg/abilityCategories"
 
 export type CreateRpgPayloadDto = {
   title: string

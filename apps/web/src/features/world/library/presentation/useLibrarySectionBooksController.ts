@@ -21,7 +21,7 @@ import type {
   LibraryBookDto,
   LibrarySectionDto
 } from "@/features/world/library/application/types"
-import { dismissToast } from "@/lib/toast"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 
 export type LibraryBookVisibility = "private" | "public" | "unlisted"
 

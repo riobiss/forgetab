@@ -20,7 +20,7 @@ import {
   updateLibrarySectionUseCase
 } from "@/features/world/library/application/use-cases/library"
 import type { LibrarySectionDto } from "@/features/world/library/application/types"
-import { dismissToast } from "@/lib/toast"
+import { dismissToast } from "@/shared/presentation/notifications/toast"
 import styles from "./LibrarySectionsPage.module.css"
 
 type Props = {
