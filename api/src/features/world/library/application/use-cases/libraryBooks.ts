@@ -1,7 +1,7 @@
 import { AppError } from "@/features/shared/application/errors/AppError"
 import type { LibraryAccessService } from "@/features/world/library/application/ports/LibraryAccessService"
 import type { LibraryBookRepository } from "@/features/world/library/application/ports/LibraryRepository"
-import { createLibraryBookSchema } from "@/lib/validators/library"
+import { createLibraryBookSchema } from "@forgetab/world-contracts/validation/library"
 import {
   canViewLibraryBook,
   ensureCanManageOwnedResource,

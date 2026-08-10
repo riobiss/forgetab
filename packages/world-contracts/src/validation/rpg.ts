@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { abilityCategoryKeys } from "@/lib/rpg/abilityCategories"
+import { abilityCategoryKeys } from "../rpg/abilityCategories"
 
 const progressionTierSchema = z.object({
   label: z.string().trim().min(1, "Nome da progressao e obrigatorio."),

@@ -1,8 +1,11 @@
 import { normalizeEntityCatalogMeta } from "@/features/world/catalog/domain/catalogMeta"
-import { DEFAULT_STATUS_KEYS, STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
-import { normalizeClassRaceTemplates } from "@/lib/rpg/classRaceBonuses"
-import { normalizeRaceLore } from "@/lib/rpg/raceLore"
-import slugify from "@/utils/slugify"
+import {
+  DEFAULT_STATUS_KEYS,
+  STATUS_CATALOG
+} from "@forgetab/world-contracts/rpg/statusCatalog"
+import { normalizeClassRaceTemplates } from "@forgetab/world-contracts/rpg/classRaceBonuses"
+import { normalizeRaceLore } from "@forgetab/world-contracts/rpg/raceLore"
+import slugify from "@forgetab/world-contracts/shared/slugify"
 import type { RpgConfigAccessService } from "@/features/world/application/config/ports/RpgConfigAccessService"
 import type { RpgConfigRepository } from "@/features/world/application/config/ports/RpgConfigRepository"
 import {

@@ -1,4 +1,4 @@
-import { skillLevelCreateSchema } from "@/lib/validators/skillBuilder"
+import { skillLevelCreateSchema } from "@forgetab/world-contracts/validation/skillBuilder"
 import type { SkillLevelCreateRepository } from "@/features/world/skill/application/ports/SkillRepository"
 import { AppError } from "@/features/shared/application/errors/AppError"
 import { mapSkillError } from "@/features/world/skill/application/use-cases/shared"

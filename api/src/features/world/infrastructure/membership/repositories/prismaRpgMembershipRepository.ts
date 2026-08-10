@@ -1,5 +1,5 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import type { RpgMembershipRepository } from "@/features/world/application/membership/ports/RpgMembershipRepository.js"
 import { normalizeRpgVisibility } from "@/features/world/infrastructure/shared/normalizeRpgVisibility.js"
 import { withRpgMembershipRepositoryErrors } from "@/features/world/infrastructure/membership/repositories/rpgMembershipPersistenceErrors"

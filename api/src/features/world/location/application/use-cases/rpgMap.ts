@@ -12,7 +12,7 @@ import {
   upsertRpgMapMarkerGroupSchema,
   upsertRpgMapSchema,
   upsertRpgMapSectionSchema
-} from "@/lib/validators/rpgMap"
+} from "@forgetab/world-contracts/validation/rpgMap"
 import { AppError } from "@/features/shared/application/errors/AppError"
 
 function normalizeOptionalUrl(value: unknown) {

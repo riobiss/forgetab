@@ -2,7 +2,7 @@ import {
   buildSkillSlug,
   skillMetaCreateSchema,
   type SkillMetaCreateInput
-} from "@/lib/validators/skillBuilder"
+} from "@forgetab/world-contracts/validation/skillBuilder"
 import type { RpgPermissionService } from "@/features/world/skill/application/ports/RpgPermissionService"
 import type { SkillCreateRepository } from "@/features/world/skill/application/ports/SkillRepository"
 import { AppError } from "@/features/shared/application/errors/AppError"

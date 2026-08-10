@@ -1,5 +1,5 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import type { CharacterRepository } from "@/features/world/character/application/ports/CharacterRepository.js"
 import type { CharacterRow } from "@/features/world/character/application/types.js"
 import { withCharacterPersistenceErrors } from "@/features/world/character/infrastructure/repositories/characterPersistenceErrors.js"

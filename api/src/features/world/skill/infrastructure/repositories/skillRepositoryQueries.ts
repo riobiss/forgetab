@@ -1,7 +1,7 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
-import { prisma } from "@/lib/prisma"
-import { normalizeEnabledAbilityCategories } from "@/lib/rpg/abilityCategories"
-import { createRpgScope } from "@/lib/validators/skillBuilder"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
+import { normalizeEnabledAbilityCategories } from "@forgetab/world-contracts/rpg/abilityCategories"
+import { createRpgScope } from "@forgetab/world-contracts/validation/skillBuilder"
 import type {
   AbilityCategoryConfig,
   LinkValidationResult,

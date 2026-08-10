@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import type { RpgCatalogRepository } from "@forgetab/world-contracts/catalog"
 import type { RpgCatalogItem } from "@forgetab/world-contracts/catalog"
 

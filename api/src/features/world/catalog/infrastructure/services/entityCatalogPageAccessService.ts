@@ -1,7 +1,7 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import type { EntityCatalogPageAccessService } from "@/features/world/catalog/application/ports/EntityCatalogPageAccessService"
 import { getRpgPermissionByPrisma } from "@/features/world/infrastructure/services/prismaRpgAccessResolver"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 
 type RpgAccessRow = {
   visibility: "private" | "public"

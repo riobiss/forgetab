@@ -1,4 +1,4 @@
-import type { ProgressionMode } from "@/lib/rpg/progression"
+import type { ProgressionMode } from "@forgetab/world-contracts/rpg/progression"
 import type {
   RpgAdvancedSettingsInput,
   RpgCreateBaseInput,

@@ -1,5 +1,5 @@
 import type { RpgUserProfileWriter } from "@/features/profile/application/ports/RpgUserProfileWriter"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 
 export const prismaRpgUserProfileWriter: RpgUserProfileWriter = {
   async updateRpgProfile(userId, rpgId, values) {

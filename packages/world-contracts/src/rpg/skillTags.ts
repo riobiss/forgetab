@@ -1,4 +1,4 @@
-import { skillTagValues, type SkillTag } from "@/types/skillBuilder"
+import { skillTagValues, type SkillTag } from "../skill-builder"
 
 type SkillTagMeta = {
   label: string

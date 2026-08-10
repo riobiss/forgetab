@@ -4,7 +4,7 @@ const mocks = vi.hoisted(() => ({
   queryRaw: vi.fn()
 }))
 
-vi.mock("@/lib/prisma", () => ({
+vi.mock("@/features/shared/infrastructure/database/prisma", () => ({
   prisma: {
     $queryRaw: mocks.queryRaw
   }

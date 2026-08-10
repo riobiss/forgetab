@@ -4,8 +4,8 @@ import {
   skillCategoryValues,
   skillTagValues,
   skillTypeValues
-} from "@/types/skillBuilder"
-import slugify from "@/utils/slugify"
+} from "../skill-builder"
+import slugify from "../shared/slugify"
 
 const optionalTrimmedText = z
   .union([z.string(), z.null(), z.undefined()])

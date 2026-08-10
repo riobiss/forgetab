@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import {
   fail,

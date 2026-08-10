@@ -1,4 +1,4 @@
-import { normalizeSkillTags } from "@/lib/rpg/skillTags"
+import { normalizeSkillTags } from "@forgetab/world-contracts/rpg/skillTags"
 import type { EntityCatalogAbilityView } from "@/features/world/catalog/application/types"
 
 type JsonLike = Record<string, unknown> | null

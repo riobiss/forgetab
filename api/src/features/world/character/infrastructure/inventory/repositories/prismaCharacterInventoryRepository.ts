@@ -7,7 +7,7 @@ import type {
   CharacterInventoryStoredItemRow
 } from "@/features/world/character/application/inventory/ports/CharacterInventoryRepository.js"
 import type { CharacterInventoryItemDto } from "@forgetab/world-contracts/character-inventory"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
 
 export const prismaCharacterInventoryRepository: CharacterInventoryRepository =

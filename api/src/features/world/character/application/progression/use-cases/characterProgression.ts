@@ -3,7 +3,7 @@ import {
   normalizeProgressionTiers,
   resolveProgressionTierByCurrent,
   type ProgressionMode
-} from "@/lib/rpg/progression"
+} from "@forgetab/world-contracts/rpg/progression"
 import type { CharacterProgressionPermissionService } from "@/features/world/character/application/progression/ports/CharacterProgressionPermissionService"
 import type { CharacterProgressionRepository } from "@/features/world/character/application/progression/ports/CharacterProgressionRepository"
 import { AppError } from "@/features/shared/application/errors/AppError"

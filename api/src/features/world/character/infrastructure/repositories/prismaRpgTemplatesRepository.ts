@@ -1,5 +1,5 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import type { RpgTemplatesRepository } from "@/features/world/character/application/ports/RpgTemplatesRepository.js"
 import type {
   AttributeTemplateRow,

@@ -15,8 +15,8 @@ import {
   getDefaultProgressionTiers,
   isProgressionMode,
   normalizeProgressionTiers
-} from "@/lib/rpg/progression"
-import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
+} from "@forgetab/world-contracts/rpg/progression"
+import { STATUS_CATALOG } from "@forgetab/world-contracts/rpg/statusCatalog"
 
 type Dependencies = {
   repository: CharacterDetailRepository

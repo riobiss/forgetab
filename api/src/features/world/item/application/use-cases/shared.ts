@@ -1,7 +1,7 @@
 import {
   createBaseItemSchema,
   type CreateBaseItemInput
-} from "@/lib/validators/baseItem"
+} from "@forgetab/world-contracts/validation/baseItem"
 import type {
   NormalizedCustomField,
   NormalizedBaseItemInput,

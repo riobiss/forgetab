@@ -1,4 +1,4 @@
-import type { CreateBaseItemInput } from "@/lib/validators/baseItem"
+import type { CreateBaseItemInput } from "@forgetab/world-contracts/validation/baseItem"
 
 export type ItemRecord = {
   id: string

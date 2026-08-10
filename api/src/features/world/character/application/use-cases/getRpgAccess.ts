@@ -3,7 +3,7 @@ import {
   isProgressionMode,
   normalizeProgressionTiers,
   type ProgressionMode
-} from "@/lib/rpg/progression"
+} from "@forgetab/world-contracts/rpg/progression"
 import type { RpgAccessRepository } from "@/features/world/character/application/ports/RpgAccessRepository"
 import type { RpgAccess } from "@/features/world/character/application/types"
 

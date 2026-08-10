@@ -2,7 +2,7 @@ import type { RpgAccessRepository } from "@/features/world/character/application
 import type { CharacterAbilitiesParserService } from "@/features/world/character/application/abilities/ports/CharacterAbilitiesParserService"
 import type { CharacterAbilitiesRepository } from "@/features/world/character/application/abilities/ports/CharacterAbilitiesRepository"
 import type { CharacterAbilitiesViewModel } from "@/features/world/character/application/abilities/types"
-import { normalizeSkillTags } from "@/lib/rpg/skillTags"
+import { normalizeSkillTags } from "@forgetab/world-contracts/rpg/skillTags"
 
 type LoadDependencies = {
   repository: CharacterAbilitiesRepository

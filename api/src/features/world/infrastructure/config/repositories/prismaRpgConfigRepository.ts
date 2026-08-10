@@ -1,6 +1,6 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { serializeEntityCatalogMeta } from "@/features/world/catalog/domain/catalogMeta"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import type { RpgConfigRepository } from "@/features/world/application/config/ports/RpgConfigRepository.js"
 import { withRpgConfigRepositoryErrors } from "@/features/world/infrastructure/config/repositories/rpgConfigPersistenceErrors"
 

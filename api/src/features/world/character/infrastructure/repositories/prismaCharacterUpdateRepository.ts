@@ -1,5 +1,5 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import type { CharacterUpdateRepository } from "@/features/world/character/application/ports/CharacterUpdateRepository"
 import { getCharacterSnapshotById } from "@/features/world/character/infrastructure/repositories/prismaCharacterSnapshotRepository"
 import { withCharacterPersistenceErrors } from "@/features/world/character/infrastructure/repositories/characterPersistenceErrors"

@@ -1,6 +1,6 @@
 import { Prisma } from "../../../../../generated/prisma/client.js"
 import type { ProfileWriter } from "@/features/profile/application/ports/ProfileWriter"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import { AppError } from "@/features/shared/application/errors/AppError.js"
 
 export const prismaProfileWriter: ProfileWriter = {

@@ -1,4 +1,4 @@
-import { createLibrarySectionSchema } from "@/lib/validators/library"
+import { createLibrarySectionSchema } from "@forgetab/world-contracts/validation/library"
 import type { LibraryAccessService } from "@/features/world/library/application/ports/LibraryAccessService"
 import type { LibrarySectionRepository } from "@/features/world/library/application/ports/LibraryRepository"
 import { AppError } from "@/features/shared/application/errors/AppError"

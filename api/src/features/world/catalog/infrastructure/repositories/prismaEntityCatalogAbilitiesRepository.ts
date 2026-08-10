@@ -3,7 +3,7 @@ import {
   mapEntityCatalogAbilities,
   type EntityCatalogAbilityRow
 } from "@/features/world/catalog/infrastructure/repositories/entityCatalogAbilityMappers.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import type { EntityCatalogAbilityRepository } from "@/features/world/catalog/application/ports/EntityCatalogAbilityRepository"
 
 async function queryClassAbilityRows(templateId: string) {

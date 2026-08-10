@@ -1,5 +1,5 @@
 import type { CharacterStatusCurrentRepository } from "@/features/world/character/application/statusCurrent/ports/CharacterStatusCurrentRepository.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
 
 export const prismaCharacterStatusCurrentRepository: CharacterStatusCurrentRepository =

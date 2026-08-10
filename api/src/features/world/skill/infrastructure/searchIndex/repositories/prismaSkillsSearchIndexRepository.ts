@@ -1,7 +1,7 @@
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
 import type { SkillsSearchIndexRepository } from "@/features/world/skill/application/searchIndex/ports/SkillsSearchIndexRepository"
 import type { SkillSearchIndexRow } from "@/features/world/skill/application/searchIndex/types"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import { withSkillPersistenceErrors } from "@/features/world/skill/infrastructure/repositories/skillPersistenceErrors"
 
 export const prismaSkillsSearchIndexRepository: SkillsSearchIndexRepository = {

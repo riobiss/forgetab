@@ -1,5 +1,5 @@
-import { addBonusToBase } from "@/lib/rpg/classRaceBonuses"
-import { resolveProgressionTierByCurrent } from "@/lib/rpg/progression"
+import { addBonusToBase } from "@forgetab/world-contracts/rpg/classRaceBonuses"
+import { resolveProgressionTierByCurrent } from "@forgetab/world-contracts/rpg/progression"
 import {
   getDefaultStatusTemplate,
   isValidCharacterType,

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import type { ProfileReader } from "@//features/profile/application/ports/ProfileReader"
 
 export const prismaProfileReader: ProfileReader = {

@@ -3,7 +3,7 @@ import type {
   AuthRepository,
   CreateAuthUserInput
 } from "@/features/auth/application/ports/AuthRepository.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import { AuthRepositoryError } from "@/features/auth/application/errors/AuthRepositoryError.js"
 
 async function createUser(input: CreateAuthUserInput) {

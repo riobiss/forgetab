@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import type { RpgProfileAccessService } from "@/features/profile/application/ports/RpgProfileAccessService"
 
 export const prismaRpgProfileAccessService: RpgProfileAccessService = {

@@ -1,5 +1,8 @@
 import type { JsonValue } from "@/features/shared/application/json"
-import { DEFAULT_STATUS_KEYS, STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
+import {
+  DEFAULT_STATUS_KEYS,
+  STATUS_CATALOG
+} from "@forgetab/world-contracts/rpg/statusCatalog"
 import type {
   AttributeTemplateRow,
   CharacterCharacteristicTemplateRow,

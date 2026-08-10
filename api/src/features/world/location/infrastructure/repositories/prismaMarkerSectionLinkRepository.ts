@@ -3,7 +3,7 @@ import type {
   MarkerSectionLinkMarker,
   MarkerSectionLinkRepository
 } from "@/features/world/location/application/ports/MarkerSectionLinkRepository"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 
 const MARKER_ID_FIELD = "MarcadorId"
 const MARKER_GROUP_ID_FIELD = "MarcadorGrupoId"

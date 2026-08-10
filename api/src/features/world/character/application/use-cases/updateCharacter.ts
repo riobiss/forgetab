@@ -22,7 +22,7 @@ import {
   validateSkillsPayload,
   validateStatusesPayload
 } from "@/features/world/character/application/validators"
-import { resolveProgressionTierByCurrent } from "@/lib/rpg/progression"
+import { resolveProgressionTierByCurrent } from "@forgetab/world-contracts/rpg/progression"
 
 export type UpdateCharacterPayload = {
   name?: string

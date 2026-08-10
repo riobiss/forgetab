@@ -6,7 +6,7 @@ import type {
   CharacterAbilitiesSkillClassLinkRow,
   CharacterAbilitiesSkillRaceLinkRow
 } from "@/features/world/character/application/abilities/types.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
 
 export const prismaCharacterAbilitiesRepository: CharacterAbilitiesRepository =

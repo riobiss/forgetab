@@ -6,13 +6,13 @@ import type {
   CharacterDetailRpgDto,
   CharacterDetailTemplateFieldDto
 } from "@/features/world/character/application/detail/types.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import {
   getDefaultProgressionTiers,
   isProgressionMode,
   normalizeProgressionTiers,
   type ProgressionMode
-} from "@/lib/rpg/progression"
+} from "@forgetab/world-contracts/rpg/progression"
 import { normalizeRpgVisibility } from "@/features/world/infrastructure/shared/normalizeRpgVisibility.js"
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
 

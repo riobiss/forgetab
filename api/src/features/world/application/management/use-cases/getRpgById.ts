@@ -1,9 +1,9 @@
-import { normalizeEnabledAbilityCategories } from "@/lib/rpg/abilityCategories"
+import { normalizeEnabledAbilityCategories } from "@forgetab/world-contracts/rpg/abilityCategories"
 import {
   isProgressionMode,
   normalizeProgressionTiers,
   type ProgressionMode
-} from "@/lib/rpg/progression"
+} from "@forgetab/world-contracts/rpg/progression"
 import type { RpgPermissionService } from "@/features/world/application/management/ports/RpgPermissionService"
 import type { RpgRepository } from "@/features/world/application/management/ports/RpgRepository"
 import { AppError } from "@/features/shared/application/errors/AppError"

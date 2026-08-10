@@ -4,7 +4,10 @@ import { getRpgAccess } from "@/features/world/character/application/use-cases/g
 import { getCharacterSnapshotById } from "@/features/world/character/infrastructure/repositories/prismaCharacterSnapshotRepository"
 import { prismaRpgAccessRepository } from "@/features/world/character/infrastructure/repositories/prismaRpgAccessRepository"
 import { fail } from "@/features/world/character/infrastructure/services/characterManagementErrors"
-import type { ProgressionMode, ProgressionTier } from "@/lib/rpg/progression"
+import type {
+  ProgressionMode,
+  ProgressionTier
+} from "@forgetab/world-contracts/rpg/progression"
 
 export type CharacterPermission = {
   character: CharacterRow

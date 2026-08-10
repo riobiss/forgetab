@@ -1,11 +1,11 @@
-import { createRpgSchema } from "@/lib/validators/rpg"
-import { normalizeEnabledAbilityCategories } from "@/lib/rpg/abilityCategories"
+import { createRpgSchema } from "@forgetab/world-contracts/validation/rpg"
+import { normalizeEnabledAbilityCategories } from "@forgetab/world-contracts/rpg/abilityCategories"
 import {
   enforceXpLevelPattern,
   getDefaultProgressionTiers,
   isProgressionMode,
   type ProgressionMode
-} from "@/lib/rpg/progression"
+} from "@forgetab/world-contracts/rpg/progression"
 import type { ImageGateway } from "@/features/world/application/management/ports/ImageGateway"
 import { mapRpgManagementRepositoryError } from "@/features/world/application/management/errors/mapRpgManagementRepositoryError"
 import type { RpgPermissionService } from "@/features/world/application/management/ports/RpgPermissionService"

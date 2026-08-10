@@ -2,7 +2,7 @@ import { Prisma } from "../../../../../../generated/prisma/client.js"
 import { normalizeEntityCatalogMeta } from "@/features/world/catalog/domain/catalogMeta"
 import type { CatalogEntityType } from "@/features/world/catalog/domain/types"
 import type { EntityCatalogRepository } from "@/features/world/catalog/application/ports/EntityCatalogRepository.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 
 type CatalogRow = {
   id: string

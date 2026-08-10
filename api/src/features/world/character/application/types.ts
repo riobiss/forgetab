@@ -1,5 +1,8 @@
 import type { JsonValue } from "@/features/shared/application/json"
-import type { ProgressionMode, ProgressionTier } from "@/lib/rpg/progression"
+import type {
+  ProgressionMode,
+  ProgressionTier
+} from "@forgetab/world-contracts/rpg/progression"
 
 export type CharacterRow = {
   id: string

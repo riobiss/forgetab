@@ -1,6 +1,6 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
-import { prisma } from "@/lib/prisma"
-import type { ProgressionMode } from "@/lib/rpg/progression"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
+import type { ProgressionMode } from "@forgetab/world-contracts/rpg/progression"
 import type { RpgRepository } from "@/features/world/application/management/ports/RpgRepository.js"
 import type {
   RpgAdvancedSettingsInput,

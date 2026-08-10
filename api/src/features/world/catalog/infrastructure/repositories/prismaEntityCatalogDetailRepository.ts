@@ -3,7 +3,7 @@ import type {
   EntityCatalogDetailRepository,
   EntityCatalogDetailSnapshot
 } from "@/features/world/catalog/application/ports/EntityCatalogDetailRepository.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import {
   mapClassDetailRow,
   mapRaceDetailRow,

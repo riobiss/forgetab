@@ -1,4 +1,4 @@
-import { abilityCategoryKeys } from "@/lib/rpg/abilityCategories"
+import { abilityCategoryKeys } from "./rpg/abilityCategories"
 
 export const actionTypeValues = [
   "action",

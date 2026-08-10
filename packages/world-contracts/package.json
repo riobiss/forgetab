@@ -14,6 +14,13 @@
     "./character-inventory": "./src/character-inventory.ts",
     "./dashboard": "./src/dashboard.ts",
     "./location": "./src/location.ts",
-    "./media": "./src/media.ts"
+    "./media": "./src/media.ts",
+    "./rpg/*": "./src/rpg/*.ts",
+    "./shared/slugify": "./src/shared/slugify.ts",
+    "./skill-builder": "./src/skill-builder.ts",
+    "./validation/*": "./src/validation/*.ts"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
   }
 }

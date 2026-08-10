@@ -4,7 +4,7 @@ import type {
   CharacterAbilityMutationRepository
 } from "@/features/world/character/application/abilities/ports/CharacterAbilityMutationRepository"
 import { toCharacterRepositoryError } from "@/features/world/character/infrastructure/repositories/characterPersistenceErrors"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 
 type CharacterLockedRow = NonNullable<
   CharacterAbilityMutationContext["character"]

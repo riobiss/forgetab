@@ -3,7 +3,7 @@ import type {
   CharacterDashboardCardDto,
   CharactersDashboardRpgDto
 } from "@/features/world/character/application/dashboard/types.js"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import { normalizeRpgVisibility } from "@/features/world/infrastructure/shared/normalizeRpgVisibility.js"
 import { Prisma } from "../../../../../../../generated/prisma/client.js"
 

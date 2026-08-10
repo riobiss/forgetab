@@ -1,5 +1,5 @@
 import { AppError } from "@/features/shared/application/errors/AppError"
-import { STATUS_CATALOG } from "@/lib/rpg/statusCatalog"
+import { STATUS_CATALOG } from "@forgetab/world-contracts/rpg/statusCatalog"
 import type { RpgDashboardAccessService } from "@/features/world/application/dashboard/ports/RpgDashboardAccessService"
 import type {
   RpgDashboardRepository,

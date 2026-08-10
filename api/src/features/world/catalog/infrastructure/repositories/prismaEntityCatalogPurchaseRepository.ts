@@ -1,6 +1,6 @@
 import { Prisma } from "../../../../../../generated/prisma/client.js"
 import type { EntityCatalogPurchaseRepository } from "@/features/world/catalog/application/ports/EntityCatalogPurchaseRepository"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/features/shared/infrastructure/database/prisma"
 import {
   emptyPurchaseState,
   toOwnedBySkill
