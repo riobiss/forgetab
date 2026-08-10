@@ -53,8 +53,8 @@ const eslintConfig = defineConfig([
   },
   {
     files: [
-      "api/src/features/{auth,http,media,session}/application/**/*.ts",
-      "apps/web/src/features/{auth,http,media,session}/application/**/*.{ts,tsx}"
+      "api/src/features/**/application/**/*.ts",
+      "apps/web/src/features/**/application/**/*.{ts,tsx}"
     ],
     rules: {
       "no-restricted-imports": [
@@ -129,8 +129,8 @@ const eslintConfig = defineConfig([
   },
   {
     files: [
-      "api/src/features/{auth,http,media,session}/application/**/*.ts",
-      "apps/web/src/features/{auth,http,media,session}/application/**/*.{ts,tsx}"
+      "api/src/features/**/application/**/*.ts",
+      "apps/web/src/features/**/application/**/*.{ts,tsx}"
     ],
     ignores: ["**/*.test.ts", "**/*.test.tsx"],
     rules: {
