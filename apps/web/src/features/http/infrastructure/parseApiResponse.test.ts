@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 
-import { parseApiResponse } from "./parseApiResponse"
+import {
+  ApiResponseError,
+  ensureApiResponse,
+  parseApiResponse
+} from "./parseApiResponse"
 
 describe("parseApiResponse", () => {
   it("retorna o JSON de uma resposta valida", async () => {
@@ -21,7 +25,23 @@ describe("parseApiResponse", () => {
       }
     )
 
-    await expect(parseApiResponse(response)).rejects.toThrow("Nao encontrado.")
+    await expect(parseApiResponse(response)).rejects.toMatchObject({
+      message: "Nao encontrado.",
+      status: 404
+    })
+  })
+
+  it("aceita respostas vazias quando apenas o status importa", async () => {
+    await expect(
+      ensureApiResponse(new Response(null, { status: 204 }))
+    ).resolves.toBeUndefined()
+  })
+
+  it("preserva status no erro HTTP padrao", async () => {
+    const promise = ensureApiResponse(new Response(null, { status: 502 }))
+
+    await expect(promise).rejects.toBeInstanceOf(ApiResponseError)
+    await expect(promise).rejects.toMatchObject({ status: 502 })
   })
 
   it("produz erro estavel para resposta invalida", async () => {

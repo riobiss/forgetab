@@ -1,4 +1,5 @@
 import type { CharactersEditorDependencies } from "@/features/world/characters/application/editor/contracts/CharactersEditorDependencies"
+import type { UploadImageFile } from "@/features/media/application/types"
 import type {
   UpdateCharacterPayloadDto,
   UpsertCharacterPayloadDto
@@ -53,7 +54,7 @@ export async function deleteCharacterUseCase(
 
 export async function uploadCharacterImageUseCase(
   deps: Dependencies,
-  params: { file: File }
+  params: { file: UploadImageFile }
 ) {
   return deps.gateway.uploadCharacterImage(params.file)
 }

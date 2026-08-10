@@ -1,5 +1,6 @@
 import type { MarkerSectionLinkGateway } from "@/features/world/location/application/contracts/MarkerSectionLinkGateway"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
+import { parseApiResponse } from "@/features/http/infrastructure/parseApiResponse"
 
 export const httpMarkerSectionLinkGateway: MarkerSectionLinkGateway = {
   async setLink(params) {
@@ -14,17 +15,13 @@ export const httpMarkerSectionLinkGateway: MarkerSectionLinkGateway = {
         })
       }
     )
-    const payload = (await response.json().catch(() => ({}))) as {
+    const payload = await parseApiResponse<{
       markerId?: string
       sectionId?: string | null
-      message?: string
-    }
-    if (!response.ok) {
-      throw new Error(
-        payload.message ??
-          `${response.status} ${response.statusText || "Request failed"}`
-      )
-    }
+    }>(response, {
+      fallbackMessage: `${response.status} ${response.statusText || "Request failed"}`,
+      invalidResponseMessage: "Resposta invalida ao vincular marcador."
+    })
     if (!payload.markerId || payload.sectionId === undefined) {
       throw new Error("Resposta invalida ao vincular marcador.")
     }

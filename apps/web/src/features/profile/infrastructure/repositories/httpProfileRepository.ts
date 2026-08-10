@@ -1,10 +1,7 @@
 import type { ProfileReader } from "@/features/profile/application/ports/ProfileReader"
 import type { ProfileViewData } from "@/features/profile/application/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-type ErrorPayload = {
-  message?: string
-}
+import { parseApiResponse } from "@/features/http/infrastructure/parseApiResponse"
 
 type ApiProfilePayload = {
   name: string | null
@@ -34,25 +31,17 @@ export class HttpProfileError extends Error {
   }
 }
 
-async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & ErrorPayload
-  if (!response.ok) {
-    throw new HttpProfileError(
-      payload.message ?? "Erro ao carregar perfil.",
-      response.status
-    )
-  }
-
-  return payload
-}
-
 export const httpProfileReader: ProfileReader = {
   async getProfile(): Promise<ProfileViewData> {
     const response = await apiFetch("/api/profile", {
       next: { revalidate: 0 },
       cache: "no-store"
     })
-    const payload = await parseJsonResponse<ApiProfilePayload>(response)
+    const payload = await parseApiResponse<ApiProfilePayload>(response, {
+      fallbackMessage: "Erro ao carregar perfil.",
+      invalidResponseMessage: "Resposta de perfil invalida.",
+      errorFactory: (message, status) => new HttpProfileError(message, status)
+    })
 
     return {
       name: payload.name,

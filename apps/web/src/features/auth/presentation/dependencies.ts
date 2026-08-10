@@ -1,7 +1,7 @@
 import { httpAuthClientGateway } from "@/features/auth/infrastructure/gateways/httpAuthClientGateway"
-import { clientAuthSession } from "@/features/auth/infrastructure/session/clientAuthSession"
+import { browserAuthSession } from "@/features/session/infrastructure/services/browserAuthSession"
 
 export const authClientDependencies = {
   gateway: httpAuthClientGateway,
-  session: clientAuthSession
+  session: browserAuthSession
 } as const

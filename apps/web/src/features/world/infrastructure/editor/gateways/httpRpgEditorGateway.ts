@@ -9,6 +9,7 @@ import type {
   UpdateRpgPayloadDto
 } from "@/features/world/application/editor/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
+import { appendImageFile } from "@/features/media/infrastructure/appendImageFile"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 export const httpRpgEditorGateway: RpgEditorGateway = {
@@ -213,9 +214,9 @@ export const httpRpgEditorGateway: RpgEditorGateway = {
     await parseJson<{ message?: string }>(response)
   },
 
-  async uploadRpgImage(file: File): Promise<{ url: string }> {
+  async uploadRpgImage(file): Promise<{ url: string }> {
     const formData = new FormData()
-    formData.append("file", file)
+    await appendImageFile(formData, "file", file)
     const response = await apiFetch("/api/uploads/rpg-image", {
       method: "POST",
       body: formData

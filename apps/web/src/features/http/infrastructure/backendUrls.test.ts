@@ -5,31 +5,22 @@ const originalInternalApiBaseUrl = process.env.API_INTERNAL_BASE_URL
 
 afterEach(() => {
   vi.resetModules()
-  vi.doUnmock("next/headers")
   vi.unstubAllEnvs()
   process.env.NEXT_PUBLIC_API_BASE_URL = originalApiBaseUrl
   process.env.API_INTERNAL_BASE_URL = originalInternalApiBaseUrl
 })
 
 describe("resolveApiUrl", () => {
-  it("usa a origem da requisicao atual no server quando nao ha base URL explicita", async () => {
+  it("exige base URL explicita no server em producao", async () => {
     vi.stubEnv("NODE_ENV", "production")
     delete process.env.NEXT_PUBLIC_API_BASE_URL
     delete process.env.API_INTERNAL_BASE_URL
     vi.stubGlobal("window", undefined)
 
-    vi.doMock("next/headers", () => ({
-      headers: async () =>
-        new Headers({
-          "x-forwarded-proto": "https",
-          "x-forwarded-host": "example.com"
-        })
-    }))
-
     const { resolveApiUrl } = await import("./backendUrls")
 
-    await expect(resolveApiUrl("/api/rpg")).resolves.toBe(
-      "https://example.com/api/rpg"
+    await expect(resolveApiUrl("/api/rpg")).rejects.toThrow(
+      "API base URL nao configurada"
     )
     vi.unstubAllGlobals()
   })
@@ -77,7 +68,7 @@ describe("resolveApiUrl", () => {
     vi.unstubAllGlobals()
   })
 
-  it("mantem caminho relativo no browser sem base URL publica configurada", async () => {
+  it("usa a API local no browser sem base URL publica em desenvolvimento", async () => {
     vi.stubEnv("NODE_ENV", "development")
     delete process.env.NEXT_PUBLIC_API_BASE_URL
     delete process.env.API_INTERNAL_BASE_URL
@@ -88,7 +79,20 @@ describe("resolveApiUrl", () => {
 
     const { resolveApiUrl } = await import("./backendUrls")
 
-    await expect(resolveApiUrl("/api/rpg")).resolves.toBe("/api/rpg")
+    await expect(resolveApiUrl("/api/rpg")).resolves.toBe(
+      "http://localhost:4000/api/rpg"
+    )
+    vi.unstubAllGlobals()
+  })
+
+  it("rejeita URL absoluta para impedir chamadas fora da API configurada", async () => {
+    vi.stubEnv("NODE_ENV", "development")
+    vi.stubGlobal("window", undefined)
+    const { resolveApiUrl } = await import("./backendUrls")
+
+    await expect(
+      resolveApiUrl("https://attacker.example/collect")
+    ).rejects.toThrow("must not be an absolute URL")
     vi.unstubAllGlobals()
   })
 })

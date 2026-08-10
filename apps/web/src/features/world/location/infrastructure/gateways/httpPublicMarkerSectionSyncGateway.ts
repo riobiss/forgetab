@@ -1,5 +1,6 @@
 import type { MarkerSectionSyncGateway } from "@/features/world/location/application/contracts/MarkerSectionSyncGateway"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
+import { ensureApiResponse } from "@/features/http/infrastructure/parseApiResponse"
 
 export const httpPublicMarkerSectionSyncGateway: MarkerSectionSyncGateway = {
   async update(params) {
@@ -11,14 +12,8 @@ export const httpPublicMarkerSectionSyncGateway: MarkerSectionSyncGateway = {
         body: JSON.stringify(params.update)
       }
     )
-    const payload = (await response.json().catch(() => ({}))) as {
-      message?: string
-    }
-    if (!response.ok) {
-      throw new Error(
-        payload.message ??
-          `${response.status} ${response.statusText || "Request failed"}`
-      )
-    }
+    await ensureApiResponse(response, {
+      fallbackMessage: `${response.status} ${response.statusText || "Request failed"}`
+    })
   }
 }

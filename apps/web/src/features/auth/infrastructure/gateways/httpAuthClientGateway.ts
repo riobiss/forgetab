@@ -4,16 +4,18 @@ import type {
   RegisterPayload
 } from "@/features/auth/application/contracts/AuthClientGateway"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
+import { parseApiResponse } from "@/features/http/infrastructure/parseApiResponse"
 
 async function parseResponse(response: Response) {
-  const payload = (await response.json()) as {
+  const payload = await parseApiResponse<{
     message?: string
     token?: string
     maxAge?: number
-  }
-  if (!response.ok) {
-    throw new Error(payload.message ?? "Erro inesperado.")
-  }
+  }>(response, {
+    fallbackMessage: "Erro inesperado.",
+    invalidResponseMessage: "Resposta de autenticacao invalida."
+  })
+
   if (!payload.token || typeof payload.maxAge !== "number") {
     throw new Error("Resposta de autenticacao invalida.")
   }
@@ -49,8 +51,9 @@ export const httpAuthClientGateway: AuthClientGateway = {
       cache: "no-store"
     })
 
-    if (!response.ok) {
-      throw new Error("Nao foi possivel encerrar a sessao.")
-    }
+    await parseApiResponse<{ ok: true }>(response, {
+      fallbackMessage: "Nao foi possivel encerrar a sessao.",
+      invalidResponseMessage: "Resposta de logout invalida."
+    })
   }
 }

@@ -4,6 +4,7 @@ import type {
   UpdateCharacterPayloadDto,
   UpsertCharacterPayloadDto
 } from "@forgetab/world-contracts/character-editor"
+import type { UploadImageFile } from "@/features/media/application/types"
 
 export interface CharactersEditorGateway {
   fetchBootstrap(
@@ -24,6 +25,6 @@ export interface CharactersEditorGateway {
     payload: UpdateCharacterPayloadDto
   ): Promise<CharacterEditorSummaryDto>
   deleteCharacter(rpgId: string, characterId: string): Promise<void>
-  uploadCharacterImage(file: File): Promise<{ url: string }>
+  uploadCharacterImage(file: UploadImageFile): Promise<{ url: string }>
   deleteCharacterImageByUrl(url: string): Promise<void>
 }

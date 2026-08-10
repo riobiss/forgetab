@@ -7,6 +7,7 @@ import type {
   RpgEditorTemplateFieldDto,
   UpdateRpgPayloadDto
 } from "@/features/world/application/editor/types"
+import type { UploadImageFile } from "@/features/media/application/types"
 
 export interface RpgEditorGateway {
   fetchBootstrap(rpgId: string): Promise<RpgEditorBootstrapDto>
@@ -35,6 +36,6 @@ export interface RpgEditorGateway {
     fields: RpgEditorIdentityFieldDto[]
   ): Promise<void>
   deleteRpg(rpgId: string): Promise<void>
-  uploadRpgImage(file: File): Promise<{ url: string }>
+  uploadRpgImage(file: UploadImageFile): Promise<{ url: string }>
   deleteRpgImageByUrl(url: string): Promise<void>
 }

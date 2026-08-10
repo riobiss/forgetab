@@ -1,3 +1,5 @@
+import type { AuthClientSession } from "@/features/session/application/ports/AuthClientSession"
+
 export type LoginPayload = {
   email: string
   password: string
@@ -18,11 +20,6 @@ export interface AuthClientGateway {
     payload: RegisterPayload
   ): Promise<{ message?: string; token: string; maxAge: number }>
   logout(): Promise<void>
-}
-
-export interface AuthClientSession {
-  persist(token: string, maxAge: number): void
-  clear(): void
 }
 
 export type AuthClientDependencies = {

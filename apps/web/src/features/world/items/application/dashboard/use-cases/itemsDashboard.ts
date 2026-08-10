@@ -1,4 +1,5 @@
 import type { ItemsDashboardDependencies } from "@/features/world/items/application/dashboard/contracts/ItemsDashboardDependencies"
+import type { UploadImageFile } from "@/features/media/application/types"
 import type {
   GiveItemPayloadDto,
   UpsertItemPayloadDto
@@ -43,7 +44,7 @@ export async function updateItemUseCase(
 
 export async function uploadItemImageUseCase(
   deps: Dependencies,
-  params: { file: File }
+  params: { file: UploadImageFile }
 ) {
   return deps.gateway.uploadItemImage(params.file)
 }

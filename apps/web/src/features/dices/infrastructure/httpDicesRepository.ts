@@ -1,33 +1,23 @@
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import type { DicesRepository } from "@/features/dices/application/ports/DicesRepository"
 import type { DiceRollResponse } from "@/features/dices/application/types"
+import { parseApiResponse } from "@/features/http/infrastructure/parseApiResponse"
 
 const GENERIC_DICE_ROLL_ERROR =
   "Nao foi possivel girar os dados agora. Tente novamente."
-
-type ErrorPayload = {
-  message?: string
-}
 
 export class DicesTechnicalError extends Error {}
 export class DicesValidationError extends Error {}
 
 async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const contentType = response.headers.get("content-type") ?? ""
-  if (!contentType.includes("application/json")) {
-    throw new DicesTechnicalError(GENERIC_DICE_ROLL_ERROR)
-  }
-
-  const payload = (await response.json()) as T & ErrorPayload
-  if (!response.ok) {
-    if (payload.message) {
-      throw new DicesValidationError(payload.message)
-    }
-
-    throw new DicesTechnicalError(GENERIC_DICE_ROLL_ERROR)
-  }
-
-  return payload
+  return parseApiResponse<T>(response, {
+    fallbackMessage: GENERIC_DICE_ROLL_ERROR,
+    invalidResponseMessage: GENERIC_DICE_ROLL_ERROR,
+    errorFactory: (message) =>
+      message === GENERIC_DICE_ROLL_ERROR
+        ? new DicesTechnicalError(message)
+        : new DicesValidationError(message)
+  })
 }
 
 export const httpDicesRepository: DicesRepository = {

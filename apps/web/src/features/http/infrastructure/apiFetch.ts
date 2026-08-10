@@ -1,8 +1,5 @@
 import { resolveApiUrl } from "@/features/http/infrastructure/backendUrls"
-import { TOKEN_COOKIE_NAME } from "@/lib/auth/constants"
-import { getClientAuthToken } from "@/features/auth/infrastructure/session/clientAuthSession"
-
-export { buildApiUrl } from "@/features/http/infrastructure/backendUrls"
+import { getBrowserAuthToken } from "@/features/session/infrastructure/services/browserAuthSession"
 
 async function getServerAuthToken() {
   if (typeof window !== "undefined") {
@@ -10,9 +7,9 @@ async function getServerAuthToken() {
   }
 
   try {
-    const { cookies } = await import("next/headers")
-    const cookieStore = await cookies()
-    return cookieStore.get(TOKEN_COOKIE_NAME)?.value ?? null
+    const { getServerAuthToken } =
+      await import("@/features/session/infrastructure/services/cookieCurrentUserSessionService")
+    return getServerAuthToken()
   } catch {
     return null
   }
@@ -27,7 +24,7 @@ async function buildAuthHeaders(headers: HeadersInit | undefined) {
   const token =
     typeof window === "undefined"
       ? await getServerAuthToken()
-      : getClientAuthToken()
+      : getBrowserAuthToken()
 
   if (token) {
     nextHeaders.set("Authorization", `Bearer ${token}`)

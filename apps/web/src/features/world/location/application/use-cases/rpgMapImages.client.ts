@@ -1,4 +1,5 @@
 import type { RpgMapImagesGateway } from "@/features/world/location/application/contracts/RpgMapImagesGateway"
+import type { UploadImageFile } from "@/features/media/application/types"
 
 export function persistRpgMapImageUseCase(
   gateway: RpgMapImagesGateway,
@@ -9,7 +10,7 @@ export function persistRpgMapImageUseCase(
 
 export function uploadRpgMapImageUseCase(
   gateway: RpgMapImagesGateway,
-  params: { file: File; oldUrl?: string | null }
+  params: { file: UploadImageFile; oldUrl?: string | null }
 ) {
   return gateway.uploadMapImage(params.file, params.oldUrl)
 }
@@ -23,7 +24,7 @@ export function deleteRpgMapImageByUrlUseCase(
 
 export function uploadRpgMapSectionImageUseCase(
   gateway: RpgMapImagesGateway,
-  params: { file: File; oldUrl?: string | null }
+  params: { file: UploadImageFile; oldUrl?: string | null }
 ) {
   return gateway.uploadSectionImage(params.file, params.oldUrl)
 }
@@ -37,7 +38,7 @@ export function deleteRpgMapSectionImageByUrlUseCase(
 
 export function uploadRpgMapMarkerImageUseCase(
   gateway: RpgMapImagesGateway,
-  params: { file: File; oldUrl?: string | null }
+  params: { file: UploadImageFile; oldUrl?: string | null }
 ) {
   return gateway.uploadMarkerImage(params.file, params.oldUrl)
 }

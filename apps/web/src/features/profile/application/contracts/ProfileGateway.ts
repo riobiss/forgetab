@@ -1,3 +1,5 @@
+import type { UploadImageFile } from "@/features/media/application/types"
+
 export type UpdateProfilePayload = {
   name?: string
   username?: string
@@ -9,7 +11,7 @@ export type UpdateRpgProfilePayload = {
 }
 
 export type UploadRpgProfileImagePayload = {
-  file: File
+  file: UploadImageFile
   oldUrl?: string | null
 }
 

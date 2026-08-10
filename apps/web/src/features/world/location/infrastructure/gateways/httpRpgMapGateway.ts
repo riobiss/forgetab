@@ -9,18 +9,14 @@ import type {
   UpsertRpgMapSectionPayloadDto
 } from "@forgetab/world-contracts/location"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
-
-type ErrorPayload = { message?: string; url?: string; mapImage?: string | null }
+import { parseApiResponse } from "@/features/http/infrastructure/parseApiResponse"
+import { appendImageFile } from "@/features/media/infrastructure/appendImageFile"
 
 async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json().catch(() => ({}))) as T & ErrorPayload
-  if (!response.ok) {
-    throw new Error(
-      payload.message ??
-        `${response.status} ${response.statusText || "Request failed"}${payload.url ? ` (${payload.url})` : ""}`
-    )
-  }
-  return payload
+  return parseApiResponse<T>(response, {
+    fallbackMessage: `${response.status} ${response.statusText || "Request failed"}`,
+    invalidResponseMessage: "Resposta invalida da API de mapas."
+  })
 }
 
 export const httpRpgMapGateway: RpgMapGateway = {
@@ -189,7 +185,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
 
   async uploadMapImage(file, oldUrl) {
     const formData = new FormData()
-    formData.append("file", file)
+    await appendImageFile(formData, "file", file)
     if (oldUrl) {
       formData.append("oldUrl", oldUrl)
     }
@@ -212,7 +208,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
 
   async uploadSectionImage(file, oldUrl) {
     const formData = new FormData()
-    formData.append("file", file)
+    await appendImageFile(formData, "file", file)
     if (oldUrl) {
       formData.append("oldUrl", oldUrl)
     }
@@ -235,7 +231,7 @@ export const httpRpgMapGateway: RpgMapGateway = {
 
   async uploadMarkerImage(file, oldUrl) {
     const formData = new FormData()
-    formData.append("file", file)
+    await appendImageFile(formData, "file", file)
     if (oldUrl) {
       formData.append("oldUrl", oldUrl)
     }

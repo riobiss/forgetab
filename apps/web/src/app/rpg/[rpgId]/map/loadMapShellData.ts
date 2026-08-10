@@ -1,17 +1,6 @@
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { fetchRpgDashboardViewModel } from "@/features/world/infrastructure/dashboard/repositories/httpRpgDashboardViewModelRepository"
-
-type ErrorPayload = {
-  message?: string
-}
-
-async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & ErrorPayload
-  if (!response.ok) {
-    throw new Error(payload.message ?? "Erro ao carregar mapas.")
-  }
-  return payload
-}
+import { parseApiResponse } from "@/features/http/infrastructure/parseApiResponse"
 
 export async function loadMapShellData(rpgId: string, mapId?: string) {
   let dashboard: Awaited<ReturnType<typeof fetchRpgDashboardViewModel>> | null =
@@ -29,11 +18,12 @@ export async function loadMapShellData(rpgId: string, mapId?: string) {
   let map = null
   if (mapId) {
     try {
-      const payload = await parseJsonResponse<{ map?: { title: string } }>(
+      const payload = await parseApiResponse<{ map?: { title: string } }>(
         await apiFetch(`/api/rpg/${rpgId}/maps/${mapId}`, {
           next: { revalidate: 0 },
           cache: "no-store"
-        })
+        }),
+        { fallbackMessage: "Erro ao carregar mapas." }
       )
       map = payload.map ?? null
     } catch {

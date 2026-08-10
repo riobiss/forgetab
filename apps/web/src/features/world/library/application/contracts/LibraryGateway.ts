@@ -8,6 +8,7 @@ import type {
   UpsertLibraryBookPayloadDto,
   UpsertLibrarySectionPayloadDto
 } from "@/features/world/library/application/types"
+import type { UploadImageFile } from "@/features/media/application/types"
 
 export interface LibraryGateway {
   fetchSections(rpgId: string): Promise<LibrarySectionsViewDto>
@@ -53,5 +54,5 @@ export interface LibraryGateway {
     payload: UpsertLibraryBookPayloadDto
   ): Promise<LibraryBookDto>
   deleteBook(rpgId: string, bookId: string): Promise<void>
-  uploadLibraryImage(file: File): Promise<{ url: string }>
+  uploadLibraryImage(file: UploadImageFile): Promise<{ url: string }>
 }

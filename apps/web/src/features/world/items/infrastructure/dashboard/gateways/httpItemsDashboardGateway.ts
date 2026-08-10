@@ -8,6 +8,7 @@ import type {
 } from "@/features/world/items/application/dashboard/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
+import { appendImageFile } from "@/features/media/infrastructure/appendImageFile"
 
 function itemPath(rpgId: string, itemId?: string) {
   const basePath = `/api/rpg/${encodeURIComponent(rpgId)}/items`
@@ -65,9 +66,9 @@ export const httpItemsDashboardGateway: ItemsDashboardGateway = {
     return result.item
   },
 
-  async uploadItemImage(file: File): Promise<{ url: string }> {
+  async uploadItemImage(file): Promise<{ url: string }> {
     const formData = new FormData()
-    formData.append("file", file)
+    await appendImageFile(formData, "file", file)
     const response = await apiFetch("/api/uploads/item-image", {
       method: "POST",
       body: formData

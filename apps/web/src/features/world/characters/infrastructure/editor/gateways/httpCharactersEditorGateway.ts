@@ -10,6 +10,7 @@ import type {
   UpsertCharacterPayloadDto
 } from "@forgetab/world-contracts/character-editor"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
+import { appendImageFile } from "@/features/media/infrastructure/appendImageFile"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 async function fetchCharactersList(
@@ -214,9 +215,9 @@ export const httpCharactersEditorGateway: CharactersEditorGateway = {
     await parseJson<{ message?: string }>(response)
   },
 
-  async uploadCharacterImage(file: File): Promise<{ url: string }> {
+  async uploadCharacterImage(file): Promise<{ url: string }> {
     const formData = new FormData()
-    formData.append("file", file)
+    await appendImageFile(formData, "file", file)
     const response = await apiFetch("/api/uploads/character-image", {
       method: "POST",
       body: formData

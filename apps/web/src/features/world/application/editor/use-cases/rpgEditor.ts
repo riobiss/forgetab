@@ -1,4 +1,5 @@
 import type { RpgEditorDependencies } from "@/features/world/application/editor/contracts/RpgEditorDependencies"
+import type { UploadImageFile } from "@/features/media/application/types"
 import type {
   CreateRpgPayloadDto,
   RpgEditorCatalogOptionDto,
@@ -91,7 +92,7 @@ export async function deleteRpgUseCase(
 
 export async function uploadRpgImageUseCase(
   deps: Dependencies,
-  params: { file: File }
+  params: { file: UploadImageFile }
 ) {
   return deps.gateway.uploadRpgImage(params.file)
 }

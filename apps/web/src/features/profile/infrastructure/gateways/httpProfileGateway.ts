@@ -5,6 +5,11 @@ import type {
   UploadRpgProfileImagePayload
 } from "@/features/profile/application/contracts/ProfileGateway"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
+import {
+  ensureApiResponse,
+  parseApiResponse
+} from "@/features/http/infrastructure/parseApiResponse"
+import { appendImageFile } from "@/features/media/infrastructure/appendImageFile"
 
 type ErrorPayload = {
   message?: string
@@ -28,14 +33,11 @@ async function parseMutationResponse(
   response: Response,
   fallbackMessage: string
 ) {
-  const payload = (await response.json().catch(() => ({}))) as ErrorPayload
-
-  if (!response.ok) {
-    throw new HttpProfileGatewayError(
-      payload.message ?? fallbackMessage,
-      response.status
-    )
-  }
+  await ensureApiResponse(response, {
+    fallbackMessage,
+    errorFactory: (message, status) =>
+      new HttpProfileGatewayError(message, status)
+  })
 }
 
 export const httpProfileGateway: ProfileGateway = {
@@ -65,7 +67,7 @@ export const httpProfileGateway: ProfileGateway = {
 
   async uploadRpgProfileImage(payload: UploadRpgProfileImagePayload) {
     const formData = new FormData()
-    formData.append("file", payload.file)
+    await appendImageFile(formData, "file", payload.file)
 
     if (payload.oldUrl) {
       formData.append("oldUrl", payload.oldUrl)
@@ -75,15 +77,18 @@ export const httpProfileGateway: ProfileGateway = {
       method: "POST",
       body: formData
     })
-    const responsePayload = (await response
-      .json()
-      .catch(() => ({}))) as UploadImagePayload
+    const responsePayload = await parseApiResponse<UploadImagePayload>(
+      response,
+      {
+        fallbackMessage: "Erro ao enviar imagem.",
+        invalidResponseMessage: "Resposta de upload invalida.",
+        errorFactory: (message, status) =>
+          new HttpProfileGatewayError(message, status)
+      }
+    )
 
-    if (!response.ok || !responsePayload.url) {
-      throw new HttpProfileGatewayError(
-        responsePayload.message ?? "Erro ao enviar imagem.",
-        response.status
-      )
+    if (!responsePayload.url) {
+      throw new HttpProfileGatewayError("Resposta de upload invalida.", 502)
     }
 
     return { url: responsePayload.url }

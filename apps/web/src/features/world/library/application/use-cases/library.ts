@@ -1,4 +1,5 @@
 import type { LibraryDependencies } from "@/features/world/library/application/contracts/LibraryDependencies"
+import type { UploadImageFile } from "@/features/media/application/types"
 import type {
   UpsertLibraryBookPayloadDto,
   UpsertLibrarySectionPayloadDto
@@ -101,7 +102,7 @@ export async function deleteLibraryBookUseCase(
 
 export async function uploadLibraryImageUseCase(
   deps: Dependencies,
-  params: { file: File }
+  params: { file: UploadImageFile }
 ) {
   return deps.gateway.uploadLibraryImage(params.file)
 }

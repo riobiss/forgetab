@@ -7,6 +7,7 @@ import type {
   RpgUserOptionDto
 } from "@/features/world/library/application/types"
 import { apiFetch } from "@/features/http/infrastructure/apiFetch"
+import { appendImageFile } from "@/features/media/infrastructure/appendImageFile"
 import { parseApiResponse as parseJson } from "@/features/http/infrastructure/parseApiResponse"
 
 export const httpLibraryGateway: LibraryGateway = {
@@ -143,7 +144,7 @@ export const httpLibraryGateway: LibraryGateway = {
 
   async uploadLibraryImage(file) {
     const formData = new FormData()
-    formData.append("file", file)
+    await appendImageFile(formData, "file", file)
     const result = await parseJson<{ url?: string }>(
       await apiFetch("/api/uploads/library-image", {
         method: "POST",

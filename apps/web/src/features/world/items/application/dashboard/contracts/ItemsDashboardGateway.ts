@@ -5,6 +5,7 @@ import type {
   ItemEditorDetailDto,
   UpsertItemPayloadDto
 } from "@/features/world/items/application/dashboard/types"
+import type { UploadImageFile } from "@/features/media/application/types"
 
 export interface ItemsDashboardGateway {
   fetchDashboardData(rpgId: string): Promise<{
@@ -21,7 +22,7 @@ export interface ItemsDashboardGateway {
     itemId: string,
     payload: UpsertItemPayloadDto
   ): Promise<ItemEditorDetailDto>
-  uploadItemImage(file: File): Promise<{ url: string }>
+  uploadItemImage(file: UploadImageFile): Promise<{ url: string }>
   deleteItemImageByUrl(url: string): Promise<void>
   deleteItem(rpgId: string, itemId: string): Promise<void>
   giveItem(

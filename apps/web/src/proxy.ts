@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { jwtVerify } from "jose"
-import { TOKEN_COOKIE_NAME } from "@/lib/auth/constants"
-import { jwtSecret } from "@/lib/auth/token"
+import { SESSION_COOKIE_NAME } from "@/features/session/domain/sessionConfig"
+import { joseAuthTokenVerifier } from "@/features/session/infrastructure/services/joseAuthTokenVerifier"
 
 const authPages = new Set(["/login", "/register"])
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
 
-  const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value
 
   if (!token) {
     if (authPages.has(pathname)) {
@@ -22,7 +21,7 @@ export async function proxy(request: NextRequest) {
   }
 
   try {
-    await jwtVerify(token, jwtSecret)
+    await joseAuthTokenVerifier.verify(token)
 
     if (authPages.has(pathname)) {
       return NextResponse.redirect(new URL("/", request.url))
@@ -35,7 +34,7 @@ export async function proxy(request: NextRequest) {
 
     const response = NextResponse.redirect(loginUrl)
     response.cookies.set({
-      name: TOKEN_COOKIE_NAME,
+      name: SESSION_COOKIE_NAME,
       value: "",
       path: "/",
       maxAge: 0

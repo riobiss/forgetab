@@ -1,3 +1,5 @@
+import type { UploadImageFile } from "@/features/media/application/types"
+
 export interface RpgMapImagesGateway {
   saveMapImage(
     rpgId: string,
@@ -5,17 +7,17 @@ export interface RpgMapImagesGateway {
     mapImage: string | null
   ): Promise<{ message?: string; mapImage: string | null }>
   uploadMapImage(
-    file: File,
+    file: UploadImageFile,
     oldUrl?: string | null
   ): Promise<{ url: string; message?: string }>
   deleteMapImage(url: string): Promise<{ message?: string }>
   uploadSectionImage(
-    file: File,
+    file: UploadImageFile,
     oldUrl?: string | null
   ): Promise<{ url: string; message?: string }>
   deleteSectionImage(url: string): Promise<{ message?: string }>
   uploadMarkerImage(
-    file: File,
+    file: UploadImageFile,
     oldUrl?: string | null
   ): Promise<{ url: string; message?: string }>
   deleteMarkerImage(url: string): Promise<{ message?: string }>
