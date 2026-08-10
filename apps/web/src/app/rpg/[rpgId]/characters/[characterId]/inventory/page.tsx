@@ -1,5 +1,4 @@
-import { notFound } from "next/navigation"
-import CharacterInventoryFeature from "@/features/world/characters/presentation/inventory/CharacterInventoryFeature"
+import { redirect } from "next/navigation"
 
 type Params = {
   params: Promise<{
@@ -10,16 +9,5 @@ type Params = {
 
 export default async function InventoryPage({ params }: Params) {
   const { rpgId, characterId } = await params
-
-  if (!characterId) {
-    notFound()
-  }
-
-  return (
-    <CharacterInventoryFeature
-      rpgId={rpgId}
-      characterId={characterId}
-      gatewayFactory="http"
-    />
-  )
+  redirect(`/rpg/${rpgId}/characters/${characterId}/items`)
 }

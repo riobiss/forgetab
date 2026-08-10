@@ -4,7 +4,7 @@ import {
   HttpCharactersDashboardError
 } from "@/features/world/characters/infrastructure/dashboard/repositories/httpCharactersDashboardRepository"
 import CharactersDashboardPage from "@/features/world/characters/presentation/dashboard/CharactersDashboardPage"
-import type { CharactersDashboardFilterType } from "@/features/world/characters/application/dashboard/types"
+import { normalizeCharactersDashboardFilterType } from "@/features/world/characters/application/dashboard/filters"
 
 type Params = {
   params: Promise<{
@@ -18,12 +18,6 @@ type Params = {
   }>
 }
 
-function normalizeFilterType(value?: string): CharactersDashboardFilterType {
-  return value === "player" || value === "npc" || value === "monster"
-    ? value
-    : "all"
-}
-
 export default async function CharactersPage({ params, searchParams }: Params) {
   const { rpgId } = await params
   const resolvedSearchParams = await searchParams
@@ -31,7 +25,7 @@ export default async function CharactersPage({ params, searchParams }: Params) {
 
   try {
     data = await fetchCharactersDashboardViewModel(rpgId, {
-      type: normalizeFilterType(resolvedSearchParams?.type),
+      type: normalizeCharactersDashboardFilterType(resolvedSearchParams?.type),
       modal: resolvedSearchParams?.modal,
       viewer: resolvedSearchParams?.viewer,
       characterId: resolvedSearchParams?.characterId

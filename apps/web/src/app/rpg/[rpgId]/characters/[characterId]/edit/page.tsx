@@ -1,4 +1,4 @@
-import EditCharacterPageClient from "./EditCharacterPageClient"
+import CharacterEditorPageClient from "@/features/world/characters/presentation/editor/CharacterEditorPageClient"
 
 type PageProps = {
   params: Promise<{ rpgId: string; characterId: string }>
@@ -7,5 +7,5 @@ type PageProps = {
 export default async function EditCharacterPage({ params }: PageProps) {
   const { rpgId, characterId } = await params
 
-  return <EditCharacterPageClient rpgId={rpgId} characterId={characterId} />
+  return <CharacterEditorPageClient rpgId={rpgId} characterId={characterId} />
 }

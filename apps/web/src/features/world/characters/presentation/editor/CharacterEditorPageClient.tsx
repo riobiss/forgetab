@@ -7,10 +7,13 @@ import { createCharactersEditorDependencies } from "@/features/world/characters/
 
 type Props = {
   rpgId: string
-  characterId: string
+  characterId?: string
 }
 
-export default function EditCharacterPageClient({ rpgId, characterId }: Props) {
+export default function CharacterEditorPageClient({
+  rpgId,
+  characterId
+}: Props) {
   const deps = useMemo(() => createCharactersEditorDependencies("http"), [])
 
   return (
