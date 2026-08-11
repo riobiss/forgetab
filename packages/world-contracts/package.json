@@ -13,9 +13,12 @@
     "./character-editor": "./src/character-editor.ts",
     "./character-inventory": "./src/character-inventory.ts",
     "./dashboard": "./src/dashboard.ts",
+    "./entity-catalog": "./src/entity-catalog.ts",
     "./location": "./src/location.ts",
     "./media": "./src/media.ts",
+    "./npc-monster": "./src/npc-monster.ts",
     "./rpg/*": "./src/rpg/*.ts",
+    "./shared/search": "./src/shared/search.ts",
     "./shared/slugify": "./src/shared/slugify.ts",
     "./skill-builder": "./src/skill-builder.ts",
     "./validation/*": "./src/validation/*.ts"

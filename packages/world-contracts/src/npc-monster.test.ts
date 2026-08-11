@@ -3,7 +3,7 @@ import {
   buildNpcMonsterBasicUpdatePayload,
   getNpcMonsterSecretFieldKeys,
   readNpcMonsterBasicDraft
-} from "./npcMonsterSchema"
+} from "./npc-monster"
 
 describe("npcMonsterSchema", () => {
   it("le o draft basico de npc a partir do snapshot do personagem", () => {
