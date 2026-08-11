@@ -2,6 +2,7 @@ import { useDeferredValue, useMemo, useState } from "react"
 import { baseItemRarityValues } from "@forgetab/world-contracts/validation/baseItem"
 import type { BaseItem, ItemType } from "./types"
 import { parseCustomFieldList } from "./utils"
+import { matchesSearch } from "@forgetab/world-contracts/shared/search"
 
 type UseItemsFiltersParams = {
   items: BaseItem[]
@@ -20,8 +21,6 @@ export function useItemsFilters({ items }: UseItemsFiltersParams) {
   const [showCategories, setShowCategories] = useState(false)
 
   const visibleItems = useMemo(() => {
-    const normalizedSearch = deferredSearch.trim().toLowerCase()
-
     return items.filter((item) => {
       const matchesCategory =
         selectedCategory === "all" ? true : item.type === selectedCategory
@@ -32,23 +31,19 @@ export function useItemsFilters({ items }: UseItemsFiltersParams) {
         return false
       }
 
-      if (!normalizedSearch) {
-        return true
-      }
-
-      return (
-        item.name.toLowerCase().includes(normalizedSearch) ||
-        (item.description ?? "").toLowerCase().includes(normalizedSearch) ||
-        item.type.toLowerCase().includes(normalizedSearch) ||
-        item.rarity.toLowerCase().includes(normalizedSearch) ||
-        (item.preRequirement ?? "").toLowerCase().includes(normalizedSearch) ||
-        (item.ability ?? "").toLowerCase().includes(normalizedSearch) ||
-        (item.abilityName ?? "").toLowerCase().includes(normalizedSearch) ||
-        parseCustomFieldList(item.customFields).some(
-          (field) =>
-            field.name.toLowerCase().includes(normalizedSearch) ||
-            field.value.toLowerCase().includes(normalizedSearch)
-        )
+      const customFields = parseCustomFieldList(item.customFields)
+      return matchesSearch(
+        [
+          item.name,
+          item.description,
+          item.type,
+          item.rarity,
+          item.preRequirement,
+          item.ability,
+          item.abilityName,
+          ...customFields.flatMap((field) => [field.name, field.value])
+        ],
+        deferredSearch
       )
     })
   }, [deferredSearch, items, selectedCategory, selectedRarity])

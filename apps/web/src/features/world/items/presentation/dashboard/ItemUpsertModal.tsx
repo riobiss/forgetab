@@ -1,28 +1,13 @@
 "use client"
 
-import Image from "next/image"
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type Dispatch,
-  type SetStateAction
-} from "react"
+import { useCallback, useRef } from "react"
 import { LoaderCircle, Plus, X } from "lucide-react"
-import { NativeSelectField } from "@/components/select/NativeSelectField"
-import type {
-  ItemRarityDto,
-  ItemTypeDto
-} from "@/features/world/items/application/dashboard/types"
 import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap"
-import {
-  itemRarityLabel,
-  itemTypeLabel
-} from "@/shared/presentation/items/itemLabels"
+import { ItemBasicFields } from "./ItemBasicFields"
+import { ItemCustomFieldModal } from "./ItemCustomFieldModal"
+import { ItemNamedDescriptionFields } from "./ItemNamedDescriptionFields"
+import type { ItemEditorTab, ItemUpsertModalProps } from "./itemEditorTypes"
 import styles from "./ItemsDashboardClient.module.css"
-
-type ItemEditorTab = "basic" | "requirements" | "abilities" | "effects"
 
 const editorTabs = [
   { key: "basic", label: "Basico" },
@@ -31,158 +16,22 @@ const editorTabs = [
   { key: "effects", label: "Efeitos" }
 ] satisfies ReadonlyArray<{ key: ItemEditorTab; label: string }>
 
-type NamedDescription = {
-  name: string
-  description: string
-}
-
-type CustomField = {
-  id: string
-  name: string
-  value: string
-}
-
-type ItemUpsertModalProps = {
-  open: boolean
-  mode: "create" | "edit"
-  tab: ItemEditorTab
-  setTab: Dispatch<SetStateAction<ItemEditorTab>>
-  loading: boolean
-  saving: boolean
-  error: string
-  uploadError: string
-  name: string
-  setName: Dispatch<SetStateAction<string>>
-  description: string
-  setDescription: Dispatch<SetStateAction<string>>
-  preRequirement: string
-  setPreRequirement: Dispatch<SetStateAction<string>>
-  type: ItemTypeDto
-  setType: (value: ItemTypeDto) => void
-  rarity: ItemRarityDto
-  setRarity: (value: ItemRarityDto) => void
-  damage: string
-  setDamage: Dispatch<SetStateAction<string>>
-  range: string
-  setRange: Dispatch<SetStateAction<string>>
-  weight: string
-  setWeight: Dispatch<SetStateAction<string>>
-  duration: string
-  setDuration: Dispatch<SetStateAction<string>>
-  durability: string
-  setDurability: Dispatch<SetStateAction<string>>
-  abilities: NamedDescription[]
-  setAbilities: Dispatch<SetStateAction<NamedDescription[]>>
-  effects: NamedDescription[]
-  setEffects: Dispatch<SetStateAction<NamedDescription[]>>
-  customFields: CustomField[]
-  setCustomFields: Dispatch<SetStateAction<CustomField[]>>
-  image: string
-  selectedImageFile: File | null
-  selectedImagePreviewUrl: string
-  uploadingImage: boolean
-  customFieldModalOpen: boolean
-  setCustomFieldModalOpen: Dispatch<SetStateAction<boolean>>
-  newCustomFieldName: string
-  setNewCustomFieldName: Dispatch<SetStateAction<string>>
-  newCustomFieldValue: string
-  setNewCustomFieldValue: Dispatch<SetStateAction<string>>
-  baseItemTypeValues: readonly ItemTypeDto[]
-  baseItemRarityValues: readonly ItemRarityDto[]
-  onClose: () => void
-  onSave: () => void
-  onDelete?: () => void
-  onImageUpload: (file: File) => void
-  onRemoveImage: () => void
-  onAddCustomField: () => void
-  updateNamedEntry: (
-    list: NamedDescription[],
-    index: number,
-    field: keyof NamedDescription,
-    value: string
-  ) => NamedDescription[]
-  createEmptyNamedDescription: () => NamedDescription
-}
-
-export function ItemUpsertModal({
-  open,
-  mode,
-  tab,
-  setTab,
-  loading,
-  saving,
-  error,
-  uploadError,
-  name,
-  setName,
-  description,
-  setDescription,
-  preRequirement,
-  setPreRequirement,
-  type,
-  setType,
-  rarity,
-  setRarity,
-  damage,
-  setDamage,
-  range,
-  setRange,
-  weight,
-  setWeight,
-  duration,
-  setDuration,
-  durability,
-  setDurability,
-  abilities,
-  setAbilities,
-  effects,
-  setEffects,
-  customFields,
-  setCustomFields,
-  image,
-  selectedImageFile,
-  selectedImagePreviewUrl,
-  uploadingImage,
-  customFieldModalOpen,
-  setCustomFieldModalOpen,
-  newCustomFieldName,
-  setNewCustomFieldName,
-  newCustomFieldValue,
-  setNewCustomFieldValue,
-  baseItemTypeValues,
-  baseItemRarityValues,
-  onClose,
-  onSave,
-  onDelete,
-  onImageUpload,
-  onRemoveImage,
-  onAddCustomField,
-  updateNamedEntry,
-  createEmptyNamedDescription
-}: ItemUpsertModalProps) {
-  const title = mode === "edit" ? "Editar" : "Criar"
+export function ItemUpsertModal(props: ItemUpsertModalProps) {
+  const title = props.mode === "edit" ? "Editar" : "Criar"
   const modalRef = useRef<HTMLElement | null>(null)
   const nestedModalRef = useRef<HTMLElement | null>(null)
-  const [showImagePreview, setShowImagePreview] = useState(true)
   const getActiveModalElement = useCallback(
-    () => (customFieldModalOpen ? nestedModalRef.current : modalRef.current),
-    [customFieldModalOpen]
+    () =>
+      props.customFieldModalOpen ? nestedModalRef.current : modalRef.current,
+    [props.customFieldModalOpen]
   )
 
   useModalFocusTrap({
-    isActive: open,
+    isActive: props.open,
     activeElement: getActiveModalElement
   })
 
-  useEffect(() => {
-    if (!open) {
-      return
-    }
-
-    setShowImagePreview(true)
-  }, [open, image, selectedImagePreviewUrl])
-
-  if (!open) return null
+  if (!props.open) return null
 
   return (
     <div
@@ -191,14 +40,10 @@ export function ItemUpsertModal({
       aria-modal="true"
       aria-label={`${title} item`}
       onClick={(event) => {
-        if (event.target === event.currentTarget) {
-          onClose()
-        }
+        if (event.target === event.currentTarget) props.onClose()
       }}
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
-          event.preventDefault()
-        }
+        if (event.target === event.currentTarget) event.preventDefault()
       }}
     >
       <section
@@ -216,7 +61,7 @@ export function ItemUpsertModal({
             <button
               type="button"
               className={styles.modalIconButton}
-              onClick={() => setCustomFieldModalOpen(true)}
+              onClick={() => props.setCustomFieldModalOpen(true)}
               aria-label="Novo campo"
               title="Novo campo"
             >
@@ -225,7 +70,7 @@ export function ItemUpsertModal({
             <button
               type="button"
               className={styles.modalIconButton}
-              onClick={onClose}
+              onClick={props.onClose}
               aria-label="Fechar"
               title="Fechar"
             >
@@ -239,346 +84,74 @@ export function ItemUpsertModal({
             <button
               key={item.key}
               type="button"
-              className={tab === item.key ? styles.stepActive : styles.step}
-              onClick={() => setTab(item.key)}
+              className={
+                props.tab === item.key ? styles.stepActive : styles.step
+              }
+              onClick={() => props.setTab(item.key)}
             >
               {item.label}
             </button>
           ))}
         </div>
-
         <div className={styles.formDivider} aria-hidden="true" />
 
-        {loading ? (
+        {props.loading ? (
           <p className={styles.feedback}>Carregando item...</p>
         ) : (
           <>
-            {tab === "basic" ? (
-              <div className={styles.formGrid}>
-                <label className={`${styles.field} ${styles.spanTwo}`}>
-                  <span>Imagem do item</span>
-                  <div className={styles.imageActions}>
-                    <label
-                      htmlFor="item-image-file"
-                      className={styles.ghostButton}
-                    >
-                      {uploadingImage
-                        ? "Enviando..."
-                        : selectedImageFile
-                          ? "Trocar imagem"
-                          : "Adicionar imagem"}
-                    </label>
-                    {image || selectedImageFile ? (
-                      <>
-                        <button
-                          type="button"
-                          className={styles.ghostButton}
-                          onClick={() => setShowImagePreview((prev) => !prev)}
-                        >
-                          {showImagePreview
-                            ? "Ocultar preview"
-                            : "Mostrar preview"}
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.removeButton}
-                          onClick={onRemoveImage}
-                          disabled={saving || uploadingImage}
-                        >
-                          Remover imagem
-                        </button>
-                      </>
-                    ) : null}
-                  </div>
-                  <input
-                    id="item-image-file"
-                    className={styles.fileInput}
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0]
-                      if (file) {
-                        onImageUpload(file)
-                      }
-                    }}
-                    disabled={saving || uploadingImage}
-                  />
-                </label>
-
-                {(selectedImagePreviewUrl || image) && showImagePreview ? (
-                  <div className={`${styles.field} ${styles.spanTwo}`}>
-                    <span>Preview</span>
-                    <div className={styles.itemImagePreviewFrame}>
-                      <Image
-                        src={selectedImagePreviewUrl || image}
-                        alt={`Imagem de ${name || "item"}`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 320px"
-                        unoptimized
-                        className={styles.itemImagePreview}
-                      />
-                    </div>
-                  </div>
-                ) : null}
-
-                <label className={styles.field}>
-                  <span>Nome</span>
-                  <input
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    minLength={2}
-                    required
-                  />
-                </label>
-
-                <label className={`${styles.field} ${styles.spanTwo}`}>
-                  <span>Descricao</span>
-                  <textarea
-                    rows={4}
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    placeholder="Descricao opcional do item"
-                  />
-                </label>
-
-                <label className={`${styles.field} ${styles.spanTwo}`}>
-                  <span>Tipo</span>
-                  <NativeSelectField
-                    value={type}
-                    onValueChange={(value) => setType(value as ItemTypeDto)}
-                  >
-                    {baseItemTypeValues.map((option) => (
-                      <option key={option} value={option}>
-                        {itemTypeLabel[option]}
-                      </option>
-                    ))}
-                  </NativeSelectField>
-                </label>
-
-                <label className={styles.field}>
-                  <span>Raridade</span>
-                  <NativeSelectField
-                    value={rarity}
-                    onValueChange={(value) => setRarity(value as ItemRarityDto)}
-                  >
-                    {baseItemRarityValues.map((option) => (
-                      <option key={option} value={option}>
-                        {itemRarityLabel[option]}
-                      </option>
-                    ))}
-                  </NativeSelectField>
-                </label>
-
-                <label className={styles.field}>
-                  <span>Dano</span>
-                  <input
-                    value={damage}
-                    onChange={(event) => setDamage(event.target.value)}
-                    placeholder="Ex: 1d6 + 2"
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Alcance</span>
-                  <input
-                    value={range}
-                    onChange={(event) => setRange(event.target.value)}
-                    placeholder="Ex: 9m"
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Peso</span>
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.1"
-                    value={weight}
-                    onChange={(event) => setWeight(event.target.value)}
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Duracao</span>
-                  <input
-                    value={duration}
-                    onChange={(event) => setDuration(event.target.value)}
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Durabilidade</span>
-                  <input
-                    type="number"
-                    min={0}
-                    step={1}
-                    value={durability}
-                    onChange={(event) => setDurability(event.target.value)}
-                  />
-                </label>
-
-                {customFields.length > 0 ? (
-                  <div className={`${styles.editorSection} ${styles.spanTwo}`}>
-                    <h4>Campos extras</h4>
-                    <div className={styles.formGrid}>
-                      {customFields.map((field) => (
-                        <label key={field.id} className={styles.field}>
-                          <span>{field.name}</span>
-                          <div className={styles.customFieldRow}>
-                            <input
-                              value={field.value}
-                              onChange={(event) =>
-                                setCustomFields((prev) =>
-                                  prev.map((item) =>
-                                    item.id === field.id
-                                      ? { ...item, value: event.target.value }
-                                      : item
-                                  )
-                                )
-                              }
-                            />
-                            <button
-                              type="button"
-                              className={styles.removeButton}
-                              onClick={() =>
-                                setCustomFields((prev) =>
-                                  prev.filter((item) => item.id !== field.id)
-                                )
-                              }
-                            >
-                              Remover
-                            </button>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-
-            {tab === "requirements" ? (
+            {props.tab === "basic" ? <ItemBasicFields {...props} /> : null}
+            {props.tab === "requirements" ? (
               <div className={styles.formGrid}>
                 <label className={`${styles.field} ${styles.spanTwo}`}>
                   <span>Pre-Requisito</span>
                   <textarea
                     rows={3}
-                    value={preRequirement}
-                    onChange={(event) => setPreRequirement(event.target.value)}
+                    value={props.preRequirement}
+                    onChange={(event) =>
+                      props.setPreRequirement(event.target.value)
+                    }
                     placeholder="Ex: Nivel 10, Forca 15"
                   />
                 </label>
               </div>
             ) : null}
-
-            {tab === "abilities" ? (
-              <div className={styles.formGrid}>
-                <div className={`${styles.editorSection} ${styles.spanTwo}`}>
-                  <h4>Habilidades</h4>
-                  <div className={styles.multiCard}>
-                    <label className={styles.field}>
-                      <span>Nome da habilidade</span>
-                      <input
-                        value={abilities[0]?.name ?? ""}
-                        onChange={(event) =>
-                          setAbilities((prev) =>
-                            updateNamedEntry(
-                              prev.length > 0
-                                ? prev
-                                : [createEmptyNamedDescription()],
-                              0,
-                              "name",
-                              event.target.value
-                            )
-                          )
-                        }
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Habilidade</span>
-                      <textarea
-                        rows={3}
-                        value={abilities[0]?.description ?? ""}
-                        onChange={(event) =>
-                          setAbilities((prev) =>
-                            updateNamedEntry(
-                              prev.length > 0
-                                ? prev
-                                : [createEmptyNamedDescription()],
-                              0,
-                              "description",
-                              event.target.value
-                            )
-                          )
-                        }
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
+            {props.tab === "abilities" ? (
+              <ItemNamedDescriptionFields
+                title="Habilidades"
+                nameLabel="Nome da habilidade"
+                descriptionLabel="Habilidade"
+                entries={props.abilities}
+                setEntries={props.setAbilities}
+                updateNamedEntry={props.updateNamedEntry}
+                createEmptyNamedDescription={props.createEmptyNamedDescription}
+              />
             ) : null}
-
-            {tab === "effects" ? (
-              <div className={styles.formGrid}>
-                <div className={`${styles.editorSection} ${styles.spanTwo}`}>
-                  <h4>Efeitos</h4>
-                  <div className={styles.multiCard}>
-                    <label className={styles.field}>
-                      <span>Nome do efeito</span>
-                      <input
-                        value={effects[0]?.name ?? ""}
-                        onChange={(event) =>
-                          setEffects((prev) =>
-                            updateNamedEntry(
-                              prev.length > 0
-                                ? prev
-                                : [createEmptyNamedDescription()],
-                              0,
-                              "name",
-                              event.target.value
-                            )
-                          )
-                        }
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>Efeito</span>
-                      <textarea
-                        rows={3}
-                        value={effects[0]?.description ?? ""}
-                        onChange={(event) =>
-                          setEffects((prev) =>
-                            updateNamedEntry(
-                              prev.length > 0
-                                ? prev
-                                : [createEmptyNamedDescription()],
-                              0,
-                              "description",
-                              event.target.value
-                            )
-                          )
-                        }
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
+            {props.tab === "effects" ? (
+              <ItemNamedDescriptionFields
+                title="Efeitos"
+                nameLabel="Nome do efeito"
+                descriptionLabel="Efeito"
+                entries={props.effects}
+                setEntries={props.setEffects}
+                updateNamedEntry={props.updateNamedEntry}
+                createEmptyNamedDescription={props.createEmptyNamedDescription}
+              />
             ) : null}
           </>
         )}
 
-        {error ? <p className={styles.error}>{error}</p> : null}
-        {uploadError && uploadError !== error ? (
-          <p className={styles.error}>{uploadError}</p>
+        {props.error ? <p className={styles.error}>{props.error}</p> : null}
+        {props.uploadError && props.uploadError !== props.error ? (
+          <p className={styles.error}>{props.uploadError}</p>
         ) : null}
 
         <div className={styles.formActions}>
-          {mode === "edit" && onDelete ? (
+          {props.mode === "edit" && props.onDelete ? (
             <button
               type="button"
               className={styles.dangerButton}
-              onClick={onDelete}
-              disabled={saving || loading}
+              onClick={props.onDelete}
+              disabled={props.saving || props.loading}
             >
               Remover
             </button>
@@ -586,79 +159,28 @@ export function ItemUpsertModal({
           <button
             type="button"
             className={styles.primaryButton}
-            onClick={onSave}
-            disabled={saving || loading}
+            onClick={props.onSave}
+            disabled={props.saving || props.loading}
           >
-            {saving ? (
+            {props.saving ? (
               <LoaderCircle size={16} className={styles.iconSpin} />
             ) : null}
             <span>
-              {saving ? "Salvando..." : mode === "edit" ? "Salvar" : "Criar"}
+              {props.saving
+                ? "Salvando..."
+                : props.mode === "edit"
+                  ? "Salvar"
+                  : "Criar"}
             </span>
           </button>
         </div>
 
-        {customFieldModalOpen ? (
-          <div
-            className={styles.nestedModalOverlay}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Novo campo"
-            onClick={(event) => {
-              if (event.target === event.currentTarget) {
-                setCustomFieldModalOpen(false)
-              }
-            }}
-            onMouseDown={(event) => {
-              if (event.target === event.currentTarget) {
-                event.preventDefault()
-              }
-            }}
-          >
-            <section
-              ref={nestedModalRef}
-              className={styles.nestedModalCard}
-              onClick={(event) => event.stopPropagation()}
-              onMouseDown={(event) => event.stopPropagation()}
-              tabIndex={-1}
-            >
-              <h3>Novo campo</h3>
-              <label className={styles.field}>
-                <span>Nome</span>
-                <input
-                  value={newCustomFieldName}
-                  onChange={(event) =>
-                    setNewCustomFieldName(event.target.value)
-                  }
-                />
-              </label>
-              <label className={styles.field}>
-                <span>Valor</span>
-                <input
-                  value={newCustomFieldValue}
-                  onChange={(event) =>
-                    setNewCustomFieldValue(event.target.value)
-                  }
-                />
-              </label>
-              <div className={styles.formActions}>
-                <button
-                  type="button"
-                  className={styles.ghostButton}
-                  onClick={() => setCustomFieldModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  className={styles.primaryButton}
-                  onClick={onAddCustomField}
-                >
-                  Criar campo
-                </button>
-              </div>
-            </section>
-          </div>
+        {props.customFieldModalOpen ? (
+          <ItemCustomFieldModal
+            {...props}
+            modalRef={nestedModalRef}
+            onClose={() => props.setCustomFieldModalOpen(false)}
+          />
         ) : null}
       </section>
     </div>
