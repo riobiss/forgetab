@@ -23,6 +23,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@emnapi/core": "^1.11.3",
+    "@emnapi/runtime": "^1.11.3",
     "@types/node": "^25.9.0",
     "@types/pg": "^8.20.0",
     "prisma": "7.8.0",

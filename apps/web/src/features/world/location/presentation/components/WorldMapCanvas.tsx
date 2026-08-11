@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable react-hooks/exhaustive-deps -- Konva stage callbacks read mutable refs to avoid re-registering canvas listeners on each render. */
+/* eslint-disable react-hooks/exhaustive-deps -- Konva callbacks read mutable refs to avoid re-registering canvas listeners on each render. */
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react"
 import Konva from "konva"
@@ -11,25 +11,24 @@ import type {
 } from "@/features/world/location/presentation/types/mapMarkers"
 import type { WorldMapCanvasHandle } from "@/features/world/location/presentation/types/worldMapCanvas"
 import {
+  bindMapCanvasGestures,
+  canInteractMap,
+  type MapCanvasGestureController,
+  type MapCanvasGestureOptions
+} from "@/features/world/location/presentation/utils/mapCanvasGestures"
+import {
   redrawPendingMarkerLayer,
   redrawPersistedMarkerLayer
 } from "@/features/world/location/presentation/utils/mapCanvasMarkerRenderer"
 import {
-  applyStagePinchZoom,
-  applyStageZoom,
   fitImageToStage,
   focusStageOnMarker,
-  getContentPointerPosition,
   getPreferredPixelRatio,
   preserveStageViewOnResize,
   syncMapInteraction,
   type MapCanvasPoint
 } from "@/features/world/location/presentation/utils/mapCanvasStage"
 import styles from "../WorldMap.module.css"
-
-type Point = MapCanvasPoint
-const TOUCH_TAP_MAX_MOVEMENT = 10
-const SYNTHETIC_MOUSE_GUARD_MS = 500
 
 type Props = {
   mapSrc: string
@@ -46,16 +45,16 @@ type Props = {
   allMarkerGroups: MarkerGroup[]
   areMarkersVisible: boolean
   visibleMarkerGroupIds: string[]
-  onAddPendingMarker: (pointer: Point) => void
-  onRepositionMarker: (pointer: Point) => void
+  onAddPendingMarker: (pointer: MapCanvasPoint) => void
+  onRepositionMarker: (pointer: MapCanvasPoint) => void
   onMarkerPinSelect: (marker: MapMarkerItem, groupColor: string) => void
   onEnableInteraction: () => void
   onMapSrcError: () => void
 }
 
 export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
-  function WorldMapCanvas(
-    {
+  function WorldMapCanvas(props, ref) {
+    const {
       mapSrc,
       isFullscreen,
       isInteractive,
@@ -75,9 +74,7 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
       onMarkerPinSelect,
       onEnableInteraction,
       onMapSrcError
-    },
-    ref
-  ) {
+    } = props
     const stageContainerRef = useRef<HTMLDivElement | null>(null)
     const stageRef = useRef<Konva.Stage | null>(null)
     const mapLayerRef = useRef<Konva.Layer | null>(null)
@@ -85,20 +82,9 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
     const markerLayerRef = useRef<Konva.Layer | null>(null)
     const markerOverlayLayerRef = useRef<Konva.Layer | null>(null)
     const drawLayerRef = useRef<Konva.Layer | null>(null)
-    const currentLineRef = useRef<Konva.Line | null>(null)
-    const isDrawingRef = useRef(false)
-    const isPinchingRef = useRef(false)
-    const pinchLastCenterRef = useRef<Point | null>(null)
-    const pinchLastDistanceRef = useRef<number | null>(null)
-    const isInteractiveRef = useRef(false)
-    const isFullscreenRef = useRef(false)
-    const isBrushModeRef = useRef(false)
-    const isMarkerSelectionModeRef = useRef(false)
-    const isMarkerRepositionModeRef = useRef(false)
-    const brushColorRef = useRef(brushColor)
-    const brushSizeRef = useRef(brushSize)
-    const onAddPendingMarkerRef = useRef(onAddPendingMarker)
-    const onRepositionMarkerRef = useRef(onRepositionMarker)
+    const gestureControllerRef = useRef<MapCanvasGestureController | null>(null)
+    const markerRedrawFrameRef = useRef<number | null>(null)
+    const overlayRedrawFrameRef = useRef<number | null>(null)
     const onMarkerPinSelectRef = useRef(onMarkerPinSelect)
     const onMapSrcErrorRef = useRef(onMapSrcError)
     const allMarkerGroupsRef = useRef(allMarkerGroups)
@@ -107,39 +93,85 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
     const pendingMarkersRef = useRef(pendingMarkers)
     const editingMarkerPreviewRef = useRef(editingMarkerPreview)
     const markerGroupColorRef = useRef(markerGroupColor)
-    const markerRedrawFrameRef = useRef<number | null>(null)
-    const overlayRedrawFrameRef = useRef<number | null>(null)
-    const touchSelectionStartRef = useRef<Point | null>(null)
-    const touchSelectionMovedRef = useRef(false)
-    const lastTouchInteractionAtRef = useRef(0)
+    const gestureOptionsRef = useRef<MapCanvasGestureOptions>({
+      isInteractive,
+      isFullscreen,
+      isBrushMode,
+      brushColor,
+      brushSize,
+      isMarkerSelectionMode,
+      isMarkerRepositionMode,
+      onAddPendingMarker,
+      onRepositionMarker
+    })
+    gestureOptionsRef.current = {
+      isInteractive,
+      isFullscreen,
+      isBrushMode,
+      brushColor,
+      brushSize,
+      isMarkerSelectionMode,
+      isMarkerRepositionMode,
+      onAddPendingMarker,
+      onRepositionMarker
+    }
+
+    function scheduleMarkerLayerRedraw() {
+      if (markerRedrawFrameRef.current !== null) return
+      markerRedrawFrameRef.current = requestAnimationFrame(() => {
+        markerRedrawFrameRef.current = null
+        const stage = stageRef.current
+        const layer = markerLayerRef.current
+        if (!stage || !layer) return
+        redrawPersistedMarkerLayer({
+          stage,
+          layer,
+          mapImage: mapImageRef.current,
+          groups: allMarkerGroupsRef.current,
+          visibleGroupIds: visibleMarkerGroupIdsRef.current,
+          markersVisible: areMarkersVisibleRef.current,
+          editingMarker: editingMarkerPreviewRef.current,
+          markerSelectionMode: gestureOptionsRef.current.isMarkerSelectionMode,
+          onSelect: onMarkerPinSelectRef.current
+        })
+      })
+    }
+
+    function scheduleOverlayLayerRedraw() {
+      if (overlayRedrawFrameRef.current !== null) return
+      overlayRedrawFrameRef.current = requestAnimationFrame(() => {
+        overlayRedrawFrameRef.current = null
+        const stage = stageRef.current
+        const layer = markerOverlayLayerRef.current
+        if (!stage || !layer) return
+        redrawPendingMarkerLayer({
+          stage,
+          layer,
+          mapImage: mapImageRef.current,
+          pendingMarkers: pendingMarkersRef.current,
+          editingMarker: editingMarkerPreviewRef.current,
+          markerGroupColor: markerGroupColorRef.current,
+          markerRepositionMode:
+            gestureOptionsRef.current.isMarkerRepositionMode
+        })
+      })
+    }
 
     function syncCanvasToContainer(shouldFitImage = true) {
       const stage = stageRef.current
-      const mapImage = mapImageRef.current
       const container = stageContainerRef.current
-      if (!stage || !container) {
-        return
-      }
+      if (!stage || !container) return
 
       container.style.width = ""
       container.style.height = ""
-
       const bounds = container.getBoundingClientRect()
-      const width = Math.max(
-        1,
-        Math.round(bounds.width || container.clientWidth)
-      )
-      const height = Math.max(
-        1,
-        Math.round(bounds.height || container.clientHeight)
-      )
-
-      stage.size({ width, height })
-
-      if (mapImage && shouldFitImage) {
-        fitImageToStage(stage, mapImage)
+      stage.size({
+        width: Math.max(1, Math.round(bounds.width || container.clientWidth)),
+        height: Math.max(1, Math.round(bounds.height || container.clientHeight))
+      })
+      if (mapImageRef.current && shouldFitImage) {
+        fitImageToStage(stage, mapImageRef.current)
       }
-
       scheduleMarkerLayerRedraw()
       scheduleOverlayLayerRedraw()
       stage.batchDraw()
@@ -148,36 +180,14 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
     useImperativeHandle(
       ref,
       () => ({
-        syncToContainer() {
-          syncCanvasToContainer(true)
-        },
-        resetView() {
-          syncCanvasToContainer(true)
-        },
-        clearLastDrawing() {
-          const drawLayerCurrent = drawLayerRef.current
-          if (!drawLayerCurrent) {
-            return
-          }
-
-          const drawings = drawLayerCurrent.getChildren(
-            (node) => node instanceof Konva.Line
-          )
-          const lastDrawing = drawings[drawings.length - 1]
-          if (!lastDrawing) {
-            return
-          }
-
-          lastDrawing.destroy()
-          drawLayerCurrent.batchDraw()
-        },
+        syncToContainer: () => syncCanvasToContainer(true),
+        resetView: () => syncCanvasToContainer(true),
+        clearLastDrawing: () =>
+          gestureControllerRef.current?.clearLastDrawing(),
         focusMarker(marker) {
           const stage = stageRef.current
           const mapImage = mapImageRef.current
-          if (!stage || !mapImage) {
-            return
-          }
-
+          if (!stage || !mapImage) return
           focusStageOnMarker(stage, mapImage, marker)
           scheduleMarkerLayerRedraw()
           scheduleOverlayLayerRedraw()
@@ -188,15 +198,15 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
     )
 
     useEffect(() => {
-      isInteractiveRef.current = isInteractive
       syncMapInteraction(
         stageRef.current,
         isInteractive,
         isBrushMode,
         isFullscreen,
         isMarkerSelectionMode || isMarkerRepositionMode,
-        isPinchingRef.current
+        gestureControllerRef.current?.isPinching() ?? false
       )
+      if (!isBrushMode) gestureControllerRef.current?.cancelDrawing()
     }, [
       isInteractive,
       isBrushMode,
@@ -206,89 +216,40 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
     ])
 
     useEffect(() => {
-      isBrushModeRef.current = isBrushMode
-      if (!isBrushMode) {
-        isDrawingRef.current = false
-        currentLineRef.current = null
-      }
-    }, [isBrushMode])
-
-    useEffect(() => {
-      isMarkerSelectionModeRef.current = isMarkerSelectionMode
-    }, [isMarkerSelectionMode])
-
-    useEffect(() => {
-      isMarkerRepositionModeRef.current = isMarkerRepositionMode
-    }, [isMarkerRepositionMode])
-
-    useEffect(() => {
-      brushColorRef.current = brushColor
-    }, [brushColor])
-
-    useEffect(() => {
-      brushSizeRef.current = brushSize
-    }, [brushSize])
-
-    useEffect(() => {
-      isFullscreenRef.current = isFullscreen
-    }, [isFullscreen])
-
-    useEffect(() => {
       const stage = stageRef.current
-      const mapImage = mapImageRef.current
-      if (!stage || !mapImage) {
-        return
-      }
-
+      if (!stage || !mapImageRef.current) return
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          syncCanvasToContainer(true)
-        })
+        requestAnimationFrame(() => syncCanvasToContainer(true))
       })
     }, [isFullscreen])
 
     useEffect(() => {
-      onAddPendingMarkerRef.current = onAddPendingMarker
-    }, [onAddPendingMarker])
-
-    useEffect(() => {
       onMapSrcErrorRef.current = onMapSrcError
     }, [onMapSrcError])
-
-    useEffect(() => {
-      onRepositionMarkerRef.current = onRepositionMarker
-    }, [onRepositionMarker])
-
     useEffect(() => {
       onMarkerPinSelectRef.current = onMarkerPinSelect
     }, [onMarkerPinSelect])
-
     useEffect(() => {
       allMarkerGroupsRef.current = allMarkerGroups
       scheduleMarkerLayerRedraw()
     }, [allMarkerGroups])
-
     useEffect(() => {
       areMarkersVisibleRef.current = areMarkersVisible
       scheduleMarkerLayerRedraw()
     }, [areMarkersVisible])
-
     useEffect(() => {
       visibleMarkerGroupIdsRef.current = visibleMarkerGroupIds
       scheduleMarkerLayerRedraw()
     }, [visibleMarkerGroupIds])
-
     useEffect(() => {
       pendingMarkersRef.current = pendingMarkers
       scheduleOverlayLayerRedraw()
     }, [pendingMarkers])
-
     useEffect(() => {
       editingMarkerPreviewRef.current = editingMarkerPreview
       scheduleMarkerLayerRedraw()
       scheduleOverlayLayerRedraw()
     }, [editingMarkerPreview])
-
     useEffect(() => {
       markerGroupColorRef.current = markerGroupColor
       scheduleOverlayLayerRedraw()
@@ -296,13 +257,9 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
 
     useEffect(() => {
       const container = stageContainerRef.current
-      if (!container || stageRef.current) {
-        return
-      }
-
+      if (!container || stageRef.current) return
       container.style.width = ""
       container.style.height = ""
-
       Konva.pixelRatio = getPreferredPixelRatio()
 
       const stage = new Konva.Stage({
@@ -311,7 +268,6 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         height: container.clientHeight,
         draggable: false
       })
-
       const mapLayer = new Konva.Layer()
       const markerLayer = new Konva.Layer()
       const markerOverlayLayer = new Konva.Layer()
@@ -320,7 +276,6 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
       stage.add(markerLayer)
       stage.add(markerOverlayLayer)
       stage.add(drawLayer)
-
       stageRef.current = stage
       mapLayerRef.current = mapLayer
       markerLayerRef.current = markerLayer
@@ -328,316 +283,55 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
       drawLayerRef.current = drawLayer
       syncCanvasToContainer(false)
 
-      const handleWheel = (event: Konva.KonvaEventObject<WheelEvent>) => {
-        if (
-          !canInteractMap(isInteractiveRef.current, isFullscreenRef.current) ||
-          isBrushModeRef.current
-        ) {
-          return
-        }
-
-        event.evt.preventDefault()
-        applyStageZoom(stage, event.evt.deltaY, mapImageRef.current)
+      const onViewChange = () => {
         scheduleMarkerLayerRedraw()
         scheduleOverlayLayerRedraw()
       }
-
-      const handleDrawStart = () => {
-        if (
-          Date.now() - lastTouchInteractionAtRef.current <
-          SYNTHETIC_MOUSE_GUARD_MS
-        ) {
-          return
-        }
-
-        if (isMarkerRepositionModeRef.current) {
-          const pointer = getContentPointerPosition(stage)
-          if (!pointer) {
-            return
-          }
-
-          onRepositionMarkerRef.current(pointer)
-          return
-        }
-
-        if (isMarkerSelectionModeRef.current) {
-          const pointer = getContentPointerPosition(stage)
-          if (!pointer) {
-            return
-          }
-
-          onAddPendingMarkerRef.current(pointer)
-          return
-        }
-
-        if (
-          !canInteractMap(isInteractiveRef.current, isFullscreenRef.current) ||
-          !isBrushModeRef.current
-        ) {
-          return
-        }
-
-        const drawLayerCurrent = drawLayerRef.current
-        const pointer = getContentPointerPosition(stage)
-        if (!drawLayerCurrent || !pointer) {
-          return
-        }
-
-        isDrawingRef.current = true
-        const newLine = new Konva.Line({
-          points: [pointer.x, pointer.y],
-          stroke: brushColorRef.current,
-          strokeWidth: brushSizeRef.current,
-          lineCap: "round",
-          lineJoin: "round"
-        })
-
-        currentLineRef.current = newLine
-        drawLayerCurrent.add(newLine)
-      }
-
-      const handleDrawMove = () => {
-        if (
-          !canInteractMap(isInteractiveRef.current, isFullscreenRef.current) ||
-          !isBrushModeRef.current ||
-          !isDrawingRef.current
-        ) {
-          return
-        }
-
-        const line = currentLineRef.current
-        const pointer = getContentPointerPosition(stage)
-        if (!line || !pointer) {
-          return
-        }
-
-        line.points([...line.points(), pointer.x, pointer.y])
-        drawLayerRef.current?.batchDraw()
-      }
-
-      const handleDrawEnd = () => {
-        isDrawingRef.current = false
-        currentLineRef.current = null
-      }
-
-      const handleTouchStart = (event: Konva.KonvaEventObject<TouchEvent>) => {
-        const touches = event.evt.touches
-        if (touches.length >= 2) {
-          isPinchingRef.current = true
-          syncMapInteraction(
-            stage,
-            isInteractiveRef.current,
-            isBrushModeRef.current,
-            isFullscreenRef.current,
-            isMarkerSelectionModeRef.current ||
-              isMarkerRepositionModeRef.current,
-            isPinchingRef.current
-          )
-          isDrawingRef.current = false
-          currentLineRef.current = null
-          pinchLastCenterRef.current = null
-          pinchLastDistanceRef.current = null
-          touchSelectionStartRef.current = null
-          touchSelectionMovedRef.current = false
-          return
-        }
-
-        if (
-          isMarkerSelectionModeRef.current ||
-          isMarkerRepositionModeRef.current
-        ) {
-          touchSelectionStartRef.current = getContentPointerPosition(stage)
-          touchSelectionMovedRef.current = false
-          lastTouchInteractionAtRef.current = Date.now()
-          return
-        }
-
-        handleDrawStart()
-      }
-
-      const handleTouchMove = (event: Konva.KonvaEventObject<TouchEvent>) => {
-        const touches = event.evt.touches
-        if (touches.length >= 2) {
-          if (
-            !canInteractMap(isInteractiveRef.current, isFullscreenRef.current)
-          ) {
-            return
-          }
-
-          if (!isPinchingRef.current) {
-            isPinchingRef.current = true
-            syncMapInteraction(
-              stage,
-              isInteractiveRef.current,
-              isBrushModeRef.current,
-              isFullscreenRef.current,
-              isMarkerSelectionModeRef.current ||
-                isMarkerRepositionModeRef.current,
-              isPinchingRef.current
-            )
-            pinchLastCenterRef.current = null
-            pinchLastDistanceRef.current = null
-          }
-
-          event.evt.preventDefault()
-          applyStagePinchZoom(
-            stage,
-            touches,
-            pinchLastCenterRef,
-            pinchLastDistanceRef,
-            mapImageRef.current
-          )
-          scheduleMarkerLayerRedraw()
-          scheduleOverlayLayerRedraw()
-          return
-        }
-
-        if (isPinchingRef.current) {
-          isPinchingRef.current = false
-          pinchLastCenterRef.current = null
-          pinchLastDistanceRef.current = null
-          syncMapInteraction(
-            stage,
-            isInteractiveRef.current,
-            isBrushModeRef.current,
-            isFullscreenRef.current,
-            isMarkerSelectionModeRef.current ||
-              isMarkerRepositionModeRef.current,
-            isPinchingRef.current
-          )
-          return
-        }
-
-        if (
-          isMarkerSelectionModeRef.current ||
-          isMarkerRepositionModeRef.current
-        ) {
-          const start = touchSelectionStartRef.current
-          const pointer = getContentPointerPosition(stage)
-          if (!start || !pointer) {
-            return
-          }
-
-          const distance = Math.hypot(pointer.x - start.x, pointer.y - start.y)
-          if (distance > TOUCH_TAP_MAX_MOVEMENT) {
-            touchSelectionMovedRef.current = true
-          }
-          lastTouchInteractionAtRef.current = Date.now()
-          return
-        }
-
-        handleDrawMove()
-      }
-
-      const handleTouchEnd = (event: Konva.KonvaEventObject<TouchEvent>) => {
-        const remainingTouches = event.evt.touches
-        const wasPinching = isPinchingRef.current
-        const touchSelectionStart = touchSelectionStartRef.current
-        const shouldCreateMarker =
-          (isMarkerSelectionModeRef.current ||
-            isMarkerRepositionModeRef.current) &&
-          !isPinchingRef.current &&
-          Boolean(touchSelectionStart) &&
-          !touchSelectionMovedRef.current
-
-        if (shouldCreateMarker && touchSelectionStart) {
-          if (isMarkerRepositionModeRef.current) {
-            onRepositionMarkerRef.current(touchSelectionStart)
-          } else {
-            onAddPendingMarkerRef.current(touchSelectionStart)
-          }
-        }
-
-        isPinchingRef.current = false
-        pinchLastCenterRef.current = null
-        pinchLastDistanceRef.current = null
-        touchSelectionStartRef.current = null
-        touchSelectionMovedRef.current = false
-        lastTouchInteractionAtRef.current = Date.now()
-        syncMapInteraction(
-          stage,
-          isInteractiveRef.current,
-          isBrushModeRef.current,
-          isFullscreenRef.current,
-          isMarkerSelectionModeRef.current || isMarkerRepositionModeRef.current,
-          isPinchingRef.current
-        )
-        if (wasPinching && remainingTouches.length === 1 && stage.draggable()) {
-          stage.startDrag(event)
-        }
-        handleDrawEnd()
-      }
+      const gestureController = bindMapCanvasGestures({
+        stage,
+        getOptions: () => gestureOptionsRef.current,
+        getMapImage: () => mapImageRef.current,
+        getDrawLayer: () => drawLayerRef.current,
+        onViewChange
+      })
+      gestureControllerRef.current = gestureController
 
       const handleResize = () => {
-        const currentContainer = stageContainerRef.current
-        const currentStage = stageRef.current
         const currentImage = mapImageRef.current
-
-        if (!currentContainer || !currentStage) {
-          return
+        const previousWidth = stage.width()
+        const previousHeight = stage.height()
+        const bounds = container.getBoundingClientRect()
+        container.style.width = ""
+        container.style.height = ""
+        stage.size({
+          width: Math.max(1, Math.round(bounds.width || container.clientWidth)),
+          height: Math.max(
+            1,
+            Math.round(bounds.height || container.clientHeight)
+          )
+        })
+        if (!currentImage || gestureController.isDrawing()) return
+        const options = gestureOptionsRef.current
+        if (canInteractMap(options.isInteractive, options.isFullscreen)) {
+          preserveStageViewOnResize(
+            stage,
+            currentImage,
+            previousWidth,
+            previousHeight
+          )
+        } else {
+          fitImageToStage(stage, currentImage)
         }
-
-        const previousWidth = currentStage.width()
-        const previousHeight = currentStage.height()
-
-        const bounds = currentContainer.getBoundingClientRect()
-        const width = Math.max(
-          1,
-          Math.round(bounds.width || currentContainer.clientWidth)
-        )
-        const height = Math.max(
-          1,
-          Math.round(bounds.height || currentContainer.clientHeight)
-        )
-
-        currentContainer.style.width = ""
-        currentContainer.style.height = ""
-        currentStage.size({ width, height })
-
-        if (currentImage && !isDrawingRef.current) {
-          if (
-            canInteractMap(isInteractiveRef.current, isFullscreenRef.current)
-          ) {
-            preserveStageViewOnResize(
-              currentStage,
-              currentImage,
-              previousWidth,
-              previousHeight
-            )
-          } else {
-            fitImageToStage(currentStage, currentImage)
-          }
-          scheduleMarkerLayerRedraw()
-          scheduleOverlayLayerRedraw()
-          currentStage.batchDraw()
-        }
+        onViewChange()
+        stage.batchDraw()
       }
-
       const resizeObserver = new ResizeObserver(handleResize)
       resizeObserver.observe(container)
 
-      stage.on("wheel", handleWheel)
-      stage.on("dragmove", () => {
-        scheduleMarkerLayerRedraw()
-        scheduleOverlayLayerRedraw()
-      })
-      stage.on("mousedown", handleDrawStart)
-      stage.on("mousemove", handleDrawMove)
-      stage.on("mouseup mouseleave", handleDrawEnd)
-      stage.on("touchstart", handleTouchStart)
-      stage.on("touchmove", handleTouchMove)
-      stage.on("touchend touchcancel", handleTouchEnd)
-
       return () => {
         resizeObserver.disconnect()
-        stage.off("wheel", handleWheel)
-        stage.off("dragmove")
-        stage.off("mousedown", handleDrawStart)
-        stage.off("mousemove", handleDrawMove)
-        stage.off("mouseup mouseleave", handleDrawEnd)
-        stage.off("touchstart", handleTouchStart)
-        stage.off("touchmove", handleTouchMove)
-        stage.off("touchend touchcancel", handleTouchEnd)
+        gestureController.dispose()
+        gestureControllerRef.current = null
         stage.destroy()
         stageRef.current = null
         mapLayerRef.current = null
@@ -645,7 +339,6 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         markerLayerRef.current = null
         markerOverlayLayerRef.current = null
         drawLayerRef.current = null
-        currentLineRef.current = null
         if (markerRedrawFrameRef.current !== null) {
           cancelAnimationFrame(markerRedrawFrameRef.current)
         }
@@ -660,25 +353,17 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
     useEffect(() => {
       const stage = stageRef.current
       const mapLayer = mapLayerRef.current
-      if (!stage || !mapLayer) {
-        return
-      }
-
+      if (!stage || !mapLayer) return
       const imageObj = new window.Image()
       imageObj.src = mapSrc
       imageObj.onload = () => {
-        const previousImage = mapImageRef.current
-        if (previousImage) {
-          previousImage.destroy()
-        }
-
+        mapImageRef.current?.destroy()
         const mapImage = new Konva.Image({
           image: imageObj,
           x: 0,
           y: 0,
           listening: false
         })
-
         mapImageRef.current = mapImage
         mapLayer.add(mapImage)
         fitImageToStage(stage, mapImage)
@@ -686,75 +371,12 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         scheduleOverlayLayerRedraw()
         mapLayer.draw()
       }
-      imageObj.onerror = () => {
-        onMapSrcErrorRef.current()
-      }
+      imageObj.onerror = () => onMapSrcErrorRef.current()
     }, [mapSrc])
-
-    function scheduleMarkerLayerRedraw() {
-      if (markerRedrawFrameRef.current !== null) {
-        return
-      }
-
-      markerRedrawFrameRef.current = requestAnimationFrame(() => {
-        markerRedrawFrameRef.current = null
-        redrawMarkerLayer()
-      })
-    }
-
-    function scheduleOverlayLayerRedraw() {
-      if (overlayRedrawFrameRef.current !== null) {
-        return
-      }
-
-      overlayRedrawFrameRef.current = requestAnimationFrame(() => {
-        overlayRedrawFrameRef.current = null
-        redrawMarkerOverlayLayer()
-      })
-    }
-
-    function redrawMarkerLayer() {
-      const stage = stageRef.current
-      const markerLayer = markerLayerRef.current
-      if (!stage || !markerLayer) {
-        return
-      }
-
-      redrawPersistedMarkerLayer({
-        stage,
-        layer: markerLayer,
-        mapImage: mapImageRef.current,
-        groups: allMarkerGroupsRef.current,
-        visibleGroupIds: visibleMarkerGroupIdsRef.current,
-        markersVisible: areMarkersVisibleRef.current,
-        editingMarker: editingMarkerPreviewRef.current,
-        markerSelectionMode: isMarkerSelectionModeRef.current,
-        onSelect: onMarkerPinSelectRef.current
-      })
-    }
-
-    function redrawMarkerOverlayLayer() {
-      const stage = stageRef.current
-      const markerOverlayLayer = markerOverlayLayerRef.current
-      if (!stage || !markerOverlayLayer) {
-        return
-      }
-
-      redrawPendingMarkerLayer({
-        stage,
-        layer: markerOverlayLayer,
-        mapImage: mapImageRef.current,
-        pendingMarkers: pendingMarkersRef.current,
-        editingMarker: editingMarkerPreviewRef.current,
-        markerGroupColor: markerGroupColorRef.current,
-        markerRepositionMode: isMarkerRepositionModeRef.current
-      })
-    }
 
     useEffect(() => {
       scheduleMarkerLayerRedraw()
     }, [isMarkerSelectionMode, isMarkerRepositionMode])
-
     useEffect(() => {
       scheduleOverlayLayerRedraw()
     }, [isMarkerRepositionMode])
@@ -762,7 +384,6 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
     return (
       <>
         <div ref={stageContainerRef} className={styles.stageContainer} />
-
         {!canInteractMap(isInteractive, isFullscreen) &&
         !isMarkerSelectionMode &&
         !isMarkerRepositionMode ? (
@@ -781,7 +402,3 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
     )
   }
 )
-
-function canInteractMap(isInteractive: boolean, isFullscreen: boolean) {
-  return isInteractive && isFullscreen
-}

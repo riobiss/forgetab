@@ -5,29 +5,21 @@ import Image from "next/image"
 import type { RpgMapMarkerGroupDto } from "@forgetab/world-contracts/location"
 import { MapInteractionBanner } from "@/features/world/location/presentation/components/MapInteractionBanner"
 import { MapImageModal } from "@/features/world/location/presentation/components/MapImageModal"
-import { MapMarkerBottomSheet } from "@/features/world/location/presentation/components/MapMarkerBottomSheet"
-import { MapMarkersModal } from "@/features/world/location/presentation/components/MapMarkersModal"
-import { MarkerFinalizeModal } from "@/features/world/location/presentation/components/MarkerFinalizeModal"
-import { MarkerGroupModal } from "@/features/world/location/presentation/components/MarkerGroupModal"
-import { MarkerEditModal } from "@/features/world/location/presentation/components/MarkerEditModal"
-import { OverlappingMarkersModal } from "@/features/world/location/presentation/components/OverlappingMarkersModal"
 import { WorldMapEditControls } from "@/features/world/location/presentation/components/WorldMapEditControls"
 import { WorldMapCanvas } from "@/features/world/location/presentation/components/WorldMapCanvas"
+import { WorldMapMarkerModals } from "@/features/world/location/presentation/components/WorldMapMarkerModals"
 import type { WorldMapCanvasHandle } from "@/features/world/location/presentation/types/worldMapCanvas"
 import { useMarkerImageActions } from "@/features/world/location/presentation/hooks/useMarkerImageActions"
 import { useRpgMapImageActions } from "@/features/world/location/presentation/hooks/useRpgMapImageActions"
 import { useMapMarkerGroups } from "@/features/world/location/presentation/hooks/useMapMarkerGroups"
 import { useWorldMapMarkerModalFlow } from "@/features/world/location/presentation/hooks/useWorldMapMarkerModalFlow"
-import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap"
 import { useWorldMapMarkerSelection } from "@/features/world/location/presentation/hooks/useWorldMapMarkerSelection"
+import { useModalFocusTrap } from "@/shared/presentation/hooks/useModalFocusTrap"
 import {
   DEFAULT_BRUSH_COLORS,
   useWorldMapUiState
 } from "@/features/world/location/presentation/hooks/useWorldMapUiState"
-import {
-  buildDisplayMarkerGroups,
-  findMarkerSelectionById
-} from "@/features/world/location/presentation/utils/markerDisplay"
+import { buildDisplayMarkerGroups } from "@/features/world/location/presentation/utils/markerDisplay"
 import styles from "./WorldMap.module.css"
 import type { LinkedSectionSnapshot } from "./types/mapMarkers"
 
@@ -79,15 +71,14 @@ export function MundiMap({
   const canvasRef = useRef<WorldMapCanvasHandle | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [mapSrc, setMapSrc] = useState(initialMapSrc || DEFAULT_MAP_SRC)
-  const markersModalRef = useRef<HTMLElement | null>(null)
-  const finalizeModalRef = useRef<HTMLElement | null>(null)
-  const markerListModalRef = useRef<HTMLElement | null>(null)
-  const markerEditModalRef = useRef<HTMLElement | null>(null)
   const imageModalRef = useRef<HTMLDivElement | null>(null)
-  const markerSheetRef = useRef<HTMLDivElement | null>(null)
-  const overlappingMarkersModalRef = useRef<HTMLDivElement | null>(null)
-  const [editingLinkedSectionId, setEditingLinkedSectionId] = useState("")
 
+  const markerGroups = useMapMarkerGroups({
+    rpgId,
+    mapId,
+    markerColors: MARKER_COLORS,
+    initialPublicMarkerGroups
+  })
   const {
     brushColor,
     brushSize,
@@ -123,40 +114,18 @@ export function MundiMap({
     allMarkerGroups,
     areMarkersVisible,
     visibleMarkerGroupIds,
-    selectedMarkerGroups,
-    selectedMarkerGroup,
-    selectedMarkerGroupId,
-    selectedVisibility,
-    isMarkerGroupOperationPending,
     isMarkerSelectionMode,
     pendingMarkers,
-    markerGroupName,
     markerGroupColor,
     editingMarker,
     editingMarkerName,
-    editingMarkerLocation,
-    editingMarkerShortDescription,
     editingMarkerImage,
     editingMarkerColor,
     editingMarkerSize,
     editingMarkerPinStyle,
-    editingGroupName,
-    editingGroupColor,
-    setSelectedMarkerGroupId,
-    setSelectedVisibility,
     setPendingMarkers,
-    setMarkerGroupName,
-    setMarkerGroupColor,
     setEditingMarker,
-    setEditingMarkerName,
-    setEditingMarkerLocation,
-    setEditingMarkerShortDescription,
     setEditingMarkerImage,
-    setEditingMarkerColor,
-    setEditingMarkerSize,
-    setEditingMarkerPinStyle,
-    setEditingGroupName,
-    setEditingGroupColor,
     setAreMarkersVisible,
     setVisibleMarkerGroupIds,
     setEditingMarkerPosition,
@@ -166,53 +135,14 @@ export function MundiMap({
     concludeMarkerSelection,
     saveMarkerGroup,
     openMarkerList,
-    saveMarkerGroupChanges,
-    publishSelectedMarkerGroup,
-    deleteMarkerGroup,
-    clearAllMarkers,
-    toggleMarkerGroupVisibility,
-    openMarkerEdit,
-    saveMarkerEdit,
-    deleteMarkerItem
-  } = useMapMarkerGroups({
-    rpgId,
-    mapId,
-    markerColors: MARKER_COLORS,
-    initialPublicMarkerGroups
-  })
+    deleteMarkerGroup
+  } = markerGroups
 
   const displayMarkerGroups = useMemo(() => {
     return buildDisplayMarkerGroups(allMarkerGroups, linkedSections)
   }, [allMarkerGroups, linkedSections])
-  const linkedSectionsByMarkerId = useMemo(
-    () => new Map(linkedSections.map((section) => [section.markerId, section])),
-    [linkedSections]
-  )
 
-  const {
-    isImageModalOpen,
-    isMarkerFinalizeModalOpen,
-    isMarkerListModalOpen,
-    isMarkerRepositionMode,
-    isMarkersModalOpen,
-    pendingMarkerReposition,
-    setIsImageModalOpen,
-    setIsMarkerListModalOpen,
-    setIsMarkersModalOpen,
-    setIsMarkerRepositionMode,
-    closeTransientUi,
-    handleCancelMarkerReposition,
-    handleCancelMarkerSelection,
-    handleConfirmMarkerReposition,
-    handleConcludeMarkerSelection,
-    handleDeleteMarkerGroup,
-    handleEscape,
-    handleMarkerReposition,
-    handleOpenMarkersModal,
-    handleSaveMarkerGroup,
-    handleStartMarkerReposition,
-    handleStartMarkerSelection
-  } = useWorldMapMarkerModalFlow({
+  const modalFlow = useWorldMapMarkerModalFlow({
     openMarkersModal,
     startMarkerSelection,
     cancelMarkerSelection,
@@ -224,15 +154,23 @@ export function MundiMap({
     setEditingMarker,
     setEditingMarkerPosition
   })
-
   const {
-    selectedMapMarker,
-    overlappingMarkers,
-    setSelectedMapMarker,
-    setOverlappingMarkers,
-    handleMarkerPinSelect,
-    beginMarkerEditing
-  } = useWorldMapMarkerSelection({
+    isImageModalOpen,
+    isMarkerRepositionMode,
+    isMarkersModalOpen,
+    pendingMarkerReposition,
+    setIsImageModalOpen,
+    setIsMarkerRepositionMode,
+    closeTransientUi,
+    handleCancelMarkerReposition,
+    handleCancelMarkerSelection,
+    handleConfirmMarkerReposition,
+    handleConcludeMarkerSelection,
+    handleMarkerReposition,
+    handleOpenMarkersModal
+  } = modalFlow
+
+  const selection = useWorldMapMarkerSelection({
     displayMarkerGroups,
     allMarkerGroups,
     visibleMarkerGroupIds,
@@ -245,14 +183,13 @@ export function MundiMap({
     closeTransientUi,
     setIsInteractive
   })
-
   const {
-    fileInputRef: markerImageInputRef,
-    isUploading: isMarkerImageUploading,
-    openPicker: openMarkerImagePicker,
-    handleInputChange: handleMarkerImageChange,
-    deleteImage: handleDeleteMarkerImage
-  } = useMarkerImageActions({
+    setSelectedMapMarker,
+    setOverlappingMarkers,
+    handleMarkerPinSelect
+  } = selection
+
+  const markerImageActions = useMarkerImageActions({
     resolveOldImage(target) {
       if (target.mode === "pending") {
         return (
@@ -260,7 +197,6 @@ export function MundiMap({
             ?.image ?? null
         )
       }
-
       return editingMarkerImage || null
     },
     applyUploadedImage(target, url) {
@@ -272,7 +208,6 @@ export function MundiMap({
         )
         return
       }
-
       setEditingMarkerImage(url)
     },
     applyRemovedImage(target) {
@@ -284,11 +219,9 @@ export function MundiMap({
         )
         return
       }
-
       setEditingMarkerImage("")
     }
   })
-
   useEffect(() => {
     setMapSrc(initialMapSrc || DEFAULT_MAP_SRC)
   }, [initialMapSrc])
@@ -308,46 +241,10 @@ export function MundiMap({
     setSelectedMapMarker
   ])
 
-  useEffect(() => {
-    if (!editingMarker) {
-      setEditingLinkedSectionId("")
-      return
-    }
-
-    setEditingLinkedSectionId(
-      linkedSectionsByMarkerId.get(editingMarker.id)?.sectionId ?? ""
-    )
-  }, [editingMarker, linkedSectionsByMarkerId])
-
-  const activeModalElement = editingMarker
-    ? markerEditModalRef.current
-    : overlappingMarkers
-      ? overlappingMarkersModalRef.current
-      : selectedMapMarker
-        ? markerSheetRef.current
-        : isImageModalOpen
-          ? imageModalRef.current
-          : isMarkerListModalOpen
-            ? markerListModalRef.current
-            : isMarkerFinalizeModalOpen
-              ? finalizeModalRef.current
-              : isMarkersModalOpen
-                ? markersModalRef.current
-                : null
-
   useModalFocusTrap({
-    isActive: activeModalElement !== null,
-    activeElement: activeModalElement,
-    onEscape: () => {
-      handleEscape({
-        editingMarker,
-        hasOverlappingMarkers: Boolean(overlappingMarkers),
-        hasSelectedMapMarker: Boolean(selectedMapMarker),
-        clearEditingMarker: () => setEditingMarker(null),
-        clearOverlappingMarkers: () => setOverlappingMarkers(null),
-        clearSelectedMapMarker: () => setSelectedMapMarker(null)
-      })
-    }
+    isActive: isImageModalOpen,
+    activeElement: imageModalRef.current,
+    onEscape: () => setIsImageModalOpen(false)
   })
 
   const handleOpenFilePicker = () => {
@@ -368,51 +265,6 @@ export function MundiMap({
     if (mapSrc !== DEFAULT_MAP_SRC) {
       setMapSrc(DEFAULT_MAP_SRC)
     }
-  }
-
-  function handleEditSelectedMapMarker() {
-    const editingTarget = beginMarkerEditing()
-    if (!editingTarget) {
-      return
-    }
-
-    const { group: matchedGroup, marker: matchedMarker } = editingTarget
-    setSelectedVisibility(matchedGroup.visibility)
-    setSelectedMarkerGroupId(matchedGroup.id)
-    setEditingMarker(matchedMarker)
-    setEditingMarkerName(matchedMarker.name)
-    setEditingMarkerLocation(matchedMarker.location ?? "")
-    setEditingMarkerShortDescription(matchedMarker.shortDescription ?? "")
-    setEditingMarkerImage(matchedMarker.image ?? "")
-    setEditingMarkerColor(matchedMarker.color || matchedGroup.color)
-    setEditingMarkerSize(matchedMarker.size ?? DEFAULT_MARKER_SIZE)
-    setEditingMarkerPinStyle(
-      matchedMarker.pinStyle === "label" ? "label" : "default"
-    )
-  }
-
-  async function handleSaveMarkerEditWithSectionLink() {
-    const markerId = editingMarker?.id ?? null
-    const saved = await saveMarkerEdit()
-
-    if (!saved || !markerId || !onSaveMarkerSectionLink) {
-      return
-    }
-
-    await onSaveMarkerSectionLink(markerId, editingLinkedSectionId || null)
-  }
-
-  function handleOpenMarkerFromGroup(markerId: string) {
-    const selection = findMarkerSelectionById(displayMarkerGroups, markerId)
-    if (!selection) {
-      return
-    }
-
-    setIsMarkerListModalOpen(false)
-    setSelectedMapMarker({
-      marker: selection.marker,
-      groupColor: selection.groupColor
-    })
   }
 
   return (
@@ -568,164 +420,21 @@ export function MundiMap({
           />
         </button>
 
-        <MapMarkersModal
-          modalRef={markersModalRef}
-          isOpen={isMarkersModalOpen}
-          isBusy={isMarkerGroupOperationPending}
-          canCreateMarkers={canEditContent}
-          selectedVisibility={selectedVisibility}
-          selectedMarkerGroupId={selectedMarkerGroupId}
-          selectedMarkerGroups={selectedMarkerGroups}
-          allMarkerGroups={allMarkerGroups}
-          visibleMarkerGroupIds={visibleMarkerGroupIds}
-          setSelectedVisibility={setSelectedVisibility}
-          setSelectedMarkerGroupId={setSelectedMarkerGroupId}
-          setAreMarkersVisible={setAreMarkersVisible}
-          setVisibleMarkerGroupIds={setVisibleMarkerGroupIds}
-          toggleMarkerGroupVisibility={toggleMarkerGroupVisibility}
-          onCreate={handleStartMarkerSelection}
-          onEdit={(groupId) => {
-            setSelectedMarkerGroupId(groupId)
-            if (openMarkerList(groupId)) {
-              setIsMarkersModalOpen(false)
-              setIsMarkerListModalOpen(true)
-            }
-          }}
-          onDeleteGroup={(groupId) => deleteMarkerGroup(groupId)}
-          onClear={clearAllMarkers}
-          onClose={() => setIsMarkersModalOpen(false)}
-        />
-
-        <MarkerFinalizeModal
-          modalRef={finalizeModalRef}
-          isOpen={isMarkerFinalizeModalOpen}
-          markerGroupName={markerGroupName}
-          markerGroupColor={markerGroupColor}
+        <WorldMapMarkerModals
+          markerGroups={markerGroups}
+          modalFlow={modalFlow}
+          selection={selection}
+          markerImageActions={markerImageActions}
+          displayMarkerGroups={displayMarkerGroups}
+          linkedSections={linkedSections}
+          sectionOptions={sectionOptions}
           markerColors={MARKER_COLORS}
-          pendingMarkers={pendingMarkers}
-          setMarkerGroupName={setMarkerGroupName}
-          setMarkerGroupColor={setMarkerGroupColor}
-          setPendingMarkers={setPendingMarkers}
-          onSave={handleSaveMarkerGroup}
-          onClose={handleCancelMarkerSelection}
-        />
-
-        <MarkerGroupModal
-          modalRef={markerListModalRef}
-          isOpen={isMarkerListModalOpen}
-          isBusy={isMarkerGroupOperationPending}
-          group={selectedMarkerGroup}
-          editingGroupName={editingGroupName}
-          editingGroupColor={editingGroupColor}
-          markerColors={MARKER_COLORS}
-          canPublish={
-            selectedMarkerGroup?.visibility === "private" &&
-            canManagePublicMarkers
-          }
-          onChangeGroupName={setEditingGroupName}
-          onChangeGroupColor={setEditingGroupColor}
-          onAddMarkers={() => {
-            if (!selectedMarkerGroup) {
-              return
-            }
-
-            setIsMarkerListModalOpen(false)
-            startMarkerSelection(selectedMarkerGroup.id)
-          }}
-          onOpenMarker={(marker) => handleOpenMarkerFromGroup(marker.id)}
-          onEditMarker={(marker) => {
-            setIsMarkerListModalOpen(false)
-            openMarkerEdit(marker)
-          }}
-          onDeleteMarker={deleteMarkerItem}
-          onSaveGroup={saveMarkerGroupChanges}
-          onPublish={publishSelectedMarkerGroup}
-          onDeleteGroup={handleDeleteMarkerGroup}
-          onClose={() => setIsMarkerListModalOpen(false)}
-        />
-
-        {editingMarker && selectedMarkerGroup && !isMarkerRepositionMode ? (
-          <MarkerEditModal
-            modalRef={markerEditModalRef}
-            markerName={editingMarkerName}
-            markerLocation={editingMarkerLocation}
-            markerImage={editingMarkerImage}
-            markerDescription={editingMarkerShortDescription}
-            markerColor={editingMarkerColor}
-            markerSize={editingMarkerSize}
-            markerPinStyle={editingMarkerPinStyle}
-            markerColors={MARKER_COLORS}
-            linkedSectionId={editingLinkedSectionId}
-            sectionOptions={sectionOptions}
-            isImageUploading={isMarkerImageUploading}
-            isSaving={isMarkerGroupOperationPending}
-            markerId={editingMarker.id}
-            onChangeName={setEditingMarkerName}
-            onChangeLocation={setEditingMarkerLocation}
-            onChangeDescription={setEditingMarkerShortDescription}
-            onChangeColor={setEditingMarkerColor}
-            onChangeSize={setEditingMarkerSize}
-            onChangePinStyle={setEditingMarkerPinStyle}
-            onChangeLinkedSection={setEditingLinkedSectionId}
-            onPickImage={openMarkerImagePicker}
-            onDeleteImage={handleDeleteMarkerImage}
-            onChangePosition={() => {
-              handleStartMarkerReposition(editingMarker)
-            }}
-            onSave={() => void handleSaveMarkerEditWithSectionLink()}
-            onClose={() => setEditingMarker(null)}
-          />
-        ) : null}
-
-        {overlappingMarkers ? (
-          <OverlappingMarkersModal
-            modalRef={overlappingMarkersModalRef}
-            markers={overlappingMarkers}
-            onSelect={({ marker, groupColor }) => {
-              setOverlappingMarkers(null)
-              setSelectedMapMarker({ marker, groupColor })
-            }}
-            onClose={() => setOverlappingMarkers(null)}
-          />
-        ) : null}
-
-        {selectedMapMarker ? (
-          <MapMarkerBottomSheet
-            marker={selectedMapMarker.marker}
-            canEdit={Boolean(selectedMapMarker.marker.canEdit)}
-            sheetRef={markerSheetRef}
-            linkedSectionName={
-              linkedSectionsByMarkerId.get(selectedMapMarker.marker.id)?.name ??
-              null
-            }
-            onEdit={handleEditSelectedMapMarker}
-            onMoreInfo={
-              linkedSectionsByMarkerId.get(selectedMapMarker.marker.id)
-                ?.sectionId && onOpenLinkedSection
-                ? () => {
-                    const sectionId = linkedSectionsByMarkerId.get(
-                      selectedMapMarker.marker.id
-                    )?.sectionId
-                    setSelectedMapMarker(null)
-                    if (sectionId) {
-                      if (isFullscreen) {
-                        toggleFullscreen()
-                      }
-                      onOpenLinkedSection(sectionId)
-                    }
-                  }
-                : undefined
-            }
-            onClose={() => setSelectedMapMarker(null)}
-          />
-        ) : null}
-
-        <input
-          ref={markerImageInputRef}
-          type="file"
-          accept="image/*"
-          className={styles.hiddenInput}
-          onChange={handleMarkerImageChange}
+          canEditContent={canEditContent}
+          canManagePublicMarkers={canManagePublicMarkers}
+          isFullscreen={isFullscreen}
+          onExitFullscreen={toggleFullscreen}
+          onOpenLinkedSection={onOpenLinkedSection}
+          onSaveMarkerSectionLink={onSaveMarkerSectionLink}
         />
 
         {canManageImage ? (
