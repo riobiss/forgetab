@@ -1,4 +1,5 @@
 import { normalizeEnabledAbilityCategories } from "@forgetab/world-contracts/rpg/abilityCategories"
+import { resolveClassRaceFeatureFlags } from "@forgetab/world-contracts/rpg/classRaceFeatures"
 import {
   enforceXpLevelPattern,
   getDefaultProgressionTiers,
@@ -53,14 +54,14 @@ export async function createRpg(
     const resolvedCostResourceName = (
       costResourceName?.trim() || "Skill Points"
     ).slice(0, 60)
-    const resolvedUseRaceBonuses =
-      typeof useRaceBonuses === "boolean"
-        ? useRaceBonuses
-        : Boolean(useClassRaceBonuses)
-    const resolvedUseClassBonuses =
-      typeof useClassBonuses === "boolean"
-        ? useClassBonuses
-        : Boolean(useClassRaceBonuses)
+    const {
+      useRaceBonuses: resolvedUseRaceBonuses,
+      useClassBonuses: resolvedUseClassBonuses
+    } = resolveClassRaceFeatureFlags({
+      useRaceBonuses,
+      useClassBonuses,
+      useClassRaceBonuses
+    })
     const resolvedAllowMultiplePlayerCharacters = Boolean(
       allowMultiplePlayerCharacters ?? false
     )

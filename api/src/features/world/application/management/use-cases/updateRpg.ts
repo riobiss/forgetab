@@ -1,4 +1,5 @@
 import { createRpgSchema } from "@forgetab/world-contracts/validation/rpg"
+import { resolveClassRaceFeatureFlags } from "@forgetab/world-contracts/rpg/classRaceFeatures"
 import { normalizeEnabledAbilityCategories } from "@forgetab/world-contracts/rpg/abilityCategories"
 import {
   enforceXpLevelPattern,
@@ -93,14 +94,14 @@ export async function updateRpg(
       progressionTiers
     } = parsed.data
 
-    const resolvedUseRaceBonuses =
-      typeof useRaceBonuses === "boolean"
-        ? useRaceBonuses
-        : Boolean(useClassRaceBonuses)
-    const resolvedUseClassBonuses =
-      typeof useClassBonuses === "boolean"
-        ? useClassBonuses
-        : Boolean(useClassRaceBonuses)
+    const {
+      useRaceBonuses: resolvedUseRaceBonuses,
+      useClassBonuses: resolvedUseClassBonuses
+    } = resolveClassRaceFeatureFlags({
+      useRaceBonuses,
+      useClassBonuses,
+      useClassRaceBonuses
+    })
     const resolvedAllowMultiplePlayerCharacters = Boolean(
       allowMultiplePlayerCharacters ?? false
     )

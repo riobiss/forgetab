@@ -1,4 +1,5 @@
 import type { RpgEditorDetailDto } from "@/features/world/application/editor/types"
+import { resolveClassRaceFeatureFlags } from "@forgetab/world-contracts/rpg/classRaceFeatures"
 import {
   enforceXpLevelPattern,
   getDefaultProgressionTiers,
@@ -28,7 +29,7 @@ function isLegacyFiveLevelDefault(tiers: ProgressionTier[]) {
 }
 
 export function normalizeRpgEditorCompatibility(rpg: RpgEditorDetailDto) {
-  const legacyClassRaceFlag = Boolean(rpg.useClassRaceBonuses)
+  const classRaceFeatures = resolveClassRaceFeatureFlags(rpg)
   const progressionMode = isProgressionMode(rpg.progressionMode)
     ? rpg.progressionMode
     : ("xp_level" as ProgressionMode)
@@ -38,14 +39,7 @@ export function normalizeRpgEditorCompatibility(rpg: RpgEditorDetailDto) {
   )
 
   return {
-    useRaceBonuses:
-      typeof rpg.useRaceBonuses === "boolean"
-        ? rpg.useRaceBonuses
-        : legacyClassRaceFlag,
-    useClassBonuses:
-      typeof rpg.useClassBonuses === "boolean"
-        ? rpg.useClassBonuses
-        : legacyClassRaceFlag,
+    ...classRaceFeatures,
     progressionMode,
     progressionTiers:
       progressionMode === "xp_level" &&
