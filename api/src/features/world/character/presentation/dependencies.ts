@@ -4,7 +4,7 @@ import { characterAbilitiesParserService } from "@/features/world/character/infr
 import { prismaCharacterAbilityMutationRepository } from "@/features/world/character/infrastructure/abilities/repositories/prismaCharacterAbilityMutationRepository"
 import { prismaCharacterInventoryRepository } from "@/features/world/character/infrastructure/inventory/repositories/prismaCharacterInventoryRepository"
 import { prismaCharacterProgressionRepository } from "@/features/world/character/infrastructure/progression/repositories/prismaCharacterProgressionRepository"
-import { rpgCharacterProgressionPermissionService } from "@/features/world/character/infrastructure/progression/services/rpgCharacterProgressionPermissionService"
+import { rpgManagementPermissionService } from "@/features/world/infrastructure/services/rpgManagementPermissionService"
 import { prismaCharacterStatusCurrentRepository } from "@/features/world/character/infrastructure/statusCurrent/repositories/prismaCharacterStatusCurrentRepository"
 import { prismaCharacterRepository } from "@/features/world/character/infrastructure/repositories/prismaCharacterRepository"
 import { prismaRpgAccessRepository } from "@/features/world/character/infrastructure/repositories/prismaRpgAccessRepository"
@@ -25,8 +25,7 @@ export const characterRouteDeps = {
   characterAbilityMutationRepository: prismaCharacterAbilityMutationRepository,
   characterInventoryRepository: prismaCharacterInventoryRepository,
   characterProgressionRepository: prismaCharacterProgressionRepository,
-  characterProgressionPermissionService:
-    rpgCharacterProgressionPermissionService,
+  characterProgressionPermissionService: rpgManagementPermissionService,
   characterStatusCurrentRepository: prismaCharacterStatusCurrentRepository,
   characterRepository: prismaCharacterRepository,
   rpgAccessRepository: prismaRpgAccessRepository,
