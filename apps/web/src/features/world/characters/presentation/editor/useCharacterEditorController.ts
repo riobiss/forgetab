@@ -3,7 +3,6 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   type FormEvent
@@ -30,25 +29,22 @@ import {
 } from "@/features/world/characters/application/editor"
 import {
   getDefaultProgressionTiers,
-  isProgressionMode,
-  normalizeProgressionTiers,
-  resolveProgressionTierByCurrent,
   type ProgressionMode,
   type ProgressionTier
 } from "@forgetab/world-contracts/rpg/progression"
+import { buildCharacterEditorFormSnapshot } from "@/features/world/characters/application/editor/characterEditorForm"
 import { dismissToast } from "@/shared/presentation/notifications/toast"
 import { buildCharacterPayload } from "./builders/buildCharacterPayload"
 import {
-  isIdentityNameField,
   parseNumericInputValue,
-  resolveEditTarget,
   type NumericInputValue
 } from "./utils"
+import {
+  useCharacterEditorDerivedState,
+  type PlayerSelectOption
+} from "./useCharacterEditorDerivedState"
 
-export type PlayerSelectOption = {
-  value: string
-  label: string
-}
+export type { PlayerSelectOption } from "./useCharacterEditorDerivedState"
 
 type Params = {
   rpgId: string
@@ -138,45 +134,27 @@ export function useCharacterEditorController({
   const savingRef = useRef(false)
   const deletingRef = useRef(false)
 
-  const assignablePlayerOptions = useMemo(
-    () =>
-      assignablePlayers.map((player) => ({
-        value: player.userId,
-        label: `${player.name} (@${player.username})`
-      })),
-    [assignablePlayers]
-  )
-  const selectedOfferPlayer =
-    assignablePlayerOptions.find((option) => option.value === offerToUserId) ??
-    null
-  const identityNameField =
-    identityTemplates.find((field) => isIdentityNameField(field)) ?? null
-  const imageStatusText = useMemo(() => {
-    if (selectedImageName.trim()) return selectedImageName
-    if (!image.trim()) return ""
-
-    const lastPathSegment = image.split("/").pop() ?? ""
-    return lastPathSegment
-      ? decodeURIComponent(lastPathSegment)
-      : "Imagem atual selecionada"
-  }, [image, selectedImageName])
-  const normalizedProgressionCurrent = useMemo(() => {
-    const parsed = Number(progressionCurrent || 0)
-    return Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : 0
-  }, [progressionCurrent])
-  const resolvedProgressionTier = useMemo(
-    () =>
-      resolveProgressionTierByCurrent(
-        progressionMode,
-        progressionTiers,
-        normalizedProgressionCurrent
-      ),
-    [normalizedProgressionCurrent, progressionMode, progressionTiers]
-  )
+  const {
+    assignablePlayerOptions,
+    selectedOfferPlayer,
+    identityNameField,
+    imageStatusText,
+    resolvedProgressionTier
+  } = useCharacterEditorDerivedState({
+    assignablePlayers,
+    offerToUserId,
+    identityTemplates,
+    image,
+    selectedImageName,
+    progressionCurrent,
+    progressionMode,
+    progressionTiers
+  })
 
   const applyBootstrap = useCallback(
     (bootstrap: CharacterEditorBootstrapDto) => {
-      const editTarget = resolveEditTarget(bootstrap, characterId)
+      const snapshot = buildCharacterEditorFormSnapshot(bootstrap, characterId)
+      const editTarget = snapshot.editTarget
       if (characterId && !editTarget) {
         setError("Personagem nao encontrado para edicao.")
         return
@@ -191,72 +169,20 @@ export function useCharacterEditorController({
       setCharacteristicsTemplates(bootstrap.characteristicFields)
       setAssignablePlayers(bootstrap.assignablePlayers ?? [])
 
-      const legacyClassRaceFlag = Boolean(bootstrap.rpg?.useClassRaceBonuses)
-      setUseRaceBonuses(
-        typeof bootstrap.rpg?.useRaceBonuses === "boolean"
-          ? bootstrap.rpg.useRaceBonuses
-          : legacyClassRaceFlag
-      )
-      setUseClassBonuses(
-        typeof bootstrap.rpg?.useClassBonuses === "boolean"
-          ? bootstrap.rpg.useClassBonuses
-          : legacyClassRaceFlag
-      )
+      setUseRaceBonuses(snapshot.useRaceBonuses)
+      setUseClassBonuses(snapshot.useClassBonuses)
       setCanManageCharacters(Boolean(bootstrap.rpg?.canManage))
       setUseInventoryWeightLimit(
         Boolean(bootstrap.rpg?.useInventoryWeightLimit)
       )
 
-      const loadedProgressionMode = isProgressionMode(
-        bootstrap.rpg?.progressionMode
-      )
-        ? bootstrap.rpg.progressionMode
-        : "xp_level"
-      setProgressionMode(loadedProgressionMode)
-      setProgressionTiers(
-        normalizeProgressionTiers(
-          bootstrap.rpg?.progressionTiers,
-          loadedProgressionMode
-        )
-      )
-
-      const numericValues = (
-        template: CharacterEditorTemplateFieldDto[],
-        source: Record<string, number> | undefined
-      ) =>
-        template.reduce<Record<string, NumericInputValue>>((result, item) => {
-          result[item.key] = editTarget ? Number(source?.[item.key] ?? 0) : ""
-          return result
-        }, {})
-
-      setValues(numericValues(bootstrap.attributes, editTarget?.attributes))
-      setStatusValues(numericValues(bootstrap.statuses, editTarget?.statuses))
-      setSkillValues(numericValues(bootstrap.skills, editTarget?.skills))
-      setIdentityValues(
-        bootstrap.identityFields.reduce<Record<string, string>>(
-          (result, item) => {
-            const value = editTarget?.identity?.[item.key]
-            result[item.key] =
-              typeof value === "string"
-                ? value
-                : isIdentityNameField(item)
-                  ? (editTarget?.name ?? "")
-                  : ""
-            return result
-          },
-          {}
-        )
-      )
-      setCharacteristicsValues(
-        bootstrap.characteristicFields.reduce<Record<string, string>>(
-          (result, item) => {
-            const value = editTarget?.characteristics?.[item.key]
-            result[item.key] = typeof value === "string" ? value : ""
-            return result
-          },
-          {}
-        )
-      )
+      setProgressionMode(snapshot.progressionMode)
+      setProgressionTiers(snapshot.progressionTiers)
+      setValues(snapshot.attributeValues)
+      setStatusValues(snapshot.statusValues)
+      setSkillValues(snapshot.skillValues)
+      setIdentityValues(snapshot.identityValues)
+      setCharacteristicsValues(snapshot.characteristicsValues)
       setName(editTarget?.name ?? "")
       setImage(editTarget?.image ?? "")
       setSelectedImageFile(null)
