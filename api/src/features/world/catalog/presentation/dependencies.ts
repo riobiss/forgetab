@@ -5,6 +5,7 @@ import { entityCatalogPageAccessService } from "@/features/world/catalog/infrast
 import { prismaEntityCatalogAbilityRepository } from "@/features/world/catalog/infrastructure/repositories/prismaEntityCatalogAbilitiesRepository"
 import { prismaEntityCatalogPlayerRepository } from "@/features/world/catalog/infrastructure/repositories/prismaEntityCatalogPlayersRepository"
 import { prismaEntityCatalogPurchaseRepository } from "@/features/world/catalog/infrastructure/repositories/prismaEntityCatalogPurchaseRepository"
+import { prismaEntityCatalogCharacterProgressionRepository } from "@/features/world/catalog/infrastructure/repositories/prismaEntityCatalogCharacterProgressionRepository"
 
 export const entityCatalogRouteDeps = {
   repository: prismaEntityCatalogRepository,
@@ -13,5 +14,7 @@ export const entityCatalogRouteDeps = {
   abilityRepository: prismaEntityCatalogAbilityRepository,
   playerRepository: prismaEntityCatalogPlayerRepository,
   purchaseRepository: prismaEntityCatalogPurchaseRepository,
+  characterProgressionRepository:
+    prismaEntityCatalogCharacterProgressionRepository,
   detailAccessService: entityCatalogDetailAccessService
 } as const

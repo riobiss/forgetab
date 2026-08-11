@@ -20,6 +20,8 @@ export async function getClassCatalogDetailHandler(
         abilityRepository: entityCatalogRouteDeps.abilityRepository,
         playerRepository: entityCatalogRouteDeps.playerRepository,
         purchaseRepository: entityCatalogRouteDeps.purchaseRepository,
+        characterProgressionRepository:
+          entityCatalogRouteDeps.characterProgressionRepository,
         accessService: entityCatalogRouteDeps.detailAccessService
       },
       {
@@ -52,6 +54,8 @@ export async function getRaceCatalogDetailHandler(
         abilityRepository: entityCatalogRouteDeps.abilityRepository,
         playerRepository: entityCatalogRouteDeps.playerRepository,
         purchaseRepository: entityCatalogRouteDeps.purchaseRepository,
+        characterProgressionRepository:
+          entityCatalogRouteDeps.characterProgressionRepository,
         accessService: entityCatalogRouteDeps.detailAccessService
       },
       {

@@ -3,13 +3,19 @@ import type { EntityCatalogDetailRepository } from "@/features/world/catalog/app
 import type { EntityCatalogAbilityRepository } from "@/features/world/catalog/application/ports/EntityCatalogAbilityRepository"
 import type { EntityCatalogPlayerRepository } from "@/features/world/catalog/application/ports/EntityCatalogPlayerRepository"
 import type { EntityCatalogPurchaseRepository } from "@/features/world/catalog/application/ports/EntityCatalogPurchaseRepository"
+import type { EntityCatalogCharacterProgressionRepository } from "@/features/world/catalog/application/ports/EntityCatalogCharacterProgressionRepository"
 import type { EntityCatalogDetailData } from "@/features/world/catalog/application/types"
+import {
+  filterCatalogAbilitiesByCharacterLevel,
+  resolveCatalogCharacterLevel
+} from "@/features/world/catalog/application/rules/entityCatalogAbilityVisibility"
 
 type Deps = {
   repository: EntityCatalogDetailRepository
   abilityRepository: EntityCatalogAbilityRepository
   playerRepository: EntityCatalogPlayerRepository
   purchaseRepository: EntityCatalogPurchaseRepository
+  characterProgressionRepository: EntityCatalogCharacterProgressionRepository
   accessService: EntityCatalogDetailAccessService
 }
 
@@ -68,7 +74,8 @@ export async function loadEntityCatalogDetailUseCase(
     skillTemplates,
     abilities,
     players,
-    abilityPurchase
+    abilityPurchase,
+    characterProgressions
   ] = await Promise.all([
     deps.repository.listAttributeTemplates(params.rpgId),
     deps.repository.listSkillTemplates(params.rpgId),
@@ -113,15 +120,34 @@ export async function loadEntityCatalogDetailUseCase(
               : "Skill Points",
           initialPoints: 0,
           initialOwnedBySkill: {}
-        })
+        }),
+    params.userId
+      ? snapshot.entityType === "class"
+        ? deps.characterProgressionRepository.listOwnedClassProgressions({
+            rpgId: params.rpgId,
+            userId: params.userId,
+            classKey: snapshot.key,
+            classId: snapshot.id
+          })
+        : deps.characterProgressionRepository.listOwnedRaceProgressions({
+            rpgId: params.rpgId,
+            userId: params.userId,
+            raceKey: snapshot.key
+          })
+      : Promise.resolve([])
   ])
+
+  const characterLevel = resolveCatalogCharacterLevel(characterProgressions)
 
   return {
     canManage,
     current: snapshot.current,
     attributeTemplates,
     skillTemplates,
-    abilities,
+    abilities: filterCatalogAbilitiesByCharacterLevel(
+      abilities,
+      characterLevel
+    ),
     players,
     abilityPurchase
   }

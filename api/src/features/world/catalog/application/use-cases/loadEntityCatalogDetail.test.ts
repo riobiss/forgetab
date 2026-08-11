@@ -4,12 +4,14 @@ import type { EntityCatalogDetailRepository } from "@/features/world/catalog/app
 import type { EntityCatalogAbilityRepository } from "@/features/world/catalog/application/ports/EntityCatalogAbilityRepository"
 import type { EntityCatalogPlayerRepository } from "@/features/world/catalog/application/ports/EntityCatalogPlayerRepository"
 import type { EntityCatalogPurchaseRepository } from "@/features/world/catalog/application/ports/EntityCatalogPurchaseRepository"
+import type { EntityCatalogCharacterProgressionRepository } from "@/features/world/catalog/application/ports/EntityCatalogCharacterProgressionRepository"
 import { loadEntityCatalogDetailUseCase } from "@/features/world/catalog/application/use-cases/loadEntityCatalogDetail"
 
 type RepositoryMock = EntityCatalogDetailRepository &
   EntityCatalogAbilityRepository &
   EntityCatalogPlayerRepository &
-  EntityCatalogPurchaseRepository
+  EntityCatalogPurchaseRepository &
+  EntityCatalogCharacterProgressionRepository
 
 function createRepositoryMock(): RepositoryMock {
   return {
@@ -22,7 +24,9 @@ function createRepositoryMock(): RepositoryMock {
     listClassPlayers: vi.fn().mockResolvedValue([]),
     listRacePlayers: vi.fn().mockResolvedValue([]),
     getClassPurchaseState: vi.fn(),
-    getRacePurchaseState: vi.fn()
+    getRacePurchaseState: vi.fn(),
+    listOwnedClassProgressions: vi.fn().mockResolvedValue([]),
+    listOwnedRaceProgressions: vi.fn().mockResolvedValue([])
   }
 }
 
@@ -35,6 +39,7 @@ function createDependencies(
     abilityRepository: repository,
     playerRepository: repository,
     purchaseRepository: repository,
+    characterProgressionRepository: repository,
     accessService
   }
 }
@@ -237,5 +242,163 @@ describe("loadEntityCatalogDetailUseCase", () => {
       initialOwnedBySkill: {}
     })
     expect(repository.getRacePurchaseState).not.toHaveBeenCalled()
+    expect(repository.listOwnedRaceProgressions).not.toHaveBeenCalled()
+  })
+
+  it("limita habilidades de classe ao nivel do personagem do usuario", async () => {
+    const repository = createRepositoryMock()
+    const accessService = createAccessServiceMock()
+
+    vi.mocked(repository.getClassDetail).mockResolvedValue({
+      entityType: "class",
+      id: "class-1",
+      key: "mage",
+      ownerId: "owner-1",
+      visibility: "public",
+      costsEnabled: false,
+      costResourceName: "Pontos",
+      current: {
+        id: "class-1",
+        key: "mage",
+        label: "Maga",
+        category: "arcana",
+        attributeBonuses: {},
+        skillBonuses: {},
+        catalogMeta: { shortDescription: null, richText: {} }
+      }
+    })
+    vi.mocked(repository.listClassAbilities).mockResolvedValue([
+      createAbility("skill-1", [1, 3, 4]),
+      createAbility("skill-2", [4])
+    ])
+    vi.mocked(repository.getClassPurchaseState).mockResolvedValue(
+      createEmptyPurchaseState()
+    )
+    vi.mocked(repository.listOwnedClassProgressions).mockResolvedValue([
+      {
+        progressionMode: "xp_level",
+        progressionTiers: [
+          { label: "Level 1", required: 0 },
+          { label: "Level 2", required: 100 },
+          { label: "Level 3", required: 300 },
+          { label: "Level 4", required: 600 }
+        ],
+        progressionCurrent: 350
+      }
+    ])
+
+    const result = await loadEntityCatalogDetailUseCase(
+      createDependencies(repository, accessService),
+      {
+        rpgId: "rpg-1",
+        classId: "class-1",
+        userId: "user-1",
+        entityType: "class"
+      }
+    )
+
+    expect(result?.abilities).toHaveLength(1)
+    expect(
+      result?.abilities[0]?.levels.map((level) => level.levelRequired)
+    ).toEqual([1, 3])
+    expect(repository.listOwnedClassProgressions).toHaveBeenCalledWith({
+      rpgId: "rpg-1",
+      userId: "user-1",
+      classKey: "mage",
+      classId: "class-1"
+    })
+  })
+
+  it("mostra somente habilidades de requisito 1 sem personagem da raca", async () => {
+    const repository = createRepositoryMock()
+    const accessService = createAccessServiceMock()
+
+    vi.mocked(repository.getRaceDetail).mockResolvedValue({
+      entityType: "race",
+      id: "race-1",
+      key: "elf",
+      ownerId: "owner-1",
+      visibility: "public",
+      costsEnabled: false,
+      costResourceName: "Skill Points",
+      current: {
+        id: "race-1",
+        key: "elf",
+        label: "Elfo",
+        category: "nobre",
+        attributeBonuses: {},
+        skillBonuses: {},
+        catalogMeta: { shortDescription: null, richText: {} }
+      }
+    })
+    vi.mocked(repository.listRaceAbilities).mockResolvedValue([
+      createAbility("skill-1", [1, 2]),
+      createAbility("skill-2", [2])
+    ])
+    vi.mocked(repository.getRacePurchaseState).mockResolvedValue(
+      createEmptyPurchaseState()
+    )
+
+    const result = await loadEntityCatalogDetailUseCase(
+      createDependencies(repository, accessService),
+      {
+        rpgId: "rpg-1",
+        raceKey: "elf",
+        userId: "user-1",
+        entityType: "race"
+      }
+    )
+
+    expect(result?.abilities).toHaveLength(1)
+    expect(result?.abilities[0]?.levels).toHaveLength(1)
+    expect(result?.abilities[0]?.levels[0]?.levelRequired).toBe(1)
+    expect(repository.listOwnedRaceProgressions).toHaveBeenCalledWith({
+      rpgId: "rpg-1",
+      userId: "user-1",
+      raceKey: "elf"
+    })
   })
 })
+
+function createEmptyPurchaseState() {
+  return {
+    characterId: null,
+    costsEnabled: false,
+    costResourceName: "Skill Points",
+    initialPoints: 0,
+    initialOwnedBySkill: {}
+  }
+}
+
+function createAbility(skillId: string, requiredLevels: number[]) {
+  return {
+    skillId,
+    skillName: skillId,
+    skillDescription: null,
+    skillCategory: null,
+    skillType: null,
+    skillActionType: null,
+    skillTags: [],
+    levels: requiredLevels.map((levelRequired, index) => ({
+      levelNumber: index + 1,
+      levelRequired,
+      levelCategory: null,
+      levelType: null,
+      levelActionType: null,
+      levelName: null,
+      levelDescription: null,
+      notesList: [],
+      customFields: [],
+      description: null,
+      summary: null,
+      damage: null,
+      range: null,
+      cooldown: null,
+      duration: null,
+      castTime: null,
+      resourceCost: null,
+      pointsCost: null,
+      costCustom: null
+    }))
+  }
+}
