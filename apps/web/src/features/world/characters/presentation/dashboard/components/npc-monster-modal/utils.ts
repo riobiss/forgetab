@@ -3,7 +3,7 @@ import type {
   CharacterEditorSummaryDto
 } from "@forgetab/world-contracts/character-editor"
 import { readNpcMonsterBasicDraft } from "@/features/world/characters/application/npc-monster"
-import type { ExtraField, NumericInputValue, SnapshotSetters } from "./types"
+import type { ExtraField, NumericInputValue } from "./types"
 
 export function createEmptyExtraField(): ExtraField {
   return {
@@ -62,10 +62,9 @@ export function normalizeNumericValues(
   )
 }
 
-export function applyCharacterSnapshot(
+export function buildCharacterSnapshot(
   payload: CharacterEditorBootstrapDto,
-  target: CharacterEditorSummaryDto | null,
-  setters: SnapshotSetters
+  target: CharacterEditorSummaryDto | null
 ) {
   const basicDraft = readNpcMonsterBasicDraft(target)
   const extraFields =
@@ -76,26 +75,27 @@ export function applyCharacterSnapshot(
         }))
       : [createEmptyExtraField()]
 
-  setters.setBootstrap(payload)
-  setters.setEditingCharacter(target)
-  setters.setCreatedCharacterId(target?.id ?? null)
-  setters.setImage(basicDraft.image)
-  setters.setSelectedImageFile(null)
-  setters.setSelectedImageName("")
-  setters.setName(basicDraft.name)
-  setters.setTitleNickname(basicDraft.titleNickname)
-  setters.setDescription(basicDraft.description)
-  setters.setVisibility(basicDraft.visibility)
-  setters.setNarrativeStatus(basicDraft.narrativeStatus)
-  setters.setSecretFieldKeys(basicDraft.secretFieldKeys)
-  setters.setRaceLabel(basicDraft.raceLabel)
-  setters.setClassLabel(basicDraft.classLabel)
-  setters.setStatusValues(
-    toNumericInputValues(payload.statuses, target?.statuses)
-  )
-  setters.setAttributeValues(
-    toNumericInputValues(payload.attributes, target?.attributes)
-  )
-  setters.setSkillValues(toNumericInputValues(payload.skills, target?.skills))
-  setters.setExtraFields(extraFields)
+  return {
+    bootstrap: payload,
+    editingCharacter: target,
+    createdCharacterId: target?.id ?? null,
+    image: basicDraft.image,
+    selectedImageFile: null as File | null,
+    selectedImageName: "",
+    name: basicDraft.name,
+    titleNickname: basicDraft.titleNickname,
+    description: basicDraft.description,
+    visibility: basicDraft.visibility,
+    narrativeStatus: basicDraft.narrativeStatus,
+    secretFieldKeys: basicDraft.secretFieldKeys,
+    raceLabel: basicDraft.raceLabel,
+    classLabel: basicDraft.classLabel,
+    statusValues: toNumericInputValues(payload.statuses, target?.statuses),
+    attributeValues: toNumericInputValues(
+      payload.attributes,
+      target?.attributes
+    ),
+    skillValues: toNumericInputValues(payload.skills, target?.skills),
+    extraFields
+  }
 }
