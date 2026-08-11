@@ -17,13 +17,13 @@ import {
   type AbilityCategoryKey
 } from "@forgetab/world-contracts/rpg/abilityCategories"
 import {
-  enforceXpLevelPattern,
-  getDefaultProgressionTiers,
-  isProgressionMode,
-  normalizeProgressionTiers,
   type ProgressionMode,
   type ProgressionTier
 } from "@forgetab/world-contracts/rpg/progression"
+import {
+  normalizeProgressionTiersForPersistence,
+  normalizeRpgEditorCompatibility
+} from "@/features/world/application/editor/rpgEditorNormalization"
 import type {
   AttributeTemplate,
   CatalogOption,
@@ -31,22 +31,6 @@ import type {
   IdentityTemplate
 } from "@/features/world/presentation/editor/edit/components/shared/types"
 import type { Visibility } from "@/features/world/presentation/editor/edit/hooks/useEditRpgState"
-
-function isLegacyFiveLevelDefault(tiers: ProgressionTier[]) {
-  if (tiers.length !== 5) return false
-  const expected = [
-    ["Level 1", 0],
-    ["Level 2", 100],
-    ["Level 3", 250],
-    ["Level 4", 450],
-    ["Level 5", 700]
-  ] as const
-
-  return expected.every(
-    ([label, required], index) =>
-      tiers[index]?.label === label && tiers[index]?.required === required
-  )
-}
 
 type UseEditRpgDataParams = {
   deps: RpgEditorDependencies
@@ -191,17 +175,9 @@ export function useEditRpgData({
         setVisibility(rpg.visibility)
         setUseMundiMap(Boolean(rpg.useMundiMap))
 
-        const legacyClassRaceFlag = Boolean(rpg.useClassRaceBonuses)
-        setUseRaceBonuses(
-          typeof rpg.useRaceBonuses === "boolean"
-            ? rpg.useRaceBonuses
-            : legacyClassRaceFlag
-        )
-        setUseClassBonuses(
-          typeof rpg.useClassBonuses === "boolean"
-            ? rpg.useClassBonuses
-            : legacyClassRaceFlag
-        )
+        const compatibility = normalizeRpgEditorCompatibility(rpg)
+        setUseRaceBonuses(compatibility.useRaceBonuses)
+        setUseClassBonuses(compatibility.useClassBonuses)
         setUseInventoryWeightLimit(Boolean(rpg.useInventoryWeightLimit))
         setAllowMultiplePlayerCharacters(
           Boolean(rpg.allowMultiplePlayerCharacters)
@@ -217,21 +193,8 @@ export function useEditRpgData({
           normalizeEnabledAbilityCategories(rpg.enabledAbilityCategories)
         )
 
-        const loadedProgressionMode = isProgressionMode(rpg.progressionMode)
-          ? rpg.progressionMode
-          : ("xp_level" as ProgressionMode)
-        setProgressionMode(loadedProgressionMode)
-
-        const loadedTiers = normalizeProgressionTiers(
-          rpg.progressionTiers,
-          loadedProgressionMode
-        )
-        setProgressionTiers(
-          loadedProgressionMode === "xp_level" &&
-            isLegacyFiveLevelDefault(loadedTiers)
-            ? loadedTiers.slice(0, 2)
-            : loadedTiers
-        )
+        setProgressionMode(compatibility.progressionMode)
+        setProgressionTiers(compatibility.progressionTiers)
 
         setCostsEnabled(Boolean(rpg.costsEnabled))
         setCostResourceName(rpg.costResourceName?.trim() || "Skill Points")
@@ -322,7 +285,7 @@ export function useEditRpgData({
     setVisibility
   ])
 
-  async function saveAll() {
+  async function saveAll(imageOverride?: string) {
     if (savingRef.current) return
     savingRef.current = true
     setSaving(true)
@@ -336,7 +299,7 @@ export function useEditRpgData({
           payload: {
             title,
             description,
-            image: image.trim() || null,
+            image: (imageOverride ?? image).trim() || null,
             visibility,
             useMundiMap,
             useRaceBonuses,
@@ -348,20 +311,10 @@ export function useEditRpgData({
             abilityCategoriesEnabled,
             enabledAbilityCategories,
             progressionMode,
-            progressionTiers:
-              progressionTiers.length > 0
-                ? progressionMode === "xp_level"
-                  ? enforceXpLevelPattern(
-                      progressionTiers.map((item) => ({
-                        label: item.label.trim() || "Level",
-                        required: Math.max(0, Math.floor(item.required))
-                      }))
-                    )
-                  : progressionTiers.map((item) => ({
-                      label: item.label.trim() || "Etapa",
-                      required: Math.max(0, Math.floor(item.required))
-                    }))
-                : getDefaultProgressionTiers(progressionMode)
+            progressionTiers: normalizeProgressionTiersForPersistence(
+              progressionMode,
+              progressionTiers
+            )
           }
         }),
         saveRpgAttributesUseCase(deps, {

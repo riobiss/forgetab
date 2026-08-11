@@ -1,36 +1,83 @@
-import styles from "./AdvancedIdentityEditor.module.css"
 import type {
   CatalogRichTextField,
   EntityCatalogMeta
 } from "@/features/world/catalog/domain/types"
-import {
-  createDefaultRaceLore,
-  type RaceLore
-} from "@forgetab/world-contracts/rpg/raceLore"
+import { createDefaultRaceLore } from "@forgetab/world-contracts/rpg/raceLore"
 import type { IdentityTemplateDraft } from "@/features/world/presentation/editor/edit/advanced/types"
 import type { AttributeTemplate } from "./shared/types"
 import NumericTemplateGrid from "@/features/world/presentation/components/NumericTemplateGrid"
+import RaceLoreEditor from "./RaceLoreEditor"
 import RichTextField from "./shared/RichTextField"
+import styles from "./AdvancedIdentityEditor.module.css"
 
 type IdentityType = "race" | "class"
-
-type SkillTemplate = {
-  key: string
-  label: string
-}
 
 type Props = {
   type: IdentityType
   mode: "create" | "edit"
   draft: IdentityTemplateDraft
   attributeTemplates: AttributeTemplate[]
-  skillTemplates: SkillTemplate[]
+  skillTemplates: Array<{ key: string; label: string }>
   saving: boolean
   error: string
   success: string
   onChange: (next: IdentityTemplateDraft) => void
   onSave: () => Promise<void>
   onCancel: () => void
+}
+
+const RICH_TEXT_FIELDS: Record<
+  IdentityType,
+  Array<{
+    key: CatalogRichTextField
+    label: string
+    description: string
+  }>
+> = {
+  race: [
+    {
+      key: "description",
+      label: "Descricao",
+      description: "Apresentacao principal da raca."
+    },
+    {
+      key: "origin",
+      label: "Origem",
+      description: "Contexto de origem com editor rico."
+    },
+    {
+      key: "kingdoms",
+      label: "Reinos",
+      description: "Texto rico para reinos, regioes e expansao politica."
+    },
+    {
+      key: "lore",
+      label: "Lore",
+      description: "Lore livre para aprofundamento narrativo."
+    },
+    {
+      key: "notes",
+      label: "Observacoes",
+      description: "Notas internas ou observacoes finais."
+    }
+  ],
+  class: [
+    {
+      key: "description",
+      label: "Descricao",
+      description: "Apresentacao principal da classe."
+    },
+    {
+      key: "lore",
+      label: "Lore",
+      description: "Lore, identidade e estilo narrativo da classe."
+    },
+    {
+      key: "notes",
+      label: "Observacoes",
+      description: "Detalhes opcionais, restricoes e notas."
+    }
+  ]
 }
 
 export default function AdvancedIdentityEditor({
@@ -47,230 +94,36 @@ export default function AdvancedIdentityEditor({
   onCancel
 }: Props) {
   const typeLabel = type === "race" ? "Raca" : "Classe"
-  const title = mode === "create" ? `Criar ${typeLabel}` : `Editar ${typeLabel}`
-  const raceLore =
-    type === "race" ? (draft.lore ?? createDefaultRaceLore(draft.label)) : null
-  const richTextFields: Array<{
-    key: CatalogRichTextField
-    label: string
-    description: string
-  }> =
-    type === "race"
-      ? [
-          {
-            key: "description",
-            label: "Descricao",
-            description: "Apresentacao principal da raca."
-          },
-          {
-            key: "origin",
-            label: "Origem",
-            description: "Contexto de origem com editor rico."
-          },
-          {
-            key: "kingdoms",
-            label: "Reinos",
-            description: "Texto rico para reinos, regioes e expansao politica."
-          },
-          {
-            key: "lore",
-            label: "Lore",
-            description: "Lore livre para aprofundamento narrativo."
-          },
-          {
-            key: "notes",
-            label: "Observacoes",
-            description: "Notas internas ou observacoes finais."
-          }
-        ]
-      : [
-          {
-            key: "description",
-            label: "Descricao",
-            description: "Apresentacao principal da classe."
-          },
-          {
-            key: "lore",
-            label: "Lore",
-            description: "Lore, identidade e estilo narrativo da classe."
-          },
-          {
-            key: "notes",
-            label: "Observacoes",
-            description: "Detalhes opcionais, restricoes e notas."
-          }
-        ]
-
-  function updateLabel(value: string) {
-    if (type === "race") {
-      onChange({
-        ...draft,
-        label: value,
-        lore: draft.lore ?? createDefaultRaceLore(value)
-      })
-      return
-    }
-
-    onChange({ ...draft, label: value })
-  }
-
-  function updateCatalogMeta(nextMeta: EntityCatalogMeta) {
-    onChange({ ...draft, catalogMeta: nextMeta })
-  }
-
-  function updateRichTextField(
-    field: CatalogRichTextField,
-    value: Record<string, unknown>
-  ) {
-    updateCatalogMeta({
-      ...draft.catalogMeta,
-      richText: {
-        ...draft.catalogMeta.richText,
-        [field]: value
-      }
-    })
-  }
-
-  function updateBonus(
+  const updateCatalogMeta = (catalogMeta: EntityCatalogMeta) =>
+    onChange({ ...draft, catalogMeta })
+  const updateBonus = (
     scope: "attributeBonuses" | "skillBonuses",
     key: string,
     value: string
-  ) {
+  ) =>
     onChange({
       ...draft,
-      [scope]: {
-        ...draft[scope],
-        [key]: Number(value)
-      }
+      [scope]: { ...draft[scope], [key]: Number(value) }
     })
-  }
-
-  function parseLines(value: string) {
-    return value.split("\n")
-  }
-
-  function linesToText(lines: string[]) {
-    return lines.join("\n")
-  }
-
-  function updateRaceLore(nextLore: RaceLore) {
-    onChange({ ...draft, lore: nextLore })
-  }
-
-  function updateRaceArrayField(
-    field: "thoughts" | "notableFigures" | "racialTraits" | "commonClasses",
-    value: string
-  ) {
-    if (!raceLore) return
-    updateRaceLore({ ...raceLore, [field]: parseLines(value) })
-  }
-
-  function addKingdom() {
-    if (!raceLore) return
-    updateRaceLore({
-      ...raceLore,
-      kingdoms: [
-        ...raceLore.kingdoms,
-        {
-          name: "",
-          description: "",
-          culture: [],
-          physicalTraits: [],
-          clothing: [],
-          commonNames: []
-        }
-      ]
-    })
-  }
-
-  function removeKingdom(index: number) {
-    if (!raceLore) return
-    updateRaceLore({
-      ...raceLore,
-      kingdoms: raceLore.kingdoms.filter(
-        (_, currentIndex) => currentIndex !== index
-      )
-    })
-  }
-
-  function updateKingdomField(
-    index: number,
-    field:
-      | "name"
-      | "description"
-      | "culture"
-      | "physicalTraits"
-      | "clothing"
-      | "commonNames",
-    value: string
-  ) {
-    if (!raceLore) return
-    updateRaceLore({
-      ...raceLore,
-      kingdoms: raceLore.kingdoms.map((kingdom, currentIndex) => {
-        if (currentIndex !== index) return kingdom
-        if (field === "name" || field === "description") {
-          return { ...kingdom, [field]: value }
-        }
-        return { ...kingdom, [field]: parseLines(value) }
-      })
-    })
-  }
-
-  function addVariation() {
-    if (!raceLore) return
-    updateRaceLore({
-      ...raceLore,
-      variations: [
-        ...raceLore.variations,
-        { name: "", description: "", traits: [] }
-      ]
-    })
-  }
-
-  function removeVariation(index: number) {
-    if (!raceLore) return
-    updateRaceLore({
-      ...raceLore,
-      variations: raceLore.variations.filter(
-        (_, currentIndex) => currentIndex !== index
-      )
-    })
-  }
-
-  function updateVariationField(
-    index: number,
-    field: "name" | "description" | "traits",
-    value: string
-  ) {
-    if (!raceLore) return
-    updateRaceLore({
-      ...raceLore,
-      variations: raceLore.variations.map((variation, currentIndex) => {
-        if (currentIndex !== index) return variation
-        if (field === "traits") {
-          return { ...variation, traits: parseLines(value) }
-        }
-        return { ...variation, [field]: value }
-      })
-    })
-  }
-
-  const attributeItems = attributeTemplates.map((item) => ({
-    key: item.key,
-    label: item.label
-  }))
 
   return (
     <section className={styles.panel}>
-      <h1>{title}</h1>
+      <h1>{`${mode === "create" ? "Criar" : "Editar"} ${typeLabel}`}</h1>
 
       <label className={styles.field}>
         <span>Nome</span>
         <input
           type="text"
           value={draft.label}
-          onChange={(event) => updateLabel(event.target.value)}
+          onChange={(event) =>
+            onChange({
+              ...draft,
+              label: event.target.value,
+              ...(type === "race" && !draft.lore
+                ? { lore: createDefaultRaceLore(event.target.value) }
+                : {})
+            })
+          }
           placeholder={type === "race" ? "Nome da raca" : "Nome da classe"}
         />
       </label>
@@ -308,282 +161,42 @@ export default function AdvancedIdentityEditor({
 
       <section className={styles.section}>
         <h2>Conteudo rico</h2>
-        {richTextFields.map((field) => (
+        {RICH_TEXT_FIELDS[type].map((field) => (
           <RichTextField
             key={field.key}
             label={field.label}
             description={field.description}
             value={
               draft.catalogMeta.richText[field.key] as
-                Record<string, unknown> | null | undefined
+                | Record<string, unknown>
+                | null
+                | undefined
             }
             onChange={(value) =>
-              updateRichTextField(field.key, value as Record<string, unknown>)
+              updateCatalogMeta({
+                ...draft.catalogMeta,
+                richText: {
+                  ...draft.catalogMeta.richText,
+                  [field.key]: value as Record<string, unknown>
+                }
+              })
             }
           />
         ))}
       </section>
 
-      {type === "race" && raceLore ? (
-        <section className={styles.section}>
-          <h2>Lore da raca</h2>
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              onClick={() => updateRaceLore(createDefaultRaceLore(draft.label))}
-            >
-              Inserir estrutura padrao
-            </button>
-          </div>
-
-          <label className={styles.field}>
-            <span>Resumo</span>
-            <textarea
-              value={raceLore.summary}
-              onChange={(event) =>
-                updateRaceLore({ ...raceLore, summary: event.target.value })
-              }
-              rows={3}
-            />
-          </label>
-
-          <label className={styles.field}>
-            <span>Origem</span>
-            <textarea
-              value={raceLore.origin}
-              onChange={(event) =>
-                updateRaceLore({ ...raceLore, origin: event.target.value })
-              }
-              rows={5}
-            />
-          </label>
-
-          <label className={styles.field}>
-            <span>O que alguns pensam (1 linha por item)</span>
-            <textarea
-              value={linesToText(raceLore.thoughts)}
-              onChange={(event) =>
-                updateRaceArrayField("thoughts", event.target.value)
-              }
-              rows={4}
-            />
-          </label>
-
-          <section className={styles.subSection}>
-            <div className={styles.inlineHeader}>
-              <h3>Reinos</h3>
-              <button
-                type="button"
-                className={styles.secondaryButton}
-                onClick={addKingdom}
-              >
-                Adicionar reino
-              </button>
-            </div>
-            {raceLore.kingdoms.length === 0 ? (
-              <p className={styles.hint}>Nenhum reino cadastrado.</p>
-            ) : null}
-            {raceLore.kingdoms.map((kingdom, index) => (
-              <article className={styles.itemCard} key={`kingdom-${index}`}>
-                <div className={styles.inlineHeader}>
-                  <h4>Reino {index + 1}</h4>
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    onClick={() => removeKingdom(index)}
-                  >
-                    Remover
-                  </button>
-                </div>
-
-                <label className={styles.field}>
-                  <span>Nome do reino</span>
-                  <input
-                    type="text"
-                    value={kingdom.name}
-                    onChange={(event) =>
-                      updateKingdomField(index, "name", event.target.value)
-                    }
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Descricao</span>
-                  <textarea
-                    rows={4}
-                    value={kingdom.description}
-                    onChange={(event) =>
-                      updateKingdomField(
-                        index,
-                        "description",
-                        event.target.value
-                      )
-                    }
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Cultura (1 linha por item)</span>
-                  <textarea
-                    rows={3}
-                    value={linesToText(kingdom.culture)}
-                    onChange={(event) =>
-                      updateKingdomField(index, "culture", event.target.value)
-                    }
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Caracteristicas fisicas (1 linha por item)</span>
-                  <textarea
-                    rows={3}
-                    value={linesToText(kingdom.physicalTraits)}
-                    onChange={(event) =>
-                      updateKingdomField(
-                        index,
-                        "physicalTraits",
-                        event.target.value
-                      )
-                    }
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Vestuario (1 linha por item)</span>
-                  <textarea
-                    rows={3}
-                    value={linesToText(kingdom.clothing)}
-                    onChange={(event) =>
-                      updateKingdomField(index, "clothing", event.target.value)
-                    }
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Nomes comuns (1 linha por item)</span>
-                  <textarea
-                    rows={3}
-                    value={linesToText(kingdom.commonNames)}
-                    onChange={(event) =>
-                      updateKingdomField(
-                        index,
-                        "commonNames",
-                        event.target.value
-                      )
-                    }
-                  />
-                </label>
-              </article>
-            ))}
-          </section>
-
-          <label className={styles.field}>
-            <span>Figuras marcantes (1 linha por item)</span>
-            <textarea
-              value={linesToText(raceLore.notableFigures)}
-              onChange={(event) =>
-                updateRaceArrayField("notableFigures", event.target.value)
-              }
-              rows={4}
-            />
-          </label>
-
-          <label className={styles.field}>
-            <span>Tracos raciais (1 linha por item)</span>
-            <textarea
-              value={linesToText(raceLore.racialTraits)}
-              onChange={(event) =>
-                updateRaceArrayField("racialTraits", event.target.value)
-              }
-              rows={4}
-            />
-          </label>
-
-          <label className={styles.field}>
-            <span>Classes comuns (1 linha por item)</span>
-            <textarea
-              value={linesToText(raceLore.commonClasses)}
-              onChange={(event) =>
-                updateRaceArrayField("commonClasses", event.target.value)
-              }
-              rows={4}
-            />
-          </label>
-
-          <section className={styles.subSection}>
-            <div className={styles.inlineHeader}>
-              <h3>Variacoes</h3>
-              <button
-                type="button"
-                className={styles.secondaryButton}
-                onClick={addVariation}
-              >
-                Adicionar variacao
-              </button>
-            </div>
-            {raceLore.variations.length === 0 ? (
-              <p className={styles.hint}>Nenhuma variacao cadastrada.</p>
-            ) : null}
-            {raceLore.variations.map((variation, index) => (
-              <article className={styles.itemCard} key={`variation-${index}`}>
-                <div className={styles.inlineHeader}>
-                  <h4>Variacao {index + 1}</h4>
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    onClick={() => removeVariation(index)}
-                  >
-                    Remover
-                  </button>
-                </div>
-
-                <label className={styles.field}>
-                  <span>Nome</span>
-                  <input
-                    type="text"
-                    value={variation.name}
-                    onChange={(event) =>
-                      updateVariationField(index, "name", event.target.value)
-                    }
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Descricao</span>
-                  <textarea
-                    rows={4}
-                    value={variation.description}
-                    onChange={(event) =>
-                      updateVariationField(
-                        index,
-                        "description",
-                        event.target.value
-                      )
-                    }
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Tracos (1 linha por item)</span>
-                  <textarea
-                    rows={3}
-                    value={linesToText(variation.traits)}
-                    onChange={(event) =>
-                      updateVariationField(index, "traits", event.target.value)
-                    }
-                  />
-                </label>
-              </article>
-            ))}
-          </section>
-        </section>
+      {type === "race" ? (
+        <RaceLoreEditor
+          draft={draft}
+          lore={draft.lore ?? createDefaultRaceLore(draft.label)}
+          onChange={onChange}
+        />
       ) : null}
 
       <section className={styles.section}>
         <h2>Bonus de atributos</h2>
         <NumericTemplateGrid
-          items={attributeItems}
+          items={attributeTemplates.map(({ key, label }) => ({ key, label }))}
           values={draft.attributeBonuses}
           onChange={(key, value) => updateBonus("attributeBonuses", key, value)}
           gridClassName={styles.grid}
@@ -595,10 +208,7 @@ export default function AdvancedIdentityEditor({
       <section className={styles.section}>
         <h2>Bonus de pericias</h2>
         <NumericTemplateGrid
-          items={skillTemplates.map((skill) => ({
-            key: skill.key,
-            label: skill.label
-          }))}
+          items={skillTemplates}
           values={draft.skillBonuses}
           onChange={(key, value) => updateBonus("skillBonuses", key, value)}
           gridClassName={styles.grid}
