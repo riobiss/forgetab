@@ -8,32 +8,23 @@ import type {
   EntityCatalogItem,
   EntityCatalogSort
 } from "@/features/world/catalog/application/types"
-
-function normalizeText(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLocaleLowerCase("pt-BR")
-    .trim()
-}
+import { matchesSearch } from "@forgetab/world-contracts/shared/search"
 
 export function searchCatalogItems(items: EntityCatalogItem[], search: string) {
-  const normalizedSearch = normalizeText(search)
-  if (!normalizedSearch) return items
+  if (!search.trim()) return items
 
-  return items.filter((item) => {
-    const haystack = normalizeText(
+  return items.filter((item) =>
+    matchesSearch(
       [
         item.name,
         item.slug,
         item.category,
-        getCatalogMetaExcerpt(item.meta) ?? "",
+        getCatalogMetaExcerpt(item.meta),
         getCatalogMetaSearchText(item.meta)
-      ].join(" ")
+      ],
+      search
     )
-
-    return haystack.includes(normalizedSearch)
-  })
+  )
 }
 
 export function filterCatalogItemsByCategory(

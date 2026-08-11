@@ -45,6 +45,10 @@ describe("entityCatalog filters", () => {
     expect(searchCatalogItems(items, "protecao")).toEqual([items[1]])
   })
 
+  it("busca todos os termos sem depender da ordem", () => {
+    expect(searchCatalogItems(items, "pesada guerreiro")).toEqual([items[1]])
+  })
+
   it("filtra, ordena e agrupa sem alterar a coleção original", () => {
     const result = buildEntityCatalogGroups(items, {
       search: "",
