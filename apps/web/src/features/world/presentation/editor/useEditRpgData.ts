@@ -13,83 +13,31 @@ import {
   updateRpgUseCase
 } from "@/features/world/application/editor/use-cases/rpgEditor"
 import {
-  normalizeEnabledAbilityCategories,
-  type AbilityCategoryKey
+  normalizeEnabledAbilityCategories
 } from "@forgetab/world-contracts/rpg/abilityCategories"
-import {
-  type ProgressionMode,
-  type ProgressionTier
-} from "@forgetab/world-contracts/rpg/progression"
 import {
   normalizeProgressionTiersForPersistence,
   normalizeRpgEditorCompatibility
 } from "@/features/world/application/editor/rpgEditorNormalization"
 import type {
-  AttributeTemplate,
   CatalogOption,
-  CharacterIdentityTemplate,
-  IdentityTemplate
 } from "@/features/world/presentation/editor/edit/components/shared/types"
-import type { Visibility } from "@/features/world/presentation/editor/edit/hooks/useEditRpgState"
+import type { useEditRpgState } from "@/features/world/presentation/editor/edit/hooks/useEditRpgState"
 
 type UseEditRpgDataParams = {
   deps: RpgEditorDependencies
   rpgId: string
   coreStatusOptions: readonly CatalogOption[]
-  title: string
-  description: string
-  image: string
-  visibility: Visibility
-  useMundiMap: boolean
-  useRaceBonuses: boolean
-  useClassBonuses: boolean
-  useInventoryWeightLimit: boolean
-  allowMultiplePlayerCharacters: boolean
-  usersCanManageOwnXp: boolean
-  allowSkillPointDistribution: boolean
-  abilityCategoriesEnabled: boolean
-  enabledAbilityCategories: AbilityCategoryKey[]
-  progressionMode: ProgressionMode
-  progressionTiers: ProgressionTier[]
-  attributeTemplates: AttributeTemplate[]
-  selectedStatusKeys: string[]
-  statusLabelByKey: Record<string, string>
-  skillTemplates: Array<{ key: string; label: string }>
-  characterIdentityTemplates: CharacterIdentityTemplate[]
-  characterCharacteristicTemplates: CharacterIdentityTemplate[]
-  setTitle: (value: string) => void
-  setDescription: (value: string) => void
-  setImage: (value: string) => void
-  setVisibility: (value: Visibility) => void
-  setUseMundiMap: (value: boolean) => void
-  setUseRaceBonuses: (value: boolean) => void
-  setUseClassBonuses: (value: boolean) => void
-  setUseInventoryWeightLimit: (value: boolean) => void
-  setAllowMultiplePlayerCharacters: (value: boolean) => void
-  setUsersCanManageOwnXp: (value: boolean) => void
-  setAllowSkillPointDistribution: (value: boolean) => void
-  setAbilityCategoriesEnabled: (value: boolean) => void
-  setEnabledAbilityCategories: (value: AbilityCategoryKey[]) => void
-  setProgressionMode: (value: ProgressionMode) => void
-  setProgressionTiers: (value: ProgressionTier[]) => void
-  setCostsEnabled: (value: boolean) => void
-  setCostResourceName: (value: string) => void
-  setAttributeTemplates: (value: AttributeTemplate[]) => void
-  setSelectedStatusKeys: (value: string[]) => void
-  setStatusLabelByKey: (value: Record<string, string>) => void
-  setSkillTemplates: (value: Array<{ key: string; label: string }>) => void
-  setRaceDrafts: (value: IdentityTemplate[]) => void
-  setClassDrafts: (value: IdentityTemplate[]) => void
-  setCharacterIdentityTemplates: (value: CharacterIdentityTemplate[]) => void
-  setCharacterCharacteristicTemplates: (
-    value: CharacterIdentityTemplate[]
-  ) => void
+  state: ReturnType<typeof useEditRpgState>
 }
 
 export function useEditRpgData({
   deps,
   rpgId,
   coreStatusOptions,
+  state
+}: UseEditRpgDataParams) {
+  const {
   title,
   description,
   image,
@@ -136,7 +84,7 @@ export function useEditRpgData({
   setClassDrafts,
   setCharacterIdentityTemplates,
   setCharacterCharacteristicTemplates
-}: UseEditRpgDataParams) {
+  } = state
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
