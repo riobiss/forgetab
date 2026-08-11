@@ -2,6 +2,7 @@
 
 import { useDeferredValue, useEffect, useState } from "react"
 import { toast } from "react-hot-toast"
+import { matchesSearch } from "@forgetab/world-contracts/shared/search"
 import {
   addNpcMonsterAbilityUseCase,
   addNpcMonsterInventoryItemUseCase,
@@ -132,24 +133,17 @@ export function useNpcMonsterLoadout({ isOpen, rpgId, characterId }: Params) {
     }
   }, [characterId, isOpen, rpgId])
 
-  const normalizedSearch = deferredPickerSearch.trim().toLowerCase()
-  const filteredAvailableItems = !normalizedSearch
+  const filteredAvailableItems = !deferredPickerSearch.trim()
     ? availableItems
     : availableItems.filter((item) =>
-        [item.name, item.type, item.rarity]
-          .join(" ")
-          .toLowerCase()
-          .includes(normalizedSearch)
+        matchesSearch([item.name, item.type, item.rarity], deferredPickerSearch)
       )
   const ownedSkillIds = new Set(abilities.map((item) => item.skillId))
   const filteredAvailableSkills = (
-    !normalizedSearch
+    !deferredPickerSearch.trim()
       ? availableSkills
       : availableSkills.filter((item) =>
-          [item.slug, item.tags.join(" ")]
-            .join(" ")
-            .toLowerCase()
-            .includes(normalizedSearch)
+          matchesSearch([item.slug, ...item.tags], deferredPickerSearch)
         )
   ).filter((item) => !ownedSkillIds.has(item.id))
 

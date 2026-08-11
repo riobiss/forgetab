@@ -11,6 +11,7 @@ import CharacterDetailModal from "./components/CharacterDetailModal"
 import NpcMonsterCharacterModal from "./components/NpcMonsterCharacterModal"
 import PlayerCharacterModal from "./components/PlayerCharacterModal"
 import styles from "./CharactersDashboardPage.module.css"
+import { matchesSearch } from "@forgetab/world-contracts/shared/search"
 
 type CharactersDashboardPageProps = {
   data: CharactersDashboardViewModel
@@ -125,14 +126,13 @@ export default function CharactersDashboardPage({
   }
 
   const visibleCharacters = useMemo(() => {
-    const normalizedSearch = deferredSearch.trim().toLowerCase()
     const filteredByFavorites = favoritesOnly
       ? data.characters.filter((character) => favoriteIdSet.has(character.id))
       : data.characters
 
-    const filteredBySearch = normalizedSearch
+    const filteredBySearch = deferredSearch.trim()
       ? filteredByFavorites.filter((character) =>
-          character.name.trim().toLowerCase().includes(normalizedSearch)
+          matchesSearch(character.name, deferredSearch)
         )
       : filteredByFavorites
 

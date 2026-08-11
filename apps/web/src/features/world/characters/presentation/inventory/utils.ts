@@ -11,6 +11,7 @@ export {
   parseCustomFieldList,
   parseNamedDescriptionList
 } from "@/shared/presentation/items/itemFieldParsers"
+import { matchesSearch } from "@forgetab/world-contracts/shared/search"
 import {
   parseCustomFieldList,
   parseNamedDescriptionList
@@ -18,37 +19,28 @@ import {
 
 export function matchesInventorySearch(
   item: CharacterInventoryItemDto,
-  normalizedSearch: string
+  search: string
 ): boolean {
-  if (!normalizedSearch) {
-    return true
-  }
-
   const abilities = parseNamedDescriptionList(item.itemAbilities)
   const effects = parseNamedDescriptionList(item.itemEffects)
 
-  return (
-    item.itemName.toLowerCase().includes(normalizedSearch) ||
-    item.itemType.toLowerCase().includes(normalizedSearch) ||
-    item.itemRarity.toLowerCase().includes(normalizedSearch) ||
-    (item.itemDescription ?? "").toLowerCase().includes(normalizedSearch) ||
-    (item.itemPreRequirement ?? "").toLowerCase().includes(normalizedSearch) ||
-    (item.itemDamage ?? "").toLowerCase().includes(normalizedSearch) ||
-    (item.itemDuration ?? "").toLowerCase().includes(normalizedSearch) ||
-    (item.itemAbility ?? "").toLowerCase().includes(normalizedSearch) ||
-    (item.itemAbilityName ?? "").toLowerCase().includes(normalizedSearch) ||
-    (item.itemEffect ?? "").toLowerCase().includes(normalizedSearch) ||
-    (item.itemEffectName ?? "").toLowerCase().includes(normalizedSearch) ||
-    abilities.some(
-      (ability) =>
-        ability.name.toLowerCase().includes(normalizedSearch) ||
-        ability.description.toLowerCase().includes(normalizedSearch)
-    ) ||
-    effects.some(
-      (effect) =>
-        effect.name.toLowerCase().includes(normalizedSearch) ||
-        effect.description.toLowerCase().includes(normalizedSearch)
-    )
+  return matchesSearch(
+    [
+      item.itemName,
+      item.itemType,
+      item.itemRarity,
+      item.itemDescription,
+      item.itemPreRequirement,
+      item.itemDamage,
+      item.itemDuration,
+      item.itemAbility,
+      item.itemAbilityName,
+      item.itemEffect,
+      item.itemEffectName,
+      ...abilities.flatMap((ability) => [ability.name, ability.description]),
+      ...effects.flatMap((effect) => [effect.name, effect.description])
+    ],
+    search
   )
 }
 

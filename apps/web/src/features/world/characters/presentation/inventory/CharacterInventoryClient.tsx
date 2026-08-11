@@ -73,7 +73,6 @@ export default function CharacterInventoryClient({
   const activeExtraFilters =
     (selectedCategory === "all" ? 0 : 1) + (selectedRarity === "all" ? 0 : 1)
   const filteredInventory = useMemo(() => {
-    const normalizedSearch = deferredSearch.trim().toLowerCase()
     return inventory.filter((item) => {
       const itemTypeNormalized = item.itemType.toLowerCase()
       const matchesCategory =
@@ -86,11 +85,7 @@ export default function CharacterInventoryClient({
         return false
       }
 
-      if (!normalizedSearch) {
-        return true
-      }
-
-      return matchesInventorySearch(item, normalizedSearch)
+      return matchesInventorySearch(item, deferredSearch)
     })
   }, [deferredSearch, inventory, selectedCategory, selectedRarity])
 
