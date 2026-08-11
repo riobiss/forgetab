@@ -23,6 +23,7 @@ import {
 } from "@/features/world/location/application/use-cases/rpgMaps.client"
 import { rpgMapPresentationDeps } from "@/features/world/location/presentation/dependencies"
 import { useRpgMapFormModalState } from "./useRpgMapFormModalState"
+import { matchesSearch } from "@forgetab/world-contracts/shared/search"
 
 type UseRpgMapsCatalogParams = {
   rpgId: string
@@ -51,13 +52,8 @@ export function useRpgMapsCatalog({
   const modalState = useRpgMapFormModalState()
 
   const filteredMaps = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase()
-    if (!normalizedSearch) return maps
-
     return maps.filter((map) =>
-      [map.title, map.description, map.type].some((value) =>
-        value?.toLowerCase().includes(normalizedSearch)
-      )
+      matchesSearch([map.title, map.description, map.type], search)
     )
   }, [maps, search])
 

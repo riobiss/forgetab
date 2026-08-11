@@ -98,7 +98,7 @@ describe("useRpgMapsCatalog", () => {
     await waitFor(() => expect(result.current.maps).toHaveLength(2))
 
     act(() => {
-      result.current.setSearch("cidade")
+      result.current.setSearch("central cídade")
     })
 
     expect(result.current.filteredMaps.map((map) => map.id)).toEqual(["map-2"])

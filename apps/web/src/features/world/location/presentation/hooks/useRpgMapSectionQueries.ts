@@ -12,6 +12,7 @@ import {
   getLinkedMarkerId,
   type MarkerLinkOption
 } from "@/features/world/location/presentation/utils/sectionMarkerLinking"
+import { matchesSearch } from "@forgetab/world-contracts/shared/search"
 
 function buildBreadcrumbs(
   selectedSectionId: string | null,
@@ -36,16 +37,15 @@ function filterTree(
   nodes: RpgMapSectionTreeNodeDto[],
   query: string
 ): RpgMapSectionTreeNodeDto[] {
-  const normalized = query.trim().toLowerCase()
-  if (!normalized) return nodes
+  if (!query.trim()) return nodes
 
   return nodes
     .map((node) => {
       const children = filterTree(node.children, query)
-      const matches =
-        node.name.toLowerCase().includes(normalized) ||
-        (node.description ?? "").toLowerCase().includes(normalized) ||
-        (node.type ?? "").toLowerCase().includes(normalized)
+      const matches = matchesSearch(
+        [node.name, node.description, node.type],
+        query
+      )
       return matches || children.length > 0 ? { ...node, children } : null
     })
     .filter((node): node is RpgMapSectionTreeNodeDto => Boolean(node))

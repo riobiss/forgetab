@@ -11,18 +11,16 @@ import type {
 } from "@/features/world/location/presentation/types/mapMarkers"
 import type { WorldMapCanvasHandle } from "@/features/world/location/presentation/types/worldMapCanvas"
 import {
-  drawMarkerPin,
-  getMarkerDisplayLabel
-} from "@/features/world/location/presentation/utils/markerPins"
+  redrawPendingMarkerLayer,
+  redrawPersistedMarkerLayer
+} from "@/features/world/location/presentation/utils/mapCanvasMarkerRenderer"
 import {
   applyStagePinchZoom,
   applyStageZoom,
   fitImageToStage,
   focusStageOnMarker,
   getContentPointerPosition,
-  getMarkerRenderMode,
   getPreferredPixelRatio,
-  isMarkerVisibleInViewport,
   preserveStageViewOnResize,
   syncMapInteraction,
   type MapCanvasPoint
@@ -722,53 +720,17 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         return
       }
 
-      markerLayer.destroyChildren()
-      const renderMode = getMarkerRenderMode(stage, mapImageRef.current)
-
-      if (areMarkersVisibleRef.current) {
-        const visibleGroupIds = new Set(visibleMarkerGroupIdsRef.current)
-
-        for (const group of allMarkerGroupsRef.current) {
-          if (!visibleGroupIds.has(group.id)) {
-            continue
-          }
-
-          group.markers.forEach((marker, index) => {
-            if (
-              editingMarkerPreviewRef.current &&
-              marker.id === editingMarkerPreviewRef.current.id
-            ) {
-              return
-            }
-
-            const color = marker.color || group.color
-            const label = getMarkerDisplayLabel(marker.name, index + 1)
-            if (!isMarkerVisibleInViewport(stage, marker, label)) {
-              return
-            }
-
-            drawMarkerPin({
-              layer: markerLayer,
-              x: marker.x,
-              y: marker.y,
-              color,
-              label,
-              size: marker.size,
-              pinStyle: marker.pinStyle,
-              renderMode,
-              opacity: 0.95,
-              onClick: () => {
-                if (isMarkerSelectionModeRef.current) {
-                  return
-                }
-                onMarkerPinSelectRef.current(marker, color)
-              }
-            })
-          })
-        }
-      }
-
-      markerLayer.batchDraw()
+      redrawPersistedMarkerLayer({
+        stage,
+        layer: markerLayer,
+        mapImage: mapImageRef.current,
+        groups: allMarkerGroupsRef.current,
+        visibleGroupIds: visibleMarkerGroupIdsRef.current,
+        markersVisible: areMarkersVisibleRef.current,
+        editingMarker: editingMarkerPreviewRef.current,
+        markerSelectionMode: isMarkerSelectionModeRef.current,
+        onSelect: onMarkerPinSelectRef.current
+      })
     }
 
     function redrawMarkerOverlayLayer() {
@@ -778,47 +740,15 @@ export const WorldMapCanvas = forwardRef<WorldMapCanvasHandle, Props>(
         return
       }
 
-      markerOverlayLayer.destroyChildren()
-      const renderMode = getMarkerRenderMode(stage, mapImageRef.current)
-
-      const editingMarkerPreviewCurrent = editingMarkerPreviewRef.current
-      if (editingMarkerPreviewCurrent) {
-        drawMarkerPin({
-          layer: markerOverlayLayer,
-          x: editingMarkerPreviewCurrent.x,
-          y: editingMarkerPreviewCurrent.y,
-          color:
-            editingMarkerPreviewCurrent.color || markerGroupColorRef.current,
-          label: getMarkerDisplayLabel(editingMarkerPreviewCurrent.name, 1),
-          size: editingMarkerPreviewCurrent.size,
-          pinStyle: editingMarkerPreviewCurrent.pinStyle,
-          renderMode,
-          opacity: 0.95,
-          dashed: isMarkerRepositionMode
-        })
-      }
-
-      pendingMarkersRef.current.forEach((marker, index) => {
-        const label = getMarkerDisplayLabel(marker.name, index + 1)
-        if (!isMarkerVisibleInViewport(stage, marker, label)) {
-          return
-        }
-
-        drawMarkerPin({
-          layer: markerOverlayLayer,
-          x: marker.x,
-          y: marker.y,
-          color: markerGroupColorRef.current,
-          label,
-          size: marker.size,
-          pinStyle: marker.pinStyle,
-          renderMode,
-          opacity: 0.82,
-          dashed: true
-        })
+      redrawPendingMarkerLayer({
+        stage,
+        layer: markerOverlayLayer,
+        mapImage: mapImageRef.current,
+        pendingMarkers: pendingMarkersRef.current,
+        editingMarker: editingMarkerPreviewRef.current,
+        markerGroupColor: markerGroupColorRef.current,
+        markerRepositionMode: isMarkerRepositionModeRef.current
       })
-
-      markerOverlayLayer.batchDraw()
     }
 
     useEffect(() => {
