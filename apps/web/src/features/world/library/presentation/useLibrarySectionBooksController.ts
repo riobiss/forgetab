@@ -22,6 +22,7 @@ import type {
   LibrarySectionDto
 } from "@/features/world/library/application/types"
 import { dismissToast } from "@/shared/presentation/notifications/toast"
+import { matchesSearch } from "@forgetab/world-contracts/shared/search"
 
 export type LibraryBookVisibility = "private" | "public" | "unlisted"
 
@@ -67,12 +68,8 @@ export function useLibrarySectionBooksController({
   const deferredSearch = useDeferredValue(search)
 
   const filteredBooks = useMemo(() => {
-    const normalized = deferredSearch.trim().toLowerCase()
-    if (!normalized) return books
-    return books.filter(
-      (book) =>
-        book.title.toLowerCase().includes(normalized) ||
-        (book.description ?? "").toLowerCase().includes(normalized)
+    return books.filter((book) =>
+      matchesSearch([book.title, book.description], deferredSearch)
     )
   }, [books, deferredSearch])
   const selectedPlayerOptions = useMemo(

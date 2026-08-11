@@ -100,6 +100,9 @@ describe("useLibrarySectionBooksController", () => {
     )
     await waitFor(() => expect(result.current.loading).toBe(false))
 
+    act(() => result.current.setSearch("norte crônicas"))
+    await waitFor(() => expect(result.current.filteredBooks).toEqual([book]))
+
     act(() => result.current.setSearch("inexistente"))
     await waitFor(() => expect(result.current.filteredBooks).toEqual([]))
 
