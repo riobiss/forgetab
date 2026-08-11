@@ -4,6 +4,7 @@ import type {
 } from "@/features/world/skill/application/searchIndex/types"
 import type { SkillsSearchIndexRepository } from "@/features/world/skill/application/searchIndex/ports/SkillsSearchIndexRepository"
 import { mapSkillError } from "@/features/world/skill/application/use-cases/shared"
+import { buildSearchText } from "@forgetab/world-contracts/shared/search"
 
 const MAX_SEARCH_INDEX_SKILLS = 200
 
@@ -96,9 +97,7 @@ export function buildSkillSearchIndex(rows: SkillSearchIndexRow[]) {
       ([skillId, bucket]): [string, SkillSearchIndexEntry] => [
         skillId,
         {
-          searchBlob: `${bucket.slug} ${bucket.searchParts.join(" ")}`
-            .trim()
-            .toLowerCase(),
+          searchBlob: buildSearchText([bucket.slug, ...bucket.searchParts]),
           displayName: bucket.displayName,
           filters: {
             categories: Array.from(bucket.categories),

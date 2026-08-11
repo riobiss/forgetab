@@ -27,7 +27,7 @@ describe("skillsSearchIndex", () => {
         levelNumber: 1,
         stats: {
           name: "Bola de Fogo",
-          description: "Explode",
+          description: "Explosão mágica",
           category: "arcana",
           type: "attack",
           actionType: "action"
@@ -36,6 +36,7 @@ describe("skillsSearchIndex", () => {
     ])
 
     expect(index.s1.displayName).toBe("Bola de Fogo")
+    expect(index.s1.searchBlob).toBe("fireball bola de fogo explosao magica")
     expect(index.s1.filters).toEqual({
       categories: ["arcana"],
       types: ["attack"],

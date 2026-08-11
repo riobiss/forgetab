@@ -6,6 +6,7 @@ import type {
   SkillListItemDto,
   UpdateSkillLevelPayloadDto
 } from "@/features/world/skills/application/skillsDashboard/types"
+import { normalizeSearchText } from "@forgetab/world-contracts/shared/search"
 
 type Dependencies = SkillsDashboardDependencies
 
@@ -37,7 +38,7 @@ export async function buildSkillsSearchIndex(
     params.skills.map((skill) => [
       skill.id,
       fetchedIndex[skill.id] ?? {
-        searchBlob: skill.slug.toLowerCase(),
+        searchBlob: normalizeSearchText(skill.slug),
         displayName: skill.slug,
         filters: { categories: [], types: [], actionTypes: [], tags: [] }
       }

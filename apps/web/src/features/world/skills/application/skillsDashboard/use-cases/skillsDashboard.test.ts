@@ -114,7 +114,7 @@ describe("skillsDashboard use-cases", () => {
     })
 
     expect(index.s2).toEqual({
-      searchBlob: "ice-shard",
+      searchBlob: "ice shard",
       displayName: "ice-shard",
       filters: { categories: [], types: [], actionTypes: [], tags: [] }
     })

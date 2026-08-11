@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import type { SkillListItem } from "./types"
+import { matchesSearch } from "@forgetab/world-contracts/shared/search"
 
 type UseSkillsFiltersParams = {
   skills: SkillListItem[]
@@ -40,8 +41,6 @@ export function useSkillsFilters({
   }, [])
 
   const filteredSkills = useMemo(() => {
-    const query = skillSearch.trim().toLowerCase()
-
     return skills.filter((skill) => {
       const meta = skillFilterMetaById[skill.id] ?? {
         categories: [],
@@ -75,9 +74,8 @@ export function useSkillsFilters({
       ) {
         return false
       }
-      if (!query) return true
       const searchBlob = skillSearchIndex[skill.id] ?? ""
-      return searchBlob.includes(query)
+      return matchesSearch(searchBlob, skillSearch)
     })
   }, [
     selectedActionTypeFilters,
