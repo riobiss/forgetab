@@ -13,6 +13,7 @@ import { mediaRoutes } from "./features/media/presentation/routes/routes"
 import { authRoutes } from "./features/auth/presentation/routes/routes"
 import { dicesRoutes } from "./features/dices/presentation/routes/routes"
 import { httpRoutes } from "./features/http/presentation/routes/routes"
+import { offlineRoutes } from "./features/offline/presentation/routes/routes"
 
 export function registerApiRoutes(app: FastifyInstance) {
   httpRoutes(app)
@@ -20,6 +21,7 @@ export function registerApiRoutes(app: FastifyInstance) {
   authRoutes(app)
   dicesRoutes(app)
   profileRoutes(app)
+  offlineRoutes(app)
   worldRoutes(app)
   configRoutes(app)
   characterRoutes(app)

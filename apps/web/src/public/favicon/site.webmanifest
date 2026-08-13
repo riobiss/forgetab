@@ -1,6 +1,10 @@
 {
-  "name": "",
-  "short_name": "",
+  "id": "/",
+  "name": "ForgeTab",
+  "short_name": "ForgeTab",
+  "description": "Suas campanhas e fichas de RPG, mesmo sem conexao.",
+  "start_url": "/",
+  "scope": "/",
   "icons": [
     {
       "src": "/favicon/android-chrome-192x192.png",
@@ -13,7 +17,10 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "theme_color": "#ff6a00",
+  "background_color": "#0f0f11",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "categories": ["games", "utilities"]
 }

@@ -6,6 +6,7 @@ import AuthHeader from "@/features/auth/presentation/AuthHeader"
 import PerformanceMeasureGuard from "@/shared/presentation/performance/PerformanceMeasureGuard"
 import ScrollToTop from "@/shared/presentation/navigation/ScrollToTop"
 import ToastProvider from "@/shared/presentation/providers/ToastProvider"
+import OfflineBootstrap from "@/features/offline/presentation/OfflineBootstrap"
 
 export const metadata: Metadata = {
   title: "ForgeTab",
@@ -36,6 +37,7 @@ export default function RootLayout({
     <html lang="pt-br">
       <body>
         <PerformanceMeasureGuard />
+        <OfflineBootstrap />
         <ScrollToTop />
         <ToastProvider />
         <AuthHeader />

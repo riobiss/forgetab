@@ -4,11 +4,16 @@ import { SESSION_COOKIE_NAME } from "@/features/session/domain/sessionConfig"
 import { joseAuthTokenVerifier } from "@/features/session/infrastructure/services/joseAuthTokenVerifier"
 
 const authPages = new Set(["/login", "/register"])
+const publicPages = new Set(["/offline"])
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
 
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value
+
+  if (publicPages.has(pathname)) {
+    return NextResponse.next()
+  }
 
   if (!token) {
     if (authPages.has(pathname)) {

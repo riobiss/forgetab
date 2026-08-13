@@ -18,7 +18,8 @@ function makeDependencies(): AuthClientDependencies {
     session: {
       persist: vi.fn(),
       clear: vi.fn()
-    }
+    },
+    offlineData: { clear: vi.fn().mockResolvedValue(undefined) }
   }
 }
 
@@ -54,5 +55,6 @@ describe("auth client use cases", () => {
     await expect(logoutClientUseCase(deps)).rejects.toThrow("offline")
 
     expect(deps.session.clear).toHaveBeenCalledOnce()
+    expect(deps.offlineData?.clear).toHaveBeenCalledOnce()
   })
 })

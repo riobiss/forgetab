@@ -25,4 +25,5 @@ export interface AuthClientGateway {
 export type AuthClientDependencies = {
   gateway: AuthClientGateway
   session: AuthClientSession
+  offlineData?: { clear(): Promise<void> }
 }

@@ -5,7 +5,7 @@ import { logoutClientUseCase } from "@/features/auth/application/use-cases/authC
 import { authClientDependencies } from "@/features/auth/presentation/dependencies"
 import { usePathname } from "next/navigation"
 
-const HIDDEN_ROUTES = new Set(["/login", "/register"])
+const HIDDEN_ROUTES = new Set(["/login", "/register", "/offline"])
 
 export default function AuthHeader() {
   const pathname = usePathname()

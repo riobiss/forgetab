@@ -1,0 +1,437 @@
+.page {
+  min-height: 100svh;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 50% -20%,
+      rgba(255, 106, 0, 0.2),
+      transparent 42%
+    ),
+    linear-gradient(160deg, #15171b 0%, #0d0e10 58%, #12100e 100%);
+  color: var(--color-text-primary);
+}
+
+.ambient {
+  position: fixed;
+  inset: auto -18rem -24rem auto;
+  width: 42rem;
+  height: 42rem;
+  border-radius: 50%;
+  background: rgba(255, 106, 0, 0.07);
+  filter: blur(30px);
+  pointer-events: none;
+}
+
+.header {
+  width: min(1080px, calc(100% - 2rem));
+  min-height: 72px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.brand {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: "Cinzel", serif;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.offlineBadge,
+.onlineBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.offlineBadge {
+  color: #ffb37b;
+  background: rgba(255, 106, 0, 0.12);
+}
+.onlineBadge {
+  color: #8fdc93;
+  background: rgba(67, 160, 71, 0.14);
+}
+
+.content {
+  width: min(960px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 5.5rem) 0 5rem;
+  position: relative;
+}
+
+.hero {
+  max-width: 650px;
+  margin: 0 auto;
+  text-align: center;
+}
+.heroMark {
+  width: 78px;
+  height: 78px;
+  margin: 0 auto 1.5rem;
+  display: grid;
+  place-items: center;
+  color: var(--color-brand-primary);
+  border: 1px solid rgba(255, 106, 0, 0.35);
+  border-radius: 24px;
+  background: rgba(255, 106, 0, 0.08);
+  box-shadow: var(--shadow-brand-glow);
+}
+
+.eyebrow {
+  color: var(--color-text-brand);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.hero h1,
+.sectionHeader h1 {
+  font-family: "Cinzel", serif;
+  color: var(--color-text-primary);
+}
+
+.hero h1 {
+  margin-top: 0.7rem;
+  font-size: clamp(2rem, 7vw, 4rem);
+  line-height: 1.08;
+}
+.heroCopy {
+  max-width: 540px;
+  margin: 1.2rem auto 2.4rem;
+  line-height: 1.7;
+  color: var(--color-text-muted);
+}
+
+.primaryAction {
+  width: min(100%, 470px);
+  margin: 0 auto;
+  padding: 1.1rem 1.2rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  text-align: left;
+  color: var(--color-text-primary);
+  background: linear-gradient(135deg, #22252b, #17191d);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: var(--shadow-elevation-md);
+}
+
+.primaryAction:hover {
+  border-color: var(--color-border-brand);
+  transform: translateY(-2px);
+}
+.primaryAction span {
+  display: grid;
+  gap: 0.25rem;
+}
+.primaryAction strong {
+  font-size: 1rem;
+}
+.primaryAction small,
+.syncLabel {
+  color: var(--color-text-muted);
+}
+.syncLabel {
+  margin-top: 1rem;
+  font-size: 0.78rem;
+}
+.notice {
+  margin: 1.2rem auto 0;
+  max-width: 500px;
+  color: #ffc59b;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.section {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.sectionHeader {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+.sectionHeader h1 {
+  font-size: clamp(1.7rem, 5vw, 2.8rem);
+}
+.backButton {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.3rem 0;
+}
+.backButton:hover {
+  color: var(--color-text-brand);
+}
+
+.campaignGrid,
+.characterGrid,
+.list {
+  display: grid;
+  gap: 0.85rem;
+}
+.campaignCard,
+.characterCard {
+  width: 100%;
+  min-height: 96px;
+  padding: 0.7rem;
+  display: grid;
+  grid-template-columns: 82px 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  text-align: left;
+  color: var(--color-text-primary);
+  background: rgba(28, 31, 37, 0.86);
+  border: 1px solid var(--color-border-default);
+  border-radius: 15px;
+  cursor: pointer;
+}
+.campaignCard:hover,
+.characterCard:hover {
+  border-color: var(--color-border-brand);
+}
+.campaignCard img,
+.imageFallback {
+  width: 82px;
+  height: 72px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.imageFallback {
+  display: grid;
+  place-items: center;
+  color: var(--color-brand-primary);
+  background: var(--color-bg-hover);
+}
+.cardBody,
+.characterCard > span:nth-child(2) {
+  display: grid;
+  gap: 0.35rem;
+}
+.cardBody small,
+.characterCard small {
+  color: var(--color-text-muted);
+}
+.campaignDescription {
+  max-width: 700px;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+.subheading {
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.9rem;
+}
+.characterCard {
+  grid-template-columns: 58px 1fr auto;
+}
+.characterCard img,
+.avatarFallback {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatarFallback {
+  display: grid;
+  place-items: center;
+  background: var(--color-brand-soft);
+  color: var(--color-text-brand);
+  font-family: "Cinzel", serif;
+  font-size: 1.35rem;
+}
+.empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border-default);
+  border-radius: 14px;
+}
+
+.characterMeta {
+  color: var(--color-text-muted);
+  margin-top: -0.8rem;
+  margin-bottom: 1.6rem;
+}
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0.4rem;
+  border-radius: 14px;
+  background: var(--color-bg-surface);
+  margin-bottom: 1.25rem;
+}
+.tab,
+.activeTab {
+  min-height: 46px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  background: transparent;
+}
+.activeTab {
+  color: var(--color-text-primary);
+  background: var(--color-bg-hover);
+  box-shadow: var(--shadow-elevation-sm);
+}
+
+.dataSections {
+  display: grid;
+  gap: 1rem;
+}
+.dataGroup,
+.listCard {
+  padding: 1.15rem;
+  border: 1px solid var(--color-border-default);
+  border-radius: 14px;
+  background: rgba(25, 28, 33, 0.9);
+}
+.dataGroup h2,
+.listCard h2 {
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+.dataGroup > h2 {
+  margin-bottom: 1rem;
+}
+.statusRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem 1rem;
+  margin-top: 0.8rem;
+  font-size: 0.9rem;
+}
+.meter {
+  grid-column: 1 / -1;
+  height: 5px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--color-bg-hover);
+}
+.meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--color-brand-strong),
+    var(--color-brand-primary)
+  );
+}
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.65rem;
+}
+.statGrid > div {
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  background: var(--color-bg-surface);
+  border-radius: 10px;
+}
+.statGrid span {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+.statGrid strong {
+  color: var(--color-text-brand);
+}
+.listCard {
+  display: grid;
+  gap: 0.7rem;
+}
+.listCardTitle {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--color-text-brand);
+}
+.listCardTitle span {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+.listCard p {
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+.tagLine {
+  color: var(--color-text-brand) !important;
+  font-size: 0.78rem;
+  text-transform: capitalize;
+}
+.listCard > small,
+.inlineStats small {
+  color: var(--color-text-muted);
+}
+.inlineStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.2rem;
+}
+
+@media (max-width: 620px) {
+  .header {
+    min-height: 62px;
+  }
+  .content {
+    padding-top: 2.5rem;
+  }
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+  .campaignCard {
+    grid-template-columns: 62px 1fr auto;
+  }
+  .campaignCard img,
+  .imageFallback {
+    width: 62px;
+    height: 62px;
+  }
+  .heroMark {
+    width: 66px;
+    height: 66px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .primaryAction,
+  .campaignCard,
+  .characterCard {
+    transition:
+      transform 160ms ease,
+      border-color 160ms ease;
+  }
+}

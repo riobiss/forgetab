@@ -27,5 +27,6 @@ export async function logoutClientUseCase(deps: AuthClientDependencies) {
     await deps.gateway.logout()
   } finally {
     deps.session.clear()
+    await deps.offlineData?.clear().catch(() => undefined)
   }
 }

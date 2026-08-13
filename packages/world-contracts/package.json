@@ -16,6 +16,7 @@
     "./entity-catalog": "./src/entity-catalog.ts",
     "./location": "./src/location.ts",
     "./media": "./src/media.ts",
+    "./offline": "./src/offline.ts",
     "./npc-monster": "./src/npc-monster.ts",
     "./rpg/*": "./src/rpg/*.ts",
     "./shared/search": "./src/shared/search.ts",
