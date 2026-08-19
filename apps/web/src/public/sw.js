@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
-const SHELL_CACHE = "forgetab-shell-v2"
+const SHELL_CACHE = "forgetab-shell-v3"
 const USER_ASSET_CACHE = "forgetab-user-assets-v1"
 const OFFLINE_URL = "/offline"
 
@@ -84,24 +84,25 @@ async function offlineNavigationResponse(request) {
 }
 
 async function shellAssetResponse(request) {
-  const cached =
-    (await caches.match(request)) ??
-    (await caches.match(request, { ignoreSearch: true }))
-
-  if (cached) return cached
-
   try {
-    const response = await fetch(request)
+    // Next usa URLs estaveis para alguns chunks durante o desenvolvimento.
+    // Consultar a rede primeiro evita que uma tela continue executando um
+    // bundle antigo enquanto preserva o cache como fallback offline.
+    const response = await fetch(request, { cache: "no-store" })
     if (response.ok) {
       const cache = await caches.open(SHELL_CACHE)
       await cache.put(request, response.clone())
     }
     return response
   } catch {
-    return new Response(null, {
-      status: 504,
-      statusText: "Offline shell asset unavailable"
-    })
+    return (
+      (await caches.match(request)) ??
+      (await caches.match(request, { ignoreSearch: true })) ??
+      new Response(null, {
+        status: 504,
+        statusText: "Offline shell asset unavailable"
+      })
+    )
   }
 }
 
