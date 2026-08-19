@@ -27,6 +27,8 @@ model User {
   characterCreationRequests RpgCharacterCreationRequest[]
   characterOffers RpgCharacterOffer[]
   skills       Skill[]
+  notes        RpgNote[]
+  noteLabels   RpgNoteLabel[]
 
   @@map("users")
 }
@@ -122,9 +124,57 @@ model Rpg {
   mapSections        RpgMapSection[]
   mapMarkerGroups    RpgMapMarkerGroup[]
   mapMarkers         RpgMapMarker[]
+  notes              RpgNote[]
+  noteLabels         RpgNoteLabel[]
 
   @@index([ownerId])
   @@map("rpgs")
+}
+
+model RpgNote {
+  id        String   @id @default(cuid())
+  rpgId     String   @map("rpg_id")
+  userId    String   @map("user_id")
+  clientId  String?  @map("client_id")
+  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  content   String   @default("")
+  revision  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  labels    RpgNoteLabelAssignment[]
+
+  @@unique([rpgId, userId, clientId])
+  @@index([rpgId, userId, updatedAt, id])
+  @@map("rpg_notes")
+}
+
+model RpgNoteLabel {
+  id        String   @id @default(cuid())
+  rpgId     String   @map("rpg_id")
+  userId    String   @map("user_id")
+  rpg       Rpg      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  notes     RpgNoteLabelAssignment[]
+
+  @@unique([rpgId, userId, name])
+  @@index([rpgId, userId])
+  @@map("rpg_note_labels")
+}
+
+model RpgNoteLabelAssignment {
+  noteId  String       @map("note_id")
+  labelId String       @map("label_id")
+  note    RpgNote      @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  label   RpgNoteLabel @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([noteId, labelId])
+  @@index([labelId, noteId])
+  @@map("rpg_note_label_assignments")
 }
 
 model RpgLibrarySection {

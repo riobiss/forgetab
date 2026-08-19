@@ -13,6 +13,7 @@ export type HeaderLink = {
 type HeaderProps = {
   navLinks: HeaderLink[]
   campaignLink?: HeaderLink
+  contextLink?: HeaderLink
   profileHref: string
   loginHref: string
   onLogout: () => Promise<void>
@@ -21,6 +22,7 @@ type HeaderProps = {
 export default function Header({
   navLinks,
   campaignLink,
+  contextLink,
   profileHref,
   loginHref,
   onLogout
@@ -116,6 +118,15 @@ export default function Header({
             onClick={closeMenus}
           >
             {campaignLink.label}
+          </Link>
+        ) : null}
+        {contextLink ? (
+          <Link
+            href={contextLink.href}
+            className={styles.campaignButton}
+            onClick={closeMenus}
+          >
+            {contextLink.label}
           </Link>
         ) : null}
         <button
