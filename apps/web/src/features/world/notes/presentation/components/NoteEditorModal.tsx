@@ -144,7 +144,6 @@ export function NoteEditorModal({
       >
         <header ref={headerRef} className={styles.modalHeader}>
           <input
-            autoFocus
             value={note.title}
             maxLength={NOTE_TITLE_MAX_LENGTH}
             onChange={(event) => onChange({ title: event.target.value })}
