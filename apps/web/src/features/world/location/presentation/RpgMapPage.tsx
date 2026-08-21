@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Map as MapIcon, Pencil, Plus, Search, Trash2 } from "lucide-react"
 import { useRpgMapsCatalog } from "@/features/world/location/presentation/hooks/useRpgMapsCatalog"
 import { useRpgMapPageModalFocus } from "@/features/world/location/presentation/hooks/useRpgMapPageModalFocus"
@@ -22,6 +22,7 @@ type RpgMapPageProps = {
   rpgTitle: string
   view?: "catalog" | "detail"
   initialMapId?: string | null
+  initialFocusMarkerId?: string | null
   detailTitle?: string | null
 }
 
@@ -39,9 +40,11 @@ export function RpgMapPage({
   rpgTitle,
   view = "catalog",
   initialMapId = null,
+  initialFocusMarkerId = null,
   detailTitle = null
 }: RpgMapPageProps) {
   const pageContentRef = useRef<HTMLDivElement | null>(null)
+  const initialFocusMarkerHandledRef = useRef(false)
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     null
   )
@@ -92,6 +95,26 @@ export function RpgMapPage({
     markerOptions,
     markerSectionOptions
   } = useRpgMapMarkerLinks(detail, privateMarkerOptions)
+
+  useEffect(() => {
+    if (
+      !initialFocusMarkerId ||
+      !detail ||
+      initialFocusMarkerHandledRef.current
+    ) {
+      return
+    }
+
+    const hasMarker = detail.markerGroups.some((group) =>
+      group.markers.some((marker) => marker.id === initialFocusMarkerId)
+    )
+    if (!hasMarker) {
+      return
+    }
+
+    initialFocusMarkerHandledRef.current = true
+    focusMarker(initialFocusMarkerId, () => setIsMapCollapsed(false))
+  }, [detail, focusMarker, initialFocusMarkerId])
 
   const {
     breadcrumbs,

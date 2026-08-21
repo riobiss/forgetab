@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import type { RpgMapDetailViewDto } from "@forgetab/world-contracts/location"
 import {
   buildLinkedSectionSnapshots,
@@ -51,17 +51,20 @@ export function useRpgMapMarkerLinks(
     [markerOptions]
   )
 
-  function focusMarker(markerId: string, beforeFocus?: () => void) {
-    beforeFocus?.()
-    mapFeatureRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    })
-    setFocusMarkerRequest((current) => ({
-      markerId,
-      token: (current?.token ?? 0) + 1
-    }))
-  }
+  const focusMarker = useCallback(
+    (markerId: string, beforeFocus?: () => void) => {
+      beforeFocus?.()
+      mapFeatureRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      })
+      setFocusMarkerRequest((current) => ({
+        markerId,
+        token: (current?.token ?? 0) + 1
+      }))
+    },
+    []
+  )
 
   return {
     canEditMapContent: Boolean(detail),

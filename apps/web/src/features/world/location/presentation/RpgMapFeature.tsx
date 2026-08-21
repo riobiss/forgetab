@@ -5,6 +5,7 @@ type RpgMapFeatureProps = {
   rpgTitle: string
   view?: "catalog" | "detail"
   initialMapId?: string | null
+  initialFocusMarkerId?: string | null
   detailTitle?: string | null
 }
 
@@ -13,6 +14,7 @@ export default function RpgMapFeature({
   rpgTitle,
   view,
   initialMapId,
+  initialFocusMarkerId,
   detailTitle
 }: RpgMapFeatureProps) {
   return (
@@ -21,6 +23,7 @@ export default function RpgMapFeature({
       rpgTitle={rpgTitle}
       view={view}
       initialMapId={initialMapId}
+      initialFocusMarkerId={initialFocusMarkerId}
       detailTitle={detailTitle}
     />
   )
