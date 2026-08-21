@@ -2,6 +2,7 @@ import Fastify from "fastify"
 import type { IncomingHttpHeaders } from "node:http"
 import { resolveAllowedOrigin } from "@/features/http/presentation/cors"
 import { registerApiRoutes } from "@api/registerApiRoutes"
+import { initializeCampaignSocketServer } from "@/features/world/campaign/realtime/campaignSocketServer"
 
 const apiPort = Number(process.env.PORT ?? process.env.API_PORT ?? 4000)
 const maxRequestBodySizeBytes = 9 * 1024 * 1024
@@ -69,6 +70,7 @@ export function buildApiServer() {
 export async function startApiServer() {
   const app = buildApiServer()
   await app.listen({ port: apiPort, host: "0.0.0.0" })
+  initializeCampaignSocketServer(app.server)
   console.log(`Forgetab API listening on http://localhost:${apiPort}`)
   return app
 }

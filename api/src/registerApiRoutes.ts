@@ -15,6 +15,7 @@ import { dicesRoutes } from "./features/dices/presentation/routes/routes"
 import { httpRoutes } from "./features/http/presentation/routes/routes"
 import { offlineRoutes } from "./features/offline/presentation/routes/routes"
 import { notesRoutes } from "./features/world/notes/presentation/routes/routes"
+import { campaignRoutes } from "./features/world/campaign/presentation/routes/routes"
 
 export function registerApiRoutes(app: FastifyInstance) {
   httpRoutes(app)
@@ -31,6 +32,7 @@ export function registerApiRoutes(app: FastifyInstance) {
   locationRoutes(app)
   libraryRoutes(app)
   notesRoutes(app)
+  campaignRoutes(app)
   memberShipRoutes(app)
   catalogRoutes(app)
 }
