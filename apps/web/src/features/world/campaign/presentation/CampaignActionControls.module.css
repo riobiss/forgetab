@@ -1,0 +1,618 @@
+.actionFab {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  width: 3.75rem;
+  height: 3.75rem;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 18%,
+    var(--color-bg-surface)
+  );
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14px 36px color-mix(in srgb, black 36%, transparent);
+  cursor: pointer;
+  z-index: 45;
+}
+
+.actionMenu {
+  position: fixed;
+  left: 1rem;
+  bottom: 5.25rem;
+  width: min(17rem, calc(100vw - 2rem));
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 96%, transparent);
+  backdrop-filter: blur(16px);
+  padding: 0.55rem;
+  box-shadow: 0 18px 50px color-mix(in srgb, black 38%, transparent);
+  z-index: 46;
+}
+
+.actionMenuToolbar {
+  position: fixed;
+  left: 0.35rem;
+  bottom: auto;
+  top: 3.35rem;
+  max-height: min(calc(100dvh - 4rem), 22rem);
+  overflow-y: auto;
+  z-index: 65;
+}
+
+.actionMenuItem {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.9rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.actionMenuItem + .actionMenuItem {
+  margin-top: 0.35rem;
+}
+
+.actionMenuItem:hover {
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+  color: var(--color-text-primary);
+}
+
+.actionMenuItemActive {
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-primary) 42%, var(--color-border-soft));
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 18%,
+    var(--color-bg-surface)
+  );
+  color: var(--color-text-primary);
+}
+
+.actionModal {
+  width: min(100%, 40rem);
+  max-width: 40rem;
+  max-height: min(calc(100dvh - 2rem), 46rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 22px;
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    color-mix(in srgb, var(--color-bg-app) 92%, transparent)
+  );
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(
+      in srgb,
+      var(--color-brand-primary) 38%,
+      transparent
+    )
+    transparent;
+}
+
+.actionModal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.actionModal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.actionModal::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-brand-primary) 34%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.actionModal > .diceFields,
+.actionModal > .dicePreview {
+  grid-column: 1 / -1;
+}
+
+.actionModalControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.diceFields {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  max-height: 17.5rem;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(
+      in srgb,
+      var(--color-brand-primary) 38%,
+      transparent
+    )
+    transparent;
+}
+
+.diceFields::-webkit-scrollbar {
+  width: 8px;
+}
+
+.diceFields::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.diceFields::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-brand-primary) 34%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.dicePreview {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  min-width: 0;
+}
+
+.dicePreviewHeader {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.dicePreviewHeader strong {
+  color: var(--color-text-primary);
+}
+
+.dicePreviewHeader small {
+  color: var(--color-text-muted);
+}
+
+.dicePreviewGroups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 0.75rem;
+}
+
+.dicePreviewGroup {
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dicePreviewLabel {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.dicePreviewResults {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 4.2rem), 1fr));
+  gap: 0.5rem;
+}
+
+.dicePreviewResults input {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  padding: 0.55rem 0.65rem;
+}
+
+.addDiceButton {
+  justify-self: start;
+  width: 2.3rem;
+  height: 2.3rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.diceEntryRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 2.75rem;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+.diceField {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.diceField span {
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+}
+
+.diceField input {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  padding: 0.75rem 0.85rem;
+}
+
+.removeDiceButton {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid
+    color-mix(in srgb, var(--color-status-danger) 42%, var(--color-border-soft));
+  border-radius: 8px;
+  background: color-mix(
+    in srgb,
+    var(--color-status-danger) 12%,
+    var(--color-bg-surface)
+  );
+  color: var(--color-status-danger);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.removeDiceButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.skillPickerList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.skillPickerCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+}
+
+.skillPickerAbilityCard {
+  border-color: var(--skill-picker-card-border, var(--color-border-soft));
+  background: var(
+    --skill-picker-card-bg,
+    color-mix(in srgb, var(--color-brand-contrast) 4%, transparent)
+  );
+  box-shadow: inset 0 0 0 1px
+    color-mix(
+      in srgb,
+      var(--skill-picker-card-border, transparent) 28%,
+      transparent
+    );
+}
+
+.skillPickerAbilityMain {
+  min-width: 0;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.skillPickerAbilityName {
+  min-width: 0;
+  color: var(--skill-picker-card-text, var(--color-text-primary));
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.skillPickerAbilityMeta {
+  color: color-mix(
+    in srgb,
+    var(--skill-picker-card-text, var(--color-text-muted)) 68%,
+    var(--color-text-muted)
+  );
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.skillPickerActions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.skillPickerActionButton {
+  width: 2.15rem;
+  height: 2.15rem;
+  border: 1px solid var(--skill-picker-card-border, var(--color-border-soft));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 86%, transparent);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.skillPickerActionButton:hover {
+  background: color-mix(
+    in srgb,
+    var(--color-bg-surface) 72%,
+    var(--skill-picker-card-bg, transparent)
+  );
+  color: white;
+}
+
+.skillPickerSendButton {
+  background: color-mix(
+    in srgb,
+    var(--skill-picker-card-text, var(--color-brand-primary)) 18%,
+    var(--color-bg-surface)
+  );
+}
+
+.skillDetailsModal {
+  width: min(760px, 100%);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.skillDetailsTopBar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.skillDetailsActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.locationModal {
+  width: min(58rem, calc(100vw - 1.5rem));
+  max-height: min(88dvh, 48rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    color-mix(in srgb, var(--color-bg-app) 92%, transparent)
+  );
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  overflow: auto;
+}
+
+.locationLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.88fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.locationLayoutSearchMode {
+  grid-template-columns: 1fr;
+}
+
+.locationSearchPanel,
+.locationDraftPanel {
+  min-width: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.locationSearchPanel {
+  align-content: start;
+}
+
+.locationSearchToggle {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.7rem 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.locationSearchToggle:hover,
+.locationSearchToggleActive {
+  border-color: color-mix(
+    in srgb,
+    var(--color-brand-primary) 44%,
+    var(--color-border-soft)
+  );
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 12%,
+    var(--color-bg-surface)
+  );
+  color: var(--color-text-primary);
+}
+
+.locationField {
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.locationField span {
+  color: var(--color-text-secondary);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.locationField input,
+.locationField textarea {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  padding: 0.72rem 0.8rem;
+}
+
+.locationField textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.locationOptionList {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 25rem;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.locationOption {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.55rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.locationOptionActive {
+  border-color: color-mix(
+    in srgb,
+    var(--color-brand-primary) 54%,
+    var(--color-border-soft)
+  );
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 12%,
+    var(--color-bg-surface)
+  );
+  color: var(--color-text-primary);
+}
+
+.locationOptionImage,
+.locationOptionFallback {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  flex-shrink: 0;
+}
+
+.locationOptionImage {
+  object-fit: cover;
+}
+
+.locationOptionFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.locationOptionText {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.locationOptionText strong,
+.locationOptionText small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.locationOptionText strong {
+  color: inherit;
+}
+
+.locationOptionText small {
+  color: var(--color-text-muted);
+}
+
+.locationImagePicker {
+  position: relative;
+  width: 100%;
+  min-height: 14rem;
+  border: 1px dashed var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.locationImagePicker input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.locationDraftImage {
+  object-fit: cover;
+}
+
+.locationImagePlaceholder {
+  color: var(--color-text-muted);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 800;
+}
+
+@media (min-width: 720px) {
+  .actionModal {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .locationLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .locationOptionList {
+    max-height: 16rem;
+  }
+}

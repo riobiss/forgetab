@@ -1,0 +1,46 @@
+.modal {
+  width: min(100%, 30rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    color-mix(in srgb, var(--color-bg-app) 92%, transparent)
+  );
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+}
+
+.subtitle,
+.hint {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.subtitle {
+  margin-top: 0.2rem;
+  font-size: 0.84rem;
+}
+
+.hint {
+  line-height: 1.45;
+}
+
+.checklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.5rem;
+}
+
+.check {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  font-weight: 700;
+}

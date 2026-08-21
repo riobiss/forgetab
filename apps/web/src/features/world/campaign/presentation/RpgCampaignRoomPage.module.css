@@ -1,0 +1,1253 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at top,
+      color-mix(in srgb, var(--color-brand-primary) 14%, transparent),
+      transparent 45%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 82%, black 18%),
+      var(--color-bg-app)
+    );
+}
+
+.container {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.campaignToolbarShell {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+
+  backdrop-filter: blur(16px);
+}
+
+.campaignToolbar {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 0px 0px 8px 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 92%, transparent);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem;
+  overflow-x: auto;
+}
+
+.campaignToolbarButton {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
+  min-height: 2.4rem;
+  padding: 0.5rem 0.58rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.campaignToolbarButton:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 28%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
+  color: var(--color-text-primary);
+}
+
+.campaignToolbarButtonActive {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 52%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 18%,
+    var(--color-bg-surface)
+  );
+  color: var(--color-text-primary);
+  box-shadow: none;
+}
+
+.campaignToolbarButtonActive:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-brand-primary) 52%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 18%,
+    var(--color-bg-surface)
+  );
+}
+
+.campaignToolbarButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.headerContent {
+  min-width: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.headerActionButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+}
+
+.headerActionButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: clamp(1.25rem, 3vw, 1.9rem);
+}
+
+.contentGrid {
+  display: block;
+}
+
+.panel {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 18px;
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    color-mix(in srgb, var(--color-bg-app) 94%, transparent)
+  );
+}
+
+.panel {
+  padding: 1rem;
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+  min-height: 76vh;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.notePanel {
+  height: calc(100dvh - 4.1rem);
+  min-height: 30rem;
+  align-content: stretch;
+  overflow: hidden;
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 0.92rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.participantList {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.participantBadge {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+  color: var(--color-text-secondary);
+}
+
+.participantBadge strong {
+  display: block;
+}
+
+.participantBadge small {
+  color: var(--color-text-muted);
+}
+
+.campaignDescription {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.closeChatButton {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.actionStreamShell {
+  position: relative;
+}
+
+.stream {
+  display: grid;
+  gap: 0.8rem;
+  padding-right: 0.25rem;
+}
+
+.actionStreamEndMarker {
+  width: 100%;
+  height: 1px;
+}
+
+.latestActionButton {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 45;
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-primary) 46%, var(--color-border-soft));
+  border-radius: 8px;
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 88%,
+    var(--color-bg-surface)
+  );
+  color: var(--color-text-on-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  padding: 0;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 14px 34px color-mix(in srgb, black 24%, transparent);
+}
+
+.latestActionButton:hover {
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 96%,
+    var(--color-bg-surface)
+  );
+}
+
+.latestActionCount {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  border: 1px solid var(--color-bg-surface);
+  border-radius: 999px;
+  background: var(--color-status-danger);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.streamCard {
+  position: relative;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 14px;
+  padding: 0.85rem 0.95rem 1.9rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+}
+
+.actionStreamCard {
+  border-color: var(--color-border-soft);
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+}
+
+.actionStreamCardExpanded {
+  padding-bottom: 0.85rem;
+}
+
+.streamMeta {
+  margin: 0 0 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+}
+
+.streamMeta strong {
+  color: var(--color-text-primary);
+}
+
+.streamContent {
+  margin: 0;
+  padding-right: 3.25rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.streamTime {
+  position: absolute;
+  right: 0.95rem;
+  bottom: 0.75rem;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.actionCardTopRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+  margin: -0.2rem 0 0.7rem;
+}
+
+.actionCardActor {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  padding: 0.32rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.actionCardSummary {
+  min-width: 0;
+}
+
+.actionCardControls {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.actionTypeBadge {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  padding: 0.32rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.actionExpandButton {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.actionRevokeButton {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid color-mix(in srgb, #ef4444 44%, var(--color-border-soft));
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: color-mix(in srgb, #ef4444 82%, var(--color-text-secondary));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.actionRevokeButton:hover {
+  background: color-mix(in srgb, #ef4444 14%, transparent);
+  color: color-mix(in srgb, #fca5a5 88%, var(--color-text-primary));
+}
+
+.actionExpandButton:hover {
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+  color: var(--color-text-primary);
+}
+
+.actionDetails {
+  margin-top: 0.85rem;
+  padding-bottom: 0.35rem;
+}
+
+.actionDetailsFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.actionDiceSearchButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actionDiceSearchButton:hover {
+  background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+  color: var(--color-text-primary);
+}
+
+.actionFooterTime {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.actionSummaryTile {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--action-summary-text, var(--color-text-primary));
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0;
+  line-height: 1.4;
+  box-shadow: none;
+}
+
+.actionSummaryImage {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-soft);
+  object-fit: cover;
+  background: var(--color-bg-surface);
+}
+
+.actionSummaryText {
+  min-width: 0;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.actionSummaryName {
+  min-width: 0;
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+
+.actionSummaryMeta {
+  min-width: 0;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.skillActionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.skillActionIdentity {
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.skillActionCharacter {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.skillActionName {
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid var(--skill-action-name-border, var(--color-border-soft));
+  border-radius: 999px;
+  background: var(
+    --skill-action-name-bg,
+    color-mix(in srgb, var(--color-brand-primary) 10%, transparent)
+  );
+  color: var(--skill-action-name-color, var(--color-text-primary));
+  padding: 0.35rem 0.75rem;
+  line-height: 1.4;
+}
+
+.skillInfoButton {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.itemActionHeader {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.itemActionHeaderNoImage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.itemActionImage {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-soft);
+  object-fit: cover;
+  background: var(--color-bg-surface);
+}
+
+.itemActionIdentity {
+  min-width: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.itemActionName {
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
+  color: var(--color-text-primary);
+  padding: 0.35rem 0.75rem;
+  line-height: 1.4;
+}
+
+.characterRevealStreamCard {
+  width: min(100%, 24rem);
+  min-width: min(100%, 18rem);
+  justify-self: start;
+  padding: 0;
+  overflow: hidden;
+  background: var(--color-bg-surface);
+}
+
+.characterRevealStreamCard .streamTime {
+  right: 0.85rem;
+  bottom: 0.65rem;
+  z-index: 1;
+  color: white;
+  text-shadow: 0 1px 8px color-mix(in srgb, black 70%, transparent);
+}
+
+.characterRevealRevokeButton {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  z-index: 2;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid color-mix(in srgb, #ef4444 44%, var(--color-border-soft));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 82%, transparent);
+  color: color-mix(in srgb, #ef4444 82%, var(--color-text-secondary));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.characterRevealCard {
+  min-width: 0;
+  display: grid;
+}
+
+.characterRevealPortraitButton {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.characterRevealPortraitButton:disabled {
+  cursor: default;
+}
+
+.characterRevealPortrait,
+.characterRevealPortraitFallback {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 18rem;
+  aspect-ratio: 4 / 5;
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 14%,
+    var(--color-bg-app)
+  );
+}
+
+.characterRevealImageBackdrop {
+  object-fit: cover;
+  filter: blur(18px) brightness(0.58);
+  transform: scale(1.08);
+}
+
+.characterRevealImage {
+  object-fit: contain;
+}
+
+.characterRevealPortrait::after,
+.characterRevealPortraitFallback::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 45%,
+    color-mix(in srgb, black 58%, transparent)
+  );
+}
+
+.characterRevealBody {
+  min-width: 0;
+  display: grid;
+  gap: 0.65rem;
+  padding: 0 0.85rem;
+}
+
+.characterRevealDetailsModal {
+  width: min(100%, 38rem);
+  max-height: min(calc(100dvh - 2rem), 42rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    color-mix(in srgb, var(--color-bg-app) 92%, transparent)
+  );
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.characterRevealName {
+  position: absolute;
+  left: 0.65rem;
+  right: auto;
+  bottom: 0.65rem;
+  z-index: 1;
+  max-width: calc(100% - 5rem);
+  color: white;
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.characterRevealSections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.65rem;
+}
+
+.characterRevealSection {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  padding: 0.65rem;
+}
+
+.characterRevealSection h4 {
+  margin: 0 0 0.45rem;
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+}
+
+.characterRevealSection dl {
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.characterRevealSection dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.characterRevealSection dt {
+  color: var(--color-text-muted);
+}
+
+.characterRevealSection dd {
+  margin: 0;
+  color: var(--color-text-secondary);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.submitButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.chatFab {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  width: 3.75rem;
+  height: 3.75rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 18px 40px
+    color-mix(in srgb, var(--color-brand-primary) 30%, transparent);
+  z-index: 31;
+}
+
+.combatPrimaryButton {
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-primary) 42%, var(--color-border-soft));
+  border-radius: 8px;
+  background: color-mix(
+    in srgb,
+    var(--color-brand-primary) 16%,
+    var(--color-bg-surface)
+  );
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.combatPrimaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.combatCreateModal {
+  width: min(100%, 28rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    color-mix(in srgb, var(--color-bg-app) 92%, transparent)
+  );
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.combatCreateField {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.combatCreateField span {
+  color: var(--color-text-secondary);
+  font-weight: 700;
+}
+
+.combatCreateField input {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  padding: 0.75rem 0.85rem;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: color-mix(in srgb, black 48%, transparent);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.actionModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.actionModalTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 1.1rem;
+}
+
+.rollSubmitButton {
+  border: none;
+  border-radius: 12px;
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+  padding: 0.8rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rollSubmitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.itemDetailsCard {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.itemDetailsHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.itemDetailsImage {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-soft);
+  object-fit: cover;
+  background: var(--color-bg-surface);
+  flex-shrink: 0;
+}
+
+.itemDetailsTitleGroup {
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.itemDetailsTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+}
+
+.itemTitleButton {
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.itemDetailsMeta {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.itemDetailsDescription,
+.itemHighlightText {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.itemHighlightBlock {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.7rem;
+  background: var(--color-bg-surface);
+}
+
+.itemHighlightTitle {
+  margin: 0;
+  color: var(--color-brand-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.itemHighlightList {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.itemHighlightItem {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.itemHighlightName {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.confirmActionModal {
+  width: min(100%, 24rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.confirmActionTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 1.05rem;
+}
+
+.confirmActionButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.confirmActionDangerButton,
+.confirmActionCancelButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.68rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirmActionDangerButton {
+  border-color: color-mix(in srgb, #ef4444 64%, var(--color-border-soft));
+  background: color-mix(in srgb, #ef4444 86%, transparent);
+  color: white;
+}
+
+.confirmActionCancelButton {
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+}
+
+.confirmActionDangerButton:disabled,
+.confirmActionCancelButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (min-width: 720px) {
+  .rollSubmitButton {
+    grid-column: 1 / -1;
+  }
+}
+
+.emptyState,
+.feedbackError,
+.feedbackSuccess {
+  margin: 0;
+}
+
+.emptyState {
+  border: 1px dashed var(--color-border-soft);
+  border-radius: 16px;
+  padding: 1rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.feedbackError {
+  color: var(--color-status-danger);
+}
+
+.feedbackSuccess {
+  color: var(--color-status-success);
+}
+
+.endedBanner {
+  margin: 0;
+  border: 1px solid
+    color-mix(in srgb, var(--color-status-danger) 35%, transparent);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  background: color-mix(in srgb, var(--color-status-danger) 10%, transparent);
+  color: var(--color-text-primary);
+  text-align: center;
+  font-weight: 700;
+}
+
+.selectedCharacterCard {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  padding: 0.8rem 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.selectedCharacterImage,
+.selectedCharacterFallback {
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.selectedCharacterImage {
+  object-fit: cover;
+  display: block;
+}
+
+.selectedCharacterFallback {
+  background: color-mix(in srgb, var(--color-brand-primary) 18%, transparent);
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.selectedCharacterInfo {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.selectedCharacterInfo strong {
+  color: var(--color-text-primary);
+}
+
+.selectedCharacterInfo small {
+  color: var(--color-text-muted);
+}
+
+.rollResultRow {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.rollTotal {
+  color: var(--color-text-primary);
+}
+
+.rollSequence {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-family: var(--font-geist-mono), monospace;
+}
+
+.rollGroupList,
+.rollSequenceList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr));
+  gap: 0.2rem;
+}
+
+.rollGroupLine {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  min-width: 0;
+}
+
+.rollSequence {
+  min-width: 0;
+}
+
+.creatureCombatModal {
+  width: min(56rem, calc(100vw - 1.5rem));
+  max-height: min(88vh, 52rem);
+  overflow: auto;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-panel);
+  box-shadow: var(--shadow-xl);
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.creatureCombatGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.75rem;
+}
+
+.creatureCombatField {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.creatureCombatField input,
+.creatureCombatField select {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  padding: 0.65rem 0.7rem;
+}
+
+.creatureCombatModes,
+.creatureItemList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 0.55rem;
+}
+
+.creatureCombatModes label,
+.creatureItemList label {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.creatureItemList {
+  max-height: 12rem;
+  overflow: auto;
+}
+
+.creatureRollSections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0.8rem;
+}
+
+.creatureRollSection {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.creatureRollSection h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+}
+
+.creatureRollRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4rem 2.25rem;
+  gap: 0.45rem;
+  align-items: center;
+  color: var(--color-text-secondary);
+}
+
+.creatureRollRow input {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-panel);
+  color: var(--color-text-primary);
+  padding: 0.45rem 0.5rem;
+}
+
+.creatureRollRow button {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-bg-panel);
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.creatureRollRow small {
+  grid-column: 1 / -1;
+  color: var(--color-text-muted);
+}

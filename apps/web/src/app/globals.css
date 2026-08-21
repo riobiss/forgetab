@@ -1,3 +1,7 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel&family=Playfair+Display&family=IM+Fell+English&family=Cormorant+Garamond&family=Merriweather&family=Homemade+Apple&family=UnifrakturMaguntia&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Pirata+One|Bilbo+Swash+Caps&display=swap");
+@import url("https://fonts.cdnfonts.com/css/morris-initialen");
+
 :root {
   --font-geist-sans: Arial, Helvetica, sans-serif;
   --font-geist-mono: "Courier New", Consolas, monospace;
@@ -90,6 +94,30 @@
   src: url("/fonts/Cinzel_Decorative/CinzelDecorative-Regular.ttf")
     format("truetype");
   font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Cinzel Decorative";
+  src: url("/fonts/Cinzel_Decorative/CinzelDecorative-Regular.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Cinzel Decorative";
+  src: url("/fonts/Cinzel_Decorative/CinzelDecorative-Bold.ttf")
+    format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Cinzel Decorative";
+  src: url("/fonts/Cinzel_Decorative/CinzelDecorative-Black.ttf")
+    format("truetype");
+  font-weight: 900;
   font-style: normal;
 }
 

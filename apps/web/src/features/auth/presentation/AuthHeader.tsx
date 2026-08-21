@@ -64,7 +64,9 @@ export default function AuthHeader() {
     { href: "/docs", label: "Guias" }
   ]
 
-  if (HIDDEN_ROUTES.has(pathname)) {
+  const isCampaignRoomRoute = /^\/rpg\/[^/]+\/campaign\/[^/]+$/.test(pathname)
+
+  if (HIDDEN_ROUTES.has(pathname) || isCampaignRoomRoute) {
     return null
   }
 

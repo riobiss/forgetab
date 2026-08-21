@@ -1,0 +1,532 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--color-brand-primary) 12%, transparent),
+      transparent 52%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-app) 86%, black 14%),
+      var(--color-bg-app)
+    );
+}
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  display: grid;
+  gap: 1.6rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  margin: 0;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.title {
+  margin: 0.3rem 0 0;
+  color: var(--color-text-primary);
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.actionButton,
+.secondaryButton,
+.submitButton,
+.dangerButton {
+  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actionButton,
+.submitButton {
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+}
+
+.secondaryButton {
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+}
+
+.secondaryButton,
+.dangerButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.dangerButton {
+  background: color-mix(
+    in srgb,
+    var(--color-status-danger) 12%,
+    var(--color-bg-surface)
+  );
+  border-color: color-mix(
+    in srgb,
+    var(--color-status-danger) 45%,
+    var(--color-border-soft)
+  );
+  color: var(--color-status-danger);
+}
+
+.actionButton:disabled,
+.secondaryButton:disabled,
+.submitButton:disabled,
+.dangerButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.4rem;
+}
+
+.panel,
+.chatPanel,
+.createForm {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 18px;
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    color-mix(in srgb, var(--color-bg-app) 92%, transparent)
+  );
+  box-shadow: var(--shadow-elevation-md);
+}
+
+.section {
+  display: grid;
+  gap: 1rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.92rem;
+}
+
+.createForm {
+  padding: 1rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field label {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.field input,
+.field textarea,
+.chatInputRow textarea {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  padding: 0.8rem 0.9rem;
+  resize: vertical;
+}
+
+.campaignList {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.campaignCard {
+  min-height: 13.5rem;
+  border: 1px solid
+    color-mix(in srgb, var(--color-border-strong) 78%, transparent);
+  border-radius: 8px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.94),
+      var(--color-bg-surface-alt) 58%,
+      var(--color-bg-elevated)
+    ),
+    var(--color-bg-card);
+  box-shadow: var(--shadow-elevation-md);
+  color: var(--color-text-secondary);
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 1rem;
+  padding: 1.15rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.campaignCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-brand-primary) 13%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-text-primary) 5%, transparent),
+      transparent 34%
+    );
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.campaignMain {
+  position: relative;
+  z-index: 1;
+}
+
+.campaignMain {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+}
+
+.campaignContent {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.campaignTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  line-height: 1.15;
+}
+
+.campaignDescription {
+  margin: 0;
+  max-width: 44rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.campaignActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.campaignFooter {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.campaignMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.campaignMeta span {
+  min-height: 2rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-bg-surface) 76%, transparent);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.campaignMeta .activeStatus {
+  border-color: color-mix(
+    in srgb,
+    var(--color-status-success) 46%,
+    var(--color-border-soft)
+  );
+  background: var(--color-status-success-soft);
+  color: var(--color-status-success);
+}
+
+.campaignMeta .pendingStatus {
+  border-color: color-mix(
+    in srgb,
+    var(--color-status-warning) 46%,
+    var(--color-border-soft)
+  );
+  background: var(--color-status-warning-soft);
+  color: var(--color-status-warning);
+}
+
+.campaignMeta .finishedStatus {
+  border-color: color-mix(
+    in srgb,
+    var(--color-text-muted) 46%,
+    var(--color-border-soft)
+  );
+  background: color-mix(in srgb, var(--color-bg-hover) 76%, transparent);
+  color: var(--color-text-muted);
+}
+
+.campaignDate {
+  margin: 0;
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  line-height: 2.4rem;
+  margin-left: auto;
+}
+
+.campaignDate span {
+  white-space: nowrap;
+}
+
+.feedbackError,
+.feedbackSuccess {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.feedbackError {
+  color: var(--color-status-danger);
+}
+
+.feedbackSuccess {
+  color: var(--color-status-success);
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: color-mix(in srgb, black 48%, transparent);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.entryModal {
+  width: min(100%, 34rem);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 22px;
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-surface),
+    color-mix(in srgb, var(--color-bg-app) 92%, transparent)
+  );
+  box-shadow: var(--shadow-elevation-md);
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.entryModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.entryModalTitle {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-primary);
+  font-size: 1.35rem;
+}
+
+.closeModalButton,
+.backStepButton {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+}
+
+.entryOptions,
+.entryStep,
+.characterPicker {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.entryOption,
+.characterOption {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--color-brand-contrast) 4%, transparent);
+  color: var(--color-text-secondary);
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.95rem 1rem;
+  cursor: pointer;
+}
+
+.entryOption {
+  text-align: left;
+}
+
+.entryOption strong,
+.characterOption strong {
+  color: var(--color-text-primary);
+}
+
+.entryOption span,
+.characterOption small {
+  color: var(--color-text-muted);
+}
+
+.characterOption {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.characterOption input {
+  margin: 0;
+}
+
+.chatPanel {
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  align-self: start;
+}
+
+.chatHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.chatTitle {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--color-text-primary);
+}
+
+.participants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.participant {
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 5%, transparent);
+  color: var(--color-text-secondary);
+  font-size: 0.76rem;
+}
+
+.messages {
+  display: grid;
+  gap: 0.75rem;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.messageCard {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 14px;
+  padding: 0.85rem;
+  background: color-mix(in srgb, var(--color-brand-contrast) 3%, transparent);
+}
+
+.messageCard strong {
+  color: var(--color-text-primary);
+}
+
+.messageMeta {
+  margin: 0 0 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+}
+
+.messageContent {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.chatInputRow {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.emptyState {
+  border: 1px dashed var(--color-border-soft);
+  border-radius: 16px;
+  padding: 1rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .campaignCard {
+    grid-template-columns: 1fr;
+  }
+
+  .campaignFooter {
+    align-items: flex-end;
+    flex-direction: row;
+  }
+
+  .campaignDate {
+    line-height: 2.4rem;
+  }
+}

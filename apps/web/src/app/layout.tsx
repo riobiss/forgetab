@@ -7,6 +7,7 @@ import PerformanceMeasureGuard from "@/shared/presentation/performance/Performan
 import ScrollToTop from "@/shared/presentation/navigation/ScrollToTop"
 import ToastProvider from "@/shared/presentation/providers/ToastProvider"
 import OfflineBootstrap from "@/features/offline/presentation/OfflineBootstrap"
+import CampaignPresenceBubble from "@/features/world/campaign/presentation/presence/CampaignPresenceBubble"
 
 export const metadata: Metadata = {
   title: "ForgeTab",
@@ -41,6 +42,7 @@ export default function RootLayout({
         <ScrollToTop />
         <ToastProvider />
         <AuthHeader />
+        <CampaignPresenceBubble />
         {children}
       </body>
     </html>
