@@ -25,6 +25,7 @@ export const prismaCharacterAbilityMutationRepository: CharacterAbilityMutationR
               c.rpg_id AS "rpgId",
               r.owner_id AS "ownerId",
               c.created_by_user_id AS "createdByUserId",
+              c.race_key AS "raceKey",
               c.class_key AS "classKey",
               c.character_type AS "characterType",
               COALESCE(c.skill_points, 0) AS "skillPoints",
@@ -48,23 +49,55 @@ export const prismaCharacterAbilityMutationRepository: CharacterAbilityMutationR
             LIMIT 1
           `)
 
-          let skillBelongsToCharacterClass = false
-          if (character?.classKey) {
-            const classRows = await tx.$queryRaw<Array<{ allowed: boolean }>>(
-              Prisma.sql`
-                SELECT true AS allowed
+          const skillAccessRows = character
+            ? await tx.$queryRaw<
+                Array<{
+                  skillId: string
+                  hasClassLink: boolean
+                  classMatched: boolean
+                  hasRaceLink: boolean
+                  raceMatched: boolean
+                }>
+              >(Prisma.sql`
+                SELECT
+                  s.id AS "skillId",
+                  EXISTS(
+                    SELECT 1
+                    FROM skill_class_links scl
+                    INNER JOIN rpg_class_templates ct ON ct.id = scl.class_template_id
+                    WHERE scl.skill_id = s.id
+                      AND ct.rpg_id = ${character.rpgId}
+                  ) AS "hasClassLink",
+                  EXISTS(
+                    SELECT 1
+                    FROM skill_class_links scl
+                    INNER JOIN rpg_class_templates ct ON ct.id = scl.class_template_id
+                    WHERE scl.skill_id = s.id
+                      AND ct.rpg_id = ${character.rpgId}
+                      AND (ct.key = ${character.classKey} OR ct.id = ${character.classKey})
+                  ) AS "classMatched",
+                  EXISTS(
+                    SELECT 1
+                    FROM skill_race_links srl
+                    INNER JOIN rpg_race_templates rt ON rt.id = srl.race_template_id
+                    WHERE srl.skill_id = s.id
+                      AND rt.rpg_id = ${character.rpgId}
+                  ) AS "hasRaceLink",
+                  EXISTS(
+                    SELECT 1
+                    FROM skill_race_links srl
+                    INNER JOIN rpg_race_templates rt ON rt.id = srl.race_template_id
+                    WHERE srl.skill_id = s.id
+                      AND rt.rpg_id = ${character.rpgId}
+                      AND (rt.key = ${character.raceKey} OR rt.id = ${character.raceKey})
+                  ) AS "raceMatched"
                 FROM skills s
-                INNER JOIN skill_class_links scl ON scl.skill_id = s.id
-                INNER JOIN rpg_class_templates ct ON ct.id = scl.class_template_id
                 WHERE s.id = ${params.skillId}
                   AND s.rpg_id = ${character.rpgId}
-                  AND ct.rpg_id = ${character.rpgId}
-                  AND (ct.key = ${character.classKey} OR ct.id = ${character.classKey})
                 LIMIT 1
-              `
-            )
-            skillBelongsToCharacterClass = Boolean(classRows[0])
-          }
+              `)
+            : []
+          const skillAccess = skillAccessRows[0]
 
           const level = levelRows[0]
           let mutation
@@ -73,7 +106,13 @@ export const prismaCharacterAbilityMutationRepository: CharacterAbilityMutationR
               character,
               skillLevelExists: Boolean(level),
               skillLevelCost: level?.cost ?? null,
-              skillBelongsToCharacterClass
+              skillExists: Boolean(skillAccess),
+              skillHasRestrictions: Boolean(
+                skillAccess?.hasClassLink || skillAccess?.hasRaceLink
+              ),
+              skillMatchesCharacterRestriction: Boolean(
+                skillAccess?.classMatched || skillAccess?.raceMatched
+              )
             })
           } catch (error) {
             throw new CharacterAbilityDecisionError(error)

@@ -69,12 +69,15 @@ export async function buyCharacterSkillUseCase(
         if (!character.costsEnabled) {
           throw new AppError("Sistema de custos desativado neste RPG.", 400)
         }
-        if (!character.classKey) {
-          throw new AppError("Personagem sem classe definida.", 400)
+        if (!context.skillExists) {
+          throw new AppError("Habilidade nao encontrada.", 404)
         }
-        if (!context.skillBelongsToCharacterClass) {
+        if (
+          context.skillHasRestrictions &&
+          !context.skillMatchesCharacterRestriction
+        ) {
           throw new AppError(
-            "Nao e permitido comprar habilidade de outra classe.",
+            "Nao e permitido comprar esta habilidade para a classe ou raca do personagem.",
             400
           )
         }

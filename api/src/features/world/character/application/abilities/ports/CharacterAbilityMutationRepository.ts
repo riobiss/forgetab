@@ -11,6 +11,7 @@ export type CharacterAbilityMutationContext = {
     rpgId: string
     ownerId: string
     createdByUserId: string | null
+    raceKey: string | null
     classKey: string | null
     characterType: "player" | "npc" | "monster"
     skillPoints: number
@@ -19,7 +20,9 @@ export type CharacterAbilityMutationContext = {
   } | null
   skillLevelExists: boolean
   skillLevelCost: JsonValue
-  skillBelongsToCharacterClass: boolean
+  skillExists: boolean
+  skillHasRestrictions: boolean
+  skillMatchesCharacterRestriction: boolean
 }
 
 export type CharacterAbilityMutation = {

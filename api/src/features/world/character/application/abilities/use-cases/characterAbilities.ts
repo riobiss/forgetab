@@ -116,6 +116,7 @@ export async function loadCharacterAbilitiesUseCase(
       if (!row) return acc
 
       const stats = parseJsonObject(row.stats) ?? {}
+      const levelName = toOptionalText(stats.name)
       const cost = parseJsonObject(row.cost) ?? {}
       const requirement = parseJsonObject(row.requirement) ?? {}
       const statsNotesListRaw = Array.isArray(stats.notesList)
@@ -150,8 +151,8 @@ export async function loadCharacterAbilitiesUseCase(
       acc.push({
         skillId: row.skillId,
         levelNumber: row.levelNumber,
-        skillName: row.skillName,
-        levelName: toOptionalText(stats.name),
+        skillName: levelName ?? row.skillName,
+        levelName,
         skillDescription: toOptionalText(row.skillDescription),
         levelDescription: toOptionalText(stats.description),
         notesList:
