@@ -1,4 +1,5 @@
 export * from "./catalog"
+export * from "./campaign"
 export * from "./character-editor"
 export * from "./character-inventory"
 export * from "./dashboard"

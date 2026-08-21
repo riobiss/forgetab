@@ -29,6 +29,11 @@ model User {
   skills       Skill[]
   notes        RpgNote[]
   noteLabels   RpgNoteLabel[]
+  campaignParticipants RpgCampaignParticipant[]
+  campaignMessages RpgCampaignMessage[]
+  receivedCampaignMessages RpgCampaignMessage[] @relation("RpgCampaignMessageRecipient")
+  createdCampaignCombats RpgCampaignCombat[] @relation("RpgCampaignCombatCreator")
+  campaignCombatParticipants RpgCampaignCombatParticipant[]
 
   @@map("users")
 }
@@ -65,6 +70,12 @@ enum RpgMemberStatus {
 enum RpgMemberRole {
   member
   moderator
+}
+
+enum RpgCampaignMessageKind {
+  campaign
+  direct
+  action
 }
 
 enum CharacterCreationRequestStatus {
@@ -126,6 +137,7 @@ model Rpg {
   mapMarkers         RpgMapMarker[]
   notes              RpgNote[]
   noteLabels         RpgNoteLabel[]
+  campaigns          RpgCampaign[]
 
   @@index([ownerId])
   @@map("rpgs")
@@ -394,6 +406,7 @@ model RpgCharacter {
   updatedAt     DateTime         @default(now()) @map("updated_at")
   inventoryItems RpgCharacterInventoryItem[]
   offers        RpgCharacterOffer[]
+  campaignCombatParticipants RpgCampaignCombatParticipant[]
 
   @@index([rpgId])
   @@index([createdByUserId])
@@ -597,6 +610,119 @@ model RpgCharacterOffer {
   @@index([userId])
   @@index([characterId])
   @@map("rpg_character_offers")
+}
+
+model RpgCampaign {
+  id           String                   @id @default(cuid())
+  rpgId        String                   @map("rpg_id")
+  rpg          Rpg                      @relation(fields: [rpgId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  isActive     Boolean                  @default(false) @map("is_active")
+  startedAt    DateTime?                @map("started_at")
+  endedAt      DateTime?                @map("ended_at")
+  createdAt    DateTime                 @default(now()) @map("created_at")
+  updatedAt    DateTime                 @default(now()) @map("updated_at")
+  participants RpgCampaignParticipant[]
+  messages     RpgCampaignMessage[]
+  combats      RpgCampaignCombat[]
+
+  @@index([rpgId])
+  @@index([rpgId, isActive])
+  @@map("rpg_campaigns")
+}
+
+model RpgCampaignParticipant {
+  id         String      @id @default(cuid())
+  campaignId String      @map("campaign_id")
+  userId     String      @map("user_id")
+  joinedAt   DateTime    @default(now()) @map("joined_at")
+  campaign   RpgCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, userId])
+  @@index([campaignId])
+  @@index([userId])
+  @@map("rpg_campaign_participants")
+}
+
+model RpgCampaignMessage {
+  id              String                 @id @default(cuid())
+  campaignId      String                 @map("campaign_id")
+  userId          String                 @map("user_id")
+  recipientUserId String?                @map("recipient_user_id")
+  kind            RpgCampaignMessageKind @default(campaign)
+  content         String
+  createdAt       DateTime               @default(now()) @map("created_at")
+  updatedAt       DateTime               @default(now()) @map("updated_at")
+  campaign        RpgCampaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipientUser   User?                  @relation("RpgCampaignMessageRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([userId])
+  @@index([recipientUserId])
+  @@map("rpg_campaign_messages")
+}
+
+model RpgCampaignCombat {
+  id              String                         @id @default(cuid())
+  campaignId      String                         @map("campaign_id")
+  createdByUserId String?                        @map("created_by_user_id")
+  name            String
+  activeTurnIndex Int                            @default(0) @map("active_turn_index")
+  createdAt       DateTime                       @default(now()) @map("created_at")
+  updatedAt       DateTime                       @default(now()) @map("updated_at")
+  campaign        RpgCampaign                    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  createdByUser   User?                          @relation("RpgCampaignCombatCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  participants    RpgCampaignCombatParticipant[]
+  queueEntries    RpgCampaignCombatQueueEntry[]
+
+  @@index([campaignId])
+  @@index([createdByUserId])
+  @@map("rpg_campaign_combats")
+}
+
+model RpgCampaignCombatParticipant {
+  id                String            @id @default(cuid())
+  combatId          String            @map("combat_id")
+  userId            String?           @map("user_id")
+  characterId       String?           @map("character_id")
+  sourceCharacterId String?           @map("source_character_id")
+  actorType         String            @default("player") @map("actor_type")
+  label             String?
+  role              String
+  items             Json?
+  rollConfig        Json?             @map("roll_config")
+  statRolls         Json?             @map("stat_rolls")
+  joinedAt          DateTime          @default(now()) @map("joined_at")
+  combat            RpgCampaignCombat @relation(fields: [combatId], references: [id], onDelete: Cascade)
+  user              User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  character         RpgCharacter?     @relation(fields: [characterId], references: [id], onDelete: SetNull)
+
+  @@index([combatId])
+  @@index([userId])
+  @@index([characterId])
+  @@index([sourceCharacterId])
+  @@map("rpg_campaign_combat_participants")
+}
+
+model RpgCampaignCombatQueueEntry {
+  id            String            @id @default(cuid())
+  combatId      String            @map("combat_id")
+  participantId String            @map("participant_id")
+  userId        String?           @map("user_id")
+  label         String
+  roll          Int
+  position      Int
+  createdAt     DateTime          @default(now()) @map("created_at")
+  combat        RpgCampaignCombat @relation(fields: [combatId], references: [id], onDelete: Cascade)
+
+  @@index([combatId])
+  @@index([participantId])
+  @@index([userId])
+  @@index([combatId, position])
+  @@map("rpg_campaign_combat_queue_entries")
 }
 
 model Skill {
